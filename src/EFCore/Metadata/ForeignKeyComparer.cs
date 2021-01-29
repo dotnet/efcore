@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The singleton instance of the comparer to use.
         /// </summary>
-        public static readonly ForeignKeyComparer Instance = new ForeignKeyComparer();
+        public static readonly ForeignKeyComparer Instance = new();
 
         /// <summary>
         ///     Compares two objects and returns a value indicating whether one is less than, equal to, or greater than the other.

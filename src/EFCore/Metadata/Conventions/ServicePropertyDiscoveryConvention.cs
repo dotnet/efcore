@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -57,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (entityTypeBuilder.Metadata.BaseType == newBaseType)
@@ -110,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
 
                     AddDuplicateServiceProperty(entityTypeBuilder, propertyInfo);
-                    AddDuplicateServiceProperty(entityTypeBuilder, otherServicePropertySameType.GetIdentifyingMemberInfo());
+                    AddDuplicateServiceProperty(entityTypeBuilder, otherServicePropertySameType.GetIdentifyingMemberInfo()!);
 
                     return;
                 }
@@ -151,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 var otherMember = duplicateServiceProperties.First();
                 var otherName = otherMember.GetSimpleMemberName();
-                var factory = Dependencies.ParameterBindingFactories.FindFactory(type, otherName);
+                var factory = Dependencies.ParameterBindingFactories.FindFactory(type, otherName)!;
                 entityType.Builder.ServiceProperty(otherMember)?.HasParameterBinding(
                     (ServiceParameterBinding)factory.Bind(entityType, type, otherName));
                 duplicateMap.Remove(type);
@@ -212,13 +214,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             SetDuplicateServiceProperties(entityTypeBuilder, duplicateMap);
         }
 
-        private static Dictionary<Type, HashSet<MemberInfo>> GetDuplicateServiceProperties(IConventionEntityType entityType)
+        private static Dictionary<Type, HashSet<MemberInfo>>? GetDuplicateServiceProperties(IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DuplicateServiceProperties)?.Value
                 as Dictionary<Type, HashSet<MemberInfo>>;
 
         private static void SetDuplicateServiceProperties(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            Dictionary<Type, HashSet<MemberInfo>> duplicateServiceProperties)
+            Dictionary<Type, HashSet<MemberInfo>>? duplicateServiceProperties)
             => entityTypeBuilder.HasAnnotation(CoreAnnotationNames.DuplicateServiceProperties, duplicateServiceProperties);
     }
 }

@@ -788,11 +788,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public virtual SqlConstantExpression Constant(object? value, RelationalTypeMapping? typeMapping = null)
-            => new SqlConstantExpression(Expression.Constant(value), typeMapping);
+            => new(Expression.Constant(value), typeMapping);
 
         /// <inheritdoc />
         public virtual SelectExpression Select(SqlExpression? projection)
-            => new SelectExpression(projection);
+            => new(projection);
 
         /// <inheritdoc />
         public virtual SelectExpression Select(IEntityType entityType)

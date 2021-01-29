@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         void ProcessEntityTypeIgnored(
             [NotNull] IConventionModelBuilder modelBuilder,
             [NotNull] string name,
-            [CanBeNull] Type type,
+            [CanBeNull] Type? type,
             [NotNull] IConventionContext<string> context);
     }
 }

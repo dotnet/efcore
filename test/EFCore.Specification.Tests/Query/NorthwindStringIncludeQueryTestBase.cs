@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class NorthwindStringIncludeQueryTestBase<TFixture> : NorthwindIncludeQueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
-        private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor =
-            new IncludeRewritingExpressionVisitor();
+        private static readonly IncludeRewritingExpressionVisitor _includeRewritingExpressionVisitor = new();
 
         protected NorthwindStringIncludeQueryTestBase(TFixture fixture)
             : base(fixture)

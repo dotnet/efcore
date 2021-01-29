@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns> <see langword="true" /> if they are equal; <see langword="false" /> otherwise. </returns>
         public virtual bool Equals(T left, T right)
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _equals, this, c => c.EqualsExpression.Compile())(left, right);
+                ref _equals, this, static c => c.EqualsExpression.Compile())(left, right);
 
         /// <summary>
         ///     Returns the hash code for the given instance.
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns> The hash code. </returns>
         public virtual int GetHashCode(T instance)
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _hashCode, this, c => c.HashCodeExpression.Compile())(instance);
+                ref _hashCode, this, static c => c.HashCodeExpression.Compile())(instance);
 
         /// <summary>
         ///     <para>
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns> The snapshot. </returns>
         public virtual T Snapshot([CanBeNull] T instance)
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _snapshot, this, c => c.SnapshotExpression.Compile())(instance);
+                ref _snapshot, this, static c => c.SnapshotExpression.Compile())(instance);
 
         /// <summary>
         ///     The type.

@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -119,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public static ConventionSet Build()
         {
             using var serviceScope = CreateServiceScope();
-            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
             return ConventionSet.CreateConventionSet(context);
         }
 
@@ -136,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public static ModelBuilder CreateModelBuilder()
         {
             using var serviceScope = CreateServiceScope();
-            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
             return new ModelBuilder(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
         }
 

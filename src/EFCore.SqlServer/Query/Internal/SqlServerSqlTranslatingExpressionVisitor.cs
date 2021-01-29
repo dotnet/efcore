@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
     {
         private static readonly HashSet<string?> _dateTimeDataTypes
-            = new HashSet<string?>
+            = new()
             {
                 "time",
                 "date",
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             };
 
         private static readonly HashSet<ExpressionType> _arithmeticOperatorTypes
-            = new HashSet<ExpressionType>
+            = new()
             {
                 ExpressionType.Add,
                 ExpressionType.Subtract,

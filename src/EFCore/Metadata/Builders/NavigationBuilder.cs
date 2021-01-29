@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class NavigationBuilder : IInfrastructure<IConventionSkipNavigationBuilder>, IInfrastructure<IConventionNavigationBuilder>
+    public class NavigationBuilder : IInfrastructure<IConventionSkipNavigationBuilder?>, IInfrastructure<IConventionNavigationBuilder?>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 "Expected either a Navigation or SkipNavigation");
         }
 
-        private InternalNavigationBuilder InternalNavigationBuilder { get; set; }
+        private InternalNavigationBuilder? InternalNavigationBuilder { get; set; }
 
-        private InternalSkipNavigationBuilder InternalSkipNavigationBuilder { get; }
+        private InternalSkipNavigationBuilder? InternalSkipNavigationBuilder { get; }
 
         /// <summary>
         ///     The navigation being configured.
@@ -70,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
             else
             {
-                InternalSkipNavigationBuilder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+                InternalSkipNavigationBuilder!.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
             }
 
             return this;
@@ -101,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
             else
             {
-                InternalSkipNavigationBuilder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
+                InternalSkipNavigationBuilder!.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
             }
 
             return this;
@@ -112,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldName"> The name of the field to use for this navigation property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual NavigationBuilder HasField([CanBeNull] string fieldName)
+        public virtual NavigationBuilder HasField([CanBeNull] string? fieldName)
         {
             if (InternalNavigationBuilder != null)
             {
@@ -120,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
             else
             {
-                InternalSkipNavigationBuilder.HasField(fieldName, ConfigurationSource.Explicit);
+                InternalSkipNavigationBuilder!.HasField(fieldName, ConfigurationSource.Explicit);
             }
 
             return this;
@@ -139,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
             else
             {
-                InternalSkipNavigationBuilder.AutoInclude(autoInclude, ConfigurationSource.Explicit);
+                InternalSkipNavigationBuilder!.AutoInclude(autoInclude, ConfigurationSource.Explicit);
             }
 
             return this;
@@ -160,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             {
                 throw new InvalidOperationException(
                     CoreStrings.RequiredSkipNavigation(
-                        InternalSkipNavigationBuilder.Metadata.DeclaringEntityType.DisplayName(),
+                        InternalSkipNavigationBuilder!.Metadata.DeclaringEntityType.DisplayName(),
                         InternalSkipNavigationBuilder.Metadata.Name));
             }
 
@@ -170,13 +172,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the skip navigation.
         /// </summary>
-        IConventionSkipNavigationBuilder IInfrastructure<IConventionSkipNavigationBuilder>.Instance
+        IConventionSkipNavigationBuilder? IInfrastructure<IConventionSkipNavigationBuilder?>.Instance
             => InternalSkipNavigationBuilder;
 
         /// <summary>
         ///     The internal builder being used to configure the navigation.
         /// </summary>
-        IConventionNavigationBuilder IInfrastructure<IConventionNavigationBuilder>.Instance
+        IConventionNavigationBuilder? IInfrastructure<IConventionNavigationBuilder?>.Instance
             => InternalNavigationBuilder;
 
         #region Hidden System.Object members
@@ -186,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -196,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

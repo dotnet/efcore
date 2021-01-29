@@ -91,12 +91,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The list of exceptions that caused the operation to be retried so far.
         /// </summary>
-        protected virtual List<Exception> ExceptionsEncountered { get; } = new List<Exception>();
+        protected virtual List<Exception> ExceptionsEncountered { get; } = new();
 
         /// <summary>
         ///     A pseudo-random number generator that can be used to vary the delay between retries.
         /// </summary>
-        protected virtual Random Random { get; } = new Random();
+        protected virtual Random Random { get; } = new();
 
         /// <summary>
         ///     The maximum number of retry attempts.
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual ExecutionStrategyDependencies Dependencies { get; }
 
-        private static readonly AsyncLocal<bool?> _suspended = new AsyncLocal<bool?>();
+        private static readonly AsyncLocal<bool?> _suspended = new();
 
         /// <summary>
         ///     Indicates whether the strategy is suspended. The strategy is typically suspending while executing to avoid
@@ -276,6 +276,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 catch (Exception ex)
                 {
                     Suspended = false;
+
+                    EntityFrameworkEventSource.Log.ExecutionStrategyOperationFailure();
+
                     if (verifySucceeded != null
                         && CallOnWrappedException(ex, ShouldVerifySuccessOn))
                     {

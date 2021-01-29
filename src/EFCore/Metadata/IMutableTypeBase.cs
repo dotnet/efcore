@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="memberName"> The name of the member to be ignored. </param>
         /// <returns> The name of the ignored member. </returns>
-        string AddIgnored([NotNull] string memberName);
+        string? AddIgnored([NotNull] string memberName);
 
         /// <summary>
         ///     Removes the ignored member name.

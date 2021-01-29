@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly ParameterExpression _valueBufferParameter;
 
         private readonly IDictionary<Expression, ParameterExpression> _mapping = new Dictionary<Expression, ParameterExpression>();
-        private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
-        private readonly List<Expression> _expressions = new List<Expression>();
+        private readonly List<ParameterExpression> _variables = new();
+        private readonly List<Expression> _expressions = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var key = GenerateKey((ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression);
                     if (!_mapping.TryGetValue(key, out var variable))
                     {
-                        variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType!);
+                        variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType);
                         _variables.Add(variable);
                         _expressions.Add(Expression.Assign(variable, entityShaperExpression));
                         _mapping[key] = variable;

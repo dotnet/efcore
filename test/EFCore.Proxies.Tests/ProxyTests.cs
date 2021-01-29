@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore
         private class NeweyContext : DbContext
         {
             private readonly IServiceProvider _internalServiceProvider;
-            private static readonly InMemoryDatabaseRoot _dbRoot = new InMemoryDatabaseRoot();
+            private static readonly InMemoryDatabaseRoot _dbRoot = new();
             private readonly bool _useLazyLoadingProxies;
             private readonly bool _useChangeDetectionProxies;
             private readonly string _dbName;

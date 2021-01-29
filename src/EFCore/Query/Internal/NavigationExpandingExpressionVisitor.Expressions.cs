@@ -36,8 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 => ExpressionType.Extension;
 
             public override Type Type
-                // No shadow entities at runtime
-                => EntityType.ClrType!;
+                => EntityType.ClrType;
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
             {
@@ -211,8 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class NavigationExpansionExpression : Expression, IPrintableExpression
         {
-            private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings
-                = new List<(MethodInfo OrderingMethod, Expression KeySelector)>();
+            private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings = new();
 
             private readonly string _parameterName;
 

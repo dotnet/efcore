@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 () => CreateGeometryServices());
 
         protected static NtsGeometryServices CreateGeometryServices()
-            => new NtsGeometryServices(
+            => new(
                 NtsGeometryServices.Instance.DefaultCoordinateSequenceFactory,
                 NtsGeometryServices.Instance.DefaultPrecisionModel,
                 4326);

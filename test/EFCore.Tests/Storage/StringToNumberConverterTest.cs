@@ -12,8 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class StringToNumberConverterTest
     {
-        private static readonly StringToNumberConverter<ulong> _naturalStringToUlong
-            = new StringToNumberConverter<ulong>();
+        private static readonly StringToNumberConverter<ulong> _naturalStringToUlong = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_ulongs()
@@ -61,8 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        private static readonly StringToNumberConverter<long> _naturalStringToLong
-            = new StringToNumberConverter<long>();
+        private static readonly StringToNumberConverter<long> _naturalStringToLong = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_longs()
@@ -116,8 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        private static readonly StringToNumberConverter<uint> _naturalStringToUint
-            = new StringToNumberConverter<uint>();
+        private static readonly StringToNumberConverter<uint> _naturalStringToUint = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_uints()
@@ -165,8 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        private static readonly StringToNumberConverter<int> _naturalStringToInt
-            = new StringToNumberConverter<int>();
+        private static readonly StringToNumberConverter<int> _naturalStringToInt = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_ints()
@@ -220,8 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        private static readonly StringToNumberConverter<ushort> _naturalStringToUshort
-            = new StringToNumberConverter<ushort>();
+        private static readonly StringToNumberConverter<ushort> _naturalStringToUshort = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_ushorts()
@@ -269,8 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        private static readonly StringToNumberConverter<short> _naturalStringToShort
-            = new StringToNumberConverter<short>();
+        private static readonly StringToNumberConverter<short> _naturalStringToShort = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_shorts()
@@ -324,8 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        private static readonly StringToNumberConverter<byte> _naturalStringToByte
-            = new StringToNumberConverter<byte>();
+        private static readonly StringToNumberConverter<byte> _naturalStringToByte = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_bytes()
@@ -373,8 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        private static readonly StringToNumberConverter<sbyte> _naturalStringToSbyte
-            = new StringToNumberConverter<sbyte>();
+        private static readonly StringToNumberConverter<sbyte> _naturalStringToSbyte = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_sbytes()
@@ -428,8 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(converter(null));
         }
 
-        private static readonly StringToNumberConverter<decimal> _naturalStringToDecimal
-            = new StringToNumberConverter<decimal>();
+        private static readonly StringToNumberConverter<decimal> _naturalStringToDecimal = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_decimals()
@@ -458,8 +449,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("-0.00000000000000000001", converter((decimal)-0.00000000000000000001));
         }
 
-        private static readonly StringToNumberConverter<double> _naturalStringToDouble
-            = new StringToNumberConverter<double>();
+        private static readonly StringToNumberConverter<double> _naturalStringToDouble = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_doubles()
@@ -488,8 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("-1E-20", converter(-0.00000000000000000001));
         }
 
-        private static readonly StringToNumberConverter<float> _naturalStringToFloat
-            = new StringToNumberConverter<float>();
+        private static readonly StringToNumberConverter<float> _naturalStringToFloat = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_floats()
@@ -518,8 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("-1E-20", converter((float)-0.00000000000000000001));
         }
 
-        private static readonly StringToNumberConverter<sbyte?> _naturalStringToNullableSbyte
-            = new StringToNumberConverter<sbyte?>();
+        private static readonly StringToNumberConverter<sbyte?> _naturalStringToNullableSbyte = new();
 
         [ConditionalFact]
         public void Can_convert_natural_strings_to_nullable_sbytes()

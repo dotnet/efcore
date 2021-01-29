@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         private readonly FakeCommandExecutor _commandExecutor;
 
         private ConnectionState _state;
-        private readonly List<FakeDbCommand> _dbCommands = new List<FakeDbCommand>();
-        private readonly List<FakeDbTransaction> _dbTransactions = new List<FakeDbTransaction>();
+        private readonly List<FakeDbCommand> _dbCommands = new();
+        private readonly List<FakeDbTransaction> _dbTransactions = new();
 
         public FakeDbConnection(
             string connectionString,

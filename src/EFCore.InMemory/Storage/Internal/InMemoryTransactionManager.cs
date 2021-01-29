@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     /// </summary>
     public class InMemoryTransactionManager : IDbContextTransactionManager, ITransactionEnlistmentManager
     {
-        private static readonly InMemoryTransaction _stubTransaction = new InMemoryTransaction();
+        private static readonly InMemoryTransaction _stubTransaction = new();
 
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> _logger;
 

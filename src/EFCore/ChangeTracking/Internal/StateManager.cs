@@ -1198,7 +1198,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 SavingChanges = true;
                 var result = await SaveChangesAsync(entriesToSave, cancellationToken)
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(acceptAllChangesOnSuccess);
 
                 if (acceptAllChangesOnSuccess)
                 {

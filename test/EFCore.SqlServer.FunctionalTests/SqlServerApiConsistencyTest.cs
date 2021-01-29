@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class SqlServerApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
+            public override HashSet<Type> FluentApiTypes { get; } = new()
             {
                 typeof(SqlServerDbContextOptionsBuilder),
                 typeof(SqlServerDbContextOptionsExtensions),
@@ -43,8 +43,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public override
                 List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
-                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
-                = new List<(Type, Type, Type, Type, Type)>
+                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; } = new()
                 {
                     (typeof(IModel), typeof(SqlServerModelExtensions), typeof(SqlServerModelExtensions),
                         typeof(SqlServerModelExtensions), typeof(SqlServerModelBuilderExtensions)),

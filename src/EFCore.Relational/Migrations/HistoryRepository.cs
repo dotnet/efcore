@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable(TableName, TableSchema);
                     });
 
-                _model = modelBuilder.FinalizeModel();
+                _model = Dependencies.ModelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), validationLogger: null);
             }
 
             return _model;

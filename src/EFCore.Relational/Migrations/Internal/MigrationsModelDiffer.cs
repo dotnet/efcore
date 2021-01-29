@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private IUpdateAdapter _targetUpdateAdapter;
 
         private readonly Dictionary<ITable, SharedIdentityMap> _sourceSharedIdentityEntryMaps =
-            new Dictionary<ITable, SharedIdentityMap>();
+            new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -868,7 +868,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
             }
 
-            public static readonly PropertyInfoEqualityComparer Instance = new PropertyInfoEqualityComparer();
+            public static readonly PropertyInfoEqualityComparer Instance = new();
 
             public bool Equals(PropertyInfo x, PropertyInfo y)
                 => x.IsSameAs(y);
@@ -1966,7 +1966,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             if (sourceProperty == null)
                             {
                                 if (targetProperty.GetAfterSaveBehavior() != PropertySaveBehavior.Save
-                                    && (targetProperty.ValueGenerated & ValueGenerated.OnUpdate) == 0)
+                                    && (targetProperty.ValueGenerated & ValueGenerated.OnUpdate) == 0
+                                    && (targetKeyMap.Count == 1 || entry.EntityType.Name == sourceEntityType.Name))
                                 {
                                     entryMapping.RecreateRow = true;
                                     break;
@@ -2493,8 +2494,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private sealed class EntryMapping
         {
-            public HashSet<IUpdateEntry> SourceEntries { get; } = new HashSet<IUpdateEntry>();
-            public HashSet<IUpdateEntry> TargetEntries { get; } = new HashSet<IUpdateEntry>();
+            public HashSet<IUpdateEntry> SourceEntries { get; } = new();
+            public HashSet<IUpdateEntry> TargetEntries { get; } = new();
             public bool RecreateRow { get; set; }
         }
 
@@ -2503,7 +2504,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             private readonly IUpdateAdapter _updateAdapter;
 
             private readonly Dictionary<IUpdateEntry, EntryMapping> _entryValueMap
-                = new Dictionary<IUpdateEntry, EntryMapping>();
+                = new();
 
             public SharedIdentityMap(IUpdateAdapter updateAdapter)
             {

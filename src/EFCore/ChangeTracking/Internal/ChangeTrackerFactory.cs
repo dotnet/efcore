@@ -57,6 +57,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ChangeTracker Create()
-            => new ChangeTracker(_context, _stateManager, _changeDetector, _model, _graphIterator);
+            => new(_context, _stateManager, _changeDetector, _model, _graphIterator);
     }
 }

@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class StringToDateTimeOffsetConverterTest
     {
-        private static readonly StringToDateTimeOffsetConverter _stringToDateTimeOffset
-            = new StringToDateTimeOffsetConverter();
+        private static readonly StringToDateTimeOffsetConverter _stringToDateTimeOffset = new();
 
         [ConditionalFact]
         public void Can_convert_string_to_DateTimeOffset()

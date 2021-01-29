@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
         /// <returns> The property value. </returns>
-        object GetClrValue([NotNull] object entity);
+        object? GetClrValue([NotNull] object entity);
 
         /// <summary>
         ///     Checks whether or not the property is set to the CLR default for its type.

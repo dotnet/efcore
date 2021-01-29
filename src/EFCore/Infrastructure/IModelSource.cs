@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <returns> The model to be used. </returns>
-        [Obsolete("Use the overload with ModelDependencies")]
+        [Obsolete("Use the overload with IModelCreationDependencies")]
         IModel GetModel(
             [NotNull] DbContext context,
             [NotNull] IConventionSetBuilder conventionSetBuilder);
@@ -44,9 +46,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <param name="modelDependencies"> The dependencies object for the model. </param>
         /// <returns> The model to be used. </returns>
+        [Obsolete("Use the overload with IModelCreationDependencies")]
         IModel GetModel(
             [NotNull] DbContext context,
             [NotNull] IConventionSetBuilder conventionSetBuilder,
             [NotNull] ModelDependencies modelDependencies);
+
+        /// <summary>
+        ///     Gets the model to be used.
+        /// </summary>
+        /// <param name="context"> The context the model is being produced for. </param>
+        /// <param name="modelCreationDependencies"> The dependencies object used during the creation of the model. </param>
+        /// <returns> The model to be used. </returns>
+        IModel GetModel(
+            [NotNull] DbContext context,
+            [NotNull] IModelCreationDependencies modelCreationDependencies);
     }
 }

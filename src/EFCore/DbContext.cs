@@ -113,6 +113,8 @@ namespace Microsoft.EntityFrameworkCore
             ServiceProviderCache.Instance.GetOrAdd(options, providerRequired: false)
                 .GetRequiredService<IDbSetInitializer>()
                 .InitializeSets(this);
+
+            EntityFrameworkEventSource.Log.DbContextInitializing();
         }
 
         /// <summary>
@@ -153,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         public virtual DbContextId ContextId
-            => new DbContextId(_contextId, _leaseCount);
+            => new(_contextId, _leaseCount);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -352,8 +354,6 @@ namespace Microsoft.EntityFrameworkCore
                 try
                 {
                     _initializing = true;
-
-                    EntityFrameworkEventSource.Log.DbContextInitializing();
 
                     var optionsBuilder = new DbContextOptionsBuilder(_options);
 
@@ -628,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore
             SavingChanges?.Invoke(this, new SavingChangesEventArgs(acceptAllChangesOnSuccess));
 
             var interceptionResult = await DbContextDependencies.UpdateLogger
-                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(false);
+                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(acceptAllChangesOnSuccess);
 
             TryDetectChanges();
 
@@ -650,6 +650,8 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (DbUpdateConcurrencyException exception)
             {
+                EntityFrameworkEventSource.Log.OptimisticConcurrencyFailure();
+
                 await DbContextDependencies.UpdateLogger.OptimisticConcurrencyExceptionAsync(this, exception, cancellationToken)
                     .ConfigureAwait(false);
 
@@ -900,7 +902,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>(TEntity entity)
             where TEntity : class
-            => new EntityEntry<TEntity>(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
+            => new(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
 
         /// <summary>
         ///     <para>
@@ -928,7 +930,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private EntityEntry EntryWithoutDetectChanges(object entity)
-            => new EntityEntry(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
+            => new(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
 
         private void SetEntityState(InternalEntityEntry entry, EntityState entityState)
         {

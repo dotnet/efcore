@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -30,11 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public virtual void ProcessSkipNavigationForeignKeyChanged(
             IConventionSkipNavigationBuilder skipNavigationBuilder,
-            IConventionForeignKey foreignKey,
-            IConventionForeignKey oldForeignKey,
+            IConventionForeignKey? foreignKey,
+            IConventionForeignKey? oldForeignKey,
             IConventionContext<IConventionForeignKey> context)
         {
-            foreignKey?.Builder?.OnDelete(GetTargetDeleteBehavior(foreignKey));
+            if (foreignKey is not null && foreignKey.IsInModel)
+            {
+                foreignKey.Builder.OnDelete(GetTargetDeleteBehavior(foreignKey));
+            }
         }
 
         /// <inheritdoc />
@@ -63,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     .First(s => s == selfReferencingSkipNavigation || s == selfReferencingSkipNavigation.Inverse)
                 && selfReferencingSkipNavigation != selfReferencingSkipNavigation.Inverse)
             {
-                selfReferencingSkipNavigation.Inverse.ForeignKey?.Builder.OnDelete(
+                selfReferencingSkipNavigation.Inverse!.ForeignKey?.Builder.OnDelete(
                     GetTargetDeleteBehavior(selfReferencingSkipNavigation.Inverse.ForeignKey));
                 return DeleteBehavior.ClientCascade;
             }

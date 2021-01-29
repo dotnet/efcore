@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -25,7 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this object.
         /// </summary>
-        IConventionAnnotatableBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the object has been removed from the model. </exception>
+        IConventionAnnotatableBuilder Builder { get; }
+
+        /// <summary>
+        ///     Indicates whether this object is in a model, i.e. hasn't been removed from one.
+        /// </summary>
+        bool IsInModel { get; }
 
         /// <summary>
         ///     Gets all annotations on the current object.

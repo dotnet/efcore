@@ -5,6 +5,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] IConventionEntityTypeBuilder sourceEntityTypeBuilder,
             [NotNull] IConventionEntityTypeBuilder targetEntityTypeBuilder,
             [NotNull] string navigationName,
-            [CanBeNull] MemberInfo memberInfo,
+            [CanBeNull] MemberInfo? memberInfo,
             [NotNull] IConventionContext<string> context);
     }
 }

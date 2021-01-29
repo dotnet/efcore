@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.Tracing;
 using System.Runtime.InteropServices;
 using System.Threading;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -35,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The singleton instance of <see cref="EntityFrameworkEventSource" />.
         /// </summary>
-        public static readonly EntityFrameworkEventSource Log = new EntityFrameworkEventSource();
+        public static readonly EntityFrameworkEventSource Log = new();
 
         private EntityFrameworkEventSource()
             : base("Microsoft.EntityFrameworkCore")
@@ -155,6 +156,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 };
             }
         }
+
+        [UsedImplicitly]
+        private void ResetCacheInfo()
+            => _compiledQueryCacheInfo = new CacheInfo();
 
         [StructLayout(LayoutKind.Explicit)]
         private struct CacheInfo

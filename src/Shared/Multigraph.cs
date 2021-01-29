@@ -11,13 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 {
     internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
     {
-        private readonly HashSet<TVertex> _vertices = new HashSet<TVertex>();
-
-        private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap =
-            new Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>>();
-
-        private readonly Dictionary<TVertex, HashSet<TVertex>> _predecessorMap =
-            new Dictionary<TVertex, HashSet<TVertex>>();
+        private readonly HashSet<TVertex> _vertices = new();
+        private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap = new();
+        private readonly Dictionary<TVertex, HashSet<TVertex>> _predecessorMap = new();
 
         public IEnumerable<TEdge> Edges
             => _successorMap.Values.SelectMany(s => s.Values).SelectMany(e => e).Distinct();

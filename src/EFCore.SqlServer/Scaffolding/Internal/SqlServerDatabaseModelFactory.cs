@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
 
         private static readonly Regex _partExtractor
-            = new Regex(
+            = new(
                 string.Format(
                     CultureInfo.InvariantCulture,
                     @"^{0}(?:\.{1})?$",
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
         // decimal/numeric are excluded because default value varies based on the precision.
         private static readonly Dictionary<string, long[]> _defaultSequenceMinMax =
-            new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
+            new(StringComparer.OrdinalIgnoreCase)
             {
                 { "tinyint", new[] { 0L, 255L } },
                 { "smallint", new[] { -32768L, 32767L } },
@@ -631,7 +631,8 @@ SELECT
     [cc].[definition] AS [computed_sql],
     [cc].[is_persisted] AS [computed_is_persisted],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
-    [c].[collation_name]
+    [c].[collation_name],
+    [c].[is_sparse]
 FROM
 (
     SELECT[v].[name], [v].[object_id], [v].[schema_id]
@@ -693,6 +694,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     var computedIsPersisted = dataRecord.GetValueOrDefault<bool>("computed_is_persisted");
                     var comment = dataRecord.GetValueOrDefault<string>("comment");
                     var collation = dataRecord.GetValueOrDefault<string>("collation_name");
+                    var isSparse = dataRecord.GetValueOrDefault<bool>("is_sparse");
 
                     _logger.ColumnFound(
                         DisplayName(tableSchema, tableName),
@@ -749,6 +751,11 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     {
                         // Note: annotation name must match `ScaffoldingAnnotationNames.ConcurrencyToken`
                         column["ConcurrencyToken"] = true;
+                    }
+
+                    if (isSparse)
+                    {
+                        column[SqlServerAnnotationNames.Sparse] = true;
                     }
 
                     table.Columns.Add(column);

@@ -1501,7 +1501,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         c.HasData(
                             new Beta { Id = -1 });
-                        var customers = new List<Beta> { new Beta { Id = -2 } };
+                        var customers = new List<Beta> { new() { Id = -2 } };
                         c.HasData(customers);
                     });
 

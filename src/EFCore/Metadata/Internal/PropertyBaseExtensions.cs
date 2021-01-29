@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -80,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         // Note: only use this to find the property/field that defines the property in the model. Use
         // GetMemberInfo to get the property/field to use, which may be different.
-        public static MemberInfo GetIdentifyingMemberInfo(
+        public static MemberInfo? GetIdentifyingMemberInfo(
             [NotNull] this IPropertyBase propertyBase)
-            => propertyBase.PropertyInfo ?? (MemberInfo)propertyBase.FieldInfo;
+            => propertyBase.PropertyInfo ?? (MemberInfo?)propertyBase.FieldInfo;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -94,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] this IPropertyBase propertyBase,
             bool forConstruction,
             bool forSet,
-            out MemberInfo memberInfo,
-            out string errorMessage)
+            out MemberInfo? memberInfo,
+            out string? errorMessage)
         {
             memberInfo = null;
             errorMessage = null;
@@ -338,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static string GetNoFieldErrorMessage(IPropertyBase propertyBase)
         {
-            var constructorBinding = (InstantiationBinding)propertyBase.DeclaringType[CoreAnnotationNames.ConstructorBinding];
+            var constructorBinding = (InstantiationBinding?)propertyBase.DeclaringType[CoreAnnotationNames.ConstructorBinding];
 
             return constructorBinding?.ParameterBindings
                     .OfType<ServiceParameterBinding>()

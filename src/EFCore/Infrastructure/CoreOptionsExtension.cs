@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> A clone of this instance, which can be modified before being returned as immutable. </returns>
         protected virtual CoreOptionsExtension Clone()
-            => new CoreOptionsExtension(this);
+            => new(this);
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.

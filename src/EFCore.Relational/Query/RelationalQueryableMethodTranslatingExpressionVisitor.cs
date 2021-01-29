@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, SelectExpression selectExpression)
-            => new ShapedQueryExpression(
+            => new(
                 selectExpression,
                 new RelationalEntityShaperExpression(
                     entityType,

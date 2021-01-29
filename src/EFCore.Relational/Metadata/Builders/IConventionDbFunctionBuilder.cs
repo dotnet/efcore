@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionDbFunctionBuilder HasName([CanBeNull] string name, bool fromDataAnnotation = false);
+        IConventionDbFunctionBuilder? HasName([CanBeNull] string? name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given name can be set for the database function.
@@ -36,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name"> The name of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given name can be set for the database function. </returns>
-        bool CanSetName([CanBeNull] string name, bool fromDataAnnotation = false);
+        bool CanSetName([CanBeNull] string? name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the schema of the database function.
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionDbFunctionBuilder HasSchema([CanBeNull] string schema, bool fromDataAnnotation = false);
+        IConventionDbFunctionBuilder? HasSchema([CanBeNull] string? schema, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given schema can be set for the database function.
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given schema can be set for the database function. </returns>
-        bool CanSetSchema([CanBeNull] string schema, bool fromDataAnnotation = false);
+        bool CanSetSchema([CanBeNull] string? schema, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the value indicating whether the database function is built-in or not.
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionDbFunctionBuilder IsBuiltIn(bool builtIn, bool fromDataAnnotation = false);
+        IConventionDbFunctionBuilder? IsBuiltIn(bool builtIn, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given built-in can be set for the database function.
@@ -85,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionDbFunctionBuilder IsNullable(bool nullable, bool fromDataAnnotation = false);
+        IConventionDbFunctionBuilder? IsNullable(bool nullable, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given nullable can be set for the database function.
@@ -104,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionDbFunctionBuilder HasStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
+        IConventionDbFunctionBuilder? HasStoreType([CanBeNull] string? storeType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given store type can be set for the database function.
@@ -112,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="storeType"> The store type of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given store type can be set for the database function. </returns>
-        bool CanSetStoreType([CanBeNull] string storeType, bool fromDataAnnotation = false);
+        bool CanSetStoreType([CanBeNull] string? storeType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the return type mapping of the database function.
@@ -123,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionDbFunctionBuilder HasTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
+        IConventionDbFunctionBuilder? HasTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given return type mapping can be set for the database function.
@@ -131,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="typeMapping"> The return type mapping of the function in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given return type mapping can be set for the database function. </returns>
-        bool CanSetTypeMapping([CanBeNull] RelationalTypeMapping typeMapping, bool fromDataAnnotation = false);
+        bool CanSetTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     <para>
@@ -150,8 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionDbFunctionBuilder HasTranslation(
-            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression> translation,
+        IConventionDbFunctionBuilder? HasTranslation(
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -161,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given translation can be set for the database function. </returns>
         bool CanSetTranslation(
-            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression> translation,
+            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             bool fromDataAnnotation = false);
 
         /// <summary>

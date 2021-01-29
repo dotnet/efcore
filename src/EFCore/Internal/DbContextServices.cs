@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private IServiceProvider _scopedProvider;
         private IDbContextOptions _contextOptions;
         private ICurrentDbContext _currentContext;
-        private IModel _modelFromSource;
+        private IModel _model;
         private bool _inOnModelCreating;
 
         /// <summary>
@@ -70,11 +70,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private static string BuildDatabaseNamesString(IEnumerable<IDatabaseProvider> available)
             => string.Join(", ", available.Select(e => "'" + e.Name + "'"));
 
-        private IModel CreateModel()
+        private IModel CreateModel(IModel modelFromOptions)
         {
             if (_inOnModelCreating)
             {
                 throw new InvalidOperationException(CoreStrings.RecursiveOnModelCreating);
+            }
+
+            if (modelFromOptions != null
+                && modelFromOptions.ModelDependencies != null)
+            {
+                return modelFromOptions;
             }
 
             try
@@ -82,10 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 _inOnModelCreating = true;
 
                 var dependencies = _scopedProvider.GetService<IModelCreationDependencies>();
-                return dependencies.ModelSource.GetModel(
-                    _currentContext.Context,
-                    dependencies.ConventionSetBuilder,
-                    dependencies.ModelDependencies);
+                return modelFromOptions == null
+                    ? dependencies.ModelSource.GetModel(_currentContext.Context, dependencies)
+                    : dependencies.ModelRuntimeInitializer.Initialize(modelFromOptions, dependencies.ValidationLogger);
             }
             finally
             {
@@ -109,8 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IModel Model
-            => CoreOptions?.Model
-                ?? (_modelFromSource ??= CreateModel());
+            => _model ??= CreateModel(CoreOptions?.Model);
 
         private CoreOptionsExtension CoreOptions
             => _contextOptions?.FindExtension<CoreOptionsExtension>();

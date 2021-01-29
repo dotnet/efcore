@@ -1237,7 +1237,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private const string ConnectionString = "Fake Connection String";
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
-            => new FakeRelationalConnection(options ?? CreateOptions());
+            => new(options ?? CreateOptions());
 
         private static IDbContextOptions CreateOptions(
             RelationalOptionsExtension optionsExtension = null)

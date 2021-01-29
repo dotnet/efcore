@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
     public class ConcurrencyDetector : IConcurrencyDetector
     {
         private int _inCriticalSection;
-        private static readonly AsyncLocal<bool> _threadHasLock = new AsyncLocal<bool>();
+        private static readonly AsyncLocal<bool> _threadHasLock = new();
         private int _refCount;
 
         /// <summary>

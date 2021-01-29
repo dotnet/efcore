@@ -260,8 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public override Type Type
-            // No shadow entities at runtime
-            => EntityType.ClrType!;
+            => EntityType.ClrType;
 
         /// <inheritdoc />
         public sealed override ExpressionType NodeType

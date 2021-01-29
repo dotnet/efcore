@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -44,9 +46,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToInMemoryQuery(
+        public static IConventionEntityTypeBuilder? ToInMemoryQuery(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] LambdaExpression query,
+            [CanBeNull] LambdaExpression? query,
             bool fromDataAnnotation = false)
         {
             if (CanSetInMemoryQuery(entityTypeBuilder, query, fromDataAnnotation))
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given in-memory query can be set. </returns>
         public static bool CanSetInMemoryQuery(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] LambdaExpression query,
+            [CanBeNull] LambdaExpression? query,
             bool fromDataAnnotation = false)
 #pragma warning disable EF1001 // Internal EF Core API usage.
 #pragma warning disable CS0612 // Type or member is obsolete

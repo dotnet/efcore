@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <inheritdoc />
         public override Type Type
-            => EntityType.ClrType!;
+            => EntityType.ClrType;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)

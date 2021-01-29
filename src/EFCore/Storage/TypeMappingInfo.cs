@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converterInfo"> The converter to apply. </param>
         /// <returns> The new mapping info. </returns>
         public TypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
-            => new TypeMappingInfo(this, converterInfo);
+            => new(this, converterInfo);
 
         /// <summary>
         ///     Indicates whether or not the mapping is part of a key or index.

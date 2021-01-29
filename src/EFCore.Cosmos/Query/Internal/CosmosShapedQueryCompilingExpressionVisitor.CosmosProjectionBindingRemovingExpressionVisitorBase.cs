@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 = new Dictionary<Expression, Expression>();
 
             private List<IncludeExpression> _pendingIncludes
-                = new List<IncludeExpression>();
+                = new();
 
             private static readonly MethodInfo _toObjectMethodInfo
                 = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)

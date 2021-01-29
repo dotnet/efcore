@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             Assert.Equal(
-                RelationalStrings.DatabaseModelMissing,
+                CoreStrings.ModelNotFinalized("GetRelationalModel"),
                 Assert.Throws<InvalidOperationException>(
                     () => modelBuilder.Model.GetRelationalModel()).Message);
         }
@@ -688,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     }
                 });
 
-            return modelBuilder.FinalizeModel().GetRelationalModel();
+            return Finalize(modelBuilder);
         }
 
         [ConditionalFact]
@@ -710,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     cb.Property(s => s.Speciality).IsRequired();
                 });
 
-            var model = modelBuilder.FinalizeModel().GetRelationalModel();
+            var model = Finalize(modelBuilder);
 
             Assert.Equal(2, model.Model.GetEntityTypes().Count());
             Assert.Empty(model.Tables);
@@ -754,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     cb.HasNoKey();
                 });
 
-            var model = modelBuilder.FinalizeModel().GetRelationalModel();
+            var model = Finalize(modelBuilder);
 
             Assert.Single(model.Model.GetEntityTypes());
             Assert.Single(model.Queries);
@@ -829,7 +829,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 typeof(RelationalModelTest).GetMethod(
                     nameof(GetOrdersForCustomer), BindingFlags.NonPublic | BindingFlags.Static));
 
-            var model = modelBuilder.FinalizeModel().GetRelationalModel();
+            var model = Finalize(modelBuilder);
 
             Assert.Single(model.Model.GetEntityTypes());
             Assert.Equal(2, model.Functions.Count());
@@ -903,6 +903,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(tvfFunction.Parameters.Single(), tvfDbFunction.Parameters.Single().StoreFunctionParameter);
             Assert.Same(tvfDbFunction.Parameters.Single(), tvfFunction.Parameters.Single().DbFunctionParameters.Single());
         }
+
+        private static IRelationalModel Finalize(ModelBuilder modelBuilder)
+            => RelationalTestHelpers.Instance.Finalize(modelBuilder).GetRelationalModel();
 
         protected virtual ModelBuilder CreateConventionModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();

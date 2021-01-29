@@ -74,8 +74,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         {
             foreach (IConventionProperty property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
-                .Where(
-                    p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                         && !p.IsForeignKey()))
             {
                 var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
@@ -116,6 +115,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         {
             foreach (var entityType in model.GetEntityTypes())
             {
+                // TODO: Validate this per table
                 foreach (var property in entityType.GetDeclaredProperties()
                     .Where(
                         p => p.ClrType.UnwrapNullableType() == typeof(byte)
@@ -362,6 +362,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
 
                         break;
                 }
+            }
+
+            if (property.IsSparse() != duplicateProperty.IsSparse())
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.DuplicateColumnSparsenessMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName()));
             }
         }
 

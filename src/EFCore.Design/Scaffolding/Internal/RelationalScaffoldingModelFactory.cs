@@ -36,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICandidateNamingService _candidateNamingService;
         private Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>> _columnNamers;
         private ModelReverseEngineerOptions _options;
-        private readonly DatabaseTable _nullTable = new DatabaseTable();
+        private readonly DatabaseTable _nullTable = new();
         private CSharpUniqueNamer<DatabaseTable> _tableNamer;
         private CSharpUniqueNamer<DatabaseTable> _dbSetNamer;
-        private readonly HashSet<DatabaseColumn> _unmappedColumns = new HashSet<DatabaseColumn>();
+        private readonly HashSet<DatabaseColumn> _unmappedColumns = new();
         private readonly IPluralizer _pluralizer;
         private readonly ICSharpUtilities _cSharpUtilities;
         private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
@@ -929,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         // Stores the names of the EntityType itself and its Properties, but does not include any Navigation Properties
         private readonly Dictionary<IEntityType, List<string>> _entityTypeAndPropertyIdentifiers =
-            new Dictionary<IEntityType, List<string>>();
+            new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

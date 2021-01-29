@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this entity type.
         /// </summary>
-        new IConventionEntityTypeBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the entity type has been removed from the model. </exception>
+        new IConventionEntityTypeBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
@@ -62,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="entityType"> The base entity type.</param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new base type. </returns>
-        IConventionEntityType? SetBaseType([CanBeNull] IConventionEntityType entityType, bool fromDataAnnotation = false);
+        IConventionEntityType? SetBaseType([CanBeNull] IConventionEntityType? entityType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
@@ -70,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="entityType"> The base entity type.</param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [Obsolete("Use SetBaseType")]
-        void HasBaseType([CanBeNull] IConventionEntityType entityType, bool fromDataAnnotation = false)
+        void HasBaseType([CanBeNull] IConventionEntityType? entityType, bool fromDataAnnotation = false)
             => SetBaseType(entityType, fromDataAnnotation);
 
         /// <summary>

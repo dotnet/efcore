@@ -633,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }
 
                             selector = _sqlExpressionFactory.Case(
-                                new List<CaseWhenClause> { new CaseWhenClause(groupingElement.Predicate, selector) },
+                                new List<CaseWhenClause> { new(groupingElement.Predicate, selector) },
                                 elseResult: null);
                         }
 
@@ -1232,7 +1232,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
                     var lambda = Expression.Lambda(
                         Expression.Call(
-                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType!, property.ClrType.MakeNullable()),
+                            _parameterListValueExtractor.MakeGenericMethod(entityType.ClrType, property.ClrType.MakeNullable()),
                             QueryCompilationContext.QueryContextParameter,
                             Expression.Constant(sqlParameterExpression.Name, typeof(string)),
                             Expression.Constant(property, typeof(IProperty))),
@@ -1532,7 +1532,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public IEntityType EntityType { get; }
 
             public override Type Type
-                => EntityType.ClrType!;
+                => EntityType.ClrType;
 
             public override ExpressionType NodeType
                 => ExpressionType.Extension;

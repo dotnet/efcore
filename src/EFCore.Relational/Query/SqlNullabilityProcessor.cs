@@ -559,9 +559,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             nullable = false;
 
             // if subquery has predicate which evaluates to false, we can simply return false
+            // if the exisits is negated we need to return true instead
             return TryGetBoolConstantValue(subquery.Predicate) == false
-                ? subquery.Predicate!
-                : existsExpression.Update(subquery);
+                ? _sqlExpressionFactory.Constant(existsExpression.IsNegated, existsExpression.TypeMapping)
+                : (SqlExpression)existsExpression.Update(subquery);
         }
 
         /// <summary>

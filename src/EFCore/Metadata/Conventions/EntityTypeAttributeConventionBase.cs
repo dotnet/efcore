@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -44,8 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             var type = entityTypeBuilder.Metadata.ClrType;
-            if (type == null
-                || !Attribute.IsDefined(type, typeof(TAttribute), inherit: true))
+            if (!Attribute.IsDefined(type, typeof(TAttribute), inherit: true))
             {
                 return;
             }

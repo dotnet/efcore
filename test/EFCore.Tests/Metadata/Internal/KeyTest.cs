@@ -23,19 +23,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<NotSupportedException>(() => key.AsKey()).Message);
         }
 
-        private class FakeKey : IKey
+        private class FakeKey : Annotatable, IKey
         {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
             public IReadOnlyList<IProperty> Properties { get; }
             public IEntityType DeclaringEntityType { get; }
+        }
+
+        [ConditionalFact]
+        public void Throws_when_model_is_readonly()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType("E");
+            var property = entityType.AddProperty("P", typeof(int));
+            var key = entityType.AddKey(new[] { property });
+
+            model.FinalizeModel();
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { property })).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.RemoveKey(key)).Message);
         }
 
         [ConditionalFact]

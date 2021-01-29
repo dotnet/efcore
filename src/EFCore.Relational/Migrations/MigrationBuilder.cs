@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The list of <see cref="MigrationOperation" />s being built.
         /// </summary>
-        public virtual List<MigrationOperation> Operations { get; } = new List<MigrationOperation>();
+        public virtual List<MigrationOperation> Operations { get; } = new();
 
         /// <summary>
         ///     Builds an <see cref="AddColumnOperation" /> to add a new column to a table.
@@ -1340,6 +1340,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Table = table,
                 Schema = schema,
                 Columns = columns,
+                ColumnTypes = columnTypes,
                 Values = values
             };
             Operations.Add(operation);

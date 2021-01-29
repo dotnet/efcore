@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class TestProxyFactory
         {
-            public static readonly TestProxyFactory Instance = new TestProxyFactory();
+            public static readonly TestProxyFactory Instance = new();
 
             public object Create(IEntityType entityType)
                 => Activator.CreateInstance(entityType.ClrType);
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             public static SomeEntity Factory(int id, Guid? goo)
-                => new SomeEntity(id, goo) { FactoryUsed = true };
+                => new(id, goo) { FactoryUsed = true };
 
             public static SomeEntity GeneralFactory(object[] constructorArguments)
             {

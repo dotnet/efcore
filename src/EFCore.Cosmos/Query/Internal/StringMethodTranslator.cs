@@ -40,6 +40,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 m => m.Name == nameof(Enumerable.LastOrDefault)
                     && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
+        private static readonly MethodInfo _stringConcatWithTwoArguments =
+            typeof(String).GetRequiredRuntimeMethod(nameof(string.Concat),
+                new[] { typeof(string), typeof(string) });
+
+        private static readonly MethodInfo _stringConcatWithThreeArguments =
+            typeof(String).GetRequiredRuntimeMethod(nameof(string.Concat),
+                new[] { typeof(string), typeof(string), typeof(string) });
+
+        private static readonly MethodInfo _stringConcatWithFourArguments =
+            typeof(String).GetRequiredRuntimeMethod(nameof(string.Concat),
+                new[] { typeof(string), typeof(string), typeof(string), typeof(string) });
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
@@ -95,6 +107,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
             {
                 return TranslateSystemFunction("RIGHT", arguments[0], _sqlExpressionFactory.Constant(1), typeof(char));
+            }
+
+            if(_stringConcatWithTwoArguments.Equals(method))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    arguments[1]);
+            }
+
+            if(_stringConcatWithThreeArguments.Equals(method))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    _sqlExpressionFactory.Add(
+                        arguments[1],
+                        arguments[2]));
+            }
+
+            if (_stringConcatWithFourArguments.Equals(method))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    _sqlExpressionFactory.Add(
+                        arguments[1],
+                        _sqlExpressionFactory.Add(
+                            arguments[2],
+                            arguments[3])));
             }
 
             return null;

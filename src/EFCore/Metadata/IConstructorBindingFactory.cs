@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -35,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool TryBindConstructor(
             [NotNull] IConventionEntityType entityType,
             [NotNull] ConstructorInfo constructor,
-            [CanBeNull] out InstantiationBinding? binding,
-            [CanBeNull] out IEnumerable<ParameterInfo>? unboundParameters);
+            [CanBeNull, CA.NotNullWhen(true)] out InstantiationBinding? binding,
+            [CanBeNull, CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters);
 
         /// <summary>
         ///     Attempts to create a <see cref="InstantiationBinding" /> for the given <see cref="IEntityType" /> and
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool TryBindConstructor(
             [NotNull] IMutableEntityType entityType,
             [NotNull] ConstructorInfo constructor,
-            [CanBeNull] out InstantiationBinding? binding,
-            [CanBeNull] out IEnumerable<ParameterInfo>? unboundParameters);
+            [CanBeNull, CA.NotNullWhen(true)] out InstantiationBinding? binding,
+            [CanBeNull, CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters);
     }
 }

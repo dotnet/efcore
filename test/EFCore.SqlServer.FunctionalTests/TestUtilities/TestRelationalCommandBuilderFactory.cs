@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private class TestRelationalCommandBuilder : IRelationalCommandBuilder
         {
-            private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
+            private readonly List<IRelationalParameter> _parameters = new();
 
             public TestRelationalCommandBuilder(
                 RelationalCommandBuilderDependencies dependencies)
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Dependencies = dependencies;
             }
 
-            public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
+            public IndentedStringBuilder Instance { get; } = new();
 
             public RelationalCommandBuilderDependencies Dependencies { get; }
 
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public Task<int> ExecuteNonQueryAsync(
                 RelationalCommandParameterObject parameterObject,
-                CancellationToken cancellationToken = new CancellationToken())
+                CancellationToken cancellationToken = new())
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public async Task<object> ExecuteScalarAsync(
                 RelationalCommandParameterObject parameterObject,
-                CancellationToken cancellationToken = new CancellationToken())
+                CancellationToken cancellationToken = new())
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public async Task<RelationalDataReader> ExecuteReaderAsync(
                 RelationalCommandParameterObject parameterObject,
-                CancellationToken cancellationToken = new CancellationToken())
+                CancellationToken cancellationToken = new())
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);

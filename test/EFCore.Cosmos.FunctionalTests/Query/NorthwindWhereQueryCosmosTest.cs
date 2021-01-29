@@ -1676,10 +1676,43 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((((@__p_0 + c[""CustomerID""])
             return base.Where_concat_string_int_comparison4(async);
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Where_string_concat_method_comparison(bool async)
+        public override async Task Where_string_concat_method_comparison(bool async)
         {
-            return base.Where_string_concat_method_comparison(async);
+            await base.Where_string_concat_method_comparison(async);
+
+            AssertSql(
+                @"@__i_0='A'
+
+SELECT c[""CustomerID""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((@__i_0 || c[""CustomerID""]) = c[""CompanyName""]))");
+        }
+
+        public override async Task Where_string_concat_method_comparison_2(bool async)
+        {
+            await base.Where_string_concat_method_comparison_2(async);
+
+            AssertSql(
+                @"@__i_0='A'
+@__j_1='B'
+
+SELECT c[""CustomerID""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((@__i_0 || (@__j_1 || c[""CustomerID""])) = c[""CompanyName""]))");
+        }
+
+        public override async Task Where_string_concat_method_comparison_3(bool async)
+        {
+            await base.Where_string_concat_method_comparison_3(async);
+
+            AssertSql(
+                @"@__i_0='A'
+@__j_1='B'
+@__k_2='C'
+
+SELECT c[""CustomerID""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((@__i_0 || (@__j_1 || (@__k_2 || c[""CustomerID""]))) = c[""CompanyName""]))");
         }
 
         public override async Task Where_ternary_boolean_condition_true(bool async)

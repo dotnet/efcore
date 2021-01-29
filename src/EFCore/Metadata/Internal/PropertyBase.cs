@@ -68,6 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string Name { [DebuggerStepThrough] get; }
 
         /// <summary>
+        ///     Indicates whether the model is read-only.
+        /// </summary>
+        protected override bool IsReadOnly => DeclaringType.Model.IsModelReadOnly;
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -160,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string propertyName,
             bool shouldThrow)
         {
-            if (!type.GetRuntimeFields()!.TryGetValue(fieldName, out var fieldInfo)
+            if (!type.GetRuntimeFields().TryGetValue(fieldName, out var fieldInfo)
                 && shouldThrow)
             {
                 throw new InvalidOperationException(
@@ -178,6 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual FieldInfo? SetFieldInfo([CanBeNull] FieldInfo? fieldInfo, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             if (Equals(FieldInfo, fieldInfo))
             {
                 if (fieldInfo != null)
@@ -294,8 +301,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get
                 => NonCapturingLazyInitializer.EnsureInitialized(
                     ref _indexes, this,
-                    property =>
+                    static property =>
                     {
+                        property.EnsureReadOnly();
+
                         var _ = (property.DeclaringType as EntityType)?.Counts;
                     });
 
@@ -304,6 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (value == null)
                 {
+                    EnsureMutable();
                     // This path should only kick in when the model is still mutable and therefore access does not need
                     // to be thread-safe.
                     _indexes = null;
@@ -352,7 +362,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IClrPropertyGetter Getter
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _getter, this, p => new ClrPropertyGetterFactory().Create(p));
+                ref _getter, this, static property =>
+                {
+                    property.EnsureReadOnly();
+                    return new ClrPropertyGetterFactory().Create(property);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -362,7 +376,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IClrPropertySetter Setter
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _setter, this, p => new ClrPropertySetterFactory().Create(p));
+                ref _setter, this, static property =>
+                {
+                    property.EnsureReadOnly();
+                    return new ClrPropertySetterFactory().Create(property);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -372,7 +390,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IClrPropertySetter MaterializationSetter
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _materializationSetter, this, p => new ClrPropertyMaterializationSetterFactory().Create(p));
+                ref _materializationSetter, this, static property =>
+                {
+                    property.EnsureReadOnly();
+                    return new ClrPropertyMaterializationSetterFactory().Create(property);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -381,7 +403,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual PropertyAccessors Accessors
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, p => new PropertyAccessorsFactory().Create(p));
+            => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, static property =>
+            {
+                property.EnsureReadOnly();
+                return new PropertyAccessorsFactory().Create(property);
+            });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -391,7 +417,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IComparer<IUpdateEntry> CurrentValueComparer
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _currentValueComparer, this, p => new CurrentValueComparerFactory().Create(p));
+                ref _currentValueComparer, this, static property =>
+                {
+                    property.EnsureReadOnly();
+                    return new CurrentValueComparerFactory().Create(property);
+                });
 
         private static readonly MethodInfo _containsKeyMethod =
             typeof(IDictionary<string, object>).GetRequiredMethod(nameof(IDictionary<string, object>.ContainsKey), new[] { typeof(string) });
@@ -403,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression CreateMemberAccess(
-            [CanBeNull] IPropertyBase property,
+            [CanBeNull] IPropertyBase? property,
             [NotNull] Expression instanceExpression,
             [NotNull] MemberInfo memberInfo)
         {

@@ -426,11 +426,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(dbFunc);
             Assert.NotNull(dbFunc.Name);
             Assert.Null(dbFunc.Schema);
-            Assert.NotNull(((IConventionDbFunction)dbFunc).Builder);
+            Assert.True(((IConventionDbFunction)dbFunc).IsInModel);
 
             Assert.Same(dbFunc, model.RemoveDbFunction(testMethod));
 
-            Assert.Null(((IConventionDbFunction)dbFunc).Builder);
+            Assert.False(((IConventionDbFunction)dbFunc).IsInModel);
         }
 
         [ConditionalFact]
@@ -453,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.Type);
             Assert.False(sequence.IsCyclic);
-            Assert.NotNull(((IConventionSequence)sequence).Builder);
+            Assert.True(((IConventionSequence)sequence).IsInModel);
 
             Assert.Same(sequence, model.FindSequence("Foo"));
 
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Same(sequence, model.RemoveSequence("Foo"));
 
-            Assert.Null(((IConventionSequence)sequence).Builder);
+            Assert.False(((IConventionSequence)sequence).IsInModel);
         }
 
         [ConditionalFact]

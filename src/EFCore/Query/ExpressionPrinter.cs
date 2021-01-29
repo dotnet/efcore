@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class ExpressionPrinter : ExpressionVisitor
     {
-        private static readonly List<string> _simpleMethods = new List<string>
+        private static readonly List<string> _simpleMethods = new()
         {
             "get_Item",
             "TryReadValue",
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly List<ParameterExpression> _namelessParameters;
         private readonly List<ParameterExpression> _encounteredParameters;
 
-        private readonly Dictionary<ExpressionType, string> _binaryOperandMap = new Dictionary<ExpressionType, string>
+        private readonly Dictionary<ExpressionType, string> _binaryOperandMap = new()
         {
             { ExpressionType.Assign, " = " },
             { ExpressionType.Equal, " == " },

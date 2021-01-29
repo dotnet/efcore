@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class CSharpUtilities : ICSharpUtilities
     {
-        private static readonly HashSet<string> _cSharpKeywords = new HashSet<string>
+        private static readonly HashSet<string> _cSharpKeywords = new()
         {
             "abstract",
             "as",
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         };
 
         private static readonly Regex _invalidCharsRegex
-            = new Regex(
+            = new(
                 @"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]",
                 default,
                 TimeSpan.FromMilliseconds(1000.0));

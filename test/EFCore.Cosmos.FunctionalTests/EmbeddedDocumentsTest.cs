@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     Street = "Another",
                     City = "City",
                     AddressTitle = new AddressTitle { Title = "P3 Alternative" },
-                    Notes = new List<Note> { new Note { Content = "Another note" } }
+                    Notes = new List<Note> { new() { Content = "Another note" } }
                 };
 
                 var existingFirstAddressEntry = context.Entry(people[2].Addresses.First());

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private byte _indent;
         private bool _indentPending = true;
 
-        private readonly StringBuilder _stringBuilder = new StringBuilder();
+        private readonly StringBuilder _stringBuilder = new();
 
         /// <summary>
         ///     The current length of the built string.

@@ -2154,7 +2154,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public static Building Create(Guid buildingId, string name, decimal value)
-                => new Building
+                => new()
                 {
                     BuildingId = buildingId,
                     Name = name,
@@ -2364,10 +2364,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var offices = new List<Office>
                 {
-                    new Office { BuildingId = buildings[0].BuildingId, Number = "1/1221" },
-                    new Office { BuildingId = buildings[0].BuildingId, Number = "1/1223" },
-                    new Office { BuildingId = buildings[0].BuildingId, Number = "2/1458" },
-                    new Office { BuildingId = buildings[0].BuildingId, Number = "2/1789" }
+                    new() { BuildingId = buildings[0].BuildingId, Number = "1/1221" },
+                    new() { BuildingId = buildings[0].BuildingId, Number = "1/1223" },
+                    new() { BuildingId = buildings[0].BuildingId, Number = "2/1458" },
+                    new() { BuildingId = buildings[0].BuildingId, Number = "2/1789" }
                 };
 
                 foreach (var office in offices)
@@ -2421,19 +2421,19 @@ namespace Microsoft.EntityFrameworkCore
 
                 var whiteboards = new List<Whiteboard>
                 {
-                    new Whiteboard
+                    new()
                     {
                         AssetTag = "WB1973",
                         iD = new byte[] { 1, 9, 7, 3 },
                         Office = offices[0]
                     },
-                    new Whiteboard
+                    new()
                     {
                         AssetTag = "WB1977",
                         iD = new byte[] { 1, 9, 7, 7 },
                         Office = offices[0]
                     },
-                    new Whiteboard
+                    new()
                     {
                         AssetTag = "WB1970",
                         iD = new byte[] { 1, 9, 7, 0 },

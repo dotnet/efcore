@@ -9,6 +9,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -26,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name)
-            => entityTypeBuilder.ToTable(name, (string)null);
+            [CanBeNull] string? name)
+            => entityTypeBuilder.ToTable(name, (string?)null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -38,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
+            [NotNull] string name,
             [NotNull] Action<TableBuilder> buildAction)
             => entityTypeBuilder.ToTable(name, null, buildAction);
 
@@ -51,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
             where TEntity : class
-            => entityTypeBuilder.ToTable(name, (string)null);
+            => entityTypeBuilder.ToTable(name, (string?)null);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -65,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string name,
+            [NotNull] string name,
             [NotNull] Action<TableBuilder> buildAction)
             where TEntity : class
             => entityTypeBuilder.ToTable(name, null, buildAction);
@@ -80,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string name,
+            [NotNull] string name,
             [NotNull] Action<TableBuilder<TEntity>> buildAction)
             where TEntity : class
             => entityTypeBuilder.ToTable(name, null, buildAction);
@@ -94,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema)
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema)
         {
             entityTypeBuilder.Metadata.SetTableName(name);
             entityTypeBuilder.Metadata.SetSchema(schema);
@@ -113,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore
         public static EntityTypeBuilder ToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] Action<TableBuilder> buildAction)
         {
             Check.NotNull(name, nameof(name));
@@ -138,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] Action<TableBuilder> buildAction)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).ToTable(name, schema, buildAction);
@@ -153,8 +156,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema)
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema)
             where TEntity : class
         {
             entityTypeBuilder.Metadata.SetTableName(name);
@@ -173,8 +176,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema,
+            [NotNull] string name,
+            [CanBeNull] string? schema,
             [NotNull] Action<TableBuilder<TEntity>> buildAction)
             where TEntity : class
         {
@@ -196,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder ToTable(
             [NotNull] this OwnedNavigationBuilder referenceOwnershipBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
             => ToTable(referenceOwnershipBuilder, name, schema: null, excludedFromMigrations: null);
 
         /// <summary>
@@ -208,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder ToTable(
             [NotNull] this OwnedNavigationBuilder referenceOwnershipBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool excludedFromMigrations)
             => referenceOwnershipBuilder.ToTable(name, null, excludedFromMigrations);
 
@@ -222,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
             [NotNull] this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
             where TEntity : class
             where TRelatedEntity : class
             => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToTable(
@@ -239,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
             [NotNull] this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool excludedFromMigrations)
             where TEntity : class
             where TRelatedEntity : class
@@ -255,8 +258,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder ToTable(
             [NotNull] this OwnedNavigationBuilder referenceOwnershipBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema)
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema)
             => ToTable(referenceOwnershipBuilder, name, schema, excludedFromMigrations: null);
 
         /// <summary>
@@ -269,8 +272,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder ToTable(
             [NotNull] this OwnedNavigationBuilder referenceOwnershipBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema,
             bool excludedFromMigrations)
         {
             Check.NotNull(referenceOwnershipBuilder, nameof(referenceOwnershipBuilder));
@@ -282,8 +285,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static OwnedNavigationBuilder ToTable(
             OwnedNavigationBuilder referenceOwnershipBuilder,
-            string name,
-            string schema,
+            string? name,
+            string? schema,
             bool? excludedFromMigrations)
         {
             referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
@@ -308,8 +311,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
             [NotNull] this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema)
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema)
             where TEntity : class
             where TRelatedEntity : class
             => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToTable(
@@ -327,8 +330,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
             [NotNull] this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema,
             bool excludedFromMigrations)
             where TEntity : class
             where TRelatedEntity : class
@@ -344,9 +347,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToTable(
+        public static IConventionEntityTypeBuilder? ToTable(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetTable(name, fromDataAnnotation))
@@ -368,10 +371,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToTable(
+        public static IConventionEntityTypeBuilder? ToTable(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema,
             bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetTable(name, fromDataAnnotation)
@@ -395,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetTable(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
@@ -412,9 +415,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToSchema(
+        public static IConventionEntityTypeBuilder? ToSchema(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetSchema(schema, fromDataAnnotation))
@@ -436,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetSchema(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(schema, nameof(schema));
@@ -454,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ExcludeTableFromMigrations(
+        public static IConventionEntityTypeBuilder? ExcludeTableFromMigrations(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             bool? excludedFromMigrations,
             bool fromDataAnnotation = false)
@@ -491,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToView(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
             => entityTypeBuilder.ToView(name, null);
 
         /// <summary>
@@ -503,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToView<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToView((EntityTypeBuilder)entityTypeBuilder, name);
 
@@ -516,8 +519,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToView(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema)
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -540,8 +543,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToView<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema)
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToView((EntityTypeBuilder)entityTypeBuilder, name, schema);
 
@@ -554,9 +557,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToView(
+        public static IConventionEntityTypeBuilder? ToView(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetView(name, fromDataAnnotation))
@@ -578,10 +581,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToView(
+        public static IConventionEntityTypeBuilder? ToView(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema,
             bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetView(name, fromDataAnnotation)
@@ -605,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetView(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
@@ -622,9 +625,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToViewSchema(
+        public static IConventionEntityTypeBuilder? ToViewSchema(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetSchema(schema, fromDataAnnotation))
@@ -646,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetViewSchema(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(schema, nameof(schema));
@@ -681,9 +684,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToSqlQuery(
+        public static IConventionEntityTypeBuilder? ToSqlQuery(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetSqlQuery(name, fromDataAnnotation))
@@ -707,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetSqlQuery(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
@@ -723,12 +726,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The function configuration builder. </returns>
         public static EntityTypeBuilder ToFunction(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            CreateFunction(name, entityTypeBuilder.Metadata);
+            SetFunction(name, entityTypeBuilder.Metadata);
 
             return entityTypeBuilder;
         }
@@ -742,14 +745,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToFunction(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
+            [NotNull] string name,
             [NotNull] Action<TableValuedFunctionBuilder> configureFunction)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
-            configureFunction(new TableValuedFunctionBuilder(CreateFunction(name, entityTypeBuilder.Metadata)));
+            configureFunction(new TableValuedFunctionBuilder(SetFunction(name, entityTypeBuilder.Metadata)));
 
             return entityTypeBuilder;
         }
@@ -763,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The function configuration builder. </returns>
         public static EntityTypeBuilder<TEntity> ToFunction<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToFunction((EntityTypeBuilder)entityTypeBuilder, name);
 
@@ -777,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToFunction<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string name,
+            [NotNull] string name,
             [NotNull] Action<TableValuedFunctionBuilder> configureFunction)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToFunction((EntityTypeBuilder)entityTypeBuilder, name, configureFunction);
@@ -790,12 +793,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The function configuration builder. </returns>
         public static OwnedNavigationBuilder ToFunction(
             [NotNull] this OwnedNavigationBuilder ownedNavigationBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
         {
             Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            CreateFunction(name, ownedNavigationBuilder.OwnedEntityType);
+            SetFunction(name, ownedNavigationBuilder.OwnedEntityType);
 
             return ownedNavigationBuilder;
         }
@@ -809,14 +812,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder ToFunction(
             [NotNull] this OwnedNavigationBuilder ownedNavigationBuilder,
-            [CanBeNull] string name,
+            [NotNull] string name,
             [NotNull] Action<TableValuedFunctionBuilder> configureFunction)
         {
             Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
-            configureFunction(new TableValuedFunctionBuilder(CreateFunction(name, ownedNavigationBuilder.OwnedEntityType)));
+            configureFunction(new TableValuedFunctionBuilder(SetFunction(name, ownedNavigationBuilder.OwnedEntityType)));
 
             return ownedNavigationBuilder;
         }
@@ -831,7 +834,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The function configuration builder. </returns>
         public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToFunction<TEntity, TRelatedEntity>(
             [NotNull] this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
             where TEntity : class
             where TRelatedEntity : class
             => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToFunction((OwnedNavigationBuilder)referenceOwnershipBuilder, name);
@@ -847,21 +850,23 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToFunction<TEntity, TRelatedEntity>(
             [NotNull] this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
-            [CanBeNull] string name,
+            [NotNull] string name,
             [NotNull] Action<TableValuedFunctionBuilder> configureFunction)
             where TEntity : class
             where TRelatedEntity : class
             => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToFunction(
                 (OwnedNavigationBuilder)referenceOwnershipBuilder, name, configureFunction);
 
-        private static IMutableDbFunction CreateFunction(string name, IMutableEntityType entityType)
+        [return: CA.NotNullIfNotNull("name")]
+        private static IMutableDbFunction? SetFunction(string? name, IMutableEntityType entityType)
         {
             entityType.SetFunctionName(name);
 
             var model = entityType.Model;
-            var function = model.FindDbFunction(name)
-                ?? model.AddDbFunction(
-                    name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType ?? typeof(Dictionary<string, object>)));
+            var function = name is not null
+                ? model.FindDbFunction(name) ?? model.AddDbFunction(
+                    name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType ?? typeof(Dictionary<string, object>)))
+                : null;
 
             return function;
         }
@@ -876,9 +881,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder ToFunction(
+        public static IConventionEntityTypeBuilder? ToFunction(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             if (!entityTypeBuilder.CanSetFunction(name, fromDataAnnotation))
@@ -889,7 +894,10 @@ namespace Microsoft.EntityFrameworkCore
             var entityType = entityTypeBuilder.Metadata;
             entityType.SetFunctionName(name, fromDataAnnotation);
 
-            entityType.Model.Builder.HasDbFunction(name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType), fromDataAnnotation);
+            if (name is null)
+            {
+                entityType.Model.Builder.HasDbFunction(name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType), fromDataAnnotation);
+            }
 
             return entityTypeBuilder;
         }
@@ -904,7 +912,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetFunction(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             Check.NullButNotEmpty(name, nameof(name));
@@ -922,7 +930,7 @@ namespace Microsoft.EntityFrameworkCore
         public static EntityTypeBuilder HasCheckConstraint(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [NotNull] string name,
-            [CanBeNull] string sql)
+            [CanBeNull] string? sql)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotEmpty(name, nameof(name));
@@ -961,7 +969,7 @@ namespace Microsoft.EntityFrameworkCore
         public static EntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [NotNull] string name,
-            [CanBeNull] string sql)
+            [CanBeNull] string? sql)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)HasCheckConstraint((EntityTypeBuilder)entityTypeBuilder, name, sql);
 
@@ -976,10 +984,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the check constraint was configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder HasCheckConstraint(
+        public static IConventionEntityTypeBuilder? HasCheckConstraint(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             [NotNull] string name,
-            [CanBeNull] string sql,
+            [CanBeNull] string? sql,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
@@ -1026,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore
         public static bool CanSetCheckConstraint(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             [NotNull] string name,
-            [CanBeNull] string sql,
+            [CanBeNull] string? sql,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
@@ -1049,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A builder to further configure the entity type. </returns>
         public static EntityTypeBuilder HasComment(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string comment)
+            [CanBeNull] string? comment)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
@@ -1066,7 +1074,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A builder to further configure the entity type. </returns>
         public static EntityTypeBuilder<TEntity> HasComment<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [CanBeNull] string comment)
+            [CanBeNull] string? comment)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)HasComment((EntityTypeBuilder)entityTypeBuilder, comment);
 
@@ -1080,9 +1088,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder HasComment(
+        public static IConventionEntityTypeBuilder? HasComment(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string comment,
+            [CanBeNull] string? comment,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
@@ -1106,7 +1114,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetComment(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] string comment,
+            [CanBeNull] string? comment,
             bool fromDataAnnotation = false)
             => entityTypeBuilder.CanSetAnnotation(
                 RelationalAnnotationNames.Comment,

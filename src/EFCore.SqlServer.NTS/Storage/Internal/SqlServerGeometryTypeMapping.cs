@@ -171,10 +171,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         }
 
         private static SqlServerBytesReader CreateReader(NtsGeometryServices services, bool isGeography)
-            => new SqlServerBytesReader(services) { IsGeography = isGeography };
+            => new(services) { IsGeography = isGeography };
 
         private static SqlServerBytesWriter CreateWriter(bool isGeography)
-            => new SqlServerBytesWriter { IsGeography = isGeography };
+            => new() { IsGeography = isGeography };
 
         private static bool IsGeography(string storeType)
             => string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);

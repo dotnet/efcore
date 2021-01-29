@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -65,13 +66,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(memberClassifier, nameof(memberClassifier));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             TypeMappingSource = typeMappingSource;
+#pragma warning restore CS0618 // Type or member is obsolete
             MemberClassifier = memberClassifier;
         }
 
         /// <summary>
         ///     The type mapper.
         /// </summary>
+        [Obsolete("The model now contains this dependency")]
         public ITypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>

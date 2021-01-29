@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A navigation associated with this foreign key or <see langword="null" />.
         /// </returns>
-        public static IConventionNavigation GetNavigation([NotNull] this IConventionForeignKey foreignKey, bool pointsToPrincipal)
+        public static IConventionNavigation? GetNavigation([NotNull] this IConventionForeignKey foreignKey, bool pointsToPrincipal)
             => pointsToPrincipal ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent;
     }
 }

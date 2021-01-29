@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
                 => true;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
         }
     }
 }

@@ -130,6 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The database model hasn't been initialized. The model needs to be finalized and processed with 'RelationalModelConvention' before the database model can be accessed.
         /// </summary>
+        [Obsolete]
         public static string DatabaseModelMissing
             => GetString("DatabaseModelMissing");
 
@@ -721,12 +722,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 method);
 
         /// <summary>
-        ///     The 'Down' method for this migration has not been implemented. Both the 'Up' abd 'Down' methods must be implemented to support reverting migrations.
-        /// </summary>
-        public static string MigrationDownMissing
-            => GetString("MigrationDownMissing");
-
-        /// <summary>
         ///     The entity type '{entityType}' is mapped to the DbFunction named '{functionName}', but no DbFunction with that name was found in the model. Ensure that the entity type mapping is configured using the model name of a function in the model.
         /// </summary>
         public static string MappedFunctionNotFound([CanBeNull] object? entityType, [CanBeNull] object? functionName)
@@ -743,6 +738,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 methodName, entityType);
 
         /// <summary>
+        ///     The 'Down' method for this migration has not been implemented. Both the 'Up' abd 'Down' methods must be implemented to support reverting migrations.
+        /// </summary>
+        public static string MigrationDownMissing
+            => GetString("MigrationDownMissing");
+
+        /// <summary>
         ///     The migration '{migrationName}' was not found.
         /// </summary>
         public static string MigrationNotFound([CanBeNull] object? migrationName)
@@ -753,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     SQL generation for the operation '{operation}' is not supported by the current database provider. Database providers must implement the appropriate method in 'MigrationsSqlGenerator' to support this operation.
         /// </summary>
-        public static string MigrationSqlGenerationMissing([CanBeNull] object operation)
+        public static string MigrationSqlGenerationMissing([CanBeNull] object? operation)
             => string.Format(
                 GetString("MigrationSqlGenerationMissing", nameof(operation)),
                 operation);

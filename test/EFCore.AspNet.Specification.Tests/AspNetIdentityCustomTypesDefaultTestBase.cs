@@ -64,6 +64,42 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public async Task Can_lazy_load_User_navigations_many_to_many()
+        {
+            var userId = "";
+
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                {
+                    var user = new CustomUserString { NormalizedUserName = "wendy" };
+                    await CreateUser(context, user);
+                    userId = user.Id;
+                },
+                async context =>
+                {
+                    var user = await context.Users.SingleAsync(u => u.Id == userId);
+
+                    Assert.Equal(2, user.Roles.Count);
+                });
+        }
+
+        [ConditionalFact]
+        public async Task Can_lazy_load_Role_navigations_many_to_many()
+        {
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                {
+                    await CreateUser(context, new CustomUserString { NormalizedUserName = "wendy" });
+                },
+                async context =>
+                {
+                    var role = await context.Roles.OrderBy(e => e.NormalizedName).FirstAsync();
+
+                    Assert.Equal(1, role.Users.Count);
+                });
+        }
+
+        [ConditionalFact]
         public async Task Can_lazy_load_UserRole_navigations()
         {
             await ExecuteWithStrategyInTransactionAsync(
@@ -143,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override List<EntityTypeMapping> ExpectedMappings
             => new()
             {
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimString",
                     TableName = "MyRoleClaims",
@@ -165,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomRoleClaimString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: RoleClaims PropertyAccessMode.Field",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomRoleString",
                     TableName = "MyRoles",
@@ -183,8 +219,12 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomRoleString.RoleClaims (ICollection<CustomRoleClaimString>) Collection ToDependent CustomRoleClaimString Inverse: Role PropertyAccessMode.Field",
                         "Navigation: CustomRoleString.UserRoles (ICollection<CustomUserRoleString>) Collection ToDependent CustomUserRoleString Inverse: Role PropertyAccessMode.Field",
                     },
+                    SkipNavigations =
+                    {
+                        "SkipNavigation: CustomRoleString.Users (ICollection<CustomUserString>) CollectionCustomUserString Inverse: Roles PropertyAccessMode.Field"
+                    }
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserClaimString",
                     TableName = "MyUserClaims",
@@ -206,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserClaimString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Claims PropertyAccessMode.Field",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserLoginString",
                     TableName = "MyUserLogins",
@@ -228,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserLoginString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Logins PropertyAccessMode.Field",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserRoleString",
                     TableName = "MyUserRoles",
@@ -248,9 +288,9 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         "Navigation: CustomUserRoleString.Role (CustomRoleString) ToPrincipal CustomRoleString Inverse: UserRoles PropertyAccessMode.Field",
                         "Navigation: CustomUserRoleString.User (CustomUserString) ToPrincipal CustomUserString Inverse: UserRoles PropertyAccessMode.Field",
-                    },
+                    }
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserString",
                     TableName = "MyUsers",
@@ -285,8 +325,12 @@ namespace Microsoft.EntityFrameworkCore
                         "Navigation: CustomUserString.Tokens (ICollection<CustomUserTokenString>) Collection ToDependent CustomUserTokenString Inverse: User PropertyAccessMode.Field",
                         "Navigation: CustomUserString.UserRoles (ICollection<CustomUserRoleString>) Collection ToDependent CustomUserRoleString Inverse: User PropertyAccessMode.Field",
                     },
+                    SkipNavigations =
+                    {
+                        "SkipNavigation: CustomUserString.Roles (ICollection<CustomRoleString>) CollectionCustomRoleString Inverse: Users PropertyAccessMode.Field"
+                    }
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "Microsoft.EntityFrameworkCore.CustomUserTokenString",
                     TableName = "MyUserTokens",
@@ -328,6 +372,12 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<CustomUserString>(
                 b =>
                 {
+                    b.HasMany(e => e.Roles)
+                        .WithMany(e => e.Users)
+                        .UsingEntity<CustomUserRoleString>(
+                            j => j.HasOne(e => e.Role).WithMany(e => e.UserRoles).HasForeignKey(e => e.RoleId),
+                            j => j.HasOne(e => e.User).WithMany(e => e.UserRoles).HasForeignKey(e => e.RoleId));
+
                     b.HasMany(e => e.Claims).WithOne(e => e.User).HasForeignKey(uc => uc.UserId).IsRequired();
                     b.HasMany(e => e.Logins).WithOne(e => e.User).HasForeignKey(ul => ul.UserId).IsRequired();
                     b.HasMany(e => e.Tokens).WithOne(e => e.User).HasForeignKey(ut => ut.UserId).IsRequired();
@@ -390,6 +440,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public string CustomTag { get; set; }
 
+        public virtual ICollection<CustomRoleString> Roles { get; set; }
+
         public virtual ICollection<CustomUserClaimString> Claims { get; set; }
         public virtual ICollection<CustomUserLoginString> Logins { get; set; }
         public virtual ICollection<CustomUserTokenString> Tokens { get; set; }
@@ -402,6 +454,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Id = Guid.NewGuid().ToString();
         }
+
+        public virtual ICollection<CustomUserString> Users { get; set; }
 
         public virtual ICollection<CustomUserRoleString> UserRoles { get; set; }
         public virtual ICollection<CustomRoleClaimString> RoleClaims { get; set; }

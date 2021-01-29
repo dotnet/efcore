@@ -990,7 +990,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         public ListLoggerFactory ListLoggerFactory { get; }
-            = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
+            = new(l => l == DbLoggerCategory.Model.Name);
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {

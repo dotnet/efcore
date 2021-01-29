@@ -10,8 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class TimeSpanConvertersTest
     {
-        private static readonly TimeSpanToStringConverter _timeSpanToString
-            = new TimeSpanToStringConverter();
+        private static readonly TimeSpanToStringConverter _timeSpanToString = new();
 
         [ConditionalFact]
         public void Can_convert_TimeSpan_to_string()
@@ -37,8 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(new TimeSpan(), converter("00:00:00"));
         }
 
-        private static readonly TimeSpanToTicksConverter _timeSpanToTicks
-            = new TimeSpanToTicksConverter();
+        private static readonly TimeSpanToTicksConverter _timeSpanToTicks = new();
 
         [ConditionalFact]
         public void Can_convert_TimeSpan_to_ticks()

@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -14,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <inheritdoc />
     public class RelationalQueryTranslationPostprocessor : QueryTranslationPostprocessor
     {
+        private readonly bool _useRelationalNulls;
+
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalQueryTranslationPostprocessor" /> class.
         /// </summary>
@@ -30,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             RelationalDependencies = relationalDependencies;
+            _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
         }
 
         /// <summary>
@@ -45,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new CollectionJoinApplyingExpressionVisitor((RelationalQueryCompilationContext)QueryCompilationContext).Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
             query = new SelectExpressionPruningExpressionVisitor().Visit(query);
-            query = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
+            query = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls).Visit(query);
             query = new RelationalValueConverterCompensatingExpressionVisitor(RelationalDependencies.SqlExpressionFactory).Visit(query);
 
 #pragma warning disable 618

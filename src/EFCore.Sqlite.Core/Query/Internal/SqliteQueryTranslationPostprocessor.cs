@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPostprocessor
     {
-        private readonly ApplyValidatingVisitor _applyValidator = new ApplyValidatingVisitor();
+        private readonly ApplyValidatingVisitor _applyValidator = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

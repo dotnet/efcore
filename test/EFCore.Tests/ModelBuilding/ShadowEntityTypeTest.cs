@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             Assert.Equal(
                 CoreStrings.EntityRequiresKey("Order (Dictionary<string, object>)"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(() => InMemoryTestHelpers.Instance.Finalize(modelBuilder)).Message);
         }
 
         [ConditionalFact]
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             Assert.Equal(
                 CoreStrings.EntityRequiresKey("Customer (Dictionary<string, object>)"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(() => InMemoryTestHelpers.Instance.Finalize(modelBuilder)).Message);
         }
 
         [ConditionalFact]

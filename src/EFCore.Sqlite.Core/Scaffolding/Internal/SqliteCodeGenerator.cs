@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         public override MethodCallCodeFragment GenerateUseProvider(
             string connectionString,
             MethodCallCodeFragment providerOptions)
-            => new MethodCallCodeFragment(
+            => new(
                 nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite),
                 providerOptions == null
                     ? new object[] { connectionString }

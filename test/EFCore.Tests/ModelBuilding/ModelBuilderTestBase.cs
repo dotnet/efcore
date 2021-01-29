@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -116,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var options = new LoggingOptions();
                 options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
                 ValidationLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name);
-                var validationLogger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
+                ValidationLogger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                     ValidationLoggerFactory,
                     options,
                     new DiagnosticListener("Fake"),
@@ -131,8 +132,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     testHelpers.LoggingDefinitions,
                     new NullDbContextLogger());
 
-                ModelBuilder = testHelpers.CreateConventionBuilder(modelLogger, validationLogger);
+                ModelBuilder = testHelpers.CreateConventionBuilder(modelLogger, ValidationLogger);
+                TestHelpers = testHelpers;
             }
+
+            protected virtual TestHelpers TestHelpers { get; }
 
             public virtual IMutableModel Model
                 => ModelBuilder.Model;
@@ -140,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public ModelBuilder ModelBuilder { get; }
             public ListLoggerFactory ValidationLoggerFactory { get; }
             public ListLoggerFactory ModelLoggerFactory { get; }
+            protected virtual DiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; }
 
             public TestModelBuilder HasAnnotation(string annotation, object value)
             {
@@ -166,7 +171,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 where TEntity : class;
 
             public virtual IModel FinalizeModel()
-                => ModelBuilder.FinalizeModel();
+            {
+                var serviceProvider = TestHelpers.CreateContextServices();
+                var modelRuntimeInitializer = serviceProvider.GetRequiredService<IModelRuntimeInitializer>();
+
+                return modelRuntimeInitializer.Initialize(ModelBuilder.FinalizeModel(), ValidationLogger);
+            }
 
             public virtual string GetDisplayName(Type entityType)
                 => entityType.Name;

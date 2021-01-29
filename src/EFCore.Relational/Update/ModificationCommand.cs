@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly Func<string> _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IComparer<IUpdateEntry> _comparer;
-        private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
+        private readonly List<IUpdateEntry> _entries = new();
         private IReadOnlyList<ColumnModification> _columnModifications;
         private bool _requiresResultPropagation;
         private bool _mainEntryAdded;
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual IReadOnlyList<ColumnModification> ColumnModifications
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _columnModifications, this, command => command.GenerateColumnModifications());
+                ref _columnModifications, this, static command => command.GenerateColumnModifications());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

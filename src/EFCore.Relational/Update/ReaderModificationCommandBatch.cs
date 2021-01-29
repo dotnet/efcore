@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
-        private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
+        private readonly List<ModificationCommand> _modificationCommands = new();
 
         /// <summary>
         ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
