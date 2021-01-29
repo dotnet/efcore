@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -112,6 +113,8 @@ namespace Microsoft.EntityFrameworkCore
             ServiceProviderCache.Instance.GetOrAdd(options, providerRequired: false)
                 .GetRequiredService<IDbSetInitializer>()
                 .InitializeSets(this);
+
+            EntityFrameworkEventSource.Log.DbContextInitializing();
         }
 
         /// <summary>
@@ -138,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual IModel Model
         {
-            [DebuggerStepThrough] get => DbContextDependencies.Model;
+            [DebuggerStepThrough]
+            get => DbContextDependencies.Model;
         }
 
         /// <summary>
@@ -151,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         public virtual DbContextId ContextId
-            => new DbContextId(_contextId, _leaseCount);
+            => new(_contextId, _leaseCount);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -311,7 +315,16 @@ namespace Microsoft.EntityFrameworkCore
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(type.ShortDisplayName()));
                 }
 
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.FullName, GetDbSets().Select(dbSetType => dbSetType.Value.FullName).ToArray()));
+                var findSameTypeName = Model.FindSameTypeNameWithDifferentNamespace(type);
+                //if the same name exists in your entity types we will show you the full namespace of the type
+                if (!string.IsNullOrEmpty(findSameTypeName))
+                {
+                    throw new InvalidOperationException(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(type.DisplayName(), findSameTypeName));
+                }
+                else
+                {
+                    throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
+                }
             }
 
             if (entityType.FindPrimaryKey() == null)
@@ -320,43 +333,6 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return DbContextDependencies.EntityFinderFactory.Create(entityType);
-        }
-
-        /// <summary>
-        /// Get list of DbSets with name and types
-        /// </summary>
-        /// <returns>key value of dbsets the keys are name of table property and value is type of properties</returns>
-        public virtual List<KeyValuePair<string, Type>> GetDbSets()
-        {
-            CheckDisposed();
-            //list of base types
-            List<Type> baseTypes = new List<Type>();
-            //type of this context
-            Type parent = GetType();
-            //do and get list of base types of context for inheritance support and add to baseTypes
-            while (parent != null)
-            {
-                baseTypes.Add(parent);
-                parent = parent.BaseType;
-            }
-
-            //list of entity names and types
-            List<KeyValuePair<string, Type>> result = new List<KeyValuePair<string, Type>>();
-            foreach (var item in baseTypes)
-            {
-                //get every properties that has type of DbSet<T>
-                var dbSets = item.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly)
-                    .Where(x => x.PropertyType.GetGenericArguments().Length > 0 && x.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)).ToList();
-                //find type T of DbSet<T>
-                foreach (var dbSetProperty in dbSets)
-                {
-                    //get first argument of dbContext
-                    var entityType = dbSetProperty.PropertyType.GetGenericArguments()[0];
-                    //return name of property of dbSet and entity type as key value
-                    result.Add(new KeyValuePair<string, Type>(dbSetProperty.Name, entityType));
-                }
-            }
-            return result;
         }
 
         private IServiceProvider InternalServiceProvider
@@ -378,8 +354,6 @@ namespace Microsoft.EntityFrameworkCore
                 try
                 {
                     _initializing = true;
-
-                    EntityFrameworkEventSource.Log.DbContextInitializing();
 
                     var optionsBuilder = new DbContextOptionsBuilder(_options);
 
@@ -654,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore
             SavingChanges?.Invoke(this, new SavingChangesEventArgs(acceptAllChangesOnSuccess));
 
             var interceptionResult = await DbContextDependencies.UpdateLogger
-                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(false);
+                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(acceptAllChangesOnSuccess);
 
             TryDetectChanges();
 
@@ -676,6 +650,8 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (DbUpdateConcurrencyException exception)
             {
+                EntityFrameworkEventSource.Log.OptimisticConcurrencyFailure();
+
                 await DbContextDependencies.UpdateLogger.OptimisticConcurrencyExceptionAsync(this, exception, cancellationToken)
                     .ConfigureAwait(false);
 
@@ -926,7 +902,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>(TEntity entity)
             where TEntity : class
-            => new EntityEntry<TEntity>(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
+            => new(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
 
         /// <summary>
         ///     <para>
@@ -954,7 +930,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private EntityEntry EntryWithoutDetectChanges(object entity)
-            => new EntityEntry(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
+            => new(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
 
         private void SetEntityState(InternalEntityEntry entry, EntityState entityState)
         {

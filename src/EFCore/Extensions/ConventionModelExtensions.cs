@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or <see langword="null" /> if none if found. </returns>
-        public static IConventionEntityType FindEntityType([NotNull] this IConventionModel model, [NotNull] Type type)
+        public static IConventionEntityType? FindEntityType([NotNull] this IConventionModel model, [NotNull] Type type)
             => ((Model)model).FindEntityType(type);
 
         /// <summary>
@@ -35,12 +37,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
-        public static IConventionEntityType FindEntityType(
+        public static IConventionEntityType? FindEntityType(
             [NotNull] this IConventionModel model,
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
             [NotNull] IConventionEntityType definingEntityType)
-            => (IConventionEntityType)((IModel)model).FindEntityType(type, definingNavigationName, definingEntityType);
+            => (IConventionEntityType?)((IModel)model).FindEntityType(type, definingNavigationName, definingEntityType);
 
         /// <summary>
         ///     Gets the entity types matching the given type.
@@ -71,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to remove the entity type from. </param>
         /// <param name="name"> The name of the entity type to be removed. </param>
         /// <returns> The entity type that was removed. </returns>
-        public static IConventionEntityType RemoveEntityType(
+        public static IConventionEntityType? RemoveEntityType(
             [NotNull] this IConventionModel model,
             [NotNull] string name)
         {
@@ -90,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
-        public static IConventionEntityType RemoveEntityType(
+        public static IConventionEntityType? RemoveEntityType(
             [NotNull] this IConventionModel model,
             [NotNull] string name,
             [NotNull] string definingNavigationName,
@@ -110,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to remove the entity type from. </param>
         /// <param name="type"> The entity type to be removed. </param>
         /// <returns> The entity type that was removed. </returns>
-        public static IConventionEntityType RemoveEntityType([NotNull] this IConventionModel model, [NotNull] Type type)
+        public static IConventionEntityType? RemoveEntityType([NotNull] this IConventionModel model, [NotNull] Type type)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(type, nameof(type));
@@ -127,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingNavigationName"> The defining navigation. </param>
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
-        public static IConventionEntityType RemoveEntityType(
+        public static IConventionEntityType? RemoveEntityType(
             [NotNull] this IConventionModel model,
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
@@ -147,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IReadOnlyList<IConventionEntityType> FindLeastDerivedEntityTypes(
             [NotNull] this IConventionModel model,
             [NotNull] Type type,
-            [CanBeNull] Func<IConventionEntityType, bool> condition = null)
+            [CanBeNull] Func<IConventionEntityType, bool>? condition = null)
             => Check.NotNull((Model)model, nameof(model))
                 .FindLeastDerivedEntityTypes(type, condition);
 
@@ -288,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to remove the owned type name from. </param>
         /// <param name="type"> The type of the entity type that should not be owned. </param>
         /// <returns> The name of the removed owned type. </returns>
-        public static string RemoveOwned([NotNull] this IConventionModel model, [NotNull] Type type)
+        public static string? RemoveOwned([NotNull] this IConventionModel model, [NotNull] Type type)
             => Check.NotNull((Model)model, nameof(model)).RemoveOwned(
                 Check.NotNull(type, nameof(type)));
 
@@ -299,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The entity type to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The name of the ignored entity type. </returns>
-        public static string AddIgnored([NotNull] this IConventionModel model, [NotNull] Type type, bool fromDataAnnotation = false)
+        public static string? AddIgnored([NotNull] this IConventionModel model, [NotNull] Type type, bool fromDataAnnotation = false)
             => Check.NotNull((Model)model, nameof(model)).AddIgnored(
                 Check.NotNull(type, nameof(type)),
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

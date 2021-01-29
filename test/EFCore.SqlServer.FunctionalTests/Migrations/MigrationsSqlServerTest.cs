@@ -129,6 +129,25 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 );");
         }
 
+        [ConditionalFact]
+        public virtual async Task Create_table_with_sparse_column()
+        {
+            await Test(
+                _ => { },
+                builder => builder.Entity("People", e => e.Property<string>("SomeProperty").IsSparse()),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var column = Assert.Single(table.Columns, c => c.Name == "SomeProperty");
+                    Assert.True((bool?)column[SqlServerAnnotationNames.Sparse]);
+                });
+
+            AssertSql(
+                @"CREATE TABLE [People] (
+    [SomeProperty] nvarchar(max) SPARSE NULL
+);");
+        }
+
         public override async Task Drop_table()
         {
             await base.Drop_table();
@@ -944,6 +963,31 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name')
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [People] ADD DEFAULT N'Doe' FOR [Name];");
         }
+
+        [ConditionalFact]
+        public virtual async Task Alter_column_make_sparse()
+        {
+            await Test(
+                builder => builder.Entity("People").Property<string>("SomeProperty"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("SomeProperty")
+                    .IsSparse(),
+                model =>
+                {
+                    var column = Assert.Single(Assert.Single(model.Tables).Columns);
+                    Assert.True((bool?)column[SqlServerAnnotationNames.Sparse]);
+                });
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeProperty');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [SomeProperty] nvarchar(max) SPARSE NULL;");
+        }
+
 
         public override async Task Drop_column()
         {

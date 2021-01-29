@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         private static readonly MethodInfo _addTicks
             = typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddTicks), new[] { typeof(long) });
 
-        private readonly Dictionary<MethodInfo, string> _methodInfoToUnitSuffix = new Dictionary<MethodInfo, string>
+        private readonly Dictionary<MethodInfo, string> _methodInfoToUnitSuffix = new()
         {
             { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) }), " years" },
             { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMonths), new[] { typeof(int) }), " months" },

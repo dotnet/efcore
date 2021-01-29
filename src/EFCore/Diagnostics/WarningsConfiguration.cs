@@ -22,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class WarningsConfiguration
     {
-        private Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)> _explicitBehaviors
-            = new Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>();
+        private Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)> _explicitBehaviors = new();
 
         private WarningBehavior _defaultBehavior = WarningBehavior.Log;
 
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <returns> A clone of this instance, which can be modified before being returned as immutable. </returns>
         protected virtual WarningsConfiguration Clone()
-            => new WarningsConfiguration(this);
+            => new(this);
 
         /// <summary>
         ///     The option set from the <see cref="DefaultBehavior" /> method.

@@ -153,7 +153,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 FlagsEnum.Default, FlagsEnum.First | FlagsEnum.Second);
 
             Compare_returns_0_only_for_entries_that_have_same_key_values_generic(new Guid().ToByteArray(), Guid.NewGuid().ToByteArray());
-            Compare_returns_0_only_for_entries_that_have_same_key_values_generic(new[] { 1 }, new[] { 2 });
 
             Compare_returns_0_only_for_entries_that_have_same_key_values_generic("1", "2");
         }

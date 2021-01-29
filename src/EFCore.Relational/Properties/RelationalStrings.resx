@@ -162,6 +162,7 @@
   </data>
   <data name="DatabaseModelMissing" xml:space="preserve">
     <value>The database model hasn't been initialized. The model needs to be finalized and processed with 'RelationalModelConvention' before the database model can be accessed.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="DataOperationNoProperty" xml:space="preserve">
     <value>There is no property mapped to the column '{table}.{column}' which is used in a data operation. Either add a property mapped to this column, or specify the column types in the data operation.</value>

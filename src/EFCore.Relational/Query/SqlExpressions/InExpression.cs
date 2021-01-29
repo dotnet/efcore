@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <returns> An expression which is negated form of this expression. </returns>
         public virtual InExpression Negate()
-            => new InExpression(Item, Values, Subquery, !IsNegated, TypeMapping);
+            => new(Item, Values, Subquery, !IsNegated, TypeMapping);
 
         /// <summary>
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will

@@ -1,16 +1,20 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that creates and assigns store type mapping to entity properties.
     /// </summary>
+    [Obsolete("Use IModelRuntimeInitializer.Initialize instead.")]
     public class TypeMappingConvention : IModelFinalizingConvention
     {
         /// <summary>

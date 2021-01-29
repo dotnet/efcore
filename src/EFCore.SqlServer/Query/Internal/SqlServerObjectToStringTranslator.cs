@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private const int DefaultLength = 100;
 
         private static readonly Dictionary<Type, string> _typeMapping
-            = new Dictionary<Type, string>
+            = new()
             {
                 { typeof(sbyte), "varchar(4)" },
                 { typeof(byte), "varchar(3)" },

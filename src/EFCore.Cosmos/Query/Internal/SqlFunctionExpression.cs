@@ -89,11 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlFunctionExpression ApplyTypeMapping([CanBeNull] CoreTypeMapping? typeMapping)
-            => new SqlFunctionExpression(
-                Name,
-                Arguments,
-                Type,
-                typeMapping ?? TypeMapping);
+            => new(Name, Arguments, Type, typeMapping ?? TypeMapping);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

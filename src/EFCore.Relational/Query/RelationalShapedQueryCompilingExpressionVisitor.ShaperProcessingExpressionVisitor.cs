@@ -107,12 +107,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly IDictionary<Expression, Expression> _variableShaperMapping = new Dictionary<Expression, Expression>();
 
             // There are always entity variables to avoid materializing same entity twice
-            private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
+            private readonly List<ParameterExpression> _variables = new();
 
-            private readonly List<Expression> _expressions = new List<Expression>();
+            private readonly List<Expression> _expressions = new();
 
             // IncludeExpressions are added at the end in case they are using ValuesArray
-            private readonly List<Expression> _includeExpressions = new List<Expression>();
+            private readonly List<Expression> _includeExpressions = new();
 
             // If there is collection shaper then we need to construct ValuesArray to store values temporarily in ResultContext
             private List<Expression>? _collectionPopulatingExpressions;
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             var entityType = entity.Type;
                             var navigation = includeExpression.Navigation;
-                            var includingEntityType = navigation.DeclaringEntityType.ClrType!;
+                            var includingEntityType = navigation.DeclaringEntityType.ClrType;
                             if (includingEntityType != entityType
                                 && includingEntityType.IsAssignableFrom(entityType))
                             {
@@ -595,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             var entityType = entity.Type;
                             var navigation = includeExpression.Navigation;
-                            var includingEntityType = navigation.DeclaringEntityType.ClrType!;
+                            var includingEntityType = navigation.DeclaringEntityType.ClrType;
                             if (includingEntityType != entityType
                                 && includingEntityType.IsAssignableFrom(entityType))
                             {
@@ -672,9 +672,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             var navigationExpression = Visit(includeExpression.NavigationExpression);
                             var entityType = entity.Type;
                             var navigation = includeExpression.Navigation;
-                            var includingType = navigation.DeclaringEntityType.ClrType!;
+                            var includingType = navigation.DeclaringEntityType.ClrType;
                             var inverseNavigation = navigation.Inverse;
-                            var relatedEntityType = navigation.TargetEntityType.ClrType!;
+                            var relatedEntityType = navigation.TargetEntityType.ClrType;
                             if (includingType != entityType
                                 && includingType.IsAssignableFrom(entityType))
                             {

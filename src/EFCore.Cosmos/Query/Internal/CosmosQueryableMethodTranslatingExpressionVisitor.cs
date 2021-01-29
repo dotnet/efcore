@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         }
 
         private ShapedQueryExpression CreateShapedQueryExpression(Expression queryExpression, IEntityType entityType)
-            => new ShapedQueryExpression(
+            => new(
                 queryExpression,
                 new EntityShaperExpression(
                     entityType,

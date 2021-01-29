@@ -40,7 +40,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.core" Version="2.0.5-pre20201231105030" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="2.0.5-pre20210119130047" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" />
   </ItemGroup>
 

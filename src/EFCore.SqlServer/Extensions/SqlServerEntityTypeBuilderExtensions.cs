@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -87,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder IsMemoryOptimized(
+        public static IConventionEntityTypeBuilder? IsMemoryOptimized(
             [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
             bool? memoryOptimized,
             bool fromDataAnnotation = false)

@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => EntityTypeBuilder.Metadata;
 
             protected virtual NonGenericTestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder entityTypeBuilder)
-                => new NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
+                => new(entityTypeBuilder);
 
             public override TestEntityTypeBuilder<TEntity> HasAnnotation(string annotation, object value)
                 => Wrap(EntityTypeBuilder.HasAnnotation(annotation, value));
@@ -781,7 +781,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected virtual NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> Wrap(
                 ReferenceReferenceBuilder referenceReferenceBuilder)
-                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder);
+                => new(referenceReferenceBuilder);
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation(string annotation, object value)
                 => Wrap(ReferenceReferenceBuilder.HasAnnotation(annotation, value));
@@ -908,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 OwnershipBuilder ownershipBuilder)
                 where TNewEntity : class
                 where TNewRelatedEntity : class
-                => new NonGenericTestOwnershipBuilder<TNewEntity, TNewRelatedEntity>(ownershipBuilder);
+                => new(ownershipBuilder);
 
             public override TestOwnershipBuilder<TEntity, TRelatedEntity> HasAnnotation(string annotation, object value)
                 => Wrap<TEntity, TRelatedEntity>(OwnershipBuilder.HasAnnotation(annotation, value));
@@ -959,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 OwnedNavigationBuilder ownedNavigationBuilder)
                 where TNewEntity : class
                 where TNewDependentEntity : class
-                => new NonGenericTestOwnedNavigationBuilder<TNewEntity, TNewDependentEntity>(ownedNavigationBuilder);
+                => new(ownedNavigationBuilder);
 
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> HasAnnotation(
                 string annotation,

@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual List<EntityTypeMapping> ExpectedMappings
             => new()
             {
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.DeviceFlowCodes",
                     TableName = "DeviceCodes",
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
                         "{'DeviceCode'} Unique", "{'Expiration'} ",
                     },
                 },
-                new()
+                new EntityTypeMapping()
                 {
                     Name = "IdentityServer4.EntityFramework.Entities.PersistedGrant",
                     TableName = "PersistedGrants",

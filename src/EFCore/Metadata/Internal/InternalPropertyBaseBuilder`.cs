@@ -5,6 +5,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -33,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBaseBuilder<TPropertyBase> HasField(
-            [CanBeNull] string fieldName,
+        public virtual InternalPropertyBaseBuilder<TPropertyBase>? HasField(
+            [CanBeNull] string? fieldName,
             ConfigurationSource configurationSource)
         {
             if (CanSetField(fieldName, configurationSource))
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetField([CanBeNull] string fieldName, ConfigurationSource? configurationSource)
+        public virtual bool CanSetField([CanBeNull] string? fieldName, ConfigurationSource? configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource()))
             {
@@ -81,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBaseBuilder<TPropertyBase> HasField(
-            [CanBeNull] FieldInfo fieldInfo,
+        public virtual InternalPropertyBaseBuilder<TPropertyBase>? HasField(
+            [CanBeNull] FieldInfo? fieldInfo,
             ConfigurationSource configurationSource)
         {
             if (CanSetField(fieldInfo, configurationSource))
@@ -101,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource? configurationSource)
+        public virtual bool CanSetField([CanBeNull] FieldInfo? fieldInfo, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
                     && (fieldInfo == null
                         || PropertyBase.IsCompatible(
@@ -115,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBaseBuilder<TPropertyBase> UsePropertyAccessMode(
+        public virtual InternalPropertyBaseBuilder<TPropertyBase>? UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             ConfigurationSource configurationSource)
         {

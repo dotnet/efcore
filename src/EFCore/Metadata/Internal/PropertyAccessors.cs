@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -25,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public PropertyAccessors(
             [NotNull] Delegate currentValueGetter,
             [NotNull] Delegate preStoreGeneratedCurrentValueGetter,
-            [CanBeNull] Delegate originalValueGetter,
+            [CanBeNull] Delegate? originalValueGetter,
             [NotNull] Delegate relationshipSnapshotGetter,
-            [CanBeNull] Func<ValueBuffer, object> valueBufferGetter)
+            [CanBeNull] Func<ValueBuffer, object>? valueBufferGetter)
         {
             CurrentValueGetter = currentValueGetter;
             PreStoreGeneratedCurrentValueGetter = preStoreGeneratedCurrentValueGetter;
@@ -58,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Delegate OriginalValueGetter { get; }
+        public Delegate? OriginalValueGetter { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,6 +76,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Func<ValueBuffer, object> ValueBufferGetter { get; }
+        public Func<ValueBuffer, object>? ValueBufferGetter { get; }
     }
 }

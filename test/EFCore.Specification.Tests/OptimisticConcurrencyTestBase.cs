@@ -32,11 +32,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = Fixture.CreateModelBuilder();
             modelBuilder.Entity("Dummy");
+            var model = modelBuilder.FinalizeModel();
+
+            var context = new F1Context(new DbContextOptionsBuilder(Fixture.CreateOptions()).UseModel(model).Options);
 
             Assert.Equal(
                 CoreStrings.EntityRequiresKey("Dummy (Dictionary<string, object>)"),
-                Assert.Throws<InvalidOperationException>
-                    (() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]

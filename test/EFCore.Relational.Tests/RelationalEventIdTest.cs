@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
             public void Migrate(string targetMigration = null)
                 => throw new NotImplementedException();
 
-            public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new CancellationToken())
+            public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new())
                 => throw new NotImplementedException();
 
             public string GenerateScript(

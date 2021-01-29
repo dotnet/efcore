@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder)
-            => new BadUniverseContext(optionsBuilder.UseSqlServer(new FakeDbConnection()).Options);
+            => new(optionsBuilder.UseSqlServer(new FakeDbConnection()).Options);
 
         public class FakeDbConnection : DbConnection
         {

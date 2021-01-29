@@ -376,8 +376,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 var blogs = new List<Blog>
                 {
-                    new Blog { Name = "One Unicorn" },
-                    new Blog
+                    new() { Name = "One Unicorn" },
+                    new()
                     {
                         Name = "Two Unicorns",
                         CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0),

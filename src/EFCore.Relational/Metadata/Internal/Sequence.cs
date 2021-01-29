@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -32,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private long? _maxValue;
         private Type? _type;
         private bool? _isCyclic;
+        private InternalSequenceBuilder? _builder;
 
         private ConfigurationSource _configurationSource;
         private ConfigurationSource? _startValueConfigurationSource;
@@ -108,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Name = name;
             _schema = schema;
             _configurationSource = configurationSource;
-            Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
+            _builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
         }
 
         /// <summary>
@@ -135,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _maxValue = data.MaxValue;
             _type = data.ClrType;
             _isCyclic = data.IsCyclic;
-            Builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
+            _builder = new InternalSequenceBuilder(this, ((IConventionModel)model).Builder);
         }
 
         /// <summary>
@@ -173,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Sequence? AddSequence(
+        public static Sequence AddSequence(
             [NotNull] IMutableModel model,
             [NotNull] string name,
             [CanBeNull] string? schema,
@@ -239,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             sequences.Remove((name, schema));
-            sequence.Builder = null;
+            sequence.SetRemovedFromModel();
 
             return sequence;
         }
@@ -250,7 +252,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalSequenceBuilder? Builder { get; private set; }
+        public virtual InternalSequenceBuilder Builder
+        {
+            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -586,7 +609,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionSequenceBuilder? IConventionSequence.Builder
+        IConventionSequenceBuilder IConventionSequence.Builder
             => Builder;
 
         /// <summary>

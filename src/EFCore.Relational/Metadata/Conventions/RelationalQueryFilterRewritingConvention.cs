@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <inheritdoc />
@@ -80,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                     if (methodName == nameof(RelationalQueryableExtensions.FromSqlRaw))
                     {
-                        sql = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                        sql = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value!;
                         argument = methodCallExpression.Arguments[2];
                     }
                     else

@@ -206,8 +206,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
         {
-            private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
-            public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
+            private readonly List<IRelationalParameter> _parameters = new();
+            public IndentedStringBuilder Instance { get; } = new();
 
             public IReadOnlyList<IRelationalParameter> Parameters
                 => _parameters;

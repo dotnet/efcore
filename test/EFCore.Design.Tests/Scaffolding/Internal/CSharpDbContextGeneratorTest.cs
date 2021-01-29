@@ -859,10 +859,10 @@ namespace TestNamespace
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {
             public override MethodCallCodeFragment GenerateProviderOptions()
-                => new MethodCallCodeFragment("SetProviderOption");
+                => new("SetProviderOption");
 
             public override MethodCallCodeFragment GenerateContextOptions()
-                => new MethodCallCodeFragment("SetContextOption");
+                => new("SetContextOption");
         }
     }
 }

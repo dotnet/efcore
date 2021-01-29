@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
 
-        private static readonly Dictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
+        private static readonly Dictionary<ExpressionType, string> _operatorMap = new()
         {
             { ExpressionType.Equal, " = " },
             { ExpressionType.NotEqual, " <> " },

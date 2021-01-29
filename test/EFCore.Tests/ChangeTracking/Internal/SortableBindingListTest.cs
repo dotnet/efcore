@@ -169,15 +169,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var list = new List<DerivedListElement>
             {
-                new DerivedListElement(3),
-                new DerivedListElement(1),
-                new DerivedListElement(4)
+                new(3),
+                new(1),
+                new(4)
             };
             var sortedList = new List<DerivedListElement>
             {
-                new DerivedListElement(1),
-                new DerivedListElement(3),
-                new DerivedListElement(4)
+                new(1),
+                new(3),
+                new(4)
             };
 
             var bindingList = new SortableBindingList<DerivedListElement>(list);
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public static implicit operator ListElement(int i)
-                => new ListElement(i);
+                => new(i);
 
             public int Int { get; }
             public int? NullableInt { get; }

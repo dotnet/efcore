@@ -107,14 +107,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<Squad> CreateSquads()
             => new List<Squad>
             {
-                new Squad
+                new()
                 {
                     Id = 1,
                     Name = "Delta",
                     Banner = new byte[] { 0x00, 0x01 },
                     Banner5 = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 }
                 },
-                new Squad
+                new()
                 {
                     Id = 2,
                     Name = "Kilo",
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<Mission> CreateMissions()
             => new List<Mission>
             {
-                new Mission
+                new()
                 {
                     Id = 1,
                     CodeName = "Lightmass Offensive",
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     Timeline = new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0)),
                     Duration = new TimeSpan(1, 2, 3)
                 },
-                new Mission
+                new()
                 {
                     Id = 2,
                     CodeName = "Hollow Storm",
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0)),
                     Duration = new TimeSpan(0, 1, 2, 3, 456)
                 },
-                new Mission
+                new()
                 {
                     Id = 3,
                     CodeName = "Halvo Bay defense",
@@ -155,9 +155,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<SquadMission> CreateSquadMissions()
             => new List<SquadMission>
             {
-                new SquadMission(),
-                new SquadMission(),
-                new SquadMission()
+                new(),
+                new(),
+                new()
             };
 
         public static IReadOnlyList<City> CreateCities()
@@ -193,70 +193,70 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<Weapon> CreateWeapons()
             => new List<Weapon>
             {
-                new Weapon
+                new()
                 {
                     Id = 1,
                     Name = "Marcus' Lancer",
                     AmmunitionType = AmmunitionType.Cartridge,
                     IsAutomatic = true
                 },
-                new Weapon
+                new()
                 {
                     Id = 2,
                     Name = "Marcus' Gnasher",
                     AmmunitionType = AmmunitionType.Shell,
                     IsAutomatic = false
                 },
-                new Weapon
+                new()
                 {
                     Id = 3,
                     Name = "Dom's Hammerburst",
                     AmmunitionType = AmmunitionType.Cartridge,
                     IsAutomatic = false
                 },
-                new Weapon
+                new()
                 {
                     Id = 4,
                     Name = "Dom's Gnasher",
                     AmmunitionType = AmmunitionType.Shell,
                     IsAutomatic = false
                 },
-                new Weapon
+                new()
                 {
                     Id = 5,
                     Name = "Cole's Gnasher",
                     AmmunitionType = AmmunitionType.Shell,
                     IsAutomatic = false
                 },
-                new Weapon
+                new()
                 {
                     Id = 6,
                     Name = "Cole's Mulcher",
                     AmmunitionType = AmmunitionType.Cartridge,
                     IsAutomatic = true
                 },
-                new Weapon
+                new()
                 {
                     Id = 7,
                     Name = "Baird's Lancer",
                     AmmunitionType = AmmunitionType.Cartridge,
                     IsAutomatic = true
                 },
-                new Weapon
+                new()
                 {
                     Id = 8,
                     Name = "Baird's Gnasher",
                     AmmunitionType = AmmunitionType.Shell,
                     IsAutomatic = false
                 },
-                new Weapon
+                new()
                 {
                     Id = 9,
                     Name = "Paduk's Markza",
                     AmmunitionType = AmmunitionType.Cartridge,
                     IsAutomatic = false
                 },
-                new Weapon
+                new()
                 {
                     Id = 10,
                     Name = "Mauler's Flail",
@@ -267,18 +267,18 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<CogTag> CreateTags()
             => new List<CogTag>
             {
-                new CogTag { Id = Guid.Parse("DF36F493-463F-4123-83F9-6B135DEEB7BA"), Note = "Dom's Tag", IssueDate = new DateTime(3, 2, 2) },
-                new CogTag { Id = Guid.Parse("A8AD98F9-E023-4E2A-9A70-C2728455BD34"), Note = "Cole's Tag", IssueDate = new DateTime(2, 10, 11) },
-                new CogTag { Id = Guid.Parse("A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69"), Note = "Paduk's Tag", IssueDate = new DateTime(15, 3, 7) },
-                new CogTag { Id = Guid.Parse("70534E05-782C-4052-8720-C2C54481CE5F"), Note = "Baird's Tag", IssueDate = new DateTime(7, 5, 3) },
-                new CogTag { Id = Guid.Parse("34C8D86E-A4AC-4BE5-827F-584DDA348A07"), Note = "Marcus' Tag", IssueDate = new DateTime(1, 9, 25) },
-                new CogTag { Id = Guid.Parse("B39A6FBA-9026-4D69-828E-FD7068673E57"), Note = "K.I.A.", IssueDate = new DateTime(21, 7, 7) }
+                new() { Id = Guid.Parse("DF36F493-463F-4123-83F9-6B135DEEB7BA"), Note = "Dom's Tag", IssueDate = new DateTime(3, 2, 2) },
+                new() { Id = Guid.Parse("A8AD98F9-E023-4E2A-9A70-C2728455BD34"), Note = "Cole's Tag", IssueDate = new DateTime(2, 10, 11) },
+                new() { Id = Guid.Parse("A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69"), Note = "Paduk's Tag", IssueDate = new DateTime(15, 3, 7) },
+                new() { Id = Guid.Parse("70534E05-782C-4052-8720-C2C54481CE5F"), Note = "Baird's Tag", IssueDate = new DateTime(7, 5, 3) },
+                new() { Id = Guid.Parse("34C8D86E-A4AC-4BE5-827F-584DDA348A07"), Note = "Marcus' Tag", IssueDate = new DateTime(1, 9, 25) },
+                new() { Id = Guid.Parse("B39A6FBA-9026-4D69-828E-FD7068673E57"), Note = "K.I.A.", IssueDate = new DateTime(21, 7, 7) }
             };
 
         public static IReadOnlyList<Gear> CreateGears()
             => new List<Gear>
             {
-                new Gear
+                new()
                 {
                     Nickname = "Dom",
                     FullName = "Dominic Santiago",
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     LeaderNickname = "Marcus",
                     LeaderSquadId = 1
                 },
-                new Gear
+                new()
                 {
                     Nickname = "Cole Train",
                     FullName = "Augustus Cole",
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     LeaderNickname = "Marcus",
                     LeaderSquadId = 1
                 },
-                new Gear
+                new()
                 {
                     Nickname = "Paduk",
                     FullName = "Garron Paduk",
@@ -336,21 +336,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<LocustLeader> CreateLocustLeaders()
             => new List<LocustLeader>
             {
-                new LocustLeader
+                new()
                 {
                     Name = "General Karn",
                     ThreatLevel = 3,
                     ThreatLevelByte = 3,
                     ThreatLevelNullableByte = 3
                 },
-                new LocustLeader
+                new()
                 {
                     Name = "General RAAM",
                     ThreatLevel = 4,
                     ThreatLevelByte = 4,
                     ThreatLevelNullableByte = 4
                 },
-                new LocustLeader
+                new()
                 {
                     Name = "High Priest Skorge",
                     ThreatLevel = 1,
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     ThreatLevelByte = 5,
                     ThreatLevelNullableByte = 5
                 },
-                new LocustLeader
+                new()
                 {
                     Name = "The Speaker",
                     ThreatLevel = 3,
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<LocustHighCommand> CreateHighCommands()
             => new List<LocustHighCommand>
             {
-                new LocustHighCommand
+                new()
                 {
                     Id = 1,
                     Name = "Locust Main Command",

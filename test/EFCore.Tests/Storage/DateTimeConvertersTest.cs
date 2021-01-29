@@ -10,8 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class DateTimeConvertersTest
     {
-        private static readonly DateTimeToTicksConverter _dateTimeToTicks
-            = new DateTimeToTicksConverter();
+        private static readonly DateTimeToTicksConverter _dateTimeToTicks = new();
 
         [ConditionalFact]
         public void Can_convert_DateTime_to_ticks()
@@ -34,8 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(new DateTime(), converter(0));
         }
 
-        private static readonly DateTimeToBinaryConverter _dateTimeToBinary
-            = new DateTimeToBinaryConverter();
+        private static readonly DateTimeToBinaryConverter _dateTimeToBinary = new();
 
         [ConditionalFact]
         public void Can_convert_DateTime_to_binary()
@@ -109,8 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(new DateTime(), converter(0));
         }
 
-        private static readonly DateTimeToStringConverter _dateTimeToString
-            = new DateTimeToStringConverter();
+        private static readonly DateTimeToStringConverter _dateTimeToString = new();
 
         [ConditionalFact]
         public void Can_convert_DateTime_to_string()

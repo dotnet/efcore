@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected Order CreateOrder(string userName = "RainbowDash")
-            => new Order
+            => new()
             {
                 Username = userName,
                 FirstName = "Macavity",

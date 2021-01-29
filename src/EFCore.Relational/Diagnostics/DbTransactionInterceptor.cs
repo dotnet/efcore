@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionStartingEventData eventData,
             InterceptionResult<DbTransaction> result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult<DbTransaction>>(result);
+            => new(result);
 
         /// <summary>
         ///     <para>
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionEndEventData eventData,
             DbTransaction result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<DbTransaction>(result);
+            => new(result);
 
         /// <summary>
         ///     <para>
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionEventData eventData,
             DbTransaction result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<DbTransaction>(result);
+            => new(result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbTransaction.Commit" />.
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <summary>
         ///     Called immediately after EF calls <see cref="DbTransaction.CommitAsync" />.
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <summary>
         ///     Called immediately after EF calls <see cref="DbTransaction.RollbackAsync(CancellationToken)" />.
@@ -349,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <inheritdoc />
         public virtual Task CreatedSavepointAsync(
@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <inheritdoc />
         public virtual Task RolledBackToSavepointAsync(
@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <inheritdoc />
         public virtual Task ReleasedSavepointAsync(

@@ -91,9 +91,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 Products = new List<NullbileProduct>
                 {
-                    new NullbileProduct(),
-                    new NullbileProduct(),
-                    new NullbileProduct()
+                    new(),
+                    new(),
+                    new()
                 }
             };
 
@@ -340,9 +340,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Id = 1,
                 Products = new List<Product>
                 {
-                    new Product { Id = 1 },
-                    new Product { Id = 2 },
-                    new Product { Id = 3 }
+                    new() { Id = 1 },
+                    new() { Id = 2 },
+                    new() { Id = 3 }
                 }
             };
 
@@ -508,9 +508,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Id = 1,
                 Products = new List<Product>
                 {
-                    new Product { Id = 1 },
+                    new() { Id = 1 },
                     existingProduct,
-                    new Product { Id = 3 }
+                    new() { Id = 3 }
                 }
             };
 
@@ -553,19 +553,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Id = 1,
                 Products = new List<Product>
                 {
-                    new Product
+                    new()
                     {
                         Id = 1,
                         CategoryId = 1,
                         Details = new ProductDetails { Id = 1 }
                     },
-                    new Product
+                    new()
                     {
                         Id = 2,
                         CategoryId = 1,
                         Details = new ProductDetails { Id = 2 }
                     },
-                    new Product
+                    new()
                     {
                         Id = 3,
                         CategoryId = 1,
@@ -722,9 +722,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Id = 1,
                 Products = new List<Product>
                 {
-                    new Product { Id = 1 },
-                    new Product { Id = 2 },
-                    new Product { Id = 3 }
+                    new() { Id = 1 },
+                    new() { Id = 2 },
+                    new() { Id = 3 }
                 }
             };
 
@@ -772,9 +772,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 newCategory.Products = new List<Product>
                 {
-                    new Product { Id = 1 },
-                    new Product { Id = 2 },
-                    new Product { Id = 3 }
+                    new() { Id = 1 },
+                    new() { Id = 2 },
+                    new() { Id = 3 }
                 };
             }
 
@@ -869,19 +869,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Id = 1,
                 Products = new List<Product>
                 {
-                    new Product
+                    new()
                     {
                         Id = 1,
                         CategoryId = 1,
                         Details = new ProductDetails { Id = 1 }
                     },
-                    new Product
+                    new()
                     {
                         Id = 2,
                         CategoryId = 1,
                         Details = new ProductDetails { Id = 2 }
                     },
-                    new Product
+                    new()
                     {
                         Id = 3,
                         CategoryId = 1,
@@ -988,9 +988,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Id = 77,
                 Products = new List<Product>
                 {
-                    new Product { Id = 77, CategoryId = expectModified ? 0 : 77 },
-                    new Product { Id = 0, CategoryId = expectModified ? 0 : 77 },
-                    new Product { Id = 78, CategoryId = expectModified ? 0 : 77 }
+                    new() { Id = 77, CategoryId = expectModified ? 0 : 77 },
+                    new() { Id = 0, CategoryId = expectModified ? 0 : 77 },
+                    new() { Id = 78, CategoryId = expectModified ? 0 : 77 }
                 }
             };
 
@@ -1031,9 +1031,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Id = 77,
                 Products = new List<Product>
                 {
-                    new Product { Id = 77, CategoryId = 77 },
-                    new Product { Id = 0, CategoryId = 77 },
-                    new Product { Id = 78, CategoryId = 77 }
+                    new() { Id = 77, CategoryId = 77 },
+                    new() { Id = 0, CategoryId = 77 },
+                    new() { Id = 78, CategoryId = 77 }
                 }
             };
 
@@ -1107,19 +1107,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Id = 1,
                 Products = new List<Product>
                 {
-                    new Product
+                    new()
                     {
                         Id = 1,
                         CategoryId = 1,
                         Details = new ProductDetails { Id = 1 }
                     },
-                    new Product
+                    new()
                     {
                         Id = 2,
                         CategoryId = 1,
                         Details = new ProductDetails { Id = 2 }
                     },
-                    new Product
+                    new()
                     {
                         Id = 3,
                         CategoryId = 1,
@@ -1196,7 +1196,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private static Product CreateSimpleGraph(int id)
-            => new Product { Id = id, Category = new Category { Id = id } };
+            => new() { Id = id, Category = new Category { Id = id } };
 
         private class ChangeDetectorProxy : ChangeDetector
         {

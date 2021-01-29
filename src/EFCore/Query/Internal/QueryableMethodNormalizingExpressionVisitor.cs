@@ -27,8 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly QueryCompilationContext _queryCompilationContext;
 
-        private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
-            = new SelectManyVerifyingExpressionVisitor();
+        private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -636,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private sealed class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
         {
-            private readonly List<ParameterExpression> _allowedParameters = new List<ParameterExpression>();
+            private readonly List<ParameterExpression> _allowedParameters = new();
             private readonly ISet<string> _allowedMethods = new HashSet<string> { nameof(Queryable.Where), nameof(Queryable.AsQueryable) };
 
             private ParameterExpression? _rootParameter;

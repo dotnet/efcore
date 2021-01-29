@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -114,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (foundBindings.Count == 0)
                     {
                         var constructorErrors = bindingFailures.SelectMany(f => f)
-                            .GroupBy(f => f.Member as ConstructorInfo)
+                            .GroupBy(f => (ConstructorInfo)f.Member)
                             .Select(
                                 x => CoreStrings.ConstructorBindingFailed(
                                     string.Join("', '", x.Select(f => f.Name)),

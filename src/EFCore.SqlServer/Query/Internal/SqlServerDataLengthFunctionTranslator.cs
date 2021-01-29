@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerDataLengthFunctionTranslator : IMethodCallTranslator
     {
-        private static readonly List<string> _longReturningTypes = new List<string>
+        private static readonly List<string> _longReturningTypes = new()
         {
             "nvarchar(max)",
             "varchar(max)",
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         };
 
         private static readonly HashSet<MethodInfo> _methodInfoDataLengthMapping
-            = new HashSet<MethodInfo>
+            = new()
             {
                 typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
                     nameof(SqlServerDbFunctionsExtensions.DataLength),

@@ -510,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private sealed class AttributeWriter
         {
             private readonly string _attributeName;
-            private readonly List<string> _parameters = new List<string>();
+            private readonly List<string> _parameters = new();
 
             public AttributeWriter([NotNull] string attributeName)
             {

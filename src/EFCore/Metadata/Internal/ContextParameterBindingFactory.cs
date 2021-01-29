@@ -4,6 +4,8 @@
 using System;
 using System.Linq;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>

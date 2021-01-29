@@ -1293,12 +1293,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.
-        ///     Your types : '[typeNames]'
         /// </summary>
-        public static string InvalidSetType([CanBeNull] object? typeName, string[] yourTypes)
+        public static string InvalidSetType([CanBeNull] object? typeName)
             => string.Format(
-                GetString("InvalidSetType", nameof(typeName), nameof(yourTypes)),
-                typeName, string.Join(string.Concat(',', Environment.NewLine), yourTypes));
+                GetString("InvalidSetType", nameof(typeName)), typeName);
+
+        /// <summary>
+        ///     Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.
+        ///     entityType : is an '{entityType}' that exist in your DbSets
+        ///     this exception will happen when you are using two types with the same name but the different namespace
+        /// </summary>
+        public static string InvalidSetSameTypeWithDifferentNamespace([CanBeNull] object? typeName, [CanBeNull] string entityTypeName)
+            => string.Format(
+                GetString("InvalidSetSameTypeWithDifferentNamespace", nameof(typeName), nameof(entityTypeName)),
+                typeName, entityTypeName);
 
         /// <summary>
         ///     Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'.
@@ -1492,12 +1500,24 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 principalEntityType, declaringEntityType);
 
         /// <summary>
-        ///     The model must be finalized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'FinalizeModel' has been called.
+        ///     Runtime metadata changes are not allowed when the model hasn't been marked as read-only.
+        /// </summary>
+        public static string ModelMutable
+            => GetString("ModelMutable");
+
+        /// <summary>
+        ///     The model must be finalized and its runtime dependencies must be initialized before '{method}' can be used. Ensure that either 'OnModelCreating' has completed or, if using a stand-alone 'ModelBuilder', that 'IModelRuntimeInitializer.Initialize(model.FinalizeModel())' was called.
         /// </summary>
         public static string ModelNotFinalized([CanBeNull] object? method)
             => string.Format(
                 GetString("ModelNotFinalized", nameof(method)),
                 method);
+
+        /// <summary>
+        ///     Metadata changes are not allowed when the model has been marked as read-only.
+        /// </summary>
+        public static string ModelReadOnly
+            => GetString("ModelReadOnly");
 
         /// <summary>
         ///     The filters '{filter1}' and '{filter2}' have both been configured on the same included navigation. Only one unique filter per navigation is allowed. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
@@ -1937,6 +1957,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NullableKey", nameof(entityType), nameof(property)),
                 entityType, property);
+
+        /// <summary>
+        ///     The object has been removed from the model.
+        /// </summary>
+        public static string ObjectRemovedFromModel
+            => GetString("ObjectRemovedFromModel");
 
         /// <summary>
         ///     Options extension of type '{optionsExtension}' not found.
@@ -2383,7 +2409,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
-        ///     The seed entity for entity type '{entityType}' cannot be added because keyless entity types are not supported. Consider providing a key to seed data or use this entity for query only.
+        ///     The seed entity for entity type '{entityType}' cannot be added because keyless entity types are not supported. Consider providing a key or removing the seed data.
         /// </summary>
         public static string SeedKeylessEntity([CanBeNull] object? entityType)
             => string.Format(

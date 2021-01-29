@@ -715,7 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         && entityReference.EntityType.IsAssignableFrom(navigationBase.DeclaringEntityType))
                     {
                         converted = true;
-                        convertedRoot = Expression.Convert(root, navigationBase.DeclaringEntityType.ClrType!);
+                        convertedRoot = Expression.Convert(root, navigationBase.DeclaringEntityType.ClrType);
                     }
 
                     var included = navigationBase switch

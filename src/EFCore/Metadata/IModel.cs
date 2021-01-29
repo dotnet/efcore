@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 #nullable enable
@@ -53,5 +54,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] IEntityType definingEntityType);
+
+        /// <summary>
+        ///     The runtime service dependencies.
+        /// </summary>
+        SingletonModelDependencies? ModelDependencies
+            => (SingletonModelDependencies?)FindRuntimeAnnotationValue(CoreAnnotationNames.ModelDependencies);
+
+        /// <summary>
+        ///     Set the runtime service dependencies.
+        /// </summary>
+        /// <param name="modelDependencies"> The runtime service dependencies. </param>
+        /// <returns><see langword="true"/> if the runtime service dependencies were set; <see langword="false"/> otherwise. </returns>
+        bool SetModelDependencies([NotNull] SingletonModelDependencies modelDependencies)
+        {
+            if (FindRuntimeAnnotation(CoreAnnotationNames.ModelDependencies) != null)
+            {
+                return false;
+            }
+
+            AddRuntimeAnnotation(CoreAnnotationNames.ModelDependencies, modelDependencies);
+
+            return true;
+        }
     }
 }

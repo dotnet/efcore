@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class SqliteApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
+            public override HashSet<Type> FluentApiTypes { get; } = new()
             {
                 typeof(SqliteServiceCollectionExtensions),
                 typeof(SqliteDbContextOptionsBuilderExtensions),

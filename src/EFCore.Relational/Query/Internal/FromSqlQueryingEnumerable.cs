@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int[] BuildIndexMap([CanBeNull] IReadOnlyList<string> columnNames, [NotNull] DbDataReader dataReader)
+        public static int[] BuildIndexMap([NotNull] IReadOnlyList<string> columnNames, [NotNull] DbDataReader dataReader)
         {
             var readerColumns = Enumerable.Range(0, dataReader.FieldCount)
                 .ToDictionary(dataReader.GetName, i => i, StringComparer.OrdinalIgnoreCase);

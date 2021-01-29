@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 owner = ownership.PrincipalEntityType;
-                if (owner.ClrType?.IsAssignableFrom(targetType) == true)
+                if (owner.ClrType.IsAssignableFrom(targetType))
                 {
                     return owner;
                 }
@@ -191,8 +191,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static PropertyCounts CalculateCounts([NotNull] this EntityType entityType)
         {
-            Check.DebugAssert(entityType.Model.IsValidated, "Should not be called on a non-validated model");
-
             var index = 0;
             var navigationIndex = 0;
             var originalValueIndex = 0;
@@ -276,6 +274,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static Func<ISnapshot> GetEmptyShadowValuesFactory([NotNull] this IEntityType entityType)
             => entityType.AsEntityType().EmptyShadowValuesFactory;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static IReadOnlyList<IProperty> GetPropagatingProperties([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().PropagatingProperties;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static IReadOnlyList<IProperty> GetGeneratingProperties([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GeneratingProperties;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -404,5 +420,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static EntityType AsEntityType([NotNull] this IEntityType entityType, [NotNull] [CallerMemberName] string methodName = "")
             => MetadataExtensions.AsConcreteMetadataType<IEntityType, EntityType>(entityType, methodName);
+
+
+
+        /// <summary>
+        ///     Try to find the name of the type that has a different namespace from your entity types
+        /// </summary>
+        /// <param name="model">
+        ///     model Of your context to find entities
+        /// </param>
+        /// <param name="type">
+        ///     A Type that you think have a different namespace and exists in your entity types
+        /// </param>
+        /// <returns>
+        ///     the name with different namespace found
+        /// </returns>
+        public static string? FindSameTypeNameWithDifferentNamespace([NotNull] this IModel model, [NotNull] Type type)
+        {
+            //try to find the same name of the entity with type to throw a specific exception
+            return model.GetEntityTypes()
+                //check the short names are equals because the namespaces are not equaled we need to check just names are equals
+                .Where(x => x.ClrType.DisplayName(false) == type.DisplayName(false))
+                //select the full name of type because we need to show the developer a type with the full name
+                .Select(x => x.ClrType.DisplayName())
+                //select one of them to show the developer
+                .FirstOrDefault();
+        }
     }
 }

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRelationalTypeMappingSource
     {
         private readonly ConcurrentDictionary<(RelationalTypeMappingInfo, Type?, ValueConverter?), RelationalTypeMapping?> _explicitMappings
-            = new ConcurrentDictionary<(RelationalTypeMappingInfo, Type?, ValueConverter?), RelationalTypeMapping?>();
+            = new();
 
         /// <summary>
         ///     Initializes a new instance of the this class.
@@ -200,12 +200,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping? FindMapping(IProperty property)
         {
-            var mapping = property.FindRelationalTypeMapping();
-            if (mapping != null)
-            {
-                return mapping;
-            }
-
             var principals = property.FindPrincipals();
 
             string? storeTypeName = null;

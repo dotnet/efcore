@@ -15,7 +15,7 @@ namespace Microsoft.Data.Sqlite
         private const string Column = "value";
         private const long Rowid = 1;
 
-        private readonly SqliteConnection _connection = new SqliteConnection("Data Source=:memory:");
+        private readonly SqliteConnection _connection = new("Data Source=:memory:");
 
         public SqliteBlobTest()
         {

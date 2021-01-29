@@ -76,6 +76,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
+        ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different sparseness.
+        /// </summary>
+        public static string DuplicateColumnSparsenessMismatch([CanBeNull] object? entityType1, [CanBeNull] object? property1, [CanBeNull] object? entityType2, [CanBeNull] object? property2, [CanBeNull] object? columnName, [CanBeNull] object? table)
+            => string.Format(
+                GetString("DuplicateColumnSparsenessMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
+                entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
         ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different clustered configurations.
         /// </summary>
         public static string DuplicateIndexClusteredMismatch([CanBeNull] object? index1, [CanBeNull] object? entityType1, [CanBeNull] object? index2, [CanBeNull] object? entityType2, [CanBeNull] object? table, [CanBeNull] object? indexName)

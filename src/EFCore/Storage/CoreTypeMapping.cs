@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="converter"> The converter. </param>
             /// <returns> The new parameter object. </returns>
             public CoreTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter? converter)
-                => new CoreTypeMappingParameters(
+                => new(
                     ClrType,
                     converter == null ? Converter : converter.ComposeWith(Converter),
                     Comparer,
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _comparer,
                 this,
-                c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: false));
+                static c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: false));
 
         /// <summary>
         ///     A <see cref="ValueComparer" /> adds custom value comparison for use when
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _keyComparer,
                 this,
-                c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: true));
+                static c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: true));
 
         /// <summary>
         ///     A <see cref="ValueComparer" /> adds custom value comparison for use when
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
-        public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter converter);
+        public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter? converter);
 
         /// <summary>
         ///     Creates a an expression tree that can be used to generate code for the literal value.

@@ -26,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
     /// </summary>
     public class DbSetFinder : IDbSetFinder
     {
-        private readonly ConcurrentDictionary<Type, IReadOnlyList<DbSetProperty>> _cache
-            = new ConcurrentDictionary<Type, IReadOnlyList<DbSetProperty>>();
+        private readonly ConcurrentDictionary<Type, IReadOnlyList<DbSetProperty>> _cache = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

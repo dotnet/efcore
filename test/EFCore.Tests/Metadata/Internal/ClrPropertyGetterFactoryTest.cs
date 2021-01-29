@@ -21,21 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(property, new ClrPropertyGetterFactory().Create(property));
         }
 
-        private class FakeProperty : IProperty, IClrPropertyGetter
+        private class FakeProperty : Annotatable, IProperty, IClrPropertyGetter
         {
             public object GetClrValue(object entity)
                 => throw new NotImplementedException();
 
             public bool HasDefaultValue(object entity)
-                => throw new NotImplementedException();
-
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
                 => throw new NotImplementedException();
 
             public string Name { get; }
@@ -124,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class IndexedClass
         {
-            private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object>
+            private readonly Dictionary<string, object> _internalValues = new()
             {
                 { "PropertyA", "ValueA" }, { "PropertyB", 123 }
             };

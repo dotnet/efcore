@@ -948,7 +948,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The semaphore used to serialize access to this connection.
         /// </value>
         [Obsolete("EF Core no longer uses this semaphore. It will be removed in an upcoming release.")]
-        public virtual SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1);
+        public virtual SemaphoreSlim Semaphore { get; } = new(1);
 
         private Transaction? _enlistedTransaction;
 

@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         private class FakeDbContextTransaction : IDbContextTransaction
         {
-            public Guid TransactionId => new Guid();
+            public Guid TransactionId => new();
 
             public void Commit()
             {

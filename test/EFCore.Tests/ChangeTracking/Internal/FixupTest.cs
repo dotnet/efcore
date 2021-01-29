@@ -2604,7 +2604,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             public int Id { get; set; }
             public string Name { get; set; }
-            public List<ContainerRoomX> Rooms { get; set; } = new List<ContainerRoomX>();
+            public List<ContainerRoomX> Rooms { get; set; } = new();
         }
 
         public class ContainerRoomX
@@ -2621,7 +2621,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             public int Id { get; set; }
             public string Description { get; set; }
-            public List<ContainerRoomX> Rooms { get; set; } = new List<ContainerRoomX>();
+            public List<ContainerRoomX> Rooms { get; set; } = new();
         }
 
         protected class EscapeRoom : DbContext

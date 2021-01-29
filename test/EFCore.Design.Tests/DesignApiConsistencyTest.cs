@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class DesignApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type> { typeof(DesignTimeServiceCollectionExtensions) };
+            public override HashSet<Type> FluentApiTypes { get; } = new() { typeof(DesignTimeServiceCollectionExtensions) };
         }
     }
 }

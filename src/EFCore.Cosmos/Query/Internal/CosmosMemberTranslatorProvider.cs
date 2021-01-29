@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class CosmosMemberTranslatorProvider : IMemberTranslatorProvider
     {
-        private readonly List<IMemberTranslator> _plugins = new List<IMemberTranslator>();
-        private readonly List<IMemberTranslator> _translators = new List<IMemberTranslator>();
+        private readonly List<IMemberTranslator> _plugins = new();
+        private readonly List<IMemberTranslator> _translators = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public const int CommandTimeout = 30;
 
         public static SqliteTestStore GetOrCreate(string name, bool sharedCache = true)
-            => new SqliteTestStore(name, sharedCache: sharedCache);
+            => new(name, sharedCache: sharedCache);
 
         public static SqliteTestStore GetOrCreateInitialized(string name)
             => new SqliteTestStore(name).InitializeSqlite(
@@ -23,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 null);
 
         public static SqliteTestStore GetExisting(string name)
-            => new SqliteTestStore(name, seed: false);
+            => new(name, seed: false);
 
         public static SqliteTestStore Create(string name, bool sharedCache = true)
-            => new SqliteTestStore(name, sharedCache: sharedCache, shared: false);
+            => new(name, sharedCache: sharedCache, shared: false);
 
         private readonly bool _seed;
 

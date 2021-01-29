@@ -25,17 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<NotSupportedException>(() => model.AsModel()).Message);
         }
 
-        private class FakeModel : IModel
+        private class FakeModel : Annotatable, IModel
         {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
             public IEnumerable<IEntityType> GetEntityTypes()
                 => throw new NotImplementedException();
 
@@ -44,6 +35,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public IEntityType FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType)
                 => throw new NotImplementedException();
+        }
+
+        [ConditionalFact]
+        public void Model_throws_when_readonly()
+        {
+            var model = CreateModel();
+
+            model.FinalizeModel();
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.FinalizeModel()).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.DelayConventions()).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.AddAnnotation("foo", "bar")).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.RemoveOwned(typeof(SpecialCustomer))).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.AddOwned(typeof(Order))).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.AddShared(typeof(Order))).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => ((Model)model).SkipDetectChanges = false).Message);
         }
 
         [ConditionalFact]
@@ -75,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(Customer), entityType.ClrType);
             Assert.NotNull(model.FindEntityType(typeof(Customer)));
             Assert.Same(model, entityType.Model);
-            Assert.NotNull(((EntityType)entityType).Builder);
+            Assert.True(((EntityType)entityType).IsInModel);
 
             Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
 
@@ -85,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(model.RemoveEntityType(entityType.ClrType));
             Assert.Null(model.FindEntityType(typeof(Customer)));
-            Assert.Null(((EntityType)entityType).Builder);
+            Assert.False(((EntityType)entityType).IsInModel);
         }
 
         [ConditionalFact]
@@ -101,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(typeof(Customer).FullName, entityType.Name);
             Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
             Assert.Same(model, entityType.Model);
-            Assert.NotNull(((EntityType)entityType).Builder);
+            Assert.True(((EntityType)entityType).IsInModel);
 
             Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
 
@@ -111,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(model.RemoveEntityType(entityType.Name));
             Assert.Null(model.FindEntityType(typeof(Customer).FullName));
-            Assert.Null(((EntityType)entityType).Builder);
+            Assert.False(((EntityType)entityType).IsInModel);
         }
 
         [ConditionalFact]
@@ -128,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(entityTypeName, entityType.Name);
             Assert.NotNull(model.FindEntityType(entityTypeName));
             Assert.Same(model, entityType.Model);
-            Assert.NotNull(((EntityType)entityType).Builder);
+            Assert.True(((EntityType)entityType).IsInModel);
 
             Assert.Same(entityType, model.FindEntityType(entityTypeName));
             Assert.Null(model.FindEntityType(typeof(Customer)));
@@ -139,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(model.RemoveEntityType(entityType.Name));
             Assert.Null(model.FindEntityType(entityTypeName));
-            Assert.Null(((EntityType)entityType).Builder);
+            Assert.False(((EntityType)entityType).IsInModel);
         }
 
         [ConditionalFact]
@@ -288,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class Customer
         {
-            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty(nameof(Id));
 
             public int Id { get; set; }
             public string Name { get; set; }

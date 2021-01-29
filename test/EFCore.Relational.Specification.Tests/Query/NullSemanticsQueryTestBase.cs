@@ -1530,11 +1530,135 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task False_compared_to_negated_is_null(bool async)
+        public virtual Task False_compared_to_negated_is_null(bool async)
         {
-            await AssertQuery(
+            return AssertQuery(
                 async,
                 ss => ss.Set<NullSemanticsEntity1>().Where(e => false == (!(e.NullableStringA == null))));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Multiple_non_equality_comparisons_with_null_in_the_middle(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.NullableIntA != 1 && e.NullableIntA != null && e.NullableIntA != 2));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Multiple_non_equality_comparisons_including_null_comparison_work_for_relational_null_semantics(bool async)
+        {
+            var ctx = CreateContext(useRelationalNulls: true);
+
+            var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA != 1 && e.NullableIntA != null).ToList();
+            ClearLog();
+            var query = ctx.Entities1.Where(e => e.NullableIntA != 1 && e.NullableIntA != null);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+            Assert.Equal(expected.Count, result.Count);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Multiple_non_equality_comparisons_without_null_comparison_work_for_relational_null_semantics(bool async)
+        {
+            var ctx = CreateContext(useRelationalNulls: true);
+
+            var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA != 1 && e.NullableIntA != 2 && e.NullableIntA != null).ToList();
+            ClearLog();
+            var query = ctx.Entities1.Where(e => e.NullableIntA != 1 && e.NullableIntA != 2);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+            Assert.Equal(expected.Count, result.Count);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Multiple_equality_comparisons_including_null_comparison_work_for_relational_null_semantics(bool async)
+        {
+            var ctx = CreateContext(useRelationalNulls: true);
+
+            var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA == 1 || e.NullableIntA == null).ToList();
+            ClearLog();
+            var query = ctx.Entities1.Where(e => e.NullableIntA == 1 || e.NullableIntA == null);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+            Assert.Equal(expected.Count, result.Count);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Multiple_contains_calls_get_combined_into_one_for_relational_null_semantics(bool async)
+        {
+            var ctx = CreateContext(useRelationalNulls: true);
+
+            var expected = ctx.Entities1.AsEnumerable().Where(e => new int?[] { 1, 2, 3 }.Contains(e.NullableIntA)).ToList();
+
+            ClearLog();
+            var query = ctx.Entities1.Where(e => new int?[] { 1, null }.Contains(e.NullableIntA)
+                || new int?[] { 2, null, 3 }.Contains(e.NullableIntA));
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+            Assert.Equal(expected.Count, result.Count);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Multiple_negated_contains_calls_get_combined_into_one_for_relational_null_semantics(bool async)
+        {
+            var ctx = CreateContext(useRelationalNulls: true);
+            var query = ctx.Entities1.Where(e => !(new int?[] { 1, null }.Contains(e.NullableIntA))
+                && !(new int?[] { 2, null, 3 }.Contains(e.NullableIntA)));
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+            Assert.Empty(result);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Contains_with_comparison_dont_get_combined_for_relational_null_semantics(bool async)
+        {
+            var ctx = CreateContext(useRelationalNulls: true);
+
+            var expected = ctx.Entities1.AsEnumerable().Where(e => new int?[] { 1, 2 }.Contains(e.NullableIntA) || e.NullableIntA == null).ToList();
+
+            ClearLog();
+            var query = ctx.Entities1.Where(e => new int?[] { 1, 2 }.Contains(e.NullableIntA) || e.NullableIntA == null);
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+            Assert.Equal(expected.Count, result.Count);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Negated_contains_with_comparison_dont_get_combined_for_relational_null_semantics(bool async)
+        {
+            var ctx = CreateContext(useRelationalNulls: true);
+
+            var expected = ctx.Entities1.AsEnumerable().Where(e => !(new int?[] { 1, 2 }.Contains(e.NullableIntA)) && e.NullableIntA != null).ToList();
+
+            ClearLog();
+            var query = ctx.Entities1.Where(e => e.NullableIntA != null && !(new int?[] { 1, 2 }.Contains(e.NullableIntA)));
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+            Assert.Equal(expected.Count, result.Count);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Negated_contains_with_comparison_without_null_get_combined_for_relational_null_semantics(bool async)
+        {
+            var ctx = CreateContext(useRelationalNulls: true);
+
+            var expected = ctx.Entities1.AsEnumerable().Where(e => !(new int?[] { 1, 2, 3, null }.Contains(e.NullableIntA))).ToList();
+
+            ClearLog();
+            var query = ctx.Entities1.Where(e => e.NullableIntA != 3 && !(new int?[] { 1, 2 }.Contains(e.NullableIntA)));
+
+            var result = async ? await query.ToListAsync() : query.ToList();
+            Assert.Equal(expected.Count, result.Count);
         }
 
         private string NormalizeDelimitersInRawString(string sql)

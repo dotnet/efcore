@@ -451,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => InternalEntry.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
                 () => InternalEntry.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
 

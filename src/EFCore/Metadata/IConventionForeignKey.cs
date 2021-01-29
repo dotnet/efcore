@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this foreign key.
         /// </summary>
-        new IConventionForeignKeyBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the foreign key has been removed from the model. </exception>
+        new IConventionForeignKeyBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the foreign key properties in the dependent entity.

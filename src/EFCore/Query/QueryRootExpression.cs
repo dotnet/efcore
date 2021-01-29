@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             QueryProvider = asyncQueryProvider;
             EntityType = entityType;
-            Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType!);
+            Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             EntityType = entityType;
             QueryProvider = null;
-            Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType!);
+            Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
         }
 
         /// <summary>

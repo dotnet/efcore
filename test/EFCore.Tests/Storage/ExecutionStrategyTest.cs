@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => Context.Dispose();
 
         private TestExecutionStrategy CreateFailOnRetryStrategy()
-            => new TestExecutionStrategy(
+            => new(
                 Context,
                 shouldRetryOn: e =>
                 {
@@ -649,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         .AddScoped<IDbContextTransactionManager, TestInMemoryTransactionManager>()),
                 InMemoryTestHelpers.Instance.CreateOptions());
 
-        private class TestExecutionStrategy : ExecutionStrategy
+        public class TestExecutionStrategy : ExecutionStrategy
         {
             private readonly Func<Exception, bool> _shouldRetryOn;
             private readonly Func<Exception, TimeSpan?> _getNextDelay;

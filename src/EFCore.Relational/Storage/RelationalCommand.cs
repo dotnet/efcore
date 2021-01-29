@@ -682,11 +682,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] DbDataReader reader,
             Guid commandId,
             [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger)
-            => new RelationalDataReader(
-                connection,
-                command,
-                reader,
-                commandId,
-                logger);
+            => new(connection, command, reader, commandId, logger);
     }
 }

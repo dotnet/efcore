@@ -107,7 +107,7 @@ WHERE ((c[""Discriminator""] = ""BuiltInDataTypes"") AND (c[""Id""] = 13))");
                 => (TestSqlLoggerFactory)ListLoggerFactory;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

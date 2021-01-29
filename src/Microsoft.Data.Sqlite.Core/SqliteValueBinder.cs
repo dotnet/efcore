@@ -206,7 +206,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static readonly Dictionary<Type, SqliteType> _sqliteTypeMapping =
-            new Dictionary<Type, SqliteType>
+            new()
             {
                 { typeof(bool), SqliteType.Integer },
                 { typeof(byte), SqliteType.Integer },

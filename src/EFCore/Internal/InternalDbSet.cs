@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -81,7 +82,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));
                     }
 
-                    throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).FullName, _context.GetDbSets().Select(dbSetType => dbSetType.Value.FullName).ToArray()));
+                    var findSameTypeName = _context.Model.FindSameTypeNameWithDifferentNamespace(typeof(TEntity));
+                    //if the same name exists in your entity types we will show you the full namespace of the type
+                    if (!string.IsNullOrEmpty(findSameTypeName))
+                    {
+                        throw new InvalidOperationException(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(TEntity).DisplayName(), findSameTypeName));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
+                    }
                 }
 
                 if (_entityType.IsOwned())
@@ -129,12 +139,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return NonCapturingLazyInitializer.EnsureInitialized(
                     ref _entityQueryable,
                     this,
-                    internalSet => internalSet.CreateEntityQueryable());
+                    static internalSet => internalSet.CreateEntityQueryable());
             }
         }
 
         private EntityQueryable<TEntity> CreateEntityQueryable()
-            => new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider, EntityType);
+            => new(_context.GetDependencies().QueryProvider, EntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -524,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges(TEntity entity)
-            => new EntityEntry<TEntity>(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
+            => new(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
 
         private void SetEntityStates(IEnumerable<TEntity> entities, EntityState entityState)
         {

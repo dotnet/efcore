@@ -207,10 +207,12 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
-        public static CoreTypeMapping SetTypeMapping(
+        public static void SetTypeMapping(
             [NotNull] this IMutableProperty property,
             [NotNull] CoreTypeMapping typeMapping)
-            => ((Property)property).SetTypeMapping(typeMapping, ConfigurationSource.Explicit);
+        {
+            ((Property)property).SetTypeMapping(typeMapping, ConfigurationSource.Explicit);
+        }
 
         /// <summary>
         ///     Sets the custom <see cref="ValueComparer" /> for this property.

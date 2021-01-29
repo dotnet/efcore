@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
     {
         private static readonly HashSet<string?> _dateTimeDataTypes
-            = new HashSet<string?>
+            = new()
             {
                 "time",
                 "date",
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             };
 
         private static readonly HashSet<ExpressionType> _arithmeticOperatorTypes
-            = new HashSet<ExpressionType>
+            = new()
             {
                 ExpressionType.Add,
                 ExpressionType.Subtract,
@@ -139,17 +139,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateLongCount(SqlExpression sqlExpression, [NotNull] string functionName = "COUNT_BIG")
         {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
-            return Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(
-                Dependencies.SqlExpressionFactory.Function(
-                    "COUNT_BIG",
-                    new[] { sqlExpression },
-                    nullable: false,
-                    argumentsPropagateNullability: new[] { false },
-                    typeof(long)));
+            return base.TranslateLongCount(sqlExpression, functionName);
         }
 
         private static string? GetProviderType(SqlExpression expression)

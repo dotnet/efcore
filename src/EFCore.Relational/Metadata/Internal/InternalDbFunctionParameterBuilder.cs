@@ -131,24 +131,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionDbFunctionParameterBuilder? IConventionDbFunctionParameterBuilder.HasStoreType(string storeType, bool fromDataAnnotation)
+        IConventionDbFunctionParameterBuilder? IConventionDbFunctionParameterBuilder.HasStoreType(string? storeType, bool fromDataAnnotation)
             => HasStoreType(storeType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionDbFunctionParameterBuilder.CanSetStoreType(string storeType, bool fromDataAnnotation)
+        bool IConventionDbFunctionParameterBuilder.CanSetStoreType(string? storeType, bool fromDataAnnotation)
             => CanSetStoreType(storeType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionDbFunctionParameterBuilder? IConventionDbFunctionParameterBuilder.HasTypeMapping(
-            RelationalTypeMapping typeMapping,
+            RelationalTypeMapping? typeMapping,
             bool fromDataAnnotation)
             => HasTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionDbFunctionParameterBuilder.CanSetTypeMapping(RelationalTypeMapping typeMapping, bool fromDataAnnotation)
+        bool IConventionDbFunctionParameterBuilder.CanSetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
             => CanSetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

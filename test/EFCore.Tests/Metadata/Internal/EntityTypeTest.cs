@@ -27,26 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public partial class EntityTypeTest
     {
         [ConditionalFact]
-        public void Invalid_filter_expressions_throws()
-        {
-            var model = CreateModel();
-
-            var entityTypeA = model.AddEntityType(typeof(A).Name);
-
-            Expression<Func<B, bool>> badExpression1 = b => false;
-
-            Assert.Equal(
-                CoreStrings.BadFilterExpression(badExpression1, entityTypeA.DisplayName(), entityTypeA.ClrType),
-                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression1)).Message);
-
-            Expression<Func<A, string>> badExpression2 = a => "";
-
-            Assert.Equal(
-                CoreStrings.BadFilterExpression(badExpression2, entityTypeA.DisplayName(), entityTypeA.ClrType),
-                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression2)).Message);
-        }
-
-        [ConditionalFact]
         public void Use_of_custom_IEntityType_throws()
         {
             var type = new FakeEntityType();
@@ -56,17 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<NotSupportedException>(() => type.AsEntityType()).Message);
         }
 
-        private class FakeEntityType : IEntityType
+        private class FakeEntityType : Annotatable, IEntityType
         {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
             public IModel Model { get; }
             public string Name { get; }
             public bool HasSharedClrType { get; }
@@ -124,6 +95,72 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Throws_when_model_is_readonly()
+        {
+            var model = CreateModel();
+
+            var entityTypeA = model.AddEntityType(typeof(A));
+
+            model.FinalizeModel();
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(B))).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(entityTypeA)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.AddAnnotation("foo", "bar")).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.AddServiceProperty(A.GProperty)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetDiscriminatorMappingComplete(true)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetDiscriminatorProperty(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetDiscriminatorValue(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetInMemoryQuery(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetNavigationAccessMode(PropertyAccessMode.Field)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetPropertyAccessMode(PropertyAccessMode.Field)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.AddIgnored("")).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.RemoveIgnored("")).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.AddData(new { })).Message);
+        }
+
+        [ConditionalFact]
         public void Display_name_is_prettified_CLR_name()
         {
             Assert.Equal("EntityTypeTest", CreateModel().AddEntityType(typeof(EntityTypeTest)).DisplayName());
@@ -158,6 +195,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 "System.Collections.Generic.List<Microsoft.EntityFrameworkCore.Metadata.Internal.EntityTypeTest+Customer>",
                 CreateModel().AddEntityType(typeof(List<Customer>)).Name);
+        }
+
+        [ConditionalFact]
+        public void Invalid_filter_expressions_throws()
+        {
+            var model = CreateModel();
+
+            var entityTypeA = model.AddEntityType(typeof(A).Name);
+
+            Expression<Func<B, bool>> badExpression1 = b => false;
+
+            Assert.Equal(
+                CoreStrings.BadFilterExpression(badExpression1, entityTypeA.DisplayName(), entityTypeA.ClrType),
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression1)).Message);
+
+            Expression<Func<A, string>> badExpression2 = a => "";
+
+            Assert.Equal(
+                CoreStrings.BadFilterExpression(badExpression2, entityTypeA.DisplayName(), entityTypeA.ClrType),
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetQueryFilter(badExpression2)).Message);
         }
 
         [ConditionalFact]
@@ -416,8 +473,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var key1 = entityType.SetPrimaryKey(new[] { idProperty, nameProperty });
             var key2 = entityType.AddKey(idProperty);
 
-            Assert.NotNull(((Key)key1).Builder);
-            Assert.NotNull(((Key)key2).Builder);
+            Assert.True(((Key)key1).IsInModel);
+            Assert.True(((Key)key2).IsInModel);
             Assert.Equal(new[] { key2, key1 }, entityType.GetKeys().ToArray());
             Assert.True(idProperty.IsKey());
             Assert.Equal(new[] { key1, key2 }, idProperty.GetContainingKeys().ToArray());
@@ -429,8 +486,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(key2, entityType.RemoveKey(new[] { idProperty }));
 
-            Assert.Null(((Key)key1).Builder);
-            Assert.Null(((Key)key2).Builder);
+            Assert.False(((Key)key1).IsInModel);
+            Assert.False(((Key)key2).IsInModel);
             Assert.Empty(entityType.GetKeys());
             Assert.False(idProperty.IsKey());
             Assert.Empty(idProperty.GetContainingKeys());
@@ -846,8 +903,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(fk2, orderType.RemoveForeignKey(new[] { customerFk2 }, customerKey, customerType));
 
-            Assert.Null(((ForeignKey)fk1).Builder);
-            Assert.Null(((ForeignKey)fk2).Builder);
+            Assert.False(((ForeignKey)fk1).IsInModel);
+            Assert.False(((ForeignKey)fk2).IsInModel);
             Assert.Empty(orderType.GetForeignKeys());
         }
 
@@ -1542,8 +1599,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(index2, entityType.RemoveIndex(new[] { property1, property2 }));
 
-            Assert.Null(((Index)index1).Builder);
-            Assert.Null(((Index)index2).Builder);
+            Assert.False(((Index)index1).IsInModel);
+            Assert.False(((Index)index2).IsInModel);
             Assert.Empty(entityType.GetIndexes());
             Assert.False(property1.IsIndex());
             Assert.Empty(property1.GetContainingIndexes());
@@ -1690,8 +1747,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var property2 = entityType.AddProperty("Name", typeof(string));
 
-            Assert.NotNull(((Property)property1).Builder);
-            Assert.NotNull(((Property)property2).Builder);
+            Assert.True(((Property)property1).IsInModel);
+            Assert.True(((Property)property2).IsInModel);
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.GetProperties()));
 
             Assert.Same(property1, entityType.RemoveProperty(property1.Name));
@@ -1701,8 +1758,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(property2, entityType.RemoveProperty("Name"));
 
-            Assert.Null(((Property)property1).Builder);
-            Assert.Null(((Property)property2).Builder);
+            Assert.False(((Property)property1).IsInModel);
+            Assert.False(((Property)property2).IsInModel);
             Assert.Empty(entityType.GetProperties());
         }
 

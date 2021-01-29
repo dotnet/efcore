@@ -32,8 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class TypeMappingSource : TypeMappingSourceBase
     {
-        private readonly ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?> _explicitMappings
-            = new ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?>();
+        private readonly ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?> _explicitMappings = new();
 
         /// <summary>
         ///     Initializes a new instance of the this class.
@@ -150,12 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping? FindMapping(IProperty property)
         {
-            var mapping = property.FindTypeMapping();
-            if (mapping != null)
-            {
-                return mapping;
-            }
-
             var principals = property.FindPrincipals();
             return FindMappingWithConversion(new TypeMappingInfo(principals), principals);
         }

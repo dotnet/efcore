@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="memberName"> The name of the member to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The ignored member name. </returns>
-        string AddIgnored([NotNull] string memberName, bool fromDataAnnotation = false);
+        string? AddIgnored([NotNull] string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the ignored member name.

@@ -34,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly EvaluatableExpressionFindingExpressionVisitor _evaluatableExpressionFindingExpressionVisitor;
         private readonly ContextParameterReplacingExpressionVisitor _contextParameterReplacingExpressionVisitor;
 
-        private readonly Dictionary<Expression, Expression> _evaluatedValues
-            = new Dictionary<Expression, Expression>(ExpressionEqualityComparer.Instance);
+        private readonly Dictionary<Expression, Expression> _evaluatedValues = new(ExpressionEqualityComparer.Instance);
 
         private IDictionary<Expression, bool> _evaluatableExpressions;
         private IQueryProvider? _currentQueryProvider;

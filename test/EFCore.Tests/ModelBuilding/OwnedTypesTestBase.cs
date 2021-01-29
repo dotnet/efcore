@@ -570,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                 ownedNavigationBuilder.HasData(new List<object> { new OrderDetails { OrderId = -1 } });
                                 break;
                             case HasDataOverload.Enumerable | HasDataOverload.Generic:
-                                ownedNavigationBuilder.HasData(new List<OrderDetails> { new OrderDetails { OrderId = -1 } });
+                                ownedNavigationBuilder.HasData(new List<OrderDetails> { new() { OrderId = -1 } });
                                 break;
                             default:
                                 Assert.True(false, $"Unexpected HasData overload specification {hasDataOverload}");

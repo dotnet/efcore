@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Action<ScaffoldedModel> assertScaffold,
             Action<IModel> assertModel)
         {
-            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(skipValidation: true);
+            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
             var _ = modelBuilder.Model.GetEntityTypeErrors();

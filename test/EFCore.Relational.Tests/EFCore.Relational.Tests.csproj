@@ -26,8 +26,4 @@
     <Compile Update="TestUtilities\FakeProvider\FakeDbConnection.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Query" />
-  </ItemGroup>
-
 </Project>

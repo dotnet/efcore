@@ -5,6 +5,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalIndexBuilder IsUnique(bool? unique, ConfigurationSource configurationSource)
+        public virtual InternalIndexBuilder? IsUnique(bool? unique, ConfigurationSource configurationSource)
         {
             if (!CanSetIsUnique(unique, configurationSource))
             {
@@ -59,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalIndexBuilder Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
+        public virtual InternalIndexBuilder? Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
         {
             var properties = entityTypeBuilder.GetActualProperties(Metadata.Properties, null);
             if (properties == null)
@@ -96,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionIndexBuilder IConventionIndexBuilder.IsUnique(bool? unique, bool fromDataAnnotation)
+        IConventionIndexBuilder? IConventionIndexBuilder.IsUnique(bool? unique, bool fromDataAnnotation)
             => IsUnique(
                 unique,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

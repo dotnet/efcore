@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public static implicit operator ListElement(int i)
-                => new ListElement(i);
+                => new(i);
 
             public int Int { get; }
             public int? NullableInt { get; }

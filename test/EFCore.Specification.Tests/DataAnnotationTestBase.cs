@@ -55,7 +55,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual IModel Validate(ModelBuilder modelBuilder)
-            => modelBuilder.FinalizeModel();
+        {
+            var context = CreateContext();
+            var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
+            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
+            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), logger);
+        }
 
         protected class Person
         {
@@ -2264,7 +2269,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public Guid Id { get; set; }
             private readonly string _email = string.Empty;
-            private readonly List<Profile13694> _profiles = new List<Profile13694>();
+            private readonly List<Profile13694> _profiles = new();
         }
 
         protected class Profile13694

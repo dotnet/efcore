@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static CoreTypeMapping SetTypeMapping(
+        public static CoreTypeMapping? SetTypeMapping(
             [NotNull] this IConventionProperty property,
             [NotNull] CoreTypeMapping typeMapping,
             bool fromDataAnnotation = false)

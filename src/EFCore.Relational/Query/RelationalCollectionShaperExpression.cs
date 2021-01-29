@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Expression outerIdentifier,
             [NotNull] Expression selfIdentifier,
             [NotNull] Expression innerShaper,
-            [CanBeNull] INavigation navigation,
+            [CanBeNull] INavigation? navigation,
             [NotNull] Type elementType)
             : this(
                 collectionId, parentIdentifier, outerIdentifier, selfIdentifier,

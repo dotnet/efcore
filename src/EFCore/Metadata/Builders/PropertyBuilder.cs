@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -210,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="valueGeneratorType"> A type that inherits from <see cref="ValueGenerator" />. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasValueGenerator([CanBeNull] Type valueGeneratorType)
+        public virtual PropertyBuilder HasValueGenerator([CanBeNull] Type? valueGeneratorType)
         {
             Builder.HasValueGenerator(valueGeneratorType, ConfigurationSource.Explicit);
 
@@ -393,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="providerClrType"> The type to convert to and from. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasConversion([CanBeNull] Type providerClrType)
+        public virtual PropertyBuilder HasConversion([CanBeNull] Type? providerClrType)
         {
             Builder.HasConversion(providerClrType, ConfigurationSource.Explicit);
 
@@ -406,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasConversion([CanBeNull] ValueConverter converter)
+        public virtual PropertyBuilder HasConversion([CanBeNull] ValueConverter? converter)
         {
             Builder.HasConversion(converter, ConfigurationSource.Explicit);
 
@@ -420,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <typeparam name="TProvider"> The type to convert to and from. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasConversion<TProvider>([CanBeNull] ValueComparer valueComparer)
+        public virtual PropertyBuilder HasConversion<TProvider>([CanBeNull] ValueComparer? valueComparer)
             => HasConversion(typeof(TProvider), valueComparer);
 
         /// <summary>
@@ -430,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="providerClrType"> The type to convert to and from. </param>
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasConversion([CanBeNull] Type providerClrType, [CanBeNull] ValueComparer valueComparer)
+        public virtual PropertyBuilder HasConversion([CanBeNull] Type? providerClrType, [CanBeNull] ValueComparer? valueComparer)
         {
             Builder.HasConversion(providerClrType, ConfigurationSource.Explicit);
             Builder.HasValueComparer(valueComparer, ConfigurationSource.Explicit);
@@ -445,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="converter"> The converter to use. </param>
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasConversion([CanBeNull] ValueConverter converter, [CanBeNull] ValueComparer valueComparer)
+        public virtual PropertyBuilder HasConversion([CanBeNull] ValueConverter? converter, [CanBeNull] ValueComparer? valueComparer)
         {
             Builder.HasConversion(converter, ConfigurationSource.Explicit);
             Builder.HasValueComparer(valueComparer, ConfigurationSource.Explicit);
@@ -460,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -470,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>
