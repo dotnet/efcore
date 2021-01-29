@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             HandleGroupByForAggregate(selectExpression, eraseProjection: true);
 
-            var translation = _sqlTranslator.TranslateCount(_sqlExpressionFactory.Fragment("*"));
+            var translation = _sqlTranslator.TranslateCount<int>(_sqlExpressionFactory.Fragment("*"));
             if (translation == null)
             {
                 return null;

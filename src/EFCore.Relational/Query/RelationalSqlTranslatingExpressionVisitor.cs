@@ -193,36 +193,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Translates Count over an expression to an equivalent SQL representation.
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Count over. </param>
+        /// <param name="functionName"> Name of function of count. </param>
         /// <returns> A SQL translation of Count over the given expression. </returns>
-        public virtual SqlExpression? TranslateCount([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateCount<T>([NotNull] SqlExpression sqlExpression, [NotNull] string functionName = "COUNT")
+            where T : struct
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
             return _sqlExpressionFactory.ApplyDefaultTypeMapping(
                 _sqlExpressionFactory.Function(
-                    "COUNT",
+                    functionName,
                     new[] { sqlExpression },
                     nullable: false,
                     argumentsPropagateNullability: new[] { false },
-                    typeof(int)));
+                    typeof(T)));
         }
 
         /// <summary>
         ///     Translates LongCount over an expression to an equivalent SQL representation.
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate LongCount over. </param>
+        /// <param name="functionName"> Name of function of count. </param>
         /// <returns> A SQL translation of LongCount over the given expression. </returns>
-        public virtual SqlExpression? TranslateLongCount([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateLongCount([NotNull] SqlExpression sqlExpression, [NotNull] string functionName = "COUNT")
         {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
-            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function(
-                    "COUNT",
-                    new[] { sqlExpression },
-                    nullable: false,
-                    argumentsPropagateNullability: new[] { false },
-                    typeof(long)));
+            return TranslateCount<long>(sqlExpression, functionName);
         }
 
         /// <summary>
@@ -515,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 groupingElementExpression = newGroupingElementExpression;
                             }
 
-                            result = TranslateCount(GetExpressionForAggregation(groupingElementExpression, starProjection: true)!);
+                            result = TranslateCount<int>(GetExpressionForAggregation(groupingElementExpression, starProjection: true)!);
                             break;
 
                         case nameof(Enumerable.Distinct):
