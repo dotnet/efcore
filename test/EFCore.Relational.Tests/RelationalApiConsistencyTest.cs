@@ -47,20 +47,37 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RelationalApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            private static Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder)> _metadataTypes
+            private static Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder, Type Runtime)> _metadataTypes
                 => new()
                 {
                     {
-                        typeof(IDbFunction),
-                        (typeof(IMutableDbFunction), typeof(IConventionDbFunction), typeof(IConventionDbFunctionBuilder))
+                        typeof(IReadOnlyDbFunction),
+                        (typeof(IMutableDbFunction),
+                        typeof(IConventionDbFunction),
+                        typeof(IConventionDbFunctionBuilder),
+                        typeof(IDbFunction))
                     },
                     {
-                        typeof(IDbFunctionParameter),
-                        (typeof(IMutableDbFunctionParameter), typeof(IConventionDbFunctionParameter),
-                            typeof(IConventionDbFunctionParameterBuilder))
+                        typeof(IReadOnlyDbFunctionParameter),
+                        (typeof(IMutableDbFunctionParameter),
+                        typeof(IConventionDbFunctionParameter),
+                        typeof(IConventionDbFunctionParameterBuilder),
+                        typeof(IDbFunctionParameter))
                     },
-                    { typeof(ISequence), (typeof(IMutableSequence), typeof(IConventionSequence), typeof(IConventionSequenceBuilder)) },
-                    { typeof(ICheckConstraint), (typeof(IMutableCheckConstraint), typeof(IConventionCheckConstraint), null) }
+                    {
+                        typeof(IReadOnlySequence),
+                        (typeof(IMutableSequence),
+                        typeof(IConventionSequence),
+                        typeof(IConventionSequenceBuilder),
+                        typeof(ISequence))
+                    },
+                    {
+                        typeof(IReadOnlyCheckConstraint),
+                        (typeof(IMutableCheckConstraint),
+                        typeof(IConventionCheckConstraint),
+                        null,
+                        typeof(ICheckConstraint))
+                    }
                 };
 
             public virtual HashSet<Type> RelationalMetadataTypes { get; } = new()
@@ -104,22 +121,62 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             public override
-                List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
-                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
+                List<(Type Type,
+                    Type ReadonlyExtensions,
+                    Type MutableExtensions,
+                    Type ConventionExtensions,
+                    Type ConventionBuilderExtensions,
+                    Type RuntimeExtensions)> MetadataExtensionTypes { get; }
                 = new()
                 {
-                    (typeof(IModel), typeof(RelationalModelExtensions), typeof(RelationalModelExtensions),
-                        typeof(RelationalModelExtensions), typeof(RelationalModelBuilderExtensions)),
-                    (typeof(IEntityType), typeof(RelationalEntityTypeExtensions), typeof(RelationalEntityTypeExtensions),
-                        typeof(RelationalEntityTypeExtensions), typeof(RelationalEntityTypeBuilderExtensions)),
-                    (typeof(IKey), typeof(RelationalKeyExtensions), typeof(RelationalKeyExtensions), typeof(RelationalKeyExtensions),
-                        typeof(RelationalKeyBuilderExtensions)),
-                    (typeof(IForeignKey), typeof(RelationalForeignKeyExtensions), typeof(RelationalForeignKeyExtensions),
-                        typeof(RelationalForeignKeyExtensions), typeof(RelationalForeignKeyBuilderExtensions)),
-                    (typeof(IProperty), typeof(RelationalPropertyExtensions), typeof(RelationalPropertyExtensions),
-                        typeof(RelationalPropertyExtensions), typeof(RelationalPropertyBuilderExtensions)),
-                    (typeof(IIndex), typeof(RelationalIndexExtensions), typeof(RelationalIndexExtensions),
-                        typeof(RelationalIndexExtensions), typeof(RelationalIndexBuilderExtensions))
+                    (
+                        typeof(IReadOnlyModel),
+                        typeof(RelationalModelExtensions),
+                        typeof(RelationalModelExtensions),
+                        typeof(RelationalModelExtensions),
+                        typeof(RelationalModelBuilderExtensions),
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyEntityType),
+                        typeof(RelationalEntityTypeExtensions),
+                        typeof(RelationalEntityTypeExtensions),
+                        typeof(RelationalEntityTypeExtensions),
+                        typeof(RelationalEntityTypeBuilderExtensions),
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyKey),
+                        typeof(RelationalKeyExtensions),
+                        typeof(RelationalKeyExtensions),
+                        typeof(RelationalKeyExtensions),
+                        typeof(RelationalKeyBuilderExtensions),
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyForeignKey),
+                        typeof(RelationalForeignKeyExtensions),
+                        typeof(RelationalForeignKeyExtensions),
+                        typeof(RelationalForeignKeyExtensions),
+                        typeof(RelationalForeignKeyBuilderExtensions),
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyProperty),
+                        typeof(RelationalPropertyExtensions),
+                        typeof(RelationalPropertyExtensions),
+                        typeof(RelationalPropertyExtensions),
+                        typeof(RelationalPropertyBuilderExtensions),
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyIndex),
+                        typeof(RelationalIndexExtensions),
+                        typeof(RelationalIndexExtensions),
+                        typeof(RelationalIndexExtensions),
+                        typeof(RelationalIndexBuilderExtensions),
+                        null
+                    )
                 };
 
             public override HashSet<MethodInfo> NonVirtualMethods { get; }
@@ -134,9 +191,9 @@ namespace Microsoft.EntityFrameworkCore
 
             public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
             {
-                typeof(IDbFunction).GetMethod("get_ReturnEntityType"),
                 typeof(IMutableSequence).GetMethod("set_ClrType"),
-                typeof(RelationalPropertyExtensions).GetMethod(nameof(RelationalPropertyExtensions.FindOverrides)),
+                typeof(RelationalPropertyExtensions).GetRuntimeMethods().Single(m => m.Name == nameof(RelationalPropertyExtensions.FindOverrides)
+                    && m.ReturnType == typeof(IReadOnlyAnnotatable)),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations))
             };

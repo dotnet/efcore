@@ -13,10 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="INavigationBase" /> represents a read-only view of the same metadata.
+    ///         Once the model is built, <see cref="IReadOnlyNavigationBase" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableNavigationBase : INavigationBase, IMutablePropertyBase
+    public interface IMutableNavigationBase : IReadOnlyNavigationBase, IMutablePropertyBase
     {
         /// <summary>
         ///     Sets a value indicating whether this navigation should be eager loaded by default.

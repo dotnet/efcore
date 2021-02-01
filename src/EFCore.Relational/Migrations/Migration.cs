@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var modelBuilder = new ModelBuilder();
                     BuildTargetModel(modelBuilder);
 
-                    return modelBuilder.Model;
+                    return (IModel)modelBuilder.Model;
                 }
 
                 return _targetModel ??= Create();

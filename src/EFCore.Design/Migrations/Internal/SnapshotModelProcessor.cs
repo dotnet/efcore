@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Process(IModel model)
+        public virtual IModel Process(IReadOnlyModel model)
         {
             if (model == null)
             {
@@ -85,10 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 model = mutableModel.FinalizeModel();
             }
 
-            return _modelRuntimeInitializer.Initialize(model, validationLogger: null);
+            return _modelRuntimeInitializer.Initialize((IModel)model, validationLogger: null);
         }
 
-        private void ProcessCollection(IEnumerable<IAnnotatable> metadata, string version)
+        private void ProcessCollection(IEnumerable<IReadOnlyAnnotatable> metadata, string version)
         {
             foreach (var element in metadata)
             {
@@ -96,9 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void ProcessElement(IEntityType entityType, string version)
+        private void ProcessElement(IReadOnlyEntityType entityType, string version)
         {
-            ProcessElement((IAnnotatable)entityType, version);
+            ProcessElement((IReadOnlyAnnotatable)entityType, version);
 
             if ((version.StartsWith("2.0", StringComparison.Ordinal)
                     || version.StartsWith("2.1", StringComparison.Ordinal))
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void ProcessElement(IAnnotatable metadata, string version)
+        private void ProcessElement(IReadOnlyAnnotatable metadata, string version)
         {
             if (version.StartsWith("1.", StringComparison.Ordinal)
                 && metadata is IMutableAnnotatable mutableMetadata)
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void UpdateSequences(IModel model, string version)
+        private void UpdateSequences(IReadOnlyModel model, string version)
         {
             if ((!version.StartsWith("1.", StringComparison.Ordinal)
                     && !version.StartsWith("2.", StringComparison.Ordinal)

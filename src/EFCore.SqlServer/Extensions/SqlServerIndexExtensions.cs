@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IIndex" /> for SQL Server-specific metadata.
+    ///     Index extension methods for SQL Server-specific metadata.
     /// </summary>
     public static class SqlServerIndexExtensions
     {
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is clustered. </returns>
-        public static bool? IsClustered([NotNull] this IIndex index)
+        public static bool? IsClustered([NotNull] this IReadOnlyIndex index)
             => (bool?)index[SqlServerAnnotationNames.Clustered];
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if the index is clustered. </returns>
-        public static bool? IsClustered([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
+        public static bool? IsClustered([NotNull] this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
             if (annotation != null)
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
             return GetDefaultIsClustered(index, storeObject);
         }
 
-        private static bool? GetDefaultIsClustered([NotNull] IIndex index, in StoreObjectIdentifier storeObject)
+        private static bool? GetDefaultIsClustered([NotNull] IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
             var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
             return sharedTableRootIndex?.IsClustered(storeObject);
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The included property names, or <see langword="null" /> if they have not been specified. </returns>
-        public static IReadOnlyList<string>? GetIncludeProperties([NotNull] this IIndex index)
+        public static IReadOnlyList<string>? GetIncludeProperties([NotNull] this IReadOnlyIndex index)
             => (string[]?)index[SqlServerAnnotationNames.Include];
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is online. </returns>
-        public static bool? IsCreatedOnline([NotNull] this IIndex index)
+        public static bool? IsCreatedOnline([NotNull] this IReadOnlyIndex index)
             => (bool?)index[SqlServerAnnotationNames.CreatedOnline];
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is online. </returns>
-        public static int? GetFillFactor([NotNull] this IIndex index)
+        public static int? GetFillFactor([NotNull] this IReadOnlyIndex index)
             => (int?)index[SqlServerAnnotationNames.FillFactor];
 
         /// <summary>

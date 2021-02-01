@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="INavigation" />.
+    ///     Extension methods for <see cref="IReadOnlyNavigation" />.
     /// </summary>
     public static class NavigationExtensions
     {
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use INavigation.IsOnDependent")]
-        public static bool IsDependentToPrincipal([NotNull] this INavigation navigation)
+        public static bool IsDependentToPrincipal([NotNull] this IReadOnlyNavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).IsOnDependent;
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use INavigation.IsCollection")]
-        public static bool IsCollection([NotNull] this INavigation navigation)
+        public static bool IsCollection([NotNull] this IReadOnlyNavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).IsCollection;
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use INavigation.Inverse")]
-        public static INavigation? FindInverse([NotNull] this INavigation navigation)
+        public static IReadOnlyNavigation? FindInverse([NotNull] this IReadOnlyNavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).Inverse;
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The target entity type. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use INavigation.TargetEntityType")]
-        public static IEntityType GetTargetType([NotNull] this INavigation navigation)
+        public static IReadOnlyEntityType GetTargetType([NotNull] this IReadOnlyNavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).TargetEntityType;
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigation"> The navigation property to find whether it should be eager loaded. </param>
         /// <returns> A value indicating whether this navigation should be eager loaded by default. </returns>
         [Obsolete("Use INavigation.IsEagerLoaded")]
-        public static bool IsEagerLoaded([NotNull] this INavigation navigation)
+        public static bool IsEagerLoaded([NotNull] this IReadOnlyNavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).IsEagerLoaded;
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this INavigation navigation,
+            [NotNull] this IReadOnlyNavigation navigation,
             MetadataDebugStringOptions options,
             int indent = 0)
         {
@@ -145,9 +145,10 @@ namespace Microsoft.EntityFrameworkCore
                 builder.Append(" PropertyAccessMode.").Append(navigation.GetPropertyAccessMode());
             }
 
-            if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0)
+            if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
+                && ((Annotatable)navigation).IsReadOnly)
             {
-                var indexes = navigation.GetPropertyIndexes();
+                var indexes = ((INavigation)navigation).GetPropertyIndexes();
                 builder.Append(" ").Append(indexes.Index);
                 builder.Append(" ").Append(indexes.OriginalValueIndex);
                 builder.Append(" ").Append(indexes.RelationshipIndex);

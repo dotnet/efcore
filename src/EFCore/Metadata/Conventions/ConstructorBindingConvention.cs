@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static string FormatConstructorString(IEntityType entityType, InstantiationBinding binding)
+        private static string FormatConstructorString(IReadOnlyEntityType entityType, InstantiationBinding binding)
             => entityType.ClrType.ShortDisplayName()
                 + "("
                 + string.Join(", ", binding.ParameterBindings.Select(b => b.ParameterType.ShortDisplayName()))

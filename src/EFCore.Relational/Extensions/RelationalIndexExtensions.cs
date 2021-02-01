@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IIndex" /> for relational database metadata.
+    ///     Index extension methods for relational database metadata.
     /// </summary>
     public static class RelationalIndexExtensions
     {
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The name of the index in the database. </returns>
-        public static string GetDatabaseName([NotNull] this IIndex index)
+        public static string GetDatabaseName([NotNull] this IReadOnlyIndex index)
             => (string?)index[RelationalAnnotationNames.Name]
                 ?? index.Name
                 ?? index.GetDefaultDatabaseName();
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The name of the index in the database. </returns>
-        public static string? GetDatabaseName([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
+        public static string? GetDatabaseName([NotNull] this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
             => (string?)index[RelationalAnnotationNames.Name]
                 ?? index.Name
                 ?? index.GetDefaultDatabaseName(storeObject);
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The default name that would be used for this index. </returns>
-        public static string GetDefaultDatabaseName([NotNull] this IIndex index)
+        public static string GetDefaultDatabaseName([NotNull] this IReadOnlyIndex index)
         {
             var tableName = index.DeclaringEntityType.GetTableName();
             var schema = index.DeclaringEntityType.GetSchema();
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The default name that would be used for this index. </returns>
-        public static string? GetDefaultDatabaseName([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
+        public static string? GetDefaultDatabaseName([NotNull] this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
             var columnNames = index.Properties.GetColumnNames(storeObject);
             if (columnNames == null)
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
             // Using a hashset is detrimental to the perf when there are no cycles
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
-                IIndex? linkedIndex = null;
+                IReadOnlyIndex? linkedIndex = null;
                 foreach (var otherIndex in rootIndex.DeclaringEntityType
                     .FindRowInternalForeignKeys(storeObject)
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The index filter expression. </returns>
-        public static string? GetFilter([NotNull] this IIndex index)
+        public static string? GetFilter([NotNull] this IReadOnlyIndex index)
             => (string?)index.FindAnnotation(RelationalAnnotationNames.Filter)?.Value;
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index filter expression. </returns>
-        public static string? GetFilter([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
+        public static string? GetFilter([NotNull] this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
             var annotation = index.FindAnnotation(RelationalAnnotationNames.Filter);
             if (annotation != null)
@@ -270,7 +270,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The table indexes to which the index is mapped. </returns>
         public static IEnumerable<ITableIndex> GetMappedTableIndexes([NotNull] this IIndex index)
-            => (IEnumerable<ITableIndex>?)index.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)
+            => (IEnumerable<ITableIndex>?)index.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.TableIndexMappings)
                 ?? Enumerable.Empty<ITableIndex>();
 
         /// <summary>
@@ -285,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
-        public static IIndex? FindSharedObjectRootIndex([NotNull] this IIndex index, in StoreObjectIdentifier storeObject)
+        public static IReadOnlyIndex? FindSharedObjectRootIndex([NotNull] this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
             Check.NotNull(index, nameof(index));
 
@@ -296,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
             // Using a hashset is detrimental to the perf when there are no cycles
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
-                IIndex? linkedIndex = null;
+                IReadOnlyIndex? linkedIndex = null;
                 foreach (var otherIndex in rootIndex.DeclaringEntityType
                     .FindRowInternalForeignKeys(storeObject)
                     .SelectMany(fk => fk.PrincipalEntityType.GetIndexes()))

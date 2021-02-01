@@ -49,7 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to initialize. </param>
         /// <param name="validationLogger"> The validation logger. </param>
         /// <returns> The initialized model. </returns>
-        public virtual IModel Initialize(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger)
+        public virtual IModel Initialize(
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger)
         {
             if (model.SetModelDependencies(Dependencies.ModelDependencies))
             {

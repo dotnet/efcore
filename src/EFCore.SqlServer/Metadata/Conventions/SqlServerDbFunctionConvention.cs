@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that ensures that <see cref="IDbFunction.Schema" /> is populated for database functions which
-    ///     have <see cref="IDbFunction.IsBuiltIn" /> flag set to <see langword="false" />.
+    ///     A convention that ensures that <see cref="IReadOnlyDbFunction.Schema" /> is populated for database functions which
+    ///     have <see cref="IReadOnlyDbFunction.IsBuiltIn" /> flag set to <see langword="false" />.
     /// </summary>
     public class SqlServerDbFunctionConvention : IModelFinalizingConvention
     {

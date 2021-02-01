@@ -29,6 +29,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public bool HasDefaultValue(object entity)
                 => throw new NotImplementedException();
 
+            public IEnumerable<IForeignKey> GetContainingForeignKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IIndex> GetContainingIndexes()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IKey> GetContainingKeys()
+                => throw new NotImplementedException();
+
+            public IClrPropertyGetter GetGetter()
+                => throw new NotImplementedException();
+
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
@@ -38,6 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public bool IsConcurrencyToken { get; }
             public PropertyInfo PropertyInfo { get; }
             public FieldInfo FieldInfo { get; }
+
+            IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType => throw new NotImplementedException();
+
+            IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType => throw new NotImplementedException();
         }
 
         [ConditionalFact]
@@ -48,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             modelBuilder.FinalizeModel();
 
             Assert.Equal(
-                7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(
+                7, new ClrPropertyGetterFactory().Create((IPropertyBase)idProperty).GetClrValue(
                     new Customer { Id = 7 }));
         }
 
@@ -70,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 new Fuel(1.0),
-                new ClrPropertyGetterFactory().Create(fuelProperty).GetClrValue(
+                new ClrPropertyGetterFactory().Create((IPropertyBase)fuelProperty).GetClrValue(
                     new Customer { Id = 7, Fuel = new Fuel(1.0) }));
         }
 
@@ -92,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var propertyB = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyB", typeof(int));
             modelBuilder.FinalizeModel();
 
-            Assert.Equal("ValueA", new ClrPropertyGetterFactory().Create(propertyA).GetClrValue(new IndexedClass { Id = 7 }));
-            Assert.Equal(123, new ClrPropertyGetterFactory().Create(propertyB).GetClrValue(new IndexedClass { Id = 7 }));
+            Assert.Equal("ValueA", new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValue(new IndexedClass { Id = 7 }));
+            Assert.Equal(123, new ClrPropertyGetterFactory().Create((IPropertyBase)propertyB).GetClrValue(new IndexedClass { Id = 7 }));
         }
 
         private static ModelBuilder CreateModelBuilder()

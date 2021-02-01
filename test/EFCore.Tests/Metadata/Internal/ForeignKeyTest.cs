@@ -19,18 +19,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKey = new FakeForeignKey();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IForeignKey_throws), nameof(IForeignKey), nameof(FakeForeignKey)),
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IForeignKey_throws), nameof(IReadOnlyForeignKey), nameof(FakeForeignKey)),
                 Assert.Throws<NotSupportedException>(() => foreignKey.AsForeignKey()).Message);
         }
 
-        public class FakeForeignKey : Annotatable, IForeignKey
+        public class FakeForeignKey : Annotatable, IReadOnlyForeignKey
         {
-            public IEntityType DeclaringEntityType { get; }
-            public IReadOnlyList<IProperty> Properties { get; }
-            public IEntityType PrincipalEntityType { get; }
-            public IKey PrincipalKey { get; }
-            public INavigation DependentToPrincipal { get; set; }
-            public INavigation PrincipalToDependent { get; set; }
+            public IReadOnlyEntityType DeclaringEntityType { get; }
+            public IReadOnlyList<IReadOnlyProperty> Properties { get; }
+            public IReadOnlyEntityType PrincipalEntityType { get; }
+            public IReadOnlyKey PrincipalKey { get; }
+            public IReadOnlyNavigation DependentToPrincipal { get; set; }
+            public IReadOnlyNavigation PrincipalToDependent { get; set; }
             public bool IsUnique { get; }
             public bool IsRequired { get; }
             public bool IsRequiredDependent { get; }

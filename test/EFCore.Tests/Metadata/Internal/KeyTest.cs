@@ -19,14 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var key = new FakeKey();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IKey), nameof(FakeKey)),
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IReadOnlyKey), nameof(FakeKey)),
                 Assert.Throws<NotSupportedException>(() => key.AsKey()).Message);
         }
 
-        private class FakeKey : Annotatable, IKey
+        private class FakeKey : Annotatable, IReadOnlyKey
         {
-            public IReadOnlyList<IProperty> Properties { get; }
-            public IEntityType DeclaringEntityType { get; }
+            public IReadOnlyList<IReadOnlyProperty> Properties { get; }
+            public IReadOnlyEntityType DeclaringEntityType { get; }
         }
 
         [ConditionalFact]

@@ -1,7 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Diagnostics;
+using System.Linq;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable enable
 
@@ -10,50 +14,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a navigation property which can be used to navigate a relationship.
     /// </summary>
-    public interface INavigationBase : IPropertyBase
+    public interface INavigationBase : IReadOnlyNavigationBase, IPropertyBase
     {
         /// <summary>
         ///     Gets the entity type that this navigation property belongs to.
         /// </summary>
-        IEntityType DeclaringEntityType { get; }
+        new IEntityType DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IEntityType)((IReadOnlyNavigationBase)this).DeclaringEntityType;
+        }
 
         /// <summary>
         ///     Gets the entity type that this navigation property will hold an instance(s) of.
         /// </summary>
-        IEntityType TargetEntityType { get; }
+        new IEntityType TargetEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IEntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
+        }
 
         /// <summary>
         ///     Gets the inverse navigation.
         /// </summary>
-        INavigationBase? Inverse { get; }
+        new INavigationBase? Inverse
+        {
+            [DebuggerStepThrough]
+            get => (INavigationBase?)((IReadOnlyNavigationBase)this).Inverse;
+        }
 
         /// <summary>
-        ///     Gets a value indicating whether the navigation property is a collection property.
+        ///     Calls <see cref="ILazyLoader.SetLoaded" /> for a <see cref="INavigationBase" /> to mark it as loaded
+        ///     when a no-tracking query has eagerly loaded this relationship.
         /// </summary>
-        bool IsCollection { get; }
+        /// <param name="entity"> The entity for which the navigation has been loaded. </param>
+        void SetIsLoadedWhenNoTracking([NotNull] object entity)
+        {
+            Check.NotNull(entity, nameof(entity));
 
-        /// <summary>
-        ///     Gets a value indicating whether this navigation should be eager loaded by default.
-        /// </summary>
-        bool IsEagerLoaded
-            => (bool?)this[CoreAnnotationNames.EagerLoaded] ?? false;
+            var serviceProperties = DeclaringEntityType
+                .GetDerivedTypesInclusive()
+                .Where(t => t.ClrType.IsInstanceOfType(entity))
+                .SelectMany(e => e.GetServiceProperties())
+                .Where(p => p.ClrType == typeof(ILazyLoader));
 
-        /// <summary>
-        ///     Gets the <see cref="IClrCollectionAccessor" /> for this navigation property, if it's a collection
-        ///     navigation.
-        /// </summary>
-        /// <returns> The accessor. </returns>
-        IClrCollectionAccessor? GetCollectionAccessor();
-
-        /// <summary>
-        ///     <para>
-        ///         Gets the <see cref="PropertyAccessMode" /> being used for this property.
-        ///         <see langword="null" /> indicates that the default property access mode is being used.
-        ///     </para>
-        /// </summary>
-        /// <returns> The access mode being used, or <see langword="null" /> if the default access mode is being used. </returns>
-        PropertyAccessMode IPropertyBase.GetPropertyAccessMode()
-            => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
-                ?? DeclaringType.GetNavigationAccessMode());
+            foreach (var serviceProperty in serviceProperties)
+            {
+                ((ILazyLoader?)serviceProperty.GetGetter().GetClrValue(entity))?.SetLoaded(entity, Name);
+            }
+        }
     }
 }

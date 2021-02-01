@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionModelBuilder? OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
+        public virtual IConventionModelBuilder OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
             => _immediateConventionScope.OnModelInitialized(modelBuilder);
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionModelBuilder? OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
+        public virtual IConventionModelBuilder OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
             => _immediateConventionScope.OnModelFinalizing(modelBuilder);
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel? OnModelFinalized([NotNull] IModel model)
+        public virtual IModel OnModelFinalized([NotNull] IModel model)
             => _immediateConventionScope.OnModelFinalized(model);
 
         /// <summary>

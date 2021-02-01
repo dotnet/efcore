@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IForeignKey" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableForeignKey : IForeignKey, IMutableAnnotatable
+    public interface IMutableForeignKey : IReadOnlyForeignKey, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets the foreign key properties in the dependent entity.
@@ -186,6 +186,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The skip navigations using this foreign key. </returns>
         new IEnumerable<IMutableSkipNavigation> GetReferencingSkipNavigations()
-            => ((IForeignKey)this).GetReferencingSkipNavigations().Cast<IMutableSkipNavigation>();
+            => ((IReadOnlyForeignKey)this).GetReferencingSkipNavigations().Cast<IMutableSkipNavigation>();
     }
 }

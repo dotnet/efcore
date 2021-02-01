@@ -21,19 +21,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var model = new FakeModel();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IModel_throws), nameof(IModel), nameof(FakeModel)),
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IModel_throws), nameof(IReadOnlyModel), nameof(FakeModel)),
                 Assert.Throws<NotSupportedException>(() => model.AsModel()).Message);
         }
 
-        private class FakeModel : Annotatable, IModel
+        private class FakeModel : Annotatable, IReadOnlyModel
         {
-            public IEnumerable<IEntityType> GetEntityTypes()
+            public IEnumerable<IReadOnlyEntityType> GetEntityTypes()
                 => throw new NotImplementedException();
 
-            public IEntityType FindEntityType(string name)
+            public IReadOnlyEntityType FindEntityType(string name)
                 => throw new NotImplementedException();
 
-            public IEntityType FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType)
+            public IReadOnlyEntityType FindEntityType(string name, string definingNavigationName, IReadOnlyEntityType definingEntityType)
                 => throw new NotImplementedException();
         }
 

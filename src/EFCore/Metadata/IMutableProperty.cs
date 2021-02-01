@@ -7,14 +7,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         Represents a scalar property of an entity.
+    ///         Represents a scalar property of an entity type.
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
     ///         Once the model is built, <see cref="IProperty" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableProperty : IProperty, IMutablePropertyBase
+    public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     {
         /// <summary>
         ///     Gets the type that this property belongs to.

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = new FakeProperty();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IProperty), nameof(FakeProperty)),
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IReadOnlyProperty), nameof(FakeProperty)),
                 Assert.Throws<NotSupportedException>(() => property.AsProperty()).Message);
         }
 
@@ -33,16 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = new FakeProperty();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IPropertyBase), nameof(FakeProperty)),
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IReadOnlyPropertyBase), nameof(FakeProperty)),
                 Assert.Throws<NotSupportedException>(() => property.AsPropertyBase()).Message);
         }
 
-        private class FakeProperty : Annotatable, IProperty
+        private class FakeProperty : Annotatable, IReadOnlyProperty
         {
             public string Name { get; }
-            public ITypeBase DeclaringType { get; }
+            public IReadOnlyTypeBase DeclaringType { get; }
             public Type ClrType { get; }
-            public IEntityType DeclaringEntityType { get; }
+            public IReadOnlyEntityType DeclaringEntityType { get; }
             public bool IsNullable { get; }
             public bool IsStoreGeneratedAlways { get; }
             public ValueGenerated ValueGenerated { get; }

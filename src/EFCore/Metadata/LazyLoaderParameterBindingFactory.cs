@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
             while (baseType != null);
 
-            return Bind(entityType, parameterType);
+            return Bind((IEntityType)entityType, parameterType);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
             while (baseType != null);
 
-            return Bind(entityType, parameterType);
+            return Bind((IEntityType)entityType, parameterType);
         }
 
         private static ParameterBinding Bind(IEntityType entityType, Type parameterType)

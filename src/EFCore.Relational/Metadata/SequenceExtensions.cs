@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Extension methods for <see cref="ISequence" />.
+    ///     Sequence extension methods.
     /// </summary>
     public static class SequenceExtensions
     {
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this ISequence sequence,
+            [NotNull] this IReadOnlySequence sequence,
             MetadataDebugStringOptions options,
             int indent = 0)
         {

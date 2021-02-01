@@ -949,8 +949,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Passes_for_compatible_duplicate_foreignKey_names_within_hierarchy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            IForeignKey fk1 = null;
-            IForeignKey fk2 = null;
+            IReadOnlyForeignKey fk1 = null;
+            IReadOnlyForeignKey fk2 = null;
 
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>(
@@ -995,8 +995,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Passes_for_compatible_duplicate_foreignKey_names_within_hierarchy_name_configured_explicitly()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            IForeignKey fk1 = null;
-            IForeignKey fk2 = null;
+            IReadOnlyForeignKey fk1 = null;
+            IReadOnlyForeignKey fk2 = null;
 
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>(

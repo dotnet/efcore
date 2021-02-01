@@ -51,6 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual EntityEntry EntityEntry { get; }
 
         /// <summary>
+        ///     The navigation.
+        /// </summary>
+        public new virtual INavigation Navigation => (INavigation)base.Navigation;
+
+        /// <summary>
         ///     The entities added to the collection.
         /// </summary>
         public virtual IEnumerable<object> Added { get; }

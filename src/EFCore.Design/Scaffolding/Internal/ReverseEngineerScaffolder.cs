@@ -124,7 +124,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var model = _factory.Create(databaseModel, modelOptions);
-
             if (model == null)
             {
                 throw new InvalidOperationException(

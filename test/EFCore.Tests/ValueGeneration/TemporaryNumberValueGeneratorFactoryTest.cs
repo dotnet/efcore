@@ -11,7 +11,14 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class TemporaryNumberValueGeneratorFactoryTest
     {
-        private static readonly IMutableModel _model = InMemoryTestHelpers.Instance.BuildModelFor<AnEntity>();
+        private static readonly IModel _model = BuildModel();
+
+        public static IModel BuildModel()
+        {
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            builder.Entity<AnEntity>();
+            return (IModel)builder.Model;
+        }
 
         [ConditionalFact]
         public void Can_create_factories_for_all_integer_types()

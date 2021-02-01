@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static ServiceProperty AsServiceProperty(
-            [NotNull] this IServiceProperty serviceProperty,
+            [NotNull] this IReadOnlyServiceProperty serviceProperty,
             [NotNull] [CallerMemberName] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IServiceProperty, ServiceProperty>(serviceProperty, methodName);
+            => MetadataExtensions.AsConcreteMetadataType<IReadOnlyServiceProperty, ServiceProperty>(serviceProperty, methodName);
     }
 }

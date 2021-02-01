@@ -115,11 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             if (useBuilder)
             {
-                Assert.Null(new InternalModelBuilder(model).Metadata.FinalizeModel());
+                Assert.NotNull(new InternalModelBuilder(model).Metadata.FinalizeModel());
             }
             else
             {
-                Assert.Null(model.FinalizeModel());
+                Assert.NotNull(model.FinalizeModel());
             }
 
             Assert.Equal(1, convention1.Calls);
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (_terminate)
                 {
-                    context.StopProcessing();
+                    context.StopProcessing(modelBuilder);
                 }
             }
         }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 CoreStrings.ModelNotFinalized("GetRelationalModel"),
                 Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Model.GetRelationalModel()).Message);
+                    () => ((IModel)modelBuilder.Model).GetRelationalModel()).Message);
         }
 
         [ConditionalTheory]
@@ -35,6 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_use_relational_model_with_tables(bool useExplicitMapping, Mapping mapping)
         {
             var model = CreateTestModel(mapToTables: useExplicitMapping, mapping: mapping);
+
+            var m = model.Model.ToDebugString(MetadataDebugStringOptions.LongDefault);
+            var s = model.ToDebugString(MetadataDebugStringOptions.LongDefault);
 
             Assert.Equal(9, model.Model.GetEntityTypes().Count());
             Assert.Equal(mapping == Mapping.TPH || !useExplicitMapping ? 3 : 5, model.Tables.Count());
@@ -628,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     {
                         cb.ToTable("ExtraSpecialCustomer", "ExtraSpecialSchema");
                     }
-                });            
+                });
 
             modelBuilder.Entity<Order>(
                 ob =>

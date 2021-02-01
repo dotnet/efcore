@@ -22,6 +22,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key to find the foreign keys for. </param>
         /// <returns> The foreign keys that reference the given key. </returns>
         public static IEnumerable<IConventionForeignKey> GetReferencingForeignKeys([NotNull] this IConventionKey key)
-            => ((IKey)key).GetReferencingForeignKeys().Cast<IConventionForeignKey>();
+            => ((IReadOnlyKey)key).GetReferencingForeignKeys().Cast<IConventionForeignKey>();
     }
 }

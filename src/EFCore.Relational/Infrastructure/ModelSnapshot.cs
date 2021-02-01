@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             BuildModel(modelBuilder);
 
-            return modelBuilder.Model;
+            return (IModel)modelBuilder.Model;
         }
 
         /// <summary>

@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             VisitDatabaseModel(modelBuilder, databaseModel);
 
-            return modelBuilder.Model;
+            return modelBuilder.FinalizeModel();
         }
 
         /// <summary>
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     var model = modelBuilder.Model;
                     model.RemoveEntityType(entityTypeName);
-                    model.GetEntityTypeErrors().Add(entityTypeName, errorMessage);
+                    model.GetOrCreateEntityTypeErrors().Add(entityTypeName, errorMessage);
                     return null;
                 }
             }
@@ -928,7 +928,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         // Stores the names of the EntityType itself and its Properties, but does not include any Navigation Properties
-        private readonly Dictionary<IEntityType, List<string>> _entityTypeAndPropertyIdentifiers =
+        private readonly Dictionary<IReadOnlyEntityType, List<string>> _entityTypeAndPropertyIdentifiers =
             new();
 
         /// <summary>
@@ -937,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual List<string> ExistingIdentifiers([NotNull] IEntityType entityType)
+        protected virtual List<string> ExistingIdentifiers([NotNull] IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 

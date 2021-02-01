@@ -32,19 +32,19 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
             var entry1 = stateManager.GetOrCreateEntry(new object());
-            entry1[key] = 1;
+            entry1[(IProperty)key] = 1;
             entry1.SetEntityState(EntityState.Added);
             var modificationCommandAdded = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
             modificationCommandAdded.AddEntry(entry1, true);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
-            entry2[key] = 2;
+            entry2[(IProperty)key] = 2;
             entry2.SetEntityState(EntityState.Modified);
             var modificationCommandModified = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
             modificationCommandModified.AddEntry(entry2, true);
 
             var entry3 = stateManager.GetOrCreateEntry(new object());
-            entry3[key] = 3;
+            entry3[(IProperty)key] = 3;
             entry3.SetEntityState(EntityState.Deleted);
             var modificationCommandDeleted = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
             modificationCommandDeleted.AddEntry(entry3, true);
@@ -174,13 +174,13 @@ namespace Microsoft.EntityFrameworkCore.Update
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
             var entry1 = stateManager.GetOrCreateEntry(new object());
-            entry1[keyProperty] = value1;
+            entry1[(IProperty)keyProperty] = value1;
             entry1.SetEntityState(EntityState.Modified);
             var modificationCommand1 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
             modificationCommand1.AddEntry(entry1, true);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
-            entry2[keyProperty] = value2;
+            entry2[(IProperty)keyProperty] = value2;
             entry2.SetEntityState(EntityState.Modified);
             var modificationCommand2 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
             modificationCommand2.AddEntry(entry2, true);

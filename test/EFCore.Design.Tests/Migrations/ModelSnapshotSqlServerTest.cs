@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             var modelBuilder = CreateConventionalModelBuilder();
             var generator = CreateMigrationsGenerator();
-            var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", modelBuilder.Model);
+            var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", (IModel)modelBuilder.Model);
             Assert.Contains(@".HasAnnotation(""ProductVersion"",", code);
 
             var modelFromSnapshot = BuildModelFromSnapshotSource(code);
@@ -1509,7 +1509,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [ConditionalFact]
         public virtual void TableName_preserved_when_generic()
         {
-            IModel originalModel = null;
+            IReadOnlyModel originalModel = null;
 
             Test(
                 builder =>
@@ -1621,7 +1621,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [ConditionalFact]
         public virtual void PrimaryKey_name_preserved_when_generic()
         {
-            IModel originalModel = null;
+            IReadOnlyModel originalModel = null;
 
             Test(
                 builder =>
@@ -1659,7 +1659,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [ConditionalFact]
         public virtual void AlternateKey_name_preserved_when_generic()
         {
-            IModel originalModel = null;
+            IReadOnlyModel originalModel = null;
 
             Test(
                 builder =>
@@ -4265,7 +4265,7 @@ namespace RootNamespace
         [ConditionalFact]
         public virtual void ForeignKey_name_preserved_when_generic()
         {
-            IModel originalModel = null;
+            IReadOnlyModel originalModel = null;
 
             Test(
                 builder =>

@@ -333,7 +333,29 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public bool IsPropertyBag
                 => throw new NotImplementedException();
 
+            IReadOnlyEntityType IReadOnlyEntityType.BaseType
+                => throw new NotImplementedException();
+
+            IReadOnlyModel IReadOnlyTypeBase.Model
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
+                => throw new NotImplementedException();
+
+            public INavigation FindDeclaredNavigation(string name)
+                => throw new NotImplementedException();
+
+            public IProperty FindDeclaredProperty(string name)
+                => throw new NotImplementedException();
+
             public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+                => throw new NotImplementedException();
+
+            public IForeignKey FindForeignKey(
+                IReadOnlyList<IReadOnlyProperty> properties, IReadOnlyKey principalKey, IReadOnlyEntityType principalEntityType)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
                 => throw new NotImplementedException();
 
             public IIndex FindIndex(IReadOnlyList<IProperty> properties)
@@ -342,7 +364,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public IIndex FindIndex(string name)
                 => throw new NotImplementedException();
 
+            public IIndex FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+                => throw new NotImplementedException();
+
             public IKey FindKey(IReadOnlyList<IProperty> properties)
+                => throw new NotImplementedException();
+
+            public IKey FindKey(IReadOnlyList<IReadOnlyProperty> properties)
                 => throw new NotImplementedException();
 
             public IKey FindPrimaryKey()
@@ -357,6 +385,39 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public ISkipNavigation FindSkipNavigation(string name)
                 => throw new NotImplementedException();
 
+            public IEnumerable<IForeignKey> GetDeclaredForeignKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IIndex> GetDeclaredIndexes()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IKey> GetDeclaredKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<INavigation> GetDeclaredNavigations()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IProperty> GetDeclaredProperties()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> GetDeclaredReferencingForeignKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IServiceProperty> GetDeclaredServiceProperties()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> GetDerivedForeignKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IIndex> GetDerivedIndexes()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IEntityType> GetDirectlyDerivedTypes()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IProperty> GetForeignKeyProperties()
+                => throw new NotImplementedException();
+
             public IEnumerable<IForeignKey> GetForeignKeys()
                 => throw new NotImplementedException();
 
@@ -369,10 +430,59 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public IEnumerable<IProperty> GetProperties()
                 => throw new NotImplementedException();
 
+            public IEnumerable<IForeignKey> GetReferencingForeignKeys()
+                => throw new NotImplementedException();
+
             public IEnumerable<IServiceProperty> GetServiceProperties()
                 => throw new NotImplementedException();
 
             public IEnumerable<ISkipNavigation> GetSkipNavigations()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IProperty> GetValueGeneratingProperties()
+                => throw new NotImplementedException();
+
+            IReadOnlyForeignKey IReadOnlyEntityType.FindForeignKey(
+                IReadOnlyList<IReadOnlyProperty> properties, IReadOnlyKey principalKey, IReadOnlyEntityType principalEntityType)
+                => throw new NotImplementedException();
+
+            IReadOnlyIndex IReadOnlyEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+                => throw new NotImplementedException();
+
+            IReadOnlyIndex IReadOnlyEntityType.FindIndex(string name)
+                => throw new NotImplementedException();
+
+            IReadOnlyKey IReadOnlyEntityType.FindKey(IReadOnlyList<IReadOnlyProperty> properties)
+                => throw new NotImplementedException();
+
+            IReadOnlyKey IReadOnlyEntityType.FindPrimaryKey()
+                => throw new NotImplementedException();
+
+            IReadOnlyProperty IReadOnlyEntityType.FindProperty(string name)
+                => throw new NotImplementedException();
+
+            IReadOnlyServiceProperty IReadOnlyEntityType.FindServiceProperty(string name)
+                => throw new NotImplementedException();
+
+            IReadOnlySkipNavigation IReadOnlyEntityType.FindSkipNavigation(string name)
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.GetForeignKeys()
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlyIndex> IReadOnlyEntityType.GetIndexes()
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlyKey> IReadOnlyEntityType.GetKeys()
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlyProperty> IReadOnlyEntityType.GetProperties()
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlyServiceProperty> IReadOnlyEntityType.GetServiceProperties()
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlySkipNavigation> IReadOnlyEntityType.GetSkipNavigations()
                 => throw new NotImplementedException();
         }
     }

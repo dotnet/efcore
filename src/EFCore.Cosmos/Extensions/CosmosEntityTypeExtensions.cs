@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IEntityType" /> for Cosmos metadata.
+    ///     Entity type extension methods for Cosmos metadata.
     /// </summary>
     public static class CosmosEntityTypeExtensions
     {
@@ -21,13 +21,13 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the container name for. </param>
         /// <returns> The name of the container to which the entity type is mapped. </returns>
-        public static string? GetContainer([NotNull] this IEntityType entityType)
+        public static string? GetContainer([NotNull] this IReadOnlyEntityType entityType)
             => entityType.BaseType != null
                 ? entityType.GetRootType().GetContainer()
                 : (string?)entityType[CosmosAnnotationNames.ContainerName]
                 ?? GetDefaultContainer(entityType);
 
-        private static string? GetDefaultContainer(IEntityType entityType)
+        private static string? GetDefaultContainer(IReadOnlyEntityType entityType)
             => entityType.IsOwned()
                 ? null
                 : entityType.Model.GetDefaultContainer()
@@ -72,11 +72,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the containing property name for. </param>
         /// <returns> The name of the parent property to which the entity type is mapped. </returns>
-        public static string? GetContainingPropertyName([NotNull] this IEntityType entityType)
+        public static string? GetContainingPropertyName([NotNull] this IReadOnlyEntityType entityType)
             => entityType[CosmosAnnotationNames.PropertyName] as string
                 ?? GetDefaultContainingPropertyName(entityType);
 
-        private static string? GetDefaultContainingPropertyName(IEntityType entityType)
+        private static string? GetDefaultContainingPropertyName(IReadOnlyEntityType entityType)
             => entityType.FindOwnership()?.PrincipalToDependent!.Name;
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the partition key property name for. </param>
         /// <returns> The name of the partition key property. </returns>
-        public static string? GetPartitionKeyPropertyName([NotNull] this IEntityType entityType)
+        public static string? GetPartitionKeyPropertyName([NotNull] this IReadOnlyEntityType entityType)
             => entityType[CosmosAnnotationNames.PartitionKeyName] as string;
 
         /// <summary>
@@ -156,15 +156,15 @@ namespace Microsoft.EntityFrameworkCore
                 ?.GetConfigurationSource();
 
         /// <summary>
-        ///     Returns the name of the property that is used to store the etag.
+        ///     Returns the name of the property that is used to store the ETag.
         /// </summary>
         /// <param name="entityType"> The entity type to get the etag property name for. </param>
         /// <returns> The name of the etag property. </returns>
-        public static string? GetETagPropertyName([NotNull] this IEntityType entityType)
+        public static string? GetETagPropertyName([NotNull] this IReadOnlyEntityType entityType)
             => entityType[CosmosAnnotationNames.ETagName] as string;
 
         /// <summary>
-        ///     Sets the name of the property that is used to store the etag key.
+        ///     Sets the name of the property that is used to store the ETag key.
         /// </summary>
         /// <param name="entityType"> The entity type to set the etag property name for. </param>
         /// <param name="name"> The name to set. </param>
@@ -174,9 +174,9 @@ namespace Microsoft.EntityFrameworkCore
                 Check.NullButNotEmpty(name, nameof(name)));
 
         /// <summary>
-        ///     Sets the name of the property that is used to store the etag.
+        ///     Sets the name of the property that is used to store the ETag.
         /// </summary>
-        /// <param name="entityType"> The entity type to set the etag property name for. </param>
+        /// <param name="entityType"> The entity type to set the ETag property name for. </param>
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         public static void SetETagPropertyName(
@@ -198,15 +198,23 @@ namespace Microsoft.EntityFrameworkCore
                 ?.GetConfigurationSource();
 
         /// <summary>
-        ///     Gets the <see cref="IProperty" /> on this entity that is mapped to cosmos etag, if it exists.
+        ///     Gets the property on this entity that is mapped to cosmos ETag, if it exists.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the etag property for. </param>
-        /// <returns> The <see cref="IProperty" /> mapped to etag, or null if no property is mapped to etag. </returns>
-        public static IProperty? GetETagProperty([NotNull] this IEntityType entityType)
+        /// <param name="entityType"> The entity type to get the ETag property for. </param>
+        /// <returns> The property mapped to ETag, or <see langword="null" /> if no property is mapped to ETag. </returns>
+        public static IReadOnlyProperty? GetETagProperty([NotNull] this IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
             var etagPropertyName = entityType.GetETagPropertyName();
             return !string.IsNullOrEmpty(etagPropertyName) ? entityType.FindProperty(etagPropertyName) : null;
         }
+
+        /// <summary>
+        ///     Gets the property on this entity that is mapped to cosmos ETag, if it exists.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the ETag property for. </param>
+        /// <returns> The property mapped to etag, or <see langword="null" /> if no property is mapped to ETag. </returns>
+        public static IProperty? GetETagProperty([NotNull] this IEntityType entityType)
+            => (IProperty?)((IReadOnlyEntityType)entityType).GetETagProperty();
     }
 }

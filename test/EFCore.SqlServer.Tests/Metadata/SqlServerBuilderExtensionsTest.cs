@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
         }
 
-        private static void ValidateSchemaNamedSpecificSequence(ISequence sequence)
+        private static void ValidateSchemaNamedSpecificSequence(IReadOnlySequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);

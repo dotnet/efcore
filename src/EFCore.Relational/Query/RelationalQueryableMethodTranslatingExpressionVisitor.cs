@@ -1513,7 +1513,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
                     foreach (var property in entityType
                         .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                        .SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+                        .SelectMany(t => t.GetDeclaredProperties()))
                     {
                         propertyExpressions[property] = new ColumnExpression(
                             property, table.FindColumn(property)!, tableExpression, nullable || !property.IsPrimaryKey());
@@ -1556,7 +1556,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
                 foreach (var property in entityType
-                    .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+                    .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                    .SelectMany(t => t.GetDeclaredProperties()))
                 {
                     propertyExpressions[property] = new ColumnExpression(
                         property, table.FindColumn(property)!, tableExpression, nullable: true);

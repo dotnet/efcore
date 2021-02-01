@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return builder.ToString();
         }
 
-        private List<string>? GetNullableColumns(IIndex index)
+        private List<string>? GetNullableColumns(IReadOnlyIndex index)
         {
             var tableName = index.DeclaringEntityType.GetTableName();
             if (tableName == null)

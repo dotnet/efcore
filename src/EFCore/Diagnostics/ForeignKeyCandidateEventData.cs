@@ -35,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] string dependentToPrincipalNavigationSpecification,
             [NotNull] string principalToDependentNavigationSpecification,
-            [NotNull] IReadOnlyList<IPropertyBase> firstPropertyCollection,
-            [NotNull] IReadOnlyList<IPropertyBase> secondPropertyCollection)
+            [NotNull] IReadOnlyList<IReadOnlyPropertyBase> firstPropertyCollection,
+            [NotNull] IReadOnlyList<IReadOnlyPropertyBase> secondPropertyCollection)
             : base(eventDefinition, messageGenerator, firstPropertyCollection, secondPropertyCollection)
         {
             DependentToPrincipalNavigationSpecification = dependentToPrincipalNavigationSpecification;

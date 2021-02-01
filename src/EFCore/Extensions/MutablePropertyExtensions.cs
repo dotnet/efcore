@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
         public static IMutableProperty? FindFirstPrincipal([NotNull] this IMutableProperty property)
-            => (IMutableProperty?)((IProperty)property).FindFirstPrincipal();
+            => (IMutableProperty?)((IReadOnlyProperty)property).FindFirstPrincipal();
 
         /// <summary>
         ///     Finds the list of principal properties including the given property that the given property is constrained by
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The list of all associated principal properties including the given property. </returns>
         public static IReadOnlyList<IMutableProperty> FindPrincipals([NotNull] this IMutableProperty property)
-            => ((IProperty)property).FindPrincipals().Cast<IMutableProperty>().ToList();
+            => ((IReadOnlyProperty)property).FindPrincipals().Cast<IMutableProperty>().ToList();
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The primary that use this property, or <see langword="null" /> if it is not part of the primary key.
         /// </returns>
         public static IMutableKey? FindContainingPrimaryKey([NotNull] this IMutableProperty property)
-            => (IMutableKey?)((IProperty)property).FindContainingPrimaryKey();
+            => (IMutableKey?)((IReadOnlyProperty)property).FindContainingPrimaryKey();
 
         /// <summary>
         ///     Gets all primary or alternate keys that use this property (including composite keys in which this property

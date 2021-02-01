@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -36,24 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool ForUpdate(this ValueGenerated valueGenerated)
             => (valueGenerated & ValueGenerated.OnUpdate) != 0;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IEnumerable<IEntityType> GetContainingEntityTypes([NotNull] this IProperty property)
-            => property.DeclaringEntityType.GetDerivedTypesInclusive();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IProperty property)
-            => property.GetContainingKeys().SelectMany(k => k.GetReferencingForeignKeys());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -102,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool RequiresValueGenerator([NotNull] this IProperty property)
+        public static bool RequiresValueGenerator([NotNull] this IReadOnlyProperty property)
             => (property.ValueGenerated.ForAdd()
                     && property.IsKey()
                     && (!property.IsForeignKey() || property.IsForeignKeyToSelf()))
@@ -114,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsForeignKeyToSelf([NotNull] this IProperty property)
+        public static bool IsForeignKeyToSelf([NotNull] this IReadOnlyProperty property)
         {
             Check.DebugAssert(property.IsKey(), "Only call this method for properties known to be part of a key.");
 
@@ -160,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool RequiresOriginalValue([NotNull] this IProperty property)
+        public static bool RequiresOriginalValue([NotNull] this IReadOnlyProperty property)
             => property.DeclaringEntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.ChangingAndChangedNotifications
                 || property.IsConcurrencyToken
                 || property.IsKey()
@@ -173,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Property AsProperty([NotNull] this IProperty property, [NotNull] [CallerMemberName] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IProperty, Property>(property, methodName);
+        public static Property AsProperty([NotNull] this IReadOnlyProperty property, [NotNull] [CallerMemberName] string methodName = "")
+            => MetadataExtensions.AsConcreteMetadataType<IReadOnlyProperty, Property>(property, methodName);
     }
 }

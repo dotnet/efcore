@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 #nullable enable
 
@@ -12,44 +11,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a navigation property that is part of a relationship
     ///     that is forwarded through a third entity type.
     /// </summary>
-    public interface ISkipNavigation : INavigationBase
+    public interface ISkipNavigation : IReadOnlySkipNavigation, INavigationBase
     {
+        /// <summary>
+        ///     Gets the entity type that this navigation property belongs to.
+        /// </summary>
+        new IEntityType DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IEntityType)((IReadOnlyNavigationBase)this).DeclaringEntityType;
+        }
+
+        /// <summary>
+        ///     Gets the entity type that this navigation property will hold an instance(s) of.
+        /// </summary>
+        new IEntityType TargetEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IEntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
+        }
+
         /// <summary>
         ///     Gets the join type used by the foreign key.
         /// </summary>
-        IEntityType? JoinEntityType
-            => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
-
-        /// <summary>
-        ///     Gets the inverse skip navigation.
-        /// </summary>
-        new ISkipNavigation Inverse { get; }
-
-        /// <summary>
-        ///     Gets the inverse navigation.
-        /// </summary>
-        INavigationBase INavigationBase.Inverse
+        new IEntityType JoinEntityType
         {
             [DebuggerStepThrough]
-            get => Inverse;
+            get => (IEntityType)((IReadOnlySkipNavigation)this).JoinEntityType!;
         }
 
         /// <summary>
         ///     Gets the foreign key to the join type.
         /// </summary>
-        IForeignKey ForeignKey { get; }
+        new IForeignKey ForeignKey
+        {
+            [DebuggerStepThrough]
+            get => (IForeignKey)((IReadOnlySkipNavigation)this).ForeignKey!;
+        }
 
         /// <summary>
-        ///     Gets a value indicating whether the navigation property is defined on the dependent side of the underlying foreign key.
+        ///     Gets the inverse skip navigation.
         /// </summary>
-        bool IsOnDependent { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="IClrCollectionAccessor" /> for this navigation property, if it's a collection
-        ///     navigation.
-        /// </summary>
-        /// <returns> The accessor. </returns>
-        IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
-            => ((SkipNavigation)this).CollectionAccessor;
+        new ISkipNavigation Inverse
+        {
+            [DebuggerStepThrough]
+            get => (ISkipNavigation)((IReadOnlySkipNavigation)this).Inverse!;
+        }
     }
 }

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
         public static IConventionProperty? FindFirstPrincipal([NotNull] this IConventionProperty property)
-            => (IConventionProperty?)((IProperty)property).FindFirstPrincipal();
+            => (IConventionProperty?)((IReadOnlyProperty)property).FindFirstPrincipal();
 
         /// <summary>
         ///     Finds the list of principal properties including the given property that the given property is constrained by
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The list of all associated principal properties including the given property. </returns>
         public static IReadOnlyList<IConventionProperty> FindPrincipals([NotNull] this IConventionProperty property)
-            => ((IProperty)property).FindPrincipals().Cast<IConventionProperty>().ToList();
+            => ((IReadOnlyProperty)property).FindPrincipals().Cast<IConventionProperty>().ToList();
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The foreign keys that use this property.
         /// </returns>
         public static IEnumerable<IConventionForeignKey> GetContainingForeignKeys([NotNull] this IConventionProperty property)
-            => ((IProperty)property).GetContainingForeignKeys().Cast<IConventionForeignKey>();
+            => ((IReadOnlyProperty)property).GetContainingForeignKeys().Cast<IConventionForeignKey>();
 
         /// <summary>
         ///     Gets all indexes that use this property (including composite indexes in which this property
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The primary that use this property, or <see langword="null" /> if it is not part of the primary key.
         /// </returns>
         public static IConventionKey? FindContainingPrimaryKey([NotNull] this IConventionProperty property)
-            => (IConventionKey?)((IProperty)property).FindContainingPrimaryKey();
+            => (IConventionKey?)((IReadOnlyProperty)property).FindContainingPrimaryKey();
 
         /// <summary>
         ///     Gets all primary or alternate keys that use this property (including composite keys in which this property
@@ -98,10 +98,10 @@ namespace Microsoft.EntityFrameworkCore
                 typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
-        ///     Gets the <see cref="ConfigurationSource" /> for <see cref="PropertyExtensions.FindTypeMapping(IProperty)" />.
+        ///     Gets the <see cref="ConfigurationSource" /> for <see cref="CoreTypeMapping" /> of the property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for <see cref="PropertyExtensions.FindTypeMapping(IProperty)" />. </returns>
+        /// <returns> The <see cref="ConfigurationSource" /> for <see cref="CoreTypeMapping" /> of the property. </returns>
         public static ConfigurationSource? GetTypeMappingConfigurationSource([NotNull] this IConventionProperty property)
             => ((Property)property).GetTypeMappingConfigurationSource();
 

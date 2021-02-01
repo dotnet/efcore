@@ -27,15 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public SqlQueryColumnMapping(
             [NotNull] IProperty property,
             [NotNull] SqlQueryColumn column,
-            [NotNull] RelationalTypeMapping typeMapping,
             [NotNull] SqlQueryMapping sqlQueryMapping)
-            : base(property, column, typeMapping, sqlQueryMapping)
+            : base(property, column, sqlQueryMapping)
         {
         }
 
         /// <inheritdoc />
         public virtual ISqlQueryMapping SqlQueryMapping
             => (ISqlQueryMapping)TableMapping;
+
+        /// <inheritdoc />
+        public override RelationalTypeMapping TypeMapping => Property.FindRelationalTypeMapping(
+            StoreObjectIdentifier.SqlQuery(SqlQueryMapping.SqlQuery.Name))!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

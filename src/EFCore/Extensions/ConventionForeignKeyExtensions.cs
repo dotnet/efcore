@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionEntityType GetRelatedEntityType(
             [NotNull] this IConventionForeignKey foreignKey,
             [NotNull] IConventionEntityType entityType)
-            => (IConventionEntityType)((IForeignKey)foreignKey).GetRelatedEntityType(entityType);
+            => (IConventionEntityType)((IReadOnlyForeignKey)foreignKey).GetRelatedEntityType(entityType);
 
         /// <summary>
         ///     Returns a navigation associated with this foreign key.

@@ -18,7 +18,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IKey" />.
+    ///     Extension methods for <see cref="IReadOnlyKey" />.
     /// </summary>
     public static class KeyExtensions
     {
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key metadata. </param>
         /// <typeparam name="TKey"> The type of the key instance. </typeparam>
         /// <returns> The factory. </returns>
-        public static IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>([NotNull] this IKey key)
+        public static IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>([NotNull] this IReadOnlyKey key)
             => key.AsKey().GetPrincipalKeyValueFactory<TKey>();
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="key"> Key metadata. </param>
         /// <returns> The key type. </returns>
-        public static Type GetKeyType([NotNull] this IKey key)
+        public static Type GetKeyType([NotNull] this IReadOnlyKey key)
             => key.Properties.Count > 1 ? typeof(object[]) : key.Properties.First().ClrType;
 
         /// <summary>
@@ -50,15 +50,15 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="key"> The key to find the foreign keys for. </param>
         /// <returns> The foreign keys that reference the given key. </returns>
-        public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IKey key)
-            => Check.NotNull(key, nameof(key)).AsKey().ReferencingForeignKeys ?? Enumerable.Empty<IForeignKey>();
+        public static IEnumerable<IReadOnlyForeignKey> GetReferencingForeignKeys([NotNull] this IReadOnlyKey key)
+            => Check.NotNull(key, nameof(key)).AsKey().ReferencingForeignKeys ?? Enumerable.Empty<IReadOnlyForeignKey>();
 
         /// <summary>
         ///     Returns a value indicating whether the key is the primary key.
         /// </summary>
         /// <param name="key"> The key to find whether it is primary. </param>
         /// <returns> <see langword="true" /> if the key is the primary key. </returns>
-        public static bool IsPrimaryKey([NotNull] this IKey key)
+        public static bool IsPrimaryKey([NotNull] this IReadOnlyKey key)
             => key == key.DeclaringEntityType.FindPrimaryKey();
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IKey key,
+            [NotNull] this IReadOnlyKey key,
             MetadataDebugStringOptions options,
             int indent = 0)
         {

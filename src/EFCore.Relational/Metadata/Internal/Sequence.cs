@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequence
+    public class Sequence : ConventionAnnotatable, IMutableSequence, IConventionSequence, ISequence
     {
         private readonly string? _schema;
         private long? _startValue;
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public Sequence(
             [NotNull] string name,
             [CanBeNull] string? schema,
-            [NotNull] IModel model,
+            [NotNull] IReadOnlyModel model,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [Obsolete("Use the other constructor")]
-        public Sequence([NotNull] IModel model, [NotNull] string annotationName)
+        public Sequence([NotNull] IReadOnlyModel model, [NotNull] string annotationName)
         {
             Check.NotNull(model, nameof(model));
             Check.NotEmpty(annotationName, nameof(annotationName));
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<Sequence> GetSequences([NotNull] IModel model)
+        public static IEnumerable<Sequence> GetSequences([NotNull] IReadOnlyModel model)
             => ((SortedDictionary<(string, string?), Sequence>?)model[RelationalAnnotationNames.Sequences])
                 ?.Values
                 ?? Enumerable.Empty<Sequence>();
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Sequence? FindSequence([NotNull] IModel model, [NotNull] string name, [CanBeNull] string? schema)
+        public static Sequence? FindSequence([NotNull] IReadOnlyModel model, [NotNull] string name, [CanBeNull] string? schema)
         {
             var sequences = (SortedDictionary<(string, string?), Sequence>?)model[RelationalAnnotationNames.Sequences];
             if (sequences == null
@@ -207,6 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(model, nameof(model));
             Check.NotNull(sequence, nameof(sequence));
             Check.NotEmpty(name, nameof(name));
+
+            sequence.EnsureMutable();
 
             var sequences = (SortedDictionary<(string, string?), Sequence>?)model[RelationalAnnotationNames.Sequences];
             var tuple = (sequence.Name, sequence.Schema);
@@ -281,7 +283,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Model { get; }
+        public virtual IReadOnlyModel Model { get; }
+
+        /// <summary>
+        ///     Indicates whether the sequence is read-only.
+        /// </summary>
+        public override bool IsReadOnly => ((Annotatable)Model).IsReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -338,6 +345,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual long? SetStartValue(long? startValue, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _startValue = startValue;
 
             _startValueConfigurationSource = startValue == null
@@ -376,6 +385,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual int? SetIncrementBy(int? incrementBy, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _incrementBy = incrementBy;
 
             _incrementByConfigurationSource = incrementBy == null
@@ -414,6 +425,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual long? SetMinValue(long? minValue, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _minValue = minValue;
 
             _minValueConfigurationSource = minValue == null
@@ -452,6 +465,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual long? SetMaxValue(long? maxValue, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _maxValue = maxValue;
 
             _maxValueConfigurationSource = maxValue == null
@@ -499,6 +514,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Type? SetType([CanBeNull] Type? type, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             if (type != null
                 && !SupportedTypes.Contains(type))
             {
@@ -576,6 +593,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool? SetIsCyclic(bool? cyclic, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _isCyclic = cyclic;
 
             _isCyclicConfigurationSource = cyclic == null
@@ -610,7 +629,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IConventionSequenceBuilder IConventionSequence.Builder
-            => Builder;
+        {
+            [DebuggerStepThrough]
+            get => Builder;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -619,7 +641,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IMutableModel IMutableSequence.Model
-            => (IMutableModel)Model;
+        {
+            [DebuggerStepThrough]
+            get => (IMutableModel)Model;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -628,7 +653,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IConventionModel IConventionSequence.Model
-            => (IConventionModel)Model;
+        {
+            [DebuggerStepThrough]
+            get => (IConventionModel)Model;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -636,6 +664,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        IModel ISequence.Model
+        {
+            [DebuggerStepThrough]
+            get => (IModel)Model;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
         long? IConventionSequence.SetStartValue(long? startValue, bool fromDataAnnotation)
             => SetStartValue(startValue, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -645,6 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         int? IConventionSequence.SetIncrementBy(int? incrementBy, bool fromDataAnnotation)
             => SetIncrementBy(incrementBy, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -654,6 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         long? IConventionSequence.SetMinValue(long? minValue, bool fromDataAnnotation)
             => SetMinValue(minValue, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -663,6 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         long? IConventionSequence.SetMaxValue(long? maxValue, bool fromDataAnnotation)
             => SetMaxValue(maxValue, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -672,6 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         Type? IConventionSequence.SetClrType(Type? type, bool fromDataAnnotation)
             => SetType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -681,6 +726,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         Type? IConventionSequence.SetType(Type? type, bool fromDataAnnotation)
             => SetType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -690,6 +736,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         bool? IConventionSequence.SetIsCyclic(bool? cyclic, bool fromDataAnnotation)
             => SetIsCyclic(cyclic, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

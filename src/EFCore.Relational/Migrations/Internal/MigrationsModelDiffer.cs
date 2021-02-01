@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 // Populate column mapping
                 foreach(var _ in Diff(source.Columns, target.Columns, diffContext))
                 { }
-                
+
                 yield break;
             }
 
@@ -951,24 +951,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return false;
             }
 
-            var nextSource = GetLinkedPrincipal(source);
-            var nextTarget = GetLinkedPrincipal(target);
+            var nextSource = sourceTable.GetRowInternalForeignKeys(source).FirstOrDefault()?.PrincipalEntityType;
+            var nextTarget = targetTable.GetRowInternalForeignKeys(target).FirstOrDefault()?.PrincipalEntityType;
             return (nextSource == null && nextTarget == null)
                 || (nextSource != null
                     && nextTarget != null
                     && EntityTypePathEquals(nextSource, nextTarget, diffContext));
-        }
-
-        private static IEntityType GetLinkedPrincipal(IEntityType entityType)
-        {
-            var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
-            if (table == null)
-            {
-                return null;
-            }
-
-            var linkingForeignKey = entityType.FindRowInternalForeignKeys(table.Value).FirstOrDefault();
-            return linkingForeignKey?.PrincipalEntityType;
         }
 
         /// <summary>

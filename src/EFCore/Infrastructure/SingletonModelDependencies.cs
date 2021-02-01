@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="IModel" />
+    ///         Service dependencies parameter class for <see cref="IReadOnlyModel" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally

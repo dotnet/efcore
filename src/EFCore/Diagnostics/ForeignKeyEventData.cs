@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public ForeignKeyEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IForeignKey foreignKey)
+            [NotNull] IReadOnlyForeignKey foreignKey)
             : base(eventDefinition, messageGenerator)
         {
             ForeignKey = foreignKey;
@@ -32,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The foreign key.
         /// </summary>
-        public virtual IForeignKey ForeignKey { get; }
+        public virtual IReadOnlyForeignKey ForeignKey { get; }
     }
 }

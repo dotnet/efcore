@@ -11,38 +11,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         A class that exposes annotations. Annotations allow for arbitrary metadata to be stored on an object.
+    ///         A class that exposes build-time and run-time annotations. Annotations allow for arbitrary metadata to be stored on an object.
     ///     </para>
     ///     <para>
     ///         This interface is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface IAnnotatable
+    public interface IAnnotatable : IReadOnlyAnnotatable
     {
-        /// <summary>
-        ///     Gets the value of the annotation with the given name, returning <see langword="null" /> if it does not exist.
-        /// </summary>
-        /// <param name="name"> The name of the annotation to find. </param>
-        /// <returns>
-        ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        /// </returns>
-        object? this[[NotNull] string name] { get; }
-
-        /// <summary>
-        ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
-        /// </summary>
-        /// <param name="name"> The name of the annotation to find. </param>
-        /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
-        /// </returns>
-        IAnnotation? FindAnnotation([NotNull] string name);
-
-        /// <summary>
-        ///     Gets all annotations on the current object.
-        /// </summary>
-        IEnumerable<IAnnotation> GetAnnotations();
-
         /// <summary>
         ///     Gets the runtime annotation with the given name, returning <see langword="null" /> if it does not exist.
         /// </summary>
@@ -60,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The value of the existing runtime annotation if an annotation with the specified name already exists.
         ///     Otherwise, <see langword="null" />.
         /// </returns>
-        object? FindRuntimeAnnotationValue([NotNull] string name) =>
-            FindRuntimeAnnotation(name)?.Value;
+        object? FindRuntimeAnnotationValue([NotNull] string name)
+            => FindRuntimeAnnotation(name)?.Value;
 
         /// <summary>
         ///     Gets all the runtime annotations on the current object.

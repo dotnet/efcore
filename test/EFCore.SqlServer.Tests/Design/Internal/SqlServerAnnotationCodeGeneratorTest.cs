@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     x.Property<int>("Id");
                     x.HasKey("Id").IsClustered();
                 });
-            var key = modelBuilder.Model.FindEntityType("Post").GetKeys().Single();
+            var key = (IKey)modelBuilder.Model.FindEntityType("Post").GetKeys().Single();
 
             var result = generator.GenerateFluentApiCalls(key, key.GetAnnotations().ToDictionary(a => a.Name, a => a))
                 .Single();
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     x.Property<int>("Id");
                     x.HasKey("Id").IsClustered(false);
                 });
-            var key = modelBuilder.Model.FindEntityType("Post").GetKeys().Single();
+            var key = (IKey)modelBuilder.Model.FindEntityType("Post").GetKeys().Single();
 
             var result = generator.GenerateFluentApiCalls(key, key.GetAnnotations().ToDictionary(a => a.Name, a => a))
                 .Single();
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     x.Property<string>("Name");
                     x.HasIndex("Name").IsClustered();
                 });
-            var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
+            var index = (IIndex)modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
 
             var result = generator.GenerateFluentApiCalls(index, index.GetAnnotations().ToDictionary(a => a.Name, a => a))
                 .Single();
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     x.Property<string>("Name");
                     x.HasIndex("Name").IsClustered(false);
                 });
-            var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
+            var index = (IIndex)modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
 
             var result = generator.GenerateFluentApiCalls(index, index.GetAnnotations().ToDictionary(a => a.Name, a => a))
                 .Single();
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     x.HasIndex("Name").HasFillFactor(90);
                 });
 
-            var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
+            var index = (IIndex)modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
             var result = generator.GenerateFluentApiCalls(index, index.GetAnnotations().ToDictionary(a => a.Name, a => a))
                 .Single();
 
@@ -146,8 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     x.Property<string>("LastName");
                     x.HasIndex("LastName").IncludeProperties("FirstName");
                 });
-            var index = modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
 
+            var index = (IIndex)modelBuilder.Model.FindEntityType("Post").GetIndexes().Single();
             var result = generator.GenerateFluentApiCalls(index, index.GetAnnotations().ToDictionary(a => a.Name, a => a))
                 .Single();
 
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             modelBuilder.UseIdentityColumns(seed: 5, increment: 10);
 
             var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
-            var result = generator.GenerateFluentApiCalls(modelBuilder.Model, annotations).Single();
+            var result = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations).Single();
 
             Assert.Equal("UseIdentityColumns", result.Method);
 
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var property = modelBuilder.Model.FindEntityType("Post").FindProperty("Id");
 
             var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
-            var result = generator.GenerateFluentApiCalls(property, annotations).Single();
+            var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
 
             Assert.Equal("UseIdentityColumn", result.Method);
 
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             modelBuilder.UseHiLo("HiLoIndexName", "HiLoIndexSchema");
 
             var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
-            var result = generator.GenerateFluentApiCalls(modelBuilder.Model, annotations).Single();
+            var result = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations).Single();
 
             Assert.Equal("UseHiLo", result.Method);
 
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var property = modelBuilder.Model.FindEntityType("Post").FindProperty("Id");
 
             var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
-            var result = generator.GenerateFluentApiCalls(property, annotations).Single();
+            var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
 
             Assert.Equal("UseHiLo", result.Method);
 
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 var property = modelBuilder.Model.FindEntityType(entityTypeName).FindProperty(propertyName);
                 var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
-                return generator.GenerateFluentApiCalls(property, annotations).SingleOrDefault();
+                return generator.GenerateFluentApiCalls((IProperty)property, annotations).SingleOrDefault();
             }
         }
 

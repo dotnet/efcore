@@ -16,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IPropertyBase" /> represents a read-only view of the same metadata.
+    ///         Once the model is built, <see cref="IReadOnlyPropertyBase" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionPropertyBase : IPropertyBase, IConventionAnnotatable
+    public interface IConventionPropertyBase : IReadOnlyPropertyBase, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the type that this property belongs to.
@@ -91,9 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .SetField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IPropertyBase.FieldInfo" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.FieldInfo" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IPropertyBase.FieldInfo" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyPropertyBase.FieldInfo" />. </returns>
         ConfigurationSource? GetFieldInfoConfigurationSource();
     }
 }

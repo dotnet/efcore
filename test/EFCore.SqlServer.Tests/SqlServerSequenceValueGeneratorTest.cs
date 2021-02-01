@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = blockSize;
-            var state = new SqlServerSequenceValueGeneratorState(sequence);
+            var state = new SqlServerSequenceValueGeneratorState((ISequence)sequence);
 
             var generator = new SqlServerSequenceHiLoValueGenerator<TValue>(
                 new FakeRawSqlCommandBuilder(blockSize),
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = blockSize;
-            var state = new SqlServerSequenceValueGeneratorState(sequence);
+            var state = new SqlServerSequenceValueGeneratorState((ISequence)sequence);
 
             var executor = new FakeRawSqlCommandBuilder(blockSize);
             var sqlGenerator = new SqlServerUpdateSqlGenerator(
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = 4;
-            var state = new SqlServerSequenceValueGeneratorState(sequence);
+            var state = new SqlServerSequenceValueGeneratorState((ISequence)sequence);
 
             var generator = new SqlServerSequenceHiLoValueGenerator<int>(
                 new FakeRawSqlCommandBuilder(4),

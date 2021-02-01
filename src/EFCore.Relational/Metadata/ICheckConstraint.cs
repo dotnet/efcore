@@ -10,21 +10,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a check constraint in the <see cref="IEntityType" />.
     /// </summary>
-    public interface ICheckConstraint : IAnnotatable
+    public interface ICheckConstraint : IReadOnlyCheckConstraint, IAnnotatable
     {
-        /// <summary>
-        ///     Gets the name of the check constraint in the database.
-        /// </summary>
-        string Name { get; }
-
         /// <summary>
         ///     Gets the <see cref="IEntityType" /> in which this check constraint is defined.
         /// </summary>
-        IEntityType EntityType { get; }
-
-        /// <summary>
-        ///     Gets the constraint sql used in a check constraint in the database.
-        /// </summary>
-        string Sql { get; }
+        new IEntityType EntityType { get; }
     }
 }

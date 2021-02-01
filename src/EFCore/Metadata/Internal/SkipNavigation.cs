@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionSkipNavigation
+    public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionSkipNavigation, ISkipNavigation
     {
         private ConfigurationSource? _foreignKeyConfigurationSource;
         private ConfigurationSource? _inverseConfigurationSource;
@@ -412,21 +412,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc />
-        IEntityType INavigationBase.DeclaringEntityType
+        IReadOnlyEntityType IReadOnlyNavigationBase.DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => DeclaringEntityType;
         }
 
         /// <inheritdoc />
-        IEntityType INavigationBase.TargetEntityType
+        IReadOnlyEntityType IReadOnlyNavigationBase.TargetEntityType
         {
             [DebuggerStepThrough]
             get => TargetEntityType;
         }
 
         /// <inheritdoc />
-        IForeignKey ISkipNavigation.ForeignKey
+        IReadOnlyForeignKey IReadOnlySkipNavigation.ForeignKey
         {
             // ModelValidator makes sure ForeignKey isn't null, so we expose it as non-nullable.
             [DebuggerStepThrough]
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (ForeignKey?)foreignKey, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
-        ISkipNavigation ISkipNavigation.Inverse
+        IReadOnlySkipNavigation IReadOnlySkipNavigation.Inverse
         {
             // ModelValidator makes sure ForeignKey isn't null, so we expose it as non-nullable.
             [DebuggerStepThrough]

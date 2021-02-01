@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IIndex" />.
+    ///     Extension methods for <see cref="IReadOnlyIndex" />.
     /// </summary>
     public static class IndexExtensions
     {
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index metadata. </param>
         /// <typeparam name="TKey"> The type of the index instance. </typeparam>
         /// <returns> The factory. </returns>
-        public static IDependentKeyValueFactory<TKey> GetNullableValueFactory<TKey>([NotNull] this IIndex index)
+        public static IDependentKeyValueFactory<TKey> GetNullableValueFactory<TKey>([NotNull] this IReadOnlyIndex index)
             => index.AsIndex().GetNullableValueFactory<TKey>();
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IIndex index,
+            [NotNull] this IReadOnlyIndex index,
             MetadataDebugStringOptions options,
             int indent = 0)
         {

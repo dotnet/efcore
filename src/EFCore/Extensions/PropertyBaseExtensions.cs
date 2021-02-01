@@ -17,7 +17,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IPropertyBase" />.
+    ///     Extension methods for <see cref="IReadOnlyPropertyBase" />.
     /// </summary>
     public static class PropertyBaseExtensions
     {
@@ -60,22 +60,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="propertyBase"> The property. </param>
         /// <returns> The comparer. </returns>
-        public static IComparer<IUpdateEntry> GetCurrentValueComparer([NotNull] this IPropertyBase propertyBase)
+        public static IComparer<IUpdateEntry> GetCurrentValueComparer([NotNull] this IReadOnlyPropertyBase propertyBase)
             => propertyBase.AsPropertyBase().CurrentValueComparer;
-
-        /// <summary>
-        ///     <para>
-        ///         Gets a <see cref="IClrPropertyGetter" /> for reading the value of this property.
-        ///     </para>
-        ///     <para>
-        ///         Note that it is an error to call this method for a shadow property (<see cref="IsShadowProperty" />) since
-        ///         such a property has no associated <see cref="MemberInfo" />.
-        ///     </para>
-        /// </summary>
-        /// <param name="propertyBase"> The property. </param>
-        /// <returns> The accessor. </returns>
-        public static IClrPropertyGetter GetGetter([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.AsPropertyBase().Getter;
 
         /// <summary>
         ///     Gets the name of the backing field for this property, or <see langword="null" /> if the backing field
@@ -83,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="propertyBase"> The property for which the backing field will be returned. </param>
         /// <returns> The name of the backing field, or <see langword="null" />. </returns>
-        public static string? GetFieldName([NotNull] this IPropertyBase propertyBase)
+        public static string? GetFieldName([NotNull] this IReadOnlyPropertyBase propertyBase)
             => propertyBase.FieldInfo?.GetSimpleMemberName();
 
         /// <summary>
@@ -95,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     <see langword="true" /> if the property is a shadow property, otherwise <see langword="false" />.
         /// </returns>
-        public static bool IsShadowProperty([NotNull] this IPropertyBase property)
+        public static bool IsShadowProperty([NotNull] this IReadOnlyPropertyBase property)
             => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() == null;
 
         /// <summary>
@@ -106,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     <see langword="true" /> if the property is an indexer property, otherwise <see langword="false" />.
         /// </returns>
-        public static bool IsIndexerProperty([NotNull] this IPropertyBase property)
+        public static bool IsIndexerProperty([NotNull] this IReadOnlyPropertyBase property)
             => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() is PropertyInfo propertyInfo
                 && propertyInfo == property.DeclaringType.FindIndexerPropertyInfo();
 

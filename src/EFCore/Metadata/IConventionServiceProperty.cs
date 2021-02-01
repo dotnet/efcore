@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         A <see cref="IPropertyBase" /> in the Entity Framework model that represents an
+    ///         A <see cref="IReadOnlyPropertyBase" /> in the Entity Framework model that represents an
     ///         injected service from the <see cref="DbContext" />.
     ///     </para>
     ///     <para>
@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IServiceProperty" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionServiceProperty : IServiceProperty, IConventionPropertyBase
+    public interface IConventionServiceProperty : IReadOnlyServiceProperty, IConventionPropertyBase
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this service property.
@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ServiceParameterBinding? SetParameterBinding([CanBeNull] ServiceParameterBinding? parameterBinding, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IServiceProperty.ParameterBinding" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyServiceProperty.ParameterBinding" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IServiceProperty.ParameterBinding" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyServiceProperty.ParameterBinding" />. </returns>
         ConfigurationSource? GetParameterBindingConfigurationSource();
     }
 }

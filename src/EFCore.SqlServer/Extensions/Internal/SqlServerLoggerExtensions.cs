@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy,
             [NotNull] string otherValueGenerationStrategy,
-            [NotNull] IProperty property)
+            [NotNull] IReadOnlyProperty property)
         {
             var definition = SqlServerResources.LogConflictingValueGenerationStrategies(diagnostics);
 

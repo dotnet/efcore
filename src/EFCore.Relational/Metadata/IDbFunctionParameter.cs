@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -10,45 +9,28 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a <see cref="IDbFunction" /> parameter.
+    ///     Represents a function parameter.
     /// </summary>
-    public interface IDbFunctionParameter : IAnnotatable
+    public interface IDbFunctionParameter : IReadOnlyDbFunctionParameter, IAnnotatable
     {
         /// <summary>
-        ///     Gets the <see cref="IDbFunction" /> to which this parameter belongs.
+        ///     Gets the function to which this parameter belongs.
         /// </summary>
-        IDbFunction Function { get; }
-
-        /// <summary>
-        ///     Gets the parameter name.
-        /// </summary>
-        string Name { get; }
-
-        /// <summary>
-        ///     Gets the parameter type.
-        /// </summary>
-        Type ClrType { get; }
+        new IDbFunction Function { get; }
 
         /// <summary>
         ///     Gets the store type of this parameter.
         /// </summary>
-        string StoreType { get; }
-
-        /// <summary>
-        ///     Gets the value which indicates whether parameter propagates nullability, meaning if it's value is null the database function itself
-        ///     returns null.
-        /// </summary>
-        bool PropagatesNullability { get; }
+        new string StoreType { get; }
 
         /// <summary>
         ///     Gets the <see cref="RelationalTypeMapping" /> for this parameter.
         /// </summary>
-        RelationalTypeMapping TypeMapping { get; }
+        new RelationalTypeMapping TypeMapping { get; }
 
         /// <summary>
         ///     Gets the associated <see cref="IStoreFunctionParameter" />.
         /// </summary>
-        // TODO-NULLABLE: Not sure about what this is for or if it should be nullable
-        IStoreFunctionParameter? StoreFunctionParameter { get; }
+        IStoreFunctionParameter StoreFunctionParameter { get; }
     }
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
@@ -83,6 +84,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.Convention, navigation.GetForeignKeyConfigurationSource());
             Assert.Null(navigation.GetInverseConfigurationSource());
             Assert.Equal(ConfigurationSource.Convention, navigation.GetConfigurationSource());
+            Assert.Equal(PropertyAccessMode.PreferField, navigation.GetPropertyAccessMode());
+            Assert.Null(navigation.GetPropertyAccessModeConfigurationSource());
+
+            Assert.Same(navigation, firstEntity.FindDeclaredSkipNavigation(navigation.Name));
+            Assert.Same(navigation, firstEntity.FindSkipNavigation(navigation.Name));
+            Assert.Same(navigation, firstEntity.FindSkipNavigation(navigation.GetIdentifyingMemberInfo()));
+            Assert.Same(navigation, firstEntity.GetDeclaredSkipNavigations().Single());
         }
 
         [ConditionalFact]

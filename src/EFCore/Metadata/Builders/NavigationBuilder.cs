@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API for configuring a <see cref="INavigation" /> or <see cref="ISkipNavigation" />.
+    ///         Provides a simple API for configuring a <see cref="IMutableNavigation" /> or <see cref="IMutableSkipNavigation" />.
     ///     </para>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a relational database function in an <see cref="IMutableModel" /> in
     ///     the a form that can be mutated while the model is being built.
     /// </summary>
-    public interface IMutableDbFunction : IMutableAnnotatable, IDbFunction
+    public interface IMutableDbFunction : IReadOnlyDbFunction, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets or sets the name of the function in the database.

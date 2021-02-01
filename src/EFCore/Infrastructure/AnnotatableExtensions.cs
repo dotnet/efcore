@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     Extension methods for <see cref="IAnnotatable" />.
+    ///     Extension methods for <see cref="IReadOnlyAnnotatable" />.
     /// </summary>
     public static class AnnotatableExtensions
     {
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="annotatable"> The object to find the annotation on. </param>
         /// <param name="annotationName"> The key of the annotation to find. </param>
         /// <returns> The annotation with the specified name. </returns>
-        public static IAnnotation GetAnnotation([NotNull] this IAnnotatable annotatable, [NotNull] string annotationName)
+        public static IAnnotation GetAnnotation([NotNull] this IReadOnlyAnnotatable annotatable, [NotNull] string annotationName)
         {
             Check.NotNull(annotatable, nameof(annotatable));
             Check.NotEmpty(annotationName, nameof(annotationName));
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="annotatable"> The object to get the annotations to print in debug string. </param>
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> Debug string representation of all annotations. </returns>
-        public static string AnnotationsToDebugString([NotNull] this IAnnotatable annotatable, int indent = 0)
+        public static string AnnotationsToDebugString([NotNull] this IReadOnlyAnnotatable annotatable, int indent = 0)
         {
             var annotations = annotatable.GetAnnotations().ToList();
             if (annotations.Count == 0)

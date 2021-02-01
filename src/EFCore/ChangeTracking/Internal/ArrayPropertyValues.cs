@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (!Properties[i].IsShadowProperty())
                     {
-                        SetValue(i, ((Property)Properties[i]).Getter.GetClrValue(obj));
+                        SetValue(i, Properties[i].GetGetter().GetClrValue(obj));
                     }
                 }
             }

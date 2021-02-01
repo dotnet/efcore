@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatibleForSqlServer(
-            [NotNull] this IIndex index,
-            [NotNull] IIndex duplicateIndex,
+            [NotNull] this IReadOnlyIndex index,
+            [NotNull] IReadOnlyIndex duplicateIndex,
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return true;
 
-            static bool SameColumnNames(IIndex index, IIndex duplicateIndex, StoreObjectIdentifier storeObject)
+            static bool SameColumnNames(IReadOnlyIndex index, IReadOnlyIndex duplicateIndex, StoreObjectIdentifier storeObject)
                 => index.GetIncludeProperties()!.Select(
                         p => index.DeclaringEntityType.FindProperty(p)!.GetColumnName(storeObject))
                     .SequenceEqual(
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             p => duplicateIndex.DeclaringEntityType.FindProperty(p)!.GetColumnName(storeObject)));
         }
 
-        private static string FormatInclude(IIndex index, StoreObjectIdentifier storeObject)
+        private static string FormatInclude(IReadOnlyIndex index, StoreObjectIdentifier storeObject)
             => index.GetIncludeProperties() == null
                 ? "{}"
                 : "{'"

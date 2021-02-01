@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Extension methods for <see cref="IDbFunction" />.
+    ///     Extension methods for <see cref="IReadOnlyDbFunction" />.
     /// </summary>
     public static class DbFunctionExtensions
     {
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IDbFunction function,
+            [NotNull] this IReadOnlyDbFunction function,
             MetadataDebugStringOptions options,
             int indent = 0)
         {

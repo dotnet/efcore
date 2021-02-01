@@ -47,6 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual EntityEntry EntityEntry { get; }
 
         /// <summary>
+        ///     The navigation.
+        /// </summary>
+        public new virtual INavigation Navigation => (INavigation)base.Navigation;
+
+        /// <summary>
         ///     The old referenced entity.
         /// </summary>
         public virtual object OldReferencedEntity { get; }

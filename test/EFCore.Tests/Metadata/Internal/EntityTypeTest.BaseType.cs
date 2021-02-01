@@ -112,22 +112,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             a.AddProperty(A.GProperty);
             a.AddProperty(A.EProperty);
 
-            var b = model.AddEntityType(typeof(B));
-            b.AddProperty(B.HProperty);
-            b.AddProperty(B.FProperty);
+            var bType = model.AddEntityType(typeof(B));
+            bType.AddProperty(B.HProperty);
+            bType.AddProperty(B.FProperty);
 
-            var c = model.AddEntityType(typeof(C));
-            c.AddProperty(C.HProperty);
-            c.AddProperty("I", typeof(string));
+            var cType = model.AddEntityType(typeof(C));
+            cType.AddProperty(C.HProperty);
+            cType.AddProperty("I", typeof(string));
 
             Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
-            Assert.Equal(new[] { "F", "H" }, b.GetProperties().Select(p => p.Name).ToArray());
-            Assert.Equal(new[] { "H", "I" }, c.GetProperties().Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "F", "H" }, bType.GetProperties().Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "H", "I" }, cType.GetProperties().Select(p => p.Name).ToArray());
 
-            b.BaseType = a;
-            c.BaseType = a;
+            bType.BaseType = a;
+            cType.BaseType = a;
 
-            model.FinalizeModel();
+            var builtModel = model.FinalizeModel();
+            var b = builtModel.FindEntityType(typeof(B));
+            var c = builtModel.FindEntityType(typeof(C));
 
             Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G", "F", "H" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -147,22 +149,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             //  B   C
 
             var a = model.AddEntityType(typeof(A));
-            var b = model.AddEntityType(typeof(B));
-            var c = model.AddEntityType(typeof(C));
+            var bType = model.AddEntityType(typeof(B));
+            var cType = model.AddEntityType(typeof(C));
 
-            b.BaseType = a;
-            c.BaseType = a;
+            bType.BaseType = a;
+            cType.BaseType = a;
 
             a.AddProperty(A.GProperty);
             a.AddProperty(A.EProperty);
 
-            b.AddProperty(B.HProperty);
-            b.AddProperty(B.FProperty);
+            bType.AddProperty(B.HProperty);
+            bType.AddProperty(B.FProperty);
 
-            c.AddProperty(C.HProperty);
-            c.AddProperty("I", typeof(string));
+            cType.AddProperty(C.HProperty);
+            cType.AddProperty("I", typeof(string));
 
-            model.FinalizeModel();
+            var builtModel = model.FinalizeModel();
+            var b = builtModel.FindEntityType(typeof(B));
+            var c = builtModel.FindEntityType(typeof(C));
 
             Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G", "F", "H" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -176,30 +180,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var model = CreateModel();
 
-            var c = model.AddEntityType(typeof(C));
-            c.AddProperty(C.HProperty);
-            c.AddProperty(C.FProperty);
+            var cType = model.AddEntityType(typeof(C));
+            cType.AddProperty(C.HProperty);
+            cType.AddProperty(C.FProperty);
 
-            var d = model.AddEntityType(typeof(D));
-            d.AddProperty(A.EProperty);
-            d.AddProperty(A.GProperty);
-            d.BaseType = c;
+            var dType = model.AddEntityType(typeof(D));
+            dType.AddProperty(A.EProperty);
+            dType.AddProperty(A.GProperty);
+            dType.BaseType = cType;
 
-            Assert.Equal(new[] { "F", "H" }, c.GetProperties().Select(p => p.Name).ToArray());
-            Assert.Equal(new[] { "F", "H", "E", "G" }, d.GetProperties().Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "F", "H" }, cType.GetProperties().Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "F", "H", "E", "G" }, dType.GetProperties().Select(p => p.Name).ToArray());
 
-            d.BaseType = null;
+            dType.BaseType = null;
 
-            Assert.Equal(new[] { "F", "H" }, c.GetProperties().Select(p => p.Name).ToArray());
-            Assert.Equal(new[] { "E", "G" }, d.GetProperties().Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "F", "H" }, cType.GetProperties().Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "E", "G" }, dType.GetProperties().Select(p => p.Name).ToArray());
 
-            var a = model.AddEntityType(typeof(A));
-            a.AddProperty(A.EProperty);
-            a.AddProperty(A.GProperty);
+            var aType = model.AddEntityType(typeof(A));
+            aType.AddProperty(A.EProperty);
+            aType.AddProperty(A.GProperty);
 
-            c.BaseType = a;
+            cType.BaseType = aType;
 
-            model.FinalizeModel();
+            var builtModel = model.FinalizeModel();
+            var a = builtModel.FindEntityType(typeof(A));
+            var c = builtModel.FindEntityType(typeof(C));
+            var d = builtModel.FindEntityType(typeof(D));
 
             Assert.Equal(new[] { "E", "G" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G", "F", "H" }, c.GetProperties().Select(p => p.Name).ToArray());
@@ -352,21 +359,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var pk = a.SetPrimaryKey(g);
             a.AddKey(e);
 
-            var b = model.AddEntityType(typeof(B));
-            b.AddProperty(B.FProperty);
+            var bType = model.AddEntityType(typeof(B));
+            bType.AddProperty(B.FProperty);
 
             Assert.Equal(
                 new[] { new[] { "E" }, new[] { "G" } },
                 a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Equal(
                 Array.Empty<string[]>(),
-                b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
+                bType.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
-            Assert.Equal(new[] { "F" }, b.GetProperties().Select(p => p.Name).ToArray());
+            Assert.Equal(new[] { "F" }, bType.GetProperties().Select(p => p.Name).ToArray());
 
-            b.BaseType = a;
+            bType.BaseType = a;
 
-            model.FinalizeModel();
+            var builtModel = model.FinalizeModel();
+            var b = builtModel.FindEntityType(typeof(B));
 
             Assert.Equal(
                 new[] { new[] { "E" }, new[] { "G" } },
@@ -539,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "Orders", "DerivedOrders" }, specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
             Assert.Equal(
-                new[] { "Orders", "DerivedOrders" }, ((IEntityType)specialCustomerType).GetNavigations().Select(p => p.Name).ToArray());
+                new[] { "Orders", "DerivedOrders" }, ((IReadOnlyEntityType)specialCustomerType).GetNavigations().Select(p => p.Name).ToArray());
             Assert.Same(customerType.FindNavigation("Orders"), specialCustomerType.FindNavigation("Orders"));
         }
 
@@ -652,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(
                     () => specialCustomerForeignKey.SetPrincipalToDependent("Orders")).Message);
 
-            Assert.Equal("Orders", ((IEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
+            Assert.Equal("Orders", ((IReadOnlyEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
         }
 
         [ConditionalFact]
@@ -710,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () =>
                         customerForeignKey.SetPrincipalToDependent(Customer.OrdersProperty)).Message);
 
-            Assert.Equal(nameof(Customer.Orders), ((IEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
+            Assert.Equal(nameof(Customer.Orders), ((IReadOnlyEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
         }
 
         [ConditionalFact]

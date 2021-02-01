@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
-        /// <returns> The finalized <see cref="IModel" />. </returns>
+        /// <returns> The finalized model. </returns>
         public virtual IModel FinalizeModel()
             => Builder.Metadata.FinalizeModel();
 

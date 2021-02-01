@@ -127,14 +127,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IServiceProvider CreateContextServices(IServiceCollection customServices)
             => ((IInfrastructure<IServiceProvider>)CreateContext(customServices)).Instance;
 
-        public IMutableModel BuildModelFor<TEntity>()
-            where TEntity : class
-        {
-            var builder = CreateConventionBuilder();
-            builder.Entity<TEntity>();
-            return builder.Model;
-        }
-
         public IModel Finalize(ModelBuilder modelBuilder, bool skipValidation = false)
         {
             var contextServices = CreateContextServices();

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IConstructorBindingFactory
     {
         /// <summary>
-        ///     Attempts to create a <see cref="InstantiationBinding" /> for the given <see cref="IEntityType" /> and
+        ///     Attempts to create a <see cref="InstantiationBinding" /> for the given entity type and
         ///     <see cref="ConstructorInfo" />
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [CanBeNull, CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters);
 
         /// <summary>
-        ///     Attempts to create a <see cref="InstantiationBinding" /> for the given <see cref="IEntityType" /> and
+        ///     Attempts to create a <see cref="InstantiationBinding" /> for the given entity type and
         ///     <see cref="ConstructorInfo" />
         /// </summary>
         /// <param name="entityType"> The entity type. </param>

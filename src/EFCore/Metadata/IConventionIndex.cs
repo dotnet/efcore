@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IIndex" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionIndex : IIndex, IConventionAnnotatable
+    public interface IConventionIndex : IReadOnlyIndex, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this index.
@@ -53,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool? SetIsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IIndex.IsUnique" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyIndex.IsUnique" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IIndex.IsUnique" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyIndex.IsUnique" />. </returns>
         ConfigurationSource? GetIsUniqueConfigurationSource();
     }
 }

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public SequenceEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] ISequence sequence)
+            [NotNull] IReadOnlySequence sequence)
             : base(eventDefinition, messageGenerator)
         {
             Sequence = sequence;
@@ -32,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The sequence.
         /// </summary>
-        public virtual ISequence Sequence { get; }
+        public virtual IReadOnlySequence Sequence { get; }
     }
 }

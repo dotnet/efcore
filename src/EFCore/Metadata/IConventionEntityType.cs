@@ -14,14 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         Represents an entity in an <see cref="IConventionModel" />.
+    ///         Represents an entity type in an <see cref="IConventionModel" />.
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
     ///         Once the model is built, <see cref="IEntityType" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionEntityType : IEntityType, IConventionTypeBase
+    public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBase
     {
         /// <summary>
         ///     Gets the configuration source for this entity type.
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties that make up the key. </param>
         /// <returns> The key, or <see langword="null" /> if none is defined. </returns>
-        new IConventionKey? FindKey([NotNull] IReadOnlyList<IProperty> properties);
+        new IConventionKey? FindKey([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
         ///     Gets the primary and alternate keys for this entity type.
@@ -202,9 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
         new IConventionForeignKey? FindForeignKey(
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IKey principalKey,
-            [NotNull] IEntityType principalEntityType);
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties,
+            [NotNull] IReadOnlyKey principalKey,
+            [NotNull] IReadOnlyEntityType principalEntityType);
 
         /// <summary>
         ///     Gets the foreign keys defined on this entity type.
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         new IConventionSkipNavigation? FindSkipNavigation([NotNull] MemberInfo memberInfo)
-            => (IConventionSkipNavigation?)((IEntityType)this).FindSkipNavigation(memberInfo);
+            => (IConventionSkipNavigation?)((IReadOnlyEntityType)this).FindSkipNavigation(memberInfo);
 
         /// <summary>
         ///     Gets a skip navigation property on this entity type. Returns <see langword="null" /> if no skip navigation property is found.
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         new IConventionSkipNavigation? FindDeclaredSkipNavigation([NotNull] string name)
-            => (IConventionSkipNavigation?)((IEntityType)this).FindDeclaredSkipNavigation(name);
+            => (IConventionSkipNavigation?)((IReadOnlyEntityType)this).FindDeclaredSkipNavigation(name);
 
         /// <summary>
         ///     <para>
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> Declared foreign keys. </returns>
         new IEnumerable<IConventionSkipNavigation> GetDeclaredSkipNavigations()
-            => ((IEntityType)this).GetDeclaredSkipNavigations().Cast<IConventionSkipNavigation>();
+            => ((IReadOnlyEntityType)this).GetDeclaredSkipNavigations().Cast<IConventionSkipNavigation>();
 
         /// <summary>
         ///     Gets all skip navigation properties on this entity type.
@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        new IConventionIndex? FindIndex([NotNull] IReadOnlyList<IProperty> properties);
+        new IConventionIndex? FindIndex([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
         ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.

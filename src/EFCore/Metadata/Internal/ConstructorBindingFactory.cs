@@ -82,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 out unboundParameters);
 
         private bool TryBindConstructor(
-            IEntityType entityType,
+            IReadOnlyEntityType entityType,
             ConstructorInfo constructor,
-            Func<IParameterBindingFactory?, IEntityType, Type, string, ParameterBinding?> bind,
+            Func<IParameterBindingFactory?, IReadOnlyEntityType, Type, string, ParameterBinding?> bind,
             [CA.NotNullWhen(true)] out InstantiationBinding? binding,
             [CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters)
         {
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 = constructor.GetParameters().Select(
                         p => (p, string.IsNullOrEmpty(p.Name)
                             ? null
-                            : _propertyFactory.FindParameter(entityType, p.ParameterType, p.Name)
+                            : _propertyFactory.FindParameter((IEntityType)entityType, p.ParameterType, p.Name)
                             ?? bind(_factories.FindFactory(p.ParameterType, p.Name), entityType, p.ParameterType, p.Name)))
                     .ToList();
 

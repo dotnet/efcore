@@ -1500,7 +1500,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 && navigationToDependent.GetConfigurationSource() == ConfigurationSource.Explicit)
                             {
                                 var baseProperty = baseEntityType.FindMembersInHierarchy(navigationToDependent.Name).Single();
-                                if (!(baseProperty is INavigation))
+                                if (!(baseProperty is IReadOnlyNavigation))
                                 {
                                     throw new InvalidOperationException(
                                         CoreStrings.DuplicatePropertiesOnBase(
@@ -1881,25 +1881,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (derivedMember.GetConfigurationSource() == ConfigurationSource.Explicit
                     && baseMembers.TryGetValue(derivedMember.Name, out var baseMember))
                 {
-                    if (derivedMember is IProperty)
+                    if (derivedMember is IReadOnlyProperty)
                     {
-                        return baseMember is IProperty;
+                        return baseMember is IReadOnlyProperty;
                     }
 
-                    if (derivedMember is INavigation derivedNavigation)
+                    if (derivedMember is IReadOnlyNavigation derivedNavigation)
                     {
-                        return baseMember is INavigation baseNavigation
+                        return baseMember is IReadOnlyNavigation baseNavigation
                             && derivedNavigation.TargetEntityType == baseNavigation.TargetEntityType;
                     }
 
-                    if (derivedMember is IServiceProperty)
+                    if (derivedMember is IReadOnlyServiceProperty)
                     {
-                        return baseMember is IServiceProperty;
+                        return baseMember is IReadOnlyServiceProperty;
                     }
 
-                    if (derivedMember is ISkipNavigation derivedSkipNavigation)
+                    if (derivedMember is IReadOnlySkipNavigation derivedSkipNavigation)
                     {
-                        return baseMember is ISkipNavigation baseSkipNavigation
+                        return baseMember is IReadOnlySkipNavigation baseSkipNavigation
                             && derivedSkipNavigation.TargetEntityType == baseSkipNavigation.TargetEntityType;
                     }
                 }
@@ -3289,7 +3289,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return true;
         }
 
-        private bool Contains(IForeignKey? inheritedFk, IForeignKey derivedFk)
+        private bool Contains(IReadOnlyForeignKey? inheritedFk, IReadOnlyForeignKey derivedFk)
             => inheritedFk != null
                 && inheritedFk.PrincipalEntityType.IsAssignableFrom(derivedFk.PrincipalEntityType)
                 && PropertyListComparer.Instance.Equals(inheritedFk.Properties, derivedFk.Properties);
@@ -4314,7 +4314,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private InternalPropertyBuilder? GetOrCreateDiscriminatorProperty(Type? type, string? name, ConfigurationSource configurationSource)
         {
-            var discriminatorProperty = ((IEntityType)Metadata).GetDiscriminatorProperty();
+            var discriminatorProperty = ((IReadOnlyEntityType)Metadata).GetDiscriminatorProperty();
             if ((name != null && discriminatorProperty?.Name != name)
                 || (type != null && discriminatorProperty?.ClrType != type))
             {
@@ -4388,7 +4388,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void RemoveUnusedDiscriminatorProperty(Property? newDiscriminatorProperty, ConfigurationSource configurationSource)
         {
-            var oldDiscriminatorProperty = ((IEntityType)Metadata).GetDiscriminatorProperty() as Property;
+            var oldDiscriminatorProperty = ((IReadOnlyEntityType)Metadata).GetDiscriminatorProperty() as Property;
             if (oldDiscriminatorProperty?.IsInModel == true
                 && oldDiscriminatorProperty != newDiscriminatorProperty)
             {
@@ -4412,10 +4412,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetDiscriminator([CanBeNull] string? name, [CanBeNull] Type? type, ConfigurationSource configurationSource)
             => name == null && type == null
                 ? CanRemoveDiscriminator(configurationSource)
-                : CanSetDiscriminator(((IEntityType)Metadata).GetDiscriminatorProperty(), name, type, configurationSource);
+                : CanSetDiscriminator(((IReadOnlyEntityType)Metadata).GetDiscriminatorProperty(), name, type, configurationSource);
 
         private bool CanSetDiscriminator(
-            IProperty? discriminatorProperty,
+            IReadOnlyProperty? discriminatorProperty,
             string? name,
             Type? discriminatorType,
             ConfigurationSource configurationSource)
@@ -5114,7 +5114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         [DebuggerStepThrough]
         IConventionEntityTypeBuilder? IConventionEntityTypeBuilder.HasNoSkipNavigation(
-            ISkipNavigation skipNavigation,
+            IReadOnlySkipNavigation skipNavigation,
             bool fromDataAnnotation)
             => HasNoSkipNavigation(
                 (SkipNavigation)skipNavigation,
@@ -5122,7 +5122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionEntityTypeBuilder.CanRemoveSkipNavigation(ISkipNavigation skipNavigation, bool fromDataAnnotation)
+        bool IConventionEntityTypeBuilder.CanRemoveSkipNavigation(IReadOnlySkipNavigation skipNavigation, bool fromDataAnnotation)
             => CanRemoveSkipNavigation(
                 (SkipNavigation)skipNavigation,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
