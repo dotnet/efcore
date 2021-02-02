@@ -3014,25 +3014,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The relationship was separated into two relationships because the [ForeignKey] attribute specified on the navigation '{navigationEntityType}.{navigation}' doesn't match the [ForeignKey] attribute specified on the property '{propertyEntityType}.{property}'.
         /// </summary>
-        public static EventDefinition<string, string, string, string> LogConflictingForeignKeyAttributesOnNavigationAndProperty([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string?, string, string?> LogConflictingForeignKeyAttributesOnNavigationAndProperty([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogConflictingForeignKeyAttributesOnNavigationAndProperty;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogConflictingForeignKeyAttributesOnNavigationAndProperty,
-                    () => new EventDefinition<string, string, string, string>(
+                    () => new EventDefinition<string, string?, string, string?>(
                         logger.Options,
                         CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
                         LogLevel.Warning,
                         "CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning",
-                        level => LoggerMessage.Define<string, string, string, string>(
+                        level => LoggerMessage.Define<string, string?, string, string?>(
                             level,
                             CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
                             _resourceManager.GetString("LogConflictingForeignKeyAttributesOnNavigationAndProperty")!)));
             }
 
-            return (EventDefinition<string, string, string, string>)definition;
+            return (EventDefinition<string, string?, string, string?>)definition;
         }
 
         /// <summary>
@@ -3110,25 +3110,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}
         /// </summary>
-        public static EventDefinition<string, string, string, string> LogContextInitialized([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string?, string> LogContextInitialized([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogContextInitialized;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogContextInitialized,
-                    () => new EventDefinition<string, string, string, string>(
+                    () => new EventDefinition<string, string, string?, string>(
                         logger.Options,
                         CoreEventId.ContextInitialized,
                         LogLevel.Information,
                         "CoreEventId.ContextInitialized",
-                        level => LoggerMessage.Define<string, string, string, string>(
+                        level => LoggerMessage.Define<string, string, string?, string>(
                             level,
                             CoreEventId.ContextInitialized,
                             _resourceManager.GetString("LogContextInitialized")!)));
             }
 
-            return (EventDefinition<string, string, string, string>)definition;
+            return (EventDefinition<string, string, string?, string>)definition;
         }
 
         /// <summary>
@@ -3182,25 +3182,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     DetectChanges starting for '{contextType}'.
         /// </summary>
-        public static EventDefinition<string> LogDetectChangesStarting([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?> LogDetectChangesStarting([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogDetectChangesStarting;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogDetectChangesStarting,
-                    () => new EventDefinition<string>(
+                    () => new EventDefinition<string?>(
                         logger.Options,
                         CoreEventId.DetectChangesStarting,
                         LogLevel.Debug,
                         "CoreEventId.DetectChangesStarting",
-                        level => LoggerMessage.Define<string>(
+                        level => LoggerMessage.Define<string?>(
                             level,
                             CoreEventId.DetectChangesStarting,
                             _resourceManager.GetString("LogDetectChangesStarting")!)));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string?>)definition;
         }
 
         /// <summary>
@@ -3254,25 +3254,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     An exception occurred in the database while saving changes for context type '{contextType}'.{newline}{error}
         /// </summary>
-        public static EventDefinition<Type, string, Exception> LogExceptionDuringSaveChanges([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<Type?, string, Exception> LogExceptionDuringSaveChanges([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogExceptionDuringSaveChanges;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogExceptionDuringSaveChanges,
-                    () => new EventDefinition<Type, string, Exception>(
+                    () => new EventDefinition<Type?, string, Exception>(
                         logger.Options,
                         CoreEventId.SaveChangesFailed,
                         LogLevel.Error,
                         "CoreEventId.SaveChangesFailed",
-                        level => LoggerMessage.Define<Type, string, Exception>(
+                        level => LoggerMessage.Define<Type?, string, Exception>(
                             level,
                             CoreEventId.SaveChangesFailed,
                             _resourceManager.GetString("LogExceptionDuringSaveChanges")!)));
             }
 
-            return (EventDefinition<Type, string, Exception>)definition;
+            return (EventDefinition<Type?, string, Exception>)definition;
         }
 
         /// <summary>
@@ -3350,25 +3350,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships since the [ForeignKey] attribute was specified on properties '{dependentProperty}' and '{principalProperty}' on both sides.
         /// </summary>
-        public static EventDefinition<string, string, string, string, string, string> LogForeignKeyAttributesOnBothProperties([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string?, string, string?, string?, string?> LogForeignKeyAttributesOnBothProperties([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogForeignKeyAttributesOnBothProperties;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogForeignKeyAttributesOnBothProperties,
-                    () => new EventDefinition<string, string, string, string, string, string>(
+                    () => new EventDefinition<string, string?, string, string?, string?, string?>(
                         logger.Options,
                         CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning,
                         LogLevel.Warning,
                         "CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning",
-                        level => LoggerMessage.Define<string, string, string, string, string, string>(
+                        level => LoggerMessage.Define<string, string?, string, string?, string?, string?>(
                             level,
                             CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning,
                             _resourceManager.GetString("LogForeignKeyAttributesOnBothProperties")!)));
             }
 
-            return (EventDefinition<string, string, string, string, string, string>)definition;
+            return (EventDefinition<string, string?, string, string?, string?, string?>)definition;
         }
 
         /// <summary>
@@ -3398,25 +3398,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The foreign key property '{entityType}.{property}' was detected as changed from '{oldValue}' to '{newValue}' for entity with key '{keyValues}'.
         /// </summary>
-        public static EventDefinition<string, string, object, object, string> LogForeignKeyChangeDetectedSensitive([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, object?, object?, string> LogForeignKeyChangeDetectedSensitive([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogForeignKeyChangeDetectedSensitive;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogForeignKeyChangeDetectedSensitive,
-                    () => new EventDefinition<string, string, object, object, string>(
+                    () => new EventDefinition<string, string, object?, object?, string>(
                         logger.Options,
                         CoreEventId.ForeignKeyChangeDetected,
                         LogLevel.Debug,
                         "CoreEventId.ForeignKeyChangeDetected",
-                        level => LoggerMessage.Define<string, string, object, object, string>(
+                        level => LoggerMessage.Define<string, string, object?, object?, string>(
                             level,
                             CoreEventId.ForeignKeyChangeDetected,
                             _resourceManager.GetString("LogForeignKeyChangeDetectedSensitive")!)));
             }
 
-            return (EventDefinition<string, string, object, object, string>)definition;
+            return (EventDefinition<string, string, object?, object?, string>)definition;
         }
 
         /// <summary>
@@ -3518,25 +3518,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     There are multiple navigations ({navigations}) configured with [InverseProperty] attribute which point to the same inverse navigation '{inverseNavigation}' therefore no relationship was configured by convention.
         /// </summary>
-        public static EventDefinition<string, string> LogMultipleInversePropertiesSameTarget([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string?> LogMultipleInversePropertiesSameTarget([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogMultipleInversePropertiesSameTarget;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogMultipleInversePropertiesSameTarget,
-                    () => new EventDefinition<string, string>(
+                    () => new EventDefinition<string, string?>(
                         logger.Options,
                         CoreEventId.MultipleInversePropertiesSameTargetWarning,
                         LogLevel.Warning,
                         "CoreEventId.MultipleInversePropertiesSameTargetWarning",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string, string?>(
                             level,
                             CoreEventId.MultipleInversePropertiesSameTargetWarning,
                             _resourceManager.GetString("LogMultipleInversePropertiesSameTarget")!)));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string, string?>)definition;
         }
 
         /// <summary>
@@ -3639,25 +3639,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     The navigation '{targetEntityType}.{inverseNavigation}' specified in the [InverseProperty] attribute cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'.
         /// </summary>
         [Obsolete]
-        public static EventDefinition<string, string, string, string, string> LogNonDefiningInverseNavigation([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string?, string, string?, string?> LogNonDefiningInverseNavigation([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogNonDefiningInverseNavigation;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogNonDefiningInverseNavigation,
-                    () => new EventDefinition<string, string, string, string, string>(
+                    () => new EventDefinition<string, string?, string, string?, string?>(
                         logger.Options,
                         CoreEventId.NonDefiningInverseNavigationWarning,
                         LogLevel.Warning,
                         "CoreEventId.NonDefiningInverseNavigationWarning",
-                        level => LoggerMessage.Define<string, string, string, string, string>(
+                        level => LoggerMessage.Define<string, string?, string, string?, string?>(
                             level,
                             CoreEventId.NonDefiningInverseNavigationWarning,
                             _resourceManager.GetString("LogNonDefiningInverseNavigation")!)));
             }
 
-            return (EventDefinition<string, string, string, string, string>)definition;
+            return (EventDefinition<string, string?, string, string?, string?>)definition;
         }
 
         /// <summary>
@@ -3738,25 +3738,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The navigation '{targetEntityType}.{inverseNavigation}' specified in the [InverseProperty] attribute cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'.
         /// </summary>
-        public static EventDefinition<string, string, string, string, string> LogNonOwnershipInverseNavigation([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string?, string, string?, string?> LogNonOwnershipInverseNavigation([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogNonOwnershipInverseNavigation;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogNonOwnershipInverseNavigation,
-                    () => new EventDefinition<string, string, string, string, string>(
+                    () => new EventDefinition<string, string?, string, string?, string?>(
                         logger.Options,
                         CoreEventId.NonOwnershipInverseNavigationWarning,
                         LogLevel.Warning,
                         "CoreEventId.NonOwnershipInverseNavigationWarning",
-                        level => LoggerMessage.Define<string, string, string, string, string>(
+                        level => LoggerMessage.Define<string, string?, string, string?, string?>(
                             level,
                             CoreEventId.NonOwnershipInverseNavigationWarning,
                             _resourceManager.GetString("LogNonOwnershipInverseNavigation")!)));
             }
 
-            return (EventDefinition<string, string, string, string, string>)definition;
+            return (EventDefinition<string, string?, string, string?, string?>)definition;
         }
 
         /// <summary>
@@ -3882,25 +3882,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     The unchanged property '{entityType}.{property}' was detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.
         /// </summary>
-        public static EventDefinition<string, string, object, object, string> LogPropertyChangeDetectedSensitive([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, object?, object?, string> LogPropertyChangeDetectedSensitive([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogPropertyChangeDetectedSensitive;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogPropertyChangeDetectedSensitive,
-                    () => new EventDefinition<string, string, object, object, string>(
+                    () => new EventDefinition<string, string, object?, object?, string>(
                         logger.Options,
                         CoreEventId.PropertyChangeDetected,
                         LogLevel.Debug,
                         "CoreEventId.PropertyChangeDetected",
-                        level => LoggerMessage.Define<string, string, object, object, string>(
+                        level => LoggerMessage.Define<string, string, object?, object?, string>(
                             level,
                             CoreEventId.PropertyChangeDetected,
                             _resourceManager.GetString("LogPropertyChangeDetectedSensitive")!)));
             }
 
-            return (EventDefinition<string, string, object, object, string>)definition;
+            return (EventDefinition<string, string, object?, object?, string>)definition;
         }
 
         /// <summary>
@@ -4221,49 +4221,49 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     SaveChanges completed for '{contextType}' with {savedCount} entities written to the database.
         /// </summary>
-        public static EventDefinition<string, int> LogSaveChangesCompleted([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, int> LogSaveChangesCompleted([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogSaveChangesCompleted;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogSaveChangesCompleted,
-                    () => new EventDefinition<string, int>(
+                    () => new EventDefinition<string?, int>(
                         logger.Options,
                         CoreEventId.SaveChangesCompleted,
                         LogLevel.Debug,
                         "CoreEventId.SaveChangesCompleted",
-                        level => LoggerMessage.Define<string, int>(
+                        level => LoggerMessage.Define<string?, int>(
                             level,
                             CoreEventId.SaveChangesCompleted,
                             _resourceManager.GetString("LogSaveChangesCompleted")!)));
             }
 
-            return (EventDefinition<string, int>)definition;
+            return (EventDefinition<string?, int>)definition;
         }
 
         /// <summary>
         ///     SaveChanges starting for '{contextType}'.
         /// </summary>
-        public static EventDefinition<string> LogSaveChangesStarting([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?> LogSaveChangesStarting([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogSaveChangesStarting;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogSaveChangesStarting,
-                    () => new EventDefinition<string>(
+                    () => new EventDefinition<string?>(
                         logger.Options,
                         CoreEventId.SaveChangesStarting,
                         LogLevel.Debug,
                         "CoreEventId.SaveChangesStarting",
-                        level => LoggerMessage.Define<string>(
+                        level => LoggerMessage.Define<string?>(
                             level,
                             CoreEventId.SaveChangesStarting,
                             _resourceManager.GetString("LogSaveChangesStarting")!)));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string?>)definition;
         }
 
         /// <summary>
@@ -4533,25 +4533,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     '{contextType}' generated temporary value '{keyValue}' for the property '{3_entityType}.{2_property}'.
         /// </summary>
-        public static EventDefinition<string, object, string, string> LogTempValueGeneratedSensitive([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, object?, string, string> LogTempValueGeneratedSensitive([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogTempValueGeneratedSensitive;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogTempValueGeneratedSensitive,
-                    () => new EventDefinition<string, object, string, string>(
+                    () => new EventDefinition<string, object?, string, string>(
                         logger.Options,
                         CoreEventId.ValueGenerated,
                         LogLevel.Debug,
                         "CoreEventId.ValueGenerated",
-                        level => LoggerMessage.Define<string, object, string, string>(
+                        level => LoggerMessage.Define<string, object?, string, string>(
                             level,
                             CoreEventId.ValueGenerated,
                             _resourceManager.GetString("LogTempValueGeneratedSensitive")!)));
             }
 
-            return (EventDefinition<string, object, string, string>)definition;
+            return (EventDefinition<string, object?, string, string>)definition;
         }
 
         /// <summary>
@@ -4581,25 +4581,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     '{contextType}' generated value '{keyValue}' for the property '{3_entityType}.{2_property}'.
         /// </summary>
-        public static EventDefinition<string, object, string, string> LogValueGeneratedSensitive([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, object?, string, string> LogValueGeneratedSensitive([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogValueGeneratedSensitive;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((LoggingDefinitions)logger.Definitions).LogValueGeneratedSensitive,
-                    () => new EventDefinition<string, object, string, string>(
+                    () => new EventDefinition<string, object?, string, string>(
                         logger.Options,
                         CoreEventId.ValueGenerated,
                         LogLevel.Debug,
                         "CoreEventId.ValueGenerated",
-                        level => LoggerMessage.Define<string, object, string, string>(
+                        level => LoggerMessage.Define<string, object?, string, string>(
                             level,
                             CoreEventId.ValueGenerated,
                             _resourceManager.GetString("LogValueGeneratedSensitive")!)));
             }
 
-            return (EventDefinition<string, object, string, string>)definition;
+            return (EventDefinition<string, object?, string, string>)definition;
         }
     }
 }

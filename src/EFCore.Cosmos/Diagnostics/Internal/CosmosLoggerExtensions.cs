@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
 {
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         public static void ExecutingSqlQuery(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
+            [CanBeNull] string? partitionKey,
             [NotNull] CosmosSqlQuery cosmosSqlQuery)
         {
             var definition = CosmosResources.LogExecutingSqlQuery(diagnostics);
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
 
         private static string ExecutingSqlQuery(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string, string, string>)definition;
+            var d = (EventDefinition<string, string?, string, string, string>)definition;
             var p = (CosmosQueryEventData)payload;
             return d.GenerateMessage(
                 p.ContainerId,
@@ -114,12 +116,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         
         private static string ExecutingReadItem(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string>)definition;
+            var d = (EventDefinition<string, string, string?>)definition;
             var p = (CosmosReadItemEventData)payload;
             return d.GenerateMessage(p.LogSensitiveData ? p.ResourceId : "?", p.ContainerId, p.LogSensitiveData ? p.PartitionKey : "?");
         }
 
-        private static string FormatParameters(IReadOnlyList<(string Name, object Value)> parameters, bool shouldLogParameterValues)
+        private static string FormatParameters(IReadOnlyList<(string Name, object? Value)> parameters, bool shouldLogParameterValues)
             => FormatParameters(parameters.Select(p => new SqlParameter(p.Name, p.Value)).ToList(), shouldLogParameterValues);
 
         private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)
@@ -146,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             return builder.ToString();
         }
 
-        private static void FormatParameterValue(StringBuilder builder, object parameterValue)
+        private static void FormatParameterValue(StringBuilder builder, object? parameterValue)
         {
             if (parameterValue == null)
             {

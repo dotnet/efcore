@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -30,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] EntityEntry entityEntry,
             [NotNull] IProperty property,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue)
+            [CanBeNull] object? oldValue,
+            [CanBeNull] object? newValue)
             : base(eventDefinition, messageGenerator, property)
         {
             Check.NotNull(entityEntry, nameof(entityEntry));
@@ -54,11 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The old value.
         /// </summary>
-        public virtual object OldValue { get; }
+        public virtual object? OldValue { get; }
 
         /// <summary>
         ///     The new value.
         /// </summary>
-        public virtual object NewValue { get; }
+        public virtual object? NewValue { get; }
     }
 }

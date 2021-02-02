@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The key of this annotation. </param>
         /// <param name="value"> The value assigned to this annotation. </param>
-        public Annotation([NotNull] string name, [CanBeNull] object value)
+        public Annotation([NotNull] string name, [CanBeNull] object? value)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -38,6 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the value assigned to this annotation.
         /// </summary>
-        public virtual object Value { get; }
+        public virtual object? Value { get; }
     }
 }

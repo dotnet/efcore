@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="assemblyName"> The name of the assembly. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TBuilder MigrationsAssembly([CanBeNull] string assemblyName)
+        public virtual TBuilder MigrationsAssembly([CanBeNull] string? assemblyName)
             => WithOption(e => (TExtension)e.WithMigrationsAssembly(Check.NullButNotEmpty(assemblyName, nameof(assemblyName))));
 
         /// <summary>
@@ -88,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="tableName"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TBuilder MigrationsHistoryTable([NotNull] string tableName, [CanBeNull] string schema = null)
+        public virtual TBuilder MigrationsHistoryTable([NotNull] string tableName, [CanBeNull] string? schema = null)
         {
             Check.NotEmpty(tableName, nameof(tableName));
             Check.NullButNotEmpty(schema, nameof(schema));
@@ -142,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -151,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

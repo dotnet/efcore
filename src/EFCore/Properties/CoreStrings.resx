@@ -715,7 +715,7 @@
   </data>
   <data name="LogConflictingForeignKeyAttributesOnNavigationAndProperty" xml:space="preserve">
     <value>The relationship was separated into two relationships because the [ForeignKey] attribute specified on the navigation '{navigationEntityType}.{navigation}' doesn't match the [ForeignKey] attribute specified on the property '{propertyEntityType}.{property}'.</value>
-    <comment>Warning CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning string string string string</comment>
+    <comment>Warning CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning string string? string string?</comment>
   </data>
   <data name="LogConflictingKeylessAndKeyAttributes" xml:space="preserve">
     <value>The entity type '{entity}' has the [Keyless] attribute, but the [Key] attribute was specified on property '{property}'; the two are incompatible, consider removing one. Note that the entity will have no key unless you configure one in 'OnModelCreating'.</value>
@@ -731,7 +731,7 @@
   </data>
   <data name="LogContextInitialized" xml:space="preserve">
     <value>Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}</value>
-    <comment>Information CoreEventId.ContextInitialized string string string string</comment>
+    <comment>Information CoreEventId.ContextInitialized string string string? string</comment>
   </data>
   <data name="LogDetachedLazyLoading" xml:space="preserve">
     <value>An attempt was made to lazy-load navigation '{navigation}' on a detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking'.</value>
@@ -743,7 +743,7 @@
   </data>
   <data name="LogDetectChangesStarting" xml:space="preserve">
     <value>DetectChanges starting for '{contextType}'.</value>
-    <comment>Debug CoreEventId.DetectChangesStarting string</comment>
+    <comment>Debug CoreEventId.DetectChangesStarting string?</comment>
   </data>
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
     <value>The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.</value>
@@ -755,7 +755,7 @@
   </data>
   <data name="LogExceptionDuringSaveChanges" xml:space="preserve">
     <value>An exception occurred in the database while saving changes for context type '{contextType}'.{newline}{error}</value>
-    <comment>Error CoreEventId.SaveChangesFailed Type string Exception</comment>
+    <comment>Error CoreEventId.SaveChangesFailed Type? string Exception</comment>
   </data>
   <data name="LogExecutionStrategyRetrying" xml:space="preserve">
     <value>A transient exception occurred during execution. The operation will be retried after {delay}ms.{newline}{error}</value>
@@ -771,7 +771,7 @@
   </data>
   <data name="LogForeignKeyAttributesOnBothProperties" xml:space="preserve">
     <value>Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships since the [ForeignKey] attribute was specified on properties '{dependentProperty}' and '{principalProperty}' on both sides.</value>
-    <comment>Warning CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning string string string string string string</comment>
+    <comment>Warning CoreEventId.ForeignKeyAttributesOnBothPropertiesWarning string string? string string? string? string?</comment>
   </data>
   <data name="LogForeignKeyChangeDetected" xml:space="preserve">
     <value>The foreign key property '{entityType}.{property}' was detected as changed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.</value>
@@ -779,7 +779,7 @@
   </data>
   <data name="LogForeignKeyChangeDetectedSensitive" xml:space="preserve">
     <value>The foreign key property '{entityType}.{property}' was detected as changed from '{oldValue}' to '{newValue}' for entity with key '{keyValues}'.</value>
-    <comment>Debug CoreEventId.ForeignKeyChangeDetected string string object object string</comment>
+    <comment>Debug CoreEventId.ForeignKeyChangeDetected string string object? object? string</comment>
   </data>
   <data name="LogIncompatibleMatchingForeignKeyProperties" xml:space="preserve">
     <value>For the relationship between dependent '{dependentToPrincipalNavigationSpecification}' and principal '{principalToDependentNavigationSpecification}', the foreign key properties haven't been configured by convention because the best match {foreignKeyProperties} are incompatible with the current principal key {principalKey}. This message can be disregarded if explicit configuration has been specified in 'OnModelCreating'.</value>
@@ -799,7 +799,7 @@
   </data>
   <data name="LogMultipleInversePropertiesSameTarget" xml:space="preserve">
     <value>There are multiple navigations ({navigations}) configured with [InverseProperty] attribute which point to the same inverse navigation '{inverseNavigation}' therefore no relationship was configured by convention.</value>
-    <comment>Warning CoreEventId.MultipleInversePropertiesSameTargetWarning string string</comment>
+    <comment>Warning CoreEventId.MultipleInversePropertiesSameTargetWarning string string?</comment>
   </data>
   <data name="LogMultipleNavigationProperties" xml:space="preserve">
     <value>No relationship from '{firstEntityType}' to '{secondEntityType}' has been configured by convention because there are multiple properties on one entity type - {navigationProperties} that could be matched with the properties on the other entity type - {inverseNavigations}. This message can be disregarded if explicit configuration has been specified in 'OnModelCreating'.</value>
@@ -819,7 +819,7 @@
   </data>
   <data name="LogNonDefiningInverseNavigation" xml:space="preserve">
     <value>The navigation '{targetEntityType}.{inverseNavigation}' specified in the [InverseProperty] attribute cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'.</value>
-    <comment>Obsolete Warning CoreEventId.NonDefiningInverseNavigationWarning string string string string string</comment>
+    <comment>Obsolete Warning CoreEventId.NonDefiningInverseNavigationWarning string string? string string? string?</comment>
   </data>
   <data name="LogNonNullableInverted" xml:space="preserve">
     <value>The navigation '{navigation}' is non-nullable, causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
@@ -835,7 +835,7 @@
   </data>
   <data name="LogNonOwnershipInverseNavigation" xml:space="preserve">
     <value>The navigation '{targetEntityType}.{inverseNavigation}' specified in the [InverseProperty] attribute cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'.</value>
-    <comment>Warning CoreEventId.NonOwnershipInverseNavigationWarning string string string string string</comment>
+    <comment>Warning CoreEventId.NonOwnershipInverseNavigationWarning string string? string string? string?</comment>
   </data>
   <data name="LogOptimisticConcurrencyException" xml:space="preserve">
     <value>{error}</value>
@@ -859,7 +859,7 @@
   </data>
   <data name="LogPropertyChangeDetectedSensitive" xml:space="preserve">
     <value>The unchanged property '{entityType}.{property}' was detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.</value>
-    <comment>Debug CoreEventId.PropertyChangeDetected string string object object string</comment>
+    <comment>Debug CoreEventId.PropertyChangeDetected string string object? object? string</comment>
   </data>
   <data name="LogQueryCompilationStarting" xml:space="preserve">
     <value>Compiling query expression: {newline}'{queryExpression}'</value>
@@ -915,11 +915,11 @@
   </data>
   <data name="LogSaveChangesCompleted" xml:space="preserve">
     <value>SaveChanges completed for '{contextType}' with {savedCount} entities written to the database.</value>
-    <comment>Debug CoreEventId.SaveChangesCompleted string int</comment>
+    <comment>Debug CoreEventId.SaveChangesCompleted string? int</comment>
   </data>
   <data name="LogSaveChangesStarting" xml:space="preserve">
     <value>SaveChanges starting for '{contextType}'.</value>
-    <comment>Debug CoreEventId.SaveChangesStarting string</comment>
+    <comment>Debug CoreEventId.SaveChangesStarting string?</comment>
   </data>
   <data name="LogSensitiveDataLoggingEnabled" xml:space="preserve">
     <value>Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data; this mode should only be enabled during development.</value>
@@ -967,7 +967,7 @@
   </data>
   <data name="LogTempValueGeneratedSensitive" xml:space="preserve">
     <value>'{contextType}' generated temporary value '{keyValue}' for the property '{3_entityType}.{2_property}'.</value>
-    <comment>Debug CoreEventId.ValueGenerated string object string string</comment>
+    <comment>Debug CoreEventId.ValueGenerated string object? string string</comment>
   </data>
   <data name="LogValueGenerated" xml:space="preserve">
     <value>'{contextType}' generated a value for the property '{2_entityType}.{1_property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
@@ -975,7 +975,7 @@
   </data>
   <data name="LogValueGeneratedSensitive" xml:space="preserve">
     <value>'{contextType}' generated value '{keyValue}' for the property '{3_entityType}.{2_property}'.</value>
-    <comment>Debug CoreEventId.ValueGenerated string object string string</comment>
+    <comment>Debug CoreEventId.ValueGenerated string object? string string</comment>
   </data>
   <data name="MissingBackingField" xml:space="preserve">
     <value>The specified field '{field}' could not be found for property '{2_entityType}.{1_property}'.</value>

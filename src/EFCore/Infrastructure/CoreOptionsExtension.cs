@@ -14,6 +14,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -28,20 +30,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class CoreOptionsExtension : IDbContextOptionsExtension
     {
-        private IServiceProvider _internalServiceProvider;
-        private IServiceProvider _applicationServiceProvider;
-        private IModel _model;
-        private ILoggerFactory _loggerFactory;
-        private IDbContextLogger _contextLogger;
-        private IMemoryCache _memoryCache;
+        private IServiceProvider? _internalServiceProvider;
+        private IServiceProvider? _applicationServiceProvider;
+        private IModel? _model;
+        private ILoggerFactory? _loggerFactory;
+        private IDbContextLogger? _contextLogger;
+        private IMemoryCache? _memoryCache;
         private bool _sensitiveDataLoggingEnabled;
         private bool _detailedErrorsEnabled;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-        private IDictionary<(Type, Type), Type> _replacedServices;
+        private IDictionary<(Type, Type?), Type>? _replacedServices;
         private int? _maxPoolSize;
         private bool _serviceProviderCachingEnabled = true;
-        private DbContextOptionsExtensionInfo _info;
-        private IEnumerable<IInterceptor> _interceptors;
+        private DbContextOptionsExtensionInfo? _info;
+        private IEnumerable<IInterceptor>? _interceptors;
 
         private WarningsConfiguration _warningsConfiguration
             = new WarningsConfiguration()
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (copyFrom._replacedServices != null)
             {
-                _replacedServices = new Dictionary<(Type, Type), Type>(copyFrom._replacedServices);
+                _replacedServices = new Dictionary<(Type, Type?), Type>(copyFrom._replacedServices);
             }
         }
 
@@ -102,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="internalServiceProvider"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithInternalServiceProvider([CanBeNull] IServiceProvider internalServiceProvider)
+        public virtual CoreOptionsExtension WithInternalServiceProvider([CanBeNull] IServiceProvider? internalServiceProvider)
         {
             var clone = Clone();
 
@@ -117,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="applicationServiceProvider"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithApplicationServiceProvider([CanBeNull] IServiceProvider applicationServiceProvider)
+        public virtual CoreOptionsExtension WithApplicationServiceProvider([CanBeNull] IServiceProvider? applicationServiceProvider)
         {
             var clone = Clone();
 
@@ -132,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="model"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithModel([CanBeNull] IModel model)
+        public virtual CoreOptionsExtension WithModel([CanBeNull] IModel? model)
         {
             var clone = Clone();
 
@@ -147,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="memoryCache"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithMemoryCache([CanBeNull] IMemoryCache memoryCache)
+        public virtual CoreOptionsExtension WithMemoryCache([CanBeNull] IMemoryCache? memoryCache)
         {
             var clone = Clone();
 
@@ -162,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="loggerFactory"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
+        public virtual CoreOptionsExtension WithLoggerFactory([CanBeNull] ILoggerFactory? loggerFactory)
         {
             var clone = Clone();
 
@@ -177,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="contextLogger"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithDbContextLogger([CanBeNull] IDbContextLogger contextLogger)
+        public virtual CoreOptionsExtension WithDbContextLogger([CanBeNull] IDbContextLogger? contextLogger)
         {
             var clone = Clone();
 
@@ -242,13 +244,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual CoreOptionsExtension WithReplacedService(
             [NotNull] Type serviceType,
             [NotNull] Type newImplementationType,
-            [CanBeNull] Type currentImplementationType = null)
+            [CanBeNull] Type? currentImplementationType = null)
         {
             var clone = Clone();
 
             if (clone._replacedServices == null)
             {
-                clone._replacedServices = new Dictionary<(Type, Type), Type>();
+                clone._replacedServices = new Dictionary<(Type, Type?), Type>();
             }
 
             clone._replacedServices[(serviceType, currentImplementationType)] = newImplementationType;
@@ -277,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="warningsConfiguration"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithWarningsConfiguration([CanBeNull] WarningsConfiguration warningsConfiguration)
+        public virtual CoreOptionsExtension WithWarningsConfiguration([NotNull] WarningsConfiguration warningsConfiguration)
         {
             var clone = Clone();
 
@@ -335,37 +337,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseModel" /> method.
         /// </summary>
-        public virtual IModel Model
+        public virtual IModel? Model
             => _model;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseLoggerFactory" /> method.
         /// </summary>
-        public virtual ILoggerFactory LoggerFactory
+        public virtual ILoggerFactory? LoggerFactory
             => _loggerFactory;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> method.
         /// </summary>
-        public virtual IDbContextLogger DbContextLogger
+        public virtual IDbContextLogger? DbContextLogger
             => _contextLogger;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseMemoryCache" /> method.
         /// </summary>
-        public virtual IMemoryCache MemoryCache
+        public virtual IMemoryCache? MemoryCache
             => _memoryCache;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider" /> method.
         /// </summary>
-        public virtual IServiceProvider InternalServiceProvider
+        public virtual IServiceProvider? InternalServiceProvider
             => _internalServiceProvider;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseApplicationServiceProvider" /> method.
         /// </summary>
-        public virtual IServiceProvider ApplicationServiceProvider
+        public virtual IServiceProvider? ApplicationServiceProvider
             => _applicationServiceProvider;
 
         /// <summary>
@@ -389,8 +391,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The options set from the <see cref="DbContextOptionsBuilder.ReplaceService{TService,TImplementation}" /> method.
         /// </summary>
-        public virtual IReadOnlyDictionary<(Type, Type), Type> ReplacedServices
-            => (IReadOnlyDictionary<(Type, Type), Type>)_replacedServices;
+        public virtual IReadOnlyDictionary<(Type, Type?), Type>? ReplacedServices
+            => (IReadOnlyDictionary<(Type, Type?), Type>?)_replacedServices;
 
         /// <summary>
         ///     The option set from the
@@ -404,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The options set from the <see cref="DbContextOptionsBuilder.AddInterceptors(IEnumerable{IInterceptor})" /> method.
         /// </summary>
-        public virtual IEnumerable<IInterceptor> Interceptors
+        public virtual IEnumerable<IInterceptor>? Interceptors
             => _interceptors;
 
         /// <summary>
@@ -423,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        private IMemoryCache GetMemoryCache()
+        private IMemoryCache? GetMemoryCache()
             => MemoryCache;
 
         /// <summary>
@@ -466,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
             private long? _serviceProviderHash;
-            private string _logFragment;
+            private string? _logFragment;
 
             public ExtensionInfo(CoreOptionsExtension extension)
                 : base(extension)

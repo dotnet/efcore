@@ -21,6 +21,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -114,14 +116,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static DbContextErrorEventData CreateDbContextErrorEventData(
             DbContext context,
             Exception exception,
-            EventDefinition<Type, string, Exception> definition)
+            EventDefinition<Type?, string, Exception> definition)
             => new(definition, SaveChangesFailed, context, exception);
 
         private static string SaveChangesFailed(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<Type, string, Exception>)definition;
+            var d = (EventDefinition<Type?, string, Exception>)definition;
             var p = (DbContextErrorEventData)payload;
-            return d.GenerateMessage(p.Context.GetType(), Environment.NewLine, p.Exception);
+            return d.GenerateMessage(p.Context?.GetType(), Environment.NewLine, p.Exception);
         }
 
         /// <summary>
@@ -728,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDictionary<string, string> newDebugInfo,
             IList<IDictionary<string, string>> cachedDebugInfos)
         {
-            List<string> leastConflicts = null;
+            List<string>? leastConflicts = null;
 
             foreach (var cachedDebugInfo in cachedDebugInfos)
             {
@@ -764,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return string.Join(", ", leastConflicts);
+            return leastConflicts is null ? string.Empty : string.Join(", ", leastConflicts);
         }
 
         /// <summary>
@@ -804,7 +806,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string ContextInitialized(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string, string>)definition;
+            var d = (EventDefinition<string, string, string?, string>)definition;
             var p = (ContextInitializedEventData)payload;
             return d.GenerateMessage(
                 ProductInfo.GetVersion(),
@@ -1666,8 +1668,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="secondPropertyCollection"> The second set of properties. </param>
         public static void MultipleNavigationProperties(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IEnumerable<Tuple<MemberInfo, Type>> firstPropertyCollection,
-            [NotNull] IEnumerable<Tuple<MemberInfo, Type>> secondPropertyCollection)
+            [NotNull] IEnumerable<Tuple<MemberInfo?, Type>> firstPropertyCollection,
+            [NotNull] IEnumerable<Tuple<MemberInfo?, Type>> secondPropertyCollection)
         {
             var definition = CoreResources.LogMultipleNavigationProperties(diagnostics);
 
@@ -1713,7 +1715,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="targetType"> The target type. </param>
         public static void MultipleInversePropertiesSameTargetWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IEnumerable<Tuple<MemberInfo, Type>> conflictingNavigations,
+            [NotNull] IEnumerable<Tuple<MemberInfo?, Type>> conflictingNavigations,
             [NotNull] MemberInfo inverseNavigation,
             [NotNull] Type targetType)
         {
@@ -1733,7 +1735,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     MultipleInversePropertiesSameTargetWarning,
                     conflictingNavigations,
-                    new[] { new Tuple<MemberInfo, Type>(inverseNavigation, targetType) });
+                    new[] { new Tuple<MemberInfo?, Type>(inverseNavigation, targetType) });
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
@@ -1741,12 +1743,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string MultipleInversePropertiesSameTargetWarning(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string>)definition;
+            var d = (EventDefinition<string, string?>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;
             return d.GenerateMessage(
                 string.Join(
-                    ", ", p.FirstPropertyCollection.Select(n => n.Item2.ShortDisplayName() + "." + n.Item1.Name)),
-                p.SecondPropertyCollection.First().Item1.Name);
+                    ", ", p.FirstPropertyCollection.Select(n => n.Item2.ShortDisplayName() + "." + n.Item1!.Name)),
+                p.SecondPropertyCollection.First().Item1?.Name);
         }
 
         /// <summary>
@@ -1785,11 +1787,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 var eventData = new TwoUnmappedPropertyCollectionsEventData(
                     definition,
                     NonDefiningInverseNavigationWarning,
-                    new[] { new Tuple<MemberInfo, Type>(navigation, declaringType.ClrType) },
+                    new[] { new Tuple<MemberInfo?, Type>(navigation, declaringType.ClrType) },
                     new[]
                     {
-                        new Tuple<MemberInfo, Type>(inverseNavigation, targetType.ClrType),
-                        new Tuple<MemberInfo, Type>(definingNavigation, targetType.ClrType)
+                        new Tuple<MemberInfo?, Type>(inverseNavigation, targetType.ClrType),
+                        new Tuple<MemberInfo?, Type>(definingNavigation, targetType.ClrType)
                     });
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -1798,17 +1800,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string NonDefiningInverseNavigationWarning(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string, string, string>)definition;
+            var d = (EventDefinition<string, string?, string, string?, string?>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;
             var navigation = p.FirstPropertyCollection.First();
             var inverseNavigation = p.SecondPropertyCollection.First();
             var definingNavigation = p.SecondPropertyCollection.Last();
             return d.GenerateMessage(
                 inverseNavigation.Item2.ShortDisplayName(),
-                inverseNavigation.Item1.Name,
+                inverseNavigation.Item1?.Name,
                 navigation.Item2.ShortDisplayName(),
-                navigation.Item1.Name,
-                definingNavigation.Item1.Name);
+                navigation.Item1?.Name,
+                definingNavigation.Item1?.Name);
         }
 
         /// <summary>
@@ -1846,11 +1848,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 var eventData = new TwoUnmappedPropertyCollectionsEventData(
                     definition,
                     NonOwnershipInverseNavigationWarning,
-                    new[] { new Tuple<MemberInfo, Type>(navigation, declaringType.ClrType) },
+                    new[] { new Tuple<MemberInfo?, Type>(navigation, declaringType.ClrType) },
                     new[]
                     {
-                        new Tuple<MemberInfo, Type>(inverseNavigation, targetType.ClrType),
-                        new Tuple<MemberInfo, Type>(ownershipNavigation, targetType.ClrType)
+                        new Tuple<MemberInfo?, Type>(inverseNavigation, targetType.ClrType),
+                        new Tuple<MemberInfo?, Type>(ownershipNavigation, targetType.ClrType)
                     });
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -1859,17 +1861,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string NonOwnershipInverseNavigationWarning(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string, string, string>)definition;
+            var d = (EventDefinition<string, string?, string, string?, string?>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;
             var navigation = p.FirstPropertyCollection.First();
             var inverseNavigation = p.SecondPropertyCollection.First();
             var ownershipNavigation = p.SecondPropertyCollection.Last();
             return d.GenerateMessage(
                 inverseNavigation.Item2.ShortDisplayName(),
-                inverseNavigation.Item1.Name,
+                inverseNavigation.Item1?.Name,
                 navigation.Item2.ShortDisplayName(),
-                navigation.Item1.Name,
-                ownershipNavigation.Item1.Name);
+                navigation.Item1?.Name,
+                ownershipNavigation.Item1?.Name);
         }
 
         /// <summary>
@@ -1894,9 +1896,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(
                     diagnostics,
                     firstNavigation.DeclaringEntityType.ClrType.ShortDisplayName(),
-                    firstNavigation.GetIdentifyingMemberInfo().Name,
+                    firstNavigation.GetIdentifyingMemberInfo()!.Name,
                     secondNavigation.DeclaringEntityType.ClrType.ShortDisplayName(),
-                    secondNavigation.GetIdentifyingMemberInfo().Name,
+                    secondNavigation.GetIdentifyingMemberInfo()!.Name,
                     firstProperty.Name,
                     secondProperty.Name);
             }
@@ -1908,15 +1910,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     ForeignKeyAttributesOnBothPropertiesWarning,
                     new[]
                     {
-                        new Tuple<MemberInfo, Type>(
-                            firstNavigation.GetIdentifyingMemberInfo(), firstNavigation.DeclaringEntityType.ClrType),
-                        new Tuple<MemberInfo, Type>(firstProperty, firstNavigation.DeclaringEntityType.ClrType)
+                        new Tuple<MemberInfo?, Type>(
+                            firstNavigation.GetIdentifyingMemberInfo()!, firstNavigation.DeclaringEntityType.ClrType),
+                        new Tuple<MemberInfo?, Type>(firstProperty, firstNavigation.DeclaringEntityType.ClrType)
                     },
                     new[]
                     {
-                        new Tuple<MemberInfo, Type>(
-                            secondNavigation.GetIdentifyingMemberInfo(), secondNavigation.DeclaringEntityType.ClrType),
-                        new Tuple<MemberInfo, Type>(secondProperty, secondNavigation.DeclaringEntityType.ClrType)
+                        new Tuple<MemberInfo?, Type>(
+                            secondNavigation.GetIdentifyingMemberInfo()!, secondNavigation.DeclaringEntityType.ClrType),
+                        new Tuple<MemberInfo?, Type>(secondProperty, secondNavigation.DeclaringEntityType.ClrType)
                     });
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -1925,7 +1927,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string ForeignKeyAttributesOnBothPropertiesWarning(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string, string, string, string>)definition;
+            var d = (EventDefinition<string, string?, string, string?, string?, string?>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;
             var firstNavigation = p.FirstPropertyCollection.First();
             var firstProperty = p.FirstPropertyCollection.Last();
@@ -1933,11 +1935,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var secondProperty = p.SecondPropertyCollection.Last();
             return d.GenerateMessage(
                 firstNavigation.Item2.ShortDisplayName(),
-                firstNavigation.Item1.Name,
+                firstNavigation.Item1?.Name,
                 secondNavigation.Item2.ShortDisplayName(),
-                secondNavigation.Item1.Name,
-                firstProperty.Item1.Name,
-                secondProperty.Item1.Name);
+                secondNavigation.Item1?.Name,
+                firstProperty.Item1?.Name,
+                secondProperty.Item1?.Name);
         }
 
         /// <summary>
@@ -2007,7 +2009,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     diagnostics,
                     navigation.DeclaringEntityType.ClrType.ShortDisplayName(),
                     navigation.GetIdentifyingMemberInfo()?.Name,
-                    property.DeclaringType.ShortDisplayName(),
+                    property.DeclaringType!.ShortDisplayName(),
                     property.Name);
             }
 
@@ -2016,8 +2018,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 var eventData = new TwoUnmappedPropertyCollectionsEventData(
                     definition,
                     ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning,
-                    new[] { new Tuple<MemberInfo, Type>(navigation.GetIdentifyingMemberInfo(), navigation.DeclaringEntityType.ClrType) },
-                    new[] { new Tuple<MemberInfo, Type>(property, property.DeclaringType) });
+                    new[] { new Tuple<MemberInfo?, Type>(navigation.GetIdentifyingMemberInfo()!, navigation.DeclaringEntityType.ClrType) },
+                    new[] { new Tuple<MemberInfo?, Type>(property, property.DeclaringType!) });
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
@@ -2027,15 +2029,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EventDefinitionBase definition,
             EventData payload)
         {
-            var d = (EventDefinition<string, string, string, string>)definition;
+            var d = (EventDefinition<string, string?, string, string?>)definition;
             var p = (TwoUnmappedPropertyCollectionsEventData)payload;
             var navigation = p.FirstPropertyCollection.First();
             var property = p.SecondPropertyCollection.First();
             return d.GenerateMessage(
                 navigation.Item2.ShortDisplayName(),
-                navigation.Item1.Name,
+                navigation.Item1?.Name,
                 property.Item2.ShortDisplayName(),
-                property.Item1.Name);
+                property.Item1?.Name);
         }
 
         /// <summary>
@@ -2067,9 +2069,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string DetectChangesStarting(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string>)definition;
+            var d = (EventDefinition<string?>)definition;
             var p = (DbContextEventData)payload;
-            return d.GenerateMessage(p.Context.GetType().ShortDisplayName());
+            return d.GenerateMessage(p.Context?.GetType().ShortDisplayName());
         }
 
         /// <summary>
@@ -2101,9 +2103,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string DetectChangesCompleted(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string>)definition;
+            var d = (EventDefinition<string?>)definition;
             var p = (DbContextEventData)payload;
-            return d.GenerateMessage(p.Context.GetType().ShortDisplayName());
+            return d.GenerateMessage(p.Context?.GetType().ShortDisplayName());
         }
 
         /// <summary>
@@ -2176,7 +2178,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     property.Name,
                     oldValue,
                     newValue,
-                    internalEntityEntry.BuildCurrentValuesString(property.DeclaringEntityType.FindPrimaryKey().Properties));
+                    internalEntityEntry.BuildCurrentValuesString(property.DeclaringEntityType.FindPrimaryKey()!.Properties));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2195,14 +2197,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string PropertyChangeDetectedSensitive(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, object, object, string>)definition;
+            var d = (EventDefinition<string, string, object?, object?, string>)definition;
             var p = (PropertyChangedEventData)payload;
             return d.GenerateMessage(
                 p.Property.DeclaringEntityType.ShortName(),
                 p.Property.Name,
                 p.OldValue,
                 p.NewValue,
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Property.DeclaringEntityType.FindPrimaryKey().Properties));
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Property.DeclaringEntityType.FindPrimaryKey()!.Properties));
         }
 
         /// <summary>
@@ -2278,7 +2280,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     property.Name,
                     oldValue,
                     newValue,
-                    internalEntityEntry.BuildCurrentValuesString(property.DeclaringEntityType.FindPrimaryKey().Properties));
+                    internalEntityEntry.BuildCurrentValuesString(property.DeclaringEntityType.FindPrimaryKey()!.Properties));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2297,14 +2299,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string ForeignKeyChangeDetectedSensitive(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, object, object, string>)definition;
+            var d = (EventDefinition<string, string, object?, object?, string>)definition;
             var p = (PropertyChangedEventData)payload;
             return d.GenerateMessage(
                 p.Property.DeclaringEntityType.ShortName(),
                 p.Property.Name,
                 p.OldValue,
                 p.NewValue,
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Property.DeclaringEntityType.FindPrimaryKey().Properties));
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Property.DeclaringEntityType.FindPrimaryKey()!.Properties));
         }
 
         /// <summary>
@@ -2384,7 +2386,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     removed.Count,
                     navigation.DeclaringEntityType.ShortName(),
                     navigation.Name,
-                    internalEntityEntry.BuildCurrentValuesString(navigation.DeclaringEntityType.FindPrimaryKey().Properties));
+                    internalEntityEntry.BuildCurrentValuesString(navigation.DeclaringEntityType.FindPrimaryKey()!.Properties));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2410,7 +2412,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 p.Removed.Count(),
                 p.Navigation.DeclaringEntityType.ShortName(),
                 p.Navigation.Name,
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Navigation.DeclaringEntityType.FindPrimaryKey().Properties));
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Navigation.DeclaringEntityType.FindPrimaryKey()!.Properties));
         }
 
         /// <summary>
@@ -2490,7 +2492,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     removed.Count,
                     navigation.DeclaringEntityType.ShortName(),
                     navigation.Name,
-                    internalEntityEntry.BuildCurrentValuesString(navigation.DeclaringEntityType.FindPrimaryKey().Properties));
+                    internalEntityEntry.BuildCurrentValuesString(navigation.DeclaringEntityType.FindPrimaryKey()!.Properties));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2516,7 +2518,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 p.Removed.Count(),
                 p.Navigation.DeclaringEntityType.ShortName(),
                 p.Navigation.Name,
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Navigation.DeclaringEntityType.FindPrimaryKey().Properties));
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Navigation.DeclaringEntityType.FindPrimaryKey()!.Properties));
         }
 
         /// <summary>
@@ -2587,7 +2589,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     diagnostics,
                     navigation.DeclaringEntityType.ShortName(),
                     navigation.Name,
-                    internalEntityEntry.BuildCurrentValuesString(navigation.DeclaringEntityType.FindPrimaryKey().Properties));
+                    internalEntityEntry.BuildCurrentValuesString(navigation.DeclaringEntityType.FindPrimaryKey()!.Properties));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2611,7 +2613,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             return d.GenerateMessage(
                 p.Navigation.DeclaringEntityType.ShortName(),
                 p.Navigation.Name,
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Navigation.DeclaringEntityType.FindPrimaryKey().Properties));
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Navigation.DeclaringEntityType.FindPrimaryKey()!.Properties));
         }
 
         /// <summary>
@@ -2670,7 +2672,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     diagnostics,
                     internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
                     internalEntityEntry.EntityType.ShortName(),
-                    internalEntityEntry.BuildCurrentValuesString(internalEntityEntry.EntityType.FindPrimaryKey().Properties));
+                    internalEntityEntry.BuildCurrentValuesString(internalEntityEntry.EntityType.FindPrimaryKey()!.Properties));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2691,7 +2693,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             return d.GenerateMessage(
                 p.EntityEntry.Context.GetType().ShortDisplayName(),
                 p.EntityEntry.Metadata.ShortName(),
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey().Properties));
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey()!.Properties));
         }
 
         /// <summary>
@@ -2763,7 +2765,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(
                     diagnostics,
                     internalEntityEntry.EntityType.ShortName(),
-                    internalEntityEntry.BuildCurrentValuesString(internalEntityEntry.EntityType.FindPrimaryKey().Properties),
+                    internalEntityEntry.BuildCurrentValuesString(internalEntityEntry.EntityType.FindPrimaryKey()!.Properties),
                     internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
                     oldState,
                     newState);
@@ -2788,7 +2790,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var p = (StateChangedEventData)payload;
             return d.GenerateMessage(
                 p.EntityEntry.Metadata.ShortName(),
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey().Properties),
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey()!.Properties),
                 p.EntityEntry.Context.GetType().ShortDisplayName(),
                 p.OldState,
                 p.NewState);
@@ -2889,7 +2891,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string ValueGeneratedSensitive(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, object, string, string>)definition;
+            var d = (EventDefinition<string, object?, string, string>)definition;
             var p = (PropertyValueEventData)payload;
             return d.GenerateMessage(
                 p.EntityEntry.Context.GetType().ShortDisplayName(),
@@ -2965,10 +2967,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(
                     diagnostics,
                     internalChildEntry.EntityType.ShortName(),
-                    internalChildEntry.BuildCurrentValuesString(internalChildEntry.EntityType.FindPrimaryKey().Properties),
+                    internalChildEntry.BuildCurrentValuesString(internalChildEntry.EntityType.FindPrimaryKey()!.Properties),
                     state,
                     internalParentEntry.EntityType.ShortName(),
-                    internalParentEntry.BuildCurrentValuesString(internalParentEntry.EntityType.FindPrimaryKey().Properties));
+                    internalParentEntry.BuildCurrentValuesString(internalParentEntry.EntityType.FindPrimaryKey()!.Properties));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2990,10 +2992,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var p = (CascadeDeleteEventData)payload;
             return d.GenerateMessage(
                 p.EntityEntry.Metadata.ShortName(),
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey().Properties),
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey()!.Properties),
                 p.State,
                 p.ParentEntityEntry.Metadata.ShortName(),
-                p.ParentEntityEntry.GetInfrastructure().BuildCurrentValuesString(p.ParentEntityEntry.Metadata.FindPrimaryKey().Properties));
+                p.ParentEntityEntry.GetInfrastructure().BuildCurrentValuesString(p.ParentEntityEntry.Metadata.FindPrimaryKey()!.Properties));
         }
 
         /// <summary>
@@ -3063,7 +3065,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 definition.Log(
                     diagnostics,
                     internalChildEntry.EntityType.ShortName(),
-                    internalChildEntry.BuildCurrentValuesString(internalChildEntry.EntityType.FindPrimaryKey().Properties),
+                    internalChildEntry.BuildCurrentValuesString(internalChildEntry.EntityType.FindPrimaryKey()!.Properties),
                     state,
                     parentEntityType.ShortName());
             }
@@ -3087,7 +3089,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var p = (CascadeDeleteOrphanEventData)payload;
             return d.GenerateMessage(
                 p.EntityEntry.Metadata.ShortName(),
-                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey().Properties),
+                p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey()!.Properties),
                 p.State,
                 p.ParentEntityType.ShortName());
         }
@@ -3163,7 +3165,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             return default;
         }
 
-        private static DbContextEventData CreateSaveChangesStartingEventData(DbContext context, EventDefinition<string> definition)
+        private static DbContextEventData CreateSaveChangesStartingEventData(DbContext context, EventDefinition<string?> definition)
             => new(
                 definition,
                 SaveChangesStarting,
@@ -3171,9 +3173,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string SaveChangesStarting(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string>)definition;
+            var d = (EventDefinition<string?>)definition;
             var p = (DbContextEventData)payload;
-            return d.GenerateMessage(p.Context.GetType().ShortDisplayName());
+            return d.GenerateMessage(p.Context?.GetType().ShortDisplayName());
         }
 
         /// <summary>
@@ -3254,7 +3256,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static SaveChangesCompletedEventData CreateSaveChangesCompletedEventData(
             DbContext context,
             int entitiesSavedCount,
-            EventDefinition<string, int> definition)
+            EventDefinition<string?, int> definition)
             => new(
                 definition,
                 SaveChangesCompleted,
@@ -3263,10 +3265,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string SaveChangesCompleted(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, int>)definition;
+            var d = (EventDefinition<string?, int>)definition;
             var p = (SaveChangesCompletedEventData)payload;
             return d.GenerateMessage(
-                p.Context.GetType().ShortDisplayName(),
+                p.Context?.GetType().ShortDisplayName(),
                 p.EntitiesSavedCount);
         }
 
@@ -3299,9 +3301,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string ContextDisposed(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string>)definition;
+            var d = (EventDefinition<string?>)definition;
             var p = (DbContextEventData)payload;
-            return d.GenerateMessage(p.Context.GetType().ShortDisplayName());
+            return d.GenerateMessage(p.Context?.GetType().ShortDisplayName());
         }
 
         /// <summary>

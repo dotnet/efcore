@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         if (property.GetFieldName() == null)
                         {
-                            throw new InvalidOperationException((string)ambiguousField.Value);
+                            throw new InvalidOperationException((string?)ambiguousField.Value);
                         }
 
                         property.RemoveAnnotation(CoreAnnotationNames.AmbiguousField);

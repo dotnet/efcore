@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -268,10 +270,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        object ScalarExecuted(
+        object? ScalarExecuted(
             [NotNull] DbCommand command,
             [NotNull] CommandExecutedEventData eventData,
-            [CanBeNull] object result);
+            [CanBeNull] object? result);
 
         /// <summary>
         ///     <para>
@@ -348,10 +350,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        ValueTask<object> ScalarExecutedAsync(
+        ValueTask<object?> ScalarExecutedAsync(
             [NotNull] DbCommand command,
             [NotNull] CommandExecutedEventData eventData,
-            [CanBeNull] object result,
+            [CanBeNull] object? result,
             CancellationToken cancellationToken = default);
 
         /// <summary>

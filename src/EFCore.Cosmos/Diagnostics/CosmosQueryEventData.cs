@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -27,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
-            [NotNull] IReadOnlyList<(string Name, object Value)> parameters,
+            [CanBeNull] string? partitionKey,
+            [NotNull] IReadOnlyList<(string Name, object? Value)> parameters,
             [NotNull] string querySql,
             bool logSensitiveData)
             : base(eventDefinition, messageGenerator)
@@ -48,12 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The key of the Cosmos partition that the query is using.
         /// </summary>
-        public virtual string PartitionKey { get; }
+        public virtual string? PartitionKey { get; }
 
         /// <summary>
         ///     Name/values for each parameter in the Cosmos Query.
         /// </summary>
-        public virtual IReadOnlyList<(string Name, object Value)> Parameters { get; }
+        public virtual IReadOnlyList<(string Name, object? Value)> Parameters { get; }
 
         /// <summary>
         ///     The SQL representing the query.

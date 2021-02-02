@@ -9,6 +9,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private static readonly Type _notifyChangingInterface = typeof(INotifyPropertyChanging);
 
         private readonly bool _checkEquality;
-        private PropertyChangingEventHandler _handler;
+        private PropertyChangingEventHandler? _handler;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 }
                 else if (methodName == $"remove_{nameof(INotifyPropertyChanging.PropertyChanging)}")
                 {
-                    _handler = (PropertyChangingEventHandler)Delegate.Remove(
+                    _handler = (PropertyChangingEventHandler?)Delegate.Remove(
                         _handler, (Delegate)invocation.Arguments[0]);
                 }
             }
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 else
                 {
                     var navigation = EntityType.FindNavigation(propertyName)
-                        ?? (INavigationBase)EntityType.FindSkipNavigation(propertyName);
+                        ?? (INavigationBase?)EntityType.FindSkipNavigation(propertyName);
 
                     if (navigation != null)
                     {
@@ -91,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             }
         }
 
-        private void HandleChanging(IInvocation invocation, IPropertyBase property, IEqualityComparer comparer)
+        private void HandleChanging(IInvocation invocation, IPropertyBase property, IEqualityComparer? comparer)
         {
             if (_checkEquality)
             {

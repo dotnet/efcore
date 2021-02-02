@@ -318,49 +318,49 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// <summary>
         ///     Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.
         /// </summary>
-        public static EventDefinition<string, string, string> LogExecutingReadItem([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string?> LogExecutingReadItem([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingReadItem;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingReadItem,
-                    () => new EventDefinition<string, string, string>(
+                    () => new EventDefinition<string, string, string?>(
                         logger.Options,
                         CosmosEventId.ExecutingReadItem,
                         LogLevel.Debug,
                         "CosmosEventId.ExecutingReadItem",
-                        level => LoggerMessage.Define<string, string, string>(
+                        level => LoggerMessage.Define<string, string, string?>(
                             level,
                             CosmosEventId.ExecutingReadItem,
                             _resourceManager.GetString("LogExecutingReadItem")!)));
             }
 
-            return (EventDefinition<string, string, string>)definition;
+            return (EventDefinition<string, string, string?>)definition;
         }
 
         /// <summary>
         ///     Executing SQL query for container '{containerId}' in partition '{partitionKey}' [Parameters=[{parameters}]]{newLine}{commandText}
         /// </summary>
-        public static EventDefinition<string, string, string, string, string> LogExecutingSqlQuery([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string?, string, string, string> LogExecutingSqlQuery([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingSqlQuery;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
                     ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingSqlQuery,
-                    () => new EventDefinition<string, string, string, string, string>(
+                    () => new EventDefinition<string, string?, string, string, string>(
                         logger.Options,
                         CosmosEventId.ExecutingSqlQuery,
                         LogLevel.Debug,
                         "CosmosEventId.ExecutingSqlQuery",
-                        level => LoggerMessage.Define<string, string, string, string, string>(
+                        level => LoggerMessage.Define<string, string?, string, string, string>(
                             level,
                             CosmosEventId.ExecutingSqlQuery,
                             _resourceManager.GetString("LogExecutingSqlQuery")!)));
             }
 
-            return (EventDefinition<string, string, string, string, string>)definition;
+            return (EventDefinition<string, string?, string, string, string>)definition;
         }
     }
 }

@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using IInterceptor = Castle.DynamicProxy.IInterceptor;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
     /// <summary>
@@ -176,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private IInterceptor[] GetNotifyChangeInterceptors(
             ProxiesOptionsExtension options,
             IEntityType entityType,
-            LazyLoadingInterceptor lazyLoadingInterceptor = null)
+            LazyLoadingInterceptor? lazyLoadingInterceptor = null)
         {
             var interceptors = new List<IInterceptor>();
 

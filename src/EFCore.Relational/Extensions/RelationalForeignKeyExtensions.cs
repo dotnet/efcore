@@ -24,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <returns> The foreign key constraint name. </returns>
-        public static string GetConstraintName([NotNull] this IReadOnlyForeignKey foreignKey)
+        public static string? GetConstraintName([NotNull] this IReadOnlyForeignKey foreignKey)
         {
             var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
             return annotation != null
-                ? (string)annotation.Value
+                ? (string?)annotation.Value
                 : foreignKey.GetDefaultName();
         }
 
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var annotation = foreignKey.FindAnnotation(RelationalAnnotationNames.Name);
             return annotation != null
-                ? (string)annotation.Value
+                ? (string?)annotation.Value
                 : foreignKey.GetDefaultName(storeObject, principalStoreObject);
         }
 

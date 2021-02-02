@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
             var nameAnnotation = entityType.FindAnnotation(RelationalAnnotationNames.TableName);
             if (nameAnnotation != null)
             {
-                return (string)nameAnnotation.Value;
+                return (string?)nameAnnotation.Value;
             }
 
             if (entityType.BaseType != null)
