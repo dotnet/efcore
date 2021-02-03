@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -56,12 +57,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (model.SetModelDependencies(Dependencies.ModelDependencies))
             {
                 InitializeModel(model, preValidation: true);
+
                 if (validationLogger != null
-                    && model is IMutableModel)
+                    && model is IConventionModel)
                 {
                     Dependencies.ModelValidator.Validate(model, validationLogger);
                 }
+
                 InitializeModel(model, preValidation: false);
+
+                if (model is Model mutableModel)
+                {
+                    model = mutableModel.OnModelFinalized();
+                }
             }
 
             return model;

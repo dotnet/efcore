@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -82,6 +83,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         SingletonModelDependencies? ModelDependencies
             => (SingletonModelDependencies?)FindRuntimeAnnotationValue(CoreAnnotationNames.ModelDependencies);
+
+        /// <summary>
+        ///     Gets the runtime service dependencies.
+        /// </summary>
+        SingletonModelDependencies GetModelDependencies()
+        {
+            var dependencies = ModelDependencies;
+            if (dependencies == null)
+            {
+                throw new InvalidOperationException(CoreStrings.ModelNotFinalized(nameof(GetModelDependencies)));
+            }
+
+            return dependencies;
+        }
 
         /// <summary>
         ///     Set the runtime service dependencies.

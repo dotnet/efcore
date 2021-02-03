@@ -61,11 +61,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private EntityType? _baseType;
         private ChangeTrackingStrategy? _changeTrackingStrategy;
         private InternalEntityTypeBuilder? _builder;
+        private InstantiationBinding? _constructorBinding;
+        private InstantiationBinding? _serviceOnlyConstructorBinding;
 
         private ConfigurationSource? _primaryKeyConfigurationSource;
         private ConfigurationSource? _isKeylessConfigurationSource;
         private ConfigurationSource? _baseTypeConfigurationSource;
         private ConfigurationSource? _changeTrackingStrategyConfigurationSource;
+        private ConfigurationSource? _constructorBindingConfigurationSource;
+        private ConfigurationSource? _serviceOnlyConstructorBindingConfigurationSource;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private PropertyCounts? _counts;
@@ -247,13 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ConfigurationSource? GetIsKeylessConfigurationSource()
             => _isKeylessConfigurationSource;
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void UpdateIsKeylessConfigurationSource(ConfigurationSource configurationSource)
+        private void UpdateIsKeylessConfigurationSource(ConfigurationSource configurationSource)
             => _isKeylessConfigurationSource = configurationSource.Max(_isKeylessConfigurationSource);
 
         /// <summary>
@@ -2690,10 +2688,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     entityType.EnsureReadOnly();
 
-                    var binding = (InstantiationBinding?)entityType[CoreAnnotationNames.ServiceOnlyConstructorBinding];
+                    var binding = entityType.ServiceOnlyConstructorBinding;
                     if (binding == null)
                     {
-                        throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
+                        var _ = entityType.ConstructorBinding;
+                        binding = entityType.ServiceOnlyConstructorBinding;
+                        if (binding == null)
+                        {
+                            throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
+                        }
                     }
 
                     var contextParam = Expression.Parameter(typeof(MaterializationContext), "mc");
@@ -3313,6 +3316,117 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool IsImplicitlyCreatedJoinEntityType
             => GetConfigurationSource() == ConfigurationSource.Convention
                 && ClrType == Model.DefaultPropertyBagType;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InstantiationBinding? ConstructorBinding
+        {
+            get => IsReadOnly && !ClrType.IsAbstract
+                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _constructorBinding, this, static entityType =>
+                    {
+                        ((IModel)entityType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
+                            (IReadOnlyEntityType)entityType,
+                            out entityType._constructorBinding,
+                            out entityType._serviceOnlyConstructorBinding);
+                    })
+                    : _constructorBinding;
+
+            [param: CanBeNull]
+            set => SetConstructorBinding(value, ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InstantiationBinding? SetConstructorBinding(
+            [CanBeNull] InstantiationBinding? constructorBinding,
+            ConfigurationSource configurationSource)
+        {
+            EnsureMutable();
+
+            _constructorBinding = constructorBinding;
+
+            if (_constructorBinding == null)
+            {
+                _constructorBindingConfigurationSource = null;
+            }
+            else
+            {
+                UpdateConstructorBindingConfigurationSource(configurationSource);
+            }
+
+            return constructorBinding;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? GetConstructorBindingConfigurationSource()
+            => _constructorBindingConfigurationSource;
+
+        private void UpdateConstructorBindingConfigurationSource(ConfigurationSource configurationSource)
+            => _constructorBindingConfigurationSource = configurationSource.Max(_constructorBindingConfigurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InstantiationBinding? ServiceOnlyConstructorBinding
+        {
+            get => _serviceOnlyConstructorBinding;
+            [param: CanBeNull]
+            set => SetServiceOnlyConstructorBinding(value, ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InstantiationBinding? SetServiceOnlyConstructorBinding(
+            [CanBeNull] InstantiationBinding? constructorBinding,
+            ConfigurationSource configurationSource)
+        {
+            EnsureMutable();
+
+            _serviceOnlyConstructorBinding = constructorBinding;
+
+            if (_serviceOnlyConstructorBinding == null)
+            {
+                _serviceOnlyConstructorBindingConfigurationSource = null;
+            }
+            else
+            {
+                UpdateServiceOnlyConstructorBindingConfigurationSource(configurationSource);
+            }
+
+            return constructorBinding;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? GetServiceOnlyConstructorBindingConfigurationSource()
+            => _serviceOnlyConstructorBindingConfigurationSource;
+
+        private void UpdateServiceOnlyConstructorBindingConfigurationSource(ConfigurationSource configurationSource)
+            => _serviceOnlyConstructorBindingConfigurationSource = configurationSource.Max(_serviceOnlyConstructorBindingConfigurationSource);
 
         #endregion
 

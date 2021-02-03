@@ -542,7 +542,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual RelationalTypeMapping? TypeMapping
         {
-            get => _typeMapping;
+            get => IsReadOnly && IsScalar
+                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static dbFunction =>
+                        {
+                            var relationalTypeMappingSource =
+                                (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
+                            return !string.IsNullOrEmpty(dbFunction._storeType)
+                                        ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
+                                        : relationalTypeMappingSource.FindMapping(dbFunction.ReturnType)!;
+                        })
+                    : _typeMapping;
             set => SetTypeMapping(value, ConfigurationSource.Explicit);
         }
 

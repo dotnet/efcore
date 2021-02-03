@@ -843,8 +843,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .Concat(entityType.GetDeclaredNavigations())
                         .Where(p => !p.IsShadowProperty() && !p.IsIndexerProperty()));
 
-                var constructorBinding = (InstantiationBinding?)entityType[CoreAnnotationNames.ConstructorBinding];
-
+                var constructorBinding = entityType.ConstructorBinding;
                 if (constructorBinding != null)
                 {
                     foreach (var consumedProperty in constructorBinding.ParameterBindings.SelectMany(p => p.ConsumedProperties))

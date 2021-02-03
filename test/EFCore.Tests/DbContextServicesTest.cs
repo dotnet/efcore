@@ -2709,6 +2709,9 @@ namespace Microsoft.EntityFrameworkCore
 
             public ParameterBinding Bind(IConventionEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
+
+            public ParameterBinding Bind([NotNull] IReadOnlyEntityType entityType, [NotNull] Type parameterType, [NotNull] string parameterName)
+                => throw new NotImplementedException();
         }
 
         private class CustomParameterBindingFactory2 : IParameterBindingFactory
@@ -2720,6 +2723,9 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
 
             public ParameterBinding Bind(IConventionEntityType entityType, Type parameterType, string parameterName)
+                => throw new NotImplementedException();
+
+            public ParameterBinding Bind([NotNull] IReadOnlyEntityType entityType, [NotNull] Type parameterType, [NotNull] string parameterName)
                 => throw new NotImplementedException();
         }
 

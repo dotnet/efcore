@@ -15,5 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the entity type that this property belongs to.
         /// </summary>
         new IEntityType DeclaringEntityType { get; }
+
+        /// <summary>
+        ///     The <see cref="ServiceParameterBinding" /> for this property.
+        /// </summary>
+        new ServiceParameterBinding ParameterBinding { get; }
     }
 }

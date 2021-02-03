@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     this[serviceProperty]
                         = serviceProperty
-                            .GetParameterBinding()
+                            .ParameterBinding
                             .ServiceDelegate(
                                 new MaterializationContext(
                                     ValueBuffer.Empty,

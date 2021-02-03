@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -14,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention configure type mapping for <see cref="IDbFunction" /> instances.
     /// </summary>
+    [Obsolete("Use IModelRuntimeInitializer.Initialize instead.")]
     public class DbFunctionTypeMappingConvention : IModelFinalizingConvention
     {
         private readonly IRelationalTypeMappingSource _relationalTypeMappingSource;
@@ -44,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var dbFunction in modelBuilder.Metadata.GetDbFunctions())
             {
                 // TODO: This check needs to be updated to skip over enumerable parameter of aggregate.
+                // Also in DbFunctionParameter.TypeMapping
                 foreach (var parameter in dbFunction.Parameters)
                 {
                     parameter.Builder!.HasTypeMapping(

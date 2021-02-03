@@ -55,16 +55,32 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public SingletonModelDependencies(
-            [NotNull] ITypeMappingSource typeMappingSource)
+            [NotNull] ITypeMappingSource typeMappingSource,
+            [NotNull] IConstructorBindingFactory constructorBindingFactory,
+            [NotNull] IParameterBindingFactories parameterBindingFactories)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+            Check.NotNull(constructorBindingFactory, nameof(constructorBindingFactory));
+            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
 
             TypeMappingSource = typeMappingSource;
+            ConstructorBindingFactory = constructorBindingFactory;
+            ParameterBindingFactories = parameterBindingFactories;
         }
 
         /// <summary>
         ///     The type mapper.
         /// </summary>
         public ITypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+
+        /// <summary>
+        ///     The constructor binding factory.
+        /// </summary>
+        public IConstructorBindingFactory ConstructorBindingFactory { get; [param: NotNull] init; }
+
+        /// <summary>
+        ///     The parameter binding factories.
+        /// </summary>
+        public IParameterBindingFactories ParameterBindingFactories { get; [param: NotNull] init; }
     }
 }

@@ -53,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             new() { { DefaultPropertyBagType, (ConfigurationSource.Convention, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)) } };
 
         private ConventionDispatcher? _conventionDispatcher;
+        private IList<IModelFinalizedConvention>? _modelFinalizedConventions;
         private bool? _skipDetectChanges;
         private ChangeTrackingStrategy? _changeTrackingStrategy;
 
@@ -85,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var dispatcher = new ConventionDispatcher(conventions);
             var builder = new InternalModelBuilder(this);
             _conventionDispatcher = dispatcher;
+            _modelFinalizedConventions = conventions.ModelFinalizedConventions;
             Builder = builder;
             dispatcher.OnModelInitialized(builder);
         }
@@ -837,14 +839,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var finalizedModel = (IModel)ConventionDispatcher.OnModelFinalizing(Builder).Metadata;
 
-            finalizedModel = ConventionDispatcher.OnModelFinalized(finalizedModel);
-
             if (finalizedModel is Model model)
             {
                 finalizedModel = model.MakeReadonly();
             }
 
             return finalizedModel;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IModel OnModelFinalized()
+        {
+            IModel model = this;
+            foreach (var modelConvention in _modelFinalizedConventions!)
+            {
+                model = modelConvention.ProcessModelFinalized(model);
+            }
+
+            _modelFinalizedConventions = null;
+
+            return model;
         }
 
         /// <summary>

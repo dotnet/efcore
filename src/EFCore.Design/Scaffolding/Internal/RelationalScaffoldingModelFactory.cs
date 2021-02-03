@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -44,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICSharpUtilities _cSharpUtilities;
         private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
         private readonly LoggingDefinitions _loggingDefinitions;
+        private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IPluralizer pluralizer,
             [NotNull] ICSharpUtilities cSharpUtilities,
             [NotNull] IScaffoldingTypeMapper scaffoldingTypeMapper,
-            [NotNull] LoggingDefinitions loggingDefinitions)
+            [NotNull] LoggingDefinitions loggingDefinitions,
+            [NotNull] IModelRuntimeInitializer modelRuntimeInitializer)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(candidateNamingService, nameof(candidateNamingService));
@@ -65,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(scaffoldingTypeMapper, nameof(scaffoldingTypeMapper));
             Check.NotNull(loggingDefinitions, nameof(loggingDefinitions));
+            Check.NotNull(modelRuntimeInitializer, nameof(modelRuntimeInitializer));
 
             _reporter = reporter;
             _candidateNamingService = candidateNamingService;
@@ -72,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _cSharpUtilities = cSharpUtilities;
             _scaffoldingTypeMapper = scaffoldingTypeMapper;
             _loggingDefinitions = loggingDefinitions;
+            _modelRuntimeInitializer = modelRuntimeInitializer;
         }
 
         /// <summary>
@@ -108,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             VisitDatabaseModel(modelBuilder, databaseModel);
 
-            return modelBuilder.FinalizeModel();
+            return _modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), null);
         }
 
         /// <summary>

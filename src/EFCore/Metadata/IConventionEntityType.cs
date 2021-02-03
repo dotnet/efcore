@@ -102,9 +102,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => SetIsKeyless(keyless, fromDataAnnotation);
 
         /// <summary>
-        ///     Returns the configuration source for the IsKeyless property.
+        ///     Returns the configuration source for <see cref="IsKeyless"/>.
         /// </summary>
-        /// <returns> The configuration source for the IsKeyless property. </returns>
+        /// <returns> The configuration source for <see cref="IsKeyless"/>. </returns>
         ConfigurationSource? GetIsKeylessConfigurationSource();
 
         /// <summary>

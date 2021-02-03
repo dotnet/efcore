@@ -111,18 +111,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private IMutableProperty CreateConvertedCollectionProperty()
         {
-            var model = CreateConventionlessModelBuilder().Model;
+            var modelBuilder = CreateConventionalModelBuilder();
 
-            var entityType = model.AddEntityType(typeof(WithCollectionConversion));
-            entityType.SetPrimaryKey(entityType.AddProperty(nameof(WithCollectionConversion.Id), typeof(int)));
-
-            var convertedProperty = entityType.AddProperty(
-                nameof(WithCollectionConversion.SomeStrings), typeof(string[]));
-
-            convertedProperty.SetValueConverter(
+            IMutableProperty convertedProperty = null;
+            modelBuilder.Entity<WithCollectionConversion>(eb =>
+            {
+                eb.Property(e => e.Id);
+                convertedProperty = eb.Property(e => e.SomeStrings).Metadata;
+                convertedProperty.SetValueConverter(
                 new ValueConverter<string[], string>(
                     v => string.Join(',', v),
                     v => v.Split(',', StringSplitOptions.None)));
+            });
 
             return convertedProperty;
         }

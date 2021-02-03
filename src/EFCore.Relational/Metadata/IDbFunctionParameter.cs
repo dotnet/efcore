@@ -19,16 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IDbFunction Function { get; }
 
         /// <summary>
-        ///     Gets the store type of this parameter.
-        /// </summary>
-        new string StoreType { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="RelationalTypeMapping" /> for this parameter.
-        /// </summary>
-        new RelationalTypeMapping TypeMapping { get; }
-
-        /// <summary>
         ///     Gets the associated <see cref="IStoreFunctionParameter" />.
         /// </summary>
         IStoreFunctionParameter StoreFunctionParameter { get; }
