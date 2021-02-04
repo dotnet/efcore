@@ -253,7 +253,7 @@
     <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
   </data>
   <data name="LogSavepointsDisabledBecauseOfMARS" xml:space="preserve">
-    <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.SavepointsDisabledBecauseOfMARS))'.</value>
+    <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.</value>
     <comment>Warning SqlServerEventId.SavepointsDisabledBecauseOfMARS</comment>
   </data>
   <data name="MultipleIdentityColumns" xml:space="preserve">
