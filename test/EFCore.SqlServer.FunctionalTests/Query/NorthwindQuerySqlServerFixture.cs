@@ -49,10 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<MostExpensiveProduct>()
                 .Property(p => p.UnitPrice)
                 .HasColumnType("money");
-
-            // Full-text binary search
-            modelBuilder.Entity<Employee>().Property<byte[]>("CurriculumVitae");
-            modelBuilder.Entity<Employee>().Property<string>("CurriculumVitaeFileExtension");
         }
     }
 }

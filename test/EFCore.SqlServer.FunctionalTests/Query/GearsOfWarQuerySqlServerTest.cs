@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -2509,7 +2510,7 @@ LEFT JOIN [Weapons] AS [w] ON [w].[SynergyWithId] IS NOT NULL");
             await base.Where_datetimeoffset_now(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()");
         }
@@ -2519,7 +2520,7 @@ WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()");
             await base.Where_datetimeoffset_utcnow(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }
@@ -2531,7 +2532,7 @@ WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
             AssertSql(
                 @"@__Date_0='0001-01-01T00:00:00.0000000'
 
-SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CONVERT(date, [m].[Timeline]) > @__Date_0");
         }
@@ -2541,7 +2542,7 @@ WHERE CONVERT(date, [m].[Timeline]) > @__Date_0");
             await base.Where_datetimeoffset_year_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(year, [m].[Timeline]) = 2");
         }
@@ -2551,7 +2552,7 @@ WHERE DATEPART(year, [m].[Timeline]) = 2");
             await base.Where_datetimeoffset_month_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(month, [m].[Timeline]) = 1");
         }
@@ -2561,7 +2562,7 @@ WHERE DATEPART(month, [m].[Timeline]) = 1");
             await base.Where_datetimeoffset_dayofyear_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(dayofyear, [m].[Timeline]) = 2");
         }
@@ -2571,7 +2572,7 @@ WHERE DATEPART(dayofyear, [m].[Timeline]) = 2");
             await base.Where_datetimeoffset_day_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(day, [m].[Timeline]) = 2");
         }
@@ -2581,7 +2582,7 @@ WHERE DATEPART(day, [m].[Timeline]) = 2");
             await base.Where_datetimeoffset_hour_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(hour, [m].[Timeline]) = 10");
         }
@@ -2591,7 +2592,7 @@ WHERE DATEPART(hour, [m].[Timeline]) = 10");
             await base.Where_datetimeoffset_minute_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(minute, [m].[Timeline]) = 0");
         }
@@ -2601,7 +2602,7 @@ WHERE DATEPART(minute, [m].[Timeline]) = 0");
             await base.Where_datetimeoffset_second_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(second, [m].[Timeline]) = 0");
         }
@@ -2611,7 +2612,7 @@ WHERE DATEPART(second, [m].[Timeline]) = 0");
             await base.Where_datetimeoffset_millisecond_component(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(millisecond, [m].[Timeline]) = 0");
         }
@@ -5933,7 +5934,7 @@ WHERE (
                 @"@__start_0='1902-01-01T10:00:00.1234567+01:30'
 @__end_1='1902-01-03T10:00:00.1234567+01:30'
 
-SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE ((@__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset)) AND ([m].[Timeline] < @__end_1)) AND ([m].[Timeline] = '1902-01-02T10:00:00.1234567+01:30')");
         }
@@ -6748,7 +6749,7 @@ ORDER BY [w0].[IsAutomatic]");
             AssertSql(
                 @"@__dateTimeOffset_Date_0='0002-03-01T00:00:00.0000000'
 
-SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CONVERT(date, [m].[Timeline]) >= @__dateTimeOffset_Date_0");
         }
@@ -6882,7 +6883,7 @@ FROM [Missions] AS [m]");
             await base.Where_TimeSpan_Hours(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(hour, [m].[Duration]) = 1");
         }
@@ -6892,7 +6893,7 @@ WHERE DATEPART(hour, [m].[Duration]) = 1");
             await base.Where_TimeSpan_Minutes(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(minute, [m].[Duration]) = 1");
         }
@@ -6902,7 +6903,7 @@ WHERE DATEPART(minute, [m].[Duration]) = 1");
             await base.Where_TimeSpan_Seconds(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(second, [m].[Duration]) = 1");
         }
@@ -6912,7 +6913,7 @@ WHERE DATEPART(second, [m].[Duration]) = 1");
             await base.Where_TimeSpan_Milliseconds(async);
 
             AssertSql(
-                @"SELECT [m].[Id], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+                @"SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(millisecond, [m].[Duration]) = 1");
         }
@@ -7441,6 +7442,66 @@ WHERE ([l].[Discriminator] = N'LocustCommander') AND ([g].[Nickname] IS NULL OR 
 FROM [LocustLeaders] AS [l]
 LEFT JOIN [Gears] AS [g] ON ([l].[DefeatedByNickname] = [g].[Nickname]) AND ([l].[DefeatedBySquadId] = [g].[SquadId])
 WHERE ([l].[Discriminator] = N'LocustCommander') AND ([g].[Nickname] IS NOT NULL AND [g].[SquadId] IS NOT NULL)");
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async Task FreeText_with_binary_column()
+        {
+            using var context = CreateContext();
+            var result = await context.Missions.SingleAsync(e => EF.Functions.FreeText(EF.Property<byte[]>(e, "BriefingDocument"), "bombing"));
+
+            Assert.Equal(1, result.Id);
+
+            AssertSql(
+                @"SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE FREETEXT([m].[BriefingDocument], N'bombing')");
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async Task FreeText_with_binary_column_and_language_term()
+        {
+            using var context = CreateContext();
+            var result = await context.Missions.SingleAsync(e => EF.Functions.FreeText(EF.Property<byte[]>(e, "BriefingDocument"), "bombing", 1033));
+
+            Assert.Equal(1, result.Id);
+
+            AssertSql(
+                @"SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE FREETEXT([m].[BriefingDocument], N'bombing', LANGUAGE 1033)");
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async Task Contains_with_binary_column()
+        {
+            using var context = CreateContext();
+            var result = await context.Missions.SingleAsync(e => EF.Functions.Contains(EF.Property<byte[]>(e, "BriefingDocument"), "bomb"));
+
+            Assert.Equal(1, result.Id);
+
+            AssertSql(
+                @"SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE CONTAINS([m].[BriefingDocument], N'bomb')");
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
+        public async Task Contains_with_binary_column_and_language_term()
+        {
+            using var context = CreateContext();
+            var result = await context.Missions.SingleAsync(e => EF.Functions.Contains(EF.Property<byte[]>(e, "BriefingDocument"), "bomb", 1033));
+
+            Assert.Equal(1, result.Id);
+
+            AssertSql(
+                @"SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE CONTAINS([m].[BriefingDocument], N'bomb', LANGUAGE 1033)");
         }
 
         private void AssertSql(params string[] expected)

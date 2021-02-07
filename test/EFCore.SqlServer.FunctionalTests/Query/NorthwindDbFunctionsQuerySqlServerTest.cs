@@ -313,66 +313,6 @@ WHERE (FREETEXT([e0].[Title], N'President', LANGUAGE 1033) AND FREETEXT([e].[Tit
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async Task FreeText_with_binary_column()
-        {
-            using var context = CreateContext();
-            var result = await context.Employees.SingleAsync(e => EF.Functions.FreeText(EF.Property<byte[]>(e, "CurriculumVitae"), "engineering"));
-
-            Assert.Equal(1u, result.EmployeeID);
-
-            AssertSql(
-                @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[CurriculumVitae], [e].[CurriculumVitaeFileExtension], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE FREETEXT([e].[CurriculumVitae], N'engineering')");
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async Task FreeText_with_binary_column_and_language_term()
-        {
-            using var context = CreateContext();
-            var result = await context.Employees.SingleAsync(e => EF.Functions.FreeText(EF.Property<byte[]>(e, "CurriculumVitae"), "engineering", 1033));
-
-            Assert.Equal(1u, result.EmployeeID);
-
-            AssertSql(
-                @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[CurriculumVitae], [e].[CurriculumVitaeFileExtension], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE FREETEXT([e].[CurriculumVitae], N'engineering', LANGUAGE 1033)");
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async Task Contains_with_binary_column()
-        {
-            using var context = CreateContext();
-            var result = await context.Employees.SingleAsync(e => EF.Functions.Contains(EF.Property<byte[]>(e, "CurriculumVitae"), "engineer"));
-
-            Assert.Equal(1u, result.EmployeeID);
-
-            AssertSql(
-                @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[CurriculumVitae], [e].[CurriculumVitaeFileExtension], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE CONTAINS([e].[CurriculumVitae], N'engineer')");
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async Task Contains_with_binary_column_and_language_term()
-        {
-            using var context = CreateContext();
-            var result = await context.Employees.SingleAsync(e => EF.Functions.Contains(EF.Property<byte[]>(e, "CurriculumVitae"), "engineer", 1033));
-
-            Assert.Equal(1u, result.EmployeeID);
-
-            AssertSql(
-                @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[CurriculumVitae], [e].[CurriculumVitaeFileExtension], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE CONTAINS([e].[CurriculumVitae], N'engineer', LANGUAGE 1033)");
-        }
-
-        [ConditionalFact]
         public void Contains_should_throw_on_client_eval()
         {
             var exNoLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring"));
