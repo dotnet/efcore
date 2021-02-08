@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -50,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public void Can_get_and_set_model_annotations()
         {
-            var annotatable = new Annotatable();
+            IMutableAnnotatable annotatable = new Annotatable();
             Assert.Empty(annotatable.GetAnnotations());
             var annotation = annotatable.AddAnnotation("Foo", "Bar");
 

@@ -101,6 +101,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
+        ///     Adds annotations to an object.
+        /// </summary>
+        /// <param name="annotations"> The annotations to be added. </param>
+        public virtual void AddAnnotations(IEnumerable<IAnnotation> annotations)
+            => AddAnnotations(this, annotations);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        internal static void AddAnnotations([NotNull] IMutableAnnotatable annotatable, [NotNull] IEnumerable<IAnnotation> annotations)
+        {
+            foreach (var annotation in annotations)
+            {
+                annotatable.AddAnnotation(annotation.Name, annotation.Value);
+            }
+        }
+
+        /// <summary>
         ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
         ///     annotation with the specified name already exists.
         /// </summary>
@@ -172,6 +193,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 : _annotations.TryGetValue(name, out var annotation)
                     ? annotation
                     : null;
+        }
+
+        /// <summary>
+        ///     Gets the annotation with the given name, throwing if it does not exist.
+        /// </summary>
+        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <returns> The annotation with the specified name. </returns>
+        public virtual Annotation GetAnnotation([NotNull] string annotationName)
+            => (Annotation)GetAnnotation(this, annotationName);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        internal static IAnnotation GetAnnotation([NotNull] IReadOnlyAnnotatable annotatable, [NotNull] string annotationName)
+        {
+            Check.NotEmpty(annotationName, nameof(annotationName));
+
+            var annotation = annotatable.FindAnnotation(annotationName);
+            if (annotation == null)
+            {
+                throw new InvalidOperationException(CoreStrings.AnnotationNotFound(annotationName, annotatable.ToString()));
+            }
+
+            return annotation;
         }
 
         /// <summary>
@@ -412,7 +460,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         IAnnotation? IAnnotatable.RemoveRuntimeAnnotation(string name)
             => RemoveRuntimeAnnotation(name);
 
+        /// <inheritdoc />
+        [DebuggerStepThrough]
         IAnnotation IAnnotatable.SetRuntimeAnnotation(string name, object? value)
             => SetRuntimeAnnotation(name, value);
+
+        /// <inheritdoc />
+        void IMutableAnnotatable.SetOrRemoveAnnotation(string name, object? value)
+        {
+            if (value == null)
+            {
+                RemoveAnnotation(name);
+            }
+            else
+            {
+                SetAnnotation(name, value);
+            }
+        }
     }
 }

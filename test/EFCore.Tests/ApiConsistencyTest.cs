@@ -86,22 +86,6 @@ namespace Microsoft.EntityFrameworkCore
                     Type RuntimeExtensions)> MetadataExtensionTypes { get; } = new()
                 {
                     (
-                        typeof(IReadOnlyModel),
-                        typeof(ModelExtensions),
-                        typeof(MutableModelExtensions),
-                        typeof(ConventionModelExtensions),
-                        null,
-                        null
-                    ),
-                    (
-                        typeof(IReadOnlyAnnotatable),
-                        typeof(AnnotatableExtensions),
-                        typeof(MutableAnnotatableExtensions),
-                        typeof(ConventionAnnotatableExtensions),
-                        null,
-                        null
-                    ),
-                    (
                         typeof(IReadOnlyKey),
                         typeof(KeyExtensions),
                         typeof(MutableKeyExtensions),
@@ -175,10 +159,10 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new[] { typeof(string), typeof(bool) }),
                 typeof(IReadOnlyAnnotatable).GetMethod(nameof(IReadOnlyAnnotatable.FindAnnotation)),
                 typeof(IReadOnlyAnnotatable).GetMethod(nameof(IReadOnlyAnnotatable.GetAnnotations)),
-                typeof(AnnotatableExtensions).GetMethod(nameof(AnnotatableExtensions.GetAnnotation)),
+                typeof(IReadOnlyAnnotatable).GetMethod(nameof(IReadOnlyAnnotatable.GetAnnotation)),
                 typeof(IMutableAnnotatable).GetMethod("set_Item"),
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
-                typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.SetOrRemoveAnnotation)),
+                typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetOrRemoveAnnotation)),
                 typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.HasNoEntityType)),
                 typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.GetConcreteDerivedTypesInclusive)),
                 typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.GetClosestCommonParent)),
@@ -221,14 +205,14 @@ namespace Microsoft.EntityFrameworkCore
             public override HashSet<MethodInfo> MetadataMethodExceptions { get; } = new()
             {
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
-                typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.SetOrRemoveAnnotation)),
-                typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.AddAnnotations)),
-                typeof(MutableAnnotatableExtensions).GetMethod(nameof(MutableAnnotatableExtensions.AddAnnotations)),
+                typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetOrRemoveAnnotation)),
+                typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.AddAnnotations)),
+                typeof(IMutableAnnotatable).GetMethod(nameof(IMutableAnnotatable.AddAnnotations)),
                 typeof(IConventionModel).GetMethod(nameof(IConventionModel.IsShared)),
-                typeof(ConventionModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddOwned)),
-                typeof(ConventionModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared)),
-                typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddOwned)),
-                typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared)),
+                typeof(IConventionModel).GetMethod(nameof(IConventionModel.AddOwned)),
+                typeof(IConventionModel).GetMethod(nameof(IConventionModel.AddShared)),
+                typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddOwned)),
+                typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddShared)),
                 typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData))
             };
         }

@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual ModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            Builder.Metadata.SetChangeTrackingStrategy(changeTrackingStrategy);
+            Builder.HasChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
             return this;
         }

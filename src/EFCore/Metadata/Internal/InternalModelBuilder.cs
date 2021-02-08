@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             Metadata.RemoveIgnored(type);
-            Metadata.AddOwned(type);
+            Metadata.AddOwned(type, ConfigurationSource.Explicit);
 
             foreach (var entityType in Metadata.GetEntityTypes(type))
             {
@@ -542,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalModelBuilder? UseChangeTrackingStrategy(
+        public virtual InternalModelBuilder? HasChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy,
             ConfigurationSource configurationSource)
         {
@@ -774,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionModelBuilder? IConventionModelBuilder.HasChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy,
             bool fromDataAnnotation)
-            => UseChangeTrackingStrategy(
+            => HasChangeTrackingStrategy(
                 changeTrackingStrategy, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

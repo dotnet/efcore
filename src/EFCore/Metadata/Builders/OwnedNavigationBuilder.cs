@@ -892,7 +892,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             if (relatedEntityType == null
-                && model.GetProductVersion()?.StartsWith("2.", StringComparison.Ordinal) == true)
+                && ((IReadOnlyModel)model).GetProductVersion()?.StartsWith("2.", StringComparison.Ordinal) == true)
             {
                 var owner = DependentEntityType.FindOwnership()!.PrincipalEntityType;
                 if (owner.Name == relatedTypeName
