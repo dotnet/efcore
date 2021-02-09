@@ -16,19 +16,21 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     <para>
-        ///         An implementation of the SQL LIKE operation. On relational databases this is usually directly
+        ///         An implementation of the SQL <c>LIKE</c> operation. On relational databases this is usually directly
         ///         translated to SQL.
         ///     </para>
         ///     <para>
-        ///         Note that if this function is translated into SQL, then the semantics of the comparison will
-        ///         depend on the database configuration. In particular, it may be either case-sensitive or
-        ///         case-insensitive. If this function is evaluated on the client, then it will always use
-        ///         a case-insensitive comparison.
+        ///         Note that the semantics of the comparison will depend on the database configuration.
+        ///         In particular, it may be either case-sensitive or case-insensitive.
         ///     </para>
         /// </summary>
-        /// <param name="_">The DbFunctions instance.</param>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="matchExpression">The string that is to be matched.</param>
-        /// <param name="pattern">The pattern which may involve wildcards %,_,[,],^.</param>
+        /// <param name="pattern">The pattern which may involve wildcards <c>%,_,[,],^</c>.</param>
         /// <returns><see langword="true" /> if there is a match.</returns>
         public static bool Like(
             [CanBeNull] this DbFunctions _,
@@ -42,13 +44,15 @@ namespace Microsoft.EntityFrameworkCore
         ///         translated to SQL.
         ///     </para>
         ///     <para>
-        ///         Note that if this function is translated into SQL, then the semantics of the comparison will
-        ///         depend on the database configuration. In particular, it may be either case-sensitive or
-        ///         case-insensitive. If this function is evaluated on the client, then it will always use
-        ///         a case-insensitive comparison.
+        ///         Note that the semantics of the comparison will depend on the database configuration.
+        ///         In particular, it may be either case-sensitive or case-insensitive.
         ///     </para>
         /// </summary>
-        /// <param name="_">The DbFunctions instance.</param>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="matchExpression">The string that is to be matched.</param>
         /// <param name="pattern">The pattern which may involve wildcards %,_,[,],^.</param>
         /// <param name="escapeCharacter">
@@ -64,12 +68,13 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Like)));
 
         /// <summary>
-        ///     <para>
-        ///         A random double number generator which generates a number between 0 and 1, exclusive.
-        ///         This is usually directly translated to server.
-        ///     </para>
+        ///     A random double number generator which generates a number between 0 and 1, exclusive.
         /// </summary>
-        /// <param name="_"> The DbFunctions instance. </param>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_"> The <see cref="DbFunctions" /> instance. </param>
         /// <returns> A random double number between 0 and 1, exclusive. </returns>
         public static double Random([CanBeNull] this DbFunctions _)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Random)));
