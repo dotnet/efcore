@@ -4268,6 +4268,64 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual IConventionEntityTypeBuilder? HasConstructorBinding(
+            [CanBeNull] InstantiationBinding? constructorBinding, ConfigurationSource configurationSource)
+        {
+            if (CanSetConstructorBinding(constructorBinding, configurationSource))
+            {
+                Metadata.SetConstructorBinding(constructorBinding, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetConstructorBinding([CanBeNull] InstantiationBinding? constructorBinding, ConfigurationSource configurationSource)
+            => configurationSource.Overrides(Metadata.GetConstructorBindingConfigurationSource())
+                || Metadata.ConstructorBinding == constructorBinding;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionEntityTypeBuilder? HasServiceOnlyConstructorBinding(
+            [CanBeNull] InstantiationBinding? constructorBinding, ConfigurationSource configurationSource)
+        {
+            if (CanSetServiceOnlyConstructorBinding(constructorBinding, configurationSource))
+            {
+                Metadata.SetServiceOnlyConstructorBinding(constructorBinding, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetServiceOnlyConstructorBinding([CanBeNull] InstantiationBinding? constructorBinding, ConfigurationSource configurationSource)
+            => configurationSource.Overrides(Metadata.GetServiceOnlyConstructorBindingConfigurationSource())
+                || Metadata.ServiceOnlyConstructorBinding == constructorBinding;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual DiscriminatorBuilder? HasDiscriminator(ConfigurationSource configurationSource)
             => DiscriminatorBuilder(
                 GetOrCreateDiscriminatorProperty(type: null, name: null, ConfigurationSource.Convention),

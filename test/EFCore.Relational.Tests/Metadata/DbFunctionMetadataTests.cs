@@ -874,7 +874,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(dependencies, relationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
-            conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(dependencies, relationalDependencies));
             conventionSet.ModelFinalizingConventions.Add(new TableValuedDbFunctionConvention(dependencies, relationalDependencies));
 
             return new ModelBuilder(conventionSet);

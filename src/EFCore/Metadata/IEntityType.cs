@@ -23,6 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEntityType? BaseType { get; }
 
         /// <summary>
+        ///     Gets the <see cref="InstantiationBinding"/> for the preferred constructor.
+        /// </summary>
+        InstantiationBinding? ConstructorBinding { get; }
+
+        /// <summary>
         ///     Gets primary key for this entity type. Returns <see langword="null" /> if no primary key is defined.
         /// </summary>
         /// <returns> The primary key, or <see langword="null" /> if none is defined. </returns>

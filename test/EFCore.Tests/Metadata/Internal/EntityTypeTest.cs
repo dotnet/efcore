@@ -47,6 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string DefiningNavigationName { get; }
             public IReadOnlyEntityType DefiningEntityType { get; }
             public LambdaExpression QueryFilter { get; }
+            public InstantiationBinding ConstructorBinding { get; }
+            public InstantiationBinding ServiceOnlyConstructorBinding { get; }
 
             public IReadOnlyKey FindPrimaryKey()
                 => throw new NotImplementedException();

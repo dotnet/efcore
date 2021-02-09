@@ -94,13 +94,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             Check.NotNull(validator, nameof(validator));
 
             TypeMappingSource = typeMappingSource;
+            ConstructorBindingFactory = constructorBindingFactory;
             ParameterBindingFactories = parameterBindingFactories;
             MemberClassifier = memberClassifier;
-            ConstructorBindingFactory = constructorBindingFactory;
             Logger = logger;
+            ValidationLogger = validationLogger;
             SetFinder = setFinder;
             _currentContext = currentContext;
-            ValidationLogger = validationLogger;
 #pragma warning disable CS0618 // Type or member is obsolete
             ModelValidator = validator;
 #pragma warning restore CS0618 // Type or member is obsolete

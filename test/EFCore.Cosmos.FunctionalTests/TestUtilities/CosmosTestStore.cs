@@ -333,6 +333,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public bool IsPropertyBag
                 => throw new NotImplementedException();
 
+            public InstantiationBinding ConstructorBinding
+                => throw new NotImplementedException();
+
             IReadOnlyEntityType IReadOnlyEntityType.BaseType
                 => throw new NotImplementedException();
 

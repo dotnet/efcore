@@ -22,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class RelationalModel : Annotatable, IRelationalModel
     {
+        private bool _isReadOnly;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -35,6 +37,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         public virtual IModel Model { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override bool IsReadOnly => _isReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -219,6 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 databaseModel.AddAnnotations(relationalAnnotationProvider.For(databaseModel));
             }
 
+            databaseModel._isReadOnly = true;
             model.AddRuntimeAnnotation(RelationalAnnotationNames.RelationalModel, databaseModel);
             return model;
         }
@@ -235,7 +246,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var tableMapping = new TableMappingBase(entityType, defaultTable, includesDerivedTypes: true)
             {
-                IsSharedTablePrincipal = true, IsSplitEntityTypePrincipal = true
+                IsSharedTablePrincipal = true,
+                IsSplitEntityTypePrincipal = true
             };
 
             foreach (var property in entityType.GetProperties())
@@ -249,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var column = (ColumnBase?)defaultTable.FindColumn(columnName);
                 if (column == null)
                 {
-                    column = new (columnName, property.GetColumnType()!, defaultTable);
+                    column = new(columnName, property.GetColumnType()!, defaultTable);
                     column.IsNullable = property.IsColumnNullable();
                     defaultTable.Columns.Add(columnName, column);
                 }
@@ -342,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var column = (Column?)table.FindColumn(columnName);
                         if (column == null)
                         {
-                            column = new (columnName, property.GetColumnType(mappedTable)!, table);
+                            column = new(columnName, property.GetColumnType(mappedTable)!, table);
                             column.IsNullable = property.IsColumnNullable(mappedTable);
                             table.Columns.Add(columnName, column);
                         }
@@ -433,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var column = (ViewColumn?)view.FindColumn(columnName);
                     if (column == null)
                     {
-                        column = new (columnName, property.GetColumnType(mappedView)!, view);
+                        column = new(columnName, property.GetColumnType(mappedView)!, view);
                         column.IsNullable = property.IsColumnNullable(mappedView);
                         view.Columns.Add(columnName, column);
                     }
@@ -538,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var column = (SqlQueryColumn?)sqlQuery.FindColumn(columnName);
                     if (column == null)
                     {
-                        column = new (columnName, property.GetColumnType(mappedQuery)!, sqlQuery);
+                        column = new(columnName, property.GetColumnType(mappedQuery)!, sqlQuery);
                         column.IsNullable = property.IsColumnNullable(mappedQuery);
                         sqlQuery.Columns.Add(columnName, column);
                     }
@@ -687,7 +699,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var column = (FunctionColumn?)storeFunction.FindColumn(columnName);
                 if (column == null)
                 {
-                    column = new (columnName, property.GetColumnType(mappedFunction)!, storeFunction);
+                    column = new(columnName, property.GetColumnType(mappedFunction)!, storeFunction);
                     column.IsNullable = property.IsColumnNullable(mappedFunction);
                     storeFunction.Columns.Add(columnName, column);
                 }

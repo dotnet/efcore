@@ -85,16 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return modelBuilder;
             }
 
-            public IModel OnModelFinalized([NotNull] IModel model)
-            {
-                foreach (var modelConvention in _conventionSet.ModelFinalizedConventions)
-                {
-                    model = modelConvention.ProcessModelFinalized(model);
-                }
-
-                return model;
-            }
-
             public IConventionModelBuilder OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
             {
                 using (_dispatcher.DelayConventions())

@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         Type CreateProxyType(
             [NotNull] ProxiesOptionsExtension options,
-            [NotNull] IEntityType entityType);
+            [NotNull] IReadOnlyEntityType entityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var modelBuilder = CreateModelBuilder();
             var idProperty = modelBuilder.Entity<Customer>().Property(e => e.Id).Metadata;
-            modelBuilder.FinalizeModel();
+            InMemoryTestHelpers.Instance.Finalize(modelBuilder);
 
             Assert.Equal(
                 7, new ClrPropertyGetterFactory().Create((IPropertyBase)idProperty).GetClrValue(
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<Customer>().Property(e => e.Id);
             var fuelProperty = modelBuilder.Entity<Customer>().Property(e => e.Fuel).Metadata;
-            modelBuilder.FinalizeModel();
+            InMemoryTestHelpers.Instance.Finalize(modelBuilder);
 
             Assert.Equal(
                 new Fuel(1.0),
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             modelBuilder.Entity<IndexedClass>().Property(e => e.Id);
             var propertyA = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyA", typeof(string));
             var propertyB = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyB", typeof(int));
-            modelBuilder.FinalizeModel();
+            InMemoryTestHelpers.Instance.Finalize(modelBuilder);
 
             Assert.Equal("ValueA", new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValue(new IndexedClass { Id = 7 }));
             Assert.Equal(123, new ClrPropertyGetterFactory().Create((IPropertyBase)propertyB).GetClrValue(new IndexedClass { Id = 7 }));

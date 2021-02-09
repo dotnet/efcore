@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -506,9 +507,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [CA.DisallowNull]
         public virtual CoreTypeMapping? TypeMapping
         {
-            get
-                => _typeMapping == null && IsReadOnly
-                    ? _typeMapping ??= ((IModel)DeclaringEntityType.Model).ModelDependencies?.TypeMappingSource.FindMapping(this)
+            get => IsReadOnly
+                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, (IProperty)this, static property =>
+                         property.DeclaringEntityType.Model.GetModelDependencies().TypeMappingSource.FindMapping(property)!)
                     : _typeMapping;
 
             [param: NotNull]

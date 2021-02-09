@@ -160,8 +160,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 CoreAnnotationNames.ProductVersion,
                 CoreAnnotationNames.OwnedTypes,
-                CoreAnnotationNames.ConstructorBinding,
-                CoreAnnotationNames.ServiceOnlyConstructorBinding,
                 CoreAnnotationNames.NavigationAccessMode,
                 CoreAnnotationNames.EagerLoaded,
                 CoreAnnotationNames.QueryFilter,
@@ -294,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         ? validAnnotations[annotationName].Value
                         : null);
 
-                    modelBuilder.FinalizeModel();
+                    SqlServerTestHelpers.Instance.Finalize(modelBuilder);
 
                     var sb = new IndentedStringBuilder();
 
@@ -389,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     eb.Property<RawEnum>("EnumDiscriminator").HasConversion<int>();
                 });
 
-            var finalizedModel = modelBuilder.FinalizeModel();
+            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder);
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
@@ -509,7 +507,7 @@ namespace MyNamespace
 
             var modelBuilder = new ModelBuilder();
             modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
-            modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new object());
+            modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new SortedDictionary<string, DbFunction>());
             modelBuilder.Entity(
                 "T1", eb =>
                 {
@@ -519,7 +517,7 @@ namespace MyNamespace
                     eb.HasKey("Id");
                 });
 
-            var finalizedModel = modelBuilder.FinalizeModel();
+            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder);
 
             var migrationMetadataCode = generator.GenerateMetadata(
                 "MyNamespace",
@@ -651,7 +649,7 @@ namespace MyNamespace
 
             entityType.SetPrimaryKey(property2);
 
-            var finalizedModel = modelBuilder.FinalizeModel();
+            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder);
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
@@ -767,7 +765,7 @@ namespace MyNamespace
                     eb.HasKey(e => e.Boolean);
                 });
 
-            var finalizedModel = modelBuilder.FinalizeModel();
+            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder);
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",

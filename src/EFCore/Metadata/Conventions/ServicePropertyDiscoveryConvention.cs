@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 entityTypeBuilder.ServiceProperty(propertyInfo)?.HasParameterBinding(
-                    (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()));
+                    (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, name));
             }
         }
 

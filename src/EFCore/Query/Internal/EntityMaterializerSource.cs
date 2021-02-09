@@ -64,19 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType.DisplayName()));
             }
 
-            var constructorBinding = (InstantiationBinding?)entityType[CoreAnnotationNames.ConstructorBinding];
-
-            if (constructorBinding == null)
-            {
-                var constructorInfo = entityType.ClrType.GetDeclaredConstructor(null);
-
-                if (constructorInfo == null)
-                {
-                    throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
-                }
-
-                constructorBinding = new ConstructorBinding(constructorInfo, Array.Empty<ParameterBinding>());
-            }
+            var constructorBinding = entityType.ConstructorBinding!;
 
             var bindingInfo = new ParameterBindingInfo(
                 entityType,
@@ -121,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var readValueExpression
                     = property is IServiceProperty serviceProperty
-                        ? serviceProperty.GetParameterBinding()!.BindToParameter(bindingInfo)
+                        ? serviceProperty.ParameterBinding.BindToParameter(bindingInfo)
                         : valueBufferExpression.CreateValueBufferReadValueExpression(
                             memberInfo.GetMemberType(),
                             property.GetIndex(),

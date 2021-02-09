@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -12,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -51,14 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             _reporter = new TestOperationReporter();
 
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
-            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
-
-            _factory = services
+            var assembly = typeof(RelationalDatabaseModelFactoryTest).Assembly;
+            _factory = new DesignTimeServicesBuilder(assembly, assembly, _reporter, new string[0])
+                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
+                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
                 .BuildServiceProvider()
                 .GetRequiredService<IScaffoldingModelFactory>();
+
+            _reporter.Clear();
         }
 
         [ConditionalFact]
@@ -374,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var property = (Property)_factory.Create(info, new ModelReverseEngineerOptions()).FindEntityType("A").FindProperty("Col");
 
-            Assert.Equal(expectedColumnType, property.GetColumnType());
+            Assert.Equal(expectedColumnType, property.GetConfiguredColumnType());
         }
 
         [ConditionalFact]
@@ -1541,17 +1539,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             };
 
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddSingleton<IPluralizer, HumanizerPluralizer>()
-                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
-            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
-
-            var factory = services
-                .BuildServiceProvider()
-                .GetRequiredService<IScaffoldingModelFactory>();
-
-            var model = factory.Create(info, new ModelReverseEngineerOptions());
+            var model = _factory.Create(info, new ModelReverseEngineerOptions());
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -1594,17 +1582,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             };
 
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddSingleton<IPluralizer, HumanizerPluralizer>()
-                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
-            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
-
-            var factory = services
-                .BuildServiceProvider()
-                .GetRequiredService<IScaffoldingModelFactory>();
-
-            var model = factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true });
+            var model = _factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true });
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -1622,7 +1600,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             );
 
-            model = factory.Create(info, new ModelReverseEngineerOptions { UseDatabaseNames = true, NoPluralize = true });
+            model = _factory.Create(info, new ModelReverseEngineerOptions { UseDatabaseNames = true, NoPluralize = true });
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -1682,17 +1660,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var info = new DatabaseModel { Tables = { blogTable, postTable } };
 
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddSingleton<IPluralizer, HumanizerPluralizer>()
-                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
-            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
-
-            var factory = services
-                .BuildServiceProvider()
-                .GetRequiredService<IScaffoldingModelFactory>();
-
-            var model = factory.Create(info, new ModelReverseEngineerOptions());
+            var model = _factory.Create(info, new ModelReverseEngineerOptions());
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -1750,17 +1718,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var info = new DatabaseModel { Tables = { blogTable, postTable } };
 
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddSingleton<IPluralizer, HumanizerPluralizer>()
-                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
-            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
-
-            var factory = services
-                .BuildServiceProvider()
-                .GetRequiredService<IScaffoldingModelFactory>();
-
-            var model = factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true });
+            var model = _factory.Create(info, new ModelReverseEngineerOptions { NoPluralize = true });
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -1979,11 +1937,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var model = _factory.Create(dbModel, new ModelReverseEngineerOptions());
 
-            Assert.Null(model.FindEntityType("Principal").FindProperty("PrimaryKey").GetColumnType());
-            Assert.Null(model.FindEntityType("Principal").FindProperty("AlternateKey").GetColumnType());
-            Assert.Null(model.FindEntityType("Principal").FindProperty("Index").GetColumnType());
-            Assert.Null(model.FindEntityType("Principal").FindProperty("Rowversion").GetColumnType());
-            Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").GetColumnType());
+            Assert.Null(model.FindEntityType("Principal").FindProperty("PrimaryKey").GetConfiguredColumnType());
+            Assert.Null(model.FindEntityType("Principal").FindProperty("AlternateKey").GetConfiguredColumnType());
+            Assert.Null(model.FindEntityType("Principal").FindProperty("Index").GetConfiguredColumnType());
+            Assert.Null(model.FindEntityType("Principal").FindProperty("Rowversion").GetConfiguredColumnType());
+            Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").GetConfiguredColumnType());
         }
 
         [ConditionalFact]
