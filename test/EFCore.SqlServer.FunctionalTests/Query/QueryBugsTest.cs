@@ -9228,6 +9228,72 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'" });
 
         #endregion Issue22841
 
+        #region Issue12482
+
+        [ConditionalFact]
+        public virtual async Task Batch_insert_with_sqlvariant_different_types_12482()
+        {
+            var contextFactory = await InitializeAsync<MyContext12482>();
+
+            using (var context = contextFactory.CreateContext())
+            {
+                context.AddRange(
+                    new MyContext12482.BaseEntity12482 { Value = 10.0999 },
+                    new MyContext12482.BaseEntity12482 { Value = -12345 },
+                    new MyContext12482.BaseEntity12482 { Value = "String Value" },
+                    new MyContext12482.BaseEntity12482 { Value = new DateTime(2020, 1, 1) });
+
+                context.SaveChanges();
+
+                AssertSql(
+                    @"@p0='10.0999' (Nullable = true) (DbType = Object)
+@p1='-12345' (Nullable = true) (DbType = Object)
+@p2='String Value' (Size = 12) (DbType = Object)
+@p3='2020-01-01T00:00:00.0000000' (Nullable = true) (DbType = Object)
+
+SET NOCOUNT ON;
+DECLARE @inserted0 TABLE ([Id] int, [_Position] [int]);
+MERGE [BaseEntities] USING (
+VALUES (@p0, 0),
+(@p1, 1),
+(@p2, 2),
+(@p3, 3)) AS i ([Value], _Position) ON 1=0
+WHEN NOT MATCHED THEN
+INSERT ([Value])
+VALUES (i.[Value])
+OUTPUT INSERTED.[Id], i._Position
+INTO @inserted0;
+
+SELECT [t].[Id] FROM [BaseEntities] t
+INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id])
+ORDER BY [i].[_Position];");
+            }
+        }
+
+        protected class MyContext12482 : DbContext
+        {
+            public virtual DbSet<BaseEntity12482> BaseEntities { get; set; }
+
+            public MyContext12482(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<BaseEntity12482>();
+            }
+
+            public class BaseEntity12482
+            {
+                public int Id { get; set; }
+                [Column(TypeName = "sql_variant")]
+                public object Value { get; set; }
+            }
+        }
+
+        #endregion
+
         protected override string StoreName => "QueryBugsTest";
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

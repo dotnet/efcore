@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public SqlServerSqlVariantTypeMapping(
             [NotNull] string storeType)
-            : base(storeType, typeof(object))
+            : base(storeType, typeof(object), System.Data.DbType.Object)
         {
         }
 
