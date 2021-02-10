@@ -19,23 +19,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var key = new FakeKey();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IKey), nameof(FakeKey)),
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IReadOnlyKey), nameof(FakeKey)),
                 Assert.Throws<NotSupportedException>(() => key.AsKey()).Message);
         }
 
-        private class FakeKey : IKey
+        private class FakeKey : Annotatable, IReadOnlyKey
         {
-            public object this[string name]
-                => throw new NotImplementedException();
+            public IReadOnlyList<IReadOnlyProperty> Properties { get; }
+            public IReadOnlyEntityType DeclaringEntityType { get; }
+        }
 
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
+        [ConditionalFact]
+        public void Throws_when_model_is_readonly()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType("E");
+            var property = entityType.AddProperty("P", typeof(int));
+            var key = entityType.AddKey(new[] { property });
 
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
+            model.FinalizeModel();
 
-            public IReadOnlyList<IProperty> Properties { get; }
-            public IEntityType DeclaringEntityType { get; }
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { property })).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.RemoveKey(key)).Message);
         }
 
         [ConditionalFact]

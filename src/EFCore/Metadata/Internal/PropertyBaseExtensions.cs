@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -80,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         // Note: only use this to find the property/field that defines the property in the model. Use
         // GetMemberInfo to get the property/field to use, which may be different.
-        public static MemberInfo GetIdentifyingMemberInfo(
-            [NotNull] this IPropertyBase propertyBase)
-            => propertyBase.PropertyInfo ?? (MemberInfo)propertyBase.FieldInfo;
+        public static MemberInfo? GetIdentifyingMemberInfo(
+            [NotNull] this IReadOnlyPropertyBase propertyBase)
+            => propertyBase.PropertyInfo ?? (MemberInfo?)propertyBase.FieldInfo;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -94,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] this IPropertyBase propertyBase,
             bool forConstruction,
             bool forSet,
-            out MemberInfo memberInfo,
-            out string errorMessage)
+            out MemberInfo? memberInfo,
+            out string? errorMessage)
         {
             memberInfo = null;
             errorMessage = null;
@@ -105,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var setterProperty = propertyInfo?.FindSetterProperty();
             var getterProperty = propertyInfo?.FindGetterProperty();
 
-            var isCollectionNav = (propertyBase as INavigation)?.IsCollection == true;
+            var isCollectionNav = (propertyBase as IReadOnlyNavigation)?.IsCollection == true;
             var hasField = fieldInfo != null;
             var hasSetter = setterProperty != null;
             var hasGetter = getterProperty != null;
@@ -338,8 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static string GetNoFieldErrorMessage(IPropertyBase propertyBase)
         {
-            var constructorBinding = (InstantiationBinding)propertyBase.DeclaringType[CoreAnnotationNames.ConstructorBinding];
-
+            var constructorBinding = ((EntityType)propertyBase.DeclaringType).ConstructorBinding;
             return constructorBinding?.ParameterBindings
                     .OfType<ServiceParameterBinding>()
                     .Any(b => b.ServiceType == typeof(ILazyLoader))
@@ -357,8 +358,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static PropertyBase AsPropertyBase(
-            [NotNull] this IPropertyBase propertyBase,
+            [NotNull] this IReadOnlyPropertyBase propertyBase,
             [NotNull] [CallerMemberName] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IPropertyBase, PropertyBase>(propertyBase, methodName);
+            => MetadataExtensions.AsConcreteMetadataType<IReadOnlyPropertyBase, PropertyBase>(propertyBase, methodName);
     }
 }

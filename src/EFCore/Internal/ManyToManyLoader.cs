@@ -153,18 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ? context.Set<TSourceEntity>(_skipNavigation.DeclaringEntityType.Name)
                 : context.Set<TSourceEntity>();
 
-            var queryable = queryRoot
+            return queryRoot
                 .AsTracking()
                 .Where(BuildWhereLambda(loadProperties, new ValueBuffer(keyValues)))
-                .SelectMany(BuildSelectManyLambda(_skipNavigation));
-
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23475", out var enabled) && enabled;
-
-            return useOldBehavior
-                ? queryable
-                    .Include(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)))
-                    .AsQueryable()
-                : queryable
+                .SelectMany(BuildSelectManyLambda(_skipNavigation))
                     .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)))
                     .AsQueryable();
         }

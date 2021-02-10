@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -49,6 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     to or removed from.
         /// </summary>
         public virtual EntityEntry EntityEntry { get; }
+
+        /// <summary>
+        ///     The navigation.
+        /// </summary>
+        public new virtual INavigation Navigation => (INavigation)base.Navigation;
 
         /// <summary>
         ///     The entities added to the collection.

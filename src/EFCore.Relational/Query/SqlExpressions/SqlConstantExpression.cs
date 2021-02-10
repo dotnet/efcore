@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="constantExpression"> A <see cref="ConstantExpression" />. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
-        public SqlConstantExpression([NotNull] ConstantExpression constantExpression, [CanBeNull] RelationalTypeMapping typeMapping)
+        public SqlConstantExpression([NotNull] ConstantExpression constantExpression, [CanBeNull] RelationalTypeMapping? typeMapping)
             : base(Check.NotNull(constantExpression, nameof(constantExpression)).Type.UnwrapNullableType(), typeMapping)
         {
             _constantExpression = constantExpression;
@@ -37,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The constant value.
         /// </summary>
-        public virtual object Value
+        public virtual object? Value
             => _constantExpression.Value;
 
         /// <summary>
@@ -45,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="typeMapping"> A relational type mapping to apply. </param>
         /// <returns> A new expression which has supplied type mapping. </returns>
-        public virtual SqlExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping typeMapping)
+        public virtual SqlExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping)
             => new SqlConstantExpression(_constantExpression, typeMapping);
 
         /// <inheritdoc />
@@ -64,11 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Print(Value, expressionPrinter);
         }
 
-        private void Print(object value, ExpressionPrinter expressionPrinter)
+        private void Print(object? value, ExpressionPrinter expressionPrinter)
             => expressionPrinter.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlConstantExpression sqlConstantExpression
@@ -78,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => base.Equals(sqlConstantExpression)
                 && ValueEquals(Value, sqlConstantExpression.Value);
 
-        private bool ValueEquals(object value1, object value2)
+        private bool ValueEquals(object? value1, object? value2)
         {
             if (value1 == null)
             {

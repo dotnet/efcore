@@ -6,6 +6,8 @@ using System.Linq.Expressions;
 using System.Net.NetworkInformation;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -13,8 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// </summary>
     public class PhysicalAddressToStringConverter : ValueConverter<PhysicalAddress, string>
     {
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 20);
+        private static readonly ConverterMappingHints _defaultHints = new(size: 20);
 
         /// <summary>
         ///     Creates a new instance of this converter.
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public PhysicalAddressToStringConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public PhysicalAddressToStringConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 ToString(),
                 ToPhysicalAddress(),
@@ -35,16 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(
-                typeof(PhysicalAddress),
-                typeof(string),
-                i => new PhysicalAddressToStringConverter(i.MappingHints),
-                _defaultHints);
+            = new(typeof(PhysicalAddress), typeof(string), i => new PhysicalAddressToStringConverter(i.MappingHints), _defaultHints);
 
         private static new Expression<Func<PhysicalAddress, string>> ToString()
-            => v => v == null ? default : v.ToString();
+            // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
+            => v => v == null ? default! : v.ToString();
 
         private static Expression<Func<string, PhysicalAddress>> ToPhysicalAddress()
-            => v => v == null ? default : PhysicalAddress.Parse(v);
+            // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
+            => v => v == null ? default! : PhysicalAddress.Parse(v);
     }
 }

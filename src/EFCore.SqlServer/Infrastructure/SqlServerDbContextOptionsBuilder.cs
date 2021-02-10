@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -14,9 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         Allows SQL Server specific configuration to be performed on <see cref="DbContextOptions" />.
     ///     </para>
     ///     <para>
-    ///         Instances of this class are returned from a call to
-    ///         <see
-    ///             cref="SqlServerDbContextOptionsExtensions.UseSqlServer(DbContextOptionsBuilder,string,System.Action{Microsoft.EntityFrameworkCore.Infrastructure.SqlServerDbContextOptionsBuilder})" />
+    ///         Instances of this class are returned from a call to <see cref="M:SqlServerDbContextOptionsExtensions.UseSqlServer" />
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
@@ -33,19 +33,43 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+        ///     <para>
+        ///         Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+        ///     </para>
+        ///     <para>
+        ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+        ///         error numbers for transient errors that can be retried.
+        ///     </para>
+        ///     <para>
+        ///         Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
+        ///     </para>
         /// </summary>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure()
             => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c));
 
         /// <summary>
-        ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+        ///     <para>
+        ///         Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+        ///     </para>
+        ///     <para>
+        ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+        ///         error numbers for transient errors that can be retried.
+        ///     </para>
+        ///     <para>
+        ///         A default value 30 seconds for the maximum default delay is used.
+        ///     </para>
         /// </summary>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount)
             => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, maxRetryCount));
 
         /// <summary>
-        ///     Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+        ///     <para>
+        ///         Configures the context to use the default retrying <see cref="IExecutionStrategy" />.
+        ///     </para>
+        ///     <para>
+        ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+        ///         error numbers for transient errors that can be retried, but additional error numbers can also be supplied.
+        ///     </para>
         /// </summary>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
@@ -53,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(
             int maxRetryCount,
             TimeSpan maxRetryDelay,
-            [CanBeNull] ICollection<int> errorNumbersToAdd)
+            [CanBeNull] ICollection<int>? errorNumbersToAdd)
             => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, maxRetryCount, maxRetryDelay, errorNumbersToAdd));
     }
 }

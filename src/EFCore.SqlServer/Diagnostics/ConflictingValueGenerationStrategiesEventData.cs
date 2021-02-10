@@ -6,6 +6,8 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy,
             [NotNull] string otherValueGenerationStrategy,
-            [NotNull] IProperty property)
+            [NotNull] IReadOnlyProperty property)
             : base(eventDefinition, messageGenerator)
         {
             SqlServerValueGenerationStrategy = sqlServerValueGenerationStrategy;
@@ -48,6 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The property.
         /// </summary>
-        public virtual IProperty Property { get; }
+        public virtual IReadOnlyProperty Property { get; }
     }
 }

@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -19,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
-        private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
-        private readonly IndentedStringBuilder _commandTextBuilder = new IndentedStringBuilder();
+        private readonly List<IRelationalParameter> _parameters = new();
+        private readonly IndentedStringBuilder _commandTextBuilder = new();
 
         /// <summary>
         ///     <para>

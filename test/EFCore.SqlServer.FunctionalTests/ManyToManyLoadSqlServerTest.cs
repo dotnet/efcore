@@ -177,7 +177,8 @@ INNER JOIN (
     FROM [EntityOneEntityTwo] AS [e3]
     INNER JOIN [EntityTwos] AS [e4] ON [e3].[EntityTwoId] = [e4].[Id]
 ) AS [t] ON [e2].[Id] = [t].[EntityOneId]
-WHERE [e2].[Id] = @__p_0");
+WHERE [e2].[Id] = @__p_0
+ORDER BY [t].[Id]");
         }
 
         public override async Task Load_collection_using_Query_with_join(bool async)

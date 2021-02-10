@@ -6,6 +6,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -18,16 +21,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     {
         private static readonly MethodInfo _stringCompareWithComparisonMethod =
-            typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string), typeof(StringComparison) });
+            typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string), typeof(StringComparison) });
 
         private static readonly MethodInfo _stringCompareWithoutComparisonMethod =
-            typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string) });
+            typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string) });
 
         private static readonly MethodInfo _startsWithMethodInfo =
-            typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) });
+            typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) });
 
         private static readonly MethodInfo _endsWithMethodInfo =
-            typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
+            typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
         private static readonly Expression _constantNullString = Expression.Constant(null, typeof(string));
 
@@ -54,17 +57,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (_startsWithMethodInfo.Equals(methodCallExpression.Method)
-                || _endsWithMethodInfo.Equals(methodCallExpression.Method))
+            if (Equals(_startsWithMethodInfo, methodCallExpression.Method)
+                || Equals(_endsWithMethodInfo, methodCallExpression.Method))
             {
                 if (methodCallExpression.Arguments[0] is ConstantExpression constantArgument
-                    && (string)constantArgument.Value == string.Empty)
+                    && constantArgument.Value is string stringValue
+                    && stringValue == string.Empty)
                 {
                     // every string starts/ends with empty string.
                     return Expression.Constant(true);
                 }
 
-                var newObject = Visit(methodCallExpression.Object);
+                var newObject = Visit(methodCallExpression.Object)!;
                 var newArgument = Visit(methodCallExpression.Arguments[0]);
 
                 var result = Expression.AndAlso(
@@ -133,9 +137,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && visited.Method.DeclaringType?.Namespace == "Microsoft.VisualBasic.CompilerServices"
                 && visited.Object == null
                 && visited.Arguments.Count == 3
-                && visited.Arguments[2] is ConstantExpression textCompareConstantExpression)
+                && visited.Arguments[2] is ConstantExpression textCompareConstantExpression
+                && _stringCompareWithComparisonMethod != null
+                && _stringCompareWithoutComparisonMethod != null)
             {
-                return (bool)textCompareConstantExpression.Value
+                return textCompareConstantExpression.Value is bool boolValue
+                    && boolValue
                     ? Expression.Call(
                         _stringCompareWithComparisonMethod,
                         visited.Arguments[0],
@@ -162,17 +169,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (unaryExpression.NodeType == ExpressionType.Not
                 && unaryExpression.Operand is MethodCallExpression innerMethodCall
-                && (_startsWithMethodInfo.Equals(innerMethodCall.Method)
-                    || _endsWithMethodInfo.Equals(innerMethodCall.Method)))
+                && (Equals(_startsWithMethodInfo, innerMethodCall.Method)
+                    || Equals(_endsWithMethodInfo, innerMethodCall.Method)))
             {
                 if (innerMethodCall.Arguments[0] is ConstantExpression constantArgument
-                    && (string)constantArgument.Value == string.Empty)
+                    && constantArgument.Value is string stringValue
+                    && stringValue == string.Empty)
                 {
                     // every string starts/ends with empty string.
                     return Expression.Constant(false);
                 }
 
-                var newObject = Visit(innerMethodCall.Object);
+                var newObject = Visit(innerMethodCall.Object)!;
                 var newArgument = Visit(innerMethodCall.Arguments[0]);
 
                 var result = Expression.AndAlso(
@@ -193,7 +201,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitUnary(unaryExpression);
         }
 
-        private bool TryExtractEqualityOperands(Expression expression, out Expression left, out Expression right, out bool negated)
+        private bool TryExtractEqualityOperands(
+            Expression expression,
+            [CA.NotNullWhen(true)] out Expression? left,
+            [CA.NotNullWhen(true)] out Expression? right,
+            out bool negated)
         {
             (left, right, negated) = (default, default, default);
 
@@ -220,17 +232,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     negated = false;
                     if (methodCallExpression.Arguments.Count == 1
-                        && methodCallExpression.Object.Type == methodCallExpression.Arguments[0].Type)
+                        && methodCallExpression.Object?.Type == methodCallExpression.Arguments[0].Type)
                     {
                         (left, right) = (methodCallExpression.Object, methodCallExpression.Arguments[0]);
+
+                        return true;
                     }
                     else if (methodCallExpression.Arguments.Count == 2
                         && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
                     {
                         (left, right) = (methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]);
+
+                        return true;
                     }
 
-                    return true;
+                    return false;
                 }
 
                 case UnaryExpression unaryExpression
@@ -245,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return false;
         }
 
-        private Expression TryOptimizeMemberAccessOverConditional(Expression expression)
+        private Expression? TryOptimizeMemberAccessOverConditional(Expression expression)
         {
             // Simplify (a != null ? new { Member = b, ... } : null).Member
             // to a != null ? b : null

@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the primary key for this table.
         /// </summary>
-        IPrimaryKeyConstraint PrimaryKey { get; }
+        IPrimaryKeyConstraint? PrimaryKey { get; }
 
         /// <summary>
         ///     Gets the indexes for this table.
@@ -59,17 +61,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the comment for this table.
         /// </summary>
-        public virtual string Comment
+        public virtual string? Comment
             => EntityTypeMappings.Select(e => e.EntityType.GetComment()).FirstOrDefault(c => c != null);
 
         /// <summary>
         ///     Gets the column with a given name. Returns <see langword="null" /> if no column with the given name is defined.
         /// </summary>
-        new IColumn FindColumn([NotNull] string name);
+        new IColumn? FindColumn([NotNull] string name);
 
         /// <summary>
         ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
         /// </summary>
-        new IColumn FindColumn([NotNull] IProperty property);
+        new IColumn? FindColumn([NotNull] IProperty property);
     }
 }

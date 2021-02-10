@@ -3,6 +3,8 @@
 
 // ReSharper disable once CheckNamespace
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>

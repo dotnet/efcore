@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
-        public static SqliteTestHelpers Instance { get; } = new SqliteTestHelpers();
+        public static SqliteTestHelpers Instance { get; } = new();
 
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => services.AddEntityFrameworkSqlite();

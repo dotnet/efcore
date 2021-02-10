@@ -180,10 +180,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Set_throws_for_owned_type(bool async)
         {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(async, ss => ss.Set<OwnedAddress>()));
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(async, ss => ss.Set<Order>()));
 
             Assert.Equal(
-                CoreStrings.InvalidSetTypeWeak(nameof(OwnedAddress)),
+                CoreStrings.InvalidSetTypeOwned(nameof(Order), nameof(OwnedPerson)),
                 exception.Message);
         }
 
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Preserve_includes_when_applying_skip_take_after_anonymous_type_select(bool async)
         {
             using var context = CreateContext();
-            var expectedQuery = QueryAsserter.ExpectedData.Set<OwnedPerson>().OrderBy(p => p.Id);
+            var expectedQuery = Fixture.GetExpectedData().Set<OwnedPerson>().OrderBy(p => p.Id);
             var expectedResult = expectedQuery.Select(q => new { Query = q, Count = expectedQuery.Count() }).Skip(0).Take(100).ToList();
 
             var baseQuery = context.Set<OwnedPerson>().OrderBy(p => p.Id);
@@ -925,7 +925,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public Func<DbContext> GetContextCreator()
                 => () => CreateContext();
 
-            public ISetSource GetExpectedData()
+            public virtual ISetSource GetExpectedData()
                 => new OwnedQueryData();
 
             public IReadOnlyDictionary<Type, object> GetEntitySorters()
@@ -1586,24 +1586,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             private static IReadOnlyList<Planet> CreatePlanets()
-                => new List<Planet> { new Planet { Id = 1, StarId = 1 } };
+                => new List<Planet> { new() { Id = 1, StarId = 1 } };
 
             private static IReadOnlyList<Star> CreateStars()
                 => new List<Star>
                 {
-                    new Star
+                    new()
                     {
                         Id = 1,
                         Name = "Sol",
                         Composition = new List<Element>
                         {
-                            new Element
+                            new()
                             {
                                 Id = "H",
                                 Name = "Hydrogen",
                                 StarId = 1
                             },
-                            new Element
+                            new()
                             {
                                 Id = "He",
                                 Name = "Helium",
@@ -1616,7 +1616,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             private static IReadOnlyList<Moon> CreateMoons()
                 => new List<Moon>
                 {
-                    new Moon
+                    new()
                     {
                         Id = 1,
                         PlanetId = 1,
@@ -1679,8 +1679,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 order1["OrderDate"] = Convert.ToDateTime("2018-07-11 10:01:41");
                 order1.Details = new List<OrderDetail>
                 {
-                    new OrderDetail { Detail = "Discounted Order" },
-                    new OrderDetail { Detail = "Full Price Order" }
+                    new() { Detail = "Discounted Order" },
+                    new() { Detail = "Full Price Order" }
                 };
 
                 var order2 = new Order { Id = -11, Client = ownedPerson1 };
@@ -1692,7 +1692,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 order3["OrderDate"] = Convert.ToDateTime("2015-05-25 20:35:48");
                 order3.Details = new List<OrderDetail>
                 {
-                    new OrderDetail { Detail = "Internal Order" }
+                    new() { Detail = "Internal Order" }
                 };
                 ownedPerson2.Orders = new List<Order> { order3 };
 
@@ -1700,7 +1700,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 order4["OrderDate"] = Convert.ToDateTime("2014-11-10 04:32:42");
                 order4.Details = new List<OrderDetail>
                 {
-                    new OrderDetail { Detail = "Bulk Order" }
+                    new() { Detail = "Bulk Order" }
                 };
                 ownedPerson3.Orders = new List<Order> { order4 };
 
@@ -1719,18 +1719,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             private static IReadOnlyList<Fink> CreateFinks()
-                => new List<Fink> { new Fink { Id = 1 } };
+                => new List<Fink> { new() { Id = 1 } };
 
             private static IReadOnlyList<Barton> CreateBartons()
                 => new List<Barton>
                 {
-                    new Barton
+                    new()
                     {
                         Id = 1,
                         Simple = "Simple",
                         Throned = new Throned { Property = "Property", Value = 42 }
                     },
-                    new Barton
+                    new()
                     {
                         Id = 2, Simple = "Not",
                     }

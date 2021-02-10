@@ -128,20 +128,20 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], c[""ContactName""]))");
         }
 
-        [ConditionalTheory(Skip = "Issue #16919")]
         public override async Task String_FirstOrDefault_MethodCall(bool async)
         {
             await base.String_FirstOrDefault_MethodCall(async);
+
             AssertSql(
                 @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (LEFT(c[""ContactName""], 1) = ""A""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #16919")]
         public override async Task String_LastOrDefault_MethodCall(bool async)
         {
             await base.String_LastOrDefault_MethodCall(async);
+
             AssertSql(
                 @"SELECT c
 FROM root c
@@ -330,7 +330,7 @@ WHERE (c[""Discriminator""] = ""OrderDetail"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (10 < c[""ProductID""]))");
+WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""UnitPrice""] < 7.0)) AND (10 < c[""ProductID""]))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -1047,6 +1047,16 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
         public override Task Int_Compare_to_simple_zero(bool async)
         {
             return base.Int_Compare_to_simple_zero(async);
+        }
+
+        public override Task Regex_IsMatch_MethodCall(bool async)
+        {
+            return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall(async));
+        }
+
+        public override Task Regex_IsMatch_MethodCall_constant_input(bool async)
+        {
+            return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
         }
 
         private void AssertSql(params string[] expected)

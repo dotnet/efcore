@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -27,6 +28,8 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -77,6 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IModelCustomizer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelCacheKeyFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IModelRuntimeInitializer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IInternalEntityEntryFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IInternalEntityEntrySubscriber), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityEntryGraphIterator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -219,6 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IModelCacheKeyFactory, ModelCacheKeyFactory>();
             TryAdd<ILoggerFactory>(p => ScopedLoggerFactory.Create(p, null));
             TryAdd<IModelSource, ModelSource>();
+            TryAdd<IModelRuntimeInitializer, ModelRuntimeInitializer>();
             TryAdd<IInternalEntityEntryFactory, InternalEntityEntryFactory>();
             TryAdd<IInternalEntityEntrySubscriber, InternalEntityEntrySubscriber>();
             TryAdd<IEntityEntryGraphIterator, EntityEntryGraphIterator>();
@@ -250,13 +255,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IInterceptorAggregator, SaveChangesInterceptorAggregator>();
             TryAdd<ILoggingOptions, LoggingOptions>();
             TryAdd<ICoreSingletonOptions, CoreSingletonOptions>();
-            TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetService<ILoggingOptions>());
-            TryAdd<ISingletonOptions, ICoreSingletonOptions>(p => p.GetService<ICoreSingletonOptions>());
+            TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetRequiredService<ILoggingOptions>());
+            TryAdd<ISingletonOptions, ICoreSingletonOptions>(p => p.GetRequiredService<ICoreSingletonOptions>());
             TryAdd(p => GetContextServices(p).Model);
             TryAdd(p => GetContextServices(p).CurrentContext);
             TryAdd(p => GetContextServices(p).ContextOptions);
-            TryAdd<IResettableService, IStateManager>(p => p.GetService<IStateManager>());
-            TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
+            TryAdd<IResettableService, IStateManager>(p => p.GetRequiredService<IStateManager>());
+            TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetRequiredService<IDbContextTransactionManager>());
             TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>();
             TryAdd<IValueConverterSelector, ValueConverterSelector>();
             TryAdd<IConstructorBindingFactory, ConstructorBindingFactory>();
@@ -297,6 +302,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<QueryTranslationPreprocessorDependencies>()
                 .AddDependencySingleton<QueryTranslationPostprocessorDependencies>()
                 .AddDependencySingleton<EvaluatableExpressionFilterDependencies>()
+                .AddDependencySingleton<SingletonModelDependencies>()
+                .AddDependencySingleton<ModelRuntimeInitializerDependencies>()
                 .AddDependencyScoped<ProviderConventionSetBuilderDependencies>()
                 .AddDependencyScoped<QueryCompilationContextDependencies>()
                 .AddDependencyScoped<StateManagerDependencies>()

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
 {
     public class ProxyableSharedType
     {
-        private readonly Dictionary<string, object> _keyValueStore = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _keyValueStore = new();
 
         public virtual object this[string key]
         {

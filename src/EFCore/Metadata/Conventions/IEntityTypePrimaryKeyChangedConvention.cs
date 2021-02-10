@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -20,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessEntityTypePrimaryKeyChanged(
             [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] IConventionKey newPrimaryKey,
-            [CanBeNull] IConventionKey previousPrimaryKey,
+            [CanBeNull] IConventionKey? newPrimaryKey,
+            [CanBeNull] IConventionKey? previousPrimaryKey,
             [NotNull] IConventionContext<IConventionKey> context);
     }
 }

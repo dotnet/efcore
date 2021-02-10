@@ -2,10 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -24,25 +27,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatible(
-            [NotNull] this IForeignKey foreignKey,
-            [NotNull] IForeignKey duplicateForeignKey,
+            [NotNull] this IReadOnlyForeignKey foreignKey,
+            [NotNull] IReadOnlyForeignKey duplicateForeignKey,
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
             var principalType = foreignKey.PrincipalKey.IsPrimaryKey()
                 ? foreignKey.PrincipalEntityType
                 : foreignKey.PrincipalKey.DeclaringEntityType;
-            var principalTable = StoreObjectIdentifier.Create(principalType, StoreObjectType.Table);
+            var principalTable = StoreObjectIdentifier.Create(principalType, storeObject.StoreObjectType);
 
             var duplicatePrincipalType = duplicateForeignKey.PrincipalKey.IsPrimaryKey()
                 ? duplicateForeignKey.PrincipalEntityType
                 : duplicateForeignKey.PrincipalKey.DeclaringEntityType;
-            var duplicatePrincipalTable = StoreObjectIdentifier.Create(duplicatePrincipalType, StoreObjectType.Table);
+            var duplicatePrincipalTable = StoreObjectIdentifier.Create(duplicatePrincipalType, storeObject.StoreObjectType);
 
             var columnNames = foreignKey.Properties.GetColumnNames(storeObject);
             var duplicateColumnNames = duplicateForeignKey.Properties.GetColumnNames(storeObject);
-            if (columnNames == null
-                || duplicateColumnNames == null)
+            if (columnNames is null
+                || duplicateColumnNames is null)
             {
                 if (shouldThrow)
                 {
@@ -52,7 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             foreignKey.DeclaringEntityType.DisplayName(),
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
-                            foreignKey.GetConstraintName(storeObject, principalTable.Value),
+                            principalTable.HasValue
+                                ? foreignKey.GetConstraintName(storeObject, principalTable.Value)
+                                : foreignKey.GetDefaultName(),
                             foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                             duplicateForeignKey.DeclaringEntityType.GetSchemaQualifiedTableName()));
                 }
@@ -60,11 +65,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var principalColumns = foreignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value);
-            var duplicatePrincipalColumns = duplicateForeignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value);
-            if (principalTable != duplicatePrincipalTable
-                || principalColumns == null
-                || duplicatePrincipalColumns == null)
+            if (principalTable is null
+                || duplicatePrincipalTable is null
+                || principalTable != duplicatePrincipalTable
+                || !(foreignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value)
+                    is IReadOnlyList<string> principalColumns)
+                || !(duplicateForeignKey.PrincipalKey.Properties.GetColumnNames(principalTable.Value)
+                    is IReadOnlyList<string> duplicatePrincipalColumns))
             {
                 if (shouldThrow)
                 {
@@ -75,7 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             duplicateForeignKey.Properties.Format(),
                             duplicateForeignKey.DeclaringEntityType.DisplayName(),
                             foreignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                            foreignKey.GetConstraintName(storeObject, principalTable.Value),
+                            principalTable.HasValue
+                                ? foreignKey.GetConstraintName(storeObject, principalTable.Value)
+                                : foreignKey.GetDefaultName(),
                             principalType.GetSchemaQualifiedTableName(),
                             duplicatePrincipalType.GetSchemaQualifiedTableName()));
                 }

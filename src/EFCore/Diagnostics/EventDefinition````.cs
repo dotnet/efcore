@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -14,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class EventDefinition<TParam1, TParam2, TParam3, TParam4> : EventDefinitionBase
     {
-        private readonly Action<ILogger, TParam1, TParam2, TParam3, TParam4, Exception> _logAction;
+        private readonly Action<ILogger, TParam1, TParam2, TParam3, TParam4, Exception?> _logAction;
 
         /// <summary>
         ///     Creates an event definition instance.
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EventId eventId,
             LogLevel level,
             [NotNull] string eventIdCode,
-            [NotNull] Func<LogLevel, Action<ILogger, TParam1, TParam2, TParam3, TParam4, Exception>> logActionFunc)
+            [NotNull] Func<LogLevel, Action<ILogger, TParam1, TParam2, TParam3, TParam4, Exception?>> logActionFunc)
             : base(loggingOptions, eventId, level, eventIdCode)
         {
             Check.NotNull(logActionFunc, nameof(logActionFunc));

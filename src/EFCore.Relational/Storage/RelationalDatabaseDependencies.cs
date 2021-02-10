@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalDatabaseDependencies
+    public sealed record RelationalDatabaseDependencies
     {
         /// <summary>
         ///     <para>
@@ -71,46 +73,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The <see cref="ICommandBatchPreparer" /> to be used.
         /// </summary>
-        public ICommandBatchPreparer BatchPreparer { get; }
+        public ICommandBatchPreparer BatchPreparer { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The <see cref="IBatchExecutor" /> to be used.
         /// </summary>
-        public IBatchExecutor BatchExecutor { get; }
+        public IBatchExecutor BatchExecutor { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The <see cref="IRelationalConnection" /> to be used.
         /// </summary>
-        public IRelationalConnection Connection { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="batchPreparer">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseDependencies With([NotNull] ICommandBatchPreparer batchPreparer)
-            => new RelationalDatabaseDependencies(batchPreparer, BatchExecutor, Connection);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="batchExecutor">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseDependencies With([NotNull] IBatchExecutor batchExecutor)
-            => new RelationalDatabaseDependencies(BatchPreparer, batchExecutor, Connection);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="connection">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseDependencies With([NotNull] IRelationalConnection connection)
-            => new RelationalDatabaseDependencies(BatchPreparer, BatchExecutor, connection);
+        public IRelationalConnection Connection { get; [param: NotNull] init; }
     }
 }

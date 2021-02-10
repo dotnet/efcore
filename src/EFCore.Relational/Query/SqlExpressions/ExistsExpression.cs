@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public ExistsExpression(
             [NotNull] SelectExpression subquery,
             bool negated,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
             : base(typeof(bool), typeMapping)
         {
             Check.NotNull(subquery, nameof(subquery));
@@ -91,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is ExistsExpression existsExpression

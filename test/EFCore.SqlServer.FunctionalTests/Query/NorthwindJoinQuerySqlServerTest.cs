@@ -38,7 +38,8 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'");
         }
 
         public override async Task Join_select_many(bool async)
@@ -49,7 +50,8 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-CROSS JOIN [Employees] AS [e]");
+CROSS JOIN [Employees] AS [e]
+WHERE [c].[CustomerID] LIKE N'F%'");
         }
 
         public override async Task Client_Join_select_many(bool async)
@@ -204,7 +206,8 @@ WHERE [t].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-INNER JOIN [Orders] AS [o] ON ([c].[CustomerID] = [o].[CustomerID]) AND ([c].[CustomerID] = [o].[CustomerID])");
+INNER JOIN [Orders] AS [o] ON ([c].[CustomerID] = [o].[CustomerID]) AND ([c].[CustomerID] = [o].[CustomerID])
+WHERE [c].[CustomerID] LIKE N'F%'");
         }
 
         public override async Task Join_complex_condition(bool async)
@@ -240,7 +243,8 @@ INNER JOIN [Customers] AS [c1] ON [c].[CustomerID] = [c1].[CustomerID]");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o]
-INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]");
+INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]
+WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'F%')");
         }
 
         public override async Task GroupJoin_simple(bool async)
@@ -250,7 +254,8 @@ INNER JOIN [Orders] AS [o0] ON [o].[CustomerID] = [o0].[CustomerID]");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'");
         }
 
         public override async Task GroupJoin_simple2(bool async)
@@ -281,6 +286,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[City]");
         }
 
@@ -307,7 +313,8 @@ INNER JOIN (
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'");
         }
 
         public override async Task GroupJoin_DefaultIfEmpty_multiple(bool async)
@@ -318,7 +325,8 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]");
+LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'");
         }
 
         public override async Task GroupJoin_DefaultIfEmpty2(bool async)
@@ -326,9 +334,13 @@ LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]");
             await base.GroupJoin_DefaultIfEmpty2(async);
 
             AssertSql(
-                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Employees] AS [e]
-LEFT JOIN [Orders] AS [o] ON [e].[EmployeeID] = [o].[EmployeeID]");
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'F%')
+) AS [t] ON [e].[EmployeeID] = [t].[EmployeeID]");
         }
 
         public override async Task GroupJoin_DefaultIfEmpty3(bool async)
@@ -440,7 +452,8 @@ LEFT JOIN (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] > 5
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'");
         }
 
         public override async Task GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty(bool async)

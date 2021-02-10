@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -12,10 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="ITypeBase" /> represents a read-only view of the same metadata.
+    ///         Once the model is built, <see cref="IReadOnlyTypeBase" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionTypeBase : ITypeBase, IConventionAnnotatable
+    public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the model that this type belongs to.
@@ -29,14 +31,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="memberName"> The name of the member to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The ignored member name. </returns>
-        string AddIgnored([NotNull] string memberName, bool fromDataAnnotation = false);
+        string? AddIgnored([NotNull] string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the ignored member name.
         /// </summary>
         /// <param name="memberName"> The name of the member to be removed. </param>
         /// <returns> The removed ignored member name. </returns>
-        string RemoveIgnored([NotNull] string memberName);
+        string? RemoveIgnored([NotNull] string memberName);
 
         /// <summary>
         ///     Indicates whether the given member name is ignored.

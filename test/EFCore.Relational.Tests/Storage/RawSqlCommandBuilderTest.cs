@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private static RawSqlCommandBuilder CreateBuilder()
         {
-            return new RawSqlCommandBuilder(
+            return new(
                 new RelationalCommandBuilderFactory(
                     new RelationalCommandBuilderDependencies(
                         new TestRelationalTypeMappingSource(

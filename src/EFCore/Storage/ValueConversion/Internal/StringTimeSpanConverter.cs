@@ -6,6 +6,8 @@ using System.Globalization;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 {
     /// <summary>
@@ -23,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        protected static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 48);
+        protected static readonly ConverterMappingHints _defaultHints = new(size: 48);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         public StringTimeSpanConverter(
             [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
             [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }

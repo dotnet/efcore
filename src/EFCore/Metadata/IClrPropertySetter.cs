@@ -3,6 +3,8 @@
 
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -16,6 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="instance"> The entity instance. </param>
         /// <param name="value"> The value to set. </param>
-        void SetClrValue([NotNull] object instance, [CanBeNull] object value);
+        void SetClrValue([NotNull] object instance, [CanBeNull] object? value);
     }
 }

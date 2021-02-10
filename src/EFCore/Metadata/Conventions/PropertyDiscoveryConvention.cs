@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -49,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if ((newBaseType == null
@@ -63,15 +65,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
-            var entityType = entityTypeBuilder.Metadata;
-            if (entityType.HasClrType())
+            foreach (var propertyInfo in entityTypeBuilder.Metadata.GetRuntimeProperties().Values)
             {
-                foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
+                if (IsCandidatePrimitiveProperty(propertyInfo))
                 {
-                    if (IsCandidatePrimitiveProperty(propertyInfo))
-                    {
-                        entityTypeBuilder.Property(propertyInfo);
-                    }
+                    entityTypeBuilder.Property(propertyInfo);
                 }
             }
         }

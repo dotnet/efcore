@@ -99,10 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 // Use public API to remove the convention, issue #214
                 ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(DbSetFindingConvention));
-                if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23312", out var enabled) && enabled))
-                {
-                    ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(RelationalDbFunctionAttributeConvention));
-                }
+                ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(RelationalDbFunctionAttributeConvention));
 
                 var modelBuilder = new ModelBuilder(conventionSet);
                 modelBuilder.Entity<HistoryRow>(
@@ -112,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable(TableName, TableSchema);
                     });
 
-                _model = modelBuilder.FinalizeModel();
+                _model = Dependencies.ModelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), validationLogger: null);
             }
 
             return _model;
@@ -155,6 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
             => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false)
                 && InterpretExistsResult(
@@ -247,6 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     the list of applied migrations, as <see cref="HistoryRow" /> entities.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
             CancellationToken cancellationToken = default)
         {

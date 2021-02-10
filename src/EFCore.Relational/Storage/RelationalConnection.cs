@@ -16,6 +16,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using IsolationLevel = System.Data.IsolationLevel;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -36,13 +39,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalConnection : IRelationalConnection, ITransactionEnlistmentManager
     {
-        private string _connectionString;
+        private string? _connectionString;
         private bool _connectionOwned;
         private int _openedCount;
         private bool _openedInternally;
         private int? _commandTimeout;
         private readonly ConcurrentStack<Transaction> _ambientTransactions;
-        private DbConnection _connection;
+        private DbConnection? _connection;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalConnection" /> class.
@@ -88,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Guid ConnectionId { get; } = Guid.NewGuid();
 
         /// <summary>
-        ///     The <see cref="DbContext" /> currently in use, or null if not known.
+        ///     The <see cref="DbContext" /> currently in use.
         /// </summary>
         public virtual DbContext Context { get; }
 
@@ -106,13 +109,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets or sets the connection string for the database.
         /// </summary>
-        public virtual string ConnectionString
+        public virtual string? ConnectionString
         {
             get => _connectionString ?? _connection?.ConnectionString;
             set
             {
-                if (_connection != null
-                    && !string.Equals(_connection.ConnectionString, value, StringComparison.InvariantCulture))
+                if (_connection != null && _connection.ConnectionString != value)
                 {
                     // Let ADO.NET throw if this is not valid for the state of the connection.
                     _connection.ConnectionString = value;
@@ -149,6 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note that a connection set must be disposed by application code since it was not created by Entity Framework.
         ///     </para>
         /// </summary>
+        [CA.AllowNull]
         public virtual DbConnection DbConnection
         {
             get
@@ -182,12 +185,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the current transaction.
         /// </summary>
-        public virtual IDbContextTransaction CurrentTransaction { get; [param: CanBeNull] protected set; }
+        public virtual IDbContextTransaction? CurrentTransaction { get; [param: CanBeNull] protected set; }
 
         /// <summary>
         ///     The currently enlisted transaction.
         /// </summary>
-        public virtual Transaction EnlistedTransaction
+        public virtual Transaction? EnlistedTransaction
         {
             get
             {
@@ -215,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Specifies an existing <see cref="Transaction" /> to be used for database operations.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
-        public virtual void EnlistTransaction(Transaction transaction)
+        public virtual void EnlistTransaction(Transaction? transaction)
         {
             if (!SupportsAmbientTransactions)
             {
@@ -228,10 +231,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Dependencies.TransactionLogger.ExplicitTransactionEnlisted(this, transaction);
             }
 
-            DbConnection.EnlistTransaction(transaction);
+            ConnectionEnlistTransaction(transaction);
 
             EnlistedTransaction = transaction;
         }
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="DbConnection.EnlistTransaction" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        /// <param name="transaction"> The transaction to be used. </param>
+        protected virtual void ConnectionEnlistTransaction([CanBeNull] Transaction? transaction)
+             => DbConnection.EnlistTransaction(transaction);
 
         /// <summary>
         ///     Indicates whether the store connection supports ambient transactions
@@ -250,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 if (value.HasValue
                     && value < 0)
                 {
-                    throw new ArgumentException(RelationalStrings.InvalidCommandTimeout);
+                    throw new ArgumentException(RelationalStrings.InvalidCommandTimeout(value));
                 }
 
                 _commandTimeout = value;
@@ -261,8 +272,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Begins a new transaction.
         /// </summary>
         /// <returns> The newly created transaction. </returns>
-        [NotNull]
-        // ReSharper disable once RedundantNameQualifier
         public virtual IDbContextTransaction BeginTransaction()
             => BeginTransaction(IsolationLevel.Unspecified);
 
@@ -273,9 +282,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the newly created transaction.
         /// </returns>
-        [NotNull]
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
-            // ReSharper disable once RedundantNameQualifier
             => await BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken).ConfigureAwait(false);
 
         /// <summary>
@@ -302,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var dbTransaction = interceptionResult.HasResult
                 ? interceptionResult.Result
-                : DbConnection.BeginTransaction(isolationLevel);
+                : ConnectionBeginTransaction(isolationLevel);
 
             dbTransaction = Dependencies.TransactionLogger.TransactionStarted(
                 this,
@@ -315,6 +323,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Template method that by default calls <see cref="DbConnection.BeginDbTransaction" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
+        /// <returns> The newly created transaction. </returns>
+        protected virtual DbTransaction ConnectionBeginTransaction(IsolationLevel isolationLevel)
+             => DbConnection.BeginTransaction(isolationLevel);
+
+        /// <summary>
         ///     Asynchronously begins a new transaction.
         /// </summary>
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
@@ -322,6 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the newly created transaction.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(
             // ReSharper disable once RedundantNameQualifier
             IsolationLevel isolationLevel,
@@ -345,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var dbTransaction = interceptionResult.HasResult
                 ? interceptionResult.Result
-                : await DbConnection.BeginTransactionAsync(isolationLevel, cancellationToken).ConfigureAwait(false);
+                : await ConnectionBeginTransactionAsync(isolationLevel, cancellationToken).ConfigureAwait(false);
 
             dbTransaction = await Dependencies.TransactionLogger.TransactionStartedAsync(
                     this,
@@ -358,6 +376,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return CreateRelationalTransaction(dbTransaction, transactionId, true);
         }
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="DbConnection.BeginDbTransactionAsync" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> The newly created transaction. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        protected virtual ValueTask<DbTransaction> ConnectionBeginTransactionAsync(
+            IsolationLevel isolationLevel,
+            CancellationToken cancellationToken = default)
+             => DbConnection.BeginTransactionAsync(isolationLevel, cancellationToken);
 
         private void EnsureNoTransactions()
         {
@@ -391,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        public virtual IDbContextTransaction UseTransaction(DbTransaction transaction)
+        public virtual IDbContextTransaction? UseTransaction(DbTransaction? transaction)
             => UseTransaction(transaction, Guid.NewGuid());
 
         /// <summary>
@@ -399,8 +430,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
-        /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        public virtual IDbContextTransaction UseTransaction(DbTransaction transaction, Guid transactionId)
+        /// <returns>
+        ///     An instance of <see cref="IDbContextTransaction" /> that wraps the provided transaction, or <see langword="null" />
+        ///     if <paramref name="transaction" /> is <see langword="null" />.
+        /// </returns>
+        [return: CA.NotNullIfNotNull("transaction")]
+        public virtual IDbContextTransaction? UseTransaction(DbTransaction? transaction, Guid transactionId)
         {
             if (ShouldUseTransaction(transaction))
             {
@@ -408,7 +443,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 transaction = Dependencies.TransactionLogger.TransactionUsed(
                     this,
-                    // ReSharper disable once AssignNullToNotNullAttribute
                     transaction,
                     transactionId,
                     DateTimeOffset.UtcNow);
@@ -425,8 +459,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transaction"> The transaction to be used. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        public virtual Task<IDbContextTransaction> UseTransactionAsync(
-            DbTransaction transaction,
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public virtual Task<IDbContextTransaction?> UseTransactionAsync(
+            DbTransaction? transaction,
             CancellationToken cancellationToken = default)
             => UseTransactionAsync(transaction, Guid.NewGuid(), cancellationToken);
 
@@ -437,8 +472,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        public virtual async Task<IDbContextTransaction> UseTransactionAsync(
-            DbTransaction transaction,
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public virtual async Task<IDbContextTransaction?> UseTransactionAsync(
+            DbTransaction? transaction,
             Guid transactionId,
             CancellationToken cancellationToken = default)
         {
@@ -448,7 +484,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 transaction = await Dependencies.TransactionLogger.TransactionUsedAsync(
                         this,
-                        // ReSharper disable once AssignNullToNotNullAttribute
                         transaction,
                         transactionId,
                         DateTimeOffset.UtcNow,
@@ -461,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return CurrentTransaction;
         }
 
-        private bool ShouldUseTransaction(DbTransaction transaction)
+        private bool ShouldUseTransaction([CA.NotNullWhen(true)] DbTransaction? transaction)
         {
             if (transaction == null)
             {
@@ -496,6 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
         {
             if (CurrentTransaction == null)
@@ -524,6 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
         {
             if (CurrentTransaction == null)
@@ -543,13 +580,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <see langword="true" /> if the underlying connection was actually opened; <see langword="false" /> otherwise. </returns>
         public virtual bool Open(bool errorsExpected = false)
         {
-            if (DbConnection.State == ConnectionState.Broken)
+            if (DbConnectionState == ConnectionState.Broken)
             {
-                DbConnection.Close();
+                CloseDbConnection();
             }
 
             var wasOpened = false;
-            if (DbConnection.State != ConnectionState.Open)
+            if (DbConnectionState != ConnectionState.Open)
             {
                 CurrentTransaction?.Dispose();
                 ClearTransactions(clearAmbient: false);
@@ -568,22 +605,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Asynchronously opens the connection to the database.
         /// </summary>
         /// <param name="errorsExpected"> Indicate if the connection errors are expected and should be logged as debug message. </param>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation, with a value of <see langword="true" /> if the connection
         ///     was actually opened.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
         {
-            if (DbConnection.State == ConnectionState.Broken)
+            if (DbConnectionState == ConnectionState.Broken)
             {
-                await DbConnection.CloseAsync().ConfigureAwait(false);
+                await CloseDbConnectionAsync().ConfigureAwait(false);
             }
 
             var wasOpened = false;
-            if (DbConnection.State != ConnectionState.Open)
+            if (DbConnectionState != ConnectionState.Open)
             {
                 if (CurrentTransaction != null)
                 {
@@ -654,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.Open" /> but can be overriden
+        ///     Template method that by default calls <see cref="DbConnection.Open" /> but can be overriden
         ///     by providers to make a different call instead.
         /// </summary>
         /// <param name="errorsExpected"> Indicates if the connection errors are expected and should be logged as debug message. </param>
@@ -706,6 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="errorsExpected"> Indicates if the connection errors are expected and should be logged as debug message. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         protected virtual Task OpenDbConnectionAsync(bool errorsExpected, CancellationToken cancellationToken)
             => DbConnection.OpenAsync(cancellationToken);
 
@@ -741,11 +778,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Dependencies.TransactionLogger.AmbientTransactionEnlisted(this, current);
             current.TransactionCompleted += HandleTransactionCompleted;
 
-            DbConnection.EnlistTransaction(current);
+            ConnectionEnlistTransaction(current);
             _ambientTransactions.Push(current);
         }
 
-        private void HandleTransactionCompleted(object sender, TransactionEventArgs e)
+        private void HandleTransactionCompleted(object? sender, TransactionEventArgs e)
         {
             // This could be invoked on a different thread at arbitrary time after the transaction completes
             _ambientTransactions.TryPeek(out var ambientTransaction);
@@ -775,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CurrentTransaction?.Dispose();
                 ClearTransactions(clearAmbient: false);
 
-                if (DbConnection.State != ConnectionState.Closed)
+                if (DbConnectionState != ConnectionState.Closed)
                 {
                     var startTime = DateTimeOffset.UtcNow;
                     var stopwatch = Stopwatch.StartNew();
@@ -786,7 +823,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     {
                         if (!interceptionResult.IsSuppressed)
                         {
-                            DbConnection.Close();
+                            CloseDbConnection();
                         }
 
                         wasClosed = true;
@@ -808,6 +845,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Template method that by default calls <see cref="DbConnection.Close" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        protected virtual void CloseDbConnection()
+            => DbConnection.Close();
+
+        /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
         /// <returns>
@@ -827,7 +871,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 ClearTransactions(clearAmbient: false);
 
-                if (DbConnection.State != ConnectionState.Closed)
+                if (DbConnectionState != ConnectionState.Closed)
                 {
                     var startTime = DateTimeOffset.UtcNow;
                     var stopwatch = Stopwatch.StartNew();
@@ -839,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     {
                         if (!interceptionResult.IsSuppressed)
                         {
-                            await DbConnection.CloseAsync().ConfigureAwait(false);
+                            await CloseDbConnectionAsync().ConfigureAwait(false);
                         }
 
                         wasClosed = true;
@@ -870,6 +914,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return wasClosed;
         }
 
+        /// <summary>
+        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.CloseAsync" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        protected virtual Task CloseDbConnectionAsync()
+            => DbConnection.CloseAsync();
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.State" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        protected virtual ConnectionState DbConnectionState => DbConnection.State;
+
         private bool ShouldClose()
             => (_openedCount == 0
                     || _openedCount > 0
@@ -889,9 +946,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The semaphore used to serialize access to this connection.
         /// </value>
         [Obsolete("EF Core no longer uses this semaphore. It will be removed in an upcoming release.")]
-        public virtual SemaphoreSlim Semaphore { get; } = new SemaphoreSlim(1);
+        public virtual SemaphoreSlim Semaphore { get; } = new(1);
 
-        private Transaction _enlistedTransaction;
+        private Transaction? _enlistedTransaction;
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -904,12 +961,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (_connectionOwned
                 && _connection != null)
             {
-                DbConnection.Dispose();
+                DisposeDbConnection();
                 _connection = null;
                 _openedCount = 0;
                 _openedInternally = false;
             }
         }
+
+        /// <summary>
+        ///     Template method that by default calls Dispose on <see cref="System.Data.Common.DbConnection" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        protected virtual void DisposeDbConnection()
+            => DbConnection.Dispose();
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -926,10 +990,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (_connectionOwned
                 && _connection != null)
             {
-                await DbConnection.DisposeAsync().ConfigureAwait(false);
+                await DisposeDbConnectionAsync().ConfigureAwait(false);
                 _connection = null;
                 _openedCount = 0;
             }
         }
+
+        /// <summary>
+        ///     Template method that by default calls <see cref="DbConnection.DisposeAsync" /> but can be overriden
+        ///     by providers to make a different call instead.
+        /// </summary>
+        protected virtual ValueTask DisposeDbConnectionAsync()
+            => DbConnection.DisposeAsync();
     }
 }

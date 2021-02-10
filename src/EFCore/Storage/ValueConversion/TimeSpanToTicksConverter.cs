@@ -4,6 +4,8 @@
 using System;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -18,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public TimeSpanToTicksConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public TimeSpanToTicksConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(v => v.Ticks, v => new TimeSpan(v), mappingHints)
         {
         }
@@ -27,6 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(TimeSpan), typeof(long), i => new TimeSpanToTicksConverter(i.MappingHints));
+            = new(typeof(TimeSpan), typeof(long), i => new TimeSpanToTicksConverter(i.MappingHints));
     }
 }

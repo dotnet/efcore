@@ -33,10 +33,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IKeyPropagator _keyPropagator;
         private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
         private readonly ILoggingOptions _loggingOptions;
-        private readonly Dictionary<IEntityType, List<IProperty>> _entityTypePropagatingPropertiesMap
-            = new Dictionary<IEntityType, List<IProperty>>();
-        private readonly Dictionary<IEntityType, List<IProperty>> _entityTypeGeneratingPropertiesMap
-            = new Dictionary<IEntityType, List<IProperty>>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -65,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual InternalEntityEntry Propagate(InternalEntityEntry entry)
         {
             InternalEntityEntry chosenPrincipal = null;
-            foreach (var property in FindCandidatePropagatingProperties(entry))
+            foreach (var property in entry.EntityType.GetForeignKeyProperties())
             {
                 if (!entry.HasDefaultValue(property))
                 {
@@ -92,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var property in FindCandidateGeneratingProperties(entry))
+            foreach (var property in entry.EntityType.GetValueGeneratingProperties())
             {
                 if (!entry.HasDefaultValue(property)
                     || (!includePrimaryKey
@@ -141,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var property in FindCandidateGeneratingProperties(entry))
+            foreach (var property in entry.EntityType.GetValueGeneratingProperties())
             {
                 if (!entry.HasDefaultValue(property)
                     || (!includePrimaryKey
@@ -163,44 +159,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     generatedValue,
                     temporary);
             }
-        }
-
-        private List<IProperty> FindCandidatePropagatingProperties(InternalEntityEntry entry)
-        {
-            if (!_entityTypePropagatingPropertiesMap.TryGetValue(entry.EntityType, out var candidateProperties))
-            {
-                candidateProperties = new List<IProperty>();
-                foreach (var property in entry.EntityType.GetProperties())
-                {
-                    if (property.IsForeignKey())
-                    {
-                        candidateProperties.Add(property);
-                    }
-                }
-
-                _entityTypePropagatingPropertiesMap[entry.EntityType] = candidateProperties;
-            }
-
-            return candidateProperties;
-        }
-
-        private List<IProperty> FindCandidateGeneratingProperties(InternalEntityEntry entry)
-        {
-            if (!_entityTypeGeneratingPropertiesMap.TryGetValue(entry.EntityType, out var candidateProperties))
-            {
-                candidateProperties = new List<IProperty>();
-                foreach (var property in entry.EntityType.GetProperties())
-                {
-                    if (property.RequiresValueGenerator())
-                    {
-                        candidateProperties.Add(property);
-                    }
-                }
-
-                _entityTypeGeneratingPropertiesMap[entry.EntityType] = candidateProperties;
-            }
-
-            return candidateProperties;
         }
 
         private ValueGenerator GetValueGenerator(InternalEntityEntry entry, IProperty property)

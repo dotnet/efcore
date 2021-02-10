@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -57,9 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             NavigationExpression = navigationExpression;
             Navigation = navigation;
             Type = EntityExpression.Type;
-
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23475", out var enabled) && enabled;
-            SetLoaded = useOldBehavior || setLoaded;
+            SetLoaded = setLoaded;
         }
 
         /// <summary>

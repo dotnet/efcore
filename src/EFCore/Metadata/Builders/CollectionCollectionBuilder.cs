@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -35,10 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] IMutableSkipNavigation leftNavigation,
             [NotNull] IMutableSkipNavigation rightNavigation)
         {
-            Check.DebugAssert(((IConventionEntityType)leftEntityType).Builder != null, "Builder is null");
-            Check.DebugAssert(((IConventionEntityType)rightEntityType).Builder != null, "Builder is null");
-            Check.DebugAssert(((IConventionSkipNavigation)leftNavigation).Builder != null, "Builder is null");
-            Check.DebugAssert(((IConventionSkipNavigation)rightNavigation).Builder != null, "Builder is null");
+            Check.DebugAssert(((IConventionEntityType)leftEntityType).IsInModel, "Not in model");
+            Check.DebugAssert(((IConventionEntityType)rightEntityType).IsInModel, "Not in model");
+            Check.DebugAssert(((IConventionSkipNavigation)leftNavigation).IsInModel, "Not in model");
+            Check.DebugAssert(((IConventionSkipNavigation)rightNavigation).IsInModel, "Not in model");
 
             LeftEntityType = leftEntityType;
             RightEntityType = rightEntityType;
@@ -120,10 +122,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
-            var existingJoinEntityType = (EntityType)
+            var existingJoinEntityType = (EntityType?)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
-            EntityType newJoinEntityType = null;
+            EntityType? newJoinEntityType = null;
             if (existingJoinEntityType != null)
             {
                 if (existingJoinEntityType.ClrType == joinEntityType
@@ -139,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             if (newJoinEntityType == null)
             {
-                newJoinEntityType = ModelBuilder.Entity(joinEntityType, ConfigurationSource.Explicit).Metadata;
+                newJoinEntityType = ModelBuilder.Entity(joinEntityType, ConfigurationSource.Explicit)!.Metadata;
             }
 
             var entityTypeBuilder = new EntityTypeBuilder(newJoinEntityType);
@@ -171,10 +173,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
-            var existingJoinEntityType = (EntityType)
+            var existingJoinEntityType = (EntityType?)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
-            EntityType newJoinEntityType = null;
+            EntityType? newJoinEntityType = null;
             if (existingJoinEntityType != null)
             {
                 if (existingJoinEntityType.ClrType == joinEntityType
@@ -202,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(joinEntityType.DisplayName()));
                     }
 
-                    newJoinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, joinEntityType, ConfigurationSource.Explicit)
+                    newJoinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, joinEntityType, ConfigurationSource.Explicit)!
                         .Metadata;
                 }
             }
@@ -282,10 +284,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var leftBuilder = ((SkipNavigation)LeftNavigation).Builder;
             var rightBuilder = ((SkipNavigation)RightNavigation).Builder;
 
-            leftBuilder = leftBuilder.HasInverse(rightBuilder.Metadata, ConfigurationSource.Explicit);
+            leftBuilder = leftBuilder.HasInverse(rightBuilder.Metadata, ConfigurationSource.Explicit)!;
 
-            leftBuilder = leftBuilder.HasForeignKey((ForeignKey)leftForeignKey, ConfigurationSource.Explicit);
-            rightBuilder = rightBuilder.HasForeignKey((ForeignKey)rightForeignKey, ConfigurationSource.Explicit);
+            leftBuilder = leftBuilder.HasForeignKey((ForeignKey)leftForeignKey, ConfigurationSource.Explicit)!;
+            rightBuilder = rightBuilder.HasForeignKey((ForeignKey)rightForeignKey, ConfigurationSource.Explicit)!;
 
             LeftNavigation = leftBuilder.Metadata;
             RightNavigation = rightBuilder.Metadata;
@@ -295,13 +297,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <inheritdoc />

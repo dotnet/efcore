@@ -27,16 +27,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly Guid _runId = Guid.NewGuid();
 
         public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-            => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
+            => new(name, shared: false, extensionConfiguration: extensionConfiguration);
 
         public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null);
 
         public static CosmosTestStore GetOrCreate(string name)
-            => new CosmosTestStore(name);
+            => new(name);
 
         public static CosmosTestStore GetOrCreate(string name, string dataFilePath)
-            => new CosmosTestStore(name, dataFilePath: dataFilePath);
+            => new(name, dataFilePath: dataFilePath);
 
         private CosmosTestStore(
             string name,
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             if (await context.Database.EnsureCreatedAsync())
             {
-                var cosmosClient = context.GetService<CosmosClientWrapper>();
+                var cosmosClient = context.GetService<ICosmosClientWrapper>();
                 var serializer = CosmosClientWrapper.Serializer;
                 using var fs = new FileStream(_dataFilePath, FileMode.Open, FileAccess.Read);
                 using var sr = new StreamReader(fs);
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override async Task CleanAsync(DbContext context)
         {
-            var cosmosClientWrapper = context.GetService<CosmosClientWrapper>();
+            var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
             var created = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync();
             try
             {
@@ -307,11 +307,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 => throw new NotImplementedException();
         }
 
-        public class FakeEntityType : IEntityType
+        public class FakeEntityType : Annotatable, IEntityType
         {
-            public object this[string name]
-                => null;
-
             public IEntityType BaseType
                 => throw new NotImplementedException();
 
@@ -336,10 +333,32 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public bool IsPropertyBag
                 => throw new NotImplementedException();
 
-            public IAnnotation FindAnnotation(string name)
+            public InstantiationBinding ConstructorBinding
+                => throw new NotImplementedException();
+
+            IReadOnlyEntityType IReadOnlyEntityType.BaseType
+                => throw new NotImplementedException();
+
+            IReadOnlyModel IReadOnlyTypeBase.Model
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
+                => throw new NotImplementedException();
+
+            public INavigation FindDeclaredNavigation(string name)
+                => throw new NotImplementedException();
+
+            public IProperty FindDeclaredProperty(string name)
                 => throw new NotImplementedException();
 
             public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
+                => throw new NotImplementedException();
+
+            public IForeignKey FindForeignKey(
+                IReadOnlyList<IReadOnlyProperty> properties, IReadOnlyKey principalKey, IReadOnlyEntityType principalEntityType)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
                 => throw new NotImplementedException();
 
             public IIndex FindIndex(IReadOnlyList<IProperty> properties)
@@ -348,7 +367,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public IIndex FindIndex(string name)
                 => throw new NotImplementedException();
 
+            public IIndex FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+                => throw new NotImplementedException();
+
             public IKey FindKey(IReadOnlyList<IProperty> properties)
+                => throw new NotImplementedException();
+
+            public IKey FindKey(IReadOnlyList<IReadOnlyProperty> properties)
                 => throw new NotImplementedException();
 
             public IKey FindPrimaryKey()
@@ -363,7 +388,37 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public ISkipNavigation FindSkipNavigation(string name)
                 => throw new NotImplementedException();
 
-            public IEnumerable<IAnnotation> GetAnnotations()
+            public IEnumerable<IForeignKey> GetDeclaredForeignKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IIndex> GetDeclaredIndexes()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IKey> GetDeclaredKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<INavigation> GetDeclaredNavigations()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IProperty> GetDeclaredProperties()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> GetDeclaredReferencingForeignKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IServiceProperty> GetDeclaredServiceProperties()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> GetDerivedForeignKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IIndex> GetDerivedIndexes()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IEntityType> GetDirectlyDerivedTypes()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IProperty> GetForeignKeyProperties()
                 => throw new NotImplementedException();
 
             public IEnumerable<IForeignKey> GetForeignKeys()
@@ -378,10 +433,59 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public IEnumerable<IProperty> GetProperties()
                 => throw new NotImplementedException();
 
+            public IEnumerable<IForeignKey> GetReferencingForeignKeys()
+                => throw new NotImplementedException();
+
             public IEnumerable<IServiceProperty> GetServiceProperties()
                 => throw new NotImplementedException();
 
             public IEnumerable<ISkipNavigation> GetSkipNavigations()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IProperty> GetValueGeneratingProperties()
+                => throw new NotImplementedException();
+
+            IReadOnlyForeignKey IReadOnlyEntityType.FindForeignKey(
+                IReadOnlyList<IReadOnlyProperty> properties, IReadOnlyKey principalKey, IReadOnlyEntityType principalEntityType)
+                => throw new NotImplementedException();
+
+            IReadOnlyIndex IReadOnlyEntityType.FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+                => throw new NotImplementedException();
+
+            IReadOnlyIndex IReadOnlyEntityType.FindIndex(string name)
+                => throw new NotImplementedException();
+
+            IReadOnlyKey IReadOnlyEntityType.FindKey(IReadOnlyList<IReadOnlyProperty> properties)
+                => throw new NotImplementedException();
+
+            IReadOnlyKey IReadOnlyEntityType.FindPrimaryKey()
+                => throw new NotImplementedException();
+
+            IReadOnlyProperty IReadOnlyEntityType.FindProperty(string name)
+                => throw new NotImplementedException();
+
+            IReadOnlyServiceProperty IReadOnlyEntityType.FindServiceProperty(string name)
+                => throw new NotImplementedException();
+
+            IReadOnlySkipNavigation IReadOnlyEntityType.FindSkipNavigation(string name)
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlyForeignKey> IReadOnlyEntityType.GetForeignKeys()
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlyIndex> IReadOnlyEntityType.GetIndexes()
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlyKey> IReadOnlyEntityType.GetKeys()
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlyProperty> IReadOnlyEntityType.GetProperties()
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlyServiceProperty> IReadOnlyEntityType.GetServiceProperties()
+                => throw new NotImplementedException();
+
+            IEnumerable<IReadOnlySkipNavigation> IReadOnlyEntityType.GetSkipNavigations()
                 => throw new NotImplementedException();
         }
     }

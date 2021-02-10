@@ -467,7 +467,7 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(1, command.ExecuteNonQuery());
 
                 command.CommandText = "SELECT DateOfBirth FROM Person;";
-                var result = command.ExecuteScalar();
+                var result = command.ExecuteScalar()!;
                 Assert.Equal("2018-03-25 00:00:00", (string)result);
 
                 using (var reader = command.ExecuteReader())
@@ -495,7 +495,7 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(1, command.ExecuteNonQuery());
 
                 command.CommandText = "SELECT date FROM Test;";
-                var result = command.ExecuteScalar();
+                var result = command.ExecuteScalar()!;
                 Assert.Equal("2018-03-25 00:00:00+00:00", (string)result);
 
                 using (var reader = command.ExecuteReader())

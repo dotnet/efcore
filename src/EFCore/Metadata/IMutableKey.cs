@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -14,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IKey" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableKey : IMutableAnnotatable, IKey
+    public interface IMutableKey : IMutableAnnotatable, IReadOnlyKey
     {
         /// <summary>
         ///     Gets the properties that make up the key.

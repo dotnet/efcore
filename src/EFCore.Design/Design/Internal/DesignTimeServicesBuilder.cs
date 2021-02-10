@@ -51,9 +51,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IServiceProvider Build([NotNull] DbContext context)
-        {
-            Check.NotNull(context, nameof(context));
+            => CreateServiceCollection(Check.NotNull(context, nameof(context))).BuildServiceProvider();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IServiceCollection CreateServiceCollection([NotNull] DbContext context)
+        {
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter)
                 .AddDbContextDesignTimeServices(context);
@@ -61,8 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             ConfigureProviderServices(provider, services);
             ConfigureReferencedServices(services, provider);
             ConfigureUserServices(services);
-
-            return services.BuildServiceProvider();
+            return services;
         }
 
         /// <summary>
@@ -72,16 +78,22 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IServiceProvider Build([NotNull] string provider)
-        {
-            Check.NotEmpty(provider, nameof(provider));
+            => CreateServiceCollection(Check.NotEmpty(provider, nameof(provider))).BuildServiceProvider();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IServiceCollection CreateServiceCollection([NotNull] string provider)
+        {
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter, GetApplicationServices);
             ConfigureProviderServices(provider, services, throwOnError: true);
             ConfigureReferencedServices(services, provider);
             ConfigureUserServices(services);
-
-            return services.BuildServiceProvider();
+            return services;
         }
 
         private IServiceProvider GetApplicationServices()

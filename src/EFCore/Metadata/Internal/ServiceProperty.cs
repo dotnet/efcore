@@ -5,9 +5,13 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -17,9 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ServiceProperty : PropertyBase, IMutableServiceProperty, IConventionServiceProperty
+    public class ServiceProperty : PropertyBase, IMutableServiceProperty, IConventionServiceProperty, IServiceProperty
     {
-        private ServiceParameterBinding _parameterBinding;
+        private ServiceParameterBinding? _parameterBinding;
+        private InternalServicePropertyBuilder? _builder;
 
         private ConfigurationSource? _parameterBindingConfigurationSource;
 
@@ -31,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public ServiceProperty(
             [NotNull] string name,
-            [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo,
+            [CanBeNull] PropertyInfo? propertyInfo,
+            [CanBeNull] FieldInfo? fieldInfo,
             [NotNull] EntityType declaringEntityType,
             ConfigurationSource configurationSource)
             : base(name, propertyInfo, fieldInfo, configurationSource)
@@ -40,9 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
             DeclaringEntityType = declaringEntityType;
-            ClrType = propertyInfo?.PropertyType ?? fieldInfo?.FieldType;
+            ClrType = (propertyInfo?.PropertyType ?? fieldInfo?.FieldType)!;
 
-            Builder = new InternalServicePropertyBuilder(this, declaringEntityType.Model.Builder);
+            _builder = new InternalServicePropertyBuilder(this, declaringEntityType.Model.Builder);
         }
 
         /// <summary>
@@ -80,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalServicePropertyBuilder Builder
         {
-            get;
-            [param: CanBeNull] set;
+            [DebuggerStepThrough]
+            get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
         }
 
         /// <summary>
@@ -90,9 +95,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ServiceParameterBinding ParameterBinding
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ServiceParameterBinding? ParameterBinding
         {
-            get => _parameterBinding;
+#pragma warning disable CS8766 // Nullability of reference types in return type doesn't match implicitly implemented member (possibly because of nullability attributes).
+            get => IsReadOnly
+                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _parameterBinding, (IServiceProperty)this, static property =>
+                    {
+                        var entityType = property.DeclaringEntityType;
+                        var factory = entityType.Model.GetModelDependencies().ParameterBindingFactories.FindFactory(property.ClrType, property.Name)!;
+                        return (ServiceParameterBinding)factory.Bind(entityType, property.ClrType, property.Name);
+                    })
+                    : _parameterBinding;
+#pragma warning restore CS8766 // Nullability of reference types in return type doesn't match implicitly implemented member (possibly because of nullability attributes).
             set => SetParameterBinding(value, ConfigurationSource.Explicit);
         }
 
@@ -102,10 +134,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ServiceParameterBinding SetParameterBinding(
-            [CanBeNull] ServiceParameterBinding parameterBinding,
+        public virtual ServiceParameterBinding? SetParameterBinding(
+            [CanBeNull] ServiceParameterBinding? parameterBinding,
             ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _parameterBinding = parameterBinding;
 
             UpdateParameterBindingConfigurationSource(configurationSource);
@@ -119,8 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        ServiceParameterBinding IConventionServiceProperty.SetParameterBinding(
-            ServiceParameterBinding parameterBinding,
+        ServiceParameterBinding? IConventionServiceProperty.SetParameterBinding(
+            ServiceParameterBinding? parameterBinding,
             bool fromDataAnnotation)
             => SetParameterBinding(
                 parameterBinding, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -143,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEntityType IServiceProperty.DeclaringEntityType
+        IReadOnlyEntityType IReadOnlyServiceProperty.DeclaringEntityType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
@@ -178,7 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
-            [DebuggerStepThrough] get => Builder;
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <summary>
@@ -189,7 +224,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionServiceProperty.DeclaringEntityType
         {
-            [DebuggerStepThrough] get => DeclaringEntityType;
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
+
+        IEntityType IServiceProperty.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -208,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
     }

@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -26,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     {
         private readonly IOperationReporter _operationReporter;
         private readonly HashSet<string> _relationalNames;
-        private readonly IConventionSetBuilder _conventionSetBuilder;
+        private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         public SnapshotModelProcessor(
             [NotNull] IOperationReporter operationReporter,
-            [NotNull] IConventionSetBuilder conventionSetBuilder)
+            [NotNull] IModelRuntimeInitializer modelRuntimeInitializer)
         {
             _operationReporter = operationReporter;
             _relationalNames = new HashSet<string>(
@@ -44,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .GetRuntimeFields()
                     .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
                     .Select(p => ((string)p.GetValue(null)).Substring(RelationalAnnotationNames.Prefix.Length - 1)));
-            _conventionSetBuilder = conventionSetBuilder;
+            _modelRuntimeInitializer = modelRuntimeInitializer;
         }
 
         /// <summary>
@@ -53,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Process(IModel model)
+        public virtual IModel Process(IReadOnlyModel model)
         {
             if (model == null)
             {
@@ -82,30 +80,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            if (model is IConventionModel conventionModel)
+            if (model is IMutableModel mutableModel)
             {
-                var conventionSet = _conventionSetBuilder.CreateConventionSet();
-
-                var typeMappingConvention = conventionSet.ModelFinalizingConventions.OfType<TypeMappingConvention>().FirstOrDefault();
-                if (typeMappingConvention != null)
-                {
-                    typeMappingConvention.ProcessModelFinalizing(conventionModel.Builder, null);
-                }
-
-                var relationalModelConvention =
-                    conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().FirstOrDefault();
-                if (relationalModelConvention != null)
-                {
-                    model = relationalModelConvention.ProcessModelFinalized(conventionModel);
-                }
+                model = mutableModel.FinalizeModel();
             }
 
-            return model is IMutableModel mutableModel
-                ? mutableModel.FinalizeModel()
-                : model;
+            return _modelRuntimeInitializer.Initialize((IModel)model, validationLogger: null);
         }
 
-        private void ProcessCollection(IEnumerable<IAnnotatable> metadata, string version)
+        private void ProcessCollection(IEnumerable<IReadOnlyAnnotatable> metadata, string version)
         {
             foreach (var element in metadata)
             {
@@ -113,9 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void ProcessElement(IEntityType entityType, string version)
+        private void ProcessElement(IReadOnlyEntityType entityType, string version)
         {
-            ProcessElement((IAnnotatable)entityType, version);
+            ProcessElement((IReadOnlyAnnotatable)entityType, version);
 
             if ((version.StartsWith("2.0", StringComparison.Ordinal)
                     || version.StartsWith("2.1", StringComparison.Ordinal))
@@ -126,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void ProcessElement(IAnnotatable metadata, string version)
+        private void ProcessElement(IReadOnlyAnnotatable metadata, string version)
         {
             if (version.StartsWith("1.", StringComparison.Ordinal)
                 && metadata is IMutableAnnotatable mutableMetadata)
@@ -158,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void UpdateSequences(IModel model, string version)
+        private void UpdateSequences(IReadOnlyModel model, string version)
         {
             if ((!version.StartsWith("1.", StringComparison.Ordinal)
                     && !version.StartsWith("2.", StringComparison.Ordinal)

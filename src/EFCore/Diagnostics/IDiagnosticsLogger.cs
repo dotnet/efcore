@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -58,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Holds registered interceptors, if any.
         /// </summary>
-        IInterceptors Interceptors { get; }
+        IInterceptors? Interceptors { get; }
 
         /// <summary>
         ///     Checks whether or not the message should be sent to the <see cref="ILogger" />.
@@ -94,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnosticSourceEnabled)
             {
-                DiagnosticSource.Write(definition.EventId.Name, eventData);
+                DiagnosticSource.Write(definition.EventId.Name!, eventData);
             }
 
             if (simpleLogEnabled)
@@ -126,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             // No null checks; low-level code in hot path for logging.
 
-            diagnosticSourceEnabled = DiagnosticSource.IsEnabled(definition.EventId.Name);
+            diagnosticSourceEnabled = DiagnosticSource.IsEnabled(definition.EventId.Name!);
 
             simpleLogEnabled = definition.WarningBehavior == WarningBehavior.Log
                 && DbContextLogger.ShouldLog(definition.EventId, definition.Level);
@@ -157,14 +159,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         bool NeedsEventData<TInterceptor>(
             [NotNull] EventDefinitionBase definition,
-            [CanBeNull] out TInterceptor interceptor,
+            [CanBeNull] out TInterceptor? interceptor,
             out bool diagnosticSourceEnabled,
             out bool simpleLogEnabled)
             where TInterceptor : class, IInterceptor
         {
             // No null checks; low-level code in hot path for logging.
 
-            diagnosticSourceEnabled = DiagnosticSource.IsEnabled(definition.EventId.Name);
+            diagnosticSourceEnabled = DiagnosticSource.IsEnabled(definition.EventId.Name!);
 
             interceptor = Interceptors?.Aggregate<TInterceptor>();
 

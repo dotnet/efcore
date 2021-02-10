@@ -4,6 +4,9 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -19,8 +22,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IModel" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableModel : IModel, IMutableAnnotatable
+    public interface IMutableModel : IReadOnlyModel, IMutableAnnotatable
     {
+        /// <summary>
+        ///     <para>
+        ///         Prevents conventions from being executed immediately when a metadata aspect is modified. All the delayed conventions
+        ///         will be executed after the returned object is disposed.
+        ///     </para>
+        ///     <para>
+        ///         This is useful when performing multiple operations that depend on each other.
+        ///     </para>
+        /// </summary>
+        /// <returns> An object that should be disposed to execute the delayed conventions. </returns>
+        IConventionBatch DelayConventions();
+
         /// <summary>
         ///     <para>
         ///         Adds a shadow state entity type to the model.
@@ -85,8 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
-        new IMutableEntityType FindEntityType([NotNull] string name);
+        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        new IMutableEntityType? FindEntityType([NotNull] string name);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
@@ -95,8 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
-        IMutableEntityType FindEntityType(
+        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
+        IMutableEntityType? FindEntityType(
             [NotNull] string name,
             [NotNull] string definingNavigationName,
             [NotNull] IMutableEntityType definingEntityType);
@@ -105,8 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Removes an entity type from the model.
         /// </summary>
         /// <param name="entityType"> The entity type to be removed. </param>
-        /// <returns> The removed entity type. </returns>
-        IMutableEntityType RemoveEntityType([NotNull] IMutableEntityType entityType);
+        /// <returns> The removed entity type, or <see langword="null" /> if the entity type was not found. </returns>
+        IMutableEntityType? RemoveEntityType([NotNull] IMutableEntityType entityType);
 
         /// <summary>
         ///     Gets all entity types defined in the model.
@@ -126,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="typeName"> The name of the ignored entity type to be removed. </param>
         /// <returns> The removed ignored type name. </returns>
-        string RemoveIgnored([NotNull] string typeName);
+        string? RemoveIgnored([NotNull] string typeName);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.

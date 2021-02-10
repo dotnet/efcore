@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -26,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
-        public static IMutableProperty FindFirstPrincipal([NotNull] this IMutableProperty property)
-            => (IMutableProperty)((IProperty)property).FindFirstPrincipal();
+        public static IMutableProperty? FindFirstPrincipal([NotNull] this IMutableProperty property)
+            => (IMutableProperty?)((IReadOnlyProperty)property).FindFirstPrincipal();
 
         /// <summary>
         ///     Finds the list of principal properties including the given property that the given property is constrained by
@@ -36,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The list of all associated principal properties including the given property. </returns>
         public static IReadOnlyList<IMutableProperty> FindPrincipals([NotNull] this IMutableProperty property)
-            => ((IProperty)property).FindPrincipals().Cast<IMutableProperty>().ToList();
+            => ((IReadOnlyProperty)property).FindPrincipals().Cast<IMutableProperty>().ToList();
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -68,8 +70,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary that use this property, or <see langword="null" /> if it is not part of the primary key.
         /// </returns>
-        public static IMutableKey FindContainingPrimaryKey([NotNull] this IMutableProperty property)
-            => (IMutableKey)((IProperty)property).FindContainingPrimaryKey();
+        public static IMutableKey? FindContainingPrimaryKey([NotNull] this IMutableProperty property)
+            => (IMutableKey?)((IReadOnlyProperty)property).FindContainingPrimaryKey();
 
         /// <summary>
         ///     Gets all primary or alternate keys that use this property (including composite keys in which this property
@@ -189,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="converter"> The converter, or <see langword="null" /> to remove any previously set converter. </param>
-        public static void SetValueConverter([NotNull] this IMutableProperty property, [CanBeNull] ValueConverter converter)
+        public static void SetValueConverter([NotNull] this IMutableProperty property, [CanBeNull] ValueConverter? converter)
             => property.AsProperty().SetValueConverter(converter, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -197,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="providerClrType"> The type to use, or <see langword="null" /> to remove any previously set type. </param>
-        public static void SetProviderClrType([NotNull] this IMutableProperty property, [CanBeNull] Type providerClrType)
+        public static void SetProviderClrType([NotNull] this IMutableProperty property, [CanBeNull] Type? providerClrType)
             => property.AsProperty().SetProviderClrType(providerClrType, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -205,17 +207,19 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
-        public static CoreTypeMapping SetTypeMapping(
+        public static void SetTypeMapping(
             [NotNull] this IMutableProperty property,
             [NotNull] CoreTypeMapping typeMapping)
-            => ((Property)property).SetTypeMapping(typeMapping, ConfigurationSource.Explicit);
+        {
+            ((Property)property).SetTypeMapping(typeMapping, ConfigurationSource.Explicit);
+        }
 
         /// <summary>
         ///     Sets the custom <see cref="ValueComparer" /> for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
-        public static void SetValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
+        public static void SetValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer? comparer)
             => property.AsProperty().SetValueComparer(comparer, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -224,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
-        public static void SetKeyValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
+        public static void SetKeyValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer? comparer)
             => property.AsProperty().SetValueComparer(comparer, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -233,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
-        public static void SetStructuralValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
+        public static void SetStructuralValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer? comparer)
             => property.SetValueComparer(comparer);
     }
 }

@@ -459,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static ScaffoldingTypeMapper CreateMapper()
-            => new ScaffoldingTypeMapper(
+            => new(
                 new SqliteTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));

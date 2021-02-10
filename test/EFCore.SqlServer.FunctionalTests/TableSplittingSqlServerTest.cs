@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
@@ -17,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore
         protected override ITestStoreFactory TestStoreFactory
             => SqlServerTestStoreFactory.Instance;
 
-        public override void Can_use_with_redundant_relationships()
+        public override async Task Can_use_with_redundant_relationships()
         {
-            base.Can_use_with_redundant_relationships();
+            await base.Can_use_with_redundant_relationships();
 
             // TODO: [Name] shouldn't be selected multiple times and no joins are needed
             AssertSql(
@@ -77,9 +78,9 @@ LEFT JOIN (
 ORDER BY [v].[Name]");
         }
 
-        public override void Can_query_shared()
+        public override async Task Can_query_shared()
         {
-            base.Can_query_shared();
+            await base.Can_query_shared();
 
             AssertSql(
                 @"SELECT [v].[Name], [v].[Operator_Discriminator], [v].[Operator_Name], [v].[LicenseType]
@@ -87,9 +88,9 @@ FROM [Vehicles] AS [v]
 INNER JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]");
         }
 
-        public override void Can_query_shared_nonhierarchy()
+        public override async Task Can_query_shared_nonhierarchy()
         {
-            base.Can_query_shared_nonhierarchy();
+            await base.Can_query_shared_nonhierarchy();
 
             AssertSql(
                 @"SELECT [v].[Name], [v].[Operator_Name]
@@ -97,9 +98,9 @@ FROM [Vehicles] AS [v]
 INNER JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]");
         }
 
-        public override void Can_query_shared_nonhierarchy_with_nonshared_dependent()
+        public override async Task Can_query_shared_nonhierarchy_with_nonshared_dependent()
         {
-            base.Can_query_shared_nonhierarchy_with_nonshared_dependent();
+            await base.Can_query_shared_nonhierarchy_with_nonshared_dependent();
 
             AssertSql(
                 @"SELECT [v].[Name], [v].[Operator_Name]
@@ -107,9 +108,9 @@ FROM [Vehicles] AS [v]
 INNER JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]");
         }
 
-        public override void Can_query_shared_derived_hierarchy()
+        public override async Task Can_query_shared_derived_hierarchy()
         {
-            base.Can_query_shared_derived_hierarchy();
+            await base.Can_query_shared_derived_hierarchy();
 
             AssertSql(
                 @"SELECT [v].[Name], [v].[Capacity], [v].[FuelTank_Discriminator], [v].[FuelType], [v].[GrainGeometry]
@@ -136,9 +137,9 @@ INNER JOIN (
 WHERE [v1].[FuelTank_Discriminator] IS NOT NULL");
         }
 
-        public override void Can_query_shared_derived_nonhierarchy()
+        public override async Task Can_query_shared_derived_nonhierarchy()
         {
-            base.Can_query_shared_derived_nonhierarchy();
+            await base.Can_query_shared_derived_nonhierarchy();
 
             AssertSql(
                 @"SELECT [v].[Name], [v].[Capacity], [v].[FuelType]
@@ -165,9 +166,9 @@ INNER JOIN (
 WHERE [v1].[FuelType] IS NOT NULL OR [v1].[Capacity] IS NOT NULL");
         }
 
-        public override void Can_query_shared_derived_nonhierarchy_all_required()
+        public override async Task Can_query_shared_derived_nonhierarchy_all_required()
         {
-            base.Can_query_shared_derived_nonhierarchy_all_required();
+            await base.Can_query_shared_derived_nonhierarchy_all_required();
 
             AssertSql(
                 @"SELECT [v].[Name], [v].[Capacity], [v].[FuelType]
@@ -194,9 +195,9 @@ INNER JOIN (
 WHERE [v1].[FuelType] IS NOT NULL AND [v1].[Capacity] IS NOT NULL");
         }
 
-        public override void Can_change_dependent_instance_non_derived()
+        public override async Task Can_change_dependent_instance_non_derived()
         {
-            base.Can_change_dependent_instance_non_derived();
+            await base.Can_change_dependent_instance_non_derived();
 
             AssertSql(
                 @"@p3='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
@@ -219,9 +220,9 @@ LEFT JOIN (
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
         }
 
-        public override void Can_change_principal_instance_non_derived()
+        public override async Task Can_change_principal_instance_non_derived()
         {
-            base.Can_change_principal_instance_non_derived();
+            await base.Can_change_principal_instance_non_derived();
 
             AssertSql(
                 @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)

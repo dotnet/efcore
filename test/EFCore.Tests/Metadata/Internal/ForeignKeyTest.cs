@@ -19,32 +19,72 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKey = new FakeForeignKey();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IForeignKey_throws), nameof(IForeignKey), nameof(FakeForeignKey)),
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IForeignKey_throws), nameof(IReadOnlyForeignKey), nameof(FakeForeignKey)),
                 Assert.Throws<NotSupportedException>(() => foreignKey.AsForeignKey()).Message);
         }
 
-        public class FakeForeignKey : IForeignKey
+        public class FakeForeignKey : Annotatable, IReadOnlyForeignKey
         {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
-            public IEntityType DeclaringEntityType { get; }
-            public IReadOnlyList<IProperty> Properties { get; }
-            public IEntityType PrincipalEntityType { get; }
-            public IKey PrincipalKey { get; }
-            public INavigation DependentToPrincipal { get; set; }
-            public INavigation PrincipalToDependent { get; set; }
+            public IReadOnlyEntityType DeclaringEntityType { get; }
+            public IReadOnlyList<IReadOnlyProperty> Properties { get; }
+            public IReadOnlyEntityType PrincipalEntityType { get; }
+            public IReadOnlyKey PrincipalKey { get; }
+            public IReadOnlyNavigation DependentToPrincipal { get; set; }
+            public IReadOnlyNavigation PrincipalToDependent { get; set; }
             public bool IsUnique { get; }
             public bool IsRequired { get; }
             public bool IsRequiredDependent { get; }
             public bool IsOwnership { get; }
             public DeleteBehavior DeleteBehavior { get; }
+        }
+
+        [ConditionalFact]
+        public void Throws_when_model_is_readonly()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType("E");
+            var dependentProp = entityType.AddProperty("P", typeof(int));
+            var principalProp = entityType.AddProperty("Id", typeof(int));
+            var key = entityType.AddKey(principalProp);
+            var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, key, entityType);
+
+            model.FinalizeModel();
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.AddForeignKey(new[] { principalProp }, key, entityType)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.RemoveForeignKey(foreignKey)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => foreignKey.IsRequired = false).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => foreignKey.IsRequiredDependent = false).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => foreignKey.IsOwnership = false).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => foreignKey.IsUnique = false).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => foreignKey.SetDependentToPrincipal((string)null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => foreignKey.SetPrincipalToDependent((string)null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => foreignKey.SetProperties(new[] { principalProp }, key)).Message);
         }
 
         [ConditionalFact]
@@ -83,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var principalKey = dependentEntityType.SetPrimaryKey(fk);
 
             Assert.Equal(
-                CoreStrings.ForeignKeyReferencedEntityKeyMismatch("{'Fk'}", "R"),
+                CoreStrings.ForeignKeyReferencedEntityKeyMismatch("{'Fk'}", "R (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
                     () => dependentEntityType.AddForeignKey(new[] { fk }, principalKey, principalEntityType)).Message);
         }
@@ -102,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             principalEntityType.SetPrimaryKey(idProperty);
 
             Assert.Equal(
-                CoreStrings.ForeignKeyCountMismatch("{'P1', 'P2'}", "D", "{'Id'}", "P"),
+                CoreStrings.ForeignKeyCountMismatch("{'P1', 'P2'}", "D (Dictionary<string, object>)", "{'Id'}", "P (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
                         () => dependentEntityType.AddForeignKey(
                             new[] { dependentProperty1, dependentProperty2 }, principalEntityType.FindPrimaryKey(), principalEntityType))
@@ -124,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 new[] { property2, property3 });
 
             Assert.Equal(
-                CoreStrings.ForeignKeyTypeMismatch("{'P1', 'P2'}", "D", "{'Id1', 'Id2'}", "P"),
+                CoreStrings.ForeignKeyTypeMismatch("{'P1' : int, 'P2' : string}", "D (Dictionary<string, object>)", "{'Id1' : int, 'Id2' : int}", "P (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
                         () => dependentEntityType.AddForeignKey(
                             new[] { dependentProperty1, dependentProperty2 }, principalEntityType.FindPrimaryKey(), principalEntityType))
@@ -589,10 +629,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { fk.DependentToPrincipal }, fk.FindNavigationsTo(fk.PrincipalEntityType));
             Assert.Equal(new[] { fk.PrincipalToDependent }, fk.FindNavigationsTo(fk.DeclaringEntityType));
 
+#pragma warning disable CS0612 // Type or member is obsolete
             Assert.Same(fk.DeclaringEntityType, fk.ResolveEntityTypeInHierarchy(fk.DeclaringEntityType));
             Assert.Same(fk.PrincipalEntityType, fk.ResolveEntityTypeInHierarchy(fk.PrincipalEntityType));
             Assert.Same(fk.PrincipalEntityType, fk.ResolveOtherEntityTypeInHierarchy(fk.DeclaringEntityType));
             Assert.Same(fk.DeclaringEntityType, fk.ResolveOtherEntityTypeInHierarchy(fk.PrincipalEntityType));
+#pragma warning restore CS0612 // Type or member is obsolete
             Assert.Equal(new[] { fk.PrincipalToDependent }, fk.FindNavigationsFromInHierarchy(fk.PrincipalEntityType));
             Assert.Equal(new[] { fk.DependentToPrincipal }, fk.FindNavigationsFromInHierarchy(fk.DeclaringEntityType));
             Assert.Equal(new[] { fk.DependentToPrincipal }, fk.FindNavigationsToInHierarchy(fk.PrincipalEntityType));
@@ -618,10 +660,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(fk.DependentToPrincipal, fk.FindNavigationsTo(fk.PrincipalEntityType).SingleOrDefault());
             Assert.Same(fk.PrincipalToDependent, fk.FindNavigationsTo(fk.DeclaringEntityType).SingleOrDefault());
 
+#pragma warning disable CS0612 // Type or member is obsolete
             Assert.Same(fk.DeclaringEntityType, fk.ResolveEntityTypeInHierarchy(fk.DeclaringEntityType));
             Assert.Same(fk.PrincipalEntityType, fk.ResolveEntityTypeInHierarchy(fk.PrincipalEntityType));
             Assert.Same(fk.PrincipalEntityType, fk.ResolveOtherEntityTypeInHierarchy(fk.DeclaringEntityType));
             Assert.Same(fk.DeclaringEntityType, fk.ResolveOtherEntityTypeInHierarchy(fk.PrincipalEntityType));
+#pragma warning restore CS0612 // Type or member is obsolete
             Assert.Same(fk.PrincipalToDependent, fk.FindNavigationsFromInHierarchy(fk.PrincipalEntityType).SingleOrDefault());
             Assert.Same(fk.DependentToPrincipal, fk.FindNavigationsFromInHierarchy(fk.DeclaringEntityType).SingleOrDefault());
             Assert.Same(fk.DependentToPrincipal, fk.FindNavigationsToInHierarchy(fk.PrincipalEntityType).SingleOrDefault());
@@ -652,10 +696,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     derivedDependent.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsTo(derivedDependent)).Message);
 
+#pragma warning disable CS0612 // Type or member is obsolete
             Assert.Same(fk.DeclaringEntityType, fk.ResolveEntityTypeInHierarchy(derivedDependent));
             Assert.Same(fk.PrincipalEntityType, fk.ResolveEntityTypeInHierarchy(derivedPrincipal));
             Assert.Same(fk.PrincipalEntityType, fk.ResolveOtherEntityTypeInHierarchy(derivedDependent));
             Assert.Same(fk.DeclaringEntityType, fk.ResolveOtherEntityTypeInHierarchy(derivedPrincipal));
+#pragma warning restore CS0612 // Type or member is obsolete
             Assert.Equal(new[] { fk.PrincipalToDependent }.Where(n => n != null), fk.FindNavigationsFromInHierarchy(derivedPrincipal));
             Assert.Equal(new[] { fk.DependentToPrincipal }.Where(n => n != null), fk.FindNavigationsFromInHierarchy(derivedDependent));
             Assert.Equal(new[] { fk.DependentToPrincipal }.Where(n => n != null), fk.FindNavigationsToInHierarchy(derivedPrincipal));
@@ -709,6 +755,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(fk.DependentToPrincipal, fk.FindNavigationsTo(fk.PrincipalEntityType).SingleOrDefault());
             Assert.Same(fk.PrincipalToDependent, fk.FindNavigationsTo(fk.DeclaringEntityType).SingleOrDefault());
 
+#pragma warning disable CS0612 // Type or member is obsolete
             Assert.Equal(
                 CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
                     fk.DeclaringEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
@@ -730,6 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     fk.PrincipalEntityType.DisplayName(), fk.Properties.Format(), fk.PrincipalEntityType.DisplayName(),
                     fk.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(fk.PrincipalEntityType)).Message);
+#pragma warning restore CS0612 // Type or member is obsolete
 
             Assert.Equal(
                 new[] { fk.PrincipalToDependent, fk.DependentToPrincipal }.Where(n => n != null),
@@ -778,6 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationsTo(unrelatedType)).Message);
 
+#pragma warning disable CS0612 // Type or member is obsolete
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(
                     unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
@@ -795,6 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.EntityTypeNotInRelationship(
                     unrelatedType.DisplayName(), fk.DeclaringEntityType.DisplayName(), fk.PrincipalEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(unrelatedType)).Message);
+#pragma warning restore CS0612 // Type or member is obsolete
 
             Assert.Equal(
                 CoreStrings.EntityTypeNotInRelationship(

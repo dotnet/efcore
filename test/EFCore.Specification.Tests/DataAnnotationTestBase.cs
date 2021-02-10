@@ -55,7 +55,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual IModel Validate(ModelBuilder modelBuilder)
-            => modelBuilder.FinalizeModel();
+        {
+            var context = CreateContext();
+            var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
+            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
+            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), logger);
+        }
 
         protected class Person
         {
@@ -1541,7 +1546,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2264,7 +2269,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public Guid Id { get; set; }
             private readonly string _email = string.Empty;
-            private readonly List<Profile13694> _profiles = new List<Profile13694>();
+            private readonly List<Profile13694> _profiles = new();
         }
 
         protected class Profile13694
@@ -2293,7 +2298,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Set<BookDetails>().Add(new BookDetails());
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2329,7 +2334,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2353,7 +2358,7 @@ namespace Microsoft.EntityFrameworkCore
                         new Two { Data = "ValidButLongString" });
 
                     Assert.Equal(
-                        "An error occurred while updating the entries. See the inner exception for details.",
+                        "An error occurred while saving the entity changes. See the inner exception for details.",
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges()).Message);
                 });
         }
@@ -2376,6 +2381,91 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
                 });
+        }
+
+        [ConditionalFact]
+        public virtual void UnicodeAttribute_sets_unicode_for_properties_and_fields()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<UnicodeAnnotationClass>(b =>
+            {
+                b.Property(e => e.PersonMiddleName);
+                b.Property(e => e.PersonAddress);
+            });
+
+            Validate(modelBuilder);
+
+            Assert.True(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonFirstName").IsUnicode());
+            Assert.False(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonLastName").IsUnicode());
+
+            Assert.True(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonMiddleName").IsUnicode());
+            Assert.False(GetProperty<UnicodeAnnotationClass>(modelBuilder, "PersonAddress").IsUnicode());
+        }
+
+        protected class UnicodeAnnotationClass
+        {
+            public int Id { get; set; }
+
+            [Unicode]
+            public string PersonFirstName { get; set; }
+
+            [Unicode(false)]
+            public string PersonLastName { get; set; }
+
+            [Unicode]
+            public string PersonMiddleName;
+
+            [Unicode(false)]
+            public string PersonAddress;
+        }
+
+        [ConditionalFact]
+        public virtual void PrecisionAttribute_sets_precision_for_properties_and_fields()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<PrecisionAnnotationClass>(b =>
+            {
+                b.Property(e => e.DecimalField);
+                b.Property(e => e.DateTimeField);
+                b.Property(e => e.DateTimeOffsetField);
+            });
+
+            Validate(modelBuilder);
+
+            Assert.Equal(10, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DecimalProperty").GetPrecision());
+            Assert.Equal(2, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DecimalProperty").GetScale());
+            Assert.Equal(5, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DateTimeProperty").GetPrecision());
+            Assert.Equal(5, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DateTimeOffsetProperty").GetPrecision());
+
+            Assert.Equal(10, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DecimalField").GetPrecision());
+            Assert.Equal(2, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DecimalField").GetScale());
+            Assert.Equal(5, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DateTimeField").GetPrecision());
+            Assert.Equal(5, GetProperty<PrecisionAnnotationClass>(modelBuilder, "DateTimeOffsetField").GetPrecision());
+        }
+
+        protected class PrecisionAnnotationClass
+        {
+            public int Id { get; set; }
+
+            [Precision(10, 2)]
+            public decimal DecimalProperty { get; set; }
+
+            [Precision(5)]
+            public DateTime DateTimeProperty { get; set; }
+
+            [Precision(5)]
+            public DateTimeOffset DateTimeOffsetProperty { get; set; }
+
+            [Precision(10, 2)]
+            public string DecimalField;
+
+            [Precision(5)]
+            public DateTime DateTimeField;
+
+            [Precision(5)]
+            public DateTimeOffset DateTimeOffsetField;
         }
 
         [ConditionalFact]

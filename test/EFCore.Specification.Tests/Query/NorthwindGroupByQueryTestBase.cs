@@ -2329,6 +2329,35 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_after_skip_0_take_0(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Skip(0)
+                    .Take(0)
+                    .GroupBy(o => o.CustomerID)
+                    .Select(g => new { g.Key, Total = g.Count() }),
+                elementSorter: o => o.Key);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_skip_0_take_0_aggregate(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(e => e.OrderID > 10500)
+                    .GroupBy(o => o.CustomerID)
+                    .Skip(0)
+                    .Take(0)
+                    .Select(g => new { g.Key, Total = g.Count() }),
+                elementSorter: o => o.Key);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_aggregate_followed_another_GroupBy_aggregate(bool async)
         {
             return AssertQuery(
@@ -2978,6 +3007,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .GroupBy(o => o.CustomerID)
                             .Select(g => new { CustomerID = g.Key, Sequence = 1 })),
                 elementSorter: e => (e.CustomerID, e.Sequence));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task AsEnumerable_in_subquery_for_GroupBy(bool async)
+        {
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>()
+                        .Where(c => c.CustomerID.StartsWith("F"))
+                        .Select(c => new
+                        {
+                            Customer = c,
+                            Orders = ss.Set<Order>()
+                                .Where(o => o.CustomerID == c.CustomerID)
+                                .AsEnumerable()
+                                .GroupBy(o => o.CustomerID)
+                                .Select(g => g.OrderByDescending(e => e.OrderDate).FirstOrDefault())
+                                .ToList()
+                        }),
+                    elementSorter: e => e.Customer.CustomerID,
+                    elementAsserter: (e, a) =>
+                    {
+                        AssertEqual(e.Customer, a.Customer);
+                        AssertCollection(e.Orders, a.Orders);
+                    }));
         }
 
         #endregion

@@ -7,6 +7,8 @@ using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public TransactionStartingEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             IsolationLevel isolationLevel,
             Guid transactionId,
             Guid connectionId,

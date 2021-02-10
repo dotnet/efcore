@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 {
     /// <summary>
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         public StringEnumConverter(
             [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
             [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }
@@ -39,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected static new Expression<Func<TEnum, string>> ToString()
-            => v => v.ToString();
+            => v => v.ToString()!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

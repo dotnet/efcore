@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = new FakeProperty();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IProperty), nameof(FakeProperty)),
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IReadOnlyProperty), nameof(FakeProperty)),
                 Assert.Throws<NotSupportedException>(() => property.AsProperty()).Message);
         }
 
@@ -33,31 +33,101 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = new FakeProperty();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IPropertyBase), nameof(FakeProperty)),
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IReadOnlyPropertyBase), nameof(FakeProperty)),
                 Assert.Throws<NotSupportedException>(() => property.AsPropertyBase()).Message);
         }
 
-        private class FakeProperty : IProperty
+        private class FakeProperty : Annotatable, IReadOnlyProperty
         {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
             public string Name { get; }
-            public ITypeBase DeclaringType { get; }
+            public IReadOnlyTypeBase DeclaringType { get; }
             public Type ClrType { get; }
-            public IEntityType DeclaringEntityType { get; }
+            public IReadOnlyEntityType DeclaringEntityType { get; }
             public bool IsNullable { get; }
             public bool IsStoreGeneratedAlways { get; }
             public ValueGenerated ValueGenerated { get; }
             public bool IsConcurrencyToken { get; }
             public PropertyInfo PropertyInfo { get; }
             public FieldInfo FieldInfo { get; }
+        }
+
+        [ConditionalFact]
+        public void Throws_when_model_is_readonly()
+        {
+            var model = CreateModel();
+
+            var entityType = model.AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Kake", typeof(string));
+
+            model.FinalizeModel();
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Kuke", typeof(string))).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.IsNullable = false).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.IsConcurrencyToken = false).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.ValueGenerated = ValueGenerated.OnAddOrUpdate).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetAfterSaveBehavior(PropertySaveBehavior.Throw)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetBeforeSaveBehavior(PropertySaveBehavior.Throw)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetField(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetIsUnicode(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetMaxLength(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetPrecision(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetScale(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetPropertyAccessMode(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetProviderClrType(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetValueComparer(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetValueConverter(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetValueGeneratorFactory(null)).Message);
         }
 
         [ConditionalFact]

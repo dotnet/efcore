@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -77,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = blockSize;
-            var state = new SqlServerSequenceValueGeneratorState(sequence);
+            var state = new SqlServerSequenceValueGeneratorState((ISequence)sequence);
 
             var generator = new SqlServerSequenceHiLoValueGenerator<TValue>(
                 new FakeRawSqlCommandBuilder(blockSize),
@@ -132,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = blockSize;
-            var state = new SqlServerSequenceValueGeneratorState(sequence);
+            var state = new SqlServerSequenceValueGeneratorState((ISequence)sequence);
 
             var executor = new FakeRawSqlCommandBuilder(blockSize);
             var sqlGenerator = new SqlServerUpdateSqlGenerator(
@@ -182,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = 4;
-            var state = new SqlServerSequenceValueGeneratorState(sequence);
+            var state = new SqlServerSequenceValueGeneratorState((ISequence)sequence);
 
             var generator = new SqlServerSequenceHiLoValueGenerator<int>(
                 new FakeRawSqlCommandBuilder(4),
@@ -224,9 +226,7 @@ namespace Microsoft.EntityFrameworkCore
             public RawSqlCommand Build(
                 string sql,
                 IEnumerable<object> parameters)
-                => new RawSqlCommand(
-                    new FakeRelationalCommand(this),
-                    new Dictionary<string, object>());
+                => new(new FakeRelationalCommand(this), new Dictionary<string, object>());
 
             private class FakeRelationalCommand : IRelationalCommand
             {
@@ -277,6 +277,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     throw new NotImplementedException();
                 }
+
+                public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
+                    => throw new NotImplementedException();
             }
         }
     }

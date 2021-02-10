@@ -14,6 +14,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -44,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="member"> The <see cref="MemberInfo"></see> that describes the field or property to be accessed. </param>
         /// <returns> The <see cref="MemberExpression"></see> that results from calling the appropriate factory method. </returns>
         public static MemberExpression MakeMemberAccess(
-            [CanBeNull] this Expression expression,
+            [CanBeNull] this Expression? expression,
             [NotNull] MemberInfo member)
         {
             var memberDeclaringClrType = member.DeclaringType;
@@ -76,14 +79,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     BindingFlags.NonPublic | BindingFlags.Instance,
                     null,
                     new object[] { memberExpression, valueExpression },
-                    null);
+                    null)!;
             }
 
             return Expression.Assign(memberExpression, valueExpression);
         }
 
         private static readonly Type _assignBinaryExpressionType
-            = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
+            // TODO-Nullable: Somethings are unexplainable
+            = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression", throwOnError: true)!;
 
         /// <summary>
         ///     If the given a method-call expression represents a call to <see cref="EF.Property{TProperty}" />, then this
@@ -95,14 +99,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> <see langword="true" /> if the method-call was for <see cref="EF.Property{TProperty}" />; <see langword="false" /> otherwise. </returns>
         public static bool TryGetEFPropertyArguments(
             [NotNull] this MethodCallExpression methodCallExpression,
-            out Expression entityExpression,
-            out string propertyName)
+            [CA.NotNullWhen(true)] out Expression? entityExpression,
+            [CA.NotNullWhen(true)] out string? propertyName)
         {
             if (methodCallExpression.Method.IsEFPropertyMethod()
                 && methodCallExpression.Arguments[1] is ConstantExpression propertyNameExpression)
             {
                 entityExpression = methodCallExpression.Arguments[0];
-                propertyName = (string)propertyNameExpression.Value;
+                propertyName = (string)propertyNameExpression.Value!;
                 return true;
             }
 
@@ -122,14 +126,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public static bool TryGetIndexerArguments(
             [NotNull] this MethodCallExpression methodCallExpression,
             [NotNull] IModel model,
-            out Expression entityExpression,
-            out string propertyName)
+            [CA.NotNullWhen(true)] out Expression? entityExpression,
+            [CA.NotNullWhen(true)] out string? propertyName)
         {
             if (model.IsIndexerMethod(methodCallExpression.Method)
                 && methodCallExpression.Arguments[0] is ConstantExpression propertyNameExpression)
             {
-                entityExpression = methodCallExpression.Object;
-                propertyName = (string)propertyNameExpression.Value;
+                entityExpression = methodCallExpression.Object!;
+                propertyName = (string)propertyNameExpression.Value!;
+
                 return true;
             }
 
@@ -191,13 +196,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var propertyGetter = propertyInfo.GetMethod;
                 var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
-                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => propertyGetter.Equals(p));
+                var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => p.Equals(propertyGetter));
                 var targetMethod = interfaceMapping.TargetMethods[index];
                 foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
                 {
                     if (targetMethod.Equals(runtimeProperty.GetMethod))
                     {
-                        return runtimeProperty as TMemberInfo;
+                        return (TMemberInfo)(object)runtimeProperty;
                     }
                 }
             }
@@ -294,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] this Expression valueBuffer,
             [NotNull] Type type,
             int index,
-            [CanBeNull] IPropertyBase property)
+            [CanBeNull] IPropertyBase? property)
             => Expression.Call(
                 ValueBufferTryReadValueMethod.MakeGenericMethod(type),
                 valueBuffer,
@@ -312,8 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         public static readonly MethodInfo ValueBufferTryReadValueMethod
-            = typeof(ExpressionExtensions).GetTypeInfo()
-                .GetDeclaredMethod(nameof(ValueBufferTryReadValue));
+            = typeof(ExpressionExtensions).GetRequiredDeclaredMethod(nameof(ValueBufferTryReadValue));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue ValueBufferTryReadValue<TValue>(
@@ -322,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             int index,
             IPropertyBase property)
 #pragma warning restore IDE0060 // Remove unused parameter
-            => (TValue)valueBuffer[index];
+            => (TValue)valueBuffer[index]!;
 
         /// <summary>
         ///     <para>
@@ -365,6 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] this Expression target,
             [NotNull] IPropertyBase property,
             bool makeNullable = true)
+            // No shadow entities in runtime
             => CreateEFPropertyExpression(target, property.DeclaringType.ClrType, property.ClrType, property.Name, makeNullable);
 
         private static Expression CreateEFPropertyExpression(

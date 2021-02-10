@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -34,62 +35,62 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             protected void AssertEqual(
-                IEnumerable<IProperty> expectedProperties,
-                IEnumerable<IProperty> actualProperties,
+                IEnumerable<IReadOnlyProperty> expectedProperties,
+                IEnumerable<IReadOnlyProperty> actualProperties,
                 PropertyComparer propertyComparer = null)
             {
                 propertyComparer ??= new PropertyComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<IProperty>(expectedProperties, propertyComparer),
-                    new SortedSet<IProperty>(actualProperties, propertyComparer),
+                    new SortedSet<IReadOnlyProperty>(expectedProperties, propertyComparer),
+                    new SortedSet<IReadOnlyProperty>(actualProperties, propertyComparer),
                     propertyComparer);
             }
 
             protected void AssertEqual(
-                IEnumerable<INavigation> expectedNavigations,
-                IEnumerable<INavigation> actualNavigations,
+                IEnumerable<IReadOnlyNavigation> expectedNavigations,
+                IEnumerable<IReadOnlyNavigation> actualNavigations,
                 NavigationComparer navigationComparer = null)
             {
                 navigationComparer ??= new NavigationComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<INavigation>(expectedNavigations, navigationComparer),
-                    new SortedSet<INavigation>(actualNavigations, navigationComparer),
+                    new SortedSet<IReadOnlyNavigation>(expectedNavigations, navigationComparer),
+                    new SortedSet<IReadOnlyNavigation>(actualNavigations, navigationComparer),
                     navigationComparer);
             }
 
             protected void AssertEqual(
-                IEnumerable<IKey> expectedKeys,
-                IEnumerable<IKey> actualKeys,
+                IEnumerable<IReadOnlyKey> expectedKeys,
+                IEnumerable<IReadOnlyKey> actualKeys,
                 TestKeyComparer testKeyComparer = null)
             {
                 testKeyComparer ??= new TestKeyComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<IKey>(expectedKeys, testKeyComparer),
-                    new SortedSet<IKey>(actualKeys, testKeyComparer),
+                    new SortedSet<IReadOnlyKey>(expectedKeys, testKeyComparer),
+                    new SortedSet<IReadOnlyKey>(actualKeys, testKeyComparer),
                     testKeyComparer);
             }
 
             protected void AssertEqual(
-                IEnumerable<IForeignKey> expectedForeignKeys,
-                IEnumerable<IForeignKey> actualForeignKeys,
+                IEnumerable<IReadOnlyForeignKey> expectedForeignKeys,
+                IEnumerable<IReadOnlyForeignKey> actualForeignKeys,
                 ForeignKeyStrictComparer foreignKeyComparer = null)
             {
                 foreignKeyComparer ??= new ForeignKeyStrictComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<IForeignKey>(expectedForeignKeys, foreignKeyComparer),
-                    new SortedSet<IForeignKey>(actualForeignKeys, foreignKeyComparer),
+                    new SortedSet<IReadOnlyForeignKey>(expectedForeignKeys, foreignKeyComparer),
+                    new SortedSet<IReadOnlyForeignKey>(actualForeignKeys, foreignKeyComparer),
                     foreignKeyComparer);
             }
 
             protected void AssertEqual(
-                IEnumerable<IIndex> expectedIndexes,
-                IEnumerable<IIndex> actualIndexes,
+                IEnumerable<IReadOnlyIndex> expectedIndexes,
+                IEnumerable<IReadOnlyIndex> actualIndexes,
                 TestIndexComparer testIndexComparer = null)
             {
                 testIndexComparer ??= new TestIndexComparer(compareAnnotations: false);
                 Assert.Equal(
-                    new SortedSet<IIndex>(expectedIndexes, testIndexComparer),
-                    new SortedSet<IIndex>(actualIndexes, testIndexComparer),
+                    new SortedSet<IReadOnlyIndex>(expectedIndexes, testIndexComparer),
+                    new SortedSet<IReadOnlyIndex>(actualIndexes, testIndexComparer),
                     testIndexComparer);
             }
 
@@ -116,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var options = new LoggingOptions();
                 options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
                 ValidationLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name);
-                var validationLogger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
+                ValidationLogger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                     ValidationLoggerFactory,
                     options,
                     new DiagnosticListener("Fake"),
@@ -131,8 +132,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     testHelpers.LoggingDefinitions,
                     new NullDbContextLogger());
 
-                ModelBuilder = testHelpers.CreateConventionBuilder(modelLogger, validationLogger);
+                ModelBuilder = testHelpers.CreateConventionBuilder(modelLogger, ValidationLogger);
+                TestHelpers = testHelpers;
             }
+
+            protected virtual TestHelpers TestHelpers { get; }
 
             public virtual IMutableModel Model
                 => ModelBuilder.Model;
@@ -140,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public ModelBuilder ModelBuilder { get; }
             public ListLoggerFactory ValidationLoggerFactory { get; }
             public ListLoggerFactory ModelLoggerFactory { get; }
+            protected virtual DiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; }
 
             public TestModelBuilder HasAnnotation(string annotation, object value)
             {
@@ -166,7 +171,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 where TEntity : class;
 
             public virtual IModel FinalizeModel()
-                => ModelBuilder.FinalizeModel();
+            {
+                var serviceProvider = TestHelpers.CreateContextServices();
+                var modelRuntimeInitializer = serviceProvider.GetRequiredService<IModelRuntimeInitializer>();
+
+                return modelRuntimeInitializer.Initialize(ModelBuilder.FinalizeModel(), ValidationLogger);
+            }
 
             public virtual string GetDisplayName(Type entityType)
                 => entityType.Name;
@@ -385,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 where TGenerator : ValueGenerator;
 
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
-            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory);
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory);
 
             public abstract TestPropertyBuilder<TProperty> HasField(string fieldName);
             public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);

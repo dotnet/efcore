@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -35,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         TResult Execute<TState, TResult>(
             [CanBeNull] TState state,
             [NotNull] Func<DbContext, TState, TResult> operation,
-            [CanBeNull] Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded);
+            [CanBeNull] Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded);
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
@@ -59,10 +61,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<TResult> ExecuteAsync<TState, TResult>(
             [CanBeNull] TState state,
             [NotNull] Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
-            [CanBeNull] Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
+            [CanBeNull] Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
             CancellationToken cancellationToken = default);
     }
 }

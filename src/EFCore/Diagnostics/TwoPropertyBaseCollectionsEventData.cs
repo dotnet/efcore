@@ -7,6 +7,8 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -25,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public TwoPropertyBaseCollectionsEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IReadOnlyList<IPropertyBase> firstPropertyCollection,
-            [NotNull] IReadOnlyList<IPropertyBase> secondPropertyCollection)
+            [NotNull] IReadOnlyList<IReadOnlyPropertyBase> firstPropertyCollection,
+            [NotNull] IReadOnlyList<IReadOnlyPropertyBase> secondPropertyCollection)
             : base(eventDefinition, messageGenerator)
         {
             FirstPropertyCollection = firstPropertyCollection;
@@ -36,11 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The first property collection.
         /// </summary>
-        public virtual IReadOnlyList<IPropertyBase> FirstPropertyCollection { get; }
+        public virtual IReadOnlyList<IReadOnlyPropertyBase> FirstPropertyCollection { get; }
 
         /// <summary>
         ///     The second property collection.
         /// </summary>
-        public virtual IReadOnlyList<IPropertyBase> SecondPropertyCollection { get; }
+        public virtual IReadOnlyList<IReadOnlyPropertyBase> SecondPropertyCollection { get; }
     }
 }

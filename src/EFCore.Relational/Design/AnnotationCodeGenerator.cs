@@ -29,23 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Design
     {
         private static readonly ISet<string> _ignoredRelationalAnnotations = new HashSet<string>
         {
-            RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.CheckConstraints,
             RelationalAnnotationNames.Sequences,
             RelationalAnnotationNames.DbFunctions,
-            RelationalAnnotationNames.DefaultMappings,
-            RelationalAnnotationNames.DefaultColumnMappings,
-            RelationalAnnotationNames.TableMappings,
-            RelationalAnnotationNames.TableColumnMappings,
-            RelationalAnnotationNames.ViewMappings,
-            RelationalAnnotationNames.ViewColumnMappings,
-            RelationalAnnotationNames.FunctionMappings,
-            RelationalAnnotationNames.FunctionColumnMappings,
-            RelationalAnnotationNames.SqlQueryMappings,
-            RelationalAnnotationNames.SqlQueryColumnMappings,
-            RelationalAnnotationNames.ForeignKeyMappings,
-            RelationalAnnotationNames.TableIndexMappings,
-            RelationalAnnotationNames.UniqueConstraintMappings,
             RelationalAnnotationNames.RelationalOverrides
         };
 
@@ -185,10 +171,13 @@ namespace Microsoft.EntityFrameworkCore.Design
                                 computedColumnSql));
             }
 
-            GenerateSimpleFluentApiCall(
-                annotations,
-                RelationalAnnotationNames.IsFixedLength, nameof(RelationalPropertyBuilderExtensions.IsFixedLength),
-                methodCallCodeFragments);
+            if (TryGetAndRemove(annotations, RelationalAnnotationNames.IsFixedLength, out bool isFixedLength))
+            {
+                methodCallCodeFragments.Add(
+                        isFixedLength
+                        ? new MethodCallCodeFragment(nameof(RelationalAnnotationNames.IsFixedLength))
+                        : new MethodCallCodeFragment(nameof(RelationalAnnotationNames.IsFixedLength), isFixedLength));
+            }
 
             GenerateSimpleFluentApiCall(
                 annotations,

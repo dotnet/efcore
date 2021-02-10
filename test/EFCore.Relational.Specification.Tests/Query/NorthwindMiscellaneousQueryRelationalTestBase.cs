@@ -3,6 +3,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -44,6 +45,48 @@ namespace Microsoft.EntityFrameworkCore.Query
                     e, a,
                     elementAsserter: (eo, ao) => AssertInclude(eo, ao, new ExpectedInclude<Order>(o => o.OrderDetails))),
                 entryCount: 227);
+        }
+
+        public override Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
+        {
+            return AssertTranslationFailedWithDetails(() => base.Using_static_string_Equals_with_StringComparison_throws_informative_error(async),
+                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+        }
+
+        public override Task Using_string_Equals_with_StringComparison_throws_informative_error(bool async)
+        {
+            return AssertTranslationFailedWithDetails(() => base.Using_string_Equals_with_StringComparison_throws_informative_error(async),
+                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+        }
+
+        public override Task Random_next_is_not_funcletized_1(bool async)
+        {
+            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_1(async));
+        }
+
+        public override Task Random_next_is_not_funcletized_2(bool async)
+        {
+            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_2(async));
+        }
+
+        public override Task Random_next_is_not_funcletized_3(bool async)
+        {
+            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_3(async));
+        }
+
+        public override Task Random_next_is_not_funcletized_4(bool async)
+        {
+            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_4(async));
+        }
+
+        public override Task Random_next_is_not_funcletized_5(bool async)
+        {
+            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_5(async));
+        }
+
+        public override Task Random_next_is_not_funcletized_6(bool async)
+        {
+            return AssertTranslationFailed(() => base.Random_next_is_not_funcletized_6(async));
         }
 
         protected virtual bool CanExecuteQueryString

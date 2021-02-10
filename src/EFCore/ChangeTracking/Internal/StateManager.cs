@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -36,8 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class StateManager : IStateManager
     {
-        private readonly EntityReferenceMap _entityReferenceMap
-            = new EntityReferenceMap(hasSubMap: true);
+        private readonly EntityReferenceMap _entityReferenceMap = new(hasSubMap: true);
 
         private IDictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>> _referencedUntrackedEntities;
         private IIdentityMap _identityMap0;
@@ -177,8 +177,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Model
-            => _model;
+        public virtual IModel Model => _model;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -210,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var entityType = _model.FindRuntimeEntityType(entity.GetType());
                 if (entityType == null)
                 {
-                    if (_model.HasEntityTypeWithDefiningNavigation(entity.GetType()))
+                    if (_model.IsShared(entity.GetType()))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.UntrackedDependentEntity(
@@ -251,20 +250,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = TryGetEntry(entity, entityType);
             if (entry == null)
             {
-                if (!entityType.HasSharedClrType)
+                var runtimeEntityType = _model.FindRuntimeEntityType(entity.GetType());
+                if (runtimeEntityType != null)
                 {
-                    var runtimeEntityType = _model.FindRuntimeEntityType(entity.GetType());
-                    if (runtimeEntityType != null)
+                    if (!entityType.IsAssignableFrom(runtimeEntityType))
                     {
-                        if (!entityType.IsAssignableFrom(runtimeEntityType))
-                        {
-                            throw new InvalidOperationException(
-                                CoreStrings.TrackingTypeMismatch(
-                                    runtimeEntityType.DisplayName(), entityType.DisplayName()));
-                        }
-
-                        entityType = runtimeEntityType;
+                        throw new InvalidOperationException(
+                            CoreStrings.TrackingTypeMismatch(
+                                runtimeEntityType.DisplayName(), entityType.DisplayName()));
                     }
+
+                    entityType = runtimeEntityType;
                 }
 
                 if (entityType.FindPrimaryKey() == null)
@@ -306,9 +302,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var valueBuffer = new ValueBuffer(valuesArray);
-            var entity = entityType.HasClrType()
-                ? EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context))
-                : null;
+            var entity = EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context));
 
             var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
             var entry = _internalEntityEntryFactory.Create(this, entityType, entity, shadowPropertyValueBuffer);
@@ -324,10 +318,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState? oldState)
         {
             var entityType = entry.EntityType;
-            if (entityType.HasDefiningNavigation())
+            if (entityType.HasSharedClrType)
             {
                 var mapKey = entry.Entity ?? entry;
-                foreach (var otherType in _model.GetEntityTypes(entityType.Name)
+                foreach (var otherType in _model.GetEntityTypes(entityType.ClrType)
                     .Where(et => et != entityType && TryGetEntry(mapKey, et) != null))
                 {
                     UpdateLogger.DuplicateDependentEntityTypeInstanceWarning(entityType, otherType);
@@ -357,7 +351,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var clrType = entity.GetType();
             var entityType = baseEntityType.HasSharedClrType
                 || baseEntityType.ClrType == clrType
-                || baseEntityType.HasDefiningNavigation()
                     ? baseEntityType
                     : _model.FindRuntimeEntityType(clrType);
 
@@ -572,14 +565,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 throw new InvalidOperationException(CoreStrings.WrongStateManager(entityType.DisplayName()));
             }
 
-            var mapKey = entry.Entity ?? entry;
-            var existingEntry = TryGetEntry(mapKey, entityType);
+            #if DEBUG
+            var existingEntry = TryGetEntry(entry.Entity ?? entry, entityType);
 
-            if (existingEntry != null
-                && existingEntry != entry)
-            {
-                throw new InvalidOperationException(CoreStrings.MultipleEntries(entityType.DisplayName()));
-            }
+            Check.DebugAssert(existingEntry == null || existingEntry == entry, "Duplicate InternalEntityEntry");
+            #endif
 
             foreach (var key in entityType.GetKeys())
             {
@@ -693,6 +683,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task ResetStateAsync(CancellationToken cancellationToken = default)
         {
             ResetState();
@@ -1206,7 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 SavingChanges = true;
                 var result = await SaveChangesAsync(entriesToSave, cancellationToken)
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(acceptAllChangesOnSuccess);
 
                 if (acceptAllChangesOnSuccess)
                 {

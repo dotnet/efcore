@@ -6,6 +6,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -14,8 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     {
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: GetByteCount());
+        private static readonly ConverterMappingHints _defaultHints = new(size: GetByteCount());
 
         /// <summary>
         ///     <para>
@@ -32,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public NumberToBytesConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public NumberToBytesConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(ToBytes(), ToNumber(), _defaultHints.With(mappingHints))
         {
         }
@@ -41,8 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(
-                typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
+            = new(typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
 
         private static Expression<Func<TNumber, byte[]>> ToBytes()
         {
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                             Expression.Call(
                                 typeof(BitConverter).GetMethod(
                                     nameof(BitConverter.GetBytes),
-                                    new[] { type }),
+                                    new[] { type })!,
                                 input));
 
             if (typeof(TNumber).IsNullableType())
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 output = Expression.Condition(
                     Expression.Property(
                         param,
-                        typeof(TNumber).GetProperty(nameof(Nullable<int>.HasValue))),
+                        typeof(TNumber).GetProperty(nameof(Nullable<int>.HasValue))!),
                     output,
                     Expression.Constant(null, typeof(byte[])));
             }
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                         : (Expression)Expression.Call(
                             typeof(BitConverter).GetMethod(
                                 "To" + type.Name,
-                                new[] { typeof(byte[]), typeof(int) }),
+                                new[] { typeof(byte[]), typeof(int) })!,
                             EnsureEndian(param),
                             Expression.Constant(0));
 
@@ -151,17 +151,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         private static readonly MethodInfo _reverseLongMethod
             = typeof(NumberToBytesConverter<TNumber>).GetMethod(
                 nameof(ReverseLong),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static readonly MethodInfo _reverseIntMethod
             = typeof(NumberToBytesConverter<TNumber>).GetMethod(
                 nameof(ReverseInt),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static readonly MethodInfo _reverseShortMethod
             = typeof(NumberToBytesConverter<TNumber>).GetMethod(
                 nameof(ReverseShort),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static byte[] ReverseLong(byte[] bytes)
             => new[] { bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0] };
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         private static readonly MethodInfo _toBytesMethod
             = typeof(NumberToBytesConverter<TNumber>).GetMethod(
                 nameof(DecimalToBytes),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static byte[] DecimalToBytes(decimal value)
         {
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         private static readonly MethodInfo _toDecimalMethod
             = typeof(NumberToBytesConverter<TNumber>).GetMethod(
                 nameof(BytesToDecimal),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static decimal BytesToDecimal(byte[] bytes)
         {

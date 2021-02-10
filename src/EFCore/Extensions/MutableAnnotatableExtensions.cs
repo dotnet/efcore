@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="annotationName"> The key of the annotation to find. </param>
         /// <returns> The annotation with the specified name. </returns>
         public static IAnnotation GetAnnotation([NotNull] this IMutableAnnotatable annotatable, [NotNull] string annotationName)
-            => ((IAnnotatable)annotatable).GetAnnotation(annotationName);
+            => ((IReadOnlyAnnotatable)annotatable).GetAnnotation(annotationName);
 
         /// <summary>
         ///     Adds annotations to an object.
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetOrRemoveAnnotation(
             [NotNull] this IMutableAnnotatable annotatable,
             [NotNull] string name,
-            [CanBeNull] object value)
+            [CanBeNull] object? value)
             => ((ConventionAnnotatable)annotatable).SetOrRemoveAnnotation(name, value, ConfigurationSource.Explicit);
     }
 }

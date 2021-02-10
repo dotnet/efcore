@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -36,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual TableValuedFunctionBuilder HasSchema([CanBeNull] string schema)
+        public new virtual TableValuedFunctionBuilder HasSchema([CanBeNull] string? schema)
             => (TableValuedFunctionBuilder)base.HasSchema(schema);
     }
 }

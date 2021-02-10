@@ -1327,8 +1327,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public int MatId { get; set; }
         }
 
-        private static readonly ListLoggerFactory _loggerFactory
-            = new ListLoggerFactory();
+        private static readonly ListLoggerFactory _loggerFactory = new();
 
         private static readonly IServiceProvider _serviceProvider
             = InMemoryFixture.BuildServiceProvider(_loggerFactory);
@@ -1616,9 +1615,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Id = 1,
                 Products = new List<OptionalProduct>
                 {
-                    new OptionalProduct { Id = 1 },
-                    new OptionalProduct { Id = 2 },
-                    new OptionalProduct { Id = 3 }
+                    new() { Id = 1 },
+                    new() { Id = 2 },
+                    new() { Id = 3 }
                 }
             };
 
@@ -1653,9 +1652,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 newCategory.Products = new List<OptionalProduct>
                 {
-                    new OptionalProduct { Id = 1 },
-                    new OptionalProduct { Id = 2 },
-                    new OptionalProduct { Id = 3 }
+                    new() { Id = 1 },
+                    new() { Id = 2 },
+                    new() { Id = 3 }
                 };
             }
 
@@ -1776,7 +1775,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             public int Id { get; set; }
             public string Name { get; set; }
-            public List<KontainerRoom> Rooms { get; set; } = new List<KontainerRoom>();
+            public List<KontainerRoom> Rooms { get; set; } = new();
         }
 
         private class KontainerRoom
@@ -1793,7 +1792,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             public int Id { get; set; }
             public string Description { get; set; }
-            public List<KontainerRoom> Rooms { get; set; } = new List<KontainerRoom>();
+            public List<KontainerRoom> Rooms { get; set; } = new();
         }
 
         private class KontainerContext : DbContext

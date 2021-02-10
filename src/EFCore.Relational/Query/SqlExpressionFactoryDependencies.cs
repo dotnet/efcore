@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class SqlExpressionFactoryDependencies
+    public sealed record SqlExpressionFactoryDependencies
     {
         /// <summary>
         ///     <para>
@@ -63,14 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public SqlExpressionFactoryDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new SqlExpressionFactoryDependencies(typeMappingSource);
+        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
     }
 }

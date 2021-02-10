@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})" /> methods.
         ///     </para>
         ///     <para>
-        ///         The default value is <see cref="EntityFrameworkCore.QueryTrackingBehavior.TrackAll" />. This means the change tracker will
+        ///         The default value is <see cref="QueryTrackingBehavior.TrackAll" />. This means the change tracker will
         ///         keep track of changes for all entities that are returned from a LINQ query.
         ///     </para>
         /// </summary>
@@ -153,8 +153,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Gets an <see cref="EntityEntry" /> for each entity being tracked by the context.
-        ///     The entries provide access to change tracking information and operations for each entity.
+        ///     <para>
+        ///         Returns an <see cref="EntityEntry" /> for each entity being tracked by the context.
+        ///         The entries provide access to change tracking information and operations for each entity.
+        ///     </para>
+        ///     <para>
+        ///         This method calls <see cref="DetectChanges" /> to ensure all entries returned reflect up-to-date state.
+        ///         Use <see cref="AutoDetectChangesEnabled" /> to prevent DetectChanges from being called automatically.
+        ///     </para>
+        ///     <para>
+        ///         Note that modification of entity state while iterating over the returned enumeration may result in
+        ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
+        ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+        ///     </para>
         /// </summary>
         /// <returns> An entry for each entity being tracked. </returns>
         public virtual IEnumerable<EntityEntry> Entries()
@@ -192,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     <para>
         ///         Checks if any new, deleted, or changed entities are being tracked
         ///         such that these changes will be sent to the database if <see cref="DbContext.SaveChanges()" />
-        ///         or <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)" /> is called.
+        ///         or <see cref="DbContext.SaveChangesAsync(CancellationToken)" /> is called.
         ///     </para>
         ///     <para>
         ///         Note that this method calls <see cref="DetectChanges" /> unless
@@ -430,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
 

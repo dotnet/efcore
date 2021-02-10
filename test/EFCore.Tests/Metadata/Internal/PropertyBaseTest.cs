@@ -790,7 +790,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             property.SetPropertyAccessMode(accessMode);
 
-            MemberInfoTestCommon(property, accessMode, forConstruction, forSet, forGet);
+            MemberInfoTestCommon((IPropertyBase)property, accessMode, forConstruction, forSet, forGet);
         }
 
         private void MemberInfoTest(
@@ -802,7 +802,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             navigation.SetPropertyAccessMode(accessMode);
 
-            MemberInfoTestCommon(navigation, accessMode, forConstruction, forSet, forGet);
+            MemberInfoTestCommon((IPropertyBase)navigation, accessMode, forConstruction, forSet, forGet);
         }
 
         private void MemberInfoTestCommon(
@@ -867,8 +867,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             try
             {
                 var model = ((Model)propertyBase.DeclaringType.Model).FinalizeModel();
-                InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>()
-                    .Validate(model, new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
+                var contextServices = InMemoryTestHelpers.Instance.CreateContextServices();
+                var modelRuntimeInitializer = contextServices.GetRequiredService<IModelRuntimeInitializer>();
+
+                model = modelRuntimeInitializer.Initialize(model, new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
 
                 Assert.Null(failMessage);
             }

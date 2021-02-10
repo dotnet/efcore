@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -28,13 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public SqlFunctionExpression(
             [NotNull] string name,
-            [CanBeNull] IEnumerable<SqlExpression> arguments,
+            [NotNull] IEnumerable<SqlExpression> arguments,
             [NotNull] Type type,
-            [CanBeNull] CoreTypeMapping typeMapping)
+            [CanBeNull] CoreTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
             Name = name;
-            Arguments = (arguments ?? Array.Empty<SqlExpression>()).ToList();
+            Arguments = arguments.ToList();
         }
 
         /// <summary>
@@ -86,12 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlFunctionExpression ApplyTypeMapping([CanBeNull] CoreTypeMapping typeMapping)
-            => new SqlFunctionExpression(
-                Name,
-                Arguments,
-                Type,
-                typeMapping ?? TypeMapping);
+        public virtual SqlFunctionExpression ApplyTypeMapping([CanBeNull] CoreTypeMapping? typeMapping)
+            => new(Name, Arguments, Type, typeMapping ?? TypeMapping);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlFunctionExpression sqlFunctionExpression
@@ -134,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private bool Equals(SqlFunctionExpression sqlFunctionExpression)
             => base.Equals(sqlFunctionExpression)
-                && string.Equals(Name, sqlFunctionExpression.Name)
+                && Name == sqlFunctionExpression.Name
                 && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
 
         /// <summary>

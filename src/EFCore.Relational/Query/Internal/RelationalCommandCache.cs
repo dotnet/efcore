@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class RelationalCommandCache : IPrintableExpression
     {
         private static readonly ConcurrentDictionary<object, object> _locks
-            = new ConcurrentDictionary<object, object>();
+            = new();
 
         private readonly IMemoryCache _memoryCache;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
@@ -39,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
             [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyList<ReaderColumn> readerColumns,
+            [CanBeNull] IReadOnlyList<ReaderColumn>? readerColumns,
             bool useRelationalNulls)
         {
             _memoryCache = memoryCache;
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<ReaderColumn> ReaderColumns { get; }
+        public virtual IReadOnlyList<ReaderColumn>? ReaderColumns { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IRelationalCommand GetRelationalCommand([NotNull] IReadOnlyDictionary<string, object> parameters)
+        public virtual IRelationalCommand GetRelationalCommand([NotNull] IReadOnlyDictionary<string, object?> parameters)
         {
             var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 
@@ -121,15 +123,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly struct CommandCacheKey : IEquatable<CommandCacheKey>
         {
             private readonly SelectExpression _selectExpression;
-            private readonly IReadOnlyDictionary<string, object> _parameterValues;
+            private readonly IReadOnlyDictionary<string, object?> _parameterValues;
 
-            public CommandCacheKey(SelectExpression selectExpression, IReadOnlyDictionary<string, object> parameterValues)
+            public CommandCacheKey(SelectExpression selectExpression, IReadOnlyDictionary<string, object?> parameterValues)
             {
                 _selectExpression = selectExpression;
                 _parameterValues = parameterValues;
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
                 => obj is CommandCacheKey commandCacheKey
                     && Equals(commandCacheKey);
 

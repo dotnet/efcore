@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class QuerySqlGeneratorDependencies
+    public sealed record QuerySqlGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -67,27 +69,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The command-builder factory.
         /// </summary>
-        public IRelationalCommandBuilderFactory RelationalCommandBuilderFactory { get; }
+        public IRelationalCommandBuilderFactory RelationalCommandBuilderFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     SQL generation helpers.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="relationalCommandBuilderFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QuerySqlGeneratorDependencies With([NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
-            => new QuerySqlGeneratorDependencies(relationalCommandBuilderFactory, SqlGenerationHelper);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QuerySqlGeneratorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            => new QuerySqlGeneratorDependencies(RelationalCommandBuilderFactory, sqlGenerationHelper);
+        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
     }
 }

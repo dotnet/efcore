@@ -48,12 +48,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ExpressionPrinter), () => new ExpressionPrinter() },
                 { typeof(Expression), () => Expression.Constant("A") },
                 { typeof(IEntityType), () => entityType },
+                { typeof(IReadOnlyEntityType), () => entityType },
                 { typeof(IConventionEntityType), () => entityType },
                 { typeof(IKey), () => new Key(new[] { property }, ConfigurationSource.Convention) },
                 { typeof(IPropertyBase), () => property },
+                { typeof(IReadOnlyProperty), () => property },
                 { typeof(IServiceProvider), () => new FakeServiceProvider() },
                 { typeof(ICollection<IServiceProvider>), () => new List<IServiceProvider>() },
                 { typeof(IReadOnlyList<IPropertyBase>), () => new[] { property } },
+                { typeof(IReadOnlyList<IReadOnlyPropertyBase>), () => new[] { property } },
                 {
                     typeof(IEnumerable<Tuple<MemberInfo, Type>>),
                     () => new[] { new Tuple<MemberInfo, Type>(propertyInfo, typeof(object)) }
@@ -62,9 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IReadOnlyList<Exception>), () => new[] { new Exception() } },
                 { typeof(IProperty), () => property },
                 { typeof(INavigation), () => navigation },
+                { typeof(IReadOnlyNavigation), () => navigation },
                 { typeof(ISkipNavigation), () => skipNavigation },
+                { typeof(IReadOnlySkipNavigation), () => skipNavigation },
                 { typeof(INavigationBase), () => navigationBase },
                 { typeof(IForeignKey), () => foreignKey },
+                { typeof(IReadOnlyForeignKey), () => foreignKey },
                 { typeof(InternalEntityEntry), () => new FakeInternalEntityEntry(entityType) },
                 { typeof(ISet<object>), () => new HashSet<object>() },
                 {
@@ -122,10 +128,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public override Type ClrType
                 => throw new NotImplementedException();
 
+            IReadOnlyEntityType IReadOnlyNavigationBase.DeclaringEntityType
+                => (IReadOnlyEntityType)DeclaringType;
+
+            IReadOnlyEntityType IReadOnlyNavigationBase.TargetEntityType
+                => throw new NotImplementedException();
+
+            IReadOnlyNavigationBase IReadOnlyNavigationBase.Inverse
+                => throw new NotImplementedException();
+
             public IClrCollectionAccessor GetCollectionAccessor()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
         }
     }
 }

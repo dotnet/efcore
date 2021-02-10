@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -30,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore
                     propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IPropertyBase.GetPropertyAccessMode" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.GetPropertyAccessMode" />.
         /// </summary>
         /// <param name="property"> The property to find configuration source for. </param>
-        /// <returns> The configuration source for <see cref="IPropertyBase.GetPropertyAccessMode" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyPropertyBase.GetPropertyAccessMode" />. </returns>
         public static ConfigurationSource? GetPropertyAccessModeConfigurationSource([NotNull] this IConventionPropertyBase property)
             => property.FindAnnotation(CoreAnnotationNames.PropertyAccessMode)?.GetConfigurationSource();
     }

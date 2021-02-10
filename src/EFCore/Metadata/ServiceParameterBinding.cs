@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -17,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public abstract class ServiceParameterBinding : ParameterBinding
     {
-        private Func<MaterializationContext, IEntityType, object, object> _serviceDelegate;
+        private Func<MaterializationContext, IEntityType, object, object>? _serviceDelegate;
 
         /// <summary>
         ///     Creates a new <see cref="ServiceParameterBinding" /> instance for the given service type
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected ServiceParameterBinding(
             [NotNull] Type parameterType,
             [NotNull] Type serviceType,
-            [CanBeNull] IPropertyBase serviceProperty = null)
+            [CanBeNull] IPropertyBase? serviceProperty = null)
             : base(
                 parameterType, serviceProperty != null
                     ? new[] { serviceProperty }
@@ -72,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual Func<MaterializationContext, IEntityType, object, object> ServiceDelegate
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _serviceDelegate, this, b =>
+                ref _serviceDelegate, this, static b =>
                 {
                     var materializationContextParam = Expression.Parameter(typeof(MaterializationContext));
                     var entityTypeParam = Expression.Parameter(typeof(IEntityType));

@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public DbSetProperty(
             [NotNull] string name,
             [NotNull] Type type,
-            [CanBeNull] IClrPropertySetter setter)
+            [CanBeNull] IClrPropertySetter? setter)
         {
             Name = name;
             Type = type;
@@ -48,6 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The property setter for this DbSet property.
         /// </summary>
-        public IClrPropertySetter Setter { get; }
+        public IClrPropertySetter? Setter { get; }
     }
 }

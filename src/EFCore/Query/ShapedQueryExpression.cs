@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -112,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="resultCardinality"> The <see cref="ResultCardinality" /> property of the result. </param>
         /// <returns> An expression with the updated result cardinality. </returns>
         public virtual ShapedQueryExpression UpdateResultCardinality(ResultCardinality resultCardinality)
-            => new ShapedQueryExpression(QueryExpression, ShaperExpression, resultCardinality);
+            => new(QueryExpression, ShaperExpression, resultCardinality);
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)

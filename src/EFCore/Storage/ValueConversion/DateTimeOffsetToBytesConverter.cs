@@ -5,6 +5,8 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -12,14 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// </summary>
     public class DateTimeOffsetToBytesConverter : ValueConverter<DateTimeOffset, byte[]>
     {
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 12);
-
-        private static readonly NumberToBytesConverter<long> _longToBytes
-            = new NumberToBytesConverter<long>();
-
-        private static readonly NumberToBytesConverter<short> _shortToBytes
-            = new NumberToBytesConverter<short>();
+        private static readonly ConverterMappingHints _defaultHints = new(size: 12);
+        private static readonly NumberToBytesConverter<long> _longToBytes = new();
+        private static readonly NumberToBytesConverter<short> _shortToBytes = new();
 
         /// <summary>
         ///     Creates a new instance of this converter.
@@ -28,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeOffsetToBytesConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public DateTimeOffsetToBytesConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 v => ToBytes(v),
                 v => v == null ? default : FromBytes(v),
@@ -40,8 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(
-                typeof(DateTimeOffset), typeof(byte[]), i => new DateTimeOffsetToBytesConverter(i.MappingHints), _defaultHints);
+            = new(typeof(DateTimeOffset), typeof(byte[]), i => new DateTimeOffsetToBytesConverter(i.MappingHints), _defaultHints);
 
         private static byte[] ToBytes(DateTimeOffset value)
         {
@@ -52,8 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
         private static DateTimeOffset FromBytes(byte[] bytes)
         {
-            var timeBinary = (long)_longToBytes.ConvertFromProvider(bytes);
-            var offsetMins = (short)_shortToBytes.ConvertFromProvider(bytes.Skip(8).ToArray());
+            // TODO-NULLABLE: Conversions will currently only return null for null input, but null input has already been sanitized
+            // externally (revisit as part of #13850)
+            var timeBinary = (long)_longToBytes.ConvertFromProvider(bytes)!;
+            var offsetMins = (short)_shortToBytes.ConvertFromProvider(bytes.Skip(8).ToArray())!;
             return new DateTimeOffset(DateTime.FromBinary(timeBinary), new TimeSpan(0, offsetMins, 0));
         }
     }

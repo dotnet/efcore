@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="name"> The name of the key. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static KeyBuilder HasName([NotNull] this KeyBuilder keyBuilder, [CanBeNull] string name)
+        public static KeyBuilder HasName([NotNull] this KeyBuilder keyBuilder, [CanBeNull] string? name)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static KeyBuilder<TEntity> HasName<TEntity>(
             [NotNull] this KeyBuilder<TEntity> keyBuilder,
-            [CanBeNull] string name)
+            [CanBeNull] string? name)
             => (KeyBuilder<TEntity>)HasName((KeyBuilder)keyBuilder, name);
 
         /// <summary>
@@ -51,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionKeyBuilder HasName(
+        public static IConventionKeyBuilder? HasName(
             [NotNull] this IConventionKeyBuilder keyBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             if (keyBuilder.CanSetName(name, fromDataAnnotation))
@@ -74,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given name can be set for the key constraint. </returns>
         public static bool CanSetName(
             [NotNull] this IConventionKeyBuilder keyBuilder,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
             => keyBuilder.CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
     }

@@ -6,6 +6,8 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 {
     /// <summary>
@@ -24,9 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
         protected static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(
-                size: 36,
-                valueGeneratorFactory: (p, t) => new SequentialGuidValueGenerator());
+            = new(size: 36, valueGeneratorFactory: (p, t) => new SequentialGuidValueGenerator());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         public StringGuidConverter(
             [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
             [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }

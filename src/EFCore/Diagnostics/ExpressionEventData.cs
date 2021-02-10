@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>

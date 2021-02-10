@@ -9,6 +9,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <summary>
         ///     The <see cref="MethodInfo" /> for
-        ///     <see cref="Queryable.Any{TSource}(IQueryable{TSource},System.Linq.Expressions.Expression{System.Func{TSource,bool}})" />
+        ///     <see cref="Queryable.Any{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
         /// </summary>
         public static MethodInfo AnyWithPredicate { get; }
 
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <summary>
         ///     The <see cref="MethodInfo" /> for
-        ///     <see cref="Queryable.Count{TSource}(IQueryable{TSource},System.Linq.Expressions.Expression{System.Func{TSource,bool}})" />
+        ///     <see cref="Queryable.Count{TSource}(IQueryable{TSource},Expression{Func{TSource,bool}})" />
         /// </summary>
         public static MethodInfo CountWithPredicate { get; }
 

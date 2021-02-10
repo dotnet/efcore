@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class ForeignKeyStrictComparer : IEqualityComparer<IForeignKey>, IComparer<IForeignKey>
+    public class ForeignKeyStrictComparer : IEqualityComparer<IReadOnlyForeignKey>, IComparer<IReadOnlyForeignKey>
     {
         private readonly bool _compareAnnotations;
         private readonly bool _compareNavigations;
@@ -18,10 +18,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _compareNavigations = compareNavigations;
         }
 
-        public int Compare(IForeignKey x, IForeignKey y)
+        public int Compare(IReadOnlyForeignKey x, IReadOnlyForeignKey y)
             => ForeignKeyComparer.Instance.Compare(x, y);
 
-        public bool Equals(IForeignKey x, IForeignKey y)
+        public bool Equals(IReadOnlyForeignKey x, IReadOnlyForeignKey y)
         {
             if (x == null)
             {
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
-        public int GetHashCode(IForeignKey obj)
+        public int GetHashCode(IReadOnlyForeignKey obj)
             => ForeignKeyComparer.Instance.GetHashCode(obj);
     }
 }

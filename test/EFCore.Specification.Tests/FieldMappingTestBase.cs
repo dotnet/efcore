@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        protected static AsyncLocal<bool> _isSeeding = new AsyncLocal<bool>();
+        protected static AsyncLocal<bool> _isSeeding = new();
 
         protected interface IUser2
         {
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(session.Id, entry.Property(e => e.Id).OriginalValue);
 
             var newUser = new User2();
-            var newUsers = new List<User2> { new User2() };
+            var newUsers = new List<User2> { new() };
 
             entry.Reference(e => e.User).CurrentValue = newUser;
             entry.Collection(e => e.Users).CurrentValue = newUsers;
@@ -1833,13 +1833,13 @@ namespace Microsoft.EntityFrameworkCore
 
             return new List<TPost>
             {
-                new TPost
+                new()
                 {
                     AccessId = 20,
                     AccessTitle = "Post20",
                     AccessBlog = blog
                 },
-                new TPost
+                new()
                 {
                     AccessId = 21,
                     AccessTitle = "Post21",
@@ -2209,7 +2209,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     context.Add(
-                        new LoginSession { User = new User2(), Users = new List<User2> { new User2() } });
+                        new LoginSession { User = new User2(), Users = new List<User2> { new() } });
 
                     context.Add(new OneToOneFieldNavPrincipal { Id = 1, Name = "OneToOneFieldNavPrincipal1" });
 

@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -72,22 +74,50 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         sqlExpression,
                         _sqlExpressionFactory.Constant(true));
 
-        // !(a == b) -> (a != b)
-        // !(a != b) -> (a == b)
+
         private SqlExpression SimplifyNegatedBinary(SqlExpression sqlExpression)
-            => sqlExpression is SqlUnaryExpression sqlUnaryExpression
+        {
+            if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
                 && sqlUnaryExpression.OperatorType == ExpressionType.Not
                 && sqlUnaryExpression.Type == typeof(bool)
                 && sqlUnaryExpression.Operand is SqlBinaryExpression sqlBinaryOperand
-                && (sqlBinaryOperand.OperatorType == ExpressionType.Equal || sqlBinaryOperand.OperatorType == ExpressionType.NotEqual)
-                    ? _sqlExpressionFactory.MakeBinary(
+                && (sqlBinaryOperand.OperatorType == ExpressionType.Equal || sqlBinaryOperand.OperatorType == ExpressionType.NotEqual))
+            {
+                if (sqlBinaryOperand.Left.Type == typeof(bool)
+                    && sqlBinaryOperand.Right.Type == typeof(bool)
+                    && (sqlBinaryOperand.Left is SqlConstantExpression
+                        || sqlBinaryOperand.Right is SqlConstantExpression))
+                {
+                    var constant = sqlBinaryOperand.Left as SqlConstantExpression ?? (SqlConstantExpression)sqlBinaryOperand.Right;
+                    if (sqlBinaryOperand.Left is SqlConstantExpression)
+                    {
+                        return _sqlExpressionFactory.MakeBinary(
+                            ExpressionType.Equal,
+                            _sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
+                            sqlBinaryOperand.Right,
+                            sqlBinaryOperand.TypeMapping)!;
+                    }
+                    else
+                    {
+                        return _sqlExpressionFactory.MakeBinary(
+                            ExpressionType.Equal,
+                            sqlBinaryOperand.Left,
+                            _sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
+                            sqlBinaryOperand.TypeMapping)!;
+                    }
+                }
+
+                return _sqlExpressionFactory.MakeBinary(
                         sqlBinaryOperand.OperatorType == ExpressionType.Equal
                             ? ExpressionType.NotEqual
                             : ExpressionType.Equal,
                         sqlBinaryOperand.Left,
                         sqlBinaryOperand.Right,
-                        sqlBinaryOperand.TypeMapping)
-                    : sqlExpression;
+                        sqlBinaryOperand.TypeMapping)!;
+            }
+
+            return sqlExpression;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -103,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             var testIsCondition = caseExpression.Operand == null;
             _isSearchCondition = false;
-            var operand = (SqlExpression)Visit(caseExpression.Operand);
+            var operand = (SqlExpression?)Visit(caseExpression.Operand);
             var whenClauses = new List<CaseWhenClause>();
             foreach (var whenClause in caseExpression.WhenClauses)
             {
@@ -115,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
 
             _isSearchCondition = false;
-            var elseResult = (SqlExpression)Visit(caseExpression.ElseResult);
+            var elseResult = (SqlExpression?)Visit(caseExpression.ElseResult);
 
             _isSearchCondition = parentSearchCondition;
 
@@ -216,8 +246,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             _isSearchCondition = false;
             var item = (SqlExpression)Visit(inExpression.Item);
-            var subquery = (SelectExpression)Visit(inExpression.Subquery);
-            var values = (SqlExpression)Visit(inExpression.Values);
+            var subquery = (SelectExpression?)Visit(inExpression.Subquery);
+            var values = (SqlExpression?)Visit(inExpression.Values);
             _isSearchCondition = parentSearchCondition;
 
             return ApplyConversion(inExpression.Update(item, values, subquery), condition: true);
@@ -237,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             _isSearchCondition = false;
             var match = (SqlExpression)Visit(likeExpression.Match);
             var pattern = (SqlExpression)Visit(likeExpression.Pattern);
-            var escapeChar = (SqlExpression)Visit(likeExpression.EscapeChar);
+            var escapeChar = (SqlExpression?)Visit(likeExpression.EscapeChar);
             _isSearchCondition = parentSearchCondition;
 
             return ApplyConversion(likeExpression.Update(match, pattern, escapeChar), condition: true);
@@ -274,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
 
             _isSearchCondition = true;
-            var predicate = (SqlExpression)Visit(selectExpression.Predicate);
+            var predicate = (SqlExpression?)Visit(selectExpression.Predicate);
             changed |= predicate != selectExpression.Predicate;
 
             var groupBy = new List<SqlExpression>();
@@ -287,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
 
             _isSearchCondition = true;
-            var havingExpression = (SqlExpression)Visit(selectExpression.Having);
+            var havingExpression = (SqlExpression?)Visit(selectExpression.Having);
             changed |= havingExpression != selectExpression.Having;
 
             var orderings = new List<OrderingExpression>();
@@ -299,10 +329,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 orderings.Add(ordering.Update(orderingExpression));
             }
 
-            var offset = (SqlExpression)Visit(selectExpression.Offset);
+            var offset = (SqlExpression?)Visit(selectExpression.Offset);
             changed |= offset != selectExpression.Offset;
 
-            var limit = (SqlExpression)Visit(selectExpression.Limit);
+            var limit = (SqlExpression?)Visit(selectExpression.Limit);
             changed |= limit != selectExpression.Limit;
 
             _isSearchCondition = parentSearchCondition;
@@ -447,8 +477,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             var parentSearchCondition = _isSearchCondition;
             _isSearchCondition = false;
-            var instance = (SqlExpression)Visit(sqlFunctionExpression.Instance);
-            SqlExpression[] arguments = default;
+            var instance = (SqlExpression?)Visit(sqlFunctionExpression.Instance);
+            SqlExpression[]? arguments = default;
             if (!sqlFunctionExpression.IsNiladic)
             {
                 arguments = new SqlExpression[sqlFunctionExpression.Arguments.Count];
@@ -461,8 +491,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             _isSearchCondition = parentSearchCondition;
             var newFunction = sqlFunctionExpression.Update(instance, arguments);
 
-            var condition = string.Equals(sqlFunctionExpression.Name, "FREETEXT")
-                || string.Equals(sqlFunctionExpression.Name, "CONTAINS");
+            var condition = sqlFunctionExpression.Name == "FREETEXT" || sqlFunctionExpression.Name == "CONTAINS";
 
             return ApplyConversion(newFunction, condition);
         }

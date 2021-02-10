@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -121,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     <see langword="true" /> if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query,
             ///     otherwise <see langword="false" />.
             /// </returns>
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
                 => obj is RelationalCompiledQueryCacheKey key
                     && Equals(key);
 

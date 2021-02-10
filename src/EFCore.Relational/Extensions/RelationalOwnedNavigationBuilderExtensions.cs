@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         public static OwnedNavigationBuilder HasCheckConstraint(
             [NotNull] this OwnedNavigationBuilder ownedNavigationBuilder,
             [NotNull] string name,
-            [CanBeNull] string sql)
+            [CanBeNull] string? sql)
         {
             Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NotEmpty(name, nameof(name));
@@ -65,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
         public static OwnedNavigationBuilder<TEntity, TDependentEntity> HasCheckConstraint<TEntity, TDependentEntity>(
             [NotNull] this OwnedNavigationBuilder<TEntity, TDependentEntity> ownedNavigationBuilder,
             [NotNull] string name,
-            [CanBeNull] string sql)
+            [CanBeNull] string? sql)
             where TEntity : class
             where TDependentEntity : class
             => (OwnedNavigationBuilder<TEntity, TDependentEntity>)

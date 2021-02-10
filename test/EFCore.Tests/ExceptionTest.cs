@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
 
             public EntityEntry ToEntityEntry()
-                => new EntityEntry(new FakeInternalEntityEntry());
+                => new(new FakeInternalEntityEntry());
 
             public object GetRelationshipSnapshotValue(IPropertyBase propertyBase)
                 => throw new NotImplementedException();

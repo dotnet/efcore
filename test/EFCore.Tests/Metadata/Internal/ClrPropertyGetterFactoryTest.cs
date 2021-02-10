@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(property, new ClrPropertyGetterFactory().Create(property));
         }
 
-        private class FakeProperty : IProperty, IClrPropertyGetter
+        private class FakeProperty : Annotatable, IProperty, IClrPropertyGetter
         {
             public object GetClrValue(object entity)
                 => throw new NotImplementedException();
@@ -29,13 +29,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public bool HasDefaultValue(object entity)
                 => throw new NotImplementedException();
 
-            public object this[string name]
+            public IEnumerable<IForeignKey> GetContainingForeignKeys()
                 => throw new NotImplementedException();
 
-            public IAnnotation FindAnnotation(string name)
+            public IEnumerable<IIndex> GetContainingIndexes()
                 => throw new NotImplementedException();
 
-            public IEnumerable<IAnnotation> GetAnnotations()
+            public IEnumerable<IKey> GetContainingKeys()
+                => throw new NotImplementedException();
+
+            public IClrPropertyGetter GetGetter()
                 => throw new NotImplementedException();
 
             public string Name { get; }
@@ -47,6 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public bool IsConcurrencyToken { get; }
             public PropertyInfo PropertyInfo { get; }
             public FieldInfo FieldInfo { get; }
+
+            IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType => throw new NotImplementedException();
+
+            IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType => throw new NotImplementedException();
         }
 
         [ConditionalFact]
@@ -54,10 +61,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var modelBuilder = CreateModelBuilder();
             var idProperty = modelBuilder.Entity<Customer>().Property(e => e.Id).Metadata;
-            modelBuilder.FinalizeModel();
+            InMemoryTestHelpers.Instance.Finalize(modelBuilder);
 
             Assert.Equal(
-                7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(
+                7, new ClrPropertyGetterFactory().Create((IPropertyBase)idProperty).GetClrValue(
                     new Customer { Id = 7 }));
         }
 
@@ -75,11 +82,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<Customer>().Property(e => e.Id);
             var fuelProperty = modelBuilder.Entity<Customer>().Property(e => e.Fuel).Metadata;
-            modelBuilder.FinalizeModel();
+            InMemoryTestHelpers.Instance.Finalize(modelBuilder);
 
             Assert.Equal(
                 new Fuel(1.0),
-                new ClrPropertyGetterFactory().Create(fuelProperty).GetClrValue(
+                new ClrPropertyGetterFactory().Create((IPropertyBase)fuelProperty).GetClrValue(
                     new Customer { Id = 7, Fuel = new Fuel(1.0) }));
         }
 
@@ -99,10 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             modelBuilder.Entity<IndexedClass>().Property(e => e.Id);
             var propertyA = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyA", typeof(string));
             var propertyB = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyB", typeof(int));
-            modelBuilder.FinalizeModel();
+            InMemoryTestHelpers.Instance.Finalize(modelBuilder);
 
-            Assert.Equal("ValueA", new ClrPropertyGetterFactory().Create(propertyA).GetClrValue(new IndexedClass { Id = 7 }));
-            Assert.Equal(123, new ClrPropertyGetterFactory().Create(propertyB).GetClrValue(new IndexedClass { Id = 7 }));
+            Assert.Equal("ValueA", new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValue(new IndexedClass { Id = 7 }));
+            Assert.Equal(123, new ClrPropertyGetterFactory().Create((IPropertyBase)propertyB).GetClrValue(new IndexedClass { Id = 7 }));
         }
 
         private static ModelBuilder CreateModelBuilder()
@@ -124,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class IndexedClass
         {
-            private readonly Dictionary<string, object> _internalValues = new Dictionary<string, object>
+            private readonly Dictionary<string, object> _internalValues = new()
             {
                 { "PropertyA", "ValueA" }, { "PropertyB", 123 }
             };

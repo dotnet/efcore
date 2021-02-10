@@ -1,24 +1,28 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         Represents a scalar property of an entity.
+    ///         Represents a scalar property of an entity type.
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
     ///         Once the model is built, <see cref="IProperty" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionProperty : IProperty, IConventionPropertyBase
+    public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBase
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this property.
         /// </summary>
+        /// <exception cref="InvalidOperationException"> If the property has been removed from the model. </exception>
         new IConventionPropertyBuilder Builder { get; }
 
         /// <summary>
@@ -27,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType DeclaringEntityType { get; }
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IPropertyBase.ClrType" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.ClrType" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IPropertyBase.ClrType" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyPropertyBase.ClrType" />. </returns>
         ConfigurationSource? GetTypeConfigurationSource();
 
         /// <summary>
@@ -44,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool? SetIsNullable(bool? nullable, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IProperty.IsNullable" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyProperty.IsNullable" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IProperty.IsNullable" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyProperty.IsNullable" />. </returns>
         ConfigurationSource? GetIsNullableConfigurationSource();
 
         /// <summary>
@@ -65,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ValueGenerated? SetValueGenerated(ValueGenerated? valueGenerated, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IProperty.ValueGenerated" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyProperty.ValueGenerated" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IProperty.ValueGenerated" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyProperty.ValueGenerated" />. </returns>
         ConfigurationSource? GetValueGeneratedConfigurationSource();
 
         /// <summary>
@@ -86,9 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool? SetIsConcurrencyToken(bool? concurrencyToken, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IProperty.IsConcurrencyToken" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyProperty.IsConcurrencyToken" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IProperty.IsConcurrencyToken" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyProperty.IsConcurrencyToken" />. </returns>
         ConfigurationSource? GetIsConcurrencyTokenConfigurationSource();
 
         /// <summary>

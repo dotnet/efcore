@@ -5,7 +5,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -33,8 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Commits all changes made to the database in the current transaction asynchronously.
         /// </summary>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task CommitAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -45,8 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Discards all changes made to the database in the current transaction asynchronously.
         /// </summary>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task RollbackAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -56,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="name"> The name of the savepoint to be created. </param>
         void CreateSavepoint([NotNull] string name)
-            => throw new NotSupportedException();
+            => throw new NotSupportedException(CoreStrings.SavepointsNotSupported);
 
         /// <summary>
         ///     Creates a savepoint in the transaction. This allows all commands that are executed after the savepoint
@@ -64,41 +69,56 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     savepoint.
         /// </summary>
         /// <param name="name"> The name of the savepoint to be created. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task CreateSavepointAsync([NotNull] string name, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
+            => throw new NotSupportedException(CoreStrings.SavepointsNotSupported);
 
         /// <summary>
         ///     Rolls back all commands that were executed after the specified savepoint was established.
         /// </summary>
         /// <param name="name"> The name of the savepoint to roll back to. </param>
         void RollbackToSavepoint([NotNull] string name)
-            => throw new NotSupportedException();
+            => throw new NotSupportedException(CoreStrings.SavepointsNotSupported);
 
         /// <summary>
         ///     Rolls back all commands that were executed after the specified savepoint was established.
         /// </summary>
         /// <param name="name"> The name of the savepoint to roll back to. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task RollbackToSavepointAsync([NotNull] string name, CancellationToken cancellationToken = default)
-            => throw new NotSupportedException();
+            => throw new NotSupportedException(CoreStrings.SavepointsNotSupported);
 
         /// <summary>
-        ///     Destroys a savepoint previously defined in the current transaction. This allows the system to
-        ///     reclaim some resources before the transaction ends.
+        ///     <para>
+        ///         Destroys a savepoint previously defined in the current transaction. This allows the system to
+        ///         reclaim some resources before the transaction ends.
+        ///     </para>
+        ///     <para>
+        ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint " /> and <see cref="ReleaseSavepointAsync " /> should
+        ///         do nothing rather than throw. This is the default behavior.
+        ///     </para>
         /// </summary>
         /// <param name="name"> The name of the savepoint to release. </param>
         void ReleaseSavepoint([NotNull] string name) { }
 
         /// <summary>
-        ///     Destroys a savepoint previously defined in the current transaction. This allows the system to
-        ///     reclaim some resources before the transaction ends.
+        ///     <para>
+        ///         Destroys a savepoint previously defined in the current transaction. This allows the system to
+        ///         reclaim some resources before the transaction ends.
+        ///     </para>
+        ///     <para>
+        ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint " /> and <see cref="ReleaseSavepointAsync " /> should
+        ///         do nothing rather than throw. This is the default behavior.
+        ///     </para>
         /// </summary>
         /// <param name="name"> The name of the savepoint to release. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task ReleaseSavepointAsync([NotNull] string name, CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 

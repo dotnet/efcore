@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalCompiledQueryCacheKeyGeneratorDependencies
+    public sealed record RelationalCompiledQueryCacheKeyGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -67,14 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Options for the current <see cref="DbContext" /> instance.
         /// </summary>
-        public IDbContextOptions ContextOptions { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="contextOptions"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalCompiledQueryCacheKeyGeneratorDependencies With([NotNull] IDbContextOptions contextOptions)
-            => new RelationalCompiledQueryCacheKeyGeneratorDependencies(contextOptions);
+        public IDbContextOptions ContextOptions { get; [param: NotNull] init; }
     }
 }

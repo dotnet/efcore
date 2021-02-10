@@ -5,6 +5,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -13,10 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IPropertyBase" /> represents a read-only view of the same metadata.
+    ///         Once the model is built, <see cref="IReadOnlyPropertyBase" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutablePropertyBase : IPropertyBase, IMutableAnnotatable
+    public interface IMutablePropertyBase : IReadOnlyPropertyBase, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets the type that this property belongs to.
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets or sets the underlying CLR field for this property.
         ///     This may be <see langword="null" /> for shadow properties or if the backing field for the property is not known.
         /// </summary>
-        new FieldInfo FieldInfo { get; [param: CanBeNull] set; }
+        new FieldInfo? FieldInfo { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     <para>
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </summary>
         /// <param name="fieldName"> The name of the field to use. </param>
-        void SetField([CanBeNull] string fieldName)
+        void SetField([CanBeNull] string? fieldName)
             => this.AsPropertyBase().SetField(fieldName, ConfigurationSource.Explicit);
     }
 }

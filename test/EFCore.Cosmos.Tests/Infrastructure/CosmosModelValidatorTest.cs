@@ -291,6 +291,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(CosmosStrings.NonETagConcurrencyToken(typeof(Customer).Name, "_not_etag"), model);
         }
 
+        [ConditionalFact]
+        public virtual void Detects_nonString_concurrency_token()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>()
+                .ToContainer("Orders")
+                .Property<int>("_etag")
+                .IsConcurrencyToken();
+
+            var model = modelBuilder.Model;
+            VerifyError(CosmosStrings.ETagNonStringStoreType("_etag", typeof(Customer).Name, "int"), model);
+        }
+
         protected override TestHelpers TestHelpers
             => CosmosTestHelpers.Instance;
     }

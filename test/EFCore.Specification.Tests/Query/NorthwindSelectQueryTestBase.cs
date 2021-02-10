@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -234,11 +235,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var boolean = false;
 
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Customer>().Select(c => new { f = boolean }).OrderBy(e => (bool?)e.f),
-                    assertOrder: true));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Select(c => new { f = boolean }).OrderBy(e => (bool?)e.f),
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -890,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Reverse_without_explicit_ordering_throws(bool async)
+        public virtual Task Reverse_without_explicit_ordering(bool async)
         {
             return AssertQueryScalar(
                 async,
@@ -1848,6 +1848,81 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => (int?)c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault().Length),
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault().MaybeScalar(x => x.Length)),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_count_of_navigation_which_is_generic_list(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => c.Orders.Count),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_count_of_navigation_which_is_generic_collection(bool async)
+        {
+            var collectionCount = typeof(ICollection<Order>).GetProperty("Count");
+
+            var prm = Expression.Parameter(typeof(Customer), "c");
+            var selector = Expression.Lambda<Func<Customer, int>>(
+                Expression.Property(
+                    Expression.Property(prm, "Orders"),
+                    collectionCount),
+                prm);
+
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(selector),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory(Skip = "issue #22701")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => ((ICollection<Order>)c.Orders).Count),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_take_projection_doesnt_project_intermittent_column(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss
+                    .Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, c.City, c.CompanyName })
+                    .Take(10)
+                    .Select(x => new { Aggregate = x.CustomerID + " " + x.City }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Do_not_erase_projection_mapping_when_adding_single_projection(bool async)
         {
             return AssertQuery(
@@ -1879,27 +1954,99 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Ternary_in_client_eval_assigns_correct_types(bool async)
-        {     return AssertQuery(
+        public virtual Task Projection_skip_projection_doesnt_project_intermittent_column(bool async)
+        {
+            return AssertQuery(
                 async,
-                ss => ss.Set<Order>()
+                ss => ss
+                    .Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, c.City, c.CompanyName })
+                    .Skip(7)
+                    .Select(x => new { Aggregate = x.CustomerID + " " + x.City }),
+                assertOrder: true);
+        }
 
-                    .Where(o => o.OrderID < 10300)
-                    .OrderBy(e => e.OrderID)
-                    .Select(
-                        o => new
-                        {
-                            CustomerID = ClientMethod(o.CustomerID),
-                            OrderDate = o.OrderDate.HasValue ? o.OrderDate.Value : new DateTime(o.OrderID - 10000, 1, 1),
-                            OrderDate2 = o.OrderDate.HasValue == false ? new DateTime(o.OrderID - 10000, 1, 1) : o.OrderDate.Value
-                        }),
-                assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    AssertEqual(e.CustomerID, a.CustomerID);
-                    AssertEqual(e.OrderDate, a.OrderDate);
-                    AssertEqual(e.OrderDate2, a.OrderDate2);
-                });
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss
+                    .Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, FirstLetter = c.CustomerID.Substring(0, 1), Foo = "Foo" })
+                    .Distinct()
+                    .Select(x => new { Aggregate = x.FirstLetter + " " + x.Foo }),
+                elementSorter: e => e.Aggregate);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_take_predicate_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss
+                    .Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => new { c.CustomerID, c.City, c.CompanyName })
+                    .Take(10)
+                    .Where(x => x.CustomerID.StartsWith("A"))
+                    .Select(x => new { Aggregate = x.CustomerID + " " + x.City }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Ternary_in_client_eval_assigns_correct_types(bool async)
+        {
+            return AssertQuery(
+              async,
+              ss => ss.Set<Order>()
+
+                  .Where(o => o.OrderID < 10300)
+                  .OrderBy(e => e.OrderID)
+                  .Select(
+                      o => new
+                      {
+                          CustomerID = ClientMethod(o.CustomerID),
+                          OrderDate = o.OrderDate.HasValue ? o.OrderDate.Value : new DateTime(o.OrderID - 10000, 1, 1),
+                          OrderDate2 = o.OrderDate.HasValue == false ? new DateTime(o.OrderID - 10000, 1, 1) : o.OrderDate.Value
+                      }),
+              assertOrder: true,
+              elementAsserter: (e, a) =>
+              {
+                  AssertEqual(e.CustomerID, a.CustomerID);
+                  AssertEqual(e.OrderDate, a.OrderDate);
+                  AssertEqual(e.OrderDate2, a.OrderDate2);
+              });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task VisitLambda_should_not_be_visited_trivially(bool async)
+        {
+            return AssertTranslationFailed(() => AssertQuery(
+              async,
+              ss =>
+              {
+                  var orders = ss.Set<Order>().Where(o => o.CustomerID.StartsWith("A")).ToList();
+
+                  return ss.Set<Customer>()
+                    .Select(c => new
+                    {
+                        Customer = c,
+                        HasOrder = orders.Any(o => o.CustomerID == c.CustomerID)
+                    });
+              },
+              elementSorter: e => e.Customer.CustomerID,
+              elementAsserter: (e, a) =>
+              {
+                  AssertEqual(e.Customer, a.Customer);
+                  AssertEqual(e.HasOrder, a.HasOrder);
+              }));
         }
 
         private static string ClientMethod(string s) => s;

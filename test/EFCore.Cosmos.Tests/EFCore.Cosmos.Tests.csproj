@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
-    <TargetFrameworks Condition="'$(ContinuousIntegrationBuild)' == 'True'">$(DefaultNetCoreTargetFramework)</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Cosmos.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Cosmos</RootNamespace>
   </PropertyGroup>

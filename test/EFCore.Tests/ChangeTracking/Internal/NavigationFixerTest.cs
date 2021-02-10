@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Blog
         {
             public int Id { get; set; }
-            public HashSet<Post> Posts { get; } = new HashSet<Post>();
+            public HashSet<Post> Posts { get; } = new();
         }
 
         private class Post

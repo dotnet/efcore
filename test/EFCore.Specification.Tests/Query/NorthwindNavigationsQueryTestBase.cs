@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     entryCount: 89));
         }
 
-        private static readonly Random _randomGenerator = new Random();
+        private static readonly Random _randomGenerator = new();
 
         private static T ClientProjection<T>(T t, object _)
             => t;
@@ -973,15 +973,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_on_navigation_client_eval(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => from c in ss.Set<Customer>()
-                          orderby c.CustomerID
-                          where c.Orders.Select(o => o.OrderID).Contains(
-                              ss.Set<Order>().OrderByDescending(o => ClientMethod(o.OrderID)).Select(o => o.OrderID).FirstOrDefault())
-                          select c,
-                    entryCount: 1));
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>()
+                        orderby c.CustomerID
+                        where c.Orders.Select(o => o.OrderID).Contains(
+                            ss.Set<Order>().OrderByDescending(o => ClientMethod(o.OrderID)).Select(o => o.OrderID).FirstOrDefault())
+                        select c,
+                entryCount: 1);
         }
 
         // ReSharper disable once MemberCanBeMadeStatic.Local

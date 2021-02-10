@@ -387,13 +387,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Does_not_throw_if_explicit_binding_has_been_set()
         {
             var constructorBinding = GetBinding<BlogConflict>(
-                e => e[CoreAnnotationNames.ConstructorBinding] = new ConstructorBinding(
+                e => ((EntityType)e).ConstructorBinding = new ConstructorBinding(
                     typeof(BlogConflict).GetConstructor(
                         new[] { typeof(string), typeof(int) }),
                     new[]
                     {
-                        new PropertyParameterBinding(e.FindProperty(nameof(Blog.Title))),
-                        new PropertyParameterBinding(e.FindProperty(nameof(Blog.Id)))
+                        new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Title))),
+                        new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Id)))
                     }));
 
             Assert.NotNull(constructorBinding);
@@ -796,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var convention = new ConstructorBindingConvention(CreateDependencies());
             convention.ProcessModelFinalizing(model.Builder, context);
 
-            return (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+            return (ConstructorBinding)((EntityType)entityType).ConstructorBinding;
         }
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()

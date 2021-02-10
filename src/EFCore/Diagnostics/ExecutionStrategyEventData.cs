@@ -7,6 +7,8 @@ using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>

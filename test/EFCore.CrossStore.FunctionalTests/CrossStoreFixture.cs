@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Options;
 
         public CrossStoreContext CreateContext(TestStore testStore)
-            => new CrossStoreContext(CreateOptions(testStore));
+            => new(CreateOptions(testStore));
 
         public TestStore CreateTestStore(ITestStoreFactory testStoreFactory, string storeName, Action<CrossStoreContext> seed = null)
             => testStoreFactory.GetOrCreate(storeName)

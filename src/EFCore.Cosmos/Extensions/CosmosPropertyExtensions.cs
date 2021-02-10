@@ -6,11 +6,13 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IProperty" /> for Cosmos metadata.
+    ///     Property extension methods for Cosmos metadata.
     /// </summary>
     public static class CosmosPropertyExtensions
     {
@@ -19,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> Returns the property name that the property is mapped to when targeting Cosmos. </returns>
-        public static string GetJsonPropertyName([NotNull] this IProperty property)
-            => (string)property[CosmosAnnotationNames.PropertyName]
+        public static string GetJsonPropertyName([NotNull] this IReadOnlyProperty property)
+            => (string?)property[CosmosAnnotationNames.PropertyName]
                 ?? GetDefaultJsonPropertyName(property);
 
-        private static string GetDefaultJsonPropertyName(IProperty property)
+        private static string GetDefaultJsonPropertyName(IReadOnlyProperty property)
         {
             var entityType = property.DeclaringEntityType;
             var ownership = entityType.FindOwnership();
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="name"> The name to set. </param>
-        public static void SetJsonPropertyName([NotNull] this IMutableProperty property, [CanBeNull] string name)
+        public static void SetJsonPropertyName([NotNull] this IMutableProperty property, [CanBeNull] string? name)
             => property.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PropertyName,
                 name);
@@ -61,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string SetJsonPropertyName(
+        public static string? SetJsonPropertyName(
             [NotNull] this IConventionProperty property,
-            [CanBeNull] string name,
+            [CanBeNull] string? name,
             bool fromDataAnnotation = false)
         {
             property.SetOrRemoveAnnotation(

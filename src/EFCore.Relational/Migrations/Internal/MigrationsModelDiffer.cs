@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private IUpdateAdapter _targetUpdateAdapter;
 
         private readonly Dictionary<ITable, SharedIdentityMap> _sourceSharedIdentityEntryMaps =
-            new Dictionary<ITable, SharedIdentityMap>();
+            new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -597,14 +597,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (source.IsExcludedFromMigrations
                 && target.IsExcludedFromMigrations)
             {
-                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23639", out var enabled) && enabled;
-                if (!useOldBehavior)
-                {
-                    // Populate column mapping
-                    foreach (var _ in Diff(source.Columns, target.Columns, diffContext))
-                    { }
-                }
-                
+                // Populate column mapping
+                foreach(var _ in Diff(source.Columns, target.Columns, diffContext))
+                { }
+
                 yield break;
             }
 
@@ -872,13 +868,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
             }
 
-            public static readonly PropertyInfoEqualityComparer Instance = new PropertyInfoEqualityComparer();
+            public static readonly PropertyInfoEqualityComparer Instance = new();
 
             public bool Equals(PropertyInfo x, PropertyInfo y)
                 => x.IsSameAs(y);
 
             public int GetHashCode(PropertyInfo obj)
-                => throw new NotImplementedException();
+                => throw new NotSupportedException();
         }
 
         #endregion
@@ -950,46 +946,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return true;
             }
 
-            if (!string.Equals(source.Name, target.Name))
+            if (source.Name != target.Name)
             {
                 return false;
             }
 
-            if (!string.Equals(
-                GetDefiningNavigationName(source),
-                GetDefiningNavigationName(target)))
-            {
-                return false;
-            }
-
-            var nextSource = source.DefiningEntityType;
-            var nextTarget = target.DefiningEntityType;
+            var nextSource = sourceTable.GetRowInternalForeignKeys(source).FirstOrDefault()?.PrincipalEntityType;
+            var nextTarget = targetTable.GetRowInternalForeignKeys(target).FirstOrDefault()?.PrincipalEntityType;
             return (nextSource == null && nextTarget == null)
                 || (nextSource != null
                     && nextTarget != null
                     && EntityTypePathEquals(nextSource, nextTarget, diffContext));
-        }
-
-        private static string GetDefiningNavigationName(IEntityType entityType)
-        {
-            if (entityType.DefiningNavigationName != null)
-            {
-                return entityType.DefiningNavigationName;
-            }
-
-            var primaryKey = entityType.BaseType == null ? entityType.FindPrimaryKey() : null;
-            if (primaryKey != null)
-            {
-                var definingForeignKey = entityType
-                    .FindForeignKeys(primaryKey.Properties)
-                    .FirstOrDefault(fk => fk.PrincipalEntityType.GetTableName() == entityType.GetTableName());
-                if (definingForeignKey?.DependentToPrincipal != null)
-                {
-                    return definingForeignKey.DependentToPrincipal.Name;
-                }
-            }
-
-            return entityType.Name;
         }
 
         /// <summary>
@@ -1348,8 +1315,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var sourceTable = source.Table;
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled;
-            if (!useOldBehavior && sourceTable.IsExcludedFromMigrations)
+            if (sourceTable.IsExcludedFromMigrations)
             {
                 yield break;
             }
@@ -1684,9 +1650,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 foreach (var targetSeed in targetEntityType.GetSeedData())
                 {
-                    _targetUpdateAdapter
-                        .CreateEntry(targetSeed, targetEntityType)
-                        .EntityState = EntityState.Added;
+                    var targetEntry = _targetUpdateAdapter.CreateEntry(targetSeed, targetEntityType);
+                    if (targetEntry.ToEntityEntry().Entity is Dictionary<string, object> targetBag)
+                    {
+                        targetBag.Remove((key, _, target) => !target.ContainsKey(key), targetSeed);
+                    }
+
+                    targetEntry.EntityState = EntityState.Added;
                 }
             }
 
@@ -1898,7 +1868,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     principalSourceTable = mainSourceEntityType.GetTableMappings().First().Table;
                 }
 
-                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23792", out var enabled) && enabled;
                 foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
                     var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceUpdateAdapter);
@@ -1986,7 +1955,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             {
                                 if (targetProperty.GetAfterSaveBehavior() != PropertySaveBehavior.Save
                                     && (targetProperty.ValueGenerated & ValueGenerated.OnUpdate) == 0
-                                    && (useOldBehavior || targetKeyMap.Count == 1 || entry.EntityType.Name == sourceEntityType.Name))
+                                    && (targetKeyMap.Count == 1 || entry.EntityType.Name == sourceEntityType.Name))
                                 {
                                     entryMapping.RecreateRow = true;
                                     break;
@@ -2190,9 +2159,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 foreach (var command in commandBatch.ModificationCommands)
                 {
                     var table = model.FindTable(command.TableName, command.Schema);
-                    var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled;
                     if (diffContext.FindDrop(table) != null
-                        || (!useOldBehavior && table.IsExcludedFromMigrations))
+                        || table.IsExcludedFromMigrations)
                     {
                         continue;
                     }
@@ -2514,8 +2482,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private sealed class EntryMapping
         {
-            public HashSet<IUpdateEntry> SourceEntries { get; } = new HashSet<IUpdateEntry>();
-            public HashSet<IUpdateEntry> TargetEntries { get; } = new HashSet<IUpdateEntry>();
+            public HashSet<IUpdateEntry> SourceEntries { get; } = new();
+            public HashSet<IUpdateEntry> TargetEntries { get; } = new();
             public bool RecreateRow { get; set; }
         }
 
@@ -2524,7 +2492,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             private readonly IUpdateAdapter _updateAdapter;
 
             private readonly Dictionary<IUpdateEntry, EntryMapping> _entryValueMap
-                = new Dictionary<IUpdateEntry, EntryMapping>();
+                = new();
 
             public SharedIdentityMap(IUpdateAdapter updateAdapter)
             {

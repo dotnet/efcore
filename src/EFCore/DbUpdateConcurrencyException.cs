@@ -7,6 +7,8 @@ using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Update;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="message"> The error message that explains the reason for the exception. </param>
         /// <param name="innerException"> The exception that is the cause of the current exception. </param>
-        public DbUpdateConcurrencyException([NotNull] string message, [CanBeNull] Exception innerException)
+        public DbUpdateConcurrencyException([NotNull] string message, [CanBeNull] Exception? innerException)
             : base(message, innerException)
         {
         }
@@ -51,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entries"> The entries that were involved in the error. </param>
         public DbUpdateConcurrencyException(
             [NotNull] string message,
-            [CanBeNull] Exception innerException,
+            [CanBeNull] Exception? innerException,
             [NotNull] IReadOnlyList<IUpdateEntry> entries)
             : base(message, innerException, entries)
         {

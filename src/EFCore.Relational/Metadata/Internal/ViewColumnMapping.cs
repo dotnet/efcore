@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -25,15 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public ViewColumnMapping(
             [NotNull] IProperty property,
             [NotNull] ViewColumn column,
-            [NotNull] RelationalTypeMapping typeMapping,
             [NotNull] ViewMapping viewMapping)
-            : base(property, column, typeMapping, viewMapping)
+            : base(property, column, viewMapping)
         {
         }
 
         /// <inheritdoc />
         public virtual IViewMapping ViewMapping
             => (IViewMapping)TableMapping;
+
+        /// <inheritdoc />
+        public override RelationalTypeMapping TypeMapping => Property.FindRelationalTypeMapping(
+            StoreObjectIdentifier.View(ViewMapping.View.Name, ViewMapping.View.Schema))!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

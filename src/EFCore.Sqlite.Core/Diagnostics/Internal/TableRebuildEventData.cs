@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] Type operationType,
-            [CanBeNull] string tableName)
+            [CanBeNull] string? tableName)
             : base(eventDefinition, messageGenerator)
         {
             OperationType = operationType;
@@ -46,6 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string TableName { get; }
+        public virtual string? TableName { get; }
     }
 }

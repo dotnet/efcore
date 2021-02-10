@@ -8,11 +8,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="ISkipNavigation" />.
+    ///     Extension methods for <see cref="IReadOnlySkipNavigation" />.
     /// </summary>
     public static class SkipNavigationExtensions
     {
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this ISkipNavigation navigation,
+            [NotNull] this IReadOnlySkipNavigation navigation,
             MetadataDebugStringOptions options,
             int indent = 0)
         {
@@ -80,9 +82,10 @@ namespace Microsoft.EntityFrameworkCore
                 builder.Append(" PropertyAccessMode.").Append(navigation.GetPropertyAccessMode());
             }
 
-            if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0)
+            if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
+                && ((Annotatable)navigation).IsReadOnly)
             {
-                var indexes = navigation.GetPropertyIndexes();
+                var indexes = ((ISkipNavigation)navigation).GetPropertyIndexes();
                 builder.Append(" ").Append(indexes.Index);
                 builder.Append(" ").Append(indexes.OriginalValueIndex);
                 builder.Append(" ").Append(indexes.RelationshipIndex);

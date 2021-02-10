@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
@@ -12,11 +13,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IModel" />.
+    ///     Extension methods for <see cref="IReadOnlyModel" />.
     /// </summary>
     public static class ModelExtensions
     {
@@ -27,30 +30,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none if found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         [DebuggerStepThrough]
-        public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
+        public static IReadOnlyEntityType? FindEntityType([NotNull] this IReadOnlyModel model, [NotNull] Type type)
             => ((Model)model).FindEntityType(Check.NotNull(type, nameof(type)));
-
-        /// <summary>
-        ///     Gets the entity that maps the given entity class, where the class may be a proxy derived from the
-        ///     actual entity type. Returns <see langword="null" /> if no entity type with the given CLR type is found
-        ///     or the given CLR type is being used by shared type entity type
-        ///     or the entity type has a defining navigation.
-        /// </summary>
-        /// <param name="model"> The model to find the entity type in. </param>
-        /// <param name="type"> The type to find the corresponding entity type for. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none if found. </returns>
-        public static IEntityType FindRuntimeEntityType([NotNull] this IModel model, [NotNull] Type type)
-        {
-            Check.NotNull(type, nameof(type));
-            var realModel = (Model)Check.NotNull(model, nameof(model));
-
-            return realModel.FindEntityType(type)
-                ?? (type.BaseType == null
-                    ? null
-                    : realModel.FindEntityType(type.BaseType));
-        }
 
         /// <summary>
         ///     Gets the entity type for the given type, defining navigation name
@@ -60,20 +43,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null" /> if none are found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         [DebuggerStepThrough]
-        public static IEntityType FindEntityType(
-            [NotNull] this IModel model,
+        public static IReadOnlyEntityType? FindEntityType(
+            [NotNull] this IReadOnlyModel model,
             [NotNull] Type type,
             [NotNull] string definingNavigationName,
-            [NotNull] IEntityType definingEntityType)
+            [NotNull] IReadOnlyEntityType definingEntityType)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(type, nameof(type));
             Check.NotNull(definingNavigationName, nameof(definingNavigationName));
             Check.NotNull(definingEntityType, nameof(definingEntityType));
 
-            return model.AsModel().FindEntityType(
+            return ((Model)model).FindEntityType(
                 type,
                 definingNavigationName,
                 definingEntityType.AsEntityType());
@@ -86,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        public static IReadOnlyCollection<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
+        public static IEnumerable<IReadOnlyEntityType> GetEntityTypes([NotNull] this IReadOnlyModel model, [NotNull] Type type)
             => ((Model)model).GetEntityTypes(type);
 
         /// <summary>
@@ -96,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        public static IReadOnlyCollection<IEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] string name)
+        [Obsolete("Use GetEntityTypes(Type) or FindEntityType(string)")]
+        public static IReadOnlyCollection<IReadOnlyEntityType> GetEntityTypes([NotNull] this IReadOnlyModel model, [NotNull] string name)
             => ((Model)model).GetEntityTypes(name);
 
         /// <summary>
@@ -106,9 +90,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The type used to find an entity type a defining navigation. </param>
         /// <returns> <see langword="true" /> if the model contains a corresponding entity type with a defining navigation. </returns>
         [DebuggerStepThrough]
-        public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] Type type)
-            => Check.NotNull(model, nameof(model)).AsModel()
-                .HasEntityTypeWithDefiningNavigation(Check.NotNull(type, nameof(type)));
+        [Obsolete("Use IsShared(Type)")]
+        public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IReadOnlyModel model, [NotNull] Type type)
+            => model.IsShared(type);
 
         /// <summary>
         ///     Gets a value indicating whether the model contains a corresponding entity type with a defining navigation.
@@ -117,9 +101,64 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name used to find an entity type with a defining navigation. </param>
         /// <returns> <see langword="true" /> if the model contains a corresponding entity type with a defining navigation. </returns>
         [DebuggerStepThrough]
-        public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] string name)
-            => Check.NotNull(model, nameof(model)).AsModel()
-                .HasEntityTypeWithDefiningNavigation(Check.NotNull(name, nameof(name)));
+        [Obsolete("Use FindEntityType(string)?.HasSharedClrType")]
+        public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IReadOnlyModel model, [NotNull] string name)
+            => model.FindEntityType(name)?.HasSharedClrType ?? false;
+
+        /// <summary>
+        ///     Returns the entity types corresponding to the least derived types from the given.
+        /// </summary>
+        /// <param name="model"> The model to find the entity types in. </param>
+        /// <param name="type"> The base type. </param>
+        /// <param name="condition"> An optional condition for filtering entity types. </param>
+        /// <returns> List of entity types corresponding to the least derived types from the given. </returns>
+        public static IEnumerable<IReadOnlyEntityType> FindLeastDerivedEntityTypes(
+            [NotNull] this IReadOnlyModel model,
+            [NotNull] Type type,
+            [CanBeNull] Func<IReadOnlyEntityType, bool>? condition = null)
+        {
+            var derivedLevels = new Dictionary<Type, int> { [type] = 0 };
+
+            var leastDerivedTypesGroups = model.GetEntityTypes()
+                .GroupBy(t => GetDerivedLevel(t.ClrType, derivedLevels))
+                .Where(g => g.Key != int.MaxValue)
+                .OrderBy(g => g.Key);
+
+            foreach (var leastDerivedTypes in leastDerivedTypesGroups)
+            {
+                if (condition == null)
+                {
+                    return leastDerivedTypes.ToList();
+                }
+
+                var filteredTypes = leastDerivedTypes.Where(condition).ToList();
+                if (filteredTypes.Count > 0)
+                {
+                    return filteredTypes;
+                }
+            }
+
+            return Enumerable.Empty<IReadOnlyEntityType>();
+        }
+
+        private static int GetDerivedLevel(Type? derivedType, Dictionary<Type, int> derivedLevels)
+        {
+            if (derivedType?.BaseType == null)
+            {
+                return int.MaxValue;
+            }
+
+            if (derivedLevels.TryGetValue(derivedType, out var level))
+            {
+                return level;
+            }
+
+            var baseType = derivedType.BaseType;
+            level = GetDerivedLevel(baseType, derivedLevels);
+            level += level == int.MaxValue ? 0 : 1;
+            derivedLevels.Add(derivedType, level);
+            return level;
+        }
 
         /// <summary>
         ///     Gets whether the CLR type is used by shared type entities in the model.
@@ -128,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="type"> The CLR type. </param>
         /// <returns> Whether the CLR type is used by shared type entities in the model. </returns>
         [DebuggerStepThrough]
-        public static bool IsShared([NotNull] this IModel model, [NotNull] Type type)
+        public static bool IsShared([NotNull] this IReadOnlyModel model, [NotNull] Type type)
             => Check.NotNull(model, nameof(model)).AsModel().IsShared(Check.NotNull(type, nameof(type)));
 
         /// <summary>
@@ -138,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to get the default change tracking strategy for. </param>
         /// <returns> The change tracking strategy. </returns>
         [DebuggerStepThrough]
-        public static ChangeTrackingStrategy GetChangeTrackingStrategy([NotNull] this IModel model)
+        public static ChangeTrackingStrategy GetChangeTrackingStrategy([NotNull] this IReadOnlyModel model)
             => ((Model)model).GetChangeTrackingStrategy();
 
         /// <summary>
@@ -152,9 +191,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="model"> The model to get the access mode for. </param>
-        /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
+        /// <returns> The access mode being used. </returns>
         [DebuggerStepThrough]
-        public static PropertyAccessMode GetPropertyAccessMode([NotNull] this IModel model)
+        public static PropertyAccessMode GetPropertyAccessMode([NotNull] this IReadOnlyModel model)
             => (PropertyAccessMode?)Check.NotNull(model, nameof(model))[CoreAnnotationNames.PropertyAccessMode]
                 ?? PropertyAccessMode.PreferField;
 
@@ -162,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the EF Core assembly version used to build this model
         /// </summary>
         /// <param name="model"> The model to get the version for. </param>
-        public static string GetProductVersion([NotNull] this IModel model)
+        public static string? GetProductVersion([NotNull] this IReadOnlyModel model)
             => model[CoreAnnotationNames.ProductVersion] as string;
 
         /// <summary>
@@ -170,9 +209,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to use. </param>
         /// <param name="methodInfo"> The MethodInfo to check for. </param>
-        public static bool IsIndexerMethod([NotNull] this IModel model, [NotNull] MethodInfo methodInfo)
+        public static bool IsIndexerMethod([NotNull] this IReadOnlyModel model, [NotNull] MethodInfo methodInfo)
             => !methodInfo.IsStatic
                 && methodInfo.IsSpecialName
+                && methodInfo.DeclaringType != null
                 && model.AsModel().FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
                 && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
 
@@ -190,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IModel model,
+            [NotNull] this IReadOnlyModel model,
             MetadataDebugStringOptions options,
             int indent = 0)
         {

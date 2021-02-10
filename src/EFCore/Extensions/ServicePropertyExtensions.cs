@@ -6,11 +6,13 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IServiceProperty" />.
+    ///     Extension methods for <see cref="IReadOnlyServiceProperty" />.
     /// </summary>
     public static class ServicePropertyExtensions
     {
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IServiceProperty serviceProperty,
+            [NotNull] this IReadOnlyServiceProperty serviceProperty,
             MetadataDebugStringOptions options,
             int indent = 0)
         {

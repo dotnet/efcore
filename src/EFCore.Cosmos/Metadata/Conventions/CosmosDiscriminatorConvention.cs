@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -101,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public override void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (entityTypeBuilder.Metadata.BaseType != newBaseType)
@@ -110,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            IConventionDiscriminatorBuilder discriminator = null;
+            IConventionDiscriminatorBuilder? discriminator = null;
             var entityType = entityTypeBuilder.Metadata;
             if (newBaseType == null)
             {
@@ -121,7 +123,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                discriminator = newBaseType.GetRootType().Builder?.HasDiscriminator(typeof(string));
+                var rootType = newBaseType.GetRootType();
+                discriminator = rootType.IsInModel
+                    ? rootType.Builder.HasDiscriminator(typeof(string))
+                    : null;
 
                 if (newBaseType.BaseType == null)
                 {

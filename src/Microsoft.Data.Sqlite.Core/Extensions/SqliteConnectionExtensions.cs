@@ -23,9 +23,9 @@ namespace Microsoft.Data.Sqlite
             this SqliteConnection connection,
             string commandText,
             params SqliteParameter[] parameters)
-            => (T)connection.ExecuteScalar(commandText, parameters);
+            => (T)connection.ExecuteScalar(commandText, parameters)!;
 
-        private static object ExecuteScalar(
+        private static object? ExecuteScalar(
             this SqliteConnection connection,
             string commandText,
             params SqliteParameter[] parameters)

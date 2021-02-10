@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -47,6 +49,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public static readonly ParameterExpression QueryContextParameter = Expression.Parameter(typeof(QueryContext), "queryContext");
 
+        /// <summary>
+        ///     <para>
+        ///         Expression representing a not translated expression in query tree during translation phase.
+        ///     </para>
+        ///     <para>
+        ///         This property is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        public static readonly Expression NotTranslatedExpression = new NotTranslatedExpressionType();
+
         private readonly IQueryTranslationPreprocessorFactory _queryTranslationPreprocessorFactory;
         private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
         private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
@@ -54,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private readonly ExpressionPrinter _expressionPrinter;
 
-        private Dictionary<string, LambdaExpression> _runtimeParameters;
+        private Dictionary<string, LambdaExpression>? _runtimeParameters;
 
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryCompilationContext" /> class.
@@ -236,8 +249,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Append(query));
 
         private static readonly MethodInfo _queryContextAddParameterMethodInfo
-            = typeof(QueryContext)
-                .GetTypeInfo()
-                .GetDeclaredMethod(nameof(QueryContext.AddParameter));
+            = typeof(QueryContext).GetRequiredDeclaredMethod(nameof(QueryContext.AddParameter));
+
+        private sealed class NotTranslatedExpressionType : Expression
+        {
+            public override Type Type => typeof(object);
+            public override ExpressionType NodeType => ExpressionType.Extension;
+        }
     }
 }

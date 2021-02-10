@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract IServiceProvider ApplicationServiceProvider { get; }
+        protected abstract IServiceProvider? ApplicationServiceProvider { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return resolved;
         }
 
-        private static string TryGetConnectionName(string connectionString)
+        private static string? TryGetConnectionName(string connectionString)
         {
             var firstEquals = connectionString.IndexOf('=');
             if (firstEquals < 0)

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
   </PropertyGroup>
@@ -24,10 +24,6 @@
   <ItemGroup>
     <Compile Update="TestUtilities\FakeProvider\FakeDbCommand.cs" />
     <Compile Update="TestUtilities\FakeProvider\FakeDbConnection.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Query" />
   </ItemGroup>
 
 </Project>

@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -24,15 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void ValidateContextNameInReverseEngineerGenerator(string contextName)
         {
-            var reverseEngineer = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices()
-                .AddSingleton<LoggingDefinitions, TestRelationalLoggingDefinitions>()
-                .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
-                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
-                .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()
-                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
-                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
-                .BuildServiceProvider()
+            var assembly = typeof(ReverseEngineeringConfigurationTests).Assembly;
+            var reverseEngineer = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), new string[0])
+                .Build(SqlServerTestHelpers.Instance.CreateContext())
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
             Assert.Equal(

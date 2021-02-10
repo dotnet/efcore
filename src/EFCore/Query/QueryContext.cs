@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -27,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public abstract class QueryContext : IParameterValues
     {
-        private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
-        private IStateManager _stateManager;
+        private readonly IDictionary<string, object?> _parameterValues = new Dictionary<string, object?>();
+        private IStateManager? _stateManager;
 
         /// <summary>
         ///     <para>
@@ -69,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(entity, nameof(entity));
             Check.NotNull(navigation, nameof(navigation));
 
-            _stateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+            // InitializeStateManager will populate the field before calling here
+            _stateManager!.TryGetEntry(entity).SetIsLoaded(navigation);
         }
 
         /// <summary>
@@ -111,15 +114,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The parameter values to use while executing the query.
         /// </summary>
-        public virtual IReadOnlyDictionary<string, object> ParameterValues
-            => (IReadOnlyDictionary<string, object>)_parameterValues;
+        public virtual IReadOnlyDictionary<string, object?> ParameterValues
+            => (IReadOnlyDictionary<string, object?>)_parameterValues;
 
         /// <summary>
         ///     Adds a parameter to <see cref="ParameterValues" /> for this query.
         /// </summary>
         /// <param name="name"> The name. </param>
         /// <param name="value"> The value. </param>
-        public virtual void AddParameter(string name, object value)
+        public virtual void AddParameter(string name, object? value)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -132,10 +135,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="standAlone"> Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution. </param>
         public virtual void InitializeStateManager(bool standAlone = false)
         {
-            if (_stateManager != null)
-            {
-                throw new InvalidOperationException(CoreStrings.QueryContextAlreadyInitializedStateManager);
-            }
+            Check.DebugAssert(
+                _stateManager == null, 
+                "The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.");
 
             _stateManager = standAlone
                 ? new StateManager(Dependencies.StateManager.Dependencies)
@@ -154,7 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] object[] keyValues,
             bool throwOnNullKey,
             out bool hasNullKey)
-            => _stateManager.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
+            // InitializeStateManager will populate the field before calling here
+            => _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -167,6 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IEntityType entityType,
             [NotNull] object entity,
             ValueBuffer valueBuffer)
-            => _stateManager.StartTrackingFromQuery(entityType, entity, valueBuffer);
+            // InitializeStateManager will populate the field before calling here
+            => _stateManager!.StartTrackingFromQuery(entityType, entity, valueBuffer);
     }
 }

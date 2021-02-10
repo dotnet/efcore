@@ -1161,10 +1161,10 @@ ORDER BY [c].[CustomerID], [t].[OrderID]");
             await base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
 
             AssertSql(
-                @"SELECT [t].[CustomerID] AS [OrderProperty], [t].[CustomerID0] AS [CustomerProperty]
+                @"SELECT [t].[OrderProperty], [t].[CustomerProperty]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [o].[CustomerID], [c].[CustomerID] AS [CustomerID0]
+    SELECT [o].[CustomerID] AS [OrderProperty], [c].[CustomerID] AS [CustomerProperty]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");
@@ -1233,10 +1233,10 @@ WHERE [o].[OrderID] = 10243");
             await base.SelectMany_whose_selector_references_outer_source(async);
 
             AssertSql(
-                @"SELECT [t].[OrderDate], [t].[City] AS [CustomerCity]
+                @"SELECT [t].[OrderDate], [t].[CustomerCity]
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [o].[OrderDate], [c].[City]
+    SELECT [o].[OrderDate], [c].[City] AS [CustomerCity]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
 ) AS [t]");
@@ -1434,12 +1434,6 @@ ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
         }
 
-        public override Task Reverse_without_explicit_ordering_throws(bool async)
-        {
-            return AssertTranslationFailedWithDetails(
-                () => base.Reverse_without_explicit_ordering_throws(async), RelationalStrings.MissingOrderingInSelectExpression);
-        }
-
         public override async Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)
         {
             await base.Custom_projection_reference_navigation_PK_to_FK_optimization(async);
@@ -1448,6 +1442,100 @@ ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
                 @"SELECT [o].[OrderID], [c].[CustomerID], [c].[City], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
+        }
+
+        public override async Task Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(bool async)
+        {
+            await base.Projecting_Length_of_a_string_property_after_FirstOrDefault_on_correlated_collection(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) CAST(LEN([o].[CustomerID]) AS int)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID])
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Projecting_count_of_navigation_which_is_generic_list(bool async)
+        {
+            await base.Projecting_count_of_navigation_which_is_generic_list(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID])
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Projecting_count_of_navigation_which_is_generic_collection(bool async)
+        {
+            await base.Projecting_count_of_navigation_which_is_generic_collection(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID])
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Projection_take_projection_doesnt_project_intermittent_column(bool async)
+        {
+            await base.Projection_take_projection_doesnt_project_intermittent_column(async);
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT TOP(@__p_0) ([c].[CustomerID] + N' ') + COALESCE([c].[City], N'') AS [Aggregate]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Projection_skip_projection_doesnt_project_intermittent_column(bool async)
+        {
+            await base.Projection_skip_projection_doesnt_project_intermittent_column(async);
+
+            AssertSql(
+                @"@__p_0='7'
+
+SELECT ([c].[CustomerID] + N' ') + COALESCE([c].[City], N'') AS [Aggregate]
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]
+OFFSET @__p_0 ROWS");
+        }
+
+        public override async Task Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(bool async)
+        {
+            await base.Projection_Distinct_projection_preserves_columns_used_for_distinct_in_subquery(async);
+
+            AssertSql(
+                @"SELECT (COALESCE([t].[FirstLetter], N'') + N' ') + [t].[Foo] AS [Aggregate]
+FROM (
+    SELECT DISTINCT [c].[CustomerID], SUBSTRING([c].[CustomerID], 0 + 1, 1) AS [FirstLetter], N'Foo' AS [Foo]
+    FROM [Customers] AS [c]
+) AS [t]");
+        }
+
+        public override async Task Projection_take_predicate_projection(bool async)
+        {
+            await base.Projection_take_predicate_projection(async);
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT ([t].[CustomerID] + N' ') + COALESCE([t].[City], N'') AS [Aggregate]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[City]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+WHERE [t].[CustomerID] LIKE N'A%'
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task Do_not_erase_projection_mapping_when_adding_single_projection(bool async)

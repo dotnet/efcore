@@ -6,6 +6,8 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlFragmentExpression sqlFragmentExpression
@@ -61,8 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(SqlFragmentExpression sqlFragmentExpression)
             => base.Equals(sqlFragmentExpression)
-                && string.Equals(Sql, sqlFragmentExpression.Sql)
-                && !string.Equals(Sql, "*"); // We make star projection different because it could be coming from different table.
+                && Sql == sqlFragmentExpression.Sql
+                && Sql != "*"; // We make star projection different because it could be coming from different table.
 
         /// <inheritdoc />
         public override int GetHashCode()

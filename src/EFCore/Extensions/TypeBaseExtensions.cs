@@ -6,11 +6,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="ITypeBase" />.
+    ///     Extension methods for <see cref="IReadOnlyTypeBase" />.
     /// </summary>
     public static class TypeBaseExtensions
     {
@@ -24,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="typeBase"> The type for which to get the access mode. </param>
-        /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
+        /// <returns> The access mode being used. </returns>
         public static PropertyAccessMode GetPropertyAccessMode(
-            [NotNull] this ITypeBase typeBase)
+            [NotNull] this IReadOnlyTypeBase typeBase)
             => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.PropertyAccessMode]
                 ?? typeBase.Model.GetPropertyAccessMode();
 
@@ -40,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="typeBase"> The type for which to get the access mode. </param>
-        /// <returns> The access mode being used, or null if the default access mode is being used. </returns>
+        /// <returns> The access mode being used. </returns>
         public static PropertyAccessMode GetNavigationAccessMode(
-            [NotNull] this ITypeBase typeBase)
+            [NotNull] this IReadOnlyTypeBase typeBase)
             => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.NavigationAccessMode]
                 ?? typeBase.GetPropertyAccessMode();
     }

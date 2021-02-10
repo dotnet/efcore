@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Id = i,
                             Artist = artists[i % 3],
-                            Tracks = new List<Track> { new Track { Id = i * 2 }, new Track { Id = i * 2 + 1 } }
+                            Tracks = new List<Track> { new() { Id = i * 2 }, new() { Id = i * 2 + 1 } }
                         });
                 }
 

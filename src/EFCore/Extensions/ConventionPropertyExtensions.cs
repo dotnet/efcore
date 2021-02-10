@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -26,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
-        public static IConventionProperty FindFirstPrincipal([NotNull] this IConventionProperty property)
-            => (IConventionProperty)((IProperty)property).FindFirstPrincipal();
+        public static IConventionProperty? FindFirstPrincipal([NotNull] this IConventionProperty property)
+            => (IConventionProperty?)((IReadOnlyProperty)property).FindFirstPrincipal();
 
         /// <summary>
         ///     Finds the list of principal properties including the given property that the given property is constrained by
@@ -36,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The list of all associated principal properties including the given property. </returns>
         public static IReadOnlyList<IConventionProperty> FindPrincipals([NotNull] this IConventionProperty property)
-            => ((IProperty)property).FindPrincipals().Cast<IConventionProperty>().ToList();
+            => ((IReadOnlyProperty)property).FindPrincipals().Cast<IConventionProperty>().ToList();
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The foreign keys that use this property.
         /// </returns>
         public static IEnumerable<IConventionForeignKey> GetContainingForeignKeys([NotNull] this IConventionProperty property)
-            => ((IProperty)property).GetContainingForeignKeys().Cast<IConventionForeignKey>();
+            => ((IReadOnlyProperty)property).GetContainingForeignKeys().Cast<IConventionForeignKey>();
 
         /// <summary>
         ///     Gets all indexes that use this property (including composite indexes in which this property
@@ -68,8 +70,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary that use this property, or <see langword="null" /> if it is not part of the primary key.
         /// </returns>
-        public static IConventionKey FindContainingPrimaryKey([NotNull] this IConventionProperty property)
-            => (IConventionKey)((IProperty)property).FindContainingPrimaryKey();
+        public static IConventionKey? FindContainingPrimaryKey([NotNull] this IConventionProperty property)
+            => (IConventionKey?)((IReadOnlyProperty)property).FindContainingPrimaryKey();
 
         /// <summary>
         ///     Gets all primary or alternate keys that use this property (including composite keys in which this property
@@ -88,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static CoreTypeMapping SetTypeMapping(
+        public static CoreTypeMapping? SetTypeMapping(
             [NotNull] this IConventionProperty property,
             [NotNull] CoreTypeMapping typeMapping,
             bool fromDataAnnotation = false)
@@ -96,10 +98,10 @@ namespace Microsoft.EntityFrameworkCore
                 typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
-        ///     Gets the <see cref="ConfigurationSource" /> for <see cref="PropertyExtensions.FindTypeMapping(IProperty)" />.
+        ///     Gets the <see cref="ConfigurationSource" /> for <see cref="CoreTypeMapping" /> of the property.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for <see cref="PropertyExtensions.FindTypeMapping(IProperty)" />. </returns>
+        /// <returns> The <see cref="ConfigurationSource" /> for <see cref="CoreTypeMapping" /> of the property. </returns>
         public static ConfigurationSource? GetTypeMappingConfigurationSource([NotNull] this IConventionProperty property)
             => ((Property)property).GetTypeMappingConfigurationSource();
 
@@ -280,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static Func<IProperty, IEntityType, ValueGenerator> SetValueGeneratorFactory(
+        public static Func<IProperty, IEntityType, ValueGenerator>? SetValueGeneratorFactory(
             [NotNull] this IConventionProperty property,
             [NotNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory,
             bool fromDataAnnotation = false)
@@ -302,9 +304,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="converter"> The converter, or <see langword="null" /> to remove any previously set converter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static ValueConverter SetValueConverter(
+        public static ValueConverter? SetValueConverter(
             [NotNull] this IConventionProperty property,
-            [CanBeNull] ValueConverter converter,
+            [CanBeNull] ValueConverter? converter,
             bool fromDataAnnotation = false)
             => property.AsProperty().SetValueConverter(
                 converter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -324,9 +326,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="providerClrType"> The type to use, or <see langword="null" /> to remove any previously set type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static Type SetProviderClrType(
+        public static Type? SetProviderClrType(
             [NotNull] this IConventionProperty property,
-            [CanBeNull] Type providerClrType,
+            [CanBeNull] Type? providerClrType,
             bool fromDataAnnotation = false)
             => property.AsProperty().SetProviderClrType(
                 providerClrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -346,9 +348,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static ValueComparer SetValueComparer(
+        public static ValueComparer? SetValueComparer(
             [NotNull] this IConventionProperty property,
-            [CanBeNull] ValueComparer comparer,
+            [CanBeNull] ValueComparer? comparer,
             bool fromDataAnnotation = false)
             => property.AsProperty().SetValueComparer(
                 comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -370,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static void SetKeyValueComparer(
             [NotNull] this IConventionProperty property,
-            [CanBeNull] ValueComparer comparer,
+            [CanBeNull] ValueComparer? comparer,
             bool fromDataAnnotation = false)
             => property.AsProperty().SetValueComparer(
                 comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -393,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static void SetStructuralValueComparer(
             [NotNull] this IConventionProperty property,
-            [CanBeNull] ValueComparer comparer,
+            [CanBeNull] ValueComparer? comparer,
             bool fromDataAnnotation = false)
             => property.SetKeyValueComparer(comparer, fromDataAnnotation);
 

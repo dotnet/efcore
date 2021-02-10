@@ -66,14 +66,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
         {
             private readonly InjectIncludeExpressionMutator _mutator;
 
-            private readonly List<IEntityType> _topLevelEntityTypes = new List<IEntityType>();
+            private readonly List<IEntityType> _topLevelEntityTypes = new();
 
             public ExpressionFinder(InjectIncludeExpressionMutator mutator)
             {
                 _mutator = mutator;
             }
 
-            public readonly List<Expression> FoundExpressions = new List<Expression>();
+            public readonly List<Expression> FoundExpressions = new();
 
             private int _depth;
 

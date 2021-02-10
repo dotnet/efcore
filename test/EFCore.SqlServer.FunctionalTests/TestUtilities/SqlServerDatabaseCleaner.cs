@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => false;
 
         private readonly string _dropViewsSql = @"
-DECLARE @name VARCHAR(MAX) = '__dummy__', @SQL VARCHAR(MAX) = '';
+DECLARE @name varchar(max) = '__dummy__', @SQL varchar(max) = '';
 
 WHILE @name IS NOT NULL
 BEGIN
@@ -61,7 +61,7 @@ END";
                 + @"
 GO
 
-DECLARE @SQL VARCHAR(MAX) = '';
+DECLARE @SQL varchar(max) = '';
 SELECT @SQL = @SQL + 'DROP FUNCTION ' + QUOTENAME(ROUTINE_SCHEMA) + '.' + QUOTENAME(ROUTINE_NAME) + ';'
   FROM [INFORMATION_SCHEMA].[ROUTINES] WHERE ROUTINE_TYPE = 'FUNCTION' AND ROUTINE_BODY = 'SQL';
 EXEC (@SQL);

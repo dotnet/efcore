@@ -1165,7 +1165,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     b.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
                 });
 
-            return finalize ? builder.Model.FinalizeModel() : builder.Model;
+            return finalize ? builder.Model.FinalizeModel() : (IModel)builder.Model;
         }
 
         private class PrimateContext : DbContext

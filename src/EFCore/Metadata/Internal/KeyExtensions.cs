@@ -6,6 +6,8 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Func<bool, IIdentityMap> GetIdentityMapFactory([NotNull] this IKey key)
+        public static Func<bool, IIdentityMap> GetIdentityMapFactory([NotNull] this IReadOnlyKey key)
             => key.AsKey().IdentityMapFactory;
 
         /// <summary>
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int IndexOf([NotNull] this IKey key, [NotNull] IProperty property)
+        public static int IndexOf([NotNull] this IReadOnlyKey key, [NotNull] IReadOnlyProperty property)
         {
             var index = 0;
             for (; index < key.Properties.Count && key.Properties[index] != property; index++)
@@ -47,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Key AsKey([NotNull] this IKey key, [NotNull] [CallerMemberName] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IKey, Key>(key, methodName);
+        public static Key AsKey([NotNull] this IReadOnlyKey key, [NotNull] [CallerMemberName] string methodName = "")
+            => MetadataExtensions.AsConcreteMetadataType<IReadOnlyKey, Key>(key, methodName);
     }
 }

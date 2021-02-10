@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
     /// <summary>
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         public virtual TResult Execute<TState, TResult>(
             TState state,
             Func<DbContext, TState, TResult> operation,
-            Func<DbContext, TState, ExecutionResult<TResult>> verifySucceeded)
+            Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded)
         {
             try
             {
@@ -70,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         public virtual async Task<TResult> ExecuteAsync<TState, TResult>(
             TState state,
             Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
-            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
             CancellationToken cancellationToken)
         {
             try

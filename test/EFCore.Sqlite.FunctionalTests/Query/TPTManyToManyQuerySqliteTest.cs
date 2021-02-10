@@ -26,9 +26,5 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(async))).Message);
-
-        [ConditionalTheory(Skip = "Issue#21541")]
-        public override Task Left_join_with_skip_navigation(bool async)
-            => base.Left_join_with_skip_navigation(async);
     }
 }

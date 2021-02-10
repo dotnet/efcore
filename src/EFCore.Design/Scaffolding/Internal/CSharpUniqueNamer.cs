@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class CSharpUniqueNamer<T> : CSharpNamer<T>
     {
-        private readonly HashSet<string> _usedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> _usedNames = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                                 if (!_readItemEnumerable.TryGetPartitionId(out var partitionKey))
                                 {
-                                    throw new InvalidOperationException(CosmosStrings.ParitionKeyMissing);
+                                    throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
                                 }
 
                                 EntityFrameworkEventSource.Log.QueryExecuting();
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                                 if (!_readItemEnumerable.TryGetPartitionId(out var partitionKey))
                                 {
-                                    throw new InvalidOperationException(CosmosStrings.ParitionKeyMissing);
+                                    throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
                                 }
 
                                 EntityFrameworkEventSource.Log.QueryExecuting();
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
 
                 public void Reset()
-                    => throw new NotImplementedException();
+                    => throw new NotSupportedException(CoreStrings.EnumerableResetNotSupported);
 
                 private bool ShapeResult()
                 {

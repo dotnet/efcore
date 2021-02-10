@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -29,9 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     {
-        private static readonly bool _useOldBehavior
-            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23386", out var enabled) && enabled;
-
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
@@ -39,14 +37,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICandidateNamingService _candidateNamingService;
         private Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>> _columnNamers;
         private ModelReverseEngineerOptions _options;
-        private readonly DatabaseTable _nullTable = new DatabaseTable();
+        private readonly DatabaseTable _nullTable = new();
         private CSharpUniqueNamer<DatabaseTable> _tableNamer;
         private CSharpUniqueNamer<DatabaseTable> _dbSetNamer;
-        private readonly HashSet<DatabaseColumn> _unmappedColumns = new HashSet<DatabaseColumn>();
+        private readonly HashSet<DatabaseColumn> _unmappedColumns = new();
         private readonly IPluralizer _pluralizer;
         private readonly ICSharpUtilities _cSharpUtilities;
         private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
         private readonly LoggingDefinitions _loggingDefinitions;
+        private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IPluralizer pluralizer,
             [NotNull] ICSharpUtilities cSharpUtilities,
             [NotNull] IScaffoldingTypeMapper scaffoldingTypeMapper,
-            [NotNull] LoggingDefinitions loggingDefinitions)
+            [NotNull] LoggingDefinitions loggingDefinitions,
+            [NotNull] IModelRuntimeInitializer modelRuntimeInitializer)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(candidateNamingService, nameof(candidateNamingService));
@@ -68,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(scaffoldingTypeMapper, nameof(scaffoldingTypeMapper));
             Check.NotNull(loggingDefinitions, nameof(loggingDefinitions));
+            Check.NotNull(modelRuntimeInitializer, nameof(modelRuntimeInitializer));
 
             _reporter = reporter;
             _candidateNamingService = candidateNamingService;
@@ -75,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _cSharpUtilities = cSharpUtilities;
             _scaffoldingTypeMapper = scaffoldingTypeMapper;
             _loggingDefinitions = loggingDefinitions;
+            _modelRuntimeInitializer = modelRuntimeInitializer;
         }
 
         /// <summary>
@@ -111,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             VisitDatabaseModel(modelBuilder, databaseModel);
 
-            return modelBuilder.Model;
+            return _modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), null);
         }
 
         /// <summary>
@@ -197,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 modelBuilder.Model.SetDatabaseName(databaseModel.DatabaseName);
             }
 
-            if (!_useOldBehavior && !string.IsNullOrEmpty(databaseModel.Collation))
+            if (!string.IsNullOrEmpty(databaseModel.Collation))
             {
                 modelBuilder.UseCollation(databaseModel.Collation);
             }
@@ -362,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     var model = modelBuilder.Model;
                     model.RemoveEntityType(entityTypeName);
-                    model.GetEntityTypeErrors().Add(entityTypeName, errorMessage);
+                    model.GetOrCreateEntityTypeErrors().Add(entityTypeName, errorMessage);
                     return null;
                 }
             }
@@ -505,14 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (column.Collation != null)
             {
-                if (_useOldBehavior)
-                {
-                    property.HasComment(column.Collation);
-                }
-                else
-                {
-                    property.UseCollation(column.Collation);
-                }
+                property.UseCollation(column.Collation);
             }
 
             if (!(column.Table.PrimaryKey?.Columns.Contains(column) ?? false))
@@ -758,7 +753,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var dependentEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.Table));
-
             if (dependentEntityType == null)
             {
                 return null;
@@ -834,9 +828,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 nullablePrincipalProperties.Select(tuple => tuple.column.DisplayName()).ToList()
                                     .Aggregate((a, b) => a + "," + b)));
 
-                        nullablePrincipalProperties
-                            .ToList()
-                            .ForEach(tuple => tuple.property.IsNullable = false);
+                        nullablePrincipalProperties.ForEach(tuple => tuple.property.IsNullable = false);
                     }
 
                     principalKey = principalEntityType.AddKey(principalProperties);
@@ -849,10 +841,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         DesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
                             foreignKey.DisplayName(),
                             string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, principalColumns),
-                            principalEntityType.DisplayName()));
+                            principalEntityType.Name));
 
                     return null;
                 }
+            }
+
+            var existingForeignKey = dependentEntityType.FindForeignKey(dependentProperties, principalKey, principalEntityType);
+            if (existingForeignKey is not null)
+            {
+                _reporter.WriteWarning(
+                    DesignStrings.ForeignKeyWithSameFacetsExists(foreignKey.DisplayName(), existingForeignKey.GetConstraintName()));
+
+                return null;
             }
 
             var newForeignKey = dependentEntityType.AddForeignKey(
@@ -932,8 +933,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         // Stores the names of the EntityType itself and its Properties, but does not include any Navigation Properties
-        private readonly Dictionary<IEntityType, List<string>> _entityTypeAndPropertyIdentifiers =
-            new Dictionary<IEntityType, List<string>>();
+        private readonly Dictionary<IReadOnlyEntityType, List<string>> _entityTypeAndPropertyIdentifiers =
+            new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -941,7 +942,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual List<string> ExistingIdentifiers([NotNull] IEntityType entityType)
+        protected virtual List<string> ExistingIdentifiers([NotNull] IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
