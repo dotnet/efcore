@@ -1191,6 +1191,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 return Condition(test, ifTrue, ifFalse);
             }
+
+            protected override Expression VisitUnary(UnaryExpression unaryExpression)
+            {
+                return AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23926", out var enabled)
+                    && enabled
+                    ? base.VisitUnary(unaryExpression)
+                    : unaryExpression.Update(Visit(unaryExpression.Operand));
+            }
         }
     }
 }
