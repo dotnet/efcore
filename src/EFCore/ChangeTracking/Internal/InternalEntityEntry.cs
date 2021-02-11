@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
         {
-            var entityType = (EntityType)EntityType;
+            var entityType = EntityType;
 
             // Prevent temp values from becoming permanent values
             if (oldState == EntityState.Added
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (oldState == EntityState.Detached)
             {
-                foreach (var serviceProperty in ((EntityType)EntityType).GetServiceProperties())
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
                 {
                     this[serviceProperty]
                         = serviceProperty
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (newState == EntityState.Detached)
             {
-                foreach (var serviceProperty in ((EntityType)EntityType).GetServiceProperties())
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
                 {
                     this[serviceProperty] = null;
                 }
@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_temporaryValues.IsEmpty)
             {
-                _temporaryValues = new SidecarValues(((EntityType)EntityType).TemporaryValuesFactory(this));
+                _temporaryValues = new SidecarValues(((IInternalEntityType)EntityType).TemporaryValuesFactory(this));
             }
         }
 
@@ -959,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_storeGeneratedValues.IsEmpty)
             {
-                _storeGeneratedValues = new SidecarValues(((EntityType)EntityType).StoreGeneratedValuesFactory(this));
+                _storeGeneratedValues = new SidecarValues(((IInternalEntityType)EntityType).StoreGeneratedValuesFactory(this));
             }
         }
 
@@ -1313,7 +1313,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry PrepareToSave()
         {
-            var entityType = (EntityType)EntityType;
+            var entityType = EntityType;
 
             if (EntityState == EntityState.Added)
             {
@@ -1549,7 +1549,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             get
             {
                 var isGenerated = false;
-                var keyProperties = ((EntityType)EntityType).FindPrimaryKey().Properties;
+                var keyProperties = EntityType.FindPrimaryKey().Properties;
 
                 // ReSharper disable once ForCanBeConvertedToForeach
                 // ReSharper disable once LoopCanBeConvertedToQuery
@@ -1585,7 +1585,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                var keyProperties = ((EntityType)EntityType).FindPrimaryKey().Properties;
+                var keyProperties = EntityType.FindPrimaryKey().Properties;
                 // ReSharper disable once ForCanBeConvertedToForeach
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 for (var i = 0; i < keyProperties.Count; i++)

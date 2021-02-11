@@ -558,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry StartTracking(InternalEntityEntry entry)
         {
-            var entityType = (EntityType)entry.EntityType;
+            var entityType = entry.EntityType;
 
             if (entry.StateManager != this)
             {

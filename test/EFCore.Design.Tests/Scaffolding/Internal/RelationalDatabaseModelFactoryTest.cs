@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             };
             var model = _factory.Create(info, new ModelReverseEngineerOptions());
             Assert.Collection(
-                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                model.GetEntityTypes().OrderBy(t => t.Name),
                 vwtable =>
                 {
                     Assert.Equal("noPrimaryKey", vwtable.GetTableName());

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 #nullable enable
 
@@ -51,5 +52,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The list of ignored member names. </returns>
         IEnumerable<string> GetIgnoredMembers();
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties and navigations of this entity type.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual properties and navigations can override this access mode. The value set here will
+        ///         be used for any property or navigation for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
+        void SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode)
+            => this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for navigations of this entity type.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual navigations can override this access mode. The value set here will
+        ///         be used for any navigation for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
+        void SetNavigationAccessMode(PropertyAccessMode? propertyAccessMode)
+            => this.SetOrRemoveAnnotation(CoreAnnotationNames.NavigationAccessMode, propertyAccessMode);
     }
 }

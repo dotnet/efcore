@@ -1318,7 +1318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (EntityTypeBuilder<TEntity>)base.UsePropertyAccessMode(propertyAccessMode);
 
         /// <summary>
-        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        ///     Adds seed data to this entity type. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
         ///     An array of seed data of the same type as the entity.
@@ -1328,7 +1328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => HasData((IEnumerable<object>)data);
 
         /// <summary>
-        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        ///     Adds seed data to this entity type. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
         ///     A collection of seed data of the same type as the entity.
@@ -1338,7 +1338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => HasData((IEnumerable<object>)data);
 
         /// <summary>
-        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        ///     Adds seed data to this entity type. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
         ///     An array of seed data represented by anonymous types.
@@ -1348,7 +1348,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => HasData((IEnumerable<object>)data);
 
         /// <summary>
-        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        ///     Adds seed data to this entity type. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
         ///     A colection of seed data represented by anonymous types.

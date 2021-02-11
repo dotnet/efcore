@@ -102,22 +102,6 @@ namespace Microsoft.EntityFrameworkCore
                         null
                     ),
                     (
-                        typeof(IReadOnlyEntityType),
-                        typeof(EntityTypeExtensions),
-                        typeof(MutableEntityTypeExtensions),
-                        typeof(ConventionEntityTypeExtensions),
-                        null,
-                        null
-                    ),
-                    (
-                        typeof(IReadOnlyTypeBase),
-                        typeof(TypeBaseExtensions),
-                        typeof(MutableTypeBaseExtensions),
-                        typeof(ConventionTypeBaseExtensions),
-                        null,
-                        null
-                    ),
-                    (
                         typeof(IReadOnlyKey),
                         typeof(KeyExtensions),
                         typeof(MutableKeyExtensions),
@@ -195,13 +179,11 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IMutableAnnotatable).GetMethod("set_Item"),
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
                 typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.SetOrRemoveAnnotation)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetAllBaseTypesInclusive)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetAllBaseTypesInclusiveAscending)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetConcreteDerivedTypesInclusive)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetClosestCommonParent)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetProperty)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.LeastDerivedType)),
                 typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.HasNoEntityType)),
+                typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.GetConcreteDerivedTypesInclusive)),
+                typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.GetClosestCommonParent)),
+                typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.LeastDerivedType)),
+                typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
                 typeof(IReadOnlyNavigationBase).GetMethod("get_DeclaringEntityType"),
                 typeof(IReadOnlyNavigationBase).GetMethod("get_TargetEntityType"),
                 typeof(IReadOnlyNavigationBase).GetMethod("get_Inverse"),
@@ -247,6 +229,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(ConventionModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared)),
                 typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddOwned)),
                 typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared)),
+                typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData))
             };
         }
     }

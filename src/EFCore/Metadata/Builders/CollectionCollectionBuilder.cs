@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual InternalModelBuilder ModelBuilder
-            => LeftEntityType.AsEntityType().Model.Builder;
+            => ((EntityType)LeftEntityType).Model.Builder;
 
         /// <summary>
         ///     Configures the join entity type implementing the many-to-many relationship.
