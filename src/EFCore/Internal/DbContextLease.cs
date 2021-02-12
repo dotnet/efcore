@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ValueTask ReleaseAsync()
-            => Release(out var pool, out var context) ? pool.ReturnAsync(context) : new ValueTask();
+            => Release(out var pool, out var context) ? pool.ReturnAsync(context) : default;
 
         private bool Release(out IDbContextPool pool, out IDbContextPoolable context)
         {
