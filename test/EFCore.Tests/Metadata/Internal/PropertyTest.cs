@@ -18,40 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class PropertyTest
     {
         [ConditionalFact]
-        public void Use_of_custom_IProperty_throws()
-        {
-            var property = new FakeProperty();
-
-            Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IReadOnlyProperty), nameof(FakeProperty)),
-                Assert.Throws<NotSupportedException>(() => property.AsProperty()).Message);
-        }
-
-        [ConditionalFact]
-        public void Use_of_custom_IPropertyBase_throws()
-        {
-            var property = new FakeProperty();
-
-            Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IReadOnlyPropertyBase), nameof(FakeProperty)),
-                Assert.Throws<NotSupportedException>(() => property.AsPropertyBase()).Message);
-        }
-
-        private class FakeProperty : Annotatable, IReadOnlyProperty
-        {
-            public string Name { get; }
-            public IReadOnlyTypeBase DeclaringType { get; }
-            public Type ClrType { get; }
-            public IReadOnlyEntityType DeclaringEntityType { get; }
-            public bool IsNullable { get; }
-            public bool IsStoreGeneratedAlways { get; }
-            public ValueGenerated ValueGenerated { get; }
-            public bool IsConcurrencyToken { get; }
-            public PropertyInfo PropertyInfo { get; }
-            public FieldInfo FieldInfo { get; }
-        }
-
-        [ConditionalFact]
         public void Throws_when_model_is_readonly()
         {
             var model = CreateModel();

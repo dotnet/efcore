@@ -141,10 +141,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(3, specialCustomerTable.EntityTypeMappings.Count());
             Assert.True(specialCustomerTable.EntityTypeMappings.First().IsSharedTablePrincipal);
 
-            Assert.Equal(specialCustomerType.GetDiscriminatorProperty() == null ? 8 : 9, specialCustomerTable.Columns.Count());
+            Assert.Equal(specialCustomerType.FindDiscriminatorProperty() == null ? 8 : 9, specialCustomerTable.Columns.Count());
 
             var specialityColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
-            Assert.Equal(specialCustomerType.GetDiscriminatorProperty() != null, specialityColumn.IsNullable);
+            Assert.Equal(specialCustomerType.FindDiscriminatorProperty() != null, specialityColumn.IsNullable);
         }
 
         private static void AssertViews(IRelationalModel model, Mapping mapping)
@@ -240,9 +240,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var specialityColumn = specialCustomerView.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
                 Assert.False(specialityColumn.IsNullable);
 
-                Assert.Null(customerType.GetDiscriminatorProperty());
+                Assert.Null(customerType.FindDiscriminatorProperty());
                 Assert.Null(customerType.GetDiscriminatorValue());
-                Assert.Null(specialCustomerType.GetDiscriminatorProperty());
+                Assert.Null(specialCustomerType.FindDiscriminatorProperty());
                 Assert.Null(specialCustomerType.GetDiscriminatorValue());
             }
             else
@@ -517,9 +517,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("IX_SpecialCustomer_AnotherRelatedCustomerId", anotherSpecialCustomerDbIndex.Name);
                 Assert.NotNull(anotherSpecialCustomerDbIndex.MappedIndexes.Single());
 
-                Assert.Null(customerType.GetDiscriminatorProperty());
+                Assert.Null(customerType.FindDiscriminatorProperty());
                 Assert.Null(customerType.GetDiscriminatorValue());
-                Assert.Null(specialCustomerType.GetDiscriminatorProperty());
+                Assert.Null(specialCustomerType.FindDiscriminatorProperty());
                 Assert.Null(specialCustomerType.GetDiscriminatorValue());
             }
             else
@@ -721,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Single(model.Views);
 
             var customerType = model.Model.FindEntityType(typeof(Customer));
-            Assert.NotNull(customerType.GetDiscriminatorProperty());
+            Assert.NotNull(customerType.FindDiscriminatorProperty());
 
             var customerView = customerType.GetViewMappings().Single().View;
             Assert.Equal("CustomerView", customerView.Name);

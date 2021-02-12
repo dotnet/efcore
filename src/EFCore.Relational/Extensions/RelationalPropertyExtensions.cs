@@ -926,7 +926,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise. </returns>
         public static bool IsColumnNullable([NotNull] this IReadOnlyProperty property)
             => property.IsNullable
-                || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.GetDiscriminatorProperty() != null);
+                || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.FindDiscriminatorProperty() != null);
 
         /// <summary>
         ///     <para>
@@ -956,7 +956,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return property.IsNullable
-                || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.GetDiscriminatorProperty() != null)
+                || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.FindDiscriminatorProperty() != null)
                 || IsOptionalSharingDependent(property.DeclaringEntityType, storeObject, 0);
         }
 
@@ -975,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore
                         || IsOptionalSharingDependent(linkingForeignKey.PrincipalEntityType, storeObject, recursionDepth));
             }
 
-            return optional ?? (entityType.BaseType != null && entityType.GetDiscriminatorProperty() != null);
+            return optional ?? (entityType.BaseType != null && entityType.FindDiscriminatorProperty() != null);
         }
 
         /// <summary>

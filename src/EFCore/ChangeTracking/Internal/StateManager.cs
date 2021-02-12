@@ -984,7 +984,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (!_changeDetectorInitialized)
             {
                 _changeDetector = Context.ChangeTracker.AutoDetectChangesEnabled
-                    && !((Model)Context.Model).SkipDetectChanges
+                    && !((IRuntimeModel)Context.Model).SkipDetectChanges
                         ? Context.GetDependencies().ChangeDetector
                         : null;
                 _changeDetectorInitialized = true;

@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the <see cref="IProperty" /> that will be used for storing a discriminator value.
         /// </summary>
-        new IProperty? GetDiscriminatorProperty()
-            => (IProperty?)((IReadOnlyEntityType)this).GetDiscriminatorProperty();
+        new IProperty? FindDiscriminatorProperty()
+            => (IProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
 
         /// <summary>
         ///     Gets the root base type for a given entity type.

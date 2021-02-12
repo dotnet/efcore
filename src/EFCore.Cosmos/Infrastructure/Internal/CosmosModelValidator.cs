@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                 if (entityType.ClrType.IsInstantiable()
                     && entityType.GetContainingPropertyName() == null)
                 {
-                    if (entityType.GetDiscriminatorProperty() == null)
+                    if (entityType.FindDiscriminatorProperty() == null)
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.NoDiscriminatorProperty(entityType.DisplayName(), container));

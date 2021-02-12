@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
 
                 if (entityType.BaseType != null
-                    && (entityType.GetDiscriminatorProperty() == null
+                    && (entityType.FindDiscriminatorProperty() == null
                         || sqlQuery != entityType.BaseType.GetSqlQuery()))
                 {
                     throw new InvalidOperationException(
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
 
                     if ((entityType.BaseType != null || entityType.GetDerivedTypes().Any())
-                        && entityType.GetDiscriminatorProperty() == null)
+                        && entityType.FindDiscriminatorProperty() == null)
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.TableValuedFunctionNonTPH(dbFunction.ModelName, entityType.DisplayName()));
@@ -1106,7 +1106,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 // Hierarchy mapping strategy must be the same across all types of mappings
                 var isTPH = rootEntityType.FindPrimaryKey() == null
-                    || rootEntityType.GetDiscriminatorProperty() != null;
+                    || rootEntityType.FindDiscriminatorProperty() != null;
                 if (isTPH)
                 {
                     ValidateTPHMapping(rootEntityType, forTables: false);

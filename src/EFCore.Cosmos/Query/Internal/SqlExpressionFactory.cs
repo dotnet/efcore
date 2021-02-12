@@ -532,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (concreteEntityTypes.Count == 1)
             {
                 var concreteEntityType = concreteEntityTypes[0];
-                var discriminatorProperty = concreteEntityType.GetDiscriminatorProperty();
+                var discriminatorProperty = concreteEntityType.FindDiscriminatorProperty();
                 if (discriminatorProperty != null)
                 {
                     var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
@@ -545,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             else
             {
                 var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                    .BindProperty(concreteEntityTypes[0].GetDiscriminatorProperty(), clientEval: false);
+                    .BindProperty(concreteEntityTypes[0].FindDiscriminatorProperty(), clientEval: false);
 
                 selectExpression.ApplyPredicate(
                     In(

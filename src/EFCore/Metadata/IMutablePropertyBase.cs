@@ -45,11 +45,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         By default, the backing field, if one is found or has been specified, is used when
         ///         new objects are constructed, typically when entities are queried from the database.
         ///         Properties are used for all other accesses. This can be changed by calling
-        ///         <see cref="MutablePropertyBaseExtensions.SetPropertyAccessMode" />.
+        ///         <see cref="SetPropertyAccessMode" />.
         ///     </para>
         /// </summary>
         /// <param name="fieldName"> The name of the field to use. </param>
-        void SetField([CanBeNull] string? fieldName)
-            => this.AsPropertyBase().SetField(fieldName, ConfigurationSource.Explicit);
+        void SetField([CanBeNull] string? fieldName);
+
+        /// <summary>
+        ///     Sets the <see cref="PropertyAccessMode" /> to use for this property.
+        /// </summary>
+        /// <param name="propertyAccessMode">
+        ///     The <see cref="PropertyAccessMode" />, or <see langword="null" />
+        ///     to clear the mode set.
+        /// </param>
+        void SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode);
     }
 }

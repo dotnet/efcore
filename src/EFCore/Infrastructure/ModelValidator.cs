@@ -621,7 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return;
             }
 
-            var discriminatorProperty = rootEntityType.GetDiscriminatorProperty();
+            var discriminatorProperty = rootEntityType.FindDiscriminatorProperty();
             if (discriminatorProperty == null)
             {
                 throw new InvalidOperationException(

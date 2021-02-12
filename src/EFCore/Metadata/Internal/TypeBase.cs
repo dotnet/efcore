@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual PropertyAccessMode? SetPropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             ConfigurationSource configurationSource)
-            => (PropertyAccessMode?)this.SetOrRemoveAnnotation(
+            => (PropertyAccessMode?)SetOrRemoveAnnotation(
                 CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource)?.Value;
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual PropertyAccessMode? SetNavigationAccessMode(
             PropertyAccessMode? propertyAccessMode,
             ConfigurationSource configurationSource)
-            => (PropertyAccessMode?)this.SetOrRemoveAnnotation(
+            => (PropertyAccessMode?)SetOrRemoveAnnotation(
                 CoreAnnotationNames.NavigationAccessMode, propertyAccessMode, configurationSource)?.Value;
 
         /// <summary>

@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual void DetectChanges()
         {
-            if (!((Model)_stateManager.Model).SkipDetectChanges)
+            if (!((IRuntimeModel)_stateManager.Model).SkipDetectChanges)
             {
                 _changeDetector.DetectChanges(_stateManager);
             }

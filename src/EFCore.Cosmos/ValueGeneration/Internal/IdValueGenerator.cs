@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
             var primaryKey = entityType.FindPrimaryKey();
             var discriminator = entityType.GetDiscriminatorValue();
             if (discriminator != null
-                && !primaryKey.Properties.Contains(entityType.GetDiscriminatorProperty()))
+                && !primaryKey.Properties.Contains(entityType.FindDiscriminatorProperty()))
             {
                 AppendString(builder, discriminator);
                 builder.Append("|");

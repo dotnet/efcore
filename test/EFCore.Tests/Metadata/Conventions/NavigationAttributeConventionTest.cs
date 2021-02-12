@@ -906,7 +906,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void RunNavigationBackingFieldAttributeConvention(
             InternalForeignKeyBuilder relationshipBuilder,
-            InternalNavigationBuilder navigationBuilder)
+            IConventionNavigationBuilder navigationBuilder)
         {
             var dependencies = CreateDependencies();
             var context = new ConventionContext<IConventionNavigationBuilder>(
@@ -950,7 +950,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 "DependentForNavWithBackingField",
                 ConfigurationSource.Convention);
 
-            var navigationBuilder = relationshipBuilder.Metadata.DependentToPrincipal.Builder;
+            IConventionNavigationBuilder navigationBuilder = relationshipBuilder.Metadata.DependentToPrincipal.Builder;
             RunNavigationBackingFieldAttributeConvention(relationshipBuilder, navigationBuilder);
 
             Assert.Equal("_backingFieldFromAttribute", navigationBuilder.Metadata.GetFieldName());
@@ -975,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunNavigationBackingFieldAttributeConvention(relationshipBuilder, navigationBuilder);
 
-            Assert.Equal("_backingFieldFromFluentApi", navigationBuilder.Metadata.GetFieldName());
+            Assert.Equal("_backingFieldFromFluentApi", ((IConventionNavigation)navigationBuilder.Metadata).GetFieldName());
         }
 
         #endregion

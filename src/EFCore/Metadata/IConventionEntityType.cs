@@ -92,11 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ConfigurationSource? GetQueryFilterConfigurationSource();
 
         /// <summary>
-        ///     Returns the <see cref="IConventionProperty" /> that will be used for storing a discriminator value.
+        ///     Returns the property that will be used for storing a discriminator value.
         /// </summary>
-        /// <returns> The <see cref="IConventionProperty" /> that will be used for storing a discriminator value. </returns>
-        new IConventionProperty? GetDiscriminatorProperty()
-            => (IConventionProperty?)((IReadOnlyEntityType)this).GetDiscriminatorProperty();
+        /// <returns> The property that will be used for storing a discriminator value. </returns>
+        new IConventionProperty? FindDiscriminatorProperty()
+            => (IConventionProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
 
         /// <summary>
         ///     Sets the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         bool? SetDiscriminatorMappingComplete(bool? complete, bool fromDataAnnotation = false)
-            => (bool?)this.SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete, fromDataAnnotation)?.Value;
+            => (bool?)SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete, fromDataAnnotation)?.Value;
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value completeness.
@@ -237,6 +237,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </returns>
         new IConventionEntityType GetRootType()
             => (IConventionEntityType)((IReadOnlyEntityType)this).GetRootType();
+
+        /// <summary>
+        ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
+        ///     a parent of the other, that parent is returned. Returns <see langword="null" /> if the two entity types aren't
+        ///     in the same hierarchy.
+        /// </summary>
+        /// <param name="otherEntityType"> Another entity type.</param>
+        /// <returns>
+        ///     The closest common parent of this entity type and <paramref name="otherEntityType" />,
+        ///     or <see langword="null" /> if they have not common parent.
+        /// </returns>
+        new IConventionEntityType? FindClosestCommonParent([NotNull] IReadOnlyEntityType otherEntityType)
+            => (IConventionEntityType?)((IReadOnlyEntityType)this).FindClosestCommonParent(otherEntityType);
+
+        /// <summary>
+        ///     Gets the least derived type between the specified two.
+        /// </summary>
+        /// <param name="otherEntityType"> The other entity type to compare with. </param>
+        /// <returns>
+        ///     The least derived type between the specified two.
+        ///     If the given entity types are not related, then <see langword="null" /> is returned.
+        /// </returns>
+        new IConventionEntityType? LeastDerivedType([NotNull] IReadOnlyEntityType otherEntityType)
+            => (IConventionEntityType?)((IReadOnlyEntityType)this).LeastDerivedType(otherEntityType);
 
         /// <summary>
         ///     Sets a value indicating whether the entity type has no keys.

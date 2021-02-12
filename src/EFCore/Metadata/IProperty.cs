@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,11 +20,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEntityType DeclaringEntityType { get; }
 
         /// <summary>
+        ///     Creates an <see cref="IEqualityComparer{T}" /> for values of the given property type.
+        /// </summary>
+        /// <typeparam name="TProperty"> The property type. </typeparam>
+        /// <returns> A new equality comparer. </returns>
+        IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>()
+        {
+            var comparer = GetKeyValueComparer()!;
+
+            return comparer is IEqualityComparer<TProperty> nullableComparer
+                ? nullableComparer
+                : new NullableComparer<TProperty>(comparer);
+        }
+
+        private sealed class NullableComparer<TNullableKey> : IEqualityComparer<TNullableKey>
+        {
+            private readonly IEqualityComparer _comparer;
+
+            public NullableComparer(IEqualityComparer comparer)
+            {
+                _comparer = comparer;
+            }
+
+            public bool Equals(TNullableKey? x, TNullableKey? y)
+                => (x == null && y == null)
+                    || (x != null && y != null && _comparer.Equals(x, y));
+
+            public int GetHashCode(TNullableKey obj)
+                => obj is null ? 0 : _comparer.GetHashCode(obj);
+        }
+
+        /// <summary>
         ///     Finds the first principal property that the given property is constrained by
         ///     if the given property is part of a foreign key.
         /// </summary>
         /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
-        IProperty? FindFirstPrincipal()
+        new IProperty? FindFirstPrincipal()
             => (IProperty?)((IReadOnlyProperty)this).FindFirstPrincipal();
 
         /// <summary>
@@ -31,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     if the given property is part of a foreign key.
         /// </summary>
         /// <returns> The list of all associated principal properties including the given property. </returns>
-        IReadOnlyList<IProperty> FindPrincipals()
+        new IReadOnlyList<IProperty> FindPrincipals()
             => ((IReadOnlyProperty)this).FindPrincipals().Cast<IProperty>().ToList();
 
         /// <summary>
@@ -41,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The foreign keys that use this property.
         /// </returns>
-        IEnumerable<IForeignKey> GetContainingForeignKeys();
+        new IEnumerable<IForeignKey> GetContainingForeignKeys();
 
         /// <summary>
         ///     Gets all indexes that use this property (including composite indexes in which this property
@@ -50,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The indexes that use this property.
         /// </returns>
-        IEnumerable<IIndex> GetContainingIndexes();
+        new IEnumerable<IIndex> GetContainingIndexes();
 
         /// <summary>
         ///     Gets the primary key that uses this property (including a composite primary key in which this property
@@ -59,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The primary that use this property, or <see langword="null" /> if it is not part of the primary key.
         /// </returns>
-        IKey? FindContainingPrimaryKey()
+        new IKey? FindContainingPrimaryKey()
             => (IKey?)((IReadOnlyProperty)this).FindContainingPrimaryKey();
 
         /// <summary>
@@ -69,6 +101,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The primary and alternate keys that use this property.
         /// </returns>
-        IEnumerable<IKey> GetContainingKeys();
+        new IEnumerable<IKey> GetContainingKeys();
     }
 }

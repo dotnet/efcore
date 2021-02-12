@@ -1419,7 +1419,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // If navigation is defined on derived type and entity type is part of TPT then we need to get ITableBase for derived type.
                     // TODO: The following code should also handle Function and SqlQuery mappings
                     var table = navigation.DeclaringEntityType.BaseType == null
-                        || entityType.GetDiscriminatorProperty() != null
+                        || entityType.FindDiscriminatorProperty() != null
                             ? navigation.DeclaringEntityType.GetViewOrTableMappings().Single().Table
                             : navigation.DeclaringEntityType.GetViewOrTableMappings().Select(tm => tm.Table)
                                 .Except(navigation.DeclaringEntityType.BaseType.GetViewOrTableMappings().Select(tm => tm.Table))
@@ -1434,7 +1434,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             // Since identifying PK would be non-nullable but principal can still be null
                             // Derived owned navigation does not de-dupe the PK column which for principal is from base table
                             // and for dependent on derived table
-                            || (entityType.GetDiscriminatorProperty() == null
+                            || (entityType.FindDiscriminatorProperty() == null
                                 && navigation.DeclaringEntityType.IsStrictlyDerivedFrom(entityShaperExpression.EntityType));
 
                         var propertyExpressions = GetPropertyExpressionFromSameTable(
