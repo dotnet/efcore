@@ -1253,6 +1253,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 return Condition(test, ifTrue, ifFalse);
             }
+
+            protected override Expression VisitUnary(UnaryExpression unaryExpression)
+                => unaryExpression.Update(Visit(unaryExpression.Operand));
         }
     }
 }

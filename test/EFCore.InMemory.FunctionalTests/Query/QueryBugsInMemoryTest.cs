@@ -1487,6 +1487,75 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        #region Issue23926
+
+        [ConditionalFact]
+        public virtual void Left_join_with_entity_with_enum_discriminator()
+        {
+            using (CreateScratch<MyContext23926>(Seed23926, "23926"))
+            {
+                using var context = new MyContext23926();
+
+                var query = context.History.Select(e => e.User.Name).ToList();
+
+                Assert.Equal(query, new string[] { "UserA", "DerivedUserB", null });
+            }
+        }
+
+        private static void Seed23926(MyContext23926 context)
+        {
+            context.Add(new History23926 { User = new User23926 { Name = "UserA" } });
+            context.Add(new History23926 { User = new DerivedUser23926 { Name = "DerivedUserB" } });
+            context.Add(new History23926 { User = null });
+
+            context.SaveChanges();
+        }
+
+        private class History23926
+        {
+            public int Id { get; set; }
+            public int? UserId { get; set; }
+            public User23926 User { get; set; }
+        }
+
+        private class User23926
+        {
+            public int Id { get; set; }
+            public UserTypes23926 Type { get; set; }
+            public string Name { get; set; }
+        }
+        private enum UserTypes23926
+        {
+            User,
+            DerivedUser
+        }
+
+        private class DerivedUser23926 : User23926
+        {
+            public string Value { get; set; }
+        }
+
+        private class MyContext23926 : DbContext
+        {
+            public DbSet<History23926> History { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("23926");
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<User23926>().HasDiscriminator(e => e.Type)
+                    .HasValue<User23926>(UserTypes23926.User)
+                    .HasValue<DerivedUser23926>(UserTypes23926.DerivedUser);
+            }
+        }
+
+        #endregion
+
         #region SharedHelper
 
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> seed, string databaseName)

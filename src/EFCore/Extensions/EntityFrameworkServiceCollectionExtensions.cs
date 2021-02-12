@@ -865,7 +865,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Check.NotNull(optionsAction, nameof(optionsAction));
 
-            return AddPooledDbContextFactory<TContext>(serviceCollection, (_, ob) => optionsAction(ob));
+            return AddPooledDbContextFactory<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
         }
 
         /// <summary>
