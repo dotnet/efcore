@@ -4,9 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable enable
 
@@ -58,6 +63,97 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsKeyless { get; }
 
         /// <summary>
+        ///     Sets the change tracking strategy to use for this entity type. This strategy indicates how the
+        ///     context detects changes to properties for an instance of the entity type.
+        /// </summary>
+        /// <param name="changeTrackingStrategy"> The strategy to use. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        ChangeTrackingStrategy? SetChangeTrackingStrategy(ChangeTrackingStrategy? changeTrackingStrategy, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetChangeTrackingStrategy" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="IReadOnlyEntityType.GetChangeTrackingStrategy" />. </returns>
+        ConfigurationSource? GetChangeTrackingStrategyConfigurationSource();
+
+        /// <summary>
+        ///     Sets the LINQ expression filter automatically applied to queries for this entity type.
+        /// </summary>
+        /// <param name="queryFilter"> The LINQ expression filter. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured filter. </returns>
+        LambdaExpression? SetQueryFilter([CanBeNull] LambdaExpression? queryFilter, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilter" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilter" />. </returns>
+        ConfigurationSource? GetQueryFilterConfigurationSource();
+
+        /// <summary>
+        ///     Returns the <see cref="IConventionProperty" /> that will be used for storing a discriminator value.
+        /// </summary>
+        /// <returns> The <see cref="IConventionProperty" /> that will be used for storing a discriminator value. </returns>
+        new IConventionProperty? GetDiscriminatorProperty()
+            => (IConventionProperty?)((IReadOnlyEntityType)this).GetDiscriminatorProperty();
+
+        /// <summary>
+        ///     Sets the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
+        /// </summary>
+        /// <param name="property"> The property to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The discriminator property. </returns>
+        IConventionProperty? SetDiscriminatorProperty([CanBeNull] IReadOnlyProperty? property, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the discriminator property.
+        /// </summary>
+        /// <returns> The <see cref="ConfigurationSource" /> or <see langword="null" /> if no discriminator property has been set. </returns>
+        ConfigurationSource? GetDiscriminatorPropertyConfigurationSource();
+
+        /// <summary>
+        ///     Sets the value indicating whether the discriminator mapping is complete.
+        /// </summary>
+        /// <param name="complete"> The value indicating whether the discriminator mapping is complete. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        bool? SetDiscriminatorMappingComplete(bool? complete, bool fromDataAnnotation = false)
+            => (bool?)this.SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete, fromDataAnnotation)?.Value;
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value completeness.
+        /// </summary>
+        /// <returns> The <see cref="ConfigurationSource" /> or <see langword="null" /> if discriminator completeness has not been set. </returns>
+        ConfigurationSource? GetDiscriminatorMappingCompleteConfigurationSource()
+            => FindAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Sets the discriminator value for this entity type.
+        /// </summary>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        object? SetDiscriminatorValue([CanBeNull] object? value, bool fromDataAnnotation = false)
+            => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, EntityType.CheckDiscriminatorValue(this, value), fromDataAnnotation)
+            ?.Value;
+
+        /// <summary>
+        ///     Removes the discriminator value for this entity type.
+        /// </summary>
+        /// <returns> The removed discriminator value. </returns>
+        object? RemoveDiscriminatorValue()
+            => RemoveAnnotation(CoreAnnotationNames.DiscriminatorValue)?.Value;
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the discriminator value.
+        /// </summary>
+        /// <returns> The <see cref="ConfigurationSource" /> or <see langword="null" /> if no discriminator value has been set. </returns>
+        ConfigurationSource? GetDiscriminatorValueConfigurationSource()
+            => FindAnnotation(CoreAnnotationNames.DiscriminatorValue)
+                ?.GetConfigurationSource();
+
+        /// <summary>
         ///     Sets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
         /// </summary>
         /// <param name="entityType"> The base entity type.</param>
@@ -81,6 +177,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ConfigurationSource? GetBaseTypeConfigurationSource();
 
         /// <summary>
+        ///     Gets all types in the model from which a given entity type derives, starting with the root.
+        /// </summary>
+        /// <returns>
+        ///     The base types.
+        /// </returns>
+        new IEnumerable<IConventionEntityType> GetAllBaseTypes()
+            => GetAllBaseTypesAscending().Reverse();
+
+        /// <summary>
+        ///     Gets all types in the model from which a given entity type derives, starting with the closest one.
+        /// </summary>
+        /// <returns>
+        ///     The base types.
+        /// </returns>
+        new IEnumerable<IConventionEntityType> GetAllBaseTypesAscending()
+            => GetAllBaseTypesInclusiveAscending().Skip(1);
+
+        /// <summary>
+        ///     Returns all base types of the given <see cref="IReadOnlyEntityType" />, including the type itself, top to bottom.
+        /// </summary>
+        /// <returns> Base types. </returns>
+        new IEnumerable<IConventionEntityType> GetAllBaseTypesInclusive()
+            => GetAllBaseTypesInclusiveAscending().Reverse().Cast<IConventionEntityType>();
+
+        /// <summary>
+        ///     Returns all base types of the given entity type, including the type itself, bottom to top.
+        /// </summary>
+        /// <returns> Base types. </returns>
+        new IEnumerable<IConventionEntityType> GetAllBaseTypesInclusiveAscending()
+            => ((IReadOnlyEntityType)this).GetAllBaseTypesInclusiveAscending().Cast<IConventionEntityType>();
+
+        /// <summary>
+        ///     Gets all types in the model that derive from a given entity type.
+        /// </summary>
+        /// <returns> The derived types. </returns>
+        new IEnumerable<IConventionEntityType> GetDerivedTypes()
+            => ((IReadOnlyEntityType)this).GetDerivedTypes().Cast<IConventionEntityType>();
+
+        /// <summary>
+        ///     Returns all derived types of this entity type, including the type itself.
+        /// </summary>
+        /// <returns> Derived types. </returns>
+        new IEnumerable<IConventionEntityType> GetDerivedTypesInclusive()
+            => ((IReadOnlyEntityType)this).GetDerivedTypesInclusive().Cast<IConventionEntityType>();
+
+        /// <summary>
+        ///     Gets all types in the model that directly derive from a given entity type.
+        /// </summary>
+        /// <returns> The derived types. </returns>
+        new IEnumerable<IConventionEntityType> GetDirectlyDerivedTypes()
+            => ((IReadOnlyEntityType)this).GetDirectlyDerivedTypes().Cast<IConventionEntityType>();
+
+        /// <summary>
+        ///     Gets the root base type for a given entity type.
+        /// </summary>
+        /// <returns>
+        ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
+        /// </returns>
+        new IConventionEntityType GetRootType()
+            => (IConventionEntityType)((IReadOnlyEntityType)this).GetRootType();
+
+        /// <summary>
         ///     Sets a value indicating whether the entity type has no keys.
         ///     When set to <see langword="true" /> it will only be usable for queries.
         ///     <see langword="null" /> to reset to default.
@@ -102,9 +260,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => SetIsKeyless(keyless, fromDataAnnotation);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IsKeyless"/>.
+        ///     Returns the configuration source for the IsKeyless property.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IsKeyless"/>. </returns>
+        /// <returns> The configuration source for the IsKeyless property. </returns>
         ConfigurationSource? GetIsKeylessConfigurationSource();
 
         /// <summary>
@@ -141,6 +299,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Adds a new alternate key to this entity type.
         /// </summary>
+        /// <param name="property"> The property to use as an alternate key. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created key. </returns>
+        IConventionKey? AddKey([NotNull] IConventionProperty property, bool fromDataAnnotation = false)
+            => AddKey(new[] { property }, fromDataAnnotation);
+
+        /// <summary>
+        ///     Adds a new alternate key to this entity type.
+        /// </summary>
         /// <param name="properties"> The properties that make up the alternate key. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created key. </returns>
@@ -155,6 +322,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionKey? FindKey([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
+        ///     Gets the primary or alternate key that is defined on the given property. Returns <see langword="null" /> if no key is defined
+        ///     for the given property.
+        /// </summary>
+        /// <param name="property"> The property that the key is defined on. </param>
+        /// <returns> The key, or null if none is defined. </returns>
+        new IConventionKey? FindKey([NotNull] IReadOnlyProperty property)
+             => FindKey(new[] { property });
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all keys declared on the given <see cref="IReadOnlyEntityType" />.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return keys declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same key more than once.
+        ///         Use <see cref="GetKeys" /> to also return keys declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Declared keys. </returns>
+        new IEnumerable<IConventionKey> GetDeclaredKeys()
+            => ((IReadOnlyEntityType)this).GetDeclaredKeys().Cast<IConventionKey>();
+
+        /// <summary>
         ///     Gets the primary and alternate keys for this entity type.
         /// </summary>
         /// <returns> The primary and alternate keys. </returns>
@@ -163,9 +353,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Removes a primary or alternate key from this entity type.
         /// </summary>
+        /// <param name="properties"> The properties that make up the key. </param>
+        /// <returns> The key that was removed. </returns>
+        IConventionKey? RemoveKey([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
+
+        /// <summary>
+        ///     Removes a primary or alternate key from this entity type.
+        /// </summary>
         /// <param name="key"> The key to be removed. </param>
         /// <returns> The removed key, or <see langword="null" /> if the key was not found. </returns>
-        IConventionKey? RemoveKey([NotNull] IConventionKey key);
+        IConventionKey? RemoveKey([NotNull] IReadOnlyKey key);
+
+        /// <summary>
+        ///     Adds a new relationship to this entity type.
+        /// </summary>
+        /// <param name="property"> The property that the foreign key is defined on. </param>
+        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
+        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
+        ///     base type of the hierarchy).
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created foreign key. </returns>
+        IConventionForeignKey? AddForeignKey(
+            [NotNull] IConventionProperty property,
+            [NotNull] IConventionKey principalKey,
+            [NotNull] IConventionEntityType principalEntityType,
+            bool fromDataAnnotation = false)
+            => AddForeignKey(new[] { property }, principalKey, principalEntityType, fromDataAnnotation);
 
         /// <summary>
         ///     Adds a new relationship to this entity type.
@@ -207,17 +423,184 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IReadOnlyEntityType principalEntityType);
 
         /// <summary>
+        ///     Gets the foreign keys defined on the given property. Only foreign keys that are defined on exactly the specified
+        ///     property are returned. Composite foreign keys that include the specified property are not returned.
+        /// </summary>
+        /// <param name="property"> The property to find the foreign keys on. </param>
+        /// <returns> The foreign keys. </returns>
+        new IEnumerable<IConventionForeignKey> FindForeignKeys([NotNull] IReadOnlyProperty property)
+            => FindForeignKeys(new[] { property });
+
+        /// <summary>
+        ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
+        ///     set of properties are returned.
+        /// </summary>
+        /// <param name="properties"> The properties to find the foreign keys on. </param>
+        /// <returns> The foreign keys. </returns>
+        new IEnumerable<IConventionForeignKey> FindForeignKeys([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
+            => ((IReadOnlyEntityType)this).FindForeignKeys(properties).Cast<IConventionForeignKey>();
+
+        /// <summary>
+        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <see langword="null" />
+        ///     if no foreign key is found.
+        /// </summary>
+        /// <param name="property"> The property that the foreign key is defined on. </param>
+        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
+        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
+        ///     base type of the hierarchy).
+        /// </param>
+        /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
+        new IConventionForeignKey? FindForeignKey(
+            [NotNull] IReadOnlyProperty property,
+            [NotNull] IReadOnlyKey principalKey,
+            [NotNull] IReadOnlyEntityType principalEntityType)
+            => FindForeignKey(new[] { property }, principalKey, principalEntityType);
+
+        /// <summary>
+        ///     Gets the foreign keys declared on this entity type using the given properties.
+        /// </summary>
+        /// <param name="properties"> The properties to find the foreign keys on. </param>
+        /// <returns> Declared foreign keys. </returns>
+        new IEnumerable<IConventionForeignKey> FindDeclaredForeignKeys(
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties)
+            => ((IReadOnlyEntityType)this).FindDeclaredForeignKeys(properties).Cast<IConventionForeignKey>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all foreign keys declared on this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return foreign keys declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same foreign key more than once.
+        ///         Use <see cref="GetForeignKeys" /> to also return foreign keys declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Declared foreign keys. </returns>
+        new IEnumerable<IConventionForeignKey> GetDeclaredForeignKeys()
+            => ((IReadOnlyEntityType)this).GetDeclaredForeignKeys().Cast<IConventionForeignKey>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all foreign keys declared on the types derived from this entity type.
+        ///     </para>
+        /// </summary>
+        /// <returns> Derived foreign keys. </returns>
+        new IEnumerable<IConventionForeignKey> GetDerivedForeignKeys()
+            => ((IReadOnlyEntityType)this).GetDerivedForeignKeys().Cast<IConventionForeignKey>();
+
+        /// <summary>
         ///     Gets the foreign keys defined on this entity type.
         /// </summary>
         /// <returns> The foreign keys defined on this entity type. </returns>
         new IEnumerable<IConventionForeignKey> GetForeignKeys();
 
         /// <summary>
+        ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type
+        ///     is the principal).
+        /// </summary>
+        /// <returns> The foreign keys that reference the given entity type. </returns>
+        new IEnumerable<IConventionForeignKey> GetDeclaredReferencingForeignKeys()
+            => ((IReadOnlyEntityType)this).GetDeclaredReferencingForeignKeys().Cast<IConventionForeignKey>();
+
+        /// <summary>
+        ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type
+        ///     or a type it's derived from is the principal).
+        /// </summary>
+        /// <returns> The foreign keys that reference the given entity type. </returns>
+        new IEnumerable<IConventionForeignKey> GetReferencingForeignKeys()
+            => ((IReadOnlyEntityType)this).GetReferencingForeignKeys().Cast<IConventionForeignKey>();
+
+        /// <summary>
+        ///     Returns the relationship to the owner if this is an owned type or <see langword="null" /> otherwise.
+        /// </summary>
+        /// <returns> The relationship to the owner if this is an owned type or <see langword="null" /> otherwise. </returns>
+        new IConventionForeignKey? FindOwnership()
+            => (IConventionForeignKey?)((IReadOnlyEntityType)this).FindOwnership();
+
+        /// <summary>
+        ///     Removes a foreign key from this entity type.
+        /// </summary>
+        /// <param name="properties"> The properties that the foreign key is defined on. </param>
+        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
+        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
+        ///     base type of the hierarchy).
+        /// </param>
+        /// <returns> The foreign key that was removed. </returns>
+        IConventionForeignKey? RemoveForeignKey(
+            [NotNull] IReadOnlyList<IReadOnlyProperty> properties,
+            [NotNull] IConventionKey principalKey,
+            [NotNull] IConventionEntityType principalEntityType);
+
+        /// <summary>
         ///     Removes a foreign key from this entity type.
         /// </summary>
         /// <param name="foreignKey"> The foreign key to be removed. </param>
         /// <returns> The removed foreign key, or <see langword="null" /> if the index was not found. </returns>
-        IConventionForeignKey? RemoveForeignKey([NotNull] IConventionForeignKey foreignKey);
+        IConventionForeignKey? RemoveForeignKey([NotNull] IReadOnlyForeignKey foreignKey);
+
+        /// <summary>
+        ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
+        /// </summary>
+        /// <param name="memberInfo"> The navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        new IConventionNavigation? FindNavigation([NotNull] MemberInfo memberInfo)
+           => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+
+        /// <summary>
+        ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.
+        /// </summary>
+        /// <param name="name"> The name of the navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        new IConventionNavigation? FindNavigation([NotNull] string name)
+            => (IConventionNavigation?)((IReadOnlyEntityType)this).FindNavigation(name);
+
+        /// <summary>
+        ///     Gets a navigation property on the given entity type. Does not return navigation properties defined on a base type.
+        ///     Returns <see langword="null" /> if no navigation property is found.
+        /// </summary>
+        /// <param name="name"> The name of the navigation property on the entity class. </param>
+        /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
+        new IConventionNavigation? FindDeclaredNavigation([NotNull] string name)
+            => (IConventionNavigation?)((IReadOnlyEntityType)this).FindDeclaredNavigation(Check.NotNull(name, nameof(name)));
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all navigation properties declared on this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return navigation properties declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same navigation property more than once.
+        ///         Use <see cref="GetNavigations" /> to also return navigation properties declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Declared navigation properties. </returns>
+        new IEnumerable<IConventionNavigation> GetDeclaredNavigations()
+            => ((IReadOnlyEntityType)this).GetDeclaredNavigations().Cast<IConventionNavigation>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all navigation properties declared on the types derived from this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return navigation properties declared on the given entity type itself.
+        ///         Use <see cref="GetNavigations" /> to return navigation properties declared on this
+        ///         and base entity typed types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Derived navigation properties. </returns>
+        new IEnumerable<IConventionNavigation> GetDerivedNavigations()
+            => ((IReadOnlyEntityType)this).GetDerivedNavigations().Cast<IConventionNavigation>();
+
+        /// <summary>
+        ///     Gets all navigation properties on the given entity type.
+        /// </summary>
+        /// <returns> All navigation properties on the given entity type. </returns>
+        new IEnumerable<IConventionNavigation> GetNavigations()
+            => ((IReadOnlyEntityType)this).GetNavigations().Cast<IConventionNavigation>();
 
         /// <summary>
         ///     Adds a new skip navigation properties to this entity type.
@@ -285,6 +668,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => ((IReadOnlyEntityType)this).GetDeclaredSkipNavigations().Cast<IConventionSkipNavigation>();
 
         /// <summary>
+        ///     <para>
+        ///         Gets all skip navigation properties declared on the types derived from this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return skip navigation properties declared on the given entity type itself.
+        ///         Use <see cref="GetSkipNavigations" /> to return skip navigation properties declared on this
+        ///         and base entity typed types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Derived skip navigation properties. </returns>
+        new IEnumerable<IConventionSkipNavigation> GetDerivedSkipNavigations()
+            => ((IReadOnlyEntityType)this).GetDerivedSkipNavigations().Cast<IConventionSkipNavigation>();
+
+        /// <summary>
         ///     Gets all skip navigation properties on this entity type.
         /// </summary>
         /// <returns> All skip navigation properties on this entity type. </returns>
@@ -295,7 +692,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="navigation"> The skip navigation to be removed. </param>
         /// <returns> The removed skip navigation, or <see langword="null" /> if the skip navigation was not found. </returns>
-        IConventionSkipNavigation? RemoveSkipNavigation([NotNull] IConventionSkipNavigation navigation);
+        IConventionSkipNavigation? RemoveSkipNavigation([NotNull] IReadOnlySkipNavigation navigation);
+
+        /// <summary>
+        ///     Adds an index to this entity type.
+        /// </summary>
+        /// <param name="property"> The property to be indexed. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created index. </returns>
+        IConventionIndex? AddIndex([NotNull] IConventionProperty property, bool fromDataAnnotation = false)
+            => AddIndex(new[] { property }, fromDataAnnotation);
 
         /// <summary>
         ///     Adds an unnamed index to this entity type.
@@ -303,9 +709,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="properties"> The properties that are to be indexed. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created index. </returns>
+        IConventionIndex? AddIndex([NotNull] IReadOnlyList<IConventionProperty> properties, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Adds a named index to this entity type.
+        /// </summary>
+        /// <param name="property"> The property to be indexed. </param>
+        /// <param name="name"> The name of the index. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created index. </returns>
         IConventionIndex? AddIndex(
-            [NotNull] IReadOnlyList<IConventionProperty> properties,
-            bool fromDataAnnotation = false);
+            [NotNull] IConventionProperty property,
+            [NotNull] string name,
+            bool fromDataAnnotation = false)
+            => AddIndex(new[] { property }, name, fromDataAnnotation);
 
         /// <summary>
         ///     Adds a named index to this entity type.
@@ -318,6 +735,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IReadOnlyList<IConventionProperty> properties,
             [NotNull] string name,
             bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the unnamed index defined on the given property. Returns <see langword="null" /> if no such index is defined.
+        ///     </para>
+        ///     <para>
+        ///         Named indexes will not be returned even if the list of properties matches.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property to find the index on. </param>
+        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        new IConventionIndex? FindIndex([NotNull] IReadOnlyProperty property)
+            => FindIndex(new[] { property });
 
         /// <summary>
         ///     <para>
@@ -339,6 +769,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionIndex? FindIndex([NotNull] string name);
 
         /// <summary>
+        ///     <para>
+        ///         Gets all indexes declared on this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return indexes declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same index more than once.
+        ///         Use <see cref="GetIndexes" /> to also return indexes declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Declared indexes. </returns>
+        new IEnumerable<IConventionIndex> GetDeclaredIndexes()
+            => ((IReadOnlyEntityType)this).GetDeclaredIndexes().Cast<IConventionIndex>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all indexes declared on the types derived from this entity type.
+        ///     </para>
+        /// </summary>
+        /// <returns> Derived indexes. </returns>
+        new IEnumerable<IConventionIndex> GetDerivedIndexes()
+            => ((IReadOnlyEntityType)this).GetDerivedIndexes().Cast<IConventionIndex>();
+
+        /// <summary>
         ///     Gets the indexes defined on this entity type.
         /// </summary>
         /// <returns> The indexes defined on this entity type. </returns>
@@ -347,9 +800,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Removes an index from this entity type.
         /// </summary>
+        /// <param name="properties"> The properties that make up the index. </param>
+        /// <returns> The index that was removed. </returns>
+        IConventionIndex? RemoveIndex([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
+
+        /// <summary>
+        ///     Removes an index from this entity type.
+        /// </summary>
         /// <param name="index"> The index to remove. </param>
         /// <returns> The removed index, or <see langword="null" /> if the index was not found. </returns>
-        IConventionIndex? RemoveIndex([NotNull] IConventionIndex index);
+        IConventionIndex? RemoveIndex([NotNull] IReadOnlyIndex index);
+
+        /// <summary>
+        ///     Adds a property to this entity type.
+        /// </summary>
+        /// <param name="memberInfo"> The corresponding member on the entity class. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created property. </returns>
+        IConventionProperty? AddProperty([NotNull] MemberInfo memberInfo, bool fromDataAnnotation = false)
+            => AddProperty(
+                memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
+                memberInfo, setTypeConfigurationSource: true, fromDataAnnotation);
+
+        /// <summary>
+        ///     Adds a property to this entity type.
+        /// </summary>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created property. </returns>
+        IConventionProperty? AddProperty([NotNull] string name, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Adds a property to this entity type.
+        /// </summary>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created property. </returns>
+        IConventionProperty? AddProperty(
+            [NotNull] string name,
+            [NotNull] Type propertyType,
+            bool setTypeConfigurationSource = true,
+            bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Adds a property to this entity type.
@@ -375,12 +868,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Adds a property backed by and indexer to this entity type.
+        /// </summary>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="setTypeConfigurationSource"> Indicates whether the type configuration source should be set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The newly created property. </returns>
+        IConventionProperty? AddIndexerProperty(
+            [NotNull] string name,
+            [NotNull] Type propertyType,
+            bool setTypeConfigurationSource = true,
+            bool fromDataAnnotation = false)
+        {
+            var indexerPropertyInfo = FindIndexerPropertyInfo();
+            if (indexerPropertyInfo == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()));
+            }
+
+            return AddProperty(name, propertyType, indexerPropertyInfo, setTypeConfigurationSource, fromDataAnnotation);
+        }
+
+        /// <summary>
         ///     <para>
         ///         Gets the property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
         ///     </para>
         ///     <para>
         ///         This API only finds scalar properties and does not find navigation properties. Use
-        ///         <see cref="ConventionEntityTypeExtensions.FindNavigation(IConventionEntityType, string)" /> to find
+        ///         <see cref="FindNavigation(string)" /> to find
         ///         a navigation property.
         ///     </para>
         /// </summary>
@@ -394,7 +911,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         ///     <para>
         ///         This API only returns scalar properties and does not return navigation properties. Use
-        ///         <see cref="ConventionEntityTypeExtensions.GetNavigations(IConventionEntityType)" /> to get navigation
+        ///         <see cref="GetNavigations()" /> to get navigation
         ///         properties.
         ///     </para>
         /// </summary>
@@ -402,11 +919,96 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IConventionProperty> GetProperties();
 
         /// <summary>
+        ///     <para>
+        ///         Gets a property on the given entity type. Returns <see langword="null" /> if no property is found.
+        ///     </para>
+        ///     <para>
+        ///         This API only finds scalar properties and does not find navigation properties. Use
+        ///         <see cref="FindNavigation(MemberInfo)" /> to find a navigation property.
+        ///     </para>
+        /// </summary>
+        /// <param name="memberInfo"> The property on the entity class. </param>
+        /// <returns> The property, or <see langword="null" /> if none is found. </returns>
+        new IConventionProperty? FindProperty([NotNull] MemberInfo memberInfo)
+            => (IConventionProperty?)((IReadOnlyEntityType)this).FindProperty(memberInfo);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds matching properties on the given entity type. Returns <see langword="null" /> if any property is not found.
+        ///     </para>
+        ///     <para>
+        ///         This API only finds scalar properties and does not find navigation properties.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyNames"> The property names. </param>
+        /// <returns> The properties, or <see langword="null" /> if any property is not found. </returns>
+        new IReadOnlyList<IConventionProperty>? FindProperties([NotNull] IReadOnlyList<string> propertyNames)
+            => (IReadOnlyList<IConventionProperty>?)((IReadOnlyEntityType)this).FindProperties(propertyNames);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a property with the given name.
+        ///     </para>
+        ///     <para>
+        ///         This API only finds scalar properties and does not find navigation properties. Use
+        ///         <see cref="FindNavigation(string)" /> to find a navigation property.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The property name. </param>
+        /// <returns> The property, or <see langword="null" /> if none is found. </returns>
+        new IConventionProperty GetProperty([NotNull] string name)
+            => (IConventionProperty)((IReadOnlyEntityType)this).GetProperty(name);
+
+        /// <summary>
+        ///     Finds a property declared on the type with the given name.
+        ///     Does not return properties defined on a base type.
+        /// </summary>
+        /// <param name="name"> The property name. </param>
+        /// <returns> The property, or <see langword="null" /> if none is found. </returns>
+        new IConventionProperty? FindDeclaredProperty([NotNull] string name)
+            => (IConventionProperty?)((IReadOnlyEntityType)this).FindDeclaredProperty(name);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all non-navigation properties declared on this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return properties declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
+        ///         Use <see cref="GetProperties" /> to also return properties declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Declared non-navigation properties. </returns>
+        new IEnumerable<IConventionProperty> GetDeclaredProperties()
+            => ((IReadOnlyEntityType)this).GetDeclaredProperties().Cast<IConventionProperty>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all non-navigation properties declared on the types derived from this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return properties declared on the given entity type itself.
+        ///         Use <see cref="GetProperties" /> to return properties declared on this
+        ///         and base entity typed types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Derived non-navigation properties. </returns>
+        new IEnumerable<IConventionProperty> GetDerivedProperties()
+            => ((IReadOnlyEntityType)this).GetDerivedProperties().Cast<IConventionProperty>();
+
+        /// <summary>
+        ///     Removes a property from this entity type.
+        /// </summary>
+        /// <param name="name"> The name of the property to remove. </param>
+        /// <returns> The property that was removed. </returns>
+        IConventionProperty? RemoveProperty([NotNull] string name);
+
+        /// <summary>
         ///     Removes a property from this entity type.
         /// </summary>
         /// <param name="property"> The property to remove. </param>
         /// <returns> The removed property, or <see langword="null" /> if the property was not found. </returns>
-        IConventionProperty? RemoveProperty([NotNull] IConventionProperty property);
+        IConventionProperty? RemoveProperty([NotNull] IReadOnlyProperty property);
 
         /// <summary>
         ///     Adds a <see cref="IConventionServiceProperty" /> to this entity type.
@@ -431,7 +1033,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets all the <see cref="IConventionServiceProperty" /> defined on this entity type.
+        ///         Gets all service properties declared on this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return properties declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same property more than once.
+        ///         Use <see cref="GetServiceProperties" /> to also return properties declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Declared service properties. </returns>
+        new IEnumerable<IConventionServiceProperty> GetDeclaredServiceProperties()
+            => ((IReadOnlyEntityType)this).GetDeclaredServiceProperties().Cast<IConventionServiceProperty>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all service properties declared on the types derived from this entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return service properties declared on the given entity type itself.
+        ///         Use <see cref="GetServiceProperties" /> to return service properties declared on this
+        ///         and base entity typed types.
+        ///     </para>
+        /// </summary>
+        /// <returns> Derived service properties. </returns>
+        new IEnumerable<IConventionServiceProperty> GetDerivedServiceProperties()
+            => ((IReadOnlyEntityType)this).GetDerivedServiceProperties().Cast<IConventionServiceProperty>();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all the service properties defined on this entity type.
         ///     </para>
         ///     <para>
         ///         This API only returns service properties and does not return scalar or navigation properties.
@@ -441,10 +1071,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IConventionServiceProperty> GetServiceProperties();
 
         /// <summary>
-        ///     Removes an <see cref="IConventionServiceProperty" /> from this entity type.
+        ///     Removes a service property from this entity type.
         /// </summary>
         /// <param name="name"> The name of the property to remove. </param>
-        /// <returns> The property that was removed. </returns>
+        /// <returns> The property that was removed, or <see langword="null" /> if the property was not found. </returns>
         IConventionServiceProperty? RemoveServiceProperty([NotNull] string name);
+
+        /// <summary>
+        ///     Removes a service property from this entity type.
+        /// </summary>
+        /// <param name="property"> The property to remove. </param>
+        /// <returns> The removed property, or <see langword="null" /> if the property was not found. </returns>
+        IConventionServiceProperty? RemoveServiceProperty([NotNull] IReadOnlyServiceProperty property);
     }
 }

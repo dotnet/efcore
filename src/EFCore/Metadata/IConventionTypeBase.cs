@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 #nullable enable
 
@@ -55,5 +56,58 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The list of ignored member names. </returns>
         IEnumerable<string> GetIgnoredMembers();
+
+        /// <summary>
+        ///     Indicates whether the given member name is ignored.
+        /// </summary>
+        /// <param name="memberName"> The name of the member that might be ignored. </param>
+        /// <returns> <see langword="true" /> if the given member name is ignored. </returns>
+        bool IsIgnored([NotNull] string memberName)
+            => FindIgnoredConfigurationSource(memberName) != null;
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of this type.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual properties and navigations can override this access mode. The value set here will
+        ///         be used for any property or navigation for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        PropertyAccessMode? SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false)
+            => (PropertyAccessMode?)this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, fromDataAnnotation)?.Value;
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="IReadOnlyTypeBase.GetPropertyAccessMode" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="IReadOnlyTypeBase.GetPropertyAccessMode" />. </returns>
+        ConfigurationSource? GetPropertyAccessModeConfigurationSource()
+            => FindAnnotation(CoreAnnotationNames.PropertyAccessMode)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for navigations of this entity type.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual navigations can override this access mode. The value set here will
+        ///         be used for any navigation for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        PropertyAccessMode? SetNavigationAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false)
+            => (PropertyAccessMode?)this.SetOrRemoveAnnotation(
+                CoreAnnotationNames.NavigationAccessMode, propertyAccessMode, fromDataAnnotation)?.Value;
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="IReadOnlyTypeBase.GetNavigationAccessMode" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="IReadOnlyTypeBase.GetNavigationAccessMode" />. </returns>
+        ConfigurationSource? GetNavigationAccessModeConfigurationSource()
+            => FindAnnotation(CoreAnnotationNames.NavigationAccessMode)?.GetConfigurationSource();
     }
 }

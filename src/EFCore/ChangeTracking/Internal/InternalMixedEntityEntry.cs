@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             : base(stateManager, entityType)
         {
             Entity = entity;
-            _shadowValues = ((EntityType)entityType).ShadowValuesFactory(valueBuffer);
+            _shadowValues = ((IInternalEntityType)entityType).ShadowValuesFactory(valueBuffer);
         }
 
         /// <summary>

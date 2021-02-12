@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public OriginalValues(InternalEntityEntry entry)
             {
-                _values = ((EntityType)entry.EntityType).OriginalValuesFactory(entry);
+                _values = ((IInternalEntityType)entry.EntityType).OriginalValuesFactory(entry);
             }
 
             public object GetValue(InternalEntityEntry entry, IProperty property)

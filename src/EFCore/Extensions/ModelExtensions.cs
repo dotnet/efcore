@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
             return ((Model)model).FindEntityType(
                 type,
                 definingNavigationName,
-                definingEntityType.AsEntityType());
+                (EntityType)definingEntityType);
         }
 
         /// <summary>

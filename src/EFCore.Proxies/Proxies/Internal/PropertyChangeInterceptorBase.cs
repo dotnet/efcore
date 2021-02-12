@@ -62,9 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             var methodName = invocation.Method.Name;
             if (methodName.Equals("set_Item", StringComparison.Ordinal))
             {
-#pragma warning disable EF1001 // Internal EF Core API usage.
                 var indexerPropertyInfo = EntityType.FindIndexerPropertyInfo();
-#pragma warning restore EF1001 // Internal EF Core API usage.
 
                 if (indexerPropertyInfo != null
                     && indexerPropertyInfo.GetSetMethod(nonPublic: true) == invocation.Method)

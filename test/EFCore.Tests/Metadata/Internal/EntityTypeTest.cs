@@ -27,76 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public partial class EntityTypeTest
     {
         [ConditionalFact]
-        public void Use_of_custom_IEntityType_throws()
-        {
-            var type = new FakeEntityType();
-
-            Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IEntityType_throws), nameof(IReadOnlyEntityType), nameof(FakeEntityType)),
-                Assert.Throws<NotSupportedException>(() => type.AsEntityType()).Message);
-        }
-
-        private class FakeEntityType : Annotatable, IReadOnlyEntityType
-        {
-            public IReadOnlyModel Model { get; }
-            public string Name { get; }
-            public bool HasSharedClrType { get; }
-            public bool IsPropertyBag { get; }
-            public Type ClrType { get; }
-            public IReadOnlyEntityType BaseType { get; }
-            public string DefiningNavigationName { get; }
-            public IReadOnlyEntityType DefiningEntityType { get; }
-            public LambdaExpression QueryFilter { get; }
-            public InstantiationBinding ConstructorBinding { get; }
-            public InstantiationBinding ServiceOnlyConstructorBinding { get; }
-
-            public IReadOnlyKey FindPrimaryKey()
-                => throw new NotImplementedException();
-
-            public IReadOnlyKey FindKey(IReadOnlyList<IReadOnlyProperty> properties)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IReadOnlyKey> GetKeys()
-                => throw new NotImplementedException();
-
-            public IReadOnlyForeignKey FindForeignKey(IReadOnlyList<IReadOnlyProperty> properties, IReadOnlyKey principalKey, IReadOnlyEntityType principalEntityType)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IReadOnlyForeignKey> GetForeignKeys()
-                => throw new NotImplementedException();
-
-            public IReadOnlyIndex FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
-                => throw new NotImplementedException();
-
-            public IReadOnlyIndex FindIndex(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IReadOnlyIndex> GetIndexes()
-                => throw new NotImplementedException();
-
-            public IReadOnlyProperty FindProperty(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IReadOnlyProperty> GetProperties()
-                => throw new NotImplementedException();
-
-            public IReadOnlyServiceProperty FindServiceProperty(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IReadOnlyServiceProperty> GetServiceProperties()
-                => throw new NotImplementedException();
-
-            public IEnumerable<IDictionary<string, object>> GetSeedData()
-                => throw new NotImplementedException();
-
-            public IReadOnlySkipNavigation FindSkipNavigation([NotNull] string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IReadOnlySkipNavigation> GetSkipNavigations()
-                => throw new NotImplementedException();
-        }
-
-        [ConditionalFact]
         public void Throws_when_model_is_readonly()
         {
             var model = CreateModel();
@@ -159,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ModelReadOnly,
-                Assert.Throws<InvalidOperationException>(() => entityTypeA.AddData(new { })).Message);
+                Assert.Throws<InvalidOperationException>(() => entityTypeA.AddData(new[] { new { } })).Message);
         }
 
         [ConditionalFact]
