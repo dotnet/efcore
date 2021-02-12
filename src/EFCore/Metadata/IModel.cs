@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
-        IEntityType? FindEntityType([NotNull] Type type);
+        new IEntityType? FindEntityType([NotNull] Type type);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
@@ -144,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        IEnumerable<IEntityType> GetEntityTypes([NotNull] Type type);
+        new IEnumerable<IEntityType> GetEntityTypes([NotNull] Type type);
 
         /// <summary>
         ///     Returns the entity types corresponding to the least derived types from the given.
@@ -157,5 +158,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [CanBeNull] Func<IEntityType, bool>? condition = null)
             => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition == null ? null : t => condition((IEntityType)t))
                 .Cast<IEntityType>();
+
+        /// <summary>
+        ///     Gets a value indicating whether the given <see cref="MethodInfo"/> reprensents an indexer access.
+        /// </summary>
+        /// <param name="methodInfo"> The <see cref="MethodInfo"/> to check. </param>
+        bool IsIndexerMethod([NotNull] MethodInfo methodInfo);
     }
 }

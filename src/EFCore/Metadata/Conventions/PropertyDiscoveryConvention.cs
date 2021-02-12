@@ -74,7 +74,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private bool IsCandidatePrimitiveProperty([NotNull] PropertyInfo propertyInfo)
+        /// <summary>
+        ///     Returns a value indicating whether the given CLR property should be mapped as an entity type property.
+        /// </summary>
+        /// <param name="propertyInfo"> The property. </param>
+        /// <returns> <see langword="true"/> if the property should be mapped. </returns>
+        protected virtual bool IsCandidatePrimitiveProperty([NotNull] PropertyInfo propertyInfo)
             => propertyInfo.IsCandidateProperty()
                 && Dependencies.TypeMappingSource.FindMapping(propertyInfo) != null;
     }
