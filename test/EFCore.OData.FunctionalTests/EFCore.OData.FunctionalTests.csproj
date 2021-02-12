@@ -8,12 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.5.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj" />
-    <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.1" />
   </ItemGroup>
 
 </Project>
