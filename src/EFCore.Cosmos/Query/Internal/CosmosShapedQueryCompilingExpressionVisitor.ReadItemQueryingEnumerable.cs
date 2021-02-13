@@ -35,13 +35,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
+            private readonly bool _concurrencyDetectionEnabled;
 
             public ReadItemQueryingEnumerable(
                 CosmosQueryContext cosmosQueryContext,
                 ReadItemExpression readItemExpression,
                 Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
-                bool standAloneStateManager)
+                bool standAloneStateManager,
+                bool concurrencyDetectionEnabled)
             {
                 _cosmosQueryContext = cosmosQueryContext;
                 _readItemExpression = readItemExpression;
@@ -49,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _contextType = contextType;
                 _queryLogger = _cosmosQueryContext.QueryLogger;
                 _standAloneStateManager = standAloneStateManager;
+                _concurrencyDetectionEnabled = concurrencyDetectionEnabled;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -173,6 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
                 private readonly bool _standAloneStateManager;
+                private readonly bool _concurrencyDetectionEnabled;
                 private readonly ReadItemQueryingEnumerable<T> _readItemEnumerable;
                 private readonly CancellationToken _cancellationToken;
 
@@ -187,6 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _contextType = readItemEnumerable._contextType;
                     _queryLogger = readItemEnumerable._queryLogger;
                     _standAloneStateManager = readItemEnumerable._standAloneStateManager;
+                    _concurrencyDetectionEnabled = readItemEnumerable._concurrencyDetectionEnabled;
                     _readItemEnumerable = readItemEnumerable;
                     _cancellationToken = cancellationToken;
                 }
@@ -198,81 +203,99 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 public bool MoveNext()
                 {
+                    if (_concurrencyDetectionEnabled)
+                    {
+                        _cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection();
+                    }
+
                     try
                     {
-                        using (_cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
+                        if (!_hasExecuted)
                         {
-                            if (!_hasExecuted)
+                            if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
                             {
-                                if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
-                                {
-                                    throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
-                                }
-
-                                if (!_readItemEnumerable.TryGetPartitionId(out var partitionKey))
-                                {
-                                    throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
-                                }
-
-                                EntityFrameworkEventSource.Log.QueryExecuting();
-
-                                _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
-                                    _readItemExpression.Container,
-                                    partitionKey,
-                                    resourceId);
-
-                                return ShapeResult();
+                                throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
                             }
 
-                            return false;
+                            if (!_readItemEnumerable.TryGetPartitionId(out var partitionKey))
+                            {
+                                throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
+                            }
+
+                            EntityFrameworkEventSource.Log.QueryExecuting();
+
+                            _item = _cosmosQueryContext.CosmosClient.ExecuteReadItem(
+                                _readItemExpression.Container,
+                                partitionKey,
+                                resourceId);
+
+                            return ShapeResult();
                         }
+
+                        return false;
                     }
                     catch (Exception exception)
                     {
                         _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
+                    }
+                    finally
+                    {
+                        if (_concurrencyDetectionEnabled)
+                        {
+                            _cosmosQueryContext.ConcurrencyDetector.ExitCriticalSection();
+                        }
                     }
                 }
 
                 public async ValueTask<bool> MoveNextAsync()
                 {
+                    if (_concurrencyDetectionEnabled)
+                    {
+                        _cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection();
+                    }
+
                     try
                     {
-                        using (_cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
+                        if (!_hasExecuted)
                         {
-                            if (!_hasExecuted)
+                            if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
                             {
-                                if (!_readItemEnumerable.TryGetResourceId(out var resourceId))
-                                {
-                                    throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
-                                }
-
-                                if (!_readItemEnumerable.TryGetPartitionId(out var partitionKey))
-                                {
-                                    throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
-                                }
-
-                                EntityFrameworkEventSource.Log.QueryExecuting();
-
-                                _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
-                                        _readItemExpression.Container,
-                                        partitionKey,
-                                        resourceId,
-                                        _cancellationToken)
-                                    .ConfigureAwait(false);
-
-                                return ShapeResult();
+                                throw new InvalidOperationException(CosmosStrings.ResourceIdMissing);
                             }
 
-                            return false;
+                            if (!_readItemEnumerable.TryGetPartitionId(out var partitionKey))
+                            {
+                                throw new InvalidOperationException(CosmosStrings.PartitionKeyMissing);
+                            }
+
+                            EntityFrameworkEventSource.Log.QueryExecuting();
+
+                            _item = await _cosmosQueryContext.CosmosClient.ExecuteReadItemAsync(
+                                    _readItemExpression.Container,
+                                    partitionKey,
+                                    resourceId,
+                                    _cancellationToken)
+                                .ConfigureAwait(false);
+
+                            return ShapeResult();
                         }
+
+                        return false;
                     }
                     catch (Exception exception)
                     {
                         _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
+                    }
+                    finally
+                    {
+                        if (_concurrencyDetectionEnabled)
+                        {
+                            _cosmosQueryContext.ConcurrencyDetector.ExitCriticalSection();
+                        }
                     }
                 }
 

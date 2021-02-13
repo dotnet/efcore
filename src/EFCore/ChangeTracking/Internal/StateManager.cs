@@ -70,7 +70,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             ValueGenerationManager = dependencies.ValueGenerationManager;
             _model = dependencies.Model;
             _database = dependencies.Database;
-            _concurrencyDetector = dependencies.ConcurrencyDetector;
+            _concurrencyDetector = dependencies.CoreSingletonOptions.IsConcurrencyDetectionEnabled
+                ? dependencies.ConcurrencyDetector
+                : null;
             Context = dependencies.CurrentContext.Context;
             EntityFinderFactory = new EntityFinderFactory(
                 dependencies.EntityFinderSource, this, dependencies.SetSource, dependencies.CurrentContext.Context);
@@ -1085,11 +1087,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual int SaveChanges([NotNull] IList<IUpdateEntry> entriesToSave)
         {
-            using (_concurrencyDetector.EnterCriticalSection())
+            _concurrencyDetector?.EnterCriticalSection();
+
+            try
             {
                 EntityFrameworkEventSource.Log.SavingChanges();
 
                 return _database.SaveChanges(entriesToSave);
+            }
+            finally
+            {
+                _concurrencyDetector?.ExitCriticalSection();
             }
         }
 
@@ -1103,12 +1111,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IList<IUpdateEntry> entriesToSave,
             CancellationToken cancellationToken = default)
         {
-            using (_concurrencyDetector.EnterCriticalSection())
+            _concurrencyDetector?.EnterCriticalSection();
+
+            try
             {
                 EntityFrameworkEventSource.Log.SavingChanges();
 
                 return await _database.SaveChangesAsync(entriesToSave, cancellationToken)
                     .ConfigureAwait(false);
+            }
+            finally
+            {
+                _concurrencyDetector?.ExitCriticalSection();
             }
         }
 

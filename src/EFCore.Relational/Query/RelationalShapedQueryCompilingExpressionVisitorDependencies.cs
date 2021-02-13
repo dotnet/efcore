@@ -61,8 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
             [NotNull] ISqlExpressionFactory sqlExpressionFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
-            [NotNull] ICoreSingletonOptions coreSingletonOptions)
+            [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
@@ -75,7 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
 #pragma warning restore CS0618 // Type or member is obsolete
             RelationalParameterBasedSqlProcessorFactory = relationalParameterBasedSqlProcessorFactory;
-            CoreSingletonOptions = coreSingletonOptions;
         }
 
         /// <summary>
@@ -99,10 +97,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The SQL processor based on parameter values.
         /// </summary>
         public IRelationalParameterBasedSqlProcessorFactory RelationalParameterBasedSqlProcessorFactory { get; [param: NotNull] init; }
-
-        /// <summary>
-        ///     Core singleton options.
-        /// </summary>
-        public ICoreSingletonOptions CoreSingletonOptions { get; [param: NotNull] init; }
     }
 }

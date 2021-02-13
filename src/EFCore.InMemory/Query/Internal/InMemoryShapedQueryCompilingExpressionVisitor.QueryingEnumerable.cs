@@ -33,13 +33,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
+            private readonly bool _concurrencyDetectionEnabled;
 
             public QueryingEnumerable(
                 QueryContext queryContext,
                 IEnumerable<ValueBuffer> innerEnumerable,
                 Func<QueryContext, ValueBuffer, T> shaper,
                 Type contextType,
-                bool standAloneStateManager)
+                bool standAloneStateManager,
+                bool concurrencyDetectionEnabled)
             {
                 _queryContext = queryContext;
                 _innerEnumerable = innerEnumerable;
@@ -47,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _contextType = contextType;
                 _queryLogger = queryContext.QueryLogger;
                 _standAloneStateManager = standAloneStateManager;
+                _concurrencyDetectionEnabled = concurrencyDetectionEnabled;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -70,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
                 private readonly bool _standAloneStateManager;
                 private readonly CancellationToken _cancellationToken;
+                private readonly IConcurrencyDetector? _concurrencyDetector;
 
                 private IEnumerator<ValueBuffer>? _enumerator;
 
@@ -83,6 +87,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                     _cancellationToken = cancellationToken;
                     Current = default!;
+
+                    _concurrencyDetector = queryingEnumerable._concurrencyDetectionEnabled
+                        ? _queryContext.ConcurrencyDetector
+                        : null;
                 }
 
                 public T Current { get; private set; }
@@ -92,37 +100,43 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 public bool MoveNext()
                 {
+                    _concurrencyDetector?.EnterCriticalSection();
+
                     try
                     {
-                        using (_queryContext.ConcurrencyDetector.EnterCriticalSection())
-                        {
-                            return MoveNextHelper();
-                        }
+                        return MoveNextHelper();
                     }
                     catch (Exception exception)
                     {
                         _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
+                    }
+                    finally
+                    {
+                        _concurrencyDetector?.ExitCriticalSection();
                     }
                 }
 
                 public ValueTask<bool> MoveNextAsync()
                 {
+                    _concurrencyDetector?.EnterCriticalSection();
+
                     try
                     {
-                        using (_queryContext.ConcurrencyDetector.EnterCriticalSection())
-                        {
-                            _cancellationToken.ThrowIfCancellationRequested();
+                        _cancellationToken.ThrowIfCancellationRequested();
 
-                            return new ValueTask<bool>(MoveNextHelper());
-                        }
+                        return new ValueTask<bool>(MoveNextHelper());
                     }
                     catch (Exception exception)
                     {
                         _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
+                    }
+                    finally
+                    {
+                        _concurrencyDetector?.ExitCriticalSection();
                     }
                 }
 

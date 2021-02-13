@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly Type _contextType;
         private readonly ISet<string> _tags;
+        private readonly bool _concurrencyDetectionEnabled;
         private readonly bool _detailedErrorsEnabled;
         private readonly bool _useRelationalNulls;
 
@@ -43,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _contextType = queryCompilationContext.ContextType;
             _tags = queryCompilationContext.Tags;
-            _detailedErrorsEnabled = relationalDependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
+            _concurrencyDetectionEnabled = dependencies.CoreSingletonOptions.IsConcurrencyDetectionEnabled;
+            _detailedErrorsEnabled = dependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
             _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
         }
 
@@ -79,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(_contextType),
                     Expression.Constant(
                         QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-                    Expression.Constant(_detailedErrorsEnabled));
+                    Expression.Constant(_detailedErrorsEnabled),
+                    Expression.Constant(_concurrencyDetectionEnabled));
             }
 
             if (splitQuery)
@@ -102,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(_contextType),
                     Expression.Constant(
                         QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-                    Expression.Constant(_detailedErrorsEnabled));
+                    Expression.Constant(_detailedErrorsEnabled),
+                    Expression.Constant(_concurrencyDetectionEnabled));
             }
 
             return Expression.New(
@@ -113,7 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Constant(_contextType),
                 Expression.Constant(
                     QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-                    Expression.Constant(_detailedErrorsEnabled));
+                Expression.Constant(_detailedErrorsEnabled),
+                Expression.Constant(_concurrencyDetectionEnabled));
         }
     }
 }

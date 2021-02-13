@@ -235,6 +235,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             if (_initialized
                 && _dataFilePath == null)
             {
+                if (Shared)
+                {
+                    GetTestStoreIndex(ServiceProvider).RemoveShared(GetType().Name + Name);
+                }
+
                 await _storeContext.Database.EnsureDeletedAsync();
             }
 
