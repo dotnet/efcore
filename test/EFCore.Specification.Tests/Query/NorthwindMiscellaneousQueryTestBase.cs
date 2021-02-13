@@ -141,9 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public IQueryable<T> Find()
-            {
-                return _context.Set<T>().AsQueryable();
-            }
+                => _context.Set<T>();
         }
 
         [ConditionalFact]
