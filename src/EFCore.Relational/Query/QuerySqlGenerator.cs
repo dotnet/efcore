@@ -1052,9 +1052,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             GenerateSetOperationOperand(setOperation, setOperation.Source1);
             _relationalCommandBuilder.AppendLine()
                 .Append(GetSetOperation(setOperation))
-                .Append(setOperation.IsDistinct ? string.Empty : " ALL")
-                .AppendLine();
-
+                .AppendLine(setOperation.IsDistinct ? string.Empty : " ALL");
             GenerateSetOperationOperand(setOperation, setOperation.Source2);
 
             static string GetSetOperation(SetOperationBase operation)
