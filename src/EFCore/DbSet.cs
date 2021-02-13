@@ -64,6 +64,20 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Returns this object typed as <see cref="IQueryable{T}" />.
+        ///     </para>
+        ///     <para>
+        ///         This is a convenience method to help with disambiguation of extension methods in the same
+        ///         namespace that extend both interfaces.
+        ///     </para>
+        /// </summary>
+        /// <returns> This object. </returns>
+        [Obsolete("Calling this method on DbSet is no longer necessary.")]
+        public virtual IQueryable<TEntity> AsQueryable()
+            => this;
+
+        /// <summary>
+        ///     <para>
         ///         Gets an <see cref="LocalView{TEntity}" /> that represents a local view of all Added, Unchanged,
         ///         and Modified entities in this set.
         ///     </para>

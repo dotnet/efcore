@@ -6010,7 +6010,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Null_parameter_name_works(bool async)
         {
             using var context = CreateContext();
-            var customerDbSet = context.Set<Customer>().AsQueryable();
+            var customerDbSet = (IQueryable<Customer>)context.Set<Customer>();
 
             var parameter = Expression.Parameter(typeof(Customer));
             var body = Expression.Equal(parameter, Expression.Default(typeof(Customer)));
