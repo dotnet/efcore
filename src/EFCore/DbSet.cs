@@ -50,17 +50,11 @@ namespace Microsoft.EntityFrameworkCore
             => null;
 
         /// <summary>
-        ///     <para>
-        ///         Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
-        ///     </para>
-        ///     <para>
-        ///         This is a convenience method to help with disambiguation of extension methods in the same
-        ///         namespace that extend both interfaces.
-        ///     </para>
+        ///     Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
         /// </summary>
         /// <returns> This object. </returns>
         public virtual IAsyncEnumerable<TEntity> AsAsyncEnumerable()
-            => throw new NotSupportedException();
+            => (IAsyncEnumerable<TEntity>)this;
 
         /// <summary>
         ///     <para>
