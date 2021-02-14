@@ -20,10 +20,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public override void ReportSuppressions(SuppressionAnalysisContext context)
         {
-            context.ReportSuppression(Suppression.Create(_descriptor, context.ReportedDiagnostics[0]));
-
-
-            /*var linqExpressionType = context.Compilation.GetTypeByMetadataName("System.Linq.Expressions.Expression`1");
+            var linqExpressionType = context.Compilation.GetTypeByMetadataName("System.Linq.Expressions.Expression`1");
             if (linqExpressionType is null)
             {
                 return;
@@ -45,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.ReportSuppression(Suppression.Create(_descriptor, diagnostic));
                 }
 
-            }*/
+            }
         }
     }
 }

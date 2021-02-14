@@ -49,7 +49,7 @@ class C
         _ = {|CS8602:c|}.ToString();
     }
 }";
-            await AssertWarningIsSuppressedAsync(code);
+            await AssertWarningIsNotSuppressedAsync(code);
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
 using Microsoft.CodeAnalysis.Text;
 
@@ -31,8 +32,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Verifiers
                 }
             }
 
-            internal static readonly ImmutableDictionary<string, ReportDiagnostic> NullableWarnings = GetNullableWarningsFromCompiler();
-
             public Test()
             {
                 ReferenceAssemblies = AdditionalMetadataReferences.Default;
@@ -44,7 +43,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Verifiers
                     solution = solution.WithProjectParseOptions(projectId, parseOptions.WithLanguageVersion(LanguageVersion));
 
                     var compilationOptions = project.CompilationOptions!;
-                    compilationOptions = compilationOptions.WithSpecificDiagnosticOptions(compilationOptions.SpecificDiagnosticOptions.SetItems(NullableWarnings));
                     
                     solution = solution.WithProjectCompilationOptions(projectId, compilationOptions);
 
@@ -61,12 +59,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Verifiers
                 });
             }
 
-            private static ImmutableDictionary<string, ReportDiagnostic> GetNullableWarningsFromCompiler()
+            protected override bool IsCompilerDiagnosticIncluded(Diagnostic diagnostic, CompilerDiagnostics compilerDiagnostics)
             {
-                string[] args = { "/warnaserror:nullable" };
-                var commandLineArguments = CSharpCommandLineParser.Default.Parse(args, baseDirectory: Environment.CurrentDirectory, sdkDirectory: Environment.CurrentDirectory);
-                var nullableWarnings = commandLineArguments.CompilationOptions.SpecificDiagnosticOptions;
-                return nullableWarnings;
+                return !diagnostic.IsSuppressed;
             }
 
             public LanguageVersion LanguageVersion { get; set; } = LanguageVersion.CSharp9;
