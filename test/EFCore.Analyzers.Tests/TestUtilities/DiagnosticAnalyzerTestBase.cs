@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         protected async Task<Diagnostic[]> GetDiagnosticsFullSourceAsync(string source)
         {
             var compilation = await CreateProject(source).GetCompilationAsync();
-            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error);
+            var errors = compilation!.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error);
 
             Assert.Empty(errors);
 
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .AddMetadataReferences(projectId, metadataReferences)
                 .AddDocument(documentId, fileName, SourceText.From(source));
 
-            return solution.GetProject(projectId)
+            return solution.GetProject(projectId)!
                 .WithCompilationOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         }
     }
