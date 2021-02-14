@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotEmpty(entries, nameof(entries));
 
-            _entries = entries.ToList();
+            _entries = entries;
         }
 
         /// <summary>
