@@ -3,19 +3,29 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
     internal static class IOperationExtensions
     {
-        private static readonly ImmutableArray<OperationKind> s_LambdaAndLocalFunctionKinds =
+        private static readonly ImmutableArray<OperationKind> lambdaAndLocalFunctionKinds =
             ImmutableArray.Create(OperationKind.AnonymousFunction, OperationKind.LocalFunction);
 
-        public static bool IsWithinExpressionTree(this IOperation operation, INamedTypeSymbol linqExpressionTreeType)
-            => linqExpressionTreeType != null
-                && operation.GetAncestor(s_LambdaAndLocalFunctionKinds)?.Parent?.Type?.OriginalDefinition is { } lambdaType
-                && linqExpressionTreeType.Equals(lambdaType, SymbolEqualityComparer.Default);
+        public static bool IsWithinExpressionTree(this IOperation operation, INamedTypeSymbol linqExpressionTreeType, [NotNullWhen(true)] out IOperation? anonymousOrLocalFunctionOperation)
+        {
+            if (operation.GetAncestor(lambdaAndLocalFunctionKinds) is IOperation op &&
+                op.Parent?.Type?.OriginalDefinition is { } lambdaType &&
+                linqExpressionTreeType.Equals(lambdaType, SymbolEqualityComparer.Default))
+            {
+                anonymousOrLocalFunctionOperation = op;
+                return true;
+            }
+
+            anonymousOrLocalFunctionOperation = default;
+            return false;
+        }
 
         /// <summary>
         /// Gets the first ancestor of this operation with:

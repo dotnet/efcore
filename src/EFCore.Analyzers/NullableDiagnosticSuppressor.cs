@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
@@ -11,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class NullableDiagnosticSuppressor : DiagnosticSuppressor
     {
+        private static readonly ImmutableArray<OperationKind> _invocationKind = ImmutableArray.Create(OperationKind.Invocation);
+
         private static readonly SuppressionDescriptor _descriptor = new(
             id: "EFS0001",
             suppressedDiagnosticId: "CS8602",
@@ -26,6 +29,12 @@ namespace Microsoft.EntityFrameworkCore
                 return;
             }
 
+            var efQueryableExtensionsType = context.Compilation.GetTypeByMetadataName("Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions");
+            if (efQueryableExtensionsType is null)
+            {
+                return;
+            }
+
             foreach (var diagnostic in context.ReportedDiagnostics)
             {
                 if (diagnostic.Location.SourceTree is not SyntaxTree tree)
@@ -37,7 +46,14 @@ namespace Microsoft.EntityFrameworkCore
                 var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
                 var model = context.GetSemanticModel(tree);
                 var operation = model.GetOperation(node, context.CancellationToken);
-                if (operation?.IsWithinExpressionTree(linqExpressionType) == true)
+                if (operation is null)
+                {
+                    continue;
+                }
+
+                if (operation.IsWithinExpressionTree(linqExpressionType, out var anonymousOrLocalFunctionOperation) &&
+                    anonymousOrLocalFunctionOperation.GetAncestor(_invocationKind) is IInvocationOperation invocation &&
+                    SymbolEqualityComparer.Default.Equals(invocation.TargetMethod.ContainingType, efQueryableExtensionsType))
                 {
                     context.ReportSuppression(Suppression.Create(_descriptor, diagnostic));
                 }

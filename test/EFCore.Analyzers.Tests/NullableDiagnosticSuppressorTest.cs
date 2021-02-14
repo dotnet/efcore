@@ -51,5 +51,35 @@ class C
 }";
             await AssertWarningIsNotSuppressedAsync(code);
         }
+
+        [Fact]
+        public async Task TestEFCoreIncludeIsSuppressed()
+        {
+            var code = @"
+#nullable enable
+
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+
+class SomeModel
+{
+    public NavigationModel? Navigation { get; set; }
+}
+
+class NavigationModel
+{
+    public string DeeperNavigation { get; set; } = null!;
+}
+
+static class C
+{
+    public static void M(IQueryable<SomeModel> q)
+    {
+        _ = q.Include(m => m.Navigation).ThenInclude(n => {|CS8602:n|}.DeeperNavigation);
+    }
+}
+";
+            await AssertWarningIsSuppressedAsync(code);
+        }
     }
 }
