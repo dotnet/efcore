@@ -1050,7 +1050,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(setOperation, nameof(setOperation));
 
             GenerateSetOperationOperand(setOperation, setOperation.Source1);
-            _relationalCommandBuilder.AppendLine()
+            _relationalCommandBuilder
+                .AppendLine()
                 .Append(GetSetOperation(setOperation))
                 .AppendLine(setOperation.IsDistinct ? string.Empty : " ALL");
             GenerateSetOperationOperand(setOperation, setOperation.Source2);
