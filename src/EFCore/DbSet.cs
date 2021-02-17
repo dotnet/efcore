@@ -66,7 +66,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <returns> This object. </returns>
-        [Obsolete("Calling this method on DbSet is no longer necessary.")]
         public virtual IQueryable<TEntity> AsQueryable()
             => this;
 
