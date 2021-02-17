@@ -385,17 +385,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var subDependentEntry = context.Entry(subDependent);
                     Assert.Equal(principal.Id, subDependentEntry.Property("ParentId").CurrentValue);
                     Assert.Equal(useTrackGraph == null ? EntityState.Added : entityState, subDependentEntry.State);
-                    Assert.Equal(
-                        typeof(Parent).ShortDisplayName()
-                        + "."
-                        + nameof(Parent.Child1)
-                        + "#"
-                        + nameof(Child)
-                        + "."
-                        + nameof(Child.SubChild)
-                        + "#"
-                        + nameof(Child.SubChild),
-                        subDependentEntry.Metadata.DisplayName());
+                    Assert.Equal(nameof(ChildPN.SubChild), subDependentEntry.Metadata.DefiningNavigationName);
                 });
         }
 
@@ -2452,6 +2442,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(principal2.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(entityState == EntityState.Added ? EntityState.Added : EntityState.Modified, dependent2Entry.State);
                 Assert.Equal(nameof(Parent.Child1), dependent2Entry.Metadata.DefiningNavigationName);
+
                 Assert.Same(subDependent1, dependent1.SubChild);
                 Assert.Same(dependent1, subDependent1.Parent);
                 var subDependentEntry1 = dependent1Entry.Reference(p => p.SubChild).TargetEntry;
@@ -2855,14 +2846,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             principal2.Child1 = dependent;
             principal1.Child2 = null;
 
-            if (entityState != EntityState.Added)
-            {
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
-                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-                return;
-            }
-
             context.ChangeTracker.DetectChanges();
 
             Assert.True(context.ChangeTracker.HasChanges());
@@ -3061,14 +3044,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             principal2.ChildCollection1 = principal1.ChildCollection2;
             principal1.ChildCollection2 = null;
 
-            if (entityState != EntityState.Added)
-            {
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
-                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-                return;
-            }
-
             context.ChangeTracker.DetectChanges();
 
             Assert.True(context.ChangeTracker.HasChanges());
@@ -3237,14 +3212,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             principal2.Child1 = dependent1;
             principal1.Child2 = dependent2;
-
-            if (entityState != EntityState.Added)
-            {
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
-                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-                return;
-            }
 
             context.ChangeTracker.DetectChanges();
 
@@ -3533,14 +3500,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var newSubDependentEntry2 = newDependentEntry2.Collection(p => p.SubChildCollection)
                 .FindEntry(subDependent2);
             newSubDependentEntry2.Property<int>("Id").CurrentValue = subDependentEntry2.Property<int>("Id").CurrentValue;
-
-            if (entityState != EntityState.Added)
-            {
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly("ParentId", "Parent.ChildCollection2#Child"),
-                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-                return;
-            }
 
             context.ChangeTracker.DetectChanges();
 
