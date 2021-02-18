@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var context = InternalEntry.StateManager.Context;
 
                 var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
-                    && !((Model)context.Model).SkipDetectChanges
+                    && !((IRuntimeModel)context.Model).SkipDetectChanges
                         ? context.GetDependencies().ChangeDetector
                         : null;
 

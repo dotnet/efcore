@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _valueBufferParameter = Parameter(typeof(ValueBuffer), "valueBuffer");
             ServerQueryExpression = new InMemoryTableExpression(entityType);
             var readExpressionMap = new Dictionary<IProperty, Expression>();
-            var discriminatorProperty = entityType.GetDiscriminatorProperty();
+            var discriminatorProperty = entityType.FindDiscriminatorProperty();
             var keyValueComparer = discriminatorProperty?.GetKeyValueComparer();
             foreach (var property in entityType.GetAllBaseTypesInclusive().SelectMany(et => et.GetDeclaredProperties()))
             {

@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -41,6 +42,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     This may be <see langword="null" /> for shadow properties or if the backing field is not known.
         /// </summary>
         FieldInfo? FieldInfo { get; }
+
+        /// <summary>
+        ///     Gets the name of the backing field for this property, or <see langword="null" /> if the backing field
+        ///     is not known.
+        /// </summary>
+        /// <returns> The name of the backing field, or <see langword="null" />. </returns>
+        string? GetFieldName()
+            => FieldInfo?.GetSimpleMemberName();
+
+        /// <summary>
+        ///     Gets a value indicating whether this is a shadow property. A shadow property is one that does not have a
+        ///     corresponding property in the entity class. The current value for the property is stored in
+        ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+        /// </summary>
+        /// <returns>
+        ///     <see langword="true" /> if the property is a shadow property, otherwise <see langword="false" />.
+        /// </returns>
+        bool IsShadowProperty() => this.GetIdentifyingMemberInfo() == null;
+
+        /// <summary>
+        ///     Gets a value indicating whether this is an indexer property. An indexer property is one that is accessed through
+        ///     an indexer on the entity class.
+        /// </summary>
+        /// <returns>
+        ///     <see langword="true" /> if the property is an indexer property, otherwise <see langword="false" />.
+        /// </returns>
+        bool IsIndexerProperty()
+            => this.GetIdentifyingMemberInfo() is PropertyInfo propertyInfo
+                && propertyInfo == DeclaringType.FindIndexerPropertyInfo();
 
         /// <summary>
         ///     <para>

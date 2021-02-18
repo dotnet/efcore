@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static PropertyCounts GetCounts([NotNull] this IEntityType entityType)
-            => ((IInternalEntityType)entityType).Counts;
+            => ((IRuntimeEntityType)entityType).Counts;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Func<MaterializationContext, object> GetInstanceFactory([NotNull] this IEntityType entityType)
-            => ((IInternalEntityType)entityType).InstanceFactory;
+            => ((IRuntimeEntityType)entityType).InstanceFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Func<ISnapshot> GetEmptyShadowValuesFactory([NotNull] this IEntityType entityType)
-            => ((IInternalEntityType)entityType).EmptyShadowValuesFactory;
+            => ((IRuntimeEntityType)entityType).EmptyShadowValuesFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

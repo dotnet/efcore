@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if (!((Model)Context.Model).SkipDetectChanges)
+            if (!((IRuntimeModel)Context.Model).SkipDetectChanges)
             {
                 Context.GetDependencies().ChangeDetector.DetectChanges(InternalEntry);
             }

@@ -910,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private bool AddDiscriminatorCondition(SelectExpression selectExpression, IEntityType entityType)
         {
-            var discriminatorProperty = entityType.GetDiscriminatorProperty();
+            var discriminatorProperty = entityType.FindDiscriminatorProperty();
             if (discriminatorProperty == null
                 || (entityType.GetRootType().GetIsDiscriminatorMappingComplete()
                     && entityType.GetAllBaseTypesInclusiveAscending()

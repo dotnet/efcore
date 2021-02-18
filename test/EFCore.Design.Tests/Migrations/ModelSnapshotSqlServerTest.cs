@@ -1724,7 +1724,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasDiscriminator<long>(""Day"");
                 });"),
-                model => Assert.Equal(typeof(long), model.GetEntityTypes().First().GetDiscriminatorProperty().ClrType));
+                model => Assert.Equal(typeof(long), model.GetEntityTypes().First().FindDiscriminatorProperty().ClrType));
         }
 
         [ConditionalFact]
@@ -1759,7 +1759,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });"),
                 model =>
                 {
-                    var discriminatorProperty = model.GetEntityTypes().First().GetDiscriminatorProperty();
+                    var discriminatorProperty = model.GetEntityTypes().First().FindDiscriminatorProperty();
                     Assert.Equal(typeof(string), discriminatorProperty.ClrType);
                     Assert.False(discriminatorProperty.IsNullable);
                 });

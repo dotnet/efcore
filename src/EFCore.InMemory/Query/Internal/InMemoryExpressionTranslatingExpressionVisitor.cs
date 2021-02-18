@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 if (derivedType != null)
                 {
                     // All hierarchies have discriminator property
-                    var discriminatorProperty = entityType.GetDiscriminatorProperty()!;
+                    var discriminatorProperty = entityType.FindDiscriminatorProperty()!;
                     var boundProperty = BindProperty(entityReferenceExpression, discriminatorProperty, discriminatorProperty.ClrType);
                     // KeyValueComparer is not null at runtime
                     var valueComparer = discriminatorProperty.GetKeyValueComparer()!;

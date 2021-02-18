@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 && primaryKey.Columns[0].ValueGenerated == null
                 && primaryKey.Columns[0].DefaultValueSql == null)
             {
-                var property = builder.Metadata.FindProperty(GetPropertyName(primaryKey.Columns[0]))?.AsProperty();
+                var property = builder.Metadata.FindProperty(GetPropertyName(primaryKey.Columns[0]));
                 if (property != null)
                 {
                     var conventionalValueGenerated = ValueGenerationConvention.GetValueGenerated(property);

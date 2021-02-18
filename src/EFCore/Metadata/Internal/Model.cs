@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IModel
+    public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRuntimeModel
     {
         /// <summary>
         ///     The CLR type that is used for property bag entity types when no other type is specified.
@@ -753,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual PropertyAccessMode? SetPropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             ConfigurationSource configurationSource)
-            => (PropertyAccessMode?)this.SetOrRemoveAnnotation(
+            => (PropertyAccessMode?)SetOrRemoveAnnotation(
                 CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource)?.Value;
 
         /// <summary>

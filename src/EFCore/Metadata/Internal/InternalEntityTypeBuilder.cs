@@ -4385,7 +4385,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private InternalPropertyBuilder? GetOrCreateDiscriminatorProperty(Type? type, string? name, ConfigurationSource configurationSource)
         {
-            var discriminatorProperty = ((IReadOnlyEntityType)Metadata).GetDiscriminatorProperty();
+            var discriminatorProperty = ((IReadOnlyEntityType)Metadata).FindDiscriminatorProperty();
             if ((name != null && discriminatorProperty?.Name != name)
                 || (type != null && discriminatorProperty?.ClrType != type))
             {
@@ -4460,7 +4460,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void RemoveUnusedDiscriminatorProperty(Property? newDiscriminatorProperty, ConfigurationSource configurationSource)
         {
-            var oldDiscriminatorProperty = ((IReadOnlyEntityType)Metadata).GetDiscriminatorProperty() as Property;
+            var oldDiscriminatorProperty = ((IReadOnlyEntityType)Metadata).FindDiscriminatorProperty() as Property;
             if (oldDiscriminatorProperty?.IsInModel == true
                 && oldDiscriminatorProperty != newDiscriminatorProperty)
             {
@@ -4484,7 +4484,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetDiscriminator([CanBeNull] string? name, [CanBeNull] Type? type, ConfigurationSource configurationSource)
             => name == null && type == null
                 ? CanRemoveDiscriminator(configurationSource)
-                : CanSetDiscriminator(((IReadOnlyEntityType)Metadata).GetDiscriminatorProperty(), name, type, configurationSource);
+                : CanSetDiscriminator(((IReadOnlyEntityType)Metadata).FindDiscriminatorProperty(), name, type, configurationSource);
 
         private bool CanSetDiscriminator(
             IReadOnlyProperty? discriminatorProperty,

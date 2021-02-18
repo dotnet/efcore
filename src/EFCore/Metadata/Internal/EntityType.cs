@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, IInternalEntityType
+    public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, IRuntimeEntityType
     {
         private const string DynamicProxyGenAssemblyName = "DynamicProxyGenAssembly2";
 
@@ -3229,9 +3229,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(errorMessage);
             }
 
-            this.SetOrRemoveAnnotation(CoreAnnotationNames.QueryFilter, queryFilter, configurationSource);
-
-            return queryFilter;
+            return (LambdaExpression?)SetOrRemoveAnnotation(CoreAnnotationNames.QueryFilter, queryFilter, configurationSource)?.Value;
         }
 
         /// <summary>
@@ -3277,8 +3275,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [Obsolete]
-        public virtual void SetDefiningQuery([CanBeNull] LambdaExpression? definingQuery, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery, configurationSource);
+        public virtual LambdaExpression? SetDefiningQuery([CanBeNull] LambdaExpression? definingQuery, ConfigurationSource configurationSource)
+            => (LambdaExpression?)SetOrRemoveAnnotation(CoreAnnotationNames.DefiningQuery, definingQuery, configurationSource)?.Value;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3303,9 +3301,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource);
-
-            return property;
+            return ((string?)SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource)?.Value)
+                == property?.Name
+                ? property
+                : (Property?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
         }
 
         private void CheckDiscriminatorProperty(Property? property)
@@ -3339,7 +3338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return value;
             }
 
-            var discriminatorProperty = entityType.GetDiscriminatorProperty();
+            var discriminatorProperty = entityType.FindDiscriminatorProperty();
             if (discriminatorProperty is null)
             {
                 throw new InvalidOperationException(

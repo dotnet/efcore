@@ -713,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (key.Properties.All(p => foreignKey.Properties.Contains(p))
                     && (!foreignKey.IsUnique || foreignKey.DeclaringEntityType.BaseType != null))
                 {
-                    foreignKey.Builder.HasForeignKey((IReadOnlyList<Property>?)null);
+                    foreignKey.Builder.HasForeignKey((IReadOnlyList<IConventionProperty>?)null);
                 }
             }
         }

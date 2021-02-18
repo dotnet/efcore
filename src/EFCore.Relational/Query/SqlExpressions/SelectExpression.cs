@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             : base(null)
         {
             if ((entityType.BaseType == null && !entityType.GetDirectlyDerivedTypes().Any())
-                || entityType.GetDiscriminatorProperty() != null)
+                || entityType.FindDiscriminatorProperty() != null)
             {
                 ITableBase table;
                 TableExpressionBase tableExpression;
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             : base(null)
         {
             if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
-                && entityType.GetDiscriminatorProperty() == null)
+                && entityType.FindDiscriminatorProperty() == null)
             {
                 throw new InvalidOperationException(RelationalStrings.SelectExpressionNonTPHWithCustomTable(entityType.DisplayName()));
             }

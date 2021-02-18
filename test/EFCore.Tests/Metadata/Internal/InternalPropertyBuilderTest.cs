@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_only_override_existing_MaxLength_value_explicitly()
         {
             var metadata = CreateProperty();
-            metadata.SetMaxLength(1);
+            metadata.SetMaxLength(1, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.NotNull(builder.HasMaxLength(1, ConfigurationSource.DataAnnotation));
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_only_override_existing_Precision_value_explicitly()
         {
             var metadata = CreateProperty();
-            metadata.SetPrecision(1);
+            metadata.SetPrecision(1, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.NotNull(builder.HasPrecision(1, ConfigurationSource.DataAnnotation));
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_only_override_existing_Scale_value_explicitly()
         {
             var metadata = CreateProperty();
-            metadata.SetScale(1);
+            metadata.SetScale(1, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.NotNull(builder.HasScale(1, ConfigurationSource.DataAnnotation));
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 => new CustomValueGenerator1();
 
             var metadata = CreateProperty();
-            metadata.SetValueGeneratorFactory(factory);
+            metadata.SetValueGeneratorFactory(factory, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.NotNull(builder.HasValueGenerator(factory, ConfigurationSource.DataAnnotation));
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_only_override_existing_IsUnicode_value_explicitly()
         {
             var metadata = CreateProperty();
-            metadata.SetIsUnicode(true);
+            metadata.SetIsUnicode(true, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.NotNull(builder.IsUnicode(true, ConfigurationSource.DataAnnotation));
@@ -413,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var metadata = CreateProperty();
             Assert.Null(metadata.GetBeforeSaveBehaviorConfigurationSource());
-            metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
+            metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetBeforeSaveBehaviorConfigurationSource());
@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var metadata = CreateProperty();
             Assert.Null(metadata.GetAfterSaveBehaviorConfigurationSource());
-            metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
+            metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetAfterSaveBehaviorConfigurationSource());

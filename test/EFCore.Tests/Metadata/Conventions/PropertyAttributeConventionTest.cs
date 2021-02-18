@@ -519,7 +519,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property(typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit);
+            IConventionPropertyBuilder propertyBuilder = entityTypeBuilder.Property(
+                typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit);
 
             RunConvention(propertyBuilder);
 
@@ -532,14 +533,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityTypeBuilder.Property(typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit);
+            var propertyBuilder = entityTypeBuilder.Property(
+                typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit);
 
             propertyBuilder.HasField("_backingFieldForFluentApi", ConfigurationSource.Explicit);
 
             RunConvention(propertyBuilder);
 
             // also asserts that the default backing field, _backingFieldProperty, was _not_ chosen
-            Assert.Equal("_backingFieldForFluentApi", propertyBuilder.Metadata.GetFieldName());
+            Assert.Equal("_backingFieldForFluentApi", ((IConventionProperty)propertyBuilder.Metadata).GetFieldName());
         }
 
         #endregion
@@ -667,11 +669,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        private static void RunConvention(InternalPropertyBuilder propertyBuilder)
+        private static void RunConvention(IConventionPropertyBuilder propertyBuilder)
         {
             var dependencies = CreateDependencies();
             var context = new ConventionContext<IConventionPropertyBuilder>(
-                propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+                ((Model)propertyBuilder.Metadata.DeclaringEntityType.Model).ConventionDispatcher);
 
             new BackingFieldConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);

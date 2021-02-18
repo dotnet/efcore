@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public class ChangeTracker : IResettableService
     {
-        private readonly IModel _model;
+        private readonly IRuntimeModel _model;
         private QueryTrackingBehavior _queryTrackingBehavior;
         private readonly QueryTrackingBehavior _defaultQueryTrackingBehavior;
 
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             StateManager = stateManager;
             ChangeDetector = changeDetector;
-            _model = model;
+            _model = (IRuntimeModel)model;
             GraphIterator = graphIterator;
         }
 
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if (!((Model)_model).SkipDetectChanges)
+            if (!_model.SkipDetectChanges)
             {
                 ChangeDetector.DetectChanges(StateManager);
             }

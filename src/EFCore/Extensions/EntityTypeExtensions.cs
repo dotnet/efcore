@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -68,5 +69,28 @@ namespace Microsoft.EntityFrameworkCore
 
             return (LambdaExpression?)entityType[CoreAnnotationNames.DefiningQuery];
         }
+
+        /// <summary>
+        ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
+        ///     a parent of the other, that parent is returned. Returns <see langword="null" /> if the two entity types aren't in the same hierarchy.
+        /// </summary>
+        /// <param name="entityType1"> An entity type.</param>
+        /// <param name="entityType2"> Another entity type.</param>
+        /// <returns>
+        ///     The closest common parent of <paramref name="entityType1" /> and <paramref name="entityType2" />,
+        ///     or null if they have not common parent.
+        /// </returns>
+        [Obsolete("Use IReadOnlyEntityType.FindClosestCommonParent")]
+        public static IReadOnlyEntityType? GetClosestCommonParent(
+            [NotNull] this IReadOnlyEntityType entityType1, [NotNull] IReadOnlyEntityType entityType2)
+            => entityType1.FindClosestCommonParent(entityType2);
+
+        /// <summary>
+        ///     Returns the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        [Obsolete("Use IReadOnlyEntityType.FindDiscriminatorProperty")]
+        public static IReadOnlyProperty? GetDiscriminatorProperty([NotNull] this IReadOnlyEntityType entityType)
+            => entityType.FindDiscriminatorProperty();
     }
 }

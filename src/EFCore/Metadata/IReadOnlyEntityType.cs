@@ -71,19 +71,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         LambdaExpression? GetQueryFilter();
 
         /// <summary>
-        ///     Returns the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
+        ///     Returns the property that will be used for storing a discriminator value.
         /// </summary>
-        /// <returns> The <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value. </returns>
-        IReadOnlyProperty? GetDiscriminatorProperty()
+        /// <returns> The property that will be used for storing a discriminator value. </returns>
+        IReadOnlyProperty? FindDiscriminatorProperty()
+        {
+            var propertyName = GetDiscriminatorPropertyName();
+            return propertyName == null ? null : FindProperty(propertyName);
+        }
+
+        /// <summary>
+        ///     Returns the name of the property that will be used for storing a discriminator value.
+        /// </summary>
+        /// <returns> The name of the property that will be used for storing a discriminator value. </returns>
+        string? GetDiscriminatorPropertyName()
         {
             if (BaseType != null)
             {
-                return GetRootType().GetDiscriminatorProperty();
+                return GetRootType().GetDiscriminatorPropertyName();
             }
 
-            var propertyName = (string?)this[CoreAnnotationNames.DiscriminatorProperty];
-
-            return propertyName == null ? null : FindProperty(propertyName);
+            return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
         }
 
         /// <summary>
@@ -221,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The closest common parent of this entity type and <paramref name="otherEntityType" />,
         ///     or <see langword="null" /> if they have not common parent.
         /// </returns>
-        IReadOnlyEntityType? GetClosestCommonParent([NotNull] IReadOnlyEntityType otherEntityType)
+        IReadOnlyEntityType? FindClosestCommonParent([NotNull] IReadOnlyEntityType otherEntityType)
         {
             Check.NotNull(otherEntityType, nameof(otherEntityType));
 

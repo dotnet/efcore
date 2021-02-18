@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -67,6 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 => throw new NotImplementedException();
 
             public IClrPropertyGetter GetGetter() => throw new NotImplementedException();
+
+            public IComparer<IUpdateEntry> GetCurrentValueComparer()
+                => throw new NotImplementedException();
 
             public Type CollectionType { get; }
         }

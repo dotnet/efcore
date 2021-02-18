@@ -772,7 +772,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
-            var concretePropertyBase = (PropertyBase)propertyBase;
+            var concretePropertyBase = (IRuntimePropertyBase)propertyBase;
 
             var setter = forMaterialization
                 ? concretePropertyBase.MaterializationSetter
@@ -889,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             EnsureOriginalValues();
 
-            var property = (Property)propertyBase;
+            var property = (IProperty)propertyBase;
 
             _originalValues.SetValue(property, value, index);
 
@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_temporaryValues.IsEmpty)
             {
-                _temporaryValues = new SidecarValues(((IInternalEntityType)EntityType).TemporaryValuesFactory(this));
+                _temporaryValues = new SidecarValues(((IRuntimeEntityType)EntityType).TemporaryValuesFactory(this));
             }
         }
 
@@ -959,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_storeGeneratedValues.IsEmpty)
             {
-                _storeGeneratedValues = new SidecarValues(((IInternalEntityType)EntityType).StoreGeneratedValuesFactory(this));
+                _storeGeneratedValues = new SidecarValues(((IRuntimeEntityType)EntityType).StoreGeneratedValuesFactory(this));
             }
         }
 
@@ -1103,7 +1103,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var currentValue = ReadPropertyValue(propertyBase);
 
-            var asProperty = propertyBase as Property;
+            var asProperty = propertyBase as IProperty;
             int propertyIndex;
             CurrentValueType currentValueType;
             Func<object, object, bool> equals;

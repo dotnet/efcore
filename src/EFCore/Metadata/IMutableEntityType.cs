@@ -72,10 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         void SetQueryFilter([CanBeNull] LambdaExpression? queryFilter);
 
         /// <summary>
-        ///     Returns the <see cref="IMutableProperty" /> that will be used for storing a discriminator value.
+        ///     Returns the property that will be used for storing a discriminator value.
         /// </summary>
-        new IMutableProperty? GetDiscriminatorProperty()
-            => (IMutableProperty?)((IReadOnlyEntityType)this).GetDiscriminatorProperty();
+        /// <returns> The property that will be used for storing a discriminator value. </returns>
+        new IMutableProperty? FindDiscriminatorProperty()
+            => (IMutableProperty?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
 
         /// <summary>
         ///     Sets the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
@@ -88,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="complete"> The value indicating whether the discriminator mapping is complete. </param>
         void SetDiscriminatorMappingComplete(bool? complete)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete);
+            => SetOrRemoveAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, complete);
 
         /// <summary>
         ///     Sets the discriminator value for this entity type.
@@ -164,6 +165,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </returns>
         new IMutableEntityType GetRootType()
             => (IMutableEntityType)((IReadOnlyEntityType)this).GetRootType();
+
+        /// <summary>
+        ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
+        ///     a parent of the other, that parent is returned. Returns <see langword="null" /> if the two entity types aren't
+        ///     in the same hierarchy.
+        /// </summary>
+        /// <param name="otherEntityType"> Another entity type.</param>
+        /// <returns>
+        ///     The closest common parent of this entity type and <paramref name="otherEntityType" />,
+        ///     or <see langword="null" /> if they have not common parent.
+        /// </returns>
+        new IMutableEntityType? FindClosestCommonParent([NotNull] IReadOnlyEntityType otherEntityType)
+            => (IMutableEntityType?)((IReadOnlyEntityType)this).FindClosestCommonParent(otherEntityType);
+
+        /// <summary>
+        ///     Gets the least derived type between the specified two.
+        /// </summary>
+        /// <param name="otherEntityType"> The other entity type to compare with. </param>
+        /// <returns>
+        ///     The least derived type between the specified two.
+        ///     If the given entity types are not related, then <see langword="null" /> is returned.
+        /// </returns>
+        new IMutableEntityType? LeastDerivedType([NotNull] IReadOnlyEntityType otherEntityType)
+            => (IMutableEntityType?)((IReadOnlyEntityType)this).LeastDerivedType(otherEntityType);
 
         /// <summary>
         ///     Sets the primary key for this entity type.
