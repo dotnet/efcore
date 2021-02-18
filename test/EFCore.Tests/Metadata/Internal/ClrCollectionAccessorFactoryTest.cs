@@ -72,6 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IComparer<IUpdateEntry> GetCurrentValueComparer()
                 => throw new NotImplementedException();
 
+            public IClrCollectionAccessor GetCollectionAccessor()
+                => throw new NotImplementedException();
+
             public Type CollectionType { get; }
         }
 

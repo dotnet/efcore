@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="IMutableNavigation" />.
     /// </summary>
+    [Obsolete("Use IMutableNavigation")]
     public static class MutableNavigationExtensions
     {
         /// <summary>

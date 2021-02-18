@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
 
         private ICollectionLoader TargetLoader
-            => _loader ??= Metadata is ISkipNavigation skipNavigation
+            => _loader ??= Metadata is IRuntimeSkipNavigation skipNavigation
                 ? skipNavigation.GetManyToManyLoader()
                 : new EntityFinderCollectionLoaderAdapter(
                     InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType),

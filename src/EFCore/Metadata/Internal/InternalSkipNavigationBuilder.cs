@@ -335,7 +335,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (CanSetAutoInclude(autoInclude, configurationSource))
             {
-                Metadata.SetIsEagerLoaded(autoInclude, configurationSource);
+                if (configurationSource == ConfigurationSource.Explicit)
+                {
+                    ((IMutableSkipNavigation)Metadata).SetIsEagerLoaded(autoInclude);
+                }
+                else
+                {
+                    ((IConventionSkipNavigation)Metadata).SetIsEagerLoaded(
+                        autoInclude, configurationSource == ConfigurationSource.DataAnnotation);
+                }
 
                 return this;
             }

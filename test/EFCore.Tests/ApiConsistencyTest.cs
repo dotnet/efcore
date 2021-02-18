@@ -100,14 +100,6 @@ namespace Microsoft.EntityFrameworkCore
                         typeof(ConventionForeignKeyExtensions),
                         null,
                         null
-                    ),
-                    (
-                        typeof(IReadOnlyNavigation),
-                        typeof(NavigationExtensions),
-                        typeof(MutableNavigationExtensions),
-                        typeof(ConventionNavigationExtensions),
-                        null,
-                        null
                     )
                 };
 

@@ -84,7 +84,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (CanSetAutoInclude(autoInclude, configurationSource))
             {
-                Metadata.SetIsEagerLoaded(autoInclude, configurationSource);
+                if (configurationSource == ConfigurationSource.Explicit)
+                {
+                    ((IMutableNavigation)Metadata).SetIsEagerLoaded(autoInclude);
+                }
+                else
+                {
+                    ((IConventionNavigation)Metadata).SetIsEagerLoaded(
+                        autoInclude, configurationSource == ConfigurationSource.DataAnnotation);
+                }
 
                 return this;
             }
