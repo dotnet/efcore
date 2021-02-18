@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
             var concurrencyDetector = context.GetService<IConcurrencyDetector>();
             IDisposable disposer = null;
 
-            Task.Run(() => disposer = concurrencyDetector.EnterCriticalSection()).Wait();
+            await Task.Run(() => disposer = concurrencyDetector.EnterCriticalSection());
 
             using (disposer)
             {
