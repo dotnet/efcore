@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore
@@ -39,8 +40,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
-    public abstract class DbSet<TEntity>
-        : IQueryable<TEntity>, IAsyncEnumerable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
+    public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
         where TEntity : class
     {
         /// <summary>
@@ -50,17 +50,11 @@ namespace Microsoft.EntityFrameworkCore
             => null;
 
         /// <summary>
-        ///     <para>
-        ///         Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
-        ///     </para>
-        ///     <para>
-        ///         This is a convenience method to help with disambiguation of extension methods in the same
-        ///         namespace that extend both interfaces.
-        ///     </para>
+        ///     Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
         /// </summary>
         /// <returns> This object. </returns>
         public virtual IAsyncEnumerable<TEntity> AsAsyncEnumerable()
-            => this;
+            => (IAsyncEnumerable<TEntity>)this;
 
         /// <summary>
         ///     <para>
@@ -527,14 +521,6 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> The query results. </returns>
         IEnumerator IEnumerable.GetEnumerator()
-            => throw new NotSupportedException();
-
-        /// <summary>
-        ///     Returns an <see cref="IAsyncEnumerator{T}" /> which when enumerated will asynchronously execute a query against
-        ///     the database.
-        /// </summary>
-        /// <returns> The query results. </returns>
-        IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
             => throw new NotSupportedException();
 
         /// <summary>
