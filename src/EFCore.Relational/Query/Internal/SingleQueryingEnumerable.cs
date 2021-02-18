@@ -154,60 +154,63 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public bool MoveNext()
             {
-                _concurrencyDetector?.EnterCriticalSection();
-
                 try
                 {
-                    if (_dataReader == null)
-                    {
-                        _relationalQueryContext.ExecutionStrategyFactory.Create()
-                            .Execute(true, InitializeReader, null);
-                    }
+                    _concurrencyDetector?.EnterCriticalSection();
 
-                    var hasNext = _resultCoordinator!.HasNext ?? _dataReader!.Read();
-                    Current = default!;
-
-                    if (hasNext)
+                    try
                     {
-                        while (true)
+                        if (_dataReader == null)
                         {
-                            _resultCoordinator.ResultReady = true;
-                            _resultCoordinator.HasNext = null;
-                            Current = _shaper(
-                                _relationalQueryContext, _dataReader!.DbDataReader, _resultCoordinator.ResultContext,
-                                _resultCoordinator);
-                            if (_resultCoordinator.ResultReady)
-                            {
-                                // We generated a result so null out previously stored values
-                                _resultCoordinator.ResultContext.Values = null;
-                                break;
-                            }
+                            _relationalQueryContext.ExecutionStrategyFactory.Create()
+                                .Execute(true, InitializeReader, null);
+                        }
 
-                            if (!_dataReader.Read())
+                        var hasNext = _resultCoordinator!.HasNext ?? _dataReader!.Read();
+                        Current = default!;
+
+                        if (hasNext)
+                        {
+                            while (true)
                             {
-                                _resultCoordinator.HasNext = false;
-                                // Enumeration has ended, materialize last element
                                 _resultCoordinator.ResultReady = true;
+                                _resultCoordinator.HasNext = null;
                                 Current = _shaper(
-                                    _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext,
+                                    _relationalQueryContext, _dataReader!.DbDataReader, _resultCoordinator.ResultContext,
                                     _resultCoordinator);
+                                if (_resultCoordinator.ResultReady)
+                                {
+                                    // We generated a result so null out previously stored values
+                                    _resultCoordinator.ResultContext.Values = null;
+                                    break;
+                                }
 
-                                break;
+                                if (!_dataReader.Read())
+                                {
+                                    _resultCoordinator.HasNext = false;
+                                    // Enumeration has ended, materialize last element
+                                    _resultCoordinator.ResultReady = true;
+                                    Current = _shaper(
+                                        _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext,
+                                        _resultCoordinator);
+
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    return hasNext;
+                        return hasNext;
+                    }
+                    finally
+                    {
+                        _concurrencyDetector?.ExitCriticalSection();
+                    }
                 }
                 catch (Exception exception)
                 {
                     _queryLogger.QueryIterationFailed(_contextType, exception);
 
                     throw;
-                }
-                finally
-                {
-                    _concurrencyDetector?.ExitCriticalSection();
                 }
             }
 
@@ -277,62 +280,65 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public async ValueTask<bool> MoveNextAsync()
             {
-                _concurrencyDetector?.EnterCriticalSection();
-
                 try
                 {
-                    if (_dataReader == null)
-                    {
-                        await _relationalQueryContext.ExecutionStrategyFactory.Create()
-                            .ExecuteAsync(true, InitializeReaderAsync, null, _relationalQueryContext.CancellationToken)
-                            .ConfigureAwait(false);
-                    }
+                    _concurrencyDetector?.EnterCriticalSection();
 
-                    var hasNext = _resultCoordinator!.HasNext
-                        ?? await _dataReader!.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
-                    Current = default!;
-
-                    if (hasNext)
+                    try
                     {
-                        while (true)
+                        if (_dataReader == null)
                         {
-                            _resultCoordinator.ResultReady = true;
-                            _resultCoordinator.HasNext = null;
-                            Current = _shaper(
-                                _relationalQueryContext, _dataReader!.DbDataReader, _resultCoordinator.ResultContext,
-                                _resultCoordinator);
-                            if (_resultCoordinator.ResultReady)
-                            {
-                                // We generated a result so null out previously stored values
-                                _resultCoordinator.ResultContext.Values = null;
-                                break;
-                            }
+                            await _relationalQueryContext.ExecutionStrategyFactory.Create()
+                                .ExecuteAsync(true, InitializeReaderAsync, null, _relationalQueryContext.CancellationToken)
+                                .ConfigureAwait(false);
+                        }
 
-                            if (!await _dataReader.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false))
+                        var hasNext = _resultCoordinator!.HasNext
+                            ?? await _dataReader!.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
+                        Current = default!;
+
+                        if (hasNext)
+                        {
+                            while (true)
                             {
-                                _resultCoordinator.HasNext = false;
-                                // Enumeration has ended, materialize last element
                                 _resultCoordinator.ResultReady = true;
+                                _resultCoordinator.HasNext = null;
                                 Current = _shaper(
-                                    _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext,
+                                    _relationalQueryContext, _dataReader!.DbDataReader, _resultCoordinator.ResultContext,
                                     _resultCoordinator);
+                                if (_resultCoordinator.ResultReady)
+                                {
+                                    // We generated a result so null out previously stored values
+                                    _resultCoordinator.ResultContext.Values = null;
+                                    break;
+                                }
 
-                                break;
+                                if (!await _dataReader.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false))
+                                {
+                                    _resultCoordinator.HasNext = false;
+                                    // Enumeration has ended, materialize last element
+                                    _resultCoordinator.ResultReady = true;
+                                    Current = _shaper(
+                                        _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext,
+                                        _resultCoordinator);
+
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    return hasNext;
+                        return hasNext;
+                    }
+                    finally
+                    {
+                        _concurrencyDetector?.ExitCriticalSection();
+                    }
                 }
                 catch (Exception exception)
                 {
                     _queryLogger.QueryIterationFailed(_contextType, exception);
 
                     throw;
-                }
-                finally
-                {
-                    _concurrencyDetector?.ExitCriticalSection();
                 }
             }
 

@@ -164,44 +164,47 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public bool MoveNext()
             {
-                _concurrencyDetector?.EnterCriticalSection();
-
                 try
                 {
-                    if (_dataReader == null)
+                    _concurrencyDetector?.EnterCriticalSection();
+
+                    try
                     {
-                        if (_executionStrategy == null)
+                        if (_dataReader == null)
                         {
-                            _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
+                            if (_executionStrategy == null)
+                            {
+                                _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
+                            }
+
+                            _executionStrategy.Execute(true, InitializeReader, null);
                         }
 
-                        _executionStrategy.Execute(true, InitializeReader, null);
+                        var hasNext = _dataReader!.Read();
+                        Current = default!;
+
+                        if (hasNext)
+                        {
+                            _resultCoordinator!.ResultContext.Values = null;
+                            _shaper(
+                                _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
+                            _relatedDataLoaders?.Invoke(_relationalQueryContext, _executionStrategy!, _resultCoordinator);
+                            Current = _shaper(
+                                _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
+                        }
+
+                        return hasNext;
                     }
-
-                    var hasNext = _dataReader!.Read();
-                    Current = default!;
-
-                    if (hasNext)
+                    finally
                     {
-                        _resultCoordinator!.ResultContext.Values = null;
-                        _shaper(
-                            _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
-                        _relatedDataLoaders?.Invoke(_relationalQueryContext, _executionStrategy!, _resultCoordinator);
-                        Current = _shaper(
-                            _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
+                        _concurrencyDetector?.ExitCriticalSection();
                     }
-
-                    return hasNext;
                 }
                 catch (Exception exception)
                 {
                     _queryLogger.QueryIterationFailed(_contextType, exception);
 
                     throw;
-                }
-                finally
-                {
-                    _concurrencyDetector?.ExitCriticalSection();
                 }
             }
 
@@ -259,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
             private readonly bool _detailedErrorEnabled;
-            private readonly bool _concurrencyDetectionEnabled;
+            private readonly IConcurrencyDetector? _concurrencyDetector;
 
             private RelationalDataReader? _dataReader;
             private SplitQueryResultCoordinator? _resultCoordinator;
@@ -275,64 +278,64 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _queryLogger = queryingEnumerable._queryLogger;
                 _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                 _detailedErrorEnabled = queryingEnumerable._detailedErrorsEnabled;
-                _concurrencyDetectionEnabled = queryingEnumerable._concurrencyDetectionEnabled;
                 Current = default!;
+
+                _concurrencyDetector = queryingEnumerable._concurrencyDetectionEnabled
+                    ? _relationalQueryContext.ConcurrencyDetector
+                    : null;
             }
 
             public T Current { get; private set; }
 
             public async ValueTask<bool> MoveNextAsync()
             {
-                if (_concurrencyDetectionEnabled)
-                {
-                    _relationalQueryContext.ConcurrencyDetector.EnterCriticalSection();
-                }
-
                 try
                 {
-                    if (_dataReader == null)
+                    _concurrencyDetector?.EnterCriticalSection();
+
+                    try
                     {
-                        if (_executionStrategy == null)
+                        if (_dataReader == null)
                         {
-                            _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
+                            if (_executionStrategy == null)
+                            {
+                                _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
+                            }
+
+                            await _executionStrategy.ExecuteAsync(
+                                true, InitializeReaderAsync, null, _relationalQueryContext.CancellationToken).ConfigureAwait(false);
                         }
 
-                        await _executionStrategy.ExecuteAsync(
-                            true, InitializeReaderAsync, null, _relationalQueryContext.CancellationToken).ConfigureAwait(false);
-                    }
+                        var hasNext = await _dataReader!.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
+                        Current = default!;
 
-                    var hasNext = await _dataReader!.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);
-                    Current = default!;
-
-                    if (hasNext)
-                    {
-                        _resultCoordinator!.ResultContext.Values = null;
-                        _shaper(
-                            _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
-                        if (_relatedDataLoaders != null)
+                        if (hasNext)
                         {
-                            await _relatedDataLoaders(_relationalQueryContext, _executionStrategy!, _resultCoordinator)
-                                .ConfigureAwait(false);
+                            _resultCoordinator!.ResultContext.Values = null;
+                            _shaper(
+                                _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
+                            if (_relatedDataLoaders != null)
+                            {
+                                await _relatedDataLoaders(_relationalQueryContext, _executionStrategy!, _resultCoordinator)
+                                    .ConfigureAwait(false);
+                            }
+
+                            Current = _shaper(
+                                _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
                         }
 
-                        Current = _shaper(
-                            _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext, _resultCoordinator);
+                        return hasNext;
                     }
-
-                    return hasNext;
+                    finally
+                    {
+                        _concurrencyDetector?.ExitCriticalSection();
+                    }
                 }
                 catch (Exception exception)
                 {
                     _queryLogger.QueryIterationFailed(_contextType, exception);
 
                     throw;
-                }
-                finally
-                {
-                    if (_concurrencyDetectionEnabled)
-                    {
-                        _relationalQueryContext.ConcurrencyDetector.ExitCriticalSection();
-                    }
                 }
             }
 

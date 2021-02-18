@@ -100,43 +100,49 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 public bool MoveNext()
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
-
                     try
                     {
-                        return MoveNextHelper();
+                        _concurrencyDetector?.EnterCriticalSection();
+
+                        try
+                        {
+                            return MoveNextHelper();
+                        }
+                        finally
+                        {
+                            _concurrencyDetector?.ExitCriticalSection();
+                        }
                     }
                     catch (Exception exception)
                     {
                         _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
-                    }
-                    finally
-                    {
-                        _concurrencyDetector?.ExitCriticalSection();
                     }
                 }
 
                 public ValueTask<bool> MoveNextAsync()
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
-
                     try
                     {
-                        _cancellationToken.ThrowIfCancellationRequested();
+                        _concurrencyDetector?.EnterCriticalSection();
 
-                        return new ValueTask<bool>(MoveNextHelper());
+                        try
+                        {
+                            _cancellationToken.ThrowIfCancellationRequested();
+
+                            return new ValueTask<bool>(MoveNextHelper());
+                        }
+                        finally
+                        {
+                            _concurrencyDetector?.ExitCriticalSection();
+                        }
                     }
                     catch (Exception exception)
                     {
                         _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
-                    }
-                    finally
-                    {
-                        _concurrencyDetector?.ExitCriticalSection();
                     }
                 }
 

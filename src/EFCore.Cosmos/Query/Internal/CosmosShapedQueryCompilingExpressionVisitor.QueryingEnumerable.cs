@@ -143,43 +143,46 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 public bool MoveNext()
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
-
                     try
                     {
-                        if (_enumerator == null)
+                        _concurrencyDetector?.EnterCriticalSection();
+
+                        try
                         {
-                            var sqlQuery = _queryingEnumerable.GenerateQuery();
+                            if (_enumerator == null)
+                            {
+                                var sqlQuery = _queryingEnumerable.GenerateQuery();
 
-                            EntityFrameworkEventSource.Log.QueryExecuting();
+                                EntityFrameworkEventSource.Log.QueryExecuting();
 
-                            _enumerator = _cosmosQueryContext.CosmosClient
-                                .ExecuteSqlQuery(
-                                    _selectExpression.Container,
-                                    _partitionKey,
-                                    sqlQuery)
-                                .GetEnumerator();
-                            _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
+                                _enumerator = _cosmosQueryContext.CosmosClient
+                                    .ExecuteSqlQuery(
+                                        _selectExpression.Container,
+                                        _partitionKey,
+                                        sqlQuery)
+                                    .GetEnumerator();
+                                _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
+                            }
+
+                            var hasNext = _enumerator.MoveNext();
+
+                            Current
+                                = hasNext
+                                    ? _shaper(_cosmosQueryContext, _enumerator.Current)
+                                    : default;
+
+                            return hasNext;
                         }
-
-                        var hasNext = _enumerator.MoveNext();
-
-                        Current
-                            = hasNext
-                                ? _shaper(_cosmosQueryContext, _enumerator.Current)
-                                : default;
-
-                        return hasNext;
+                        finally
+                        {
+                            _concurrencyDetector?.ExitCriticalSection();
+                        }
                     }
                     catch (Exception exception)
                     {
                         _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
-                    }
-                    finally
-                    {
-                        _concurrencyDetector?.ExitCriticalSection();
                     }
                 }
 
@@ -229,43 +232,46 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 public async ValueTask<bool> MoveNextAsync()
                 {
-                    _concurrencyDetector?.EnterCriticalSection();
-
                     try
                     {
-                        if (_enumerator == null)
+                        _concurrencyDetector?.EnterCriticalSection();
+
+                        try
                         {
-                            var sqlQuery = _queryingEnumerable.GenerateQuery();
+                            if (_enumerator == null)
+                            {
+                                var sqlQuery = _queryingEnumerable.GenerateQuery();
 
-                            EntityFrameworkEventSource.Log.QueryExecuting();
+                                EntityFrameworkEventSource.Log.QueryExecuting();
 
-                            _enumerator = _cosmosQueryContext.CosmosClient
-                                .ExecuteSqlQueryAsync(
-                                    _selectExpression.Container,
-                                    _partitionKey,
-                                    sqlQuery)
-                                .GetAsyncEnumerator(_cancellationToken);
-                            _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
+                                _enumerator = _cosmosQueryContext.CosmosClient
+                                    .ExecuteSqlQueryAsync(
+                                        _selectExpression.Container,
+                                        _partitionKey,
+                                        sqlQuery)
+                                    .GetAsyncEnumerator(_cancellationToken);
+                                _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
+                            }
+
+                            var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
+
+                            Current
+                                = hasNext
+                                    ? _shaper(_cosmosQueryContext, _enumerator.Current)
+                                    : default;
+
+                            return hasNext;
                         }
-
-                        var hasNext = await _enumerator.MoveNextAsync().ConfigureAwait(false);
-
-                        Current
-                            = hasNext
-                                ? _shaper(_cosmosQueryContext, _enumerator.Current)
-                                : default;
-
-                        return hasNext;
+                        finally
+                        {
+                            _concurrencyDetector?.ExitCriticalSection();
+                        }
                     }
                     catch (Exception exception)
                     {
                         _queryLogger.QueryIterationFailed(_contextType, exception);
 
                         throw;
-                    }
-                    finally
-                    {
-                        _concurrencyDetector?.ExitCriticalSection();
                     }
                 }
 
