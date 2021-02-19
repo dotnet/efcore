@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConventionForeignKey, IForeignKey
+    public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConventionForeignKey, IRuntimeForeignKey
     {
         private DeleteBehavior? _deleteBehavior;
         private bool? _isUnique;
@@ -887,7 +888,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return _dependentKeyValueFactory!;
             }
 
-            [param: NotNull]
             set
             {
                 EnsureReadOnly();
@@ -915,7 +915,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return _dependentsMapFactory!;
             }
 
-            [param: NotNull]
             set
             {
                 EnsureReadOnly();
@@ -1348,6 +1347,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         DeleteBehavior? IConventionForeignKey.SetDeleteBehavior(DeleteBehavior? deleteBehavior, bool fromDataAnnotation)
             => SetDeleteBehavior(deleteBehavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IDependentKeyValueFactory<TKey>? IForeignKey.GetDependentKeyValueFactory<TKey>()
+            => (IDependentKeyValueFactory<TKey>?)DependentKeyValueFactory;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1356,8 +1360,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView DebugView
             => new(
-                () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
-                () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
+                () => ((IReadOnlyForeignKey)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlyForeignKey)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1366,7 +1370,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString()
-            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+            => ((IReadOnlyForeignKey)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         private void Validate(
             IReadOnlyList<Property> properties,
