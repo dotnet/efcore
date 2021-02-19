@@ -25,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore
             await ConcurrencyDetectorTest(
                 async c =>
                 {
-                    c.Products.Add(new Product { Id = 2, Name = "Unicorn Replacement Horn Pack" });
+                    c.Products.Add(new Product { Id = 3, Name = "Unicorn Horseshoe Protection Pack" });
                     return async ? await c.SaveChangesAsync() : c.SaveChanges();
                 });
 
             using var ctx = CreateContext();
-            var newProduct = await ctx.Products.FindAsync(2);
+            var newProduct = await ctx.Products.FindAsync(3);
             Assert.NotNull(newProduct);
             ctx.Products.Remove(newProduct);
             await ctx.SaveChangesAsync();
