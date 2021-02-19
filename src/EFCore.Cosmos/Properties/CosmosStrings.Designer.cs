@@ -6,6 +6,7 @@ using System.Resources;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
 #nullable enable
@@ -323,9 +324,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingReadItem;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingReadItem,
-                    () => new EventDefinition<string, string, string?>(
+                    logger,
+                    static logger => new EventDefinition<string, string, string?>(
                         logger.Options,
                         CosmosEventId.ExecutingReadItem,
                         LogLevel.Debug,
@@ -347,9 +349,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             var definition = ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingSqlQuery;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.CosmosLoggingDefinitions)logger.Definitions).LogExecutingSqlQuery,
-                    () => new EventDefinition<string, string?, string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string?, string, string, string>(
                         logger.Options,
                         CosmosEventId.ExecutingSqlQuery,
                         LogLevel.Debug,

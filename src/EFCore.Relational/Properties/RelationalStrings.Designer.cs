@@ -6,6 +6,7 @@ using System.Resources;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
 #nullable enable
@@ -1229,9 +1230,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogAmbientTransaction;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogAmbientTransaction,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.AmbientTransactionWarning,
                         LogLevel.Warning,
@@ -1253,9 +1255,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogAmbientTransactionEnlisted;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogAmbientTransactionEnlisted,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.AmbientTransactionEnlisted,
                         LogLevel.Debug,
@@ -1277,9 +1280,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogApplyingMigration;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogApplyingMigration,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.MigrationApplying,
                         LogLevel.Information,
@@ -1301,9 +1305,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBatchExecutorFailedToReleaseSavepoint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogBatchExecutorFailedToReleaseSavepoint,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.BatchExecutorFailedToReleaseSavepoint,
                         LogLevel.Debug,
@@ -1325,9 +1330,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBatchExecutorFailedToRollbackToSavepoint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogBatchExecutorFailedToRollbackToSavepoint,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.BatchExecutorFailedToRollbackToSavepoint,
                         LogLevel.Debug,
@@ -1349,9 +1355,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBatchReadyForExecution;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogBatchReadyForExecution,
-                    () => new EventDefinition<int>(
+                    logger,
+                    static logger => new EventDefinition<int>(
                         logger.Options,
                         RelationalEventId.BatchReadyForExecution,
                         LogLevel.Debug,
@@ -1373,9 +1380,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBatchSmallerThanMinBatchSize;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogBatchSmallerThanMinBatchSize,
-                    () => new EventDefinition<int, int>(
+                    logger,
+                    static logger => new EventDefinition<int, int>(
                         logger.Options,
                         RelationalEventId.BatchSmallerThanMinBatchSize,
                         LogLevel.Debug,
@@ -1397,9 +1405,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBeganTransaction;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogBeganTransaction,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.TransactionStarted,
                         LogLevel.Debug,
@@ -1421,9 +1430,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBeginningTransaction;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogBeginningTransaction,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.TransactionStarting,
                         LogLevel.Debug,
@@ -1445,9 +1455,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBoolWithDefaultWarning;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogBoolWithDefaultWarning,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.BoolWithDefaultWarning,
                         LogLevel.Warning,
@@ -1469,9 +1480,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClosedConnection;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogClosedConnection,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionClosed,
                         LogLevel.Debug,
@@ -1493,9 +1505,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogClosingConnection;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogClosingConnection,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionClosing,
                         LogLevel.Debug,
@@ -1517,9 +1530,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCreated;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCreated,
-                    () => new EventDefinition<string, int>(
+                    logger,
+                    static logger => new EventDefinition<string, int>(
                         logger.Options,
                         RelationalEventId.CommandCreated,
                         LogLevel.Debug,
@@ -1541,9 +1555,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCreating;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommandCreating,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.CommandCreating,
                         LogLevel.Debug,
@@ -1565,9 +1580,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommandFailed;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommandFailed,
-                    () => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
                         logger.Options,
                         RelationalEventId.CommandError,
                         LogLevel.Error,
@@ -1589,9 +1605,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommittedTransaction;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommittedTransaction,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.TransactionCommitted,
                         LogLevel.Debug,
@@ -1613,9 +1630,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCommittingTransaction;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogCommittingTransaction,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.TransactionCommitting,
                         LogLevel.Debug,
@@ -1637,9 +1655,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionError;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionError,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionError,
                         LogLevel.Error,
@@ -1661,9 +1680,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionErrorAsDebug;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogConnectionErrorAsDebug,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionError,
                         LogLevel.Debug,
@@ -1685,9 +1705,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCreatedTransactionSavepoint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogCreatedTransactionSavepoint,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.CreatedTransactionSavepoint,
                         LogLevel.Debug,
@@ -1709,9 +1730,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogCreatingTransactionSavepoint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogCreatingTransactionSavepoint,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.CreatingTransactionSavepoint,
                         LogLevel.Debug,
@@ -1733,9 +1755,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogDisposingDataReader;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogDisposingDataReader,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.DataReaderDisposing,
                         LogLevel.Debug,
@@ -1757,9 +1780,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogDisposingTransaction;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogDisposingTransaction,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.TransactionDisposed,
                         LogLevel.Debug,
@@ -1781,9 +1805,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExecutedCommand;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogExecutedCommand,
-                    () => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
                         logger.Options,
                         RelationalEventId.CommandExecuted,
                         LogLevel.Information,
@@ -1805,9 +1830,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExecutingCommand;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogExecutingCommand,
-                    () => new EventDefinition<string, System.Data.CommandType, int, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, System.Data.CommandType, int, string, string>(
                         logger.Options,
                         RelationalEventId.CommandExecuting,
                         LogLevel.Debug,
@@ -1829,9 +1855,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogExplicitTransactionEnlisted;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogExplicitTransactionEnlisted,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.ExplicitTransactionEnlisted,
                         LogLevel.Debug,
@@ -1853,9 +1880,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyPropertiesMappedToUnrelatedTables;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogForeignKeyPropertiesMappedToUnrelatedTables,
-                    () => new FallbackEventDefinition(
+                    logger,
+                    static logger => new FallbackEventDefinition(
                         logger.Options,
                         RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables,
                         LogLevel.Error,
@@ -1874,9 +1902,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogGeneratingDown;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogGeneratingDown,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.MigrationGeneratingDownScript,
                         LogLevel.Debug,
@@ -1898,9 +1927,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogGeneratingUp;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogGeneratingUp,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.MigrationGeneratingUpScript,
                         LogLevel.Debug,
@@ -1922,9 +1952,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogKeyHasDefaultValue;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogKeyHasDefaultValue,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ModelValidationKeyDefaultValueWarning,
                         LogLevel.Warning,
@@ -1946,9 +1977,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrating;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrating,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.MigrateUsingConnection,
                         LogLevel.Debug,
@@ -1970,9 +2002,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationAttributeMissingWarning;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogMigrationAttributeMissingWarning,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.MigrationAttributeMissingWarning,
                         LogLevel.Warning,
@@ -1994,9 +2027,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogMultipleCollectionIncludeWarning;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogMultipleCollectionIncludeWarning,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.MultipleCollectionIncludeWarning,
                         LogLevel.Warning,
@@ -2018,9 +2052,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexAllPropertiesNotToMappedToAnyTable;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexAllPropertiesNotToMappedToAnyTable,
-                    () => new EventDefinition<string?, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string?, string, string>(
                         logger.Options,
                         RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
                         LogLevel.Information,
@@ -2042,9 +2077,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexPropertiesBothMappedAndNotMappedToTable;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexPropertiesBothMappedAndNotMappedToTable,
-                    () => new EventDefinition<string?, string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string?, string, string, string>(
                         logger.Options,
                         RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
                         LogLevel.Error,
@@ -2066,9 +2102,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexPropertiesMappedToNonOverlappingTables;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogNamedIndexPropertiesMappedToNonOverlappingTables,
-                    () => new FallbackEventDefinition(
+                    logger,
+                    static logger => new FallbackEventDefinition(
                         logger.Options,
                         RelationalEventId.IndexPropertiesMappedToNonOverlappingTables,
                         LogLevel.Error,
@@ -2087,9 +2124,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNoMigrationsApplied;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogNoMigrationsApplied,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.MigrationsNotApplied,
                         LogLevel.Information,
@@ -2111,9 +2149,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogNoMigrationsFound;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogNoMigrationsFound,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.MigrationsNotFound,
                         LogLevel.Debug,
@@ -2135,9 +2174,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOpenedConnection;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogOpenedConnection,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionOpened,
                         LogLevel.Debug,
@@ -2159,9 +2199,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOpeningConnection;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogOpeningConnection,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.ConnectionOpening,
                         LogLevel.Debug,
@@ -2183,9 +2224,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogPossibleUnintendedUseOfEquals;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogPossibleUnintendedUseOfEquals,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
                         LogLevel.Warning,
@@ -2208,9 +2250,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperatorWarning;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogQueryPossibleExceptionWithAggregateOperatorWarning,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning,
                         LogLevel.Warning,
@@ -2232,9 +2275,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogReleasedTransactionSavepoint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogReleasedTransactionSavepoint,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.ReleasedTransactionSavepoint,
                         LogLevel.Debug,
@@ -2256,9 +2300,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogReleasingTransactionSavepoint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogReleasingTransactionSavepoint,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.ReleasingTransactionSavepoint,
                         LogLevel.Debug,
@@ -2280,9 +2325,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRevertingMigration;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogRevertingMigration,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.MigrationReverting,
                         LogLevel.Information,
@@ -2304,9 +2350,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRolledBackToTransactionSavepoint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogRolledBackToTransactionSavepoint,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.RolledBackToTransactionSavepoint,
                         LogLevel.Debug,
@@ -2328,9 +2375,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRolledBackTransaction;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogRolledBackTransaction,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.TransactionRolledBack,
                         LogLevel.Debug,
@@ -2352,9 +2400,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRollingBackToTransactionSavepoint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogRollingBackToTransactionSavepoint,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.RollingBackToTransactionSavepoint,
                         LogLevel.Debug,
@@ -2376,9 +2425,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogRollingBackTransaction;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogRollingBackTransaction,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.TransactionRollingBack,
                         LogLevel.Debug,
@@ -2400,9 +2450,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogTransactionError;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogTransactionError,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         RelationalEventId.TransactionError,
                         LogLevel.Error,
@@ -2424,9 +2475,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexAllPropertiesNotToMappedToAnyTable;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexAllPropertiesNotToMappedToAnyTable,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
                         LogLevel.Information,
@@ -2448,9 +2500,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable,
-                    () => new EventDefinition<string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
                         logger.Options,
                         RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable,
                         LogLevel.Error,
@@ -2472,9 +2525,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexPropertiesMappedToNonOverlappingTables;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogUnnamedIndexPropertiesMappedToNonOverlappingTables,
-                    () => new EventDefinition<string, string, string, string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string, string, string>(
                         logger.Options,
                         RelationalEventId.IndexPropertiesMappedToNonOverlappingTables,
                         LogLevel.Error,
@@ -2496,9 +2550,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogUsingTransaction;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogUsingTransaction,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.TransactionUsed,
                         LogLevel.Debug,

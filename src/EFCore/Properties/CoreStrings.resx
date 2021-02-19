@@ -605,14 +605,14 @@
   <data name="InvalidSetKeylessOperation" xml:space="preserve">
     <value>The invoked method cannot be used for the entity type '{entityType}' because it does not have a primary key.</value>
   </data>
+  <data name="InvalidSetSameTypeWithDifferentNamespace" xml:space="preserve">
+    <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context. However the model contains an entity type with the same name in a different namespace: '{entityTypeName}'.</value>
+  </data>
   <data name="InvalidSetSharedType" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is configured as an shared-type entity type. Access the entity type via the 'Set' method overload that accepts an entity type name.</value>
   </data>
   <data name="InvalidSetType" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.</value>
-  </data>
-  <data name="InvalidSetSameTypeWithDifferentNamespace" xml:space="preserve">
-    <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context. However the model contains an entity type with the same name in a different namespace: '{entityTypeName}'.</value>
   </data>
   <data name="InvalidSetTypeOwned" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'.</value>

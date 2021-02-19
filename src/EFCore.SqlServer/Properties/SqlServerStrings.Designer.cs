@@ -6,6 +6,7 @@ using System.Resources;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
 #nullable enable
@@ -259,9 +260,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogByteIdentityColumn;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogByteIdentityColumn,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.ByteIdentityColumnWarning,
                         LogLevel.Warning,
@@ -283,9 +285,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogConflictingValueGenerationStrategies;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogConflictingValueGenerationStrategies,
-                    () => new EventDefinition<string, string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string>(
                         logger.Options,
                         SqlServerEventId.ConflictingValueGenerationStrategiesWarning,
                         LogLevel.Warning,
@@ -307,9 +310,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDecimalTypeKey;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDecimalTypeKey,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.DecimalTypeKeyWarning,
                         LogLevel.Warning,
@@ -331,9 +335,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDefaultDecimalTypeColumn;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDefaultDecimalTypeColumn,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.DecimalTypeDefaultWarning,
                         LogLevel.Warning,
@@ -355,9 +360,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundColumn;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundColumn,
-                    () => new FallbackEventDefinition(
+                    logger,
+                    static logger => new FallbackEventDefinition(
                         logger.Options,
                         SqlServerEventId.ColumnFound,
                         LogLevel.Debug,
@@ -376,9 +382,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundDefaultSchema;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundDefaultSchema,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         SqlServerEventId.DefaultSchemaFound,
                         LogLevel.Debug,
@@ -400,9 +407,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundForeignKey;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundForeignKey,
-                    () => new EventDefinition<string, string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string>(
                         logger.Options,
                         SqlServerEventId.ForeignKeyFound,
                         LogLevel.Debug,
@@ -424,9 +432,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundIndex;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundIndex,
-                    () => new EventDefinition<string, string, bool>(
+                    logger,
+                    static logger => new EventDefinition<string, string, bool>(
                         logger.Options,
                         SqlServerEventId.IndexFound,
                         LogLevel.Debug,
@@ -448,9 +457,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.PrimaryKeyFound,
                         LogLevel.Debug,
@@ -472,9 +482,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundSequence;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundSequence,
-                    () => new FallbackEventDefinition(
+                    logger,
+                    static logger => new FallbackEventDefinition(
                         logger.Options,
                         SqlServerEventId.SequenceFound,
                         LogLevel.Debug,
@@ -493,9 +504,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTable;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTable,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         SqlServerEventId.TableFound,
                         LogLevel.Debug,
@@ -517,9 +529,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTypeAlias;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundTypeAlias,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.TypeAliasFound,
                         LogLevel.Debug,
@@ -541,9 +554,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.UniqueConstraintFound,
                         LogLevel.Debug,
@@ -565,9 +579,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingSchema;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingSchema,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         SqlServerEventId.MissingSchemaWarning,
                         LogLevel.Warning,
@@ -589,9 +604,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingTable;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingTable,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         SqlServerEventId.MissingTableWarning,
                         LogLevel.Warning,
@@ -613,9 +629,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound,
-                    () => new EventDefinition<string, string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, string, string>(
                         logger.Options,
                         SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,
                         LogLevel.Warning,
@@ -637,9 +654,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableNotInSelectionSet;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableNotInSelectionSet,
-                    () => new EventDefinition<string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
                         logger.Options,
                         SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
                         LogLevel.Warning,
@@ -661,9 +679,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogReflexiveConstraintIgnored;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogReflexiveConstraintIgnored,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqlServerEventId.ReflexiveConstraintIgnored,
                         LogLevel.Debug,
@@ -685,9 +704,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogSavepointsDisabledBecauseOfMARS;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogSavepointsDisabledBecauseOfMARS,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         SqlServerEventId.SavepointsDisabledBecauseOfMARS,
                         LogLevel.Warning,
