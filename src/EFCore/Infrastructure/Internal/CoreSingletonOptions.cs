@@ -36,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             var coreOptions = options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension();
 
             AreDetailedErrorsEnabled = coreOptions.DetailedErrorsEnabled;
+            IsConcurrencyDetectionEnabled = coreOptions.ConcurrencyDetectionEnabled;
         }
 
         /// <summary>
@@ -57,6 +58,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
                         nameof(DbContextOptionsBuilder.EnableDetailedErrors),
                         nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
             }
+
+            if (IsConcurrencyDetectionEnabled != coreOptions.ConcurrencyDetectionEnabled)
+            {
+                Check.DebugAssert(coreOptions.InternalServiceProvider != null, "InternalServiceProvider is null");
+
+                throw new InvalidOperationException(
+                    CoreStrings.SingletonOptionChanged(
+                        nameof(DbContextOptionsBuilder.DisableConcurrencyDetection),
+                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
+            }
         }
 
         /// <summary>
@@ -66,5 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool AreDetailedErrorsEnabled { get; private set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsConcurrencyDetectionEnabled { get; private set; }
     }
 }

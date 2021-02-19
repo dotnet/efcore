@@ -38,6 +38,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
+        public virtual void RemoveShared(string name)
+            => _createdDatabases.Remove(name);
+
         public virtual void CreateNonShared(string name, Action initializeDatabase)
         {
             var creationLock = _creationLocks.GetOrAdd(name, new object());

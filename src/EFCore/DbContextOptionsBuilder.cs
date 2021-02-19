@@ -338,6 +338,28 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Disables concurrency detection, which detects many cases of erroneous concurrent usage of a <see cref="DbContext" />
+        ///         instance and causes an informative exception to be thrown. This provides a minor performance improvement, but if a
+        ///         <see cref="DbContext" /> instance is used concurrently, the behavior will be undefined and the program may fail in
+        ///         unpredictable ways.
+        ///     </para>
+        ///     <para>
+        ///         Only disable concurrency detection after confirming that the performance gains are considerable, and the application has
+        ///         been thoroughly tested against concurrency bugs.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+        ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+        ///         so that EF will manage the service providers and can create new instances as required.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder DisableConcurrencyDetection(bool concurrencyDetectionDisabled = true)
+            => WithOption(e => e.WithConcurrencyDetectionEnabled(!concurrencyDetectionDisabled));
+
+        /// <summary>
+        ///     <para>
         ///         Enables detailed errors when handling of data value exceptions that occur during processing of store query results. Such errors
         ///         most often occur due to misconfiguration of entity properties. E.g. If a property is configured to be of type
         ///         'int', but the underlying data in the store is actually of type 'string', then an exception will be generated
