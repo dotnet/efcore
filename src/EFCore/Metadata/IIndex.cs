@@ -38,6 +38,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <typeparam name="TKey"> The type of the index instance. </typeparam>
         /// <returns> The factory. </returns>
         IDependentKeyValueFactory<TKey> GetNullableValueFactory<TKey>();
-
     }
 }
