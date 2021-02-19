@@ -291,5 +291,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The skip navigations using this foreign key. </returns>
         new IEnumerable<IConventionSkipNavigation> GetReferencingSkipNavigations()
             => ((IReadOnlyForeignKey)this).GetReferencingSkipNavigations().Cast<IConventionSkipNavigation>();
+
+        /// <summary>
+        ///     Gets the entity type related to the given one.
+        /// </summary>
+        /// <param name="entityType"> One of the entity types related by the foreign key. </param>
+        /// <returns> The entity type related to the given one. </returns>
+        new IConventionEntityType GetRelatedEntityType([NotNull] IReadOnlyEntityType entityType)
+            => (IConventionEntityType)((IReadOnlyForeignKey)this).GetRelatedEntityType(entityType);
+
+        /// <summary>
+        ///     Returns a navigation associated with this foreign key.
+        /// </summary>
+        /// <param name="pointsToPrincipal">
+        ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
+        /// </param>
+        /// <returns>
+        ///     A navigation associated with this foreign key or <see langword="null" />.
+        /// </returns>
+        new IConventionNavigation? GetNavigation(bool pointsToPrincipal)
+            => pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
     }
 }

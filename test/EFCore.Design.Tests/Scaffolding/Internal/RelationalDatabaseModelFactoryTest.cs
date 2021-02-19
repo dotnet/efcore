@@ -704,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var info = new DatabaseModel { Tables = { table } };
 
-            var entityType = (EntityType)_factory.Create(info, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
+            var entityType = _factory.Create(info, new ModelReverseEngineerOptions()).GetEntityTypes().Single();
 
             Assert.Collection(
                 entityType.GetIndexes(),

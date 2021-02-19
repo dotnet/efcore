@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 #nullable enable
@@ -43,5 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The configuration source. </returns>
         ConfigurationSource GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets all foreign keys that target a given primary or alternate key.
+        /// </summary>
+        /// <returns> The foreign keys that reference the given key. </returns>
+        new IEnumerable<IConventionForeignKey> GetReferencingForeignKeys()
+            => ((IReadOnlyKey)this).GetReferencingForeignKeys().Cast<IConventionForeignKey>();
     }
 }

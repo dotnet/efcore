@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #nullable enable
@@ -74,7 +75,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     A navigation associated with this foreign key or <see langword="null" />.
         /// </returns>
-        INavigation? GetNavigation(bool pointsToPrincipal)
+        new INavigation? GetNavigation(bool pointsToPrincipal)
             => pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a factory for key values based on the foreign key values taken
+        ///         from various forms of entity data.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TKey"> The type of key instances. </typeparam>
+        /// <returns> A new factory. </returns>
+        IDependentKeyValueFactory<TKey>? GetDependentKeyValueFactory<TKey>();
     }
 }

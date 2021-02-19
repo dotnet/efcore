@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var navigation = new FakeNavigation();
 
-            var fk = new ForeignKeyTest.FakeForeignKey { PrincipalToDependent = navigation };
+            var fk = new FakeForeignKey { PrincipalToDependent = navigation };
             navigation.ForeignKey = fk;
             navigation.PropertyInfo = MyEntity.AsICollectionProperty;
 
@@ -72,7 +72,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IComparer<IUpdateEntry> GetCurrentValueComparer()
                 => throw new NotImplementedException();
 
+            public IClrCollectionAccessor GetCollectionAccessor()
+                => throw new NotImplementedException();
+
             public Type CollectionType { get; }
+        }
+
+        public class FakeForeignKey : Annotatable, IReadOnlyForeignKey
+        {
+            public IReadOnlyEntityType DeclaringEntityType { get; }
+            public IReadOnlyList<IReadOnlyProperty> Properties { get; }
+            public IReadOnlyEntityType PrincipalEntityType { get; }
+            public IReadOnlyKey PrincipalKey { get; }
+            public IReadOnlyNavigation DependentToPrincipal { get; set; }
+            public IReadOnlyNavigation PrincipalToDependent { get; set; }
+            public bool IsUnique { get; }
+            public bool IsRequired { get; }
+            public bool IsRequiredDependent { get; }
+            public bool IsOwnership { get; }
+            public DeleteBehavior DeleteBehavior { get; }
         }
 
         [ConditionalFact]

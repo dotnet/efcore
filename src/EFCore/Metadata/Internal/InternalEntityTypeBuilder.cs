@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityTypeBuilder = keyToDetach.DeclaringEntityType.Builder;
             var keyBuilder = keyToDetach.Builder;
 
-            var primaryKeyConfigurationSource = keyToDetach.IsPrimaryKey()
+            var primaryKeyConfigurationSource = ((IReadOnlyKey)keyToDetach).IsPrimaryKey()
                 ? keyToDetach.DeclaringEntityType.GetPrimaryKeyConfigurationSource()
                 : null;
 

@@ -14,22 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class KeyTest
     {
         [ConditionalFact]
-        public void Use_of_custom_IKey_throws()
-        {
-            var key = new FakeKey();
-
-            Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IReadOnlyKey), nameof(FakeKey)),
-                Assert.Throws<NotSupportedException>(() => key.AsKey()).Message);
-        }
-
-        private class FakeKey : Annotatable, IReadOnlyKey
-        {
-            public IReadOnlyList<IReadOnlyProperty> Properties { get; }
-            public IReadOnlyEntityType DeclaringEntityType { get; }
-        }
-
-        [ConditionalFact]
         public void Throws_when_model_is_readonly()
         {
             var model = CreateModel();

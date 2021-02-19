@@ -77,40 +77,6 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(EntityFrameworkServiceCollectionExtensions)
             };
 
-            public override
-                List<(Type Type,
-                    Type ReadonlyExtensions,
-                    Type MutableExtensions,
-                    Type ConventionExtensions,
-                    Type ConventionBuilderExtensions,
-                    Type RuntimeExtensions)> MetadataExtensionTypes { get; } = new()
-                {
-                    (
-                        typeof(IReadOnlyKey),
-                        typeof(KeyExtensions),
-                        typeof(MutableKeyExtensions),
-                        typeof(ConventionKeyExtensions),
-                        null,
-                        null
-                    ),
-                    (
-                        typeof(IReadOnlyForeignKey),
-                        typeof(ForeignKeyExtensions),
-                        typeof(MutableForeignKeyExtensions),
-                        typeof(ConventionForeignKeyExtensions),
-                        null,
-                        null
-                    ),
-                    (
-                        typeof(IReadOnlyNavigation),
-                        typeof(NavigationExtensions),
-                        typeof(MutableNavigationExtensions),
-                        typeof(ConventionNavigationExtensions),
-                        null,
-                        null
-                    )
-                };
-
             public override HashSet<MethodInfo> NonVirtualMethods { get; } = new()
             {
                 typeof(CompiledQueryCacheKeyGenerator).GetMethod("GenerateCacheKeyCore", AnyInstance),

@@ -1079,7 +1079,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         if (!identityMaps.TryGetValue(key, out identityMap))
                         {
-                            identityMap = key.GetIdentityMapFactory()(sensitiveDataLogged);
+                            identityMap = ((IRuntimeKey)key).GetIdentityMapFactory()(sensitiveDataLogged);
                             identityMaps[key] = identityMap;
                         }
                     }

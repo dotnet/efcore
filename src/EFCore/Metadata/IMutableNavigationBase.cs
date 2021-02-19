@@ -23,6 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
         void SetIsEagerLoaded(bool? eagerLoaded)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded);
+            => SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded);
     }
 }

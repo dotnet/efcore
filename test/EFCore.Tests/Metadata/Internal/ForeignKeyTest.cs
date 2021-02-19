@@ -6,38 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ForeignKeyTest
     {
-        [ConditionalFact]
-        public void Use_of_custom_IForeignKey_throws()
-        {
-            var foreignKey = new FakeForeignKey();
-
-            Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IForeignKey_throws), nameof(IReadOnlyForeignKey), nameof(FakeForeignKey)),
-                Assert.Throws<NotSupportedException>(() => foreignKey.AsForeignKey()).Message);
-        }
-
-        public class FakeForeignKey : Annotatable, IReadOnlyForeignKey
-        {
-            public IReadOnlyEntityType DeclaringEntityType { get; }
-            public IReadOnlyList<IReadOnlyProperty> Properties { get; }
-            public IReadOnlyEntityType PrincipalEntityType { get; }
-            public IReadOnlyKey PrincipalKey { get; }
-            public IReadOnlyNavigation DependentToPrincipal { get; set; }
-            public IReadOnlyNavigation PrincipalToDependent { get; set; }
-            public bool IsUnique { get; }
-            public bool IsRequired { get; }
-            public bool IsRequiredDependent { get; }
-            public bool IsOwnership { get; }
-            public DeleteBehavior DeleteBehavior { get; }
-        }
-
         [ConditionalFact]
         public void Throws_when_model_is_readonly()
         {

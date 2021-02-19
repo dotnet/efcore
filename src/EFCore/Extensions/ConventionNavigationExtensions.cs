@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="IConventionNavigation" />.
     /// </summary>
+    [Obsolete("Use IConventionNavigation")]
     public static class ConventionNavigationExtensions
     {
         /// <summary>

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionSkipNavigation, ISkipNavigation
+    public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionSkipNavigation, IRuntimeSkipNavigation
     {
         private ConfigurationSource? _foreignKeyConfigurationSource;
         private ConfigurationSource? _inverseConfigurationSource;
@@ -328,15 +328,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool? SetIsEagerLoaded(bool? eagerLoaded, ConfigurationSource configurationSource)
-            => (bool?)SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded, configurationSource)?.Value;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public override PropertyAccessMode GetPropertyAccessMode()
             => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
                 ?? ((IReadOnlyTypeBase)DeclaringType).GetNavigationAccessMode());
@@ -392,10 +383,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DebugView DebugView
-            => new(
-                () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
-                () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
+        [DebuggerStepThrough]
+        public override string ToString()
+            => ((IReadOnlySkipNavigation)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -403,9 +393,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [DebuggerStepThrough]
-        public override string ToString()
-            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+        public virtual DebugView DebugView
+            => new(
+                () => ((IReadOnlySkipNavigation)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlySkipNavigation)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <inheritdoc />
         IConventionSkipNavigationBuilder IConventionSkipNavigation.Builder
@@ -474,5 +465,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool fromDataAnnotation)
             => SetInverse(
                 (SkipNavigation?)inverse, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
+            => CollectionAccessor;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader()
+            => ManyToManyLoader;
     }
 }
