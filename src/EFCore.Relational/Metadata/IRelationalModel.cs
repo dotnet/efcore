@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -96,5 +97,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameters"> A list of parameter types. </param>
         /// <returns> The <see cref="IStoreFunction" /> or <see langword="null" /> if no function with the given name was defined. </returns>
         IStoreFunction? FindFunction([NotNull] string name, [CanBeNull] string? schema, [NotNull] IReadOnlyList<string> parameters);
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a human-readable representation of the given metadata.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the returned string.
+        ///         It is designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        /// <param name="options"> Options for generating the string. </param>
+        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
+        /// <returns> A human-readable representation. </returns>
+        string ToDebugString(MetadataDebugStringOptions options, int indent = 0)
+        {
+            var builder = new StringBuilder();
+            var indentString = new string(' ', indent);
+
+            builder.Append(indentString).Append("RelationalModel: ");
+
+            if (Collation != null)
+            {
+                builder.AppendLine().Append(indentString).Append("Collation: " + Collation);
+            }
+
+            foreach (var table in Tables)
+            {
+                builder.AppendLine().Append(table.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var view in Views)
+            {
+                builder.AppendLine().Append(view.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var function in Functions)
+            {
+                builder.AppendLine().Append(function.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var query in Queries)
+            {
+                builder.AppendLine().Append(query.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var sequence in Sequences)
+            {
+                builder.AppendLine().Append(sequence.ToDebugString(options, indent + 2));
+            }
+
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(AnnotationsToDebugString(indent));
+            }
+
+            return builder.ToString();
+        }
     }
 }

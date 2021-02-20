@@ -220,8 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
-        new IEnumerable<IMutableEntityType> GetEntityTypes([NotNull] Type type)
-            => ((IReadOnlyModel)this).GetEntityTypes(type).Cast<IMutableEntityType>();
+        new IEnumerable<IMutableEntityType> FindEntityTypes([NotNull] Type type)
+            => ((IReadOnlyModel)this).FindEntityTypes(type).Cast<IMutableEntityType>();
 
         /// <summary>
         ///     Returns the entity types corresponding to the least derived types from the given one.
@@ -229,10 +229,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The base type. </param>
         /// <param name="condition"> An optional condition for filtering entity types. </param>
         /// <returns> List of entity types corresponding to the least derived types from the given one. </returns>
-        IEnumerable<IMutableEntityType> FindLeastDerivedEntityTypes(
+        new IEnumerable<IMutableEntityType> FindLeastDerivedEntityTypes(
             [NotNull] Type type,
-            [CanBeNull] Func<IMutableEntityType, bool>? condition = null)
-            => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition == null ? null : t => condition((IMutableEntityType)t))
+            [CanBeNull] Func<IReadOnlyEntityType, bool>? condition = null)
+            => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition == null ? null : t => condition(t))
                 .Cast<IMutableEntityType>();
 
         /// <summary>

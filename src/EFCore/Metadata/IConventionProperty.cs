@@ -123,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     if the given property is part of a foreign key.
         /// </summary>
         /// <returns> The list of all associated principal properties including the given property. </returns>
-        new IReadOnlyList<IConventionProperty> FindPrincipals()
-            => ((IReadOnlyProperty)this).FindPrincipals().Cast<IConventionProperty>().ToList();
+        new IReadOnlyList<IConventionProperty> GetPrincipals()
+            => ((IReadOnlyProperty)this).GetPrincipals().Cast<IConventionProperty>().ToList();
 
         /// <summary>
         ///     Gets all foreign keys that use this property (including composite foreign keys in which this property

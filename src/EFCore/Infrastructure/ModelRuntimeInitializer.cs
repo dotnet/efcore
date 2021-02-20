@@ -54,22 +54,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             IModel model,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger)
         {
-            if (model.SetModelDependencies(Dependencies.ModelDependencies))
+            if (model.ModelDependencies == null)
             {
-                InitializeModel(model, preValidation: true);
+                model = model.GetOrAddRuntimeAnnotationValue(
+                    CoreAnnotationNames.ReadOnlyModel,
+                    static args =>
+                    {
+                        var (initializer, model, validationLogger) = args;
+                        model.ModelDependencies = initializer.Dependencies.ModelDependencies;
 
-                if (validationLogger != null
-                    && model is IConventionModel)
-                {
-                    Dependencies.ModelValidator.Validate(model, validationLogger);
-                }
+                        initializer.InitializeModel(model, preValidation: true);
 
-                InitializeModel(model, preValidation: false);
+                        if (validationLogger != null
+                            && model is IConventionModel)
+                        {
+                            initializer.Dependencies.ModelValidator.Validate(model, validationLogger);
+                        }
 
-                if (model is Model mutableModel)
-                {
-                    model = mutableModel.OnModelFinalized();
-                }
+                        initializer.InitializeModel(model, preValidation: false);
+
+                        if (model is Model mutableModel)
+                        {
+                            model = mutableModel.OnModelFinalized();
+                        }
+
+                        return model;
+                    },
+                    (this, model, validationLogger));
+            }
+            else
+            {
+                model = (IModel)model.FindRuntimeAnnotationValue(CoreAnnotationNames.ReadOnlyModel)!;
             }
 
             return model;

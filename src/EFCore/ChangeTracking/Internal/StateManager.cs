@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (entityType.HasSharedClrType)
             {
                 var mapKey = entry.Entity ?? entry;
-                foreach (var otherType in _model.GetEntityTypes(entityType.ClrType)
+                foreach (var otherType in _model.FindEntityTypes(entityType.ClrType)
                     .Where(et => et != entityType && TryGetEntry(mapKey, et) != null))
                 {
                     UpdateLogger.DuplicateDependentEntityTypeInstanceWarning(entityType, otherType);

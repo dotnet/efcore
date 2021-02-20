@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
-        IEnumerable<IReadOnlyEntityType> GetEntityTypes([NotNull] Type type);
+        IEnumerable<IReadOnlyEntityType> FindEntityTypes([NotNull] Type type);
 
         /// <summary>
         ///     Returns the entity types corresponding to the least derived types from the given.

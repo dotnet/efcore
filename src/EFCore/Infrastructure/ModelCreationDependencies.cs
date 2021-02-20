@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     <para>
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed record ModelCreationDependencies : IModelCreationDependencies
+    public sealed record ModelCreationDependencies
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,42 +53,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     The model source.
         /// </summary>
         public IModelSource ModelSource { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     The convention set to use when creating the model.
         /// </summary>
         public IConventionSetBuilder ConventionSetBuilder { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     The dependencies object for the model.
         /// </summary>
         public ModelDependencies ModelDependencies { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     The model runtime initializer that will be used after the model building is finished.
         /// </summary>
         public IModelRuntimeInitializer ModelRuntimeInitializer { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     The validation logger.
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; [param: NotNull] init; }
     }

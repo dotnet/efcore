@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed record SingletonModelDependencies
+    public sealed record RuntimeModelDependencies
     {
         /// <summary>
         ///     <para>
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public SingletonModelDependencies(
+        public RuntimeModelDependencies(
             [NotNull] ITypeMappingSource typeMappingSource,
             [NotNull] IConstructorBindingFactory constructorBindingFactory,
             [NotNull] IParameterBindingFactories parameterBindingFactories)

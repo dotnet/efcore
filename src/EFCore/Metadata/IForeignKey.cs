@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> One of the entity types related by the foreign key. </param>
         /// <returns> The entity type related to the given one. </returns>
-        IEntityType GetRelatedEntityType([NotNull] IEntityType entityType)
+        new IEntityType GetRelatedEntityType([NotNull] IReadOnlyEntityType entityType)
             => (IEntityType)((IReadOnlyForeignKey)this).GetRelatedEntityType(entityType);
 
         /// <summary>

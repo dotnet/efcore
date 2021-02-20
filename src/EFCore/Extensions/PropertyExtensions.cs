@@ -19,6 +19,16 @@ namespace Microsoft.EntityFrameworkCore
     public static class PropertyExtensions
     {
         /// <summary>
+        ///     Finds the list of principal properties including the given property that the given property is constrained by
+        ///     if the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The list of all associated principal properties including the given property. </returns>
+        [Obsolete("Use IReadOnlyProperty.GetPrincipals")]
+        public static IReadOnlyList<IReadOnlyProperty> FindPrincipals([NotNull] this IReadOnlyProperty property)
+            => property.GetPrincipals();
+
+        /// <summary>
         ///     Gets the <see cref="ValueComparer" /> to use for structural copies for this property, or <see langword="null" /> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>

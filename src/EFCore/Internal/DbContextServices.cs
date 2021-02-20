@@ -77,17 +77,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 throw new InvalidOperationException(CoreStrings.RecursiveOnModelCreating);
             }
 
-            if (modelFromOptions != null
-                && modelFromOptions.ModelDependencies != null)
-            {
-                return modelFromOptions;
-            }
-
             try
             {
                 _inOnModelCreating = true;
 
-                var dependencies = _scopedProvider.GetService<IModelCreationDependencies>();
+                var dependencies = _scopedProvider.GetService<ModelCreationDependencies>();
                 return modelFromOptions == null
                     ? dependencies.ModelSource.GetModel(_currentContext.Context, dependencies)
                     : dependencies.ModelRuntimeInitializer.Initialize(modelFromOptions, dependencies.ValidationLogger);

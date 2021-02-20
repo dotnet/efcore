@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
 
-            Assert.Empty(model.GetEntityTypes(typeof(Details)));
+            Assert.Empty(model.FindEntityTypes(typeof(Details)));
 
             Assert.Null(entityBuilder.HasOwnership(typeof(Details), nameof(Customer.Details), ConfigurationSource.Convention));
 
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
 
-            Assert.Equal(2, model.GetEntityTypes(typeof(Details)).Count());
+            Assert.Equal(2, model.FindEntityTypes(typeof(Details)).Count());
 
             Assert.Equal(
                 CoreStrings.ClashingSharedType(typeof(Details).Name),
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(modelBuilder.SharedTypeEntity(nameof(Details), typeof(Details), ConfigurationSource.Explicit));
 
-            Assert.Empty(model.GetEntityTypes(typeof(Details)).Where(e => !e.HasSharedClrType));
+            Assert.Empty(model.FindEntityTypes(typeof(Details)).Where(e => !e.HasSharedClrType));
 
             Assert.Null(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
