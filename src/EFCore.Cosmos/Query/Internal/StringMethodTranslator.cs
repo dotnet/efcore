@@ -30,6 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
+        private static readonly MethodInfo _toLowerMethodInfo
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
+
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
             = typeof(Enumerable).GetRuntimeMethods().Single(
                 m => m.Name == nameof(Enumerable.FirstOrDefault)
@@ -97,6 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     return TranslateSystemFunction("ENDSWITH", instance, arguments[0], typeof(bool));
                 }
+
+                if (_toLowerMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("LOWER", instance, method.ReturnType);
+                }
             }
 
             if (_firstOrDefaultMethodInfoWithoutArgs.Equals(method))
@@ -141,5 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private SqlExpression TranslateSystemFunction(string function, SqlExpression instance, SqlExpression pattern, Type returnType)
             => _sqlExpressionFactory.Function(function, new[] { instance, pattern }, returnType);
+
+        private SqlExpression TranslateSystemFunction(string function, SqlExpression instance, Type returnType)
+            => _sqlExpressionFactory.Function(function, new[] { instance }, returnType);
     }
 }

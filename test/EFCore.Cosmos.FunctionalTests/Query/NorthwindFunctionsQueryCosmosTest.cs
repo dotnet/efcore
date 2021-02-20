@@ -99,6 +99,36 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] != null) AND ((""m"" != null) AND ENDSWITH(c[""ContactName""], ""m""))))");
         }
 
+        public override async Task String_ToLower_Literal(bool async)
+        {
+            await base.String_ToLower_Literal(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (LOWER(c[""ContactName""]) = ""maria anders""))");
+        }
+
+        public override async Task String_ToLower_Column(bool async)
+        {
+            await base.String_ToLower_Column(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""ContactName""] != LOWER(c[""ContactName""])))");
+        }
+
+        public override async Task String_ToLower_MethodCall(bool async)
+        {
+            await base.String_ToLower_MethodCall(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (LOWER(c[""ContactName""]) = ""maria anders""))");
+        }
+
         public override async Task String_Contains_Literal(bool async)
         {
             await base.String_Contains_Literal(async);
