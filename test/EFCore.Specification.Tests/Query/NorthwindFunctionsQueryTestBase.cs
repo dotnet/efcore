@@ -121,6 +121,36 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_ToUpper_Literal(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.ToUpper() == "MARIA ANDERS"),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_ToUpper_Column(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName != c.ContactName.ToUpper()),
+                entryCount: 91);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_ToUpper_MethodCall(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.ContactName.ToUpper() == LocalMethod4()),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_Literal(bool async)
         {
             return AssertQuery(
@@ -742,6 +772,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected static string LocalMethod2()
             => "m";
+
+        protected static string LocalMethod4()
+            => "MARIA ANDERS";
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

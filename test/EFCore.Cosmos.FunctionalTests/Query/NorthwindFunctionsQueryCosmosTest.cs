@@ -99,6 +99,36 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] != null) AND ((""m"" != null) AND ENDSWITH(c[""ContactName""], ""m""))))");
         }
 
+        public override async Task String_ToUpper_Literal(bool async)
+        {
+            await base.String_ToUpper_Literal(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (UPPER(c[""ContactName""]) = ""MARIA ANDERS""))");
+        }
+
+        public override async Task String_ToUpper_Column(bool async)
+        {
+            await base.String_ToUpper_Column(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""ContactName""] != UPPER(c[""ContactName""])))");
+        }
+
+        public override async Task String_ToUpper_MethodCall(bool async)
+        {
+            await base.String_ToUpper_MethodCall(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (UPPER(c[""ContactName""]) = ""MARIA ANDERS""))");
+        }
+
         public override async Task String_Contains_Literal(bool async)
         {
             await base.String_Contains_Literal(async);
