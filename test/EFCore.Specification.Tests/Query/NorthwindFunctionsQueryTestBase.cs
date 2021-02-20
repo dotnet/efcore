@@ -121,36 +121,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_ToLower_Literal(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.ToLower() == "maria anders"),
-                entryCount: 1);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_ToLower_Column(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName != c.ContactName.ToLower()),
-                entryCount: 91);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task String_ToLower_MethodCall(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.ContactName.ToLower() == LocalMethod3()),
-                entryCount: 1);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public virtual Task String_Contains_Literal(bool async)
         {
             return AssertQuery(
@@ -772,9 +742,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected static string LocalMethod2()
             => "m";
-
-        protected static string LocalMethod3()
-            => "maria anders";
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
