@@ -183,6 +183,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     The current ambient transaction. Defaults to <see cref="Transaction.Current" />.
+        /// </summary>
+        public virtual Transaction? CurrentAmbientTransaction => Transaction.Current;
+
+        /// <summary>
         ///     Gets the current transaction.
         /// </summary>
         public virtual IDbContextTransaction? CurrentTransaction { get; [param: CanBeNull] protected set; }
@@ -397,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
             }
 
-            if (Transaction.Current != null)
+            if (CurrentAmbientTransaction != null)
             {
                 throw new InvalidOperationException(RelationalStrings.ConflictingAmbientTransaction);
             }
@@ -748,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private void HandleAmbientTransactions()
         {
-            var current = Transaction.Current;
+            var current = CurrentAmbientTransaction;
 
             if (current == null)
             {

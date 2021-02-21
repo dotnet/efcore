@@ -328,9 +328,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual void OnFirstExecution()
         {
-            if (Dependencies.CurrentContext.Context.Database.CurrentTransaction != null
-                || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() != null
-                || Transaction.Current != null)
+            if (Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null
+                || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null
+                || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies.TransactionManager as
+                    ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ExecutionStrategyExistingTransaction(
