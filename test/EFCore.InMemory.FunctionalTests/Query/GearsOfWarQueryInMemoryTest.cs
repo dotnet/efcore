@@ -52,5 +52,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "issue #19584")]
         public override Task Cast_to_derived_followed_by_include_and_FirstOrDefault(bool async)
             => base.Cast_to_derived_followed_by_include_and_FirstOrDefault(async);
+
+        [ConditionalTheory(Skip = "issue #24325")]
+        public override Task Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(bool async)
+            => base.Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(async);
+
+        [ConditionalTheory(Skip = "issue #24325")]
+        public override Task Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(bool async)
+            => base.Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(async);
+
+        [ConditionalTheory(Skip = "issue #24325")]
+        public override Task Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(bool async)
+            => base.Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(async);
+
+        [ConditionalTheory(Skip = "issue #24325")]
+        public override Task Correlated_collection_with_distinct_3_levels(bool async)
+            => base.Correlated_collection_with_distinct_3_levels(async);
     }
 }

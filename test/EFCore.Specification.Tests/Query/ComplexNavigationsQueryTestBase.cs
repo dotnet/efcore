@@ -2151,6 +2151,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_navigation_and_Distinct_projecting_columns_including_join_key(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>().Include(l => l.OneToMany_Optional1)
+                      from l2 in l1.OneToMany_Optional1.Select(x => new { x.Id, x.Name, FK = EF.Property<int>(x, "OneToMany_Optional_Inverse2Id") }).Distinct()
+                      select l1,
+                elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_with_navigation_filter_and_explicit_DefaultIfEmpty(bool async)
         {
             return AssertQuery(

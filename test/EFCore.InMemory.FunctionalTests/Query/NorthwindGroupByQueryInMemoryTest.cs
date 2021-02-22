@@ -24,5 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Join_GroupBy_Aggregate_with_left_join(async);
         }
+
+        [ConditionalTheory(Skip = "Issue#24324")]
+        public override Task Complex_query_with_groupBy_in_subquery4(bool async)
+        {
+            return base.Complex_query_with_groupBy_in_subquery4(async);
+        }
     }
 }

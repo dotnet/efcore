@@ -1958,6 +1958,21 @@ LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l].[Id], [t].[Id], [l1].[Id]");
         }
 
+        public override async Task SelectMany_with_navigation_and_Distinct_projecting_columns_including_join_key(bool async)
+        {
+            await base.SelectMany_with_navigation_and_Distinct_projecting_columns_including_join_key(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [t].[Id], [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id]
+FROM [LevelOne] AS [l]
+INNER JOIN (
+    SELECT DISTINCT [l0].[Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id] AS [FK]
+    FROM [LevelTwo] AS [l0]
+) AS [t] ON [l].[Id] = [t].[FK]
+LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
+ORDER BY [l].[Id], [t].[Id], [l1].[Id]");
+        }
+
         public override async Task SelectMany_with_navigation_filter_and_explicit_DefaultIfEmpty(bool async)
         {
             await base.SelectMany_with_navigation_filter_and_explicit_DefaultIfEmpty(async);

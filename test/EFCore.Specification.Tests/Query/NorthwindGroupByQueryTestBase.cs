@@ -2978,6 +2978,30 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_query_with_groupBy_in_subquery4(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(
+                        c => new
+                        {
+                            Key = c.CustomerID,
+                            Subquery = c.Orders
+                                .Select(o => new { First = o.OrderID, Second = o.Customer.City + o.CustomerID })
+                                .GroupBy(x => x.Second)
+                                .Select(g => new { Sum = g.Sum(x => x.First), Count = g.Count(x => x.Second.StartsWith("Lon")) }).ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(e.Subquery, a.Subquery);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_scalar_subquery(bool async)
         {
             return AssertQuery(
@@ -3034,6 +3058,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                         AssertEqual(e.Customer, a.Customer);
                         AssertCollection(e.Orders, a.Orders);
                     }));
+        }
+
+        #endregion
+
+        #region GroupByAndDistinctWithCorrelatedCollection
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c => c.Customer.City)
+                    .Distinct()
+                    .Select(c => new
+                    {
+                        c1 = ss.Set<Product>().GroupBy(p => p.ProductID).Select(g => g.Key).ToArray(),
+                        c2 = ss.Set<Product>().GroupBy(p => p.ProductID).Select(g => g.Count()).ToArray()
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertCollection(e.c1, a.c1);
+                    AssertCollection(e.c2, a.c2);
+                });
         }
 
         #endregion

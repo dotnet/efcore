@@ -2508,6 +2508,31 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        public override async Task Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(bool async)
+        {
+            await base.Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(async);
+
+            AssertSql(
+                @"SELECT [t].[City], [t0].[ProductID], [t1].[c], [t1].[ProductID]
+FROM (
+    SELECT DISTINCT [c].[City]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+    WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')
+) AS [t]
+OUTER APPLY (
+    SELECT [p].[ProductID]
+    FROM [Products] AS [p]
+    GROUP BY [p].[ProductID]
+) AS [t0]
+OUTER APPLY (
+    SELECT COUNT(*) AS [c], [p0].[ProductID]
+    FROM [Products] AS [p0]
+    GROUP BY [p0].[ProductID]
+) AS [t1]
+ORDER BY [t].[City], [t0].[ProductID], [t1].[ProductID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
