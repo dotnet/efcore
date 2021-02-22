@@ -30,6 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
+        private static readonly MethodInfo _toLowerMethodInfo
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
+            
         private static readonly MethodInfo _toUpperMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
 
@@ -101,6 +104,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return TranslateSystemFunction("ENDSWITH", typeof(bool), instance, arguments[0]);
                 }
 
+                if (_toLowerMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("LOWER", method.ReturnType, instance);
+                }
+                
                 if (_toUpperMethodInfo.Equals(method))
                 {
                     return TranslateSystemFunction("UPPER", method.ReturnType, instance);
@@ -117,14 +125,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return TranslateSystemFunction("RIGHT", typeof(char), arguments[0], _sqlExpressionFactory.Constant(1));
             }
 
-            if(_stringConcatWithTwoArguments.Equals(method))
+            if (_stringConcatWithTwoArguments.Equals(method))
             {
                 return _sqlExpressionFactory.Add(
                     arguments[0],
                     arguments[1]);
             }
 
-            if(_stringConcatWithThreeArguments.Equals(method))
+            if (_stringConcatWithThreeArguments.Equals(method))
             {
                 return _sqlExpressionFactory.Add(
                     arguments[0],
