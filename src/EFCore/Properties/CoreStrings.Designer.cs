@@ -3550,6 +3550,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The navigation '{navigation}' was ignored from 'Include' in the query since the fix-up will automatically populate it. If any further navigations are specified in 'Include' afterwards then they will be ignored. Walking back include tree is not allowed.
+        /// </summary>
+        public static EventDefinition<string> LogNavigationBaseIncludeIgnored([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNavigationBaseIncludeIgnored;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogNavigationBaseIncludeIgnored,
+                    () => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.NavigationBaseIncludeIgnored,
+                        LogLevel.Warning,
+                        "CoreEventId.NavigationBaseIncludeIgnored",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.NavigationBaseIncludeIgnored,
+                            _resourceManager.GetString("LogNavigationBaseIncludeIgnored"))));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
         ///     The navigation '{1_entityType}.{0_navigation}' is being lazy-loaded.
         /// </summary>
         public static EventDefinition<string, string> LogNavigationLazyLoading([NotNull] IDiagnosticsLogger logger)

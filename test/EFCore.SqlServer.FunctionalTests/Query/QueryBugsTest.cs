@@ -9543,6 +9543,130 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'" });
 
         #endregion
 
+        #region Issue23674
+
+        [ConditionalFact]
+        public virtual void Walking_back_include_tree_is_not_allowed_1()
+        {
+            using (CreateDatabase23674())
+            {
+                using var context = new MyContext23674(_options);
+
+                var query = context.Set<Principal23674>()
+                    .Include(p => p.ManyDependents)
+                    .ThenInclude(m => m.Principal.SingleDependent);
+
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.NavigationBaseIncludeIgnored.ToString(),
+                        CoreResources.LogNavigationBaseIncludeIgnored(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage("ManyDependent23674.Principal"),
+                        "CoreEventId.NavigationBaseIncludeIgnored"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => query.ToList()).Message);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Walking_back_include_tree_is_not_allowed_2()
+        {
+            using (CreateDatabase23674())
+            {
+                using var context = new MyContext23674(_options);
+
+                var query = context.Set<Principal23674>().Include(p => p.SingleDependent.Principal.ManyDependents);
+
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.NavigationBaseIncludeIgnored.ToString(),
+                        CoreResources.LogNavigationBaseIncludeIgnored(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage("SingleDependent23674.Principal"),
+                        "CoreEventId.NavigationBaseIncludeIgnored"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => query.ToList()).Message);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Walking_back_include_tree_is_not_allowed_3()
+        {
+            using (CreateDatabase23674())
+            {
+                using var context = new MyContext23674(_options);
+
+                // This does not warn because after round-tripping from one-to-many from dependent side, the number of dependents could be larger.
+                var query = context.Set<ManyDependent23674>()
+                    .Include(p => p.Principal.ManyDependents)
+                    .ThenInclude(m => m.SingleDependent)
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Walking_back_include_tree_is_not_allowed_4()
+        {
+            using (CreateDatabase23674())
+            {
+                using var context = new MyContext23674(_options);
+
+                var query = context.Set<SingleDependent23674>().Include(p => p.ManyDependent.SingleDependent.Principal);
+
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.NavigationBaseIncludeIgnored.ToString(),
+                        CoreResources.LogNavigationBaseIncludeIgnored(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage("ManyDependent23674.SingleDependent"),
+                        "CoreEventId.NavigationBaseIncludeIgnored"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => query.ToList()).Message);
+            }
+        }
+
+        private class Principal23674
+        {
+            public int Id { get; set; }
+            public List<ManyDependent23674> ManyDependents { get; set; }
+            public SingleDependent23674 SingleDependent { get; set; }
+        }
+
+        private class ManyDependent23674
+        {
+            public int Id { get; set; }
+            public Principal23674 Principal { get; set; }
+            public SingleDependent23674 SingleDependent { get; set; }
+        }
+        private class SingleDependent23674
+        {
+            public int Id { get; set; }
+            public Principal23674 Principal { get; set; }
+            public int PrincipalId { get; set; }
+            public int ManyDependentId { get; set; }
+            public ManyDependent23674 ManyDependent { get; set; }
+        }
+
+        private class MyContext23674 : DbContext
+        {
+            public MyContext23674(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Principal23674>();
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase23674()
+            => CreateTestStore(
+                () => new MyContext23674(_options),
+                context =>
+                {
+                    ClearLog();
+                });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
