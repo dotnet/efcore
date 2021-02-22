@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var manyToManyA = model.FindEntityType(typeof(ImplicitManyToManyA))!;
                 var manyToManyB = model.FindEntityType(typeof(ImplicitManyToManyB))!;
                 var joinEntityType = model.GetEntityTypes()
-                    .Where(et => ((EntityType)et).IsImplicitlyCreatedJoinEntityType)
+                    .Where(et => et.ClrType == Model.DefaultPropertyBagType)
                     .Single();
                 Assert.Equal("ImplicitManyToManyAImplicitManyToManyB", joinEntityType.Name);
 

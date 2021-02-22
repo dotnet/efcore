@@ -105,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<ComplexCaseParent13108>().HasKey(c => c.Key);
 
-                var model = (IConventionModel)modelBuilder.FinalizeModel();
+                var model = (IConventionModel)modelBuilder.FinalizeModel(designTime: true);
+
                 var property = model
                     .FindEntityType(typeof(ComplexCaseChild13108))!.GetProperties().Single(p => p.Name == "ParentKey");
                 Assert.Equal(typeof(int), property.ClrType);
@@ -265,6 +266,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression)
                 => new NonGenericTestIndexBuilder<TEntity>(
                     EntityTypeBuilder.HasIndex(indexExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+
+            public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression, string name)
+                => new NonGenericTestIndexBuilder<TEntity>(
+                    EntityTypeBuilder.HasIndex(indexExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray(), name));
 
             public override TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames)
                 => new NonGenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames));

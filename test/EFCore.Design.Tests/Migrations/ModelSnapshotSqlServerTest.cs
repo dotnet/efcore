@@ -5386,7 +5386,7 @@ namespace RootNamespace
                 new ServiceCollection()
                     .AddEntityFrameworkSqlServerNetTopologySuite());
 
-            serviceProvider.GetService<IModelRuntimeInitializer>().Initialize(model, validationLogger: null);
+            serviceProvider.GetService<IModelRuntimeInitializer>().Initialize(model, designTime: true, validationLogger: null);
 
             var generator = CreateMigrationsGenerator();
             var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);

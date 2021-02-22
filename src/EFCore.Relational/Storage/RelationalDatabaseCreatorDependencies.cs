@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -82,7 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(commandLogger, nameof(commandLogger));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Model = model;
+#pragma warning restore CS0618 // Type or member is obsolete
             Connection = connection;
             ModelDiffer = modelDiffer;
             MigrationsSqlGenerator = migrationsSqlGenerator;
@@ -106,6 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the model for the context this creator is being used with.
         /// </summary>
+        [Obsolete("Use CurrentContext.Context.DesignTimeModel instead")]
         public IModel Model { get; init; }
 
         /// <summary>

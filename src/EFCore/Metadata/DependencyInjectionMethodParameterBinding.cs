@@ -83,5 +83,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     delegateVariable
                 });
         }
+
+        /// <summary>
+        ///     Creates a copy that contains the given consumed properties.
+        /// </summary>
+        /// <param name="consumedProperties"> The new consumed properties. </param>
+        /// <returns> A copy with replaced consumed properties. </returns>
+        public override ParameterBinding With(IReadOnlyList<IPropertyBase> consumedProperties)
+            => new DependencyInjectionMethodParameterBinding(ParameterType, ServiceType, Method, consumedProperties.SingleOrDefault());
     }
 }

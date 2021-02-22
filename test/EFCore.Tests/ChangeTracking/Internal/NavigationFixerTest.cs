@@ -475,6 +475,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Category { Id = 11 };
@@ -516,6 +517,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Category { Id = 11 };
@@ -557,6 +559,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Category { Id = 11 };
@@ -598,6 +601,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal1 = new Product { Id = 21 };
@@ -641,6 +645,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal = new Product { Id = 21 };
@@ -679,6 +684,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal = new Product { Id = 21 };
@@ -717,6 +723,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var entity1 = new Product { Id = 21, AlternateProductId = 22 };
@@ -770,6 +777,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var entity1 = new Product { Id = 21, AlternateProductId = 22 };
@@ -825,6 +833,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var photo1 = new ProductPhoto { ProductId = 1, PhotoId = "Photo1" };

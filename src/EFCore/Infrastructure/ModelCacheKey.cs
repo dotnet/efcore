@@ -18,6 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class ModelCacheKey
     {
+        private readonly Type _dbContextType;
+        private readonly bool _designTime;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModelCacheKey" /> class.
         /// </summary>
@@ -29,7 +32,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _dbContextType = context.GetType();
         }
 
-        private readonly Type _dbContextType;
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ModelCacheKey" /> class.
+        /// </summary>
+        /// <param name="context">
+        ///     The context instance that this key is for.
+        /// </param>
+        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
+        public ModelCacheKey(DbContext context, bool designTime)
+        {
+            _dbContextType = context.GetType();
+            _designTime = designTime;
+        }
 
         /// <summary>
         ///     Determines if this key is equivalent to a given key (i.e. if they are for the same context type).
@@ -41,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <see langword="true" /> if the key is for the same context type, otherwise <see langword="false" />.
         /// </returns>
         protected virtual bool Equals(ModelCacheKey other)
-            => _dbContextType == other._dbContextType;
+            => _dbContextType == other._dbContextType
+                && _designTime == other._designTime;
 
         /// <summary>
         ///     Determines if this key is equivalent to a given object (i.e. if they are keys for the same context type).
@@ -63,6 +78,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The hash code for the key.
         /// </returns>
         public override int GetHashCode()
-            => _dbContextType.GetHashCode();
+        {
+            var hash = new HashCode();
+            hash.Add(_dbContextType);
+            hash.Add(_designTime);
+            return hash.ToHashCode();
+        }
     }
 }

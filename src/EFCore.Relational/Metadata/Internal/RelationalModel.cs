@@ -180,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         constraint.AddAnnotations(relationalAnnotationProvider.For(constraint));
                     }
 
-                    foreach (CheckConstraint checkConstraint in ((ITable)table).CheckConstraints)
+                    foreach (var checkConstraint in ((ITable)table).CheckConstraints)
                     {
-                        checkConstraint.AddAnnotations(relationalAnnotationProvider.For(checkConstraint));
+                        ((AnnotatableBase)checkConstraint).AddAnnotations(relationalAnnotationProvider.For(checkConstraint));
                     }
 
                     table.AddAnnotations(relationalAnnotationProvider.For(table));
@@ -232,9 +232,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (relationalAnnotationProvider != null)
             {
-                foreach (Sequence sequence in ((IRelationalModel)databaseModel).Sequences)
+                foreach (var sequence in ((IRelationalModel)databaseModel).Sequences)
                 {
-                    sequence.AddAnnotations(relationalAnnotationProvider.For(sequence));
+                    ((AnnotatableBase)sequence).AddAnnotations(relationalAnnotationProvider.For(sequence));
                 }
 
                 databaseModel.AddAnnotations(relationalAnnotationProvider.For(databaseModel));

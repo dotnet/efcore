@@ -238,6 +238,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelFinalizingConventions.Add(inversePropertyAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(backingFieldConvention);
 
+            conventionSet.ModelFinalizedConventions.Add(new SlimModelConvention(Dependencies));
+
             return conventionSet;
         }
 

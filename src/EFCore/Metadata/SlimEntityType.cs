@@ -436,16 +436,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             _skipNavigations.Add(name, skipNavigation);
 
-            if (targetEntityType.DeclaredReferencingSkipNavigations == null)
-            {
-                targetEntityType.DeclaredReferencingSkipNavigations =
-                    new SortedSet<SlimSkipNavigation>(SkipNavigationComparer.Instance) { skipNavigation };
-            }
-            else
-            {
-                targetEntityType.DeclaredReferencingSkipNavigations.Add(skipNavigation);
-            }
-
             return skipNavigation;
         }
 
@@ -479,18 +469,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     ? _baseType.GetSkipNavigations()
                     : _baseType.GetSkipNavigations().Concat(_skipNavigations.Values)
                 : _skipNavigations.Values;
-
-        private IEnumerable<SlimSkipNavigation> GetReferencingSkipNavigations()
-            => _baseType != null
-                ? (DeclaredReferencingSkipNavigations?.Count ?? 0) == 0
-                    ? _baseType.GetReferencingSkipNavigations()
-                    : _baseType.GetReferencingSkipNavigations().Concat(GetDeclaredReferencingSkipNavigations())
-                : GetDeclaredReferencingSkipNavigations();
-
-        private IEnumerable<SlimSkipNavigation> GetDeclaredReferencingSkipNavigations()
-            => DeclaredReferencingSkipNavigations ?? Enumerable.Empty<SlimSkipNavigation>();
-
-        private SortedSet<SlimSkipNavigation>? DeclaredReferencingSkipNavigations { get; set; }
 
         /// <summary>
         ///     Adds an index to this entity type.
@@ -598,6 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="valueGeneratorFactory"> The factory that has been set to generate values for this property, if any. </param>
         /// <param name="valueConverter"> The custom <see cref="ValueConverter" /> set for this property. </param>
         /// <param name="valueComparer"> The <see cref="ValueComparer" /> for this property. </param>
+        /// <param name="keyValueComparer"> The <see cref="ValueComparer" /> to use with keys for this property. </param>
         /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
         /// <returns> The newly created property. </returns>
         public virtual SlimProperty AddProperty(
@@ -619,6 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null,
             ValueConverter? valueConverter = null,
             ValueComparer? valueComparer = null,
+            ValueComparer? keyValueComparer = null,
             CoreTypeMapping? typeMapping = null)
         {
             var property = new SlimProperty(
@@ -641,6 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 valueGeneratorFactory,
                 valueConverter,
                 valueComparer,
+                keyValueComparer,
                 typeMapping);
 
             _properties.Add(property.Name, property);

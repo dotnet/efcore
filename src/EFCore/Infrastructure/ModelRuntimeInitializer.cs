@@ -45,11 +45,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Validates and initializes the given model with runtime dependencies.
         /// </summary>
         /// <param name="model"> The model to initialize. </param>
+        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
         /// <param name="validationLogger"> The validation logger. </param>
         /// <returns> The initialized model. </returns>
         public virtual IModel Initialize(
             IModel model,
-            IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger)
+            bool designTime = true,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger = null)
         {
             if (model.ModelDependencies == null)
             {
@@ -57,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     CoreAnnotationNames.ReadOnlyModel,
                     static args =>
                     {
-                        var (initializer, model, validationLogger) = args;
+                        var (initializer, model, designTime, validationLogger) = args;
+
                         model.ModelDependencies = initializer.Dependencies.ModelDependencies;
 
                         initializer.InitializeModel(model, preValidation: true);
@@ -70,18 +73,35 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                         initializer.InitializeModel(model, preValidation: false);
 
-                        if (model is Model mutableModel)
+                        if (!designTime
+                            && model is Model mutableModel)
                         {
                             model = mutableModel.OnModelFinalized();
                         }
 
                         return model;
                     },
-                    (this, model, validationLogger));
+                    (this, model, designTime, validationLogger));
+
+                if (designTime)
+                {
+                    model.RemoveRuntimeAnnotation(CoreAnnotationNames.ReadOnlyModel);
+                }
             }
-            else
+            else if (!designTime)
             {
-                model = (IModel)model.FindRuntimeAnnotationValue(CoreAnnotationNames.ReadOnlyModel)!;
+                model = model.GetOrAddRuntimeAnnotationValue(
+                    CoreAnnotationNames.ReadOnlyModel,
+                    static model =>
+                    {
+                        if (model is Model mutableModel)
+                        {
+                            model = mutableModel.OnModelFinalized();
+                        }
+
+                        return model!;
+                    },
+                    model);
             }
 
             return model;

@@ -29,10 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Validates and initializes the given model with runtime dependencies.
         /// </summary>
         /// <param name="model"> The model to initialize. </param>
-        /// <param name="validationLogger"> The validation logger. </param>
+        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
+        /// <param name="validationLogger">
+        ///     The validation logger. If <see langword="null"/> is provided validation will not be performed.
+        ///     </param>
         /// <returns> The initialized model. </returns>
         IModel Initialize(
             IModel model,
-            IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger);
+            bool designTime = true,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger = null);
     }
 }

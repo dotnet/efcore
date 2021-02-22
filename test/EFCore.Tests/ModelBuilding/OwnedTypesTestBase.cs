@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Ignore(d => d.Id)
                     .Property<int>("foo");
 
-                var model = modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel(designTime: true);
 
                 var owner = model.FindEntityType(typeof(Customer));
                 var owned = owner.FindNavigation(nameof(Customer.Details)).ForeignKey.DeclaringEntityType;
@@ -400,12 +400,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 entityBuilder.WithOwner(o => o.Customer)
                     .HasPrincipalKey(c => c.AlternateKey);
 
-                var model = modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel(designTime: true);
 
                 var owner = model.FindEntityType(typeof(Customer));
                 var ownership = owner.FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
-                Assert.Same(entityBuilder.OwnedEntityType, owned);
                 Assert.True(ownership.IsOwnership);
                 Assert.Equal("CustomerAlternateKey", ownership.Properties.Single().Name);
                 Assert.Equal(nameof(Customer.AlternateKey), ownership.PrincipalKey.Properties.Single().Name);
@@ -578,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         }
                     });
 
-                var model = modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel(designTime: true);
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
@@ -618,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             });
                     });
 
-                var model = modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel(designTime: true);
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
@@ -762,28 +761,36 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .OwnsMany(c => c.Orders)
                     .HasKey(o => o.OrderId);
 
-                var specialCustomer = modelBuilder.Entity<SpecialCustomer>()
+                modelBuilder.Entity<SpecialCustomer>()
                     .OwnsMany(
                         c => c.SpecialOrders, so =>
                         {
                             so.HasKey(o => o.SpecialOrderId);
                             so.Ignore(o => o.Customer);
                             so.OwnsOne(o => o.BackOrder);
-                        }).Metadata;
+                        });
 
                 var model = modelBuilder.FinalizeModel();
 
                 var customer = model.FindEntityType(typeof(Customer));
+                var specialCustomer = model.FindEntityType(typeof(SpecialCustomer));
 
                 var ownership = customer.FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 Assert.True(ownership.IsOwnership);
                 Assert.False(ownership.IsUnique);
                 Assert.Equal(nameof(Order.OrderId), ownership.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
+                Assert.Same(ownership.DeclaringEntityType,
+                    model.FindEntityType(typeof(Order), nameof(Customer.Orders), customer));
+                Assert.Equal(2, model.FindEntityTypes(typeof(Order)).Count());
+                Assert.True(model.IsShared(typeof(Order)));
+
                 var specialOwnership = specialCustomer.FindNavigation(nameof(SpecialCustomer.SpecialOrders)).ForeignKey;
                 Assert.True(specialOwnership.IsOwnership);
                 Assert.False(specialOwnership.IsUnique);
                 Assert.Equal(
                     nameof(SpecialOrder.SpecialOrderId), specialOwnership.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
+                Assert.Same(specialOwnership.DeclaringEntityType,
+                    model.FindEntityType(typeof(SpecialOrder)));
 
                 Assert.Equal(9, modelBuilder.Model.GetEntityTypes().Count());
                 Assert.Equal(2, modelBuilder.Model.FindEntityTypes(typeof(Order)).Count());

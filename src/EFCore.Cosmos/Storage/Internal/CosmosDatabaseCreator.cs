@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     public class CosmosDatabaseCreator : IDatabaseCreator
     {
         private readonly ICosmosClientWrapper _cosmosClient;
-        private readonly IModel _model;
+        private readonly IModel _designModel;
         private readonly IUpdateAdapterFactory _updateAdapterFactory;
         private readonly IDatabase _database;
 
@@ -32,12 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public CosmosDatabaseCreator(
             ICosmosClientWrapper cosmosClient,
-            IModel model,
+            ICurrentDbContext context,
             IUpdateAdapterFactory updateAdapterFactory,
             IDatabase database)
         {
             _cosmosClient = cosmosClient;
-            _model = model;
+            _designModel = context.Context.DesignTimeModel;
             _updateAdapterFactory = updateAdapterFactory;
             _database = database;
         }
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public virtual bool EnsureCreated()
         {
             var created = _cosmosClient.CreateDatabaseIfNotExists();
-            foreach (var entityType in _model.GetEntityTypes())
+            foreach (var entityType in _designModel.GetEntityTypes())
             {
                 var containerName = entityType.GetContainer();
                 if (containerName != null)
@@ -80,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken)
                 .ConfigureAwait(false);
-            foreach (var entityType in _model.GetEntityTypes())
+            foreach (var entityType in _designModel.GetEntityTypes())
             {
                 var containerName = entityType.GetContainer();
                 if (containerName != null)
@@ -130,10 +131,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private IUpdateAdapter AddSeedData()
         {
             var updateAdapter = _updateAdapterFactory.CreateStandalone();
-            foreach (var entityType in _model.GetEntityTypes())
+            foreach (var entityType in _designModel.GetEntityTypes())
             {
+                IEntityType? targetEntityType = null;
                 foreach (var targetSeed in entityType.GetSeedData())
                 {
+                    targetEntityType ??= updateAdapter.Model.FindEntityType(entityType.Name)!;
                     var entry = updateAdapter.CreateEntry(targetSeed, entityType);
                     entry.EntityState = EntityState.Added;
                 }

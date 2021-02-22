@@ -47,5 +47,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="bindingInfo"> The binding information. </param>
         /// <returns> The expression tree. </returns>
         public abstract Expression BindToParameter(ParameterBindingInfo bindingInfo);
+
+        /// <summary>
+        ///     Creates a copy that contains the given consumed properties.
+        /// </summary>
+        /// <param name="consumedProperties"> The new consumed properties. </param>
+        /// <returns> A copy with replaced consumed properties. </returns>
+        public abstract ParameterBinding With(IReadOnlyList<IPropertyBase> consumedProperties);
     }
 }

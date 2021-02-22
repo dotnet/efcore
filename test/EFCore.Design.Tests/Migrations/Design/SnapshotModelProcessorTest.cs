@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var processor = new SnapshotModelProcessor(reporter, modelRuntimeInitializer);
             var model = processor.Process(snapshot.Model);
 
-            var differences = differ.GetDifferences(model.GetRelationalModel(), context.Model.GetRelationalModel());
+            var differences = differ.GetDifferences(model.GetRelationalModel(), context.DesignTimeModel.GetRelationalModel());
 
             Assert.Empty(differences);
         }
@@ -283,6 +283,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             public IModel Initialize(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+                => model;
+
+            public IModel Initialize(
+                IModel model, bool designTime = true, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null)
                 => model;
 
             public static DummyModelRuntimeInitializer Instance { get; } = new();

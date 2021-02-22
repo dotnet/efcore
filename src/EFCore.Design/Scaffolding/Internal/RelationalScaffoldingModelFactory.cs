@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             VisitDatabaseModel(modelBuilder, databaseModel);
 
-            return _modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), null);
+            return _modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), designTime: true, null);
         }
 
         /// <summary>
