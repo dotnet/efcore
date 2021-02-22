@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
             base.Validate();
 
-            if (string.IsNullOrEmpty(_name.Value))
+            if (string.IsNullOrEmpty(_name!.Value))
             {
                 throw new CommandException(Resources.MissingArgument(_name.Name));
             }
@@ -22,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         protected override int Execute(string[] args)
         {
             using var executor = CreateExecutor(args);
-            var files = executor.AddMigration(_name.Value, _outputDir.Value(), Context.Value(), _namespace.Value());
+            var files = executor.AddMigration(_name!.Value!, _outputDir!.Value(), Context!.Value(), _namespace!.Value());
 
-            if (_json.HasValue())
+            if (_json!.HasValue())
             {
                 ReportJson(files);
             }

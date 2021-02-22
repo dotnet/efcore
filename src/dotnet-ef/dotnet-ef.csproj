@@ -27,6 +27,7 @@ dotnet ef database update
     -->
     <TargetLatestDotNetRuntime Condition=" '$(IsServicingBuild)' == 'true' ">false</TargetLatestDotNetRuntime>
     <RollForward>Major</RollForward>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

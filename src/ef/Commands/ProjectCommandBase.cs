@@ -1,13 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.IO;
 using System.Reflection;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 #if NET461
+using System;
 using System.Configuration;
 #endif
 
@@ -15,14 +15,14 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal abstract class ProjectCommandBase : EFCommandBase
     {
-        private CommandOption _assembly;
-        private CommandOption _startupAssembly;
-        private CommandOption _dataDir;
-        private CommandOption _projectDir;
-        private CommandOption _rootNamespace;
-        private CommandOption _language;
+        private CommandOption? _assembly;
+        private CommandOption? _startupAssembly;
+        private CommandOption? _dataDir;
+        private CommandOption? _projectDir;
+        private CommandOption? _rootNamespace;
+        private CommandOption? _language;
 
-        protected CommandOption WorkingDir { get; private set; }
+        protected CommandOption? WorkingDir { get; private set; }
 
         public override void Configure(CommandLineApplication command)
         {
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
             base.Validate();
 
-            if (!_assembly.HasValue())
+            if (!_assembly!.HasValue())
             {
                 throw new CommandException(Resources.MissingOption(_assembly.LongName));
             }
@@ -57,17 +57,17 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 try
                 {
                     return new AppDomainOperationExecutor(
-                        _assembly.Value(),
-                        _startupAssembly.Value(),
-                        _projectDir.Value(),
-                        _dataDir.Value(),
-                        _rootNamespace.Value(),
-                        _language.Value(),
+                        _assembly!.Value()!,
+                        _startupAssembly!.Value(),
+                        _projectDir!.Value(),
+                        _dataDir!.Value(),
+                        _rootNamespace!.Value(),
+                        _language!.Value(),
                         remainingArguments);
                 }
                 catch (MissingMethodException) // NB: Thrown with EF Core 3.1
                 {
-                    var configurationFile = (_startupAssembly.Value() ?? _assembly.Value()) + ".config";
+                    var configurationFile = (_startupAssembly!.Value() ?? _assembly!.Value()!) + ".config";
                     if (File.Exists(configurationFile))
                     {
                         AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configurationFile);
@@ -93,21 +93,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 #error target frameworks need to be updated.
 #endif
                 return new ReflectionOperationExecutor(
-                    _assembly.Value(),
-                    _startupAssembly.Value(),
-                    _projectDir.Value(),
-                    _dataDir.Value(),
-                    _rootNamespace.Value(),
-                    _language.Value(),
+                    _assembly!.Value()!,
+                    _startupAssembly!.Value(),
+                    _projectDir!.Value(),
+                    _dataDir!.Value(),
+                    _rootNamespace!.Value(),
+                    _language!.Value(),
                     remainingArguments);
             }
             catch (FileNotFoundException ex)
-                when (new AssemblyName(ex.FileName).Name == OperationExecutorBase.DesignAssemblyName)
+                when (ex.FileName != null
+                    && new AssemblyName(ex.FileName).Name == OperationExecutorBase.DesignAssemblyName)
             {
                 throw new CommandException(
                     Resources.DesignNotFound(
                         Path.GetFileNameWithoutExtension(
-                            _startupAssembly.HasValue() ? _startupAssembly.Value() : _assembly.Value())),
+                            _startupAssembly!.HasValue() ? _startupAssembly.Value() : _assembly!.Value())),
                     ex);
             }
         }

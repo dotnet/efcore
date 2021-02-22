@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
             using var executor = CreateExecutor(args);
 
-            executor.UpdateDatabase(_migration.Value, _connection.Value(), Context.Value());
+            executor.UpdateDatabase(_migration!.Value, _connection!.Value(), Context!.Value());
 
             return base.Execute(args);
         }

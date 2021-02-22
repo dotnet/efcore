@@ -8,9 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class MigrationsListCommand : ContextCommandBase
     {
-        private CommandOption _connection;
-        private CommandOption _noConnect;
-        private CommandOption _json;
+        private CommandOption? _connection;
+        private CommandOption? _noConnect;
+        private CommandOption? _json;
 
         public override void Configure(CommandLineApplication command)
         {
