@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="Microsoft.Extensions.Configuration" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Logging" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="Microsoft.Extensions.Logging" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="System.Collections.Immutable" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="System.ComponentModel.Annotations" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="System.ComponentModel.Annotations" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="6.0.0-preview.2.21115.2">
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="6.0.0-preview.3.21121.7">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>2437619a41b22e9326700403c845dde69d2a0f78</Sha>
+      <Sha>49cfb3507c586b539d0652814defbbc9e3073f16</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
