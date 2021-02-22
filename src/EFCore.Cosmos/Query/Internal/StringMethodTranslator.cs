@@ -30,6 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
+        private static readonly MethodInfo _toLowerMethodInfo
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
+
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
             = typeof(Enumerable).GetRuntimeMethods().Single(
                 m => m.Name == nameof(Enumerable.FirstOrDefault)
@@ -85,38 +88,43 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 if (_containsMethodInfo.Equals(method))
                 {
-                    return TranslateSystemFunction("CONTAINS", instance, arguments[0], typeof(bool));
+                    return TranslateSystemFunction("CONTAINS", typeof(bool), instance, arguments[0]);
                 }
 
                 if (_startsWithMethodInfo.Equals(method))
                 {
-                    return TranslateSystemFunction("STARTSWITH", instance, arguments[0], typeof(bool));
+                    return TranslateSystemFunction("STARTSWITH", typeof(bool), instance, arguments[0]);
                 }
 
                 if (_endsWithMethodInfo.Equals(method))
                 {
-                    return TranslateSystemFunction("ENDSWITH", instance, arguments[0], typeof(bool));
+                    return TranslateSystemFunction("ENDSWITH", typeof(bool), instance, arguments[0]);
+                }
+
+                if (_toLowerMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("LOWER", method.ReturnType, instance);
                 }
             }
 
             if (_firstOrDefaultMethodInfoWithoutArgs.Equals(method))
             {
-                return TranslateSystemFunction("LEFT", arguments[0], _sqlExpressionFactory.Constant(1), typeof(char));
+                return TranslateSystemFunction("LEFT", typeof(char), arguments[0], _sqlExpressionFactory.Constant(1));
             }
 
             if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
             {
-                return TranslateSystemFunction("RIGHT", arguments[0], _sqlExpressionFactory.Constant(1), typeof(char));
+                return TranslateSystemFunction("RIGHT", typeof(char), arguments[0], _sqlExpressionFactory.Constant(1));
             }
 
-            if(_stringConcatWithTwoArguments.Equals(method))
+            if (_stringConcatWithTwoArguments.Equals(method))
             {
                 return _sqlExpressionFactory.Add(
                     arguments[0],
                     arguments[1]);
             }
 
-            if(_stringConcatWithThreeArguments.Equals(method))
+            if (_stringConcatWithThreeArguments.Equals(method))
             {
                 return _sqlExpressionFactory.Add(
                     arguments[0],
@@ -139,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return null;
         }
 
-        private SqlExpression TranslateSystemFunction(string function, SqlExpression instance, SqlExpression pattern, Type returnType)
-            => _sqlExpressionFactory.Function(function, new[] { instance, pattern }, returnType);
+        private SqlExpression TranslateSystemFunction(string function, Type returnType, params SqlExpression[] arguments)
+            => _sqlExpressionFactory.Function(function, arguments, returnType);
     }
 }
