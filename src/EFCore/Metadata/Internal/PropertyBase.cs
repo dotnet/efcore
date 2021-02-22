@@ -311,7 +311,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [CA.AllowNull]
         public virtual PropertyIndexes PropertyIndexes
         {
             get
@@ -324,21 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var _ = (property.DeclaringType as EntityType)?.Counts;
                     });
 
-            [param: CanBeNull]
-            set
-            {
-                if (value == null)
-                {
-                    EnsureMutable();
-                    // This path should only kick in when the model is still mutable and therefore access does not need
-                    // to be thread-safe.
-                    _indexes = null;
-                }
-                else
-                {
-                    NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
-                }
-            }
+            set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
         }
 
         /// <summary>
