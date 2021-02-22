@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
             in StoreObjectIdentifier storeObject,
             bool fromDataAnnotation = false)
         {
-            var overrides = RelationalPropertyOverrides.Find(propertyBuilder.Metadata, storeObject);
+            var overrides = (RelationalPropertyOverrides?)RelationalPropertyOverrides.Find(propertyBuilder.Metadata, storeObject);
             return overrides == null
                 || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
                 .Overrides(overrides.GetColumnNameConfigurationSource())

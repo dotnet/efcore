@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConventionDbFunction, IDbFunction
+    public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConventionDbFunction, IRuntimeDbFunction
     {
         private readonly List<DbFunctionParameter> _parameters;
         private string? _schema;
@@ -188,10 +188,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<DbFunction> GetDbFunctions([NotNull] IReadOnlyModel model)
-            => ((SortedDictionary<string, DbFunction>?)model[RelationalAnnotationNames.DbFunctions])
+        public static IEnumerable<IDbFunction> GetDbFunctions([NotNull] IReadOnlyModel model)
+            => ((SortedDictionary<string, IDbFunction>?)model[RelationalAnnotationNames.DbFunctions])
                 ?.Values
-                ?? Enumerable.Empty<DbFunction>();
+                ?? Enumerable.Empty<IDbFunction>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -199,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction? FindDbFunction([NotNull] IReadOnlyModel model, [NotNull] MethodInfo methodInfo)
-            => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions
+        public static IReadOnlyDbFunction? FindDbFunction([NotNull] IReadOnlyModel model, [NotNull] MethodInfo methodInfo)
+            => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions
                 && functions.TryGetValue(GetFunctionName(methodInfo, methodInfo.GetParameters()), out var dbFunction)
                     ? dbFunction
                     : null;
@@ -211,8 +211,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction? FindDbFunction([NotNull] IReadOnlyModel model, [NotNull] string name)
-            => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions
+        public static IReadOnlyDbFunction? FindDbFunction([NotNull] IReadOnlyModel model, [NotNull] string name)
+            => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions
                 && functions.TryGetValue(name, out var dbFunction)
                     ? dbFunction
                     : null;
@@ -252,9 +252,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return function;
         }
 
-        private static SortedDictionary<string, DbFunction> GetOrCreateFunctions(IMutableModel model)
-            => (SortedDictionary<string, DbFunction>)(
-                model[RelationalAnnotationNames.DbFunctions] ??= new SortedDictionary<string, DbFunction>());
+        private static SortedDictionary<string, IDbFunction> GetOrCreateFunctions(IMutableModel model)
+            => (SortedDictionary<string, IDbFunction>)(
+                model[RelationalAnnotationNames.DbFunctions] ??= new SortedDictionary<string, IDbFunction>());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -266,15 +266,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IMutableModel model,
             [NotNull] MethodInfo methodInfo)
         {
-            if (model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions)
+            if (model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions)
             {
                 var name = GetFunctionName(methodInfo, methodInfo.GetParameters());
                 if (functions.TryGetValue(name, out var function))
                 {
+                    var dbFunction = (DbFunction)function;
                     functions.Remove(name);
-                    function.SetRemovedFromModel();
+                    dbFunction.SetRemovedFromModel();
 
-                    return function;
+                    return dbFunction;
                 }
             }
 
@@ -291,11 +292,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IMutableModel model,
             [NotNull] string name)
         {
-            if (model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions
+            if (model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions
                 && functions.TryGetValue(name, out var function))
             {
                 functions.Remove(name);
-                function.SetRemovedFromModel();
+                ((DbFunction)function).SetRemovedFromModel();
             }
 
             return null;
@@ -763,5 +764,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         IStoreFunction IDbFunction.StoreFunction
             => StoreFunction!; // Relational model creation ensures StoreFunction is populated
+
+        IStoreFunction IRuntimeDbFunction.StoreFunction
+        {
+            get => StoreFunction!;
+            set => StoreFunction = value;
+        }
     }
 }

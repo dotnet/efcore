@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
-                && ((Annotatable)this).IsReadOnly)
+                && ((AnnotatableBase)this).IsReadOnly)
             {
                 var indexes = ((INavigation)this).GetPropertyIndexes();
                 builder.Append(" ").Append(indexes.Index);

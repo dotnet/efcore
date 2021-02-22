@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ConventionAnnotatable,
         IMutableDbFunctionParameter,
         IConventionDbFunctionParameter,
-        IDbFunctionParameter
+        IRuntimeDbFunctionParameter
     {
         private string? _storeType;
         private RelationalTypeMapping? _typeMapping;
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => Function.GetConfigurationSource();
 
         /// <inheritdoc />
-        public virtual IStoreFunctionParameter StoreFunctionParameter { get; [param: NotNull] set; } = default!;
+        public virtual IStoreFunctionParameter StoreFunctionParameter { get; set; } = default!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -284,6 +284,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         RelationalTypeMapping? IConventionDbFunctionParameter.SetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
             => SetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        string IDbFunctionParameter.StoreType
+        {
+            [DebuggerStepThrough]
+            get => StoreType!;
+        }
 
         /// <inheritdoc />
         [DebuggerStepThrough]

@@ -9195,7 +9195,7 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'" });
 
         class SingleThreadSynchronizationContext22841 : SynchronizationContext, IDisposable
         {
-            private CancellationTokenSource _cancellationTokenSource;
+            private readonly CancellationTokenSource _cancellationTokenSource;
             readonly BlockingCollection<(SendOrPostCallback callback, object state)> _tasks = new();
             internal Thread Thread { get; }
 

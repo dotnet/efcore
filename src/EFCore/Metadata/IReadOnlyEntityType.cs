@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IReadOnlyEntityType : IReadOnlyTypeBase
     {
         /// <summary>
-        ///     Gets the base type of this entity type. Returns <see langword="null" /> if this is not a derived type in an inheritance hierarchy.
+        ///     Gets the base type of this entity type. Returns <see langword="null" /> if this is not a
+        ///     derived type in an inheritance hierarchy.
         /// </summary>
         IReadOnlyEntityType? BaseType { get; }
 
@@ -82,15 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Returns the name of the property that will be used for storing a discriminator value.
         /// </summary>
         /// <returns> The name of the property that will be used for storing a discriminator value. </returns>
-        string? GetDiscriminatorPropertyName()
-        {
-            if (BaseType != null)
-            {
-                return GetRootType().GetDiscriminatorPropertyName();
-            }
-
-            return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
-        }
+        string? GetDiscriminatorPropertyName();
 
         /// <summary>
         ///     Returns the value indicating whether the discriminator mapping is complete for this entity type.
@@ -748,14 +741,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets the <see cref="IReadOnlyServiceProperty" /> with a given name.
+        ///         Gets the service property with a given name.
         ///         Returns <see langword="null" /> if no property with the given name is defined.
         ///     </para>
         ///     <para>
         ///         This API only finds service properties and does not find scalar or navigation properties.
         ///     </para>
         /// </summary>
-        /// <param name="name"> The name of the property. </param>
+        /// <param name="name"> The name of the service property. </param>
         /// <returns> The service property, or <see langword="null" /> if none is found. </returns>
         IReadOnlyServiceProperty? FindServiceProperty([NotNull] string name);
 

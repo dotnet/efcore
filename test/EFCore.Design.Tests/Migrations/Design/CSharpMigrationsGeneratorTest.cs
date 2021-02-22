@@ -507,7 +507,7 @@ namespace MyNamespace
 
             var modelBuilder = new ModelBuilder();
             modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
-            modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new SortedDictionary<string, DbFunction>());
+            modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new SortedDictionary<string, IDbFunction>());
             modelBuilder.Entity(
                 "T1", eb =>
                 {

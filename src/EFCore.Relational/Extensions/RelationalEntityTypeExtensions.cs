@@ -445,10 +445,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The SQL string used to provide data for the entity type. </returns>
         public static string? GetSqlQuery([NotNull] this IReadOnlyEntityType entityType)
         {
-            var nameAnnotation = (string?)entityType[RelationalAnnotationNames.SqlQuery];
-            if (nameAnnotation != null)
+            var queryAnnotation = (string?)entityType[RelationalAnnotationNames.SqlQuery];
+            if (queryAnnotation != null)
             {
-                return nameAnnotation;
+                return queryAnnotation;
             }
 
             if (entityType.BaseType != null)
@@ -706,14 +706,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the check constraints for. </param>
         public static IEnumerable<IMutableCheckConstraint> GetCheckConstraints([NotNull] this IMutableEntityType entityType)
-            => CheckConstraint.GetCheckConstraints(entityType);
+            => CheckConstraint.GetCheckConstraints(entityType).Cast<IMutableCheckConstraint>();
 
         /// <summary>
         ///     Returns all <see cref="IConventionCheckConstraint" /> contained in the entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to get the check constraints for. </param>
         public static IEnumerable<IConventionCheckConstraint> GetCheckConstraints([NotNull] this IConventionEntityType entityType)
-            => CheckConstraint.GetCheckConstraints(entityType);
+            => CheckConstraint.GetCheckConstraints(entityType).Cast<IConventionCheckConstraint>();
 
         /// <summary>
         ///     Returns all <see cref="ICheckConstraint" /> contained in the entity type.

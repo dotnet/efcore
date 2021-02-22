@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Update;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Base type for navigations and properties.
+    ///     Base interface for navigations and properties.
     /// </summary>
     public interface IPropertyBase : IReadOnlyPropertyBase, IAnnotatable
     {

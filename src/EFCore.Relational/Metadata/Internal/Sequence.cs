@@ -144,10 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<Sequence> GetSequences([NotNull] IReadOnlyModel model)
-            => ((SortedDictionary<(string, string?), Sequence>?)model[RelationalAnnotationNames.Sequences])
+        public static IEnumerable<ISequence> GetSequences([NotNull] IReadOnlyModel model)
+            => ((SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences])
                 ?.Values
-                ?? Enumerable.Empty<Sequence>();
+                ?? Enumerable.Empty<ISequence>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -155,9 +155,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Sequence? FindSequence([NotNull] IReadOnlyModel model, [NotNull] string name, [CanBeNull] string? schema)
+        public static ISequence? FindSequence([NotNull] IReadOnlyModel model, [NotNull] string name, [CanBeNull] string? schema)
         {
-            var sequences = (SortedDictionary<(string, string?), Sequence>?)model[RelationalAnnotationNames.Sequences];
+            var sequences = (SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
             if (sequences == null
                 || !sequences.TryGetValue((name, schema), out var sequence))
             {
@@ -180,10 +180,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
         {
             var sequence = new Sequence(name, schema, model, configurationSource);
-            var sequences = (SortedDictionary<(string, string?), Sequence>?)model[RelationalAnnotationNames.Sequences];
+            var sequences = (SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
             if (sequences == null)
             {
-                sequences = new SortedDictionary<(string, string?), Sequence>();
+                sequences = new SortedDictionary<(string, string?), ISequence>();
                 model[RelationalAnnotationNames.Sequences] = sequences;
             }
 
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             sequence.EnsureMutable();
 
-            var sequences = (SortedDictionary<(string, string?), Sequence>?)model[RelationalAnnotationNames.Sequences];
+            var sequences = (SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
             var tuple = (sequence.Name, sequence.Schema);
             if (sequences == null
                 || !sequences.ContainsKey(tuple))
@@ -233,17 +233,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static Sequence? RemoveSequence([NotNull] IMutableModel model, [NotNull] string name, [CanBeNull] string? schema)
         {
-            var sequences = (SortedDictionary<(string, string?), Sequence>?)model[RelationalAnnotationNames.Sequences];
+            var sequences = (SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
             if (sequences == null
                 || !sequences.TryGetValue((name, schema), out var sequence))
             {
                 return null;
             }
 
+            var mutableSequence = (Sequence)sequence;
             sequences.Remove((name, schema));
-            sequence.SetRemovedFromModel();
+            mutableSequence.SetRemovedFromModel();
 
-            return sequence;
+            return mutableSequence;
         }
 
         /// <summary>

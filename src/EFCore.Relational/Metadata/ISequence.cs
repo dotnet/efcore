@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface ISequence : IReadOnlySequence, IAnnotatable
     {
         /// <summary>
-        ///     Gets the <see cref="IModel" /> in which this sequence is defined.
+        ///     Gets the model in which this sequence is defined.
         /// </summary>
         new IModel Model { get; }
     }
