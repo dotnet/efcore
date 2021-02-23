@@ -6686,6 +6686,35 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Query_reusing_parameter_with_inner_query_doesnt_declare_duplicate_parameter(bool async)
+        {
+            var squadId = 1;
+
+            return AssertQuery(
+                async,
+                ss =>
+                {
+                    var innerQuery = ss.Set<Squad>().Where(s => s.Id == squadId);
+                    var outerQuery = ss.Set<Gear>().Where(g => innerQuery.Contains(g.Squad));
+                    return outerQuery.Concat(outerQuery).OrderBy(g => g.FullName);
+                },
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Query_reusing_parameter_with_inner_query_expression_doesnt_declare_duplicate_parameter(bool async)
+        {
+            var gearId = 1;
+            Expression<Func<Gear, bool>> predicate = s => s.SquadId == gearId;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => s.Members.AsQueryable().Where(predicate).Where(predicate).Any()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_reusing_parameter_doesnt_declare_duplicate_parameter_complex(bool async)
         {
             var prm = new ComplexParameter { Inner = new ComplexParameterInner { Squad = new Squad { Id = 1 } } };

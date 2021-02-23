@@ -6281,6 +6281,49 @@ FROM (
 ORDER BY [t].[FullName]");
         }
 
+        public override async Task Query_reusing_parameter_with_inner_query_doesnt_declare_duplicate_parameter(bool async)
+        {
+            await base.Query_reusing_parameter_with_inner_query_doesnt_declare_duplicate_parameter(async);
+
+            AssertSql(
+                @"@__squadId_0='1'
+
+SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
+    WHERE EXISTS (
+        SELECT 1
+        FROM [Squads] AS [s0]
+        WHERE ([s0].[Id] = @__squadId_0) AND ([s0].[Id] = [s].[Id]))
+    UNION ALL
+    SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
+    FROM [Gears] AS [g0]
+    INNER JOIN [Squads] AS [s1] ON [g0].[SquadId] = [s1].[Id]
+    WHERE EXISTS (
+        SELECT 1
+        FROM [Squads] AS [s2]
+        WHERE ([s2].[Id] = @__squadId_0) AND ([s2].[Id] = [s1].[Id]))
+) AS [t]
+ORDER BY [t].[FullName]");
+        }
+
+        public override async Task Query_reusing_parameter_with_inner_query_expression_doesnt_declare_duplicate_parameter(bool async)
+        {
+            await base.Query_reusing_parameter_with_inner_query_expression_doesnt_declare_duplicate_parameter(async);
+
+            AssertSql(
+                @"@__gearId_0='1'
+
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Gears] AS [g]
+    WHERE (([s].[Id] = [g].[SquadId]) AND ([g].[SquadId] = @__gearId_0)) AND ([g].[SquadId] = @__gearId_0))");
+        }
+
         public override async Task Query_reusing_parameter_doesnt_declare_duplicate_parameter_complex(bool async)
         {
             await base.Query_reusing_parameter_doesnt_declare_duplicate_parameter_complex(async);
@@ -7094,7 +7137,7 @@ WHERE (@__prm_0 & CAST([g].[Rank] AS int)) = CAST([g].[Rank] AS int)");
             AssertSql(
                 @"@__p_0='1'
 
-SELECT TOP(@__p_0) [g].[Rank] & @__p_0
+SELECT TOP(@__p_0) [g].[Rank] & 1
 FROM [Gears] AS [g]
 ORDER BY [g].[Nickname]");
         }
