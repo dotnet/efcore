@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal class ContextCommandBase : ProjectCommandBase
     {
-        protected CommandOption Context { get; private set; }
+        protected CommandOption? Context { get; private set; }
 
         public override void Configure(CommandLineApplication command)
         {
