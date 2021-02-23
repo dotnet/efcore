@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -88,5 +90,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
         Func<IReadOnlyList<SqlExpression>, SqlExpression>? Translation { get; }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a human-readable representation of the given metadata.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the returned string.
+        ///         It is designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        /// <param name="options"> Options for generating the string. </param>
+        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
+        /// <returns> A human-readable representation. </returns>
+        string ToDebugString(MetadataDebugStringOptions options, int indent = 0)
+        {
+            var builder = new StringBuilder();
+            var indentString = new string(' ', indent);
+
+            builder
+                .Append(indentString)
+                .Append("DbFunction: ");
+
+            builder.Append(ReturnType.ShortDisplayName())
+                .Append(" ");
+
+            if (Schema != null)
+            {
+                builder
+                    .Append(Schema)
+                    .Append(".");
+            }
+
+            builder.Append(Name);
+
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
+            {
+                var parameters = Parameters.ToList();
+                if (parameters.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Parameters: ");
+                    foreach (var parameter in parameters)
+                    {
+                        builder.AppendLine().Append(parameter.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+                {
+                    builder.Append(AnnotationsToDebugString(indent: indent + 2));
+                }
+            }
+
+            return builder.ToString();
+        }
     }
 }

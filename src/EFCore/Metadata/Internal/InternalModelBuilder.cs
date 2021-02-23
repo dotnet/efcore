@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Metadata.RemoveIgnored(type);
             Metadata.AddOwned(type, ConfigurationSource.Explicit);
 
-            foreach (var entityType in Metadata.GetEntityTypes(type))
+            foreach (var entityType in Metadata.FindEntityTypes(type))
             {
                 if (entityType.IsOwned())
                 {
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (type.Type != null
-                && Metadata.GetEntityTypes(type.Type).Any(o => !configurationSource.Overrides(o.GetConfigurationSource())))
+                && Metadata.FindEntityTypes(type.Type).Any(o => !configurationSource.Overrides(o.GetConfigurationSource())))
             {
                 return false;
             }

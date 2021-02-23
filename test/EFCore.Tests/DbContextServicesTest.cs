@@ -662,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public IModel GetModel(
                 DbContext context,
-                IModelCreationDependencies modelCreationDependencies)
+                ModelCreationDependencies modelCreationDependencies)
                 => new Model();
         }
 

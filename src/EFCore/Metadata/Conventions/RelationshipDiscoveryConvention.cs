@@ -623,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var targetOwned = (!entityType.IsInOwnershipPath(targetEntityType)
                         && (targetEntityType.Model.IsOwned(targetEntityType.ClrType)
                             || (targetEntityType.HasSharedClrType
-                                && targetEntityType.Model.GetEntityTypes(targetEntityType.ClrType).Any(e => e.IsOwned()))));
+                                && targetEntityType.Model.FindEntityTypes(targetEntityType.ClrType).Any(e => e.IsOwned()))));
 
                     var inverse = relationshipCandidate.InverseProperties.SingleOrDefault();
                     if (inverse == null)

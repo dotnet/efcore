@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     if the given property is part of a foreign key.
         /// </summary>
         /// <returns> The list of all associated principal properties including the given property. </returns>
-        IReadOnlyList<IReadOnlyProperty> FindPrincipals()
+        IReadOnlyList<IReadOnlyProperty> GetPrincipals()
         {
             var principals = new List<IReadOnlyProperty> { this };
             AddPrincipals(this, principals);

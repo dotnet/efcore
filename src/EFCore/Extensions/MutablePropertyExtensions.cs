@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -17,6 +18,16 @@ namespace Microsoft.EntityFrameworkCore
     [Obsolete("Use IMutableProperty")]
     public static class MutablePropertyExtensions
     {
+        /// <summary>
+        ///     Finds the list of principal properties including the given property that the given property is constrained by
+        ///     if the given property is part of a foreign key.
+        /// </summary>
+        /// <param name="property"> The foreign key property. </param>
+        /// <returns> The list of all associated principal properties including the given property. </returns>
+        [Obsolete("Use IMutableProperty.GetPrincipals")]
+        public static IReadOnlyList<IMutableProperty> FindPrincipals([NotNull] this IMutableProperty property)
+            => property.GetPrincipals();
+
         /// <summary>
         ///     Sets the custom <see cref="ValueComparer" /> for this property when performing key comparisons.
         /// </summary>

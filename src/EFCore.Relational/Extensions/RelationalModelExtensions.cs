@@ -4,10 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -22,67 +20,6 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class RelationalModelExtensions
     {
-        /// <summary>
-        ///     <para>
-        ///         Creates a human-readable representation of the given metadata.
-        ///     </para>
-        ///     <para>
-        ///         Warning: Do not rely on the format of the returned string.
-        ///         It is designed for debugging only and may change arbitrarily between releases.
-        ///     </para>
-        /// </summary>
-        /// <param name="model"> The metadata item. </param>
-        /// <param name="options"> Options for generating the string. </param>
-        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
-        /// <returns> A human-readable representation. </returns>
-        public static string ToDebugString(
-            [NotNull] this IRelationalModel model,
-            MetadataDebugStringOptions options,
-            int indent = 0)
-        {
-            var builder = new StringBuilder();
-            var indentString = new string(' ', indent);
-
-            builder.Append(indentString).Append("RelationalModel: ");
-
-            if (model.Collation != null)
-            {
-                builder.AppendLine().Append(indentString).Append("Collation: " + model.Collation);
-            }
-
-            foreach (var table in model.Tables)
-            {
-                builder.AppendLine().Append(table.ToDebugString(options, indent + 2));
-            }
-
-            foreach (var view in model.Views)
-            {
-                builder.AppendLine().Append(view.ToDebugString(options, indent + 2));
-            }
-
-            foreach (var function in model.Functions)
-            {
-                builder.AppendLine().Append(function.ToDebugString(options, indent + 2));
-            }
-
-            foreach (var query in model.Queries)
-            {
-                builder.AppendLine().Append(query.ToDebugString(options, indent + 2));
-            }
-
-            foreach (var sequence in model.Sequences)
-            {
-                builder.AppendLine().Append(sequence.ToDebugString(options, indent + 2));
-            }
-
-            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-            {
-                builder.Append(model.AnnotationsToDebugString(indent));
-            }
-
-            return builder.ToString();
-        }
-
         /// <summary>
         ///     Returns the default schema to use for the model, or <see langword="null" /> if none has been set.
         /// </summary>

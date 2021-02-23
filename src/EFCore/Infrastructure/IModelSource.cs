@@ -60,6 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The model to be used. </returns>
         IModel GetModel(
             [NotNull] DbContext context,
-            [NotNull] IModelCreationDependencies modelCreationDependencies);
+            [NotNull] ModelCreationDependencies modelCreationDependencies);
     }
 }

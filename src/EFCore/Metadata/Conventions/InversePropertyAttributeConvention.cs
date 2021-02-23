@@ -248,9 +248,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && !entityType.IsInOwnershipPath(targetEntityTypeBuilder.Metadata))
             {
                 if (navigationMemberInfo.DeclaringType != entityType.ClrType
-                    && (entityType.Model.GetEntityTypes(navigationMemberInfo.DeclaringType!).Any()
+                    && (entityType.Model.FindEntityTypes(navigationMemberInfo.DeclaringType!).Any()
                         || (navigationMemberInfo.DeclaringType != entityType.ClrType.BaseType
-                            && entityType.Model.GetEntityTypes(entityType.ClrType.BaseType!).Any())))
+                            && entityType.Model.FindEntityTypes(entityType.ClrType.BaseType!).Any())))
                 {
                     return null;
                 }

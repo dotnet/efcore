@@ -20,13 +20,24 @@ namespace Microsoft.EntityFrameworkCore
     public static class MutableModelExtensions
     {
         /// <summary>
+        ///     Gets the entity types matching the given type.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="type"> The type of the entity type to find. </param>
+        /// <returns> The entity types found. </returns>
+        [DebuggerStepThrough]
+        [Obsolete("Use IMutableEntityType.FindEntityTypes")]
+        public static IEnumerable<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] Type type)
+            => model.FindEntityTypes(type);
+
+        /// <summary>
         ///     Gets the entity types matching the given name.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        [Obsolete("Use GetEntityTypes(Type) or FindEntityType(string)")]
+        [Obsolete("Use FindEntityTypes(Type) or FindEntityType(string)")]
         public static IReadOnlyCollection<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] string name)
             => ((Model)model).GetEntityTypes(name);
     }
