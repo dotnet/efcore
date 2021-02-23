@@ -2046,7 +2046,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query = context.Set<Order>().Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%"));
             var result = async ? await query.ToListAsync() : query.ToList();
 
-            Assert.Equal(new[] { 10320, 10420, 10520, 10620, 10720, 10820, 10920, 11020 }, result.Select(e => e.OrderID));
+            Assert.Equal(new[] { 10320, 10420, 10520, 10620, 10720, 10820, 10920, 11020 }, result.Select(e => e.OrderID).OrderBy(x => x));
         }
 
         [ConditionalTheory]
@@ -2058,7 +2058,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query = context.Set<Order>().Where(o => EF.Functions.Like((string)(object)o.OrderID, "%20%"));
             var result = async ? await query.ToListAsync() : query.ToList();
 
-            Assert.Equal(new[] { 10320, 10420, 10520, 10620, 10720, 10820, 10920, 11020 }, result.Select(e => e.OrderID));
+            Assert.Equal(new[] { 10320, 10420, 10520, 10620, 10720, 10820, 10920, 11020 }, result.Select(e => e.OrderID).OrderBy(x => x));
         }
 
         [ConditionalTheory]
