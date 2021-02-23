@@ -843,7 +843,6 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task TrimStart_without_arguments_in_predicate(bool async)
         {
             await base.TrimStart_without_arguments_in_predicate(async);
@@ -851,7 +850,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (LTRIM(c[""ContactTitle""]) = ""Owner""))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -876,7 +875,6 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task TrimEnd_without_arguments_in_predicate(bool async)
         {
             await base.TrimEnd_without_arguments_in_predicate(async);
@@ -884,7 +882,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (RTRIM(c[""ContactTitle""]) = ""Owner""))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -909,7 +907,6 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Trim_without_argument_in_predicate(bool async)
         {
             await base.Trim_without_argument_in_predicate(async);
@@ -917,7 +914,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (TRIM(c[""ContactTitle""]) = ""Owner""))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
