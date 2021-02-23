@@ -32,6 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private static readonly MethodInfo _toLowerMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
+            
+        private static readonly MethodInfo _toUpperMethodInfo
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
 
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
             = typeof(Enumerable).GetRuntimeMethods().Single(
@@ -104,6 +107,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (_toLowerMethodInfo.Equals(method))
                 {
                     return TranslateSystemFunction("LOWER", method.ReturnType, instance);
+                }
+                
+                if (_toUpperMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("UPPER", method.ReturnType, instance);
                 }
             }
 

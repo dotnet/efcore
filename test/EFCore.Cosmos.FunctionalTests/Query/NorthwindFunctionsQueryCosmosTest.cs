@@ -606,7 +606,6 @@ FROM root c
 WHERE (c[""Discriminator""] = ""OrderDetail"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_string_to_upper(bool async)
         {
             await base.Where_string_to_upper(async);
@@ -614,7 +613,7 @@ WHERE (c[""Discriminator""] = ""OrderDetail"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (UPPER(c[""CustomerID""]) = ""ALFKI""))");
         }
 
         public override async Task Where_string_to_lower(bool async)
