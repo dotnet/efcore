@@ -697,10 +697,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         if (principalKeyValue != null)
                         {
-                            if (!keyPredecessorsMap.TryGetValue((key, principalKeyValue), out var predecessorCommands))
+                            if (!keyPredecessorsMap.TryGetValue((GetKey(key), principalKeyValue), out var predecessorCommands))
                             {
                                 predecessorCommands = new List<ModificationCommand>();
-                                keyPredecessorsMap.Add((key, principalKeyValue), predecessorCommands);
+                                keyPredecessorsMap.Add((GetKey(key), principalKeyValue), predecessorCommands);
                             }
 
                             predecessorCommands.Add(command);
@@ -761,12 +761,18 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             if (principalKeyValue != null)
                             {
                                 AddMatchingPredecessorEdge(
-                                    keyPredecessorsMap, (key, principalKeyValue), commandGraph, command, key);
+                                    keyPredecessorsMap, (GetKey(key), principalKeyValue), commandGraph, command, key);
                             }
                         }
                     }
                 }
             }
         }
+
+        private static readonly bool _useOldKeyComparison =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue24221", out var enabled) && enabled;
+
+        private IKey GetKey(IKey key)
+            => _useOldKeyComparison ? null : key;
     }
 }
