@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public abstract partial class InternalEntityEntry
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _values = ((IRuntimeEntityType)entry.EntityType).RelationshipSnapshotFactory(entry);
             }
 
-            public object GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)
+            public object? GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)
                 => IsEmpty ? entry[propertyBase] : _values[propertyBase.GetRelationshipIndex()];
 
             public T GetValue<T>(InternalEntityEntry entry, IPropertyBase propertyBase, int index)
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ? entry.GetCurrentValue<T>(propertyBase)
                     : _values.GetValue<T>(index);
 
-            public void SetValue(IPropertyBase propertyBase, object value)
+            public void SetValue(IPropertyBase propertyBase, object? value)
             {
                 if (value == null)
                 {
@@ -41,13 +43,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 Check.DebugAssert(!IsEmpty, "relationship snapshot is empty");
                 Check.DebugAssert(
-                    !(propertyBase is INavigation) || !((INavigation)propertyBase).IsCollection,
+                    propertyBase is not INavigation navigation || !navigation.IsCollection,
                     $"property {propertyBase} is is not reference navigation");
 
                 _values[propertyBase.GetRelationshipIndex()] = SnapshotValue(propertyBase, value);
             }
 
-            private static object SnapshotValue(IPropertyBase propertyBase, object value)
+            private static object? SnapshotValue(IPropertyBase propertyBase, object? value)
             {
                 if (propertyBase is IProperty property)
                 {
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var index = propertyBase.GetRelationshipIndex();
                 if (index != -1)
                 {
-                    ((HashSet<object>)_values[index])?.Remove(removedEntity);
+                    ((HashSet<object>)_values[index]!)?.Remove(removedEntity);
                 }
             }
 
@@ -98,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             private HashSet<object> GetOrCreateCollection(int index)
             {
-                var snapshot = (HashSet<object>)_values[index];
+                var snapshot = (HashSet<object>)_values[index]!;
                 if (snapshot == null)
                 {
                     snapshot = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);

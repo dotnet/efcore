@@ -18,6 +18,8 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     // This is lower-level change tracking services used by the ChangeTracker and other parts of the system
@@ -39,12 +41,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private readonly EntityReferenceMap _entityReferenceMap = new(hasSubMap: true);
 
-        private IDictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>> _referencedUntrackedEntities;
-        private IIdentityMap _identityMap0;
-        private IIdentityMap _identityMap1;
-        private Dictionary<IKey, IIdentityMap> _identityMaps;
+        private IDictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>? _referencedUntrackedEntities;
+        private IIdentityMap? _identityMap0;
+        private IIdentityMap? _identityMap1;
+        private Dictionary<IKey, IIdentityMap>? _identityMaps;
         private bool _needsUnsubscribe;
-        private IChangeDetector _changeDetector;
+        private IChangeDetector? _changeDetector;
         private bool _changeDetectorInitialized;
 
         private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _changeTrackingLogger;
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IInternalEntityEntrySubscriber _internalEntityEntrySubscriber;
         private readonly IModel _model;
         private readonly IDatabase _database;
-        private readonly IConcurrencyDetector _concurrencyDetector;
+        private readonly IConcurrencyDetector? _concurrencyDetector;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -242,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType)
+        public virtual InternalEntityEntry GetOrCreateEntry(object entity, IEntityType? entityType)
         {
             if (entityType == null)
             {
@@ -354,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entityType = baseEntityType.HasSharedClrType
                 || baseEntityType.ClrType == clrType
                     ? baseEntityType
-                    : _model.FindRuntimeEntityType(clrType);
+                    : _model.FindRuntimeEntityType(clrType)!;
 
             var newEntry = valueBuffer.IsEmpty
                 ? _internalEntityEntryFactory.Create(this, entityType, entity)
@@ -383,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry TryGetEntry(IKey key, object[] keyValues)
+        public virtual InternalEntityEntry? TryGetEntry(IKey key, object?[] keyValues)
             => FindIdentityMap(key)?.TryGetEntry(keyValues);
 
         /// <summary>
@@ -392,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry TryGetEntry(IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
+        public virtual InternalEntityEntry? TryGetEntry(IKey key, object?[] keyValues, bool throwOnNullKey, out bool hasNullKey)
             => GetOrCreateIdentityMap(key).TryGetEntry(keyValues, throwOnNullKey, out hasNullKey);
 
         /// <summary>
@@ -401,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry TryGetEntry(object entity, bool throwOnNonUniqueness = true)
+        public virtual InternalEntityEntry? TryGetEntry(object entity, bool throwOnNonUniqueness = true)
             => _entityReferenceMap.TryGet(entity, null, out var entry, throwOnNonUniqueness)
                 ? entry
                 : null;
@@ -412,24 +414,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry TryGetEntry(object entity, IEntityType entityType, bool throwOnTypeMismatch = true)
-        {
-            var found = _entityReferenceMap.TryGet(entity, entityType, out var entry, throwOnNonUniqueness: false);
-            if (found
-                && !entityType.IsAssignableFrom(entry.EntityType))
-            {
-                if (throwOnTypeMismatch)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.TrackingTypeMismatch(
-                            entry.EntityType.DisplayName(), entityType.DisplayName()));
-                }
-
-                return null;
-            }
-
-            return found ? entry : null;
-        }
+        public virtual InternalEntityEntry? TryGetEntry(object entity, IEntityType entityType, bool throwOnTypeMismatch = true)
+            => _entityReferenceMap.TryGet(entity, entityType, out var entry, throwOnNonUniqueness: false)
+                ? !entityType.IsAssignableFrom(entry.EntityType)
+                    ? throwOnTypeMismatch
+                        ? throw new InvalidOperationException(
+                            CoreStrings.TrackingTypeMismatch(entry.EntityType.DisplayName(), entityType.DisplayName()))
+                        : (InternalEntityEntry?)null
+                    : entry
+                : null;
 
         private IIdentityMap GetOrCreateIdentityMap(IKey key)
         {
@@ -469,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return identityMap;
         }
 
-        private IIdentityMap FindIdentityMap(IKey key)
+        private IIdentityMap? FindIdentityMap(IKey? key)
         {
             if (_identityMap0 == null
                 || key == null)
@@ -567,11 +560,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 throw new InvalidOperationException(CoreStrings.WrongStateManager(entityType.DisplayName()));
             }
 
-            #if DEBUG
+#if DEBUG
             var existingEntry = TryGetEntry(entry.Entity ?? entry, entityType);
 
             Check.DebugAssert(existingEntry == null || existingEntry == entry, "Duplicate InternalEntityEntry");
-            #endif
+#endif
 
             foreach (var key in entityType.GetKeys())
             {
@@ -747,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry FindPrincipal(
+        public virtual InternalEntityEntry? FindPrincipal(
             InternalEntityEntry dependentEntry,
             IForeignKey foreignKey)
             => FilterIncompatiblePrincipal(
@@ -761,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry FindPrincipalUsingPreStoreGeneratedValues(
+        public virtual InternalEntityEntry? FindPrincipalUsingPreStoreGeneratedValues(
             InternalEntityEntry dependentEntry,
             IForeignKey foreignKey)
             => FilterIncompatiblePrincipal(
@@ -775,7 +768,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry FindPrincipalUsingRelationshipSnapshot(
+        public virtual InternalEntityEntry? FindPrincipalUsingRelationshipSnapshot(
             InternalEntityEntry dependentEntry,
             IForeignKey foreignKey)
             => FilterIncompatiblePrincipal(
@@ -783,9 +776,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 FindIdentityMap(foreignKey.PrincipalKey)
                     ?.TryGetEntryUsingRelationshipSnapshot(foreignKey, dependentEntry));
 
-        private static InternalEntityEntry FilterIncompatiblePrincipal(
+        private static InternalEntityEntry? FilterIncompatiblePrincipal(
             IForeignKey foreignKey,
-            InternalEntityEntry principalEntry)
+            InternalEntityEntry? principalEntry)
             => principalEntry != null
                 && foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType)
                     ? principalEntry
@@ -870,7 +863,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<IUpdateEntry> GetDependentsFromNavigation(
+        public virtual IEnumerable<IUpdateEntry>? GetDependentsFromNavigation(
             IUpdateEntry principalEntry,
             IForeignKey foreignKey)
         {
@@ -897,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             return ((IEnumerable<object>)navigationValue)
-                .Select(v => TryGetEntry(v, foreignKey.DeclaringEntityType)).Where(e => e != null);
+                .Select(v => TryGetEntry(v, foreignKey.DeclaringEntityType)).Where(e => e != null).Cast<IUpdateEntry>();
         }
 
         /// <summary>
@@ -979,7 +972,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey> foreignKeys = null)
+        public virtual void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey>? foreignKeys = null)
         {
             var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
             var principalIsDetached = entry.EntityState == EntityState.Detached;
@@ -1074,7 +1067,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return true;
         }
 
-        private static bool KeyValuesEqual(IProperty property, object value, object currentValue)
+        private static bool KeyValuesEqual(IProperty property, object? value, object? currentValue)
             => (property.GetKeyValueComparer())
                 ?.Equals(currentValue, value)
                 ?? Equals(currentValue, value);
@@ -1265,7 +1258,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public event EventHandler<EntityTrackedEventArgs> Tracked;
+        public event EventHandler<EntityTrackedEventArgs>? Tracked;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1295,7 +1288,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public event EventHandler<EntityStateChangedEventArgs> StateChanged;
+        public event EventHandler<EntityStateChangedEventArgs>? StateChanged;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

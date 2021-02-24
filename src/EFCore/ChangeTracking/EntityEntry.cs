@@ -18,6 +18,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         private static readonly int _maxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
-        private IEntityFinder _finder;
+        private IEntityFinder? _finder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -146,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 return new PropertyEntry(InternalEntry, propertyName);
             }
 
-            var navigation = (INavigationBase)InternalEntry.EntityType.FindNavigation(propertyName)
+            var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
                 ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
             if (navigation != null)
             {
@@ -176,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
-            var navigation = (INavigationBase)InternalEntry.EntityType.FindNavigation(propertyName)
+            var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
                 ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
 
             if (navigation != null)
@@ -345,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <returns> The store values, or null if the entity does not exist in the database. </returns>
-        public virtual PropertyValues GetDatabaseValues()
+        public virtual PropertyValues? GetDatabaseValues()
         {
             var values = Finder.GetDatabaseValues(InternalEntry);
 
@@ -372,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     or <see langword="null" /> if the entity does not exist in the database.
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual async Task<PropertyValues> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<PropertyValues?> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
         {
             var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken)
                 .ConfigureAwait(false);
@@ -413,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual async Task ReloadAsync(CancellationToken cancellationToken = default)
             => Reload(await GetDatabaseValuesAsync(cancellationToken).ConfigureAwait(false));
 
-        private void Reload(PropertyValues storeValues)
+        private void Reload(PropertyValues? storeValues)
         {
             if (storeValues == null)
             {
@@ -463,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>
