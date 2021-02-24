@@ -1196,6 +1196,23 @@ namespace Microsoft.EntityFrameworkCore
             in StoreObjectIdentifier storeObject)
             => (IConventionProperty?)FindSharedObjectRootProperty(property, storeObject);
 
+        /// <summary>
+        ///     <para>
+        ///         Finds the first <see cref="IProperty" /> that is mapped to the same column in a shared table-like object.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
+        public static IProperty? FindSharedStoreObjectRootProperty(
+            [NotNull] this IProperty property,
+            in StoreObjectIdentifier storeObject)
+            => (IProperty?)FindSharedObjectRootProperty(property, storeObject);
+
         private static IReadOnlyProperty? FindSharedObjectRootProperty([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             Check.NotNull(property, nameof(property));
@@ -1310,6 +1327,36 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> An object that stores property facet overrides. </returns>
         public static IReadOnlyAnnotatable? FindOverrides([NotNull] this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+            => RelationalPropertyOverrides.Find(property, storeObject);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns the property facet overrides for a particular table-like store object.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> An object that stores property facet overrides. </returns>
+        public static IMutableAnnotatable? FindOverrides([NotNull] this IMutableProperty property, in StoreObjectIdentifier storeObject)
+            => RelationalPropertyOverrides.Find(property, storeObject);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns the property facet overrides for a particular table-like store object.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> An object that stores property facet overrides. </returns>
+        public static IConventionAnnotatable? FindOverrides([NotNull] this IConventionProperty property, in StoreObjectIdentifier storeObject)
             => RelationalPropertyOverrides.Find(property, storeObject);
 
         /// <summary>
