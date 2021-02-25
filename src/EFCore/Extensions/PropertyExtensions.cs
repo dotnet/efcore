@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 #nullable enable
 
@@ -16,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="IReadOnlyProperty" />.
     /// </summary>
+    [Obsolete("Use IReadOnlyProperty")]
     public static class PropertyExtensions
     {
         /// <summary>
@@ -25,8 +27,111 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The list of all associated principal properties including the given property. </returns>
         [Obsolete("Use IReadOnlyProperty.GetPrincipals")]
-        public static IReadOnlyList<IReadOnlyProperty> FindPrincipals([NotNull] this IReadOnlyProperty property)
+        public static IReadOnlyList<IProperty> FindPrincipals([NotNull] this IProperty property)
             => property.GetPrincipals();
+
+        /// <summary>
+        ///     Gets a value indicating whether this property is used as a foreign key (or part of a composite foreign key).
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns> <see langword="true" /> if the property is used as a foreign key, otherwise <see langword="false" />. </returns>
+        [Obsolete("Use IReadOnlyProperty.IsForeignKey")]
+        public static bool IsForeignKey([NotNull] this IProperty property)
+            => property.IsForeignKey();
+
+        /// <summary>
+        ///     Gets a value indicating whether this property is used as an index (or part of a composite index).
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns> <see langword="true" /> if the property is used as an index, otherwise <see langword="false" />. </returns>
+        [Obsolete("Use IReadOnlyProperty.IsIndex")]
+        public static bool IsIndex([NotNull] this IProperty property)
+            => property.IsIndex();
+
+        /// <summary>
+        ///     Gets a value indicating whether this property is used as a unique index (or part of a unique composite index).
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns> <see langword="true" /> if the property is used as an unique index, otherwise <see langword="false" />. </returns>
+        [Obsolete("Use IReadOnlyProperty.IsUniqueIndex")]
+        public static bool IsUniqueIndex([NotNull] this IProperty property)
+            => property.IsUniqueIndex();
+
+        /// <summary>
+        ///     Gets a value indicating whether this property is used as the primary key (or part of a composite primary key).
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns> <see langword="true" /> if the property is used as the primary key, otherwise <see langword="false" />. </returns>
+        [Obsolete("Use IReadOnlyProperty.IsPrimaryKey")]
+        public static bool IsPrimaryKey([NotNull] this IProperty property)
+            => property.IsPrimaryKey();
+
+        /// <summary>
+        ///     Gets a value indicating whether this property is used as the primary key or alternate key
+        ///     (or part of a composite primary or alternate key).
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns> <see langword="true" /> if the property is used as a key, otherwise <see langword="false" />. </returns>
+        [Obsolete("Use IReadOnlyProperty.IsKey")]
+        public static bool IsKey([NotNull] this IProperty property)
+            => property.IsKey();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a value indicating whether or not this property can be modified before the entity is
+        ///         saved to the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
+        ///         will be thrown if a value is assigned to this property when it is in
+        ///         the <see cref="EntityState.Added" /> state.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Ignore" />, then any value
+        ///         set will be ignored when it is in the <see cref="EntityState.Added" /> state.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        [Obsolete("Use IReadOnlyProperty.GetBeforeSaveBehavior")]
+        public static PropertySaveBehavior GetBeforeSaveBehavior([NotNull] this IProperty property)
+            => property.GetBeforeSaveBehavior();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets a value indicating whether or not this property can be modified after the entity is
+        ///         saved to the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Throw" />, then an exception
+        ///         will be thrown if a new value is assigned to this property after the entity exists in the database.
+        ///     </para>
+        ///     <para>
+        ///         If <see cref="PropertySaveBehavior.Ignore" />, then any modification to the
+        ///         property value of an entity that already exists in the database will be ignored.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        [Obsolete("Use IReadOnlyProperty.GetAfterSaveBehavior")]
+        public static PropertySaveBehavior GetAfterSaveBehavior([NotNull] this IProperty property)
+            => property.GetAfterSaveBehavior();
+
+        /// <summary>
+        ///     Gets the factory that has been set to generate values for this property, if any.
+        /// </summary>
+        /// <param name="property"> The property to get the value generator factory for. </param>
+        /// <returns> The factory, or <see langword="null" /> if no factory has been set. </returns>
+        [Obsolete("Use IReadOnlyProperty.GetValueGeneratorFactory")]
+        public static Func<IProperty, IEntityType, ValueGenerator>? GetValueGeneratorFactory([NotNull] this IProperty property)
+            => property.GetValueGeneratorFactory();
+
+        /// <summary>
+        ///     Gets the custom <see cref="ValueConverter" /> set for this property.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The converter, or <see langword="null" /> if none has been set. </returns>
+        [Obsolete("Use IReadOnlyProperty.GetValueConverter")]
+        public static ValueConverter? GetValueConverter([NotNull] this IProperty property)
+            => property.GetValueConverter();
 
         /// <summary>
         ///     Gets the <see cref="ValueComparer" /> to use for structural copies for this property, or <see langword="null" /> if none is set.
@@ -34,22 +139,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
         [Obsolete("Use GetKeyValueComparer. A separate structural comparer is no longer supported.")]
-        public static ValueComparer? GetStructuralValueComparer([NotNull] this IReadOnlyProperty property)
+        public static ValueComparer? GetStructuralValueComparer([NotNull] this IProperty property)
             => property.GetKeyValueComparer();
-
-        /// <summary>
-        ///     Creates a formatted string representation of the given properties such as is useful
-        ///     when throwing exceptions about keys, indexes, etc. that use the properties.
-        /// </summary>
-        /// <param name="properties"> The properties to format. </param>
-        /// <param name="includeTypes"> If true, then type names are included in the string. The default is <see langword="false" />.</param>
-        /// <returns> The string representation. </returns>
-        public static string Format([NotNull] this IEnumerable<IReadOnlyPropertyBase> properties, bool includeTypes = false)
-            => "{"
-                + string.Join(
-                    ", ",
-                    properties.Select(
-                        p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
-                + "}";
     }
 }

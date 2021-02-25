@@ -986,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = relationshipBuilder.Metadata;
+            var fk = (IConventionForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, DependentType.GetForeignKeys().Single());
             Assert.Null(fk.GetPropertiesConfigurationSource());
             Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
@@ -1011,7 +1011,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .HasRelationship(DependentType, "InverseReferenceNav", "SomeNav", ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention);
 
-            var fk = relationshipBuilder.Metadata;
+            var fk = (IConventionForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, PrincipalType.GetForeignKeys().Single());
             Assert.True(fk.Properties.Single().IsShadowProperty());
             Assert.Null(fk.GetPropertiesConfigurationSource());

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
         public static IMutableNavigation? FindDefiningNavigation([NotNull] this IMutableEntityType entityType)
-            => (IMutableNavigation?)((IReadOnlyEntityType)entityType).FindDefiningNavigation();
+            => (IMutableNavigation?)((IEntityType)entityType).FindDefiningNavigation();
 
         /// <summary>
         ///     Sets the LINQ query used as the default source for queries of this type.

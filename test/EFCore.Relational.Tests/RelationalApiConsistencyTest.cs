@@ -192,8 +192,6 @@ namespace Microsoft.EntityFrameworkCore
             public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
             {
                 typeof(IMutableSequence).GetMethod("set_ClrType"),
-                typeof(RelationalPropertyExtensions).GetRuntimeMethods().Single(m => m.Name == nameof(RelationalPropertyExtensions.FindOverrides)
-                    && m.ReturnType == typeof(IReadOnlyAnnotatable)),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations))
             };
