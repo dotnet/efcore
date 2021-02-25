@@ -286,11 +286,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry CreateEntry(IDictionary<string, object> values, IEntityType entityType)
+        public virtual InternalEntityEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType)
         {
             var i = 0;
-            var valuesArray = new object[entityType.PropertyCount()];
-            var shadowPropertyValuesArray = new object[entityType.ShadowPropertyCount()];
+            var valuesArray = new object?[entityType.PropertyCount()];
+            var shadowPropertyValuesArray = new object?[entityType.ShadowPropertyCount()];
             foreach (var property in entityType.GetProperties())
             {
                 valuesArray[i++] = values.TryGetValue(property.Name, out var value)

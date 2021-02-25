@@ -854,7 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                if (existingProperty.GetIdentifyingMemberInfo().IsOverridenBy(memberInfo))
+                if (existingProperty.GetIdentifyingMemberInfo()?.IsOverridenBy(memberInfo) == true)
                 {
                     if (configurationSource.HasValue)
                     {
@@ -1003,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var conflictingProperty in Metadata.FindMembersInHierarchy(propertyName))
             {
                 if (!configurationSource.Overrides(conflictingProperty.GetConfigurationSource())
-                    && (!(conflictingProperty is ServiceProperty derivedServiceProperty)
+                    && (conflictingProperty is not ServiceProperty derivedServiceProperty
                         || !memberInfo.IsOverridenBy(derivedServiceProperty.GetIdentifyingMemberInfo())))
                 {
                     return false;

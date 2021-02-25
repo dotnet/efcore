@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="updateEntry"> The entry. </param>
         /// <param name="property"> The property to get the value for. </param>
         /// <returns> The value for the property. </returns>
-        public static object GetCurrentProviderValue([NotNull] this IUpdateEntry updateEntry, [NotNull] IProperty property)
+        public static object? GetCurrentProviderValue([NotNull] this IUpdateEntry updateEntry, [NotNull] IProperty property)
         {
             var value = updateEntry.GetCurrentValue(property);
             var typeMapping = property.GetTypeMapping();
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var entry = (InternalEntityEntry)updateEntry;
 
-            var keyString = entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties);
+            var keyString = entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties);
 
             builder
                 .Append(entry.EntityType.DisplayName())
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             return builder.ToString();
 
-            void AppendValue(object value)
+            void AppendValue(object? value)
             {
                 if (value == null)
                 {
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 else
                 {
                     var stringValue = value.ToString();
-                    if (stringValue.Length > 63)
+                    if (stringValue?.Length > 63)
                     {
                         stringValue = stringValue.Substring(0, 60) + "...";
                     }
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 builder.Append(
                     otherEntry == null
                         ? "<not found>"
-                        : otherEntry.BuildCurrentValuesString(targetType.FindPrimaryKey().Properties));
+                        : otherEntry.BuildCurrentValuesString(targetType.FindPrimaryKey()!.Properties));
             }
         }
 

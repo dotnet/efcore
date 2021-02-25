@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </summary>
         /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <returns> The value to be assigned to a property. </returns>
-        protected override object NextValue(EntityEntry entry)
+        protected override object? NextValue(EntityEntry entry)
             => Next(entry);
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The value to be assigned to a property. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        protected override async ValueTask<object> NextValueAsync(
+        protected override async ValueTask<object?> NextValueAsync(
             EntityEntry entry,
             CancellationToken cancellationToken = default)
             => await NextAsync(entry, cancellationToken).ConfigureAwait(false);

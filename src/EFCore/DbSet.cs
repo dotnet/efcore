@@ -13,8 +13,9 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -46,8 +47,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The <see cref="IEntityType" /> metadata associated with this set.
         /// </summary>
-        public virtual IEntityType EntityType
-            => null;
+        public abstract IEntityType EntityType { get; }
 
         /// <summary>
         ///     Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual TEntity Find([CanBeNull] params object[] keyValues)
+        public virtual TEntity? Find([CanBeNull] params object[]? keyValues)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual ValueTask<TEntity> FindAsync([CanBeNull] params object[] keyValues)
+        public virtual ValueTask<TEntity?> FindAsync([CanBeNull] params object[]? keyValues)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual ValueTask<TEntity> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<TEntity?> FindAsync([CanBeNull] object[]? keyValues, CancellationToken cancellationToken)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -590,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -599,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

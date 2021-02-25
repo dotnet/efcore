@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
     [DebuggerStepThrough]
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return value;
         }
 
-        public static TValue Find<TKey, TValue>(
+        public static TValue? Find<TKey, TValue>(
             [NotNull] this IReadOnlyDictionary<TKey, TValue> source,
             [NotNull] TKey key)
             => !source.TryGetValue(key, out var value) ? default : value;
@@ -33,16 +35,16 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public static void Remove<TKey, TValue>(
             [NotNull] this IDictionary<TKey, TValue> source,
             [NotNull] Func<TKey, TValue, bool> predicate)
-            => source.Remove((k, v, p) => p(k, v), predicate);
+            => source.Remove((k, v, p) => p!(k, v), predicate);
 
         public static void Remove<TKey, TValue, TState>(
             [NotNull] this IDictionary<TKey, TValue> source,
-            [NotNull] Func<TKey, TValue, TState, bool> predicate,
-            [CanBeNull] TState state)
+            [NotNull] Func<TKey, TValue, TState?, bool> predicate,
+            [CanBeNull] TState? state)
         {
             var found = false;
             var firstRemovedKey = default(TKey);
-            List<KeyValuePair<TKey, TValue>> pairsRemainder = null;
+            List<KeyValuePair<TKey, TValue>>? pairsRemainder = null;
             foreach (var pair in source)
             {
                 if (found)
@@ -70,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             if (found)
             {
-                source.Remove(firstRemovedKey);
+                source.Remove(firstRemovedKey!);
                 if (pairsRemainder == null)
                 {
                     return;

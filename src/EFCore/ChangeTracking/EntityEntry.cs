@@ -317,7 +317,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <value> The current values. </value>
         public virtual PropertyValues CurrentValues
         {
-            [DebuggerStepThrough] get => new CurrentPropertyValues(InternalEntry);
+            [DebuggerStepThrough]
+            get => new CurrentPropertyValues(InternalEntry);
         }
 
         /// <summary>
@@ -333,7 +334,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <value> The original values. </value>
         public virtual PropertyValues OriginalValues
         {
-            [DebuggerStepThrough] get => new OriginalPropertyValues(InternalEntry);
+            [DebuggerStepThrough]
+            get => new OriginalPropertyValues(InternalEntry);
         }
 
         /// <summary>
@@ -376,8 +378,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<PropertyValues?> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
         {
-            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken)
-                .ConfigureAwait(false);
+            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken).ConfigureAwait(false);
 
             return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
         }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -77,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore
         public class NotANormalSet<TEntity> : DbSet<TEntity>
             where TEntity : class
         {
+            public override IEntityType EntityType => throw new NotImplementedException();
         }
 
         #endregion

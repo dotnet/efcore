@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IUpdateEntry FindPrincipal(IUpdateEntry dependentEntry, IForeignKey foreignKey)
+        public virtual IUpdateEntry? FindPrincipal(IUpdateEntry dependentEntry, IForeignKey foreignKey)
             => _stateManager.FindPrincipal((InternalEntityEntry)dependentEntry, foreignKey);
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IUpdateEntry TryGetEntry(IKey key, object[] keyValues)
+        public virtual IUpdateEntry? TryGetEntry(IKey key, object?[] keyValues)
             => _stateManager.TryGetEntry(key, keyValues);
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         /// <param name="entry"> The entry. </param>
         /// <param name="foreignKeys"> The foreign keys to consider when cascading. </param>
-        public virtual void CascadeDelete(IUpdateEntry entry, IEnumerable<IForeignKey> foreignKeys = null)
+        public virtual void CascadeDelete(IUpdateEntry entry, IEnumerable<IForeignKey>? foreignKeys = null)
             => _stateManager.CascadeDelete((InternalEntityEntry)entry, force: true, foreignKeys);
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IUpdateEntry CreateEntry(
-            IDictionary<string, object> values,
+            IDictionary<string, object?> values,
             IEntityType entityType)
             => _stateManager.CreateEntry(values, entityType);
 

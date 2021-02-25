@@ -2808,7 +2808,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] InternalEntityEntry internalEntityEntry,
             [NotNull] IProperty property,
-            [CanBeNull] object value,
+            [CanBeNull] object? value,
             bool temporary)
         {
             var definition = temporary
@@ -2859,7 +2859,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] InternalEntityEntry internalEntityEntry,
             [NotNull] IProperty property,
-            [CanBeNull] object value,
+            [CanBeNull] object? value,
             bool temporary)
         {
             var definition = temporary

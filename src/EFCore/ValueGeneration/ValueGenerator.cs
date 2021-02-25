@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </summary>
         /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <returns> The value to be assigned to a property. </returns>
-        public virtual object Next([NotNull] EntityEntry entry)
+        public virtual object? Next([NotNull] EntityEntry entry)
             => NextValue(entry);
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </summary>
         /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <returns> The generated value. </returns>
-        protected abstract object NextValue([NotNull] EntityEntry entry);
+        protected abstract object? NextValue([NotNull] EntityEntry entry);
 
         /// <summary>
         ///     Gets a value to be assigned to a property.
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The value to be assigned to a property. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual ValueTask<object> NextAsync(
+        public virtual ValueTask<object?> NextAsync(
             [NotNull] EntityEntry entry,
             CancellationToken cancellationToken = default)
             => NextValueAsync(entry, cancellationToken);
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The generated value. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        protected virtual ValueTask<object> NextValueAsync(
+        protected virtual ValueTask<object?> NextValueAsync(
             [NotNull] EntityEntry entry,
             CancellationToken cancellationToken = default)
             => new(NextValue(entry));

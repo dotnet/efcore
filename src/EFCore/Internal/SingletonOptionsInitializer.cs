@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     if (!_isInitialized)
                     {
-                        foreach (var singletonOptions in serviceProvider.GetService<IEnumerable<ISingletonOptions>>())
+                        foreach (var singletonOptions in serviceProvider.GetRequiredService<IEnumerable<ISingletonOptions>>())
                         {
                             singletonOptions.Initialize(options);
                         }
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             }
 
-            foreach (var singletonOptions in serviceProvider.GetService<IEnumerable<ISingletonOptions>>())
+            foreach (var singletonOptions in serviceProvider.GetRequiredService<IEnumerable<ISingletonOptions>>())
             {
                 singletonOptions.Validate(options);
             }

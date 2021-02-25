@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     useful in disconnected scenarios where entities are retrieved with one context instance and
         ///     saved with a different context instance.
         /// </summary>
-        public new virtual TProperty? OriginalValue
+        public new virtual TProperty OriginalValue
         {
             get => InternalEntry.GetOriginalValue<TProperty>(Metadata);
             [param: CanBeNull] set => base.OriginalValue = value;
