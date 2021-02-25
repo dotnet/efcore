@@ -7,6 +7,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

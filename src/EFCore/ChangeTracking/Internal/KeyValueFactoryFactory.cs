@@ -28,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 ? CreateSimpleFactory<TKey>(key)
                 : (IPrincipalKeyValueFactory<TKey>)CreateCompositeFactory(key);
 
-        [UsedImplicitly]
         private static SimplePrincipalKeyValueFactory<TKey> CreateSimpleFactory<TKey>(IKey key)
         {
             var dependentFactory = new DependentKeyValueFactoryFactory();
@@ -70,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             object dependentKeyValueFactory,
             Func<IDependentsMap> dependentsMapFactory)
         {
-            var concreteForeignKey = foreignKey.AsForeignKey();
+            var concreteForeignKey = (IRuntimeForeignKey)foreignKey;
 
             concreteForeignKey.DependentKeyValueFactory = dependentKeyValueFactory;
             concreteForeignKey.DependentsMapFactory = dependentsMapFactory;

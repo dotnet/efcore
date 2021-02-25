@@ -76,10 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var createdSavepoint = false;
             try
             {
+                var transactionEnlistManager = connection as ITransactionEnlistmentManager;
                 if (transaction == null
-                    && (connection as ITransactionEnlistmentManager)?.EnlistedTransaction == null
-                    && Transaction.Current == null
-                    && CurrentContext.Context.Database.AutoTransactionsEnabled)
+                        && transactionEnlistManager?.EnlistedTransaction is null
+                        && transactionEnlistManager?.CurrentAmbientTransaction is null
+                        && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
                     transaction = connection.BeginTransaction();
                     beganTransaction = true;
@@ -88,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     connection.Open();
 
-                    if (transaction?.SupportsSavepoints == true)
+                    if (transaction?.SupportsSavepoints == true
+                        && CurrentContext.Context.Database.AutoSavepointsEnabled)
                     {
                         transaction.CreateSavepoint(SavepointName);
                         createdSavepoint = true;
@@ -169,9 +171,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var createdSavepoint = false;
             try
             {
+                var transactionEnlistManager = connection as ITransactionEnlistmentManager;
                 if (transaction == null
-                    && (connection as ITransactionEnlistmentManager)?.EnlistedTransaction == null
-                    && Transaction.Current == null
+                    && transactionEnlistManager?.EnlistedTransaction is null
+                    && transactionEnlistManager?.CurrentAmbientTransaction is null
                     && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
                     transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
@@ -181,7 +184,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-                    if (transaction?.SupportsSavepoints == true)
+                    if (transaction?.SupportsSavepoints == true
+                        && CurrentContext.Context.Database.AutoSavepointsEnabled)
                     {
                         await transaction.CreateSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
                         createdSavepoint = true;

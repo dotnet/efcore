@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -50,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionKeyBuilder IsClustered(
+        public static IConventionKeyBuilder? IsClustered(
             [NotNull] this IConventionKeyBuilder keyBuilder,
             bool? clustered,
             bool fromDataAnnotation = false)

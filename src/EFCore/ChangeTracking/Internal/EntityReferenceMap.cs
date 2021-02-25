@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private Dictionary<object, InternalEntityEntry> _addedReferenceMap;
         private Dictionary<object, InternalEntityEntry> _modifiedReferenceMap;
         private Dictionary<object, InternalEntityEntry> _deletedReferenceMap;
-        private Dictionary<IEntityType, EntityReferenceMap> _dependentTypeReferenceMap;
+        private Dictionary<IEntityType, EntityReferenceMap> _sharedTypeReferenceMap;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,20 +52,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityType = entry.EntityType;
             if (_hasSubMap
-                && entityType.HasDefiningNavigation())
+                && entityType.HasSharedClrType)
             {
-                if (_dependentTypeReferenceMap == null)
+                if (_sharedTypeReferenceMap == null)
                 {
-                    _dependentTypeReferenceMap = new Dictionary<IEntityType, EntityReferenceMap>();
+                    _sharedTypeReferenceMap = new Dictionary<IEntityType, EntityReferenceMap>();
                 }
 
-                if (!_dependentTypeReferenceMap.TryGetValue(entityType, out var dependentMap))
+                if (!_sharedTypeReferenceMap.TryGetValue(entityType, out var sharedMap))
                 {
-                    dependentMap = new EntityReferenceMap(hasSubMap: false);
-                    _dependentTypeReferenceMap[entityType] = dependentMap;
+                    sharedMap = new EntityReferenceMap(hasSubMap: false);
+                    _sharedTypeReferenceMap[entityType] = sharedMap;
                 }
 
-                dependentMap.Update(entry, state, oldState);
+                sharedMap.Update(entry, state, oldState);
             }
             else
             {
@@ -128,11 +128,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (!found
                 && _hasSubMap
-                && _dependentTypeReferenceMap != null)
+                && _sharedTypeReferenceMap != null)
             {
                 if (entityType != null)
                 {
-                    if (_dependentTypeReferenceMap.TryGetValue(entityType, out var subMap))
+                    if (_sharedTypeReferenceMap.TryGetValue(entityType, out var subMap))
                     {
                         return subMap.TryGet(entity, entityType, out entry, throwOnNonUniqueness);
                     }
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 else
                 {
                     var type = entity.GetType();
-                    foreach (var keyValue in _dependentTypeReferenceMap)
+                    foreach (var keyValue in _sharedTypeReferenceMap)
                     {
                         // ReSharper disable once CheckForReferenceEqualityInstead.2
                         if (keyValue.Key.ClrType.IsAssignableFrom(type)
@@ -208,9 +208,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 count += _unchangedReferenceMap.Count;
             }
 
-            if (_dependentTypeReferenceMap != null)
+            if (_sharedTypeReferenceMap != null)
             {
-                foreach (var map in _dependentTypeReferenceMap)
+                foreach (var map in _sharedTypeReferenceMap)
                 {
                     count += map.Value.GetCountForState(added, modified, deleted, unchanged);
                 }
@@ -253,11 +253,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && _unchangedReferenceMap != null
                 && _unchangedReferenceMap.Count > 0;
 
-            var hasDependentTypes
-                = _dependentTypeReferenceMap != null
-                && _dependentTypeReferenceMap.Count > 0;
+            var hasSharedTypes
+                = _sharedTypeReferenceMap != null
+                && _sharedTypeReferenceMap.Count > 0;
 
-            if (!hasDependentTypes)
+            if (!hasSharedTypes)
             {
                 var numberOfStates
                     = (returnAdded ? 1 : 0)
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             return GetEntriesForState(
                 added, modified, deleted, unchanged,
-                hasDependentTypes,
+                hasSharedTypes,
                 returnAdded, returnModified, returnDeleted, returnUnchanged);
         }
 
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool modified,
             bool deleted,
             bool unchanged,
-            bool hasDependentTypes,
+            bool hasSharedTypes,
             bool returnAdded,
             bool returnModified,
             bool returnDeleted,
@@ -343,9 +343,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            if (hasDependentTypes)
+            if (hasSharedTypes)
             {
-                foreach (var subMap in _dependentTypeReferenceMap.Values)
+                foreach (var subMap in _sharedTypeReferenceMap.Values)
                 {
                     foreach (var entry in subMap.GetEntriesForState(added, modified, deleted, unchanged))
                     {
@@ -364,10 +364,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IEntityType entityType,
             EntityState oldState)
         {
-            if (_dependentTypeReferenceMap != null
-                && entityType.HasDefiningNavigation())
+            if (_sharedTypeReferenceMap != null
+                && entityType.HasSharedClrType)
             {
-                _dependentTypeReferenceMap[entityType].Remove(entity, entityType, oldState);
+                _sharedTypeReferenceMap[entityType].Remove(entity, entityType, oldState);
             }
             else
             {
@@ -405,8 +405,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _deletedReferenceMap = null;
             _addedReferenceMap = null;
             _modifiedReferenceMap = null;
-            _dependentTypeReferenceMap?.Clear();
-            _dependentTypeReferenceMap = null;
+            _sharedTypeReferenceMap?.Clear();
+            _sharedTypeReferenceMap = null;
         }
 
         /// <summary>
@@ -456,10 +456,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            if (_dependentTypeReferenceMap != null
-                && _dependentTypeReferenceMap.Count > 0)
+            if (_sharedTypeReferenceMap != null
+                && _sharedTypeReferenceMap.Count > 0)
             {
-                foreach (var subMap in _dependentTypeReferenceMap.Values)
+                foreach (var subMap in _sharedTypeReferenceMap.Values)
                 {
                     foreach (var entity in subMap.GetNonDeletedEntities<TEntity>())
                     {

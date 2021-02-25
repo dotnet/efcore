@@ -865,11 +865,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Check.NotNull(optionsAction, nameof(optionsAction));
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23889", out var enabled) && enabled;
-
-            return useOldBehavior
-                ? AddPooledDbContextFactory<TContext>(serviceCollection, (_, ob) => optionsAction(ob))
-                : AddPooledDbContextFactory<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
+            return AddPooledDbContextFactory<TContext>(serviceCollection, (_, ob) => optionsAction(ob), poolSize);
         }
 
         /// <summary>

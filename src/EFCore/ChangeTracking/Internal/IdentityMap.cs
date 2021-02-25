@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _foreignKeys = key.DeclaringEntityType
                     .GetDerivedTypesInclusive()
-                    .SelectMany(EntityTypeExtensions.GetDeclaredForeignKeys)
+                    .SelectMany(t => t.GetDeclaredForeignKeys())
                     .ToArray();
             }
         }
@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (!_dependentMaps.TryGetValue(foreignKey, out var map))
             {
-                map = foreignKey.CreateDependentsMapFactory();
+                map = ((IRuntimeForeignKey)foreignKey).DependentsMapFactory();
 
                 foreach (var value in _identityMap.Values)
                 {

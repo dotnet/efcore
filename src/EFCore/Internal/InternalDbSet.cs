@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -76,24 +77,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 if (_entityType == null)
                 {
-                    if (_context.Model.HasEntityTypeWithDefiningNavigation(typeof(TEntity)))
-                    {
-                        throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(typeof(TEntity).ShortDisplayName()));
-                    }
-
                     if (_context.Model.IsShared(typeof(TEntity)))
                     {
                         throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));
                     }
 
-                    throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
+                    var findSameTypeName = _context.Model.FindSameTypeNameWithDifferentNamespace(typeof(TEntity));
+                    //if the same name exists in your entity types we will show you the full namespace of the type
+                    if (!string.IsNullOrEmpty(findSameTypeName))
+                    {
+                        throw new InvalidOperationException(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(TEntity).DisplayName(), findSameTypeName));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
+                    }
                 }
 
                 if (_entityType.IsOwned())
                 {
+                    var message = CoreStrings.InvalidSetTypeOwned(
+                        _entityType.DisplayName(), _entityType.FindOwnership().PrincipalEntityType.DisplayName());
                     _entityType = null;
 
-                    throw new InvalidOperationException(CoreStrings.InvalidSetTypeOwned(typeof(TEntity).ShortDisplayName()));
+                    throw new InvalidOperationException(message);
                 }
 
                 if (_entityType.ClrType != typeof(TEntity))
@@ -132,12 +139,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return NonCapturingLazyInitializer.EnsureInitialized(
                     ref _entityQueryable,
                     this,
-                    internalSet => internalSet.CreateEntityQueryable());
+                    static internalSet => internalSet.CreateEntityQueryable());
             }
         }
 
         private EntityQueryable<TEntity> CreateEntityQueryable()
-            => new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider, EntityType);
+            => new(_context.GetDependencies().QueryProvider, EntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -518,6 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
             ((IResettableService)this).ResetState();
@@ -526,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges(TEntity entity)
-            => new EntityEntry<TEntity>(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
+            => new(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
 
         private void SetEntityStates(IEnumerable<TEntity> entities, EntityState entityState)
         {

@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public NumberToStringConverter(
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 ToString(),
                 ToNumber(),
@@ -31,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(
-                typeof(TNumber), typeof(string), i => new NumberToStringConverter<TNumber>(i.MappingHints), _defaultHints);
+            = new(typeof(TNumber), typeof(string), i => new NumberToStringConverter<TNumber>(i.MappingHints), _defaultHints);
     }
 }

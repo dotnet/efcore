@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class MigrationsRemoveCommand : ContextCommandBase
     {
-        private CommandOption _force;
-        private CommandOption _json;
+        private CommandOption? _force;
+        private CommandOption? _json;
 
         public override void Configure(CommandLineApplication command)
         {

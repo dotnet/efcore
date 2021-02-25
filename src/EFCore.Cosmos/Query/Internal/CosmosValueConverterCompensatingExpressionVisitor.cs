@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -105,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private SqlExpression TryCompensateForBoolWithValueConverter(SqlExpression sqlExpression)
         {
             if (sqlExpression is KeyAccessExpression keyAccessExpression
-                && keyAccessExpression.TypeMapping.ClrType == typeof(bool)
-                && keyAccessExpression.TypeMapping.Converter != null)
+                && keyAccessExpression.TypeMapping!.ClrType == typeof(bool)
+                && keyAccessExpression.TypeMapping!.Converter != null)
             {
                 return _sqlExpressionFactory.Equal(
                     sqlExpression,

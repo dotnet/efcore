@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         public override MethodCallCodeFragment GenerateUseProvider(
             string connectionString,
             MethodCallCodeFragment? providerOptions)
-            => new MethodCallCodeFragment(
+            => new(
                 nameof(SqlServerDbContextOptionsExtensions.UseSqlServer),
                 providerOptions == null
                     ? new object[] { connectionString }

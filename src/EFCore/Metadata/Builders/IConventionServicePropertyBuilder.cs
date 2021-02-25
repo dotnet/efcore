@@ -4,6 +4,8 @@
 using System.Reflection;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        new IConventionServicePropertyBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
+        new IConventionServicePropertyBuilder? HasField([CanBeNull] string? fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the backing field to use for this property.
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        new IConventionServicePropertyBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
+        new IConventionServicePropertyBuilder? HasField([CanBeNull] FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the <see cref="PropertyAccessMode" /> to use for this property.
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        new IConventionServicePropertyBuilder UsePropertyAccessMode(
+        new IConventionServicePropertyBuilder? UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation = false);
 
@@ -66,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionServicePropertyBuilder HasParameterBinding(
-            [CanBeNull] ServiceParameterBinding parameterBinding,
+        IConventionServicePropertyBuilder? HasParameterBinding(
+            [CanBeNull] ServiceParameterBinding? parameterBinding,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -77,6 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="parameterBinding"> The parameter binding. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the <see cref="ServiceParameterBinding" /> can be set for this property. </returns>
-        bool CanSetParameterBinding([CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
+        bool CanSetParameterBinding([CanBeNull] ServiceParameterBinding? parameterBinding, bool fromDataAnnotation = false);
     }
 }

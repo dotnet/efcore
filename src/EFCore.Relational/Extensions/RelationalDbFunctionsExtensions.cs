@@ -25,8 +25,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         information.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the operand on which the collation is being specified. </typeparam>
-        /// <param name="_"> The DbFunctions instance. </param>
+        /// <param name="_"> The <see cref="DbFunctions" /> instance. </param>
         /// <param name="operand"> The operand to which to apply the collation. </param>
         /// <param name="collation"> The name of the collation. </param>
         public static TProperty Collate<TProperty>(

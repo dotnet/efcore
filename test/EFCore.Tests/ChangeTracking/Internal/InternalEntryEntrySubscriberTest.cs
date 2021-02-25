@@ -481,10 +481,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class TestPropertyListener : IChangeDetector
         {
-            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } =
-                new List<Tuple<InternalEntityEntry, IPropertyBase>>();
-
-            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changed { get; } = new List<Tuple<InternalEntityEntry, IPropertyBase>>();
+            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } = new();
+            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changed { get; } = new();
 
             public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
                 => Changed.Add(Tuple.Create(entry, property));
@@ -512,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class TestNavigationListener : INavigationFixer
         {
             public List<Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
-                = new List<Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>>>();
+                = new();
 
             public void NavigationReferenceChanged(
                 InternalEntityEntry entry,

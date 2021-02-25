@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -31,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gets the extension of the specified type. Returns null if no extension of the specified type is configured.
         /// </summary>
         /// <typeparam name="TExtension"> The type of the extension to get. </typeparam>
-        /// <returns> The extension, or null if none was found. </returns>
-        TExtension FindExtension<TExtension>()
+        /// <returns> The extension, or <see langword="null" /> if none was found. </returns>
+        TExtension? FindExtension<TExtension>()
             where TExtension : class, IDbContextOptionsExtension;
     }
 }

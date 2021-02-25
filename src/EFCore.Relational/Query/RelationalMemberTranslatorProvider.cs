@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -28,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class RelationalMemberTranslatorProvider : IMemberTranslatorProvider
     {
-        private readonly List<IMemberTranslator> _plugins = new List<IMemberTranslator>();
-        private readonly List<IMemberTranslator> _translators = new List<IMemberTranslator>();
+        private readonly List<IMemberTranslator> _plugins = new();
+        private readonly List<IMemberTranslator> _translators = new();
 
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalMemberTranslatorProvider" /> class.
@@ -46,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)

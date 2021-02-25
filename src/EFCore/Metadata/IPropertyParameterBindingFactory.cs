@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterType"> The parameter name. </param>
         /// <param name="parameterName"> The parameter type. </param>
         /// <returns> The parameter binding, or <see langword="null" /> if none was found. </returns>
-        ParameterBinding FindParameter(
+        ParameterBinding? FindParameter(
             [NotNull] IEntityType entityType,
             [NotNull] Type parameterType,
             [NotNull] string parameterName);

@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
@@ -17,12 +19,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     /// </summary>
     public class ShaperExpressionProcessingExpressionVisitor : ExpressionVisitor
     {
-        private readonly InMemoryQueryExpression _queryExpression;
+        private readonly InMemoryQueryExpression? _queryExpression;
         private readonly ParameterExpression _valueBufferParameter;
 
         private readonly IDictionary<Expression, ParameterExpression> _mapping = new Dictionary<Expression, ParameterExpression>();
-        private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
-        private readonly List<Expression> _expressions = new List<Expression>();
+        private readonly List<ParameterExpression> _variables = new();
+        private readonly List<Expression> _expressions = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ShaperExpressionProcessingExpressionVisitor(
-            [CanBeNull] InMemoryQueryExpression queryExpression,
+            [CanBeNull] InMemoryQueryExpression? queryExpression,
             [NotNull] ParameterExpression valueBufferParameter)
         {
             _queryExpression = queryExpression;

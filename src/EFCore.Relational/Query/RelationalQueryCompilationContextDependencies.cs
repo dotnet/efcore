@@ -4,6 +4,8 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalQueryCompilationContextDependencies
+    public sealed record RelationalQueryCompilationContextDependencies
     {
         /// <summary>
         ///     <para>

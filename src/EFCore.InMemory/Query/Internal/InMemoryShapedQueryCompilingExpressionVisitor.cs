@@ -11,11 +11,14 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
         private readonly Type _contextType;
+        private readonly bool _concurrencyDetectionEnabled;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             : base(dependencies, queryCompilationContext)
         {
             _contextType = queryCompilationContext.ContextType;
+            _concurrencyDetectionEnabled = dependencies.CoreSingletonOptions.IsConcurrencyDetectionEnabled;
         }
 
         /// <summary>
@@ -91,12 +95,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
                 Expression.Constant(
-                    QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+                    QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+                Expression.Constant(_concurrencyDetectionEnabled));
         }
 
         private static readonly MethodInfo _tableMethodInfo
-            = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(Table));
+            = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(Table));
 
         private static IEnumerable<ValueBuffer> Table(
             QueryContext queryContext,

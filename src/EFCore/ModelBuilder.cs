@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> Entity<TEntity>()
             where TEntity : class
-            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit).Metadata);
+            => new(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
         ///     <para>
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual ModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            Builder.Metadata.SetChangeTrackingStrategy(changeTrackingStrategy);
+            Builder.HasChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
-        /// <returns> The finalized <see cref="IModel" />. </returns>
+        /// <returns> The finalized model. </returns>
         public virtual IModel FinalizeModel()
             => Builder.Metadata.FinalizeModel();
 

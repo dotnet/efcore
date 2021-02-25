@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             var nonImplementedBases
                 = (from baseType in GetBaseTestClasses()
                    where !IgnoredTestBases.Contains(baseType)
+                       && baseType != typeof(NonSharedModelTestBase)
                        && !concreteTests.Any(c => Implements(c, baseType))
                    select baseType.FullName)
                 .ToList();

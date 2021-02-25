@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -18,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Creates an event definition instance.
         /// </summary>
         /// <param name="loggingOptions"> Logging options. </param>
-        /// <param name="eventId"> The <see cref="Microsoft.Extensions.Logging.EventId" />. </param>
+        /// <param name="eventId"> The <see cref="Extensions.Logging.EventId" />. </param>
         /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
         /// <param name="eventIdCode">
         ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
@@ -91,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         internal sealed class MessageExtractingLogger : ILogger
         {
-            private string _message;
+            private string? _message;
 
             public string Message
             {
@@ -103,8 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 LogLevel logLevel,
                 EventId eventId,
                 [CanBeNull] TState state,
-                [CanBeNull] Exception exception,
-                [NotNull] Func<TState, Exception, string> formatter)
+                Exception? exception,
+                Func<TState, Exception?, string> formatter)
             {
                 Message = formatter(state, exception);
             }
@@ -113,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 => true;
 
             IDisposable ILogger.BeginScope<TState>([CanBeNull] TState state)
-                => throw new NotImplementedException();
+                => throw new NotSupportedException();
         }
     }
 }

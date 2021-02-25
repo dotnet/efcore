@@ -4,6 +4,8 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -22,5 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Reflects the option set by <see cref="DbContextOptionsBuilder.EnableDetailedErrors" />.
         /// </summary>
         bool AreDetailedErrorsEnabled { get; }
+
+        /// <summary>
+        ///     Reflects the option set by <see cref="DbContextOptionsBuilder.DisableConcurrencyDetection" />.
+        /// </summary>
+        bool IsConcurrencyDetectionEnabled { get; }
     }
 }

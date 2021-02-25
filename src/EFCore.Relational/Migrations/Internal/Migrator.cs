@@ -11,8 +11,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly IRelationalConnection _connection;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly ICurrentDbContext _currentContext;
-        private readonly IConventionSetBuilder _conventionSetBuilder;
+        private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Migrations> _logger;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
         private readonly string _activeProvider;
@@ -65,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] IRelationalConnection connection,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
+            [NotNull] IModelRuntimeInitializer modelRuntimeInitializer,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> logger,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
             [NotNull] IDatabaseProvider databaseProvider)
@@ -79,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(conventionSetBuilder, nameof(conventionSetBuilder));
+            Check.NotNull(modelRuntimeInitializer, nameof(modelRuntimeInitializer));
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(commandLogger, nameof(commandLogger));
             Check.NotNull(databaseProvider, nameof(databaseProvider));
@@ -93,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _connection = connection;
             _sqlGenerationHelper = sqlGenerationHelper;
             _currentContext = currentContext;
-            _conventionSetBuilder = conventionSetBuilder;
+            _modelRuntimeInitializer = modelRuntimeInitializer;
             _logger = logger;
             _commandLogger = commandLogger;
             _activeProvider = databaseProvider.Name;
@@ -493,34 +491,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _historyRepository.GetDeleteScript(migration.GetId()));
 
             return _migrationsSqlGenerator
-                .Generate(migration.DownOperations, FinalizeModel(previousMigration?.TargetModel), options)
+                .Generate(migration.DownOperations, previousMigration == null ? null : FinalizeModel(previousMigration.TargetModel), options)
                 .Concat(new[] { new MigrationCommand(deleteCommand, _currentContext.Context, _commandLogger) })
                 .ToList();
         }
 
         private IModel FinalizeModel(IModel model)
         {
-            if (model is IConventionModel conventionModel)
+            if (model is IMutableModel mutableModel)
             {
-                var conventionSet = _conventionSetBuilder.CreateConventionSet();
-
-                var typeMappingConvention = conventionSet.ModelFinalizingConventions.OfType<TypeMappingConvention>().FirstOrDefault();
-                if (typeMappingConvention != null)
-                {
-                    typeMappingConvention.ProcessModelFinalizing(conventionModel.Builder, null);
-                }
-
-                var relationalModelConvention =
-                    conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().FirstOrDefault();
-                if (relationalModelConvention != null)
-                {
-                    relationalModelConvention.ProcessModelFinalized(conventionModel);
-                }
-
-                return conventionModel.FinalizeModel();
+                model = mutableModel.FinalizeModel();
             }
 
-            return model;
+            return _modelRuntimeInitializer.Initialize(model, validationLogger: null);
         }
     }
 }

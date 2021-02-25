@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class UpdateSqlGeneratorDependencies
+    public sealed record UpdateSqlGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -74,31 +74,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Helpers for generating update SQL.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public UpdateSqlGeneratorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            => new UpdateSqlGeneratorDependencies(
-                sqlGenerationHelper,
-                TypeMappingSource);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public UpdateSqlGeneratorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new UpdateSqlGeneratorDependencies(
-                SqlGenerationHelper,
-                typeMappingSource);
+        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
     }
 }

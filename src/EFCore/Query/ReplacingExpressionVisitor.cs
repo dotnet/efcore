@@ -8,6 +8,9 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -56,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public override Expression Visit(Expression expression)
+        [return: CA.NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
         {
             if (expression == null
                 || expression is ShapedQueryExpression
@@ -136,7 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return memberAssignment.Expression;
                 }
 
-                return methodCallExpression.Update(null, new[] { newEntityExpression, methodCallExpression.Arguments[1] });
+                // TODO-Nullable bug
+                return methodCallExpression.Update(null!, new[] { newEntityExpression, methodCallExpression.Arguments[1] });
             }
 
             return base.VisitMethodCall(methodCallExpression);

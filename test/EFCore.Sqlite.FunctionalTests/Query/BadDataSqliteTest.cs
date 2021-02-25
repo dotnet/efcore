@@ -376,8 +376,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public SemaphoreSlim Semaphore { get; }
 
-            public string ConnectionString { get; }
-            public DbConnection DbConnection { get; }
+            public string ConnectionString { get; set; }
+            public DbConnection DbConnection { get; set; }
 
             public DbContext Context
                 => null;

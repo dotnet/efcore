@@ -3,9 +3,12 @@
 
 using System;
 using System.ComponentModel;
+using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -63,6 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Configures the wait time (in seconds) before terminating the attempt to execute a command and generating an error.
         /// </summary>
+        /// <remarks>
+        ///     <para>This sets the <see cref="DbCommand.CommandTimeout"/> property on the ADO.NET provider being used.</para>
+        ///     <para>An <see cref="ArgumentException"/> is generated if <paramref name="commandTimeout"/> value is less than 0.</para>
+        ///     <para>Zero (0) typically means no timeout will be applied, consult your ADO.NET provider documentation.</para>
+        /// </remarks>
         /// <param name="commandTimeout"> The time in seconds to wait for the command to execute. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TBuilder CommandTimeout(int? commandTimeout)
@@ -73,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="assemblyName"> The name of the assembly. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TBuilder MigrationsAssembly([CanBeNull] string assemblyName)
+        public virtual TBuilder MigrationsAssembly([CanBeNull] string? assemblyName)
             => WithOption(e => (TExtension)e.WithMigrationsAssembly(Check.NullButNotEmpty(assemblyName, nameof(assemblyName))));
 
         /// <summary>
@@ -82,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="tableName"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TBuilder MigrationsHistoryTable([NotNull] string tableName, [CanBeNull] string schema = null)
+        public virtual TBuilder MigrationsHistoryTable([NotNull] string tableName, [CanBeNull] string? schema = null)
         {
             Check.NotEmpty(tableName, nameof(tableName));
             Check.NullButNotEmpty(schema, nameof(schema));
@@ -136,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -145,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

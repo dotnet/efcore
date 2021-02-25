@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class ModelDependencies
+    public sealed record ModelDependencies
     {
         /// <summary>
         ///     <para>
@@ -65,14 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="logger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-            => new ModelDependencies(logger);
+        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; [param: NotNull] init; }
     }
 }

@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly Func<string> _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IComparer<IUpdateEntry> _comparer;
-        private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
+        private readonly List<IUpdateEntry> _entries = new();
         private IReadOnlyList<ColumnModification> _columnModifications;
         private bool _requiresResultPropagation;
         private bool _mainEntryAdded;
@@ -99,9 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         /// <summary>
         ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
-        ///     inserted (<see cref="EntityFrameworkCore.EntityState.Added" />),
-        ///     updated (<see cref="EntityFrameworkCore.EntityState.Modified" />),
-        ///     or deleted ((<see cref="EntityFrameworkCore.EntityState.Deleted" />).
+        ///     inserted (<see cref="EntityState.Added" />),
+        ///     updated (<see cref="EntityState.Modified" />),
+        ///     or deleted ((<see cref="EntityState.Deleted" />).
         /// </summary>
         public virtual EntityState EntityState
         {
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual IReadOnlyList<ColumnModification> ColumnModifications
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _columnModifications, this, command => command.GenerateColumnModifications());
+                ref _columnModifications, this, static command => command.GenerateColumnModifications());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -180,7 +180,19 @@ namespace Microsoft.EntityFrameworkCore.Update
                 case EntityState.Added:
                     break;
                 default:
-                    throw new ArgumentException(RelationalStrings.ModificationCommandInvalidEntityState(entry.EntityState));
+                    if (_sensitiveLoggingEnabled)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.ModificationCommandInvalidEntityStateSensitive(
+                                entry.EntityType.DisplayName(),
+                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                                entry.EntityState));
+                    }
+
+                    throw new InvalidOperationException(
+                        RelationalStrings.ModificationCommandInvalidEntityState(
+                            entry.EntityType.DisplayName(),
+                            entry.EntityState));
             }
 
             if (mainEntry)

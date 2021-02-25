@@ -4,6 +4,8 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -35,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     /// </summary>
-    public sealed class RelationalAnnotationProviderDependencies
+    public sealed record RelationalAnnotationProviderDependencies
     {
         /// <summary>
         ///     <para>

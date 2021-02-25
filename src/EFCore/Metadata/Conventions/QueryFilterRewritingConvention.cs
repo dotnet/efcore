@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -59,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected class DbSetAccessRewritingExpressionVisitor : ExpressionVisitor
         {
             private readonly Type _contextType;
-            private IModel _model;
+            private IReadOnlyModel? _model;
 
             /// <summary>
             ///     Creates a new instance of <see cref="DbSetAccessRewritingExpressionVisitor" />.
@@ -75,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             /// </summary>
             /// <param name="model"> The model to look for entity types. </param>
             /// <param name="expression"> The query expression to rewrite. </param>
-            public Expression Rewrite(IModel model, Expression expression)
+            public Expression Rewrite(IReadOnlyModel model, Expression expression)
             {
                 _model = model;
 
@@ -94,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
                     && _model != null)
                 {
-                    return new QueryRootExpression(FindEntityType(memberExpression.Type));
+                    return new QueryRootExpression(FindEntityType(memberExpression.Type)!);
                 }
 
                 return base.VisitMember(memberExpression);
@@ -112,14 +114,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
                     && _model != null)
                 {
-                    return new QueryRootExpression(FindEntityType(methodCallExpression.Type));
+                    return new QueryRootExpression(FindEntityType(methodCallExpression.Type)!);
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
             }
 
-            private IEntityType FindEntityType(Type dbSetType)
-                => _model.FindRuntimeEntityType(dbSetType.GetGenericArguments()[0]);
+            private IEntityType? FindEntityType(Type dbSetType)
+                => ((IModel)_model!).FindRuntimeEntityType(dbSetType.GetGenericArguments()[0]);
         }
     }
 }

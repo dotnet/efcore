@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
-        public static SqlServerTestHelpers Instance { get; } = new SqlServerTestHelpers();
+        public static SqlServerTestHelpers Instance { get; } = new();
 
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => services.AddEntityFrameworkSqlServer();

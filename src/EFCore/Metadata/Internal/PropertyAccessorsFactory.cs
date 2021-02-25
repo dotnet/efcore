@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -10,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -30,16 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual PropertyAccessors Create([NotNull] IPropertyBase propertyBase)
             => (PropertyAccessors)_genericCreate
                 .MakeGenericMethod(propertyBase.ClrType)
-                .Invoke(
-                    null, new object[] { propertyBase });
+                .Invoke(null, new object[] { propertyBase })!;
 
         private static readonly MethodInfo _genericCreate
-            = typeof(PropertyAccessorsFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric));
+            = typeof(PropertyAccessorsFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric))!;
 
         [UsedImplicitly]
         private static PropertyAccessors CreateGeneric<TProperty>(IPropertyBase propertyBase)
         {
             var property = propertyBase as IProperty;
+
             return new PropertyAccessors(
                 CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: true),
                 CreateCurrentValueGetter<TProperty>(propertyBase, useStoreGeneratedValues: false),

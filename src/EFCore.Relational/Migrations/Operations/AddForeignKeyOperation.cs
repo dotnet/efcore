@@ -47,9 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string PrincipalTable { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The ordered-list of column names for the columns to which the columns that make up this foreign key are constrained.
+        ///     The ordered-list of column names for the columns to which the columns that make up this foreign key are constrained, or
+        ///     <see langword="null" /> to constrain to the primary key columns.
         /// </summary>
-        public virtual string[] PrincipalColumns { get; [param: NotNull] set; }
+        public virtual string[] PrincipalColumns { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The <see cref="ReferentialAction" /> to use for updates.

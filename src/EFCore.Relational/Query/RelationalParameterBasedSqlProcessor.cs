@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> An optimized select expression. </returns>
         public virtual SelectExpression Optimize(
             [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object> parametersValues,
+            [NotNull] IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -80,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> A processed select expression. </returns>
         protected virtual SelectExpression ProcessSqlNullability(
             [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object> parametersValues,
+            [NotNull] IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -98,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> A processed select expression. </returns>
         protected virtual SelectExpression ExpandFromSqlParameter(
             [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object> parametersValues,
+            [NotNull] IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));

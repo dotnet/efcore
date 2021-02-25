@@ -223,6 +223,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalFact]
+        public void Cannot_set_invalid_state()
+        {
+            using var context = new FreezerContext();
+            var entity = new Chunky();
+
+            Assert.Equal(
+                CoreStrings.InvalidEnumValue("-1", "value", typeof(EntityState).FullName),
+                Assert.Throws<ArgumentException>(() => context.Entry(entity).State = (EntityState)(-1)).Message);
+
+            Assert.Equal(
+                CoreStrings.InvalidEnumValue("5", "value", typeof(EntityState).FullName),
+                Assert.Throws<ArgumentException>(() => context.Entry(entity).State = (EntityState)(5)).Message);
+        }
+
+        [ConditionalFact]
         public void Can_use_entry_to_change_state_to_Added()
         {
             ChangeStateOnEntry(EntityState.Detached, EntityState.Added);

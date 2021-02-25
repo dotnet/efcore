@@ -17,6 +17,8 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -48,13 +50,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = Expression.Parameter(typeof(DbDataReader), "dataReader");
 
         private static readonly MethodInfo _getFieldValueMethod =
-            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) });
+            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!;
 
         private static readonly MethodInfo _isDbNullMethod =
-            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) });
+            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) })!;
 
         private static readonly MethodInfo _throwReadValueExceptionMethod
-            = typeof(TypedRelationalValueBufferFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException));
+            = typeof(TypedRelationalValueBufferFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="TypedRelationalValueBufferFactoryFactory" /> class.
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public IReadOnlyList<TypeMaterializationInfo> TypeMaterializationInfo { get; }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
                 => obj is CacheKey cacheKey && Equals(cacheKey);
 
             public bool Equals(CacheKey other)
@@ -98,8 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        private readonly ConcurrentDictionary<CacheKey, TypedRelationalValueBufferFactory> _cache
-            = new ConcurrentDictionary<CacheKey, TypedRelationalValueBufferFactory>();
+        private readonly ConcurrentDictionary<CacheKey, TypedRelationalValueBufferFactory> _cache = new();
 
         /// <summary>
         ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
@@ -152,8 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue ThrowReadValueException<TValue>(
             Exception exception,
-            object value,
-            IPropertyBase property = null)
+            object? value,
+            IPropertyBase? property = null)
         {
             var expectedType = typeof(TValue);
             var actualType = value?.GetType();
@@ -204,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Expression valueExpression
                 = Expression.Call(
                     getMethod.DeclaringType != typeof(DbDataReader)
-                        ? Expression.Convert(dataReaderExpression, getMethod.DeclaringType)
+                        ? Expression.Convert(dataReaderExpression, getMethod.DeclaringType!)
                         : dataReaderExpression,
                     getMethod,
                     indexExpression);
@@ -261,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
 #pragma warning disable CS0612 // Type or member is obsolete
-            if (materializationInfo?.IsNullable != false
+            if (materializationInfo.IsNullable != false
                 || materializationInfo.IsFromLeftOuterJoin != false)
             {
 #pragma warning restore CS0612 // Type or member is obsolete

@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static ScaffoldingTypeMapper CreateMapper()
-            => new ScaffoldingTypeMapper(
+            => new(
                 new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));

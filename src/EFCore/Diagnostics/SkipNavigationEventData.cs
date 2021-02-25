@@ -6,6 +6,8 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public SkipNavigationEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] ISkipNavigation navigation)
+            [NotNull] IReadOnlySkipNavigation navigation)
             : base(eventDefinition, messageGenerator)
         {
             Navigation = navigation;
@@ -31,12 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The navigation.
         /// </summary>
-        public virtual ISkipNavigation Navigation { get; }
+        public virtual IReadOnlySkipNavigation Navigation { get; }
 
         /// <summary>
         ///     The navigation.
         /// </summary>
         INavigationBase INavigationBaseEventData.NavigationBase
-            => Navigation;
+            => (INavigationBase)Navigation;
     }
 }

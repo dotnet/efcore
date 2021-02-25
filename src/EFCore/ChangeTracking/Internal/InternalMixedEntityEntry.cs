@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             : base(stateManager, entityType)
         {
             Entity = entity;
-            _shadowValues = ((EntityType)entityType).ShadowValuesFactory(valueBuffer);
+            _shadowValues = ((IRuntimeEntityType)entityType).ShadowValuesFactory(valueBuffer);
         }
 
         /// <summary>
@@ -157,11 +157,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (!navigationBase.IsShadowProperty())
             {
                 return base.AddToCollection(navigationBase, value, forMaterialization);
-            }
-
-            if (navigationBase.TargetEntityType.ClrType == null)
-            {
-                return false;
             }
 
             var collection = GetOrCreateCollectionTyped(navigationBase);

@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
     /// <summary>
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// </summary>
     public class SqlServerUdtTypeMapping : RelationalTypeMapping
     {
-        private static Action<DbParameter, string> _udtTypeNameSetter;
+        private static Action<DbParameter, string>? _udtTypeNameSetter;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             [NotNull] string storeType,
             [NotNull] Func<object, Expression> literalGenerator,
             StoreTypePostfix storeTypePostfix = StoreTypePostfix.None,
-            [CanBeNull] string udtTypeName = null,
-            [CanBeNull] ValueConverter converter = null,
-            [CanBeNull] ValueComparer comparer = null,
-            [CanBeNull] ValueComparer keyComparer = null,
+            [CanBeNull] string? udtTypeName = null,
+            [CanBeNull] ValueConverter? converter = null,
+            [CanBeNull] ValueComparer? comparer = null,
+            [CanBeNull] ValueComparer? keyComparer = null,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null,
@@ -64,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         protected SqlServerUdtTypeMapping(
             RelationalTypeMappingParameters parameters,
             [NotNull] Func<object, Expression> literalGenerator,
-            [CanBeNull] string udtTypeName)
+            [CanBeNull] string? udtTypeName)
             : base(parameters)
         {
             LiteralGenerator = literalGenerator;
@@ -134,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             return Expression.Lambda<Action<DbParameter, string>>(
                 Expression.Call(
                     Expression.Convert(paramParam, paramType),
-                    paramType.GetProperty("UdtTypeName").SetMethod,
+                    paramType.GetProperty("UdtTypeName")!.SetMethod!,
                     valueParam),
                 paramParam,
                 valueParam).Compile();

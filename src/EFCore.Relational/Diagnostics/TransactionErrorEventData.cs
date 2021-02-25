@@ -6,6 +6,8 @@ using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbTransaction transaction,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid transactionId,
             Guid connectionId,
             bool async,

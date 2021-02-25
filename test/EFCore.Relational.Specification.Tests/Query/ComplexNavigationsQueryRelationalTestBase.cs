@@ -545,6 +545,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        public override Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool async)
+        {
+            return AssertTranslationFailed(() => base.Complex_query_with_optional_navigations_and_client_side_evaluation(async));
+        }
+
         protected virtual bool CanExecuteQueryString
             => false;
 

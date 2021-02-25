@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override DateTime Next(EntityEntry entry)
-            => new DateTime(Interlocked.Increment(ref _current));
+            => new(Interlocked.Increment(ref _current));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

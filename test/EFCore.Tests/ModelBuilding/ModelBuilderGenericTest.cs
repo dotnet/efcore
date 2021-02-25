@@ -88,12 +88,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new GenericTestModelBuilder(testHelpers);
         }
 
-        public class GenericKeylessEntities : KeylessEntitiesTestBase
-        {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new GenericTestModelBuilder(testHelpers);
-        }
-
         public class GenericOneToMany : OneToManyTestBase
         {
             protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
@@ -479,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(valueGeneratorType));
 
-            public override TestPropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory)
+            public override TestPropertyBuilder<TProperty> HasValueGenerator(Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(factory));
 
             public override TestPropertyBuilder<TProperty> HasField(string fieldName)
@@ -660,7 +654,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected virtual GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity> Wrap(
                 ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder)
-                => new GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(referenceCollectionBuilder);
+                => new(referenceCollectionBuilder);
 
             public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> HasForeignKey(
                 Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
@@ -703,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected virtual GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> Wrap(
                 ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
-                => new GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder);
+                => new(referenceReferenceBuilder);
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation(string annotation, object value)
                 => Wrap(ReferenceReferenceBuilder.HasAnnotation(annotation, value));
@@ -822,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 OwnershipBuilder<TNewEntity, TNewDependentEntity> ownershipBuilder)
                 where TNewEntity : class
                 where TNewDependentEntity : class
-                => new GenericTestOwnershipBuilder<TNewEntity, TNewDependentEntity>(ownershipBuilder);
+                => new(ownershipBuilder);
 
             public override TestOwnershipBuilder<TEntity, TDependentEntity> HasAnnotation(string annotation, object value)
                 => Wrap(OwnershipBuilder.HasAnnotation(annotation, value));
@@ -870,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 OwnedNavigationBuilder<TNewEntity, TNewDependentEntity> ownershipBuilder)
                 where TNewEntity : class
                 where TNewDependentEntity : class
-                => new GenericTestOwnedNavigationBuilder<TNewEntity, TNewDependentEntity>(ownershipBuilder);
+                => new(ownershipBuilder);
 
             public override TestOwnedNavigationBuilder<TEntity, TDependentEntity> HasAnnotation(
                 string annotation,

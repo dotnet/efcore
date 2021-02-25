@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class StringToDateTimeConverterTest
     {
-        private static readonly StringToDateTimeConverter _stringToDateTime
-            = new StringToDateTimeConverter();
+        private static readonly StringToDateTimeConverter _stringToDateTime = new();
 
         [ConditionalFact]
         public void Can_convert_string_to_DateTime()

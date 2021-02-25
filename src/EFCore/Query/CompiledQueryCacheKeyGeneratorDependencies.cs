@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -33,10 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class CompiledQueryCacheKeyGeneratorDependencies
+    public sealed record CompiledQueryCacheKeyGeneratorDependencies
     {
-        private readonly IExecutionStrategyFactory _executionStrategyFactory;
-
         /// <summary>
         ///     <para>
         ///         Creates the service dependencies parameter object for a <see cref="CompiledQueryCacheKeyGenerator" />.
@@ -72,47 +72,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Model = model;
             CurrentContext = currentContext;
-            _executionStrategyFactory = executionStrategyFactory;
             IsRetryingExecutionStrategy = executionStrategyFactory.Create().RetriesOnFailure;
         }
 
         /// <summary>
         ///     The model that queries will be written against.
         /// </summary>
-        public IModel Model { get; }
+        public IModel Model { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The context that queries will be executed for.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
+        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Whether the configured execution strategy can retry.
         /// </summary>
-        public bool IsRetryingExecutionStrategy { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="model"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] IModel model)
-            => new CompiledQueryCacheKeyGeneratorDependencies(model, CurrentContext, _executionStrategyFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new CompiledQueryCacheKeyGeneratorDependencies(Model, currentContext, _executionStrategyFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="executionStrategyFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            => new CompiledQueryCacheKeyGeneratorDependencies(Model, CurrentContext, executionStrategyFactory);
+        public bool IsRetryingExecutionStrategy { get; init; }
     }
 }

@@ -6,6 +6,8 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public NavigationBaseEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] INavigationBase navigationBase)
+            [NotNull] IReadOnlyNavigationBase navigationBase)
             : base(eventDefinition, messageGenerator)
         {
             NavigationBase = navigationBase;
@@ -31,6 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The navigation base.
         /// </summary>
-        public virtual INavigationBase NavigationBase { get; }
+        public virtual IReadOnlyNavigationBase NavigationBase { get; }
+
+        INavigationBase INavigationBaseEventData.NavigationBase
+            => (INavigationBase)NavigationBase;
     }
 }

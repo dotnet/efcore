@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalValueBufferFactoryDependencies
+    public sealed record RelationalValueBufferFactoryDependencies
     {
         /// <summary>
         ///     <para>
@@ -73,27 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the type mapping source.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Gets core options.
         /// </summary>
-        public ICoreSingletonOptions CoreOptions { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalValueBufferFactoryDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new RelationalValueBufferFactoryDependencies(typeMappingSource, CoreOptions);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="coreOptions"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalValueBufferFactoryDependencies With([NotNull] ICoreSingletonOptions coreOptions)
-            => new RelationalValueBufferFactoryDependencies(TypeMappingSource, coreOptions);
+        public ICoreSingletonOptions CoreOptions { get; [param: NotNull] init; }
     }
 }

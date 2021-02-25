@@ -9,7 +9,7 @@ namespace SQLitePCL
 {
     internal static class SQLitePCLExtensions
     {
-        private static readonly Dictionary<string, bool> _knownLibraries = new Dictionary<string, bool>
+        private static readonly Dictionary<string, bool> _knownLibraries = new()
         {
             { "e_sqlcipher", true },
             { "e_sqlite3", false },

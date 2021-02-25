@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
         {
-            var entityType = (EntityType)EntityType;
+            var entityType = EntityType;
 
             // Prevent temp values from becoming permanent values
             if (oldState == EntityState.Added
@@ -357,11 +357,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (oldState == EntityState.Detached)
             {
-                foreach (var serviceProperty in ((EntityType)EntityType).GetServiceProperties())
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
                 {
                     this[serviceProperty]
                         = serviceProperty
-                            .GetParameterBinding()
+                            .ParameterBinding
                             .ServiceDelegate(
                                 new MaterializationContext(
                                     ValueBuffer.Empty,
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (newState == EntityState.Detached)
             {
-                foreach (var serviceProperty in ((EntityType)EntityType).GetServiceProperties())
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
                 {
                     this[serviceProperty] = null;
                 }
@@ -743,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
-            return ((PropertyBase)propertyBase).Getter.GetClrValue(Entity);
+            return propertyBase.GetGetter().GetClrValue(Entity);
         }
 
         /// <summary>
@@ -756,7 +756,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
-            return ((PropertyBase)propertyBase).Getter.HasDefaultValue(Entity);
+            return propertyBase.GetGetter().HasDefaultValue(Entity);
         }
 
         /// <summary>
@@ -772,7 +772,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
-            var concretePropertyBase = (PropertyBase)propertyBase;
+            var concretePropertyBase = (IRuntimePropertyBase)propertyBase;
 
             var setter = forMaterialization
                 ? concretePropertyBase.MaterializationSetter
@@ -889,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             EnsureOriginalValues();
 
-            var property = (Property)propertyBase;
+            var property = (IProperty)propertyBase;
 
             _originalValues.SetValue(property, value, index);
 
@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_temporaryValues.IsEmpty)
             {
-                _temporaryValues = new SidecarValues(((EntityType)EntityType).TemporaryValuesFactory(this));
+                _temporaryValues = new SidecarValues(((IRuntimeEntityType)EntityType).TemporaryValuesFactory(this));
             }
         }
 
@@ -959,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_storeGeneratedValues.IsEmpty)
             {
-                _storeGeneratedValues = new SidecarValues(((EntityType)EntityType).StoreGeneratedValuesFactory(this));
+                _storeGeneratedValues = new SidecarValues(((IRuntimeEntityType)EntityType).StoreGeneratedValuesFactory(this));
             }
         }
 
@@ -1103,7 +1103,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var currentValue = ReadPropertyValue(propertyBase);
 
-            var asProperty = propertyBase as Property;
+            var asProperty = propertyBase as IProperty;
             int propertyIndex;
             CurrentValueType currentValueType;
             Func<object, object, bool> equals;
@@ -1265,8 +1265,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (!_storeGeneratedValues.IsEmpty)
             {
-                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23180", out var isEnabled)
-                    && isEnabled;
                 foreach (var property in EntityType.GetProperties())
                 {
                     var storeGeneratedIndex = property.GetStoreGeneratedIndex();
@@ -1275,8 +1273,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         var equals = ValuesEqualFunc(property);
                         var defaultValue = property.ClrType.GetDefaultValue();
-                        if (!equals(value, defaultValue)
-                            && !useOldBehavior)
+                        if (!equals(value, defaultValue))
                         {
                             this[property] = value;
                         }
@@ -1316,7 +1313,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry PrepareToSave()
         {
-            var entityType = (EntityType)EntityType;
+            var entityType = EntityType;
 
             if (EntityState == EntityState.Added)
             {
@@ -1552,7 +1549,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             get
             {
                 var isGenerated = false;
-                var keyProperties = ((EntityType)EntityType).FindPrimaryKey().Properties;
+                var keyProperties = EntityType.FindPrimaryKey().Properties;
 
                 // ReSharper disable once ForCanBeConvertedToForeach
                 // ReSharper disable once LoopCanBeConvertedToQuery
@@ -1588,7 +1585,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                var keyProperties = ((EntityType)EntityType).FindPrimaryKey().Properties;
+                var keyProperties = EntityType.FindPrimaryKey().Properties;
                 // ReSharper disable once ForCanBeConvertedToForeach
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 for (var i = 0; i < keyProperties.Count; i++)
@@ -1611,7 +1608,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual EntityEntry ToEntityEntry()
-            => new EntityEntry(this);
+            => new(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1623,7 +1620,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] object sender,
             [NotNull] PropertyChangingEventArgs eventArgs)
         {
-            foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
+            foreach (var propertyBase in GetNotificationProperties(EntityType, eventArgs.PropertyName))
             {
                 StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
             }
@@ -1639,9 +1636,45 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] object sender,
             [NotNull] PropertyChangedEventArgs eventArgs)
         {
-            foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
+            foreach (var propertyBase in GetNotificationProperties(EntityType, eventArgs.PropertyName))
             {
                 StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified: true);
+            }
+        }
+
+        private static IEnumerable<IPropertyBase> GetNotificationProperties(
+            [NotNull] IEntityType entityType,
+            [CanBeNull] string propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                foreach (var property in entityType.GetProperties()
+                    .Where(p => p.GetAfterSaveBehavior() == PropertySaveBehavior.Save))
+                {
+                    yield return property;
+                }
+
+                foreach (var navigation in entityType.GetNavigations())
+                {
+                    yield return navigation;
+                }
+
+                foreach (var navigation in entityType.GetSkipNavigations())
+                {
+                    yield return navigation;
+                }
+            }
+            else
+            {
+                // ReSharper disable once AssignNullToNotNullAttribute
+                var property = entityType.FindProperty(propertyName)
+                    ?? entityType.FindNavigation(propertyName)
+                    ?? (IPropertyBase)entityType.FindSkipNavigation(propertyName);
+
+                if (property != null)
+                {
+                    yield return property;
+                }
             }
         }
 
@@ -1741,7 +1774,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
 

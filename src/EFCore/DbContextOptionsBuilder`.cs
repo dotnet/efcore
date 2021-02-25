@@ -69,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         for logging done by this context.
         ///     </para>
         ///     <para>
-        ///         There is no need to call this method when using one of the 'AddDbContext' methods.
-        ///         'AddDbContext' will ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the
+        ///         There is no need to call this method when using one of the <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContext" />
+        ///         methods. 'AddDbContext' will ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the
         ///         application service provider.
         ///     </para>
         ///     <para>
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         This overload allows the minimum level of logging and the log formatting to be controlled.
         ///         Use the
         ///         <see
-        ///             cref="LogTo(Action{string},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Logging.EventId},LogLevel,DbContextLoggerOptions?)" />
+        ///             cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only specific events.
         ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only events in specific categories.
@@ -226,6 +226,28 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Disables concurrency detection, which detects many cases of erroneous concurrent usage of a <see cref="DbContext" />
+        ///         instance and causes an informative exception to be thrown. This provides a minor performance improvement, but if a
+        ///         <see cref="DbContext" /> instance is used concurrently, the behavior will be undefined and the program may fail in
+        ///         unpredictable ways.
+        ///     </para>
+        ///     <para>
+        ///         Only disable concurrency detection after confirming that the performance gains are considerable, and the application has
+        ///         been thoroughly tested against concurrency bugs.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+        ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+        ///         so that EF will manage the service providers and can create new instances as required.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> DisableConcurrencyDetection(bool concurrencyDetectionDisabled = true)
+            => (DbContextOptionsBuilder<TContext>)base.DisableConcurrencyDetection(concurrencyDetectionDisabled);
+
+        /// <summary>
+        ///     <para>
         ///         Enables detailed errors when handling data value exceptions that occur during processing of store query results. Such errors
         ///         most often occur due to misconfiguration of entity properties. E.g. If a property is configured to be of type
         ///         'int', but the underlying data in the store is actually of type 'string', then an exception will be generated
@@ -345,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})" /> methods.
         ///     </para>
         ///     <para>
-        ///         The default value is <see cref="EntityFrameworkCore.QueryTrackingBehavior.TrackAll" />. This means the
+        ///         The default value is <see cref="QueryTrackingBehavior.TrackAll" />. This means the
         ///         change tracker will keep track of changes for all entities that are returned from a LINQ query.
         ///     </para>
         /// </summary>

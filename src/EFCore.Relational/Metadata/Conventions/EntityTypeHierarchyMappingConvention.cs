@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -50,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         && !entityType.FindDeclaredForeignKeys(pk.Properties)
                             .Any(fk => fk.PrincipalKey.IsPrimaryKey() && fk.PrincipalEntityType.IsAssignableFrom(entityType)))
                     {
-                        entityType.Builder.HasRelationship(entityType.BaseType, pk.Properties, entityType.BaseType.FindPrimaryKey())
+                        entityType.Builder.HasRelationship(entityType.BaseType, pk.Properties, pk)?
                             .IsUnique(true);
                     }
 

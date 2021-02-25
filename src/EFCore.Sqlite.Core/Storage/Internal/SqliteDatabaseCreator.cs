@@ -8,6 +8,8 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 {
     /// <summary>
@@ -116,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         null,
                         null,
                         null,
-                        Dependencies.CommandLogger));
+                        Dependencies.CommandLogger))!;
 
             return count != 0;
         }
@@ -129,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public override void Delete()
         {
-            string path = null;
+            string? path = null;
 
             Dependencies.Connection.Open();
             try

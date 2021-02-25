@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -25,8 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class CompiledQueryCache : ICompiledQueryCache
     {
-        private static readonly ConcurrentDictionary<object, object> _locks
-            = new ConcurrentDictionary<object, object>();
+        private static readonly ConcurrentDictionary<object, object> _locks = new();
 
         private readonly IMemoryCache _memoryCache;
 

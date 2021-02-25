@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder, null);
 
-            Assert.Null(((IEntityType)entityTypeBuilder.Metadata).GetDiscriminatorProperty());
+            Assert.Null(((IReadOnlyEntityType)entityTypeBuilder.Metadata).FindDiscriminatorProperty());
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Explicit);
@@ -32,17 +32,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder, null);
 
-            var discriminator = ((IEntityType)entityTypeBuilder.Metadata).GetDiscriminatorProperty();
+            var discriminator = ((IReadOnlyEntityType)entityTypeBuilder.Metadata).FindDiscriminatorProperty();
 
             Assert.NotNull(discriminator);
-            Assert.Same(discriminator, ((IEntityType)baseTypeBuilder.Metadata).GetDiscriminatorProperty());
+            Assert.Same(discriminator, ((IReadOnlyEntityType)baseTypeBuilder.Metadata).FindDiscriminatorProperty());
             Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.GetDiscriminatorValue());
 
             Assert.NotNull(entityTypeBuilder.HasBaseType((Type)null, ConfigurationSource.DataAnnotation));
             RunConvention(entityTypeBuilder, baseTypeBuilder.Metadata);
-            Assert.Null(((IEntityType)baseTypeBuilder.Metadata).GetDiscriminatorProperty());
-            Assert.Null(((IEntityType)entityTypeBuilder.Metadata).GetDiscriminatorProperty());
+            Assert.Null(((IReadOnlyEntityType)baseTypeBuilder.Metadata).FindDiscriminatorProperty());
+            Assert.Null(((IReadOnlyEntityType)entityTypeBuilder.Metadata).FindDiscriminatorProperty());
         }
 
         [ConditionalFact]
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder, null);
 
-            Assert.Null(((IEntityType)entityTypeBuilder.Metadata).GetDiscriminatorProperty());
+            Assert.Null(((IReadOnlyEntityType)entityTypeBuilder.Metadata).FindDiscriminatorProperty());
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
 
             var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Explicit);
@@ -68,10 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder, null);
 
-            var discriminator = ((IEntityType)entityTypeBuilder.Metadata).GetDiscriminatorProperty();
+            var discriminator = ((IReadOnlyEntityType)entityTypeBuilder.Metadata).FindDiscriminatorProperty();
             Assert.NotNull(discriminator);
-            Assert.Same(discriminator, ((IEntityType)baseTypeBuilder.Metadata).GetDiscriminatorProperty());
-            Assert.Same(discriminator, ((IEntityType)derivedTypeBuilder.Metadata).GetDiscriminatorProperty());
+            Assert.Same(discriminator, ((IReadOnlyEntityType)baseTypeBuilder.Metadata).FindDiscriminatorProperty());
+            Assert.Same(discriminator, ((IReadOnlyEntityType)derivedTypeBuilder.Metadata).FindDiscriminatorProperty());
             Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.GetDiscriminatorValue());
@@ -80,10 +80,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder, baseTypeBuilder.Metadata);
 
-            Assert.Null(((IEntityType)baseTypeBuilder.Metadata).GetDiscriminatorProperty());
-            discriminator = ((IEntityType)entityTypeBuilder.Metadata).GetDiscriminatorProperty();
+            Assert.Null(((IReadOnlyEntityType)baseTypeBuilder.Metadata).FindDiscriminatorProperty());
+            discriminator = ((IReadOnlyEntityType)entityTypeBuilder.Metadata).FindDiscriminatorProperty();
             Assert.NotNull(discriminator);
-            Assert.Same(discriminator, ((IEntityType)derivedTypeBuilder.Metadata).GetDiscriminatorProperty());
+            Assert.Same(discriminator, ((IReadOnlyEntityType)derivedTypeBuilder.Metadata).FindDiscriminatorProperty());
             Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Equal(typeof(DerivedEntity).Name, derivedTypeBuilder.Metadata.GetDiscriminatorValue());
         }
@@ -99,9 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder, null);
 
-            var discriminator = ((IEntityType)entityTypeBuilder.Metadata).GetDiscriminatorProperty();
+            var discriminator = ((IReadOnlyEntityType)entityTypeBuilder.Metadata).FindDiscriminatorProperty();
             Assert.NotNull(discriminator);
-            Assert.Same(discriminator, ((IEntityType)baseTypeBuilder.Metadata).GetDiscriminatorProperty());
+            Assert.Same(discriminator, ((IReadOnlyEntityType)baseTypeBuilder.Metadata).FindDiscriminatorProperty());
             Assert.Equal("T", discriminator.Name);
             Assert.Equal(typeof(string), discriminator.ClrType);
             Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.GetDiscriminatorValue());
@@ -119,9 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder, null);
 
-            var discriminator = ((IEntityType)entityTypeBuilder.Metadata).GetDiscriminatorProperty();
+            var discriminator = ((IReadOnlyEntityType)entityTypeBuilder.Metadata).FindDiscriminatorProperty();
             Assert.NotNull(discriminator);
-            Assert.Same(discriminator, ((IEntityType)baseTypeBuilder.Metadata).GetDiscriminatorProperty());
+            Assert.Same(discriminator, ((IReadOnlyEntityType)baseTypeBuilder.Metadata).FindDiscriminatorProperty());
             Assert.Equal("T", discriminator.Name);
             Assert.Equal(typeof(int), discriminator.ClrType);
             Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorValue());
@@ -140,8 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder, null);
 
-            Assert.Null(((IEntityType)entityTypeBuilder.Metadata).GetDiscriminatorProperty());
-            Assert.Null(((IEntityType)baseTypeBuilder.Metadata).GetDiscriminatorProperty());
+            Assert.Null(((IReadOnlyEntityType)entityTypeBuilder.Metadata).FindDiscriminatorProperty());
+            Assert.Null(((IReadOnlyEntityType)baseTypeBuilder.Metadata).FindDiscriminatorProperty());
             Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
 
@@ -149,8 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder, baseTypeBuilder.Metadata);
 
-            Assert.Null(((IEntityType)baseTypeBuilder.Metadata).GetDiscriminatorProperty());
-            Assert.NotNull(((IEntityType)entityTypeBuilder.Metadata).GetDiscriminatorProperty());
+            Assert.Null(((IReadOnlyEntityType)baseTypeBuilder.Metadata).FindDiscriminatorProperty());
+            Assert.NotNull(((IReadOnlyEntityType)entityTypeBuilder.Metadata).FindDiscriminatorProperty());
             Assert.Null(baseTypeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Null(entityTypeBuilder.Metadata.GetDiscriminatorValue());
         }

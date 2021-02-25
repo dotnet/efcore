@@ -8,11 +8,14 @@ using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -125,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                     null,
                                     null,
                                     Dependencies.CurrentContext.Context,
-                                    Dependencies.CommandLogger))
+                                    Dependencies.CommandLogger))!
                         != 0);
 
         /// <summary>
@@ -137,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
             => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 _connection,
-                async (connection, ct) => (int)await CreateHasTablesCommand()
+                async (connection, ct) => (int)(await CreateHasTablesCommand()
                         .ExecuteScalarAsync(
                             new RelationalCommandParameterObject(
                                 connection,
@@ -146,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 Dependencies.CurrentContext.Context,
                                 Dependencies.CommandLogger),
                             cancellationToken: ct)
-                        .ConfigureAwait(false)
+                        .ConfigureAwait(false))!
                     != 0, cancellationToken);
 
         private IRelationalCommand CreateHasTablesCommand()
@@ -180,7 +183,8 @@ SELECT 1 ELSE SELECT 0");
                         FileName = builder.AttachDBFilename,
                         Collation = Dependencies.Model.GetCollation()
                     }
-                });
+                },
+                null);
         }
 
         /// <summary>
@@ -387,7 +391,7 @@ SELECT 1 ELSE SELECT 0");
 
             var operations = new MigrationOperation[] { new SqlServerDropDatabaseOperation { Name = databaseName } };
 
-            return Dependencies.MigrationsSqlGenerator.Generate(operations);
+            return Dependencies.MigrationsSqlGenerator.Generate(operations, null);
         }
 
         // Clear connection pools in case there are active connections that are pooled

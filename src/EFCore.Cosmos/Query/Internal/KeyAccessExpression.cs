@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private bool Equals(KeyAccessExpression keyAccessExpression)
             => base.Equals(keyAccessExpression)
-                && string.Equals(Name, keyAccessExpression.Name)
+                && Name == keyAccessExpression.Name
                 && AccessExpression.Equals(keyAccessExpression.AccessExpression);
 
         /// <summary>

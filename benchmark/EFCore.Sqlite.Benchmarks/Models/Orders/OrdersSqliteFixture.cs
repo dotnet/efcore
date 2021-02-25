@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
     public class OrdersSqliteFixture : OrdersFixtureBase
     {
         private static readonly string _baseDirectory
-            = Path.GetDirectoryName(new Uri(typeof(OrdersSqliteFixture).Assembly.CodeBase).LocalPath);
+            = Path.GetDirectoryName(typeof(OrdersSqliteFixture).Assembly.Location);
 
         private readonly string _connectionString;
 

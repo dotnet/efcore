@@ -39,10 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     /// </summary>
     public class CosmosDatabaseWrapper : EntityFrameworkCore.Storage.Database
     {
-        private readonly Dictionary<IEntityType, DocumentSource> _documentCollections
-            = new Dictionary<IEntityType, DocumentSource>();
+        private readonly Dictionary<IEntityType, DocumentSource> _documentCollections = new();
 
-        private readonly CosmosClientWrapper _cosmosClient;
+        private readonly ICosmosClientWrapper _cosmosClient;
         private readonly bool _sensitiveLoggingEnabled;
 
         /// <summary>
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public CosmosDatabaseWrapper(
             [NotNull] DatabaseDependencies dependencies,
-            [NotNull] CosmosClientWrapper cosmosClient,
+            [NotNull] ICosmosClientWrapper cosmosClient,
             [NotNull] ILoggingOptions loggingOptions)
             : base(dependencies)
         {
@@ -243,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        var propertyName = entityType.GetDiscriminatorProperty()?.GetJsonPropertyName();
+                        var propertyName = entityType.FindDiscriminatorProperty()?.GetJsonPropertyName();
                         if (propertyName != null)
                         {
                             document[propertyName] =
@@ -311,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        var propertyName = entityType.GetDiscriminatorProperty()?.GetJsonPropertyName();
+                        var propertyName = entityType.FindDiscriminatorProperty()?.GetJsonPropertyName();
                         if (propertyName != null)
                         {
                             document[propertyName] =

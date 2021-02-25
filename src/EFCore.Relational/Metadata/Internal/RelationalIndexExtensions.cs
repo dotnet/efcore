@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -24,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatible(
-            [NotNull] this IIndex index,
-            [NotNull] IIndex duplicateIndex,
+            [NotNull] this IReadOnlyIndex index,
+            [NotNull] IReadOnlyIndex duplicateIndex,
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {

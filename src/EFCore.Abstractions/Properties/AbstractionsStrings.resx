@@ -120,6 +120,9 @@
   <data name="ArgumentIsEmpty" xml:space="preserve">
     <value>The string argument '{argumentName}' cannot be empty.</value>
   </data>
+  <data name="ArgumentIsNegativeNumber" xml:space="preserve">
+    <value>The number argument '{argumentName}' cannot be negative number.</value>
+  </data>
   <data name="CollectionArgumentHasEmptyElements" xml:space="preserve">
     <value>The collection argument '{argumentName}' must not contain any empty elements.</value>
   </data>

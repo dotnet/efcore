@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -44,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             UseRelationalNulls = useRelationalNulls;
             _nonNullableColumns = new List<ColumnExpression>();
+            ParameterValues = null!;
         }
 
         /// <summary>
@@ -54,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Dictionary of current parameter values in use.
         /// </summary>
-        protected virtual IReadOnlyDictionary<string, object> ParameterValues { get; private set; }
+        protected virtual IReadOnlyDictionary<string, object?> ParameterValues { get; private set; }
 
         /// <summary>
         ///     Processes a <see cref="SelectExpression" /> to apply null semantics and optimize it.
@@ -65,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> An optimized select expression. </returns>
         public virtual SelectExpression Process(
             [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object> parameterValues,
+            [NotNull] IReadOnlyDictionary<string, object?> parameterValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -321,7 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="sqlExpression"> A sql expression to visit. </param>
         /// <param name="nullable"> A bool value indicating whether the sql expression is nullable. </param>
         /// <returns> An optimized sql expression. </returns>
-        protected virtual SqlExpression Visit([CanBeNull] SqlExpression sqlExpression, out bool nullable)
+        [return: CA.NotNullIfNotNull("sqlExpression")]
+        protected virtual SqlExpression? Visit([CanBeNull] SqlExpression? sqlExpression, out bool nullable)
             => Visit(sqlExpression, allowOptimizedExpansion: false, out nullable);
 
         /// <summary>
@@ -331,11 +336,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="allowOptimizedExpansion"> A bool value indicating if optimized expansion which considers null value as false value is allowed. </param>
         /// <param name="nullable"> A bool value indicating whether the sql expression is nullable. </param>
         /// <returns> An optimized sql expression. </returns>
-        protected virtual SqlExpression Visit([CanBeNull] SqlExpression sqlExpression, bool allowOptimizedExpansion, out bool nullable)
+        [return: CA.NotNullIfNotNull("sqlExpression")]
+        protected virtual SqlExpression? Visit([CanBeNull] SqlExpression? sqlExpression, bool allowOptimizedExpansion, out bool nullable)
             => Visit(sqlExpression, allowOptimizedExpansion, preserveNonNullableColumns: false, out nullable);
 
-        private SqlExpression Visit(
-            [CanBeNull] SqlExpression sqlExpression,
+        [return: CA.NotNullIfNotNull("sqlExpression")]
+        private SqlExpression? Visit(
+            [CanBeNull] SqlExpression? sqlExpression,
             bool allowOptimizedExpansion,
             bool preserveNonNullableColumns,
             out bool nullable)
@@ -458,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            SqlExpression elseResult = null;
+            SqlExpression? elseResult = null;
             if (!testEvaluatesToTrue)
             {
                 elseResult = Visit(caseExpression.ElseResult, out var elseResultNullable);
@@ -551,13 +558,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             var subquery = Visit(existsExpression.Subquery);
             nullable = false;
 
-            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore23617", out var enabled) && enabled)
-            {
-                return TryGetBoolConstantValue(subquery.Predicate) == false
-                    ? subquery.Predicate
-                    : existsExpression.Update(subquery);
-            }
-
             // if subquery has predicate which evaluates to false, we can simply return false
             // if the exisits is negated we need to return true instead
             return TryGetBoolConstantValue(subquery.Predicate) == false
@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     nullable = false;
 
-                    return subquery.Predicate;
+                    return subquery.Predicate!;
                 }
 
                 // if item is not nullable, and subquery contains a non-nullable column we know the result can never be null
@@ -605,7 +605,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (UseRelationalNulls
                 || !(inExpression.Values is SqlConstantExpression || inExpression.Values is SqlParameterExpression))
             {
-                var (valuesExpression, valuesList, _) = ProcessInExpressionValues(inExpression.Values, extractNullValues: false);
+                var (valuesExpression, valuesList, _) = ProcessInExpressionValues(inExpression.Values!, extractNullValues: false);
                 nullable = false;
 
                 return valuesList.Count == 0
@@ -671,27 +671,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                     simplifiedInExpression,
                     _sqlExpressionFactory.IsNull(item));
 
-            (SqlConstantExpression ProcessedValuesExpression, List<object> ProcessedValuesList, bool HasNullValue)
+            (SqlConstantExpression ProcessedValuesExpression, List<object?> ProcessedValuesList, bool HasNullValue)
                 ProcessInExpressionValues(SqlExpression valuesExpression, bool extractNullValues)
             {
-                var inValues = new List<object>();
+                var inValues = new List<object?>();
                 var hasNullValue = false;
-                RelationalTypeMapping typeMapping = null;
+                RelationalTypeMapping? typeMapping = null;
 
-                IEnumerable values = null;
+                IEnumerable? values = null;
                 if (valuesExpression is SqlConstantExpression sqlConstant)
                 {
                     typeMapping = sqlConstant.TypeMapping;
-                    values = (IEnumerable)sqlConstant.Value;
+                    values = (IEnumerable)sqlConstant.Value!;
                 }
                 else if (valuesExpression is SqlParameterExpression sqlParameter)
                 {
                     DoNotCache();
                     typeMapping = sqlParameter.TypeMapping;
-                    values = (IEnumerable)ParameterValues[sqlParameter.Name];
+                    values = (IEnumerable?)ParameterValues[sqlParameter.Name];
+                    if (values == null)
+                    {
+                        throw new NullReferenceException();
+                    }
                 }
 
-                foreach (var value in values)
+                foreach (var value in values!)
                 {
                     if (value == null && extractNullValues)
                     {
@@ -710,7 +714,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             SqlExpression SimplifyInExpression(
                 InExpression inExpression,
                 SqlConstantExpression inValuesExpression,
-                List<object> inValuesList)
+                List<object?> inValuesList)
             {
                 return inValuesList.Count == 1
                     ? inExpression.IsNegated
@@ -719,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             _sqlExpressionFactory.Constant(inValuesList[0], inValuesExpression.TypeMapping))
                         : _sqlExpressionFactory.Equal(
                             inExpression.Item,
-                            _sqlExpressionFactory.Constant(inValuesList[0], inExpression.Values.TypeMapping))
+                            _sqlExpressionFactory.Constant(inValuesList[0], inExpression.Values!.TypeMapping))
                     : inExpression;
             }
         }
@@ -851,12 +855,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (leftNullable)
                 {
-                    left = AddNullConcatenationProtection(left, sqlBinaryExpression.TypeMapping);
+                    left = AddNullConcatenationProtection(left, sqlBinaryExpression.TypeMapping!);
                 }
 
                 if (rightNullable)
                 {
-                    right = AddNullConcatenationProtection(right, sqlBinaryExpression.TypeMapping);
+                    right = AddNullConcatenationProtection(right, sqlBinaryExpression.TypeMapping!);
                 }
 
                 nullable = false;
@@ -980,6 +984,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(sqlFunctionExpression, nameof(sqlFunctionExpression));
 
             if (sqlFunctionExpression.IsBuiltIn
+                && sqlFunctionExpression.Arguments != null
                 && string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase))
             {
                 var left = Visit(sqlFunctionExpression.Arguments[0], out var leftNullable);
@@ -1076,7 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : updated;
         }
 
-        private static bool? TryGetBoolConstantValue(SqlExpression expression)
+        private static bool? TryGetBoolConstantValue(SqlExpression? expression)
             => expression is SqlConstantExpression constantExpression
                 && constantExpression.Value is bool boolValue
                     ? boolValue
@@ -1164,7 +1169,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (TryGetBoolConstantValue(right) is bool rightBoolValue
                 && !leftNullable
-                && left.TypeMapping.Converter == null)
+                && left.TypeMapping!.Converter == null)
             {
                 nullable = leftNullable;
 
@@ -1180,7 +1185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (TryGetBoolConstantValue(left) is bool leftBoolValue
                 && !rightNullable
-                && right.TypeMapping.Converter == null)
+                && right.TypeMapping!.Converter == null)
             {
                 nullable = rightNullable;
 
@@ -1190,7 +1195,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // true != a -> !a
                 // false != a -> a
                 return sqlBinaryExpression.OperatorType == ExpressionType.Equal ^ leftBoolValue
-                    ? _sqlExpressionFactory.Not(right)
+                    ? OptimizeNonNullableNotExpression(_sqlExpressionFactory.Not(right))
                     : right;
             }
 
@@ -1220,12 +1225,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (leftNegated)
                 {
-                    left = leftUnary.Operand;
+                    left = leftUnary!.Operand;
                 }
 
                 if (rightNegated)
                 {
-                    right = rightUnary.Operand;
+                    right = rightUnary!.Operand;
                 }
 
                 // a == b <=> !a == !b -> a == b
@@ -1262,12 +1267,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (leftNegated)
             {
-                left = leftUnary.Operand;
+                left = leftUnary!.Operand;
             }
 
             if (rightNegated)
             {
-                right = rightUnary.Operand;
+                right = rightUnary!.Operand;
             }
 
             var leftIsNull = ProcessNullNotNull(_sqlExpressionFactory.IsNull(left), leftNullable);
@@ -1393,28 +1398,30 @@ namespace Microsoft.EntityFrameworkCore.Query
             // true || a -> true
             // false && a -> false
             // false || a -> a
-            if (sqlBinaryExpression.Left is SqlConstantExpression newLeftConstant)
+            if (sqlBinaryExpression.Left is SqlConstantExpression newLeftConstant
+                && newLeftConstant.Value is bool leftBoolValue)
             {
                 return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                    ? (bool)newLeftConstant.Value
+                    ? leftBoolValue
                         ? sqlBinaryExpression.Right
                         : newLeftConstant
-                    : (bool)newLeftConstant.Value
+                    : leftBoolValue
                         ? newLeftConstant
                         : sqlBinaryExpression.Right;
             }
 
-            if (sqlBinaryExpression.Right is SqlConstantExpression newRightConstant)
+            if (sqlBinaryExpression.Right is SqlConstantExpression newRightConstant
+                && newRightConstant.Value is bool rightBoolValue)
             {
                 // a && true -> a
                 // a || true -> true
                 // a && false -> false
                 // a || false -> a
                 return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                    ? (bool)newRightConstant.Value
+                    ? rightBoolValue
                         ? sqlBinaryExpression.Left
                         : newRightConstant
-                    : (bool)newRightConstant.Value
+                    : rightBoolValue
                         ? newRightConstant
                         : sqlBinaryExpression.Left;
             }
@@ -1481,7 +1488,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     : ExpressionType.AndAlso,
                                 left,
                                 right,
-                                sqlBinaryOperand.TypeMapping));
+                                sqlBinaryOperand.TypeMapping)!);
+                    }
+
+                    // use equality where possible
+                    // !(a == true) -> a == false
+                    // !(a == false) -> a == true
+                    // !(true == a) -> false == a
+                    // !(false == a) -> true == a
+                    if (sqlBinaryOperand.OperatorType == ExpressionType.Equal)
+                    {
+                        if (sqlBinaryOperand.Left is SqlConstantExpression leftConstant
+                            && leftConstant.Type == typeof(bool))
+                        {
+                            return _sqlExpressionFactory.MakeBinary(
+                                ExpressionType.Equal,
+                                _sqlExpressionFactory.Constant(!(bool)leftConstant.Value!, leftConstant.TypeMapping),
+                                sqlBinaryOperand.Right,
+                                sqlBinaryOperand.TypeMapping)!;
+                        }
+
+                        if (sqlBinaryOperand.Right is SqlConstantExpression rightConstant
+                            && rightConstant.Type == typeof(bool))
+                        {
+                            return _sqlExpressionFactory.MakeBinary(
+                                ExpressionType.Equal,
+                                sqlBinaryOperand.Left,
+                                _sqlExpressionFactory.Constant(!(bool)rightConstant.Value!, rightConstant.TypeMapping),
+                                sqlBinaryOperand.TypeMapping)!;
+                        }
                     }
 
                     // !(a == b) -> a != b
@@ -1496,7 +1531,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             negated,
                             sqlBinaryOperand.Left,
                             sqlBinaryOperand.Right,
-                            sqlBinaryOperand.TypeMapping);
+                            sqlBinaryOperand.TypeMapping)!;
                     }
                 }
                     break;
@@ -1607,7 +1642,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             sqlUnaryExpression.OperatorType,
                             sqlBinaryOperand.Left,
                             typeof(bool),
-                            sqlUnaryExpression.TypeMapping),
+                            sqlUnaryExpression.TypeMapping)!,
                         operandNullable);
 
                     var right = ProcessNullNotNull(
@@ -1615,7 +1650,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             sqlUnaryExpression.OperatorType,
                             sqlBinaryOperand.Right,
                             typeof(bool),
-                            sqlUnaryExpression.TypeMapping),
+                            sqlUnaryExpression.TypeMapping)!,
                         operandNullable);
 
                     return SimplifyLogicalSqlBinaryExpression(
@@ -1625,7 +1660,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 : ExpressionType.AndAlso,
                             left,
                             right,
-                            sqlUnaryExpression.TypeMapping));
+                            sqlUnaryExpression.TypeMapping)!);
                 }
 
                 case SqlFunctionExpression sqlFunctionExpression:
@@ -1639,9 +1674,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var left = ProcessNullNotNull(
                             _sqlExpressionFactory.MakeUnary(
                                 sqlUnaryExpression.OperatorType,
-                                sqlFunctionExpression.Arguments[0],
+                                sqlFunctionExpression.Arguments![0],
                                 typeof(bool),
-                                sqlUnaryExpression.TypeMapping),
+                                sqlUnaryExpression.TypeMapping)!,
                             operandNullable);
 
                         var right = ProcessNullNotNull(
@@ -1649,7 +1684,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 sqlUnaryExpression.OperatorType,
                                 sqlFunctionExpression.Arguments[1],
                                 typeof(bool),
-                                sqlUnaryExpression.TypeMapping),
+                                sqlUnaryExpression.TypeMapping)!,
                             operandNullable);
 
                         return SimplifyLogicalSqlBinaryExpression(
@@ -1659,7 +1694,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     : ExpressionType.OrElse,
                                 left,
                                 right,
-                                sqlUnaryExpression.TypeMapping));
+                                sqlUnaryExpression.TypeMapping)!);
                     }
 
                     if (!sqlFunctionExpression.IsNullable)
@@ -1703,7 +1738,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         sqlUnaryExpression.OperatorType,
                                         e,
                                         sqlUnaryExpression.Type,
-                                        sqlUnaryExpression.TypeMapping),
+                                        sqlUnaryExpression.TypeMapping)!,
                                     operandNullable))
                             .Aggregate(
                                 (r, e) => SimplifyLogicalSqlBinaryExpression(
@@ -1714,13 +1749,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return result;
                     }
                 }
-                    break;
+                break;
             }
 
             return sqlUnaryExpression;
         }
 
-        private static bool IsLogicalNot(SqlUnaryExpression sqlUnaryExpression)
+        private static bool IsLogicalNot(SqlUnaryExpression? sqlUnaryExpression)
             => sqlUnaryExpression != null
                 && sqlUnaryExpression.OperatorType == ExpressionType.Not
                 && sqlUnaryExpression.Type == typeof(bool);

@@ -18,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public class ObservableBackedBindingList<T> : SortableBindingList<T>
     {
         private bool _addingNewInstance;
-        private T _addNewInstance;
-        private T _cancelNewInstance;
+        private T? _addNewInstance;
+        private T? _cancelNewInstance;
 
         private readonly ICollection<T> _observableCollection;
         private bool _inCollectionChanged;
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && itemIndex < Count
                 && Equals(base[itemIndex], _addNewInstance))
             {
-                AddToObservableCollection(_addNewInstance);
+                AddToObservableCollection(_addNewInstance!);
                 _addNewInstance = default;
                 _addingNewInstance = false;
             }
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void ObservableCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void ObservableCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             // Don't try to change the binding list if the original change came from the binding list
             // and the ObservableCollection is just being changed to match it.
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (e.Action == NotifyCollectionChangedAction.Remove
                         || e.Action == NotifyCollectionChangedAction.Replace)
                     {
-                        foreach (T entity in e.OldItems)
+                        foreach (T entity in e.OldItems!)
                         {
                             Remove(entity);
                         }
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (e.Action == NotifyCollectionChangedAction.Add
                         || e.Action == NotifyCollectionChangedAction.Replace)
                     {
-                        foreach (T entity in e.NewItems)
+                        foreach (T entity in e.NewItems!)
                         {
                             Add(entity);
                         }

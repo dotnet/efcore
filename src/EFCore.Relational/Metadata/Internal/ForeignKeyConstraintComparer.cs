@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly ForeignKeyConstraintComparer Instance = new ForeignKeyConstraintComparer();
+        public static readonly ForeignKeyConstraintComparer Instance = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,8 +35,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IForeignKeyConstraint x, IForeignKeyConstraint y)
+        public int Compare(IForeignKeyConstraint? x, IForeignKeyConstraint? y)
         {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
             var result = StringComparer.Ordinal.Compare(x.Name, y.Name);
             if (result != 0)
             {
@@ -63,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IForeignKeyConstraint x, IForeignKeyConstraint y)
+        public bool Equals(IForeignKeyConstraint? x, IForeignKeyConstraint? y)
             => Compare(x, y) == 0;
 
         /// <summary>

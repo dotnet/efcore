@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public int P2 { get; set; }
         }
 
-        private class EntityTypeGraph : Multigraph<IEntityType, IForeignKey>
+        private class EntityTypeGraph : Multigraph<IReadOnlyEntityType, IReadOnlyForeignKey>
         {
-            public void Populate(params IEntityType[] entityTypes)
+            public void Populate(params IReadOnlyEntityType[] entityTypes)
             {
                 AddVertices(entityTypes);
 
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 }
             }
 
-            protected override string ToString(IEntityType vertex)
+            protected override string ToString(IReadOnlyEntityType vertex)
                 => vertex.DisplayName();
         }
 

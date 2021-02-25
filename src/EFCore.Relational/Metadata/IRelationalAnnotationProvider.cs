@@ -6,12 +6,14 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
     ///         A service typically implemented by database providers that gives access to annotations
-    ///         used by relational EF Core components on various elements of the <see cref="IModel" />.
+    ///         used by relational EF Core components on various elements of the <see cref="IRelationalModel" />.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance

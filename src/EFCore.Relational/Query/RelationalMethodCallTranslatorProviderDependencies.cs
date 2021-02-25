@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalMethodCallTranslatorProviderDependencies
+    public sealed record RelationalMethodCallTranslatorProviderDependencies
     {
         /// <summary>
         ///     <para>
@@ -71,40 +73,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The expression factory..
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Registered plugins.
         /// </summary>
-        public IEnumerable<IMethodCallTranslatorPlugin> Plugins { get; }
+        public IEnumerable<IMethodCallTranslatorPlugin> Plugins { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Relational Type Mapping Source.
         /// </summary>
-        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalMethodCallTranslatorProviderDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalMethodCallTranslatorProviderDependencies(sqlExpressionFactory, Plugins, RelationalTypeMappingSource);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="plugins"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalMethodCallTranslatorProviderDependencies With([NotNull] IEnumerable<IMethodCallTranslatorPlugin> plugins)
-            => new RelationalMethodCallTranslatorProviderDependencies(SqlExpressionFactory, plugins, RelationalTypeMappingSource);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalMethodCallTranslatorProviderDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new RelationalMethodCallTranslatorProviderDependencies(SqlExpressionFactory, Plugins, typeMappingSource);
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; [param: NotNull] init; }
     }
 }

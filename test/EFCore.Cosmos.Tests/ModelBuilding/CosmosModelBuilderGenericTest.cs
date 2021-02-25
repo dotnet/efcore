@@ -264,11 +264,5 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(CosmosTestHelpers.Instance);
         }
-
-        public class CosmosGenericKeylessEntities : GenericKeylessEntities
-        {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
-        }
     }
 }

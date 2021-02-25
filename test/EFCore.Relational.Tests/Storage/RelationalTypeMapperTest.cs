@@ -76,13 +76,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private RelationalTypeMapping GetTypeMapping(Type propertyType, int? maxLength = null)
         {
-            var property = CreateEntityType().AddProperty("MyProp", propertyType);
+            var property = CreateEntityType<MyType>().AddProperty("MyProp", propertyType);
             if (maxLength.HasValue)
             {
                 property.SetMaxLength(maxLength);
             }
 
-            return GetMapping(property);
+            return GetMapping((IProperty)property);
         }
 
         [ConditionalFact]
@@ -124,10 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private RelationalTypeMapping GetNamedMapping(Type propertyType, string typeName)
         {
-            var property = CreateEntityType().AddProperty("MyProp", propertyType);
+            var property = CreateEntityType<MyType>().AddProperty("MyProp", propertyType);
             property.SetColumnType(typeName);
 
-            return GetMapping(property);
+            return GetMapping((IProperty)property);
         }
 
         [ConditionalFact]

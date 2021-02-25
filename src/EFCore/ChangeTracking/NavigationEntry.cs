@@ -110,16 +110,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation.
-        /// </returns>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public abstract Task LoadAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -144,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Loading entities from the database using
         ///         <see cref="EntityFrameworkQueryableExtensions.Include{TEntity,TProperty}" /> or
         ///         <see
-        ///             cref="EntityFrameworkQueryableExtensions.ThenInclude{TEntity,TPreviousProperty,TProperty}(EntityFrameworkCore.Query.IIncludableQueryable{TEntity,IEnumerable{TPreviousProperty}},System.Linq.Expressions.Expression{System.Func{TPreviousProperty,TProperty}})" />
+        ///             cref="EntityFrameworkQueryableExtensions.ThenInclude{TEntity,TPreviousProperty,TProperty}(Query.IIncludableQueryable{TEntity,IEnumerable{TPreviousProperty}},System.Linq.Expressions.Expression{Func{TPreviousProperty,TProperty}})" />
         ///         , <see cref="Load" />, or <see cref="LoadAsync" /> will set this flag. Subsequent calls to <see cref="Load" />
         ///         or <see cref="LoadAsync" /> will then be a no-op.
         ///     </para>

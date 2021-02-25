@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private bool _isSorted;
         private ListSortDirection _sortDirection;
-        private PropertyDescriptor _sortProperty;
+        private PropertyDescriptor? _sortProperty;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override PropertyDescriptor SortPropertyCore
+        protected override PropertyDescriptor? SortPropertyCore
             => _sortProperty;
 
         /// <summary>
@@ -115,12 +115,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _prop = prop;
                 _direction = direction;
 
-                var property = typeof(Comparer<>).MakeGenericType(prop.PropertyType).GetTypeInfo().GetDeclaredProperty("Default");
-                _comparer = (IComparer)property.GetValue(null, null);
+                var property = typeof(Comparer<>).MakeGenericType(prop.PropertyType).GetTypeInfo().GetDeclaredProperty("Default")!;
+                _comparer = (IComparer)property.GetValue(null, null)!;
             }
 
-            public override int Compare(T left, T right)
+            public override int Compare(T? left, T? right)
             {
+                if (left is null)
+                {
+                    return right is null ? 0 : -1;
+                }
+
+                if (right is null)
+                {
+                    return 1;
+                }
+
                 var leftValue = _prop.GetValue(left);
                 var rightValue = _prop.GetValue(right);
 

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class QuerySqlGenerator : SqlExpressionVisitor
     {
-        private readonly StringBuilder _sqlBuilder = new StringBuilder();
+        private readonly StringBuilder _sqlBuilder = new();
         private IReadOnlyDictionary<string, object> _parameterValues;
         private List<SqlParameter> _sqlParameters;
         private bool _useValueProjection;
@@ -388,7 +388,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var unwrappedType = typeMapping.ClrType.UnwrapNullableType();
                 value = unwrappedType.IsEnum
                     ? Enum.ToObject(unwrappedType, value)
-                    : value;
+                    : unwrappedType == typeof(char)
+                        ? Convert.ChangeType(value, unwrappedType)
+                        : value;
             }
 
             var converter = typeMapping.Converter;

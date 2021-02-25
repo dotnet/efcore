@@ -5,6 +5,9 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -53,6 +56,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
+        [CA.NotNull]
+        public override string? Alias
+        {
+            get => base.Alias!;
+            internal set => base.Alias = value;
+        }
+
+        /// <summary>
         ///     The user-provided custom SQL for the table source.
         /// </summary>
         public virtual string Sql { get; }
@@ -94,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is FromSqlExpression fromSqlExpression
@@ -102,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(FromSqlExpression fromSqlExpression)
             => base.Equals(fromSqlExpression)
-                && string.Equals(Sql, fromSqlExpression.Sql)
+                && Sql == fromSqlExpression.Sql
                 && ExpressionEqualityComparer.Instance.Equals(Arguments, fromSqlExpression.Arguments);
 
         /// <inheritdoc />

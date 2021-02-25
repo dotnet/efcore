@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -35,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalNavigationBuilder HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
-            => (InternalNavigationBuilder)base.HasField(fieldName, configurationSource);
+        public new virtual InternalNavigationBuilder? HasField([CanBeNull] string? fieldName, ConfigurationSource configurationSource)
+            => (InternalNavigationBuilder?)base.HasField(fieldName, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalNavigationBuilder HasField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
-            => (InternalNavigationBuilder)base.HasField(fieldInfo, configurationSource);
+        public new virtual InternalNavigationBuilder? HasField([CanBeNull] FieldInfo? fieldInfo, ConfigurationSource configurationSource)
+            => (InternalNavigationBuilder?)base.HasField(fieldInfo, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,10 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalNavigationBuilder UsePropertyAccessMode(
+        public new virtual InternalNavigationBuilder? UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             ConfigurationSource configurationSource)
-            => (InternalNavigationBuilder)base.UsePropertyAccessMode(propertyAccessMode, configurationSource);
+            => (InternalNavigationBuilder?)base.UsePropertyAccessMode(propertyAccessMode, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -78,11 +80,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalNavigationBuilder AutoInclude(bool? autoInclude, ConfigurationSource configurationSource)
+        public virtual InternalNavigationBuilder? AutoInclude(bool? autoInclude, ConfigurationSource configurationSource)
         {
             if (CanSetAutoInclude(autoInclude, configurationSource))
             {
-                Metadata.SetIsEagerLoaded(autoInclude, configurationSource);
+                if (configurationSource == ConfigurationSource.Explicit)
+                {
+                    ((IMutableNavigation)Metadata).SetIsEagerLoaded(autoInclude);
+                }
+                else
+                {
+                    ((IConventionNavigation)Metadata).SetIsEagerLoaded(
+                        autoInclude, configurationSource == ConfigurationSource.DataAnnotation);
+                }
 
                 return this;
             }
@@ -116,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalNavigationBuilder IsRequired(bool? required, ConfigurationSource configurationSource)
+        public virtual InternalNavigationBuilder? IsRequired(bool? required, ConfigurationSource configurationSource)
         {
             if (configurationSource == ConfigurationSource.Explicit
                 || CanSetIsRequired(required, configurationSource))
@@ -134,16 +144,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     return Metadata.IsOnDependent
-                        ? foreignKey.Builder.IsRequired(required, configurationSource)
-                            .Metadata.DependentToPrincipal.Builder
-                        : foreignKey.Builder.IsRequiredDependent(required, configurationSource)
-                            .Metadata.PrincipalToDependent.Builder;
+                        ? foreignKey.Builder.IsRequired(required, configurationSource)!
+                            .Metadata.DependentToPrincipal!.Builder
+                        : foreignKey.Builder.IsRequiredDependent(required, configurationSource)!
+                            .Metadata.PrincipalToDependent!.Builder;
                 }
 
                 if (Metadata.IsOnDependent)
                 {
-                    return foreignKey.Builder.IsRequired(required, configurationSource)
-                        .Metadata.DependentToPrincipal.Builder;
+                    return foreignKey.Builder.IsRequired(required, configurationSource)!
+                        .Metadata.DependentToPrincipal!.Builder;
                 }
 
                 throw new InvalidOperationException(
@@ -174,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.UsePropertyAccessMode(
+        IConventionPropertyBaseBuilder? IConventionPropertyBaseBuilder.UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation)
             => UsePropertyAccessMode(
@@ -182,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionNavigationBuilder IConventionNavigationBuilder.UsePropertyAccessMode(
+        IConventionNavigationBuilder? IConventionNavigationBuilder.UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation)
             => UsePropertyAccessMode(
@@ -190,42 +200,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionPropertyBaseBuilder.CanSetField(string fieldName, bool fromDataAnnotation)
+        bool IConventionPropertyBaseBuilder.CanSetField(string? fieldName, bool fromDataAnnotation)
             => CanSetField(
                 fieldName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.HasField(string fieldName, bool fromDataAnnotation)
+        IConventionPropertyBaseBuilder? IConventionPropertyBaseBuilder.HasField(string? fieldName, bool fromDataAnnotation)
             => HasField(
                 fieldName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionNavigationBuilder IConventionNavigationBuilder.HasField(string fieldName, bool fromDataAnnotation)
+        IConventionNavigationBuilder? IConventionNavigationBuilder.HasField(string? fieldName, bool fromDataAnnotation)
             => HasField(
                 fieldName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionPropertyBaseBuilder.CanSetField(FieldInfo fieldInfo, bool fromDataAnnotation)
+        bool IConventionPropertyBaseBuilder.CanSetField(FieldInfo? fieldInfo, bool fromDataAnnotation)
             => CanSetField(
                 fieldInfo,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.HasField(FieldInfo fieldInfo, bool fromDataAnnotation)
+        IConventionPropertyBaseBuilder? IConventionPropertyBaseBuilder.HasField(FieldInfo? fieldInfo, bool fromDataAnnotation)
             => HasField(
                 fieldInfo,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionNavigationBuilder IConventionNavigationBuilder.HasField(FieldInfo fieldInfo, bool fromDataAnnotation)
+        IConventionNavigationBuilder? IConventionNavigationBuilder.HasField(FieldInfo? fieldInfo, bool fromDataAnnotation)
             => HasField(
                 fieldInfo,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -237,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionNavigationBuilder IConventionNavigationBuilder.AutoInclude(bool? autoInclude, bool fromDataAnnotation)
+        IConventionNavigationBuilder? IConventionNavigationBuilder.AutoInclude(bool? autoInclude, bool fromDataAnnotation)
             => AutoInclude(autoInclude, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -247,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionNavigationBuilder IConventionNavigationBuilder.IsRequired(bool? required, bool fromDataAnnotation)
+        IConventionNavigationBuilder? IConventionNavigationBuilder.IsRequired(bool? required, bool fromDataAnnotation)
             => IsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

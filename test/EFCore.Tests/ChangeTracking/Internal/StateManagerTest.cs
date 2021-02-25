@@ -64,6 +64,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [ConditionalFact]
+        public void Identity_conflict_throws_for_owned_primary_key()
+        {
+            using var context = new IdentityConflictContext();
+            context.Attach(new SingleKey { Id = 77, AlternateId = 66, Owned = new SingleKeyOwned()});
+
+            var duplicateOwned = new SingleKeyOwned();
+            context.Entry(duplicateOwned).Property("SingleKeyId").CurrentValue = 77;
+
+            Assert.Equal(
+                CoreStrings.IdentityConflictOwned("SingleKeyOwned", "{'SingleKeyId'}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new SingleKey { Id = 78, AlternateId = 67, Owned = duplicateOwned })).Message);
+        }
+
+        [ConditionalFact]
         public void Identity_conflict_throws_for_composite_primary_key()
         {
             using var context = new IdentityConflictContext();
@@ -116,6 +132,38 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [ConditionalFact]
+        public void Identity_conflict_throws_for_owned_composite_primary_key()
+        {
+            using var context = new IdentityConflictContext();
+            context.Attach(
+                new CompositeKey
+                {
+                    Id1 = 77,
+                    Id2 = 78,
+                    AlternateId1 = 66,
+                    AlternateId2 = 67,
+                    Owned = new CompositeKeyOwned()
+                });
+
+            var duplicateOwned = new CompositeKeyOwned();
+            context.Entry(duplicateOwned).Property("CompositeKeyId1").CurrentValue = 77;
+            context.Entry(duplicateOwned).Property("CompositeKeyId2").CurrentValue = 78;
+
+            Assert.Equal(
+                CoreStrings.IdentityConflictOwned("CompositeKeyOwned", "{'CompositeKeyId1', 'CompositeKeyId2'}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new CompositeKey
+                        {
+                            Id1 = 177,
+                            Id2 = 178,
+                            AlternateId1 = 166,
+                            AlternateId2 = 168,
+                            Owned = duplicateOwned
+                        })).Message);
+        }
+
+        [ConditionalFact]
         public void Identity_conflict_throws_for_primary_key_values_logged()
         {
             using var context = new SensitiveIdentityConflictContext();
@@ -141,6 +189,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Throws<InvalidOperationException>(
                     () => context.Attach(
                         new SingleKey { Id = 78, AlternateId = 66 })).Message);
+        }
+
+        [ConditionalFact]
+        public void Identity_conflict_throws_for_owned_primary_keylogged()
+        {
+            using var context = new SensitiveIdentityConflictContext();
+            context.Attach(new SingleKey { Id = 77, AlternateId = 66, Owned = new SingleKeyOwned()});
+
+            var duplicateOwned = new SingleKeyOwned();
+            context.Entry(duplicateOwned).Property("SingleKeyId").CurrentValue = 77;
+
+            Assert.Equal(
+                CoreStrings.IdentityConflictOwnedSensitive("SingleKeyOwned", "{SingleKeyId: 77}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new SingleKey { Id = 78, AlternateId = 67, Owned = duplicateOwned })).Message);
         }
 
         [ConditionalFact]
@@ -192,6 +256,38 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             Id2 = 79,
                             AlternateId1 = 66,
                             AlternateId2 = 67
+                        })).Message);
+        }
+
+        [ConditionalFact]
+        public void Identity_conflict_throws_for_owned_composite_primary_key_logged()
+        {
+            using var context = new SensitiveIdentityConflictContext();
+            context.Attach(
+                new CompositeKey
+                {
+                    Id1 = 77,
+                    Id2 = 78,
+                    AlternateId1 = 66,
+                    AlternateId2 = 67,
+                    Owned = new CompositeKeyOwned()
+                });
+
+            var duplicateOwned = new CompositeKeyOwned();
+            context.Entry(duplicateOwned).Property("CompositeKeyId1").CurrentValue = 77;
+            context.Entry(duplicateOwned).Property("CompositeKeyId2").CurrentValue = 78;
+
+            Assert.Equal(
+                CoreStrings.IdentityConflictOwnedSensitive("CompositeKeyOwned", "{CompositeKeyId1: 77, CompositeKeyId2: 78}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Attach(
+                        new CompositeKey
+                        {
+                            Id1 = 177,
+                            Id2 = 178,
+                            AlternateId1 = 166,
+                            AlternateId2 = 168,
+                            Owned = duplicateOwned
                         })).Message);
         }
 
@@ -276,23 +372,33 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         b.HasAlternateKey(e => e.AlternateId);
                         b.Property(e => e.Id).ValueGeneratedNever();
                         b.Property(e => e.AlternateId).ValueGeneratedNever();
+                        b.OwnsOne(e => e.Owned);
                     });
 
                 modelBuilder.Entity<CompositeKey>(
                     b =>
                     {
-                        b.HasKey(
-                            e => new { e.Id1, e.Id2 });
-                        b.HasAlternateKey(
-                            e => new { e.AlternateId1, e.AlternateId2 });
+                        b.HasKey(e => new { e.Id1, e.Id2 });
+                        b.HasAlternateKey(e => new { e.AlternateId1, e.AlternateId2 });
+                        b.OwnsOne(e => e.Owned);
                     });
             }
+        }
+
+        private class SingleKeyOwned
+        {
+        }
+
+        private class CompositeKeyOwned
+        {
         }
 
         private class SingleKey
         {
             public int? Id { get; set; }
             public int? AlternateId { get; set; }
+
+            public SingleKeyOwned Owned { get; set; }
         }
 
         private class CompositeKey
@@ -302,6 +408,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int? AlternateId1 { get; set; }
             public int? AlternateId2 { get; set; }
+
+            public CompositeKeyOwned Owned { get; set; }
         }
 
         [ConditionalFact]

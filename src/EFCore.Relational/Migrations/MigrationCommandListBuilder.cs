@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public class MigrationCommandListBuilder
     {
-        private readonly List<MigrationCommand> _commands = new List<MigrationCommand>();
+        private readonly List<MigrationCommand> _commands = new();
         private readonly MigrationsSqlGeneratorDependencies _dependencies;
 
         private IRelationalCommandBuilder _commandBuilder;

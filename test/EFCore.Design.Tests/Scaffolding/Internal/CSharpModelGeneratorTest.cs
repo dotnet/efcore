@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             modelBuilder.Entity("TestEntity").Property<int>("Id").HasAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal, 0);
 
             var result = generator.GenerateModel(
-                modelBuilder.Model,
+                modelBuilder.FinalizeModel(),
                 new ModelCodeGenerationOptions
                 {
                     ModelNamespace = "TestNamespace",

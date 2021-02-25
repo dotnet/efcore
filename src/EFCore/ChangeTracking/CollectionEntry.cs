@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Linq;
 using System.Threading;
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var context = InternalEntry.StateManager.Context;
 
                 var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
-                    && !((Model)context.Model).SkipDetectChanges
+                    && !((IRuntimeModel)context.Model).SkipDetectChanges
                         ? context.GetDependencies().ChangeDetector
                         : null;
 
@@ -219,16 +220,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
-        /// <returns>
-        ///     A task that represents the asynchronous save operation.
-        /// </returns>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous save operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public override Task LoadAsync(CancellationToken cancellationToken = default)
         {
             EnsureInitialized();
@@ -285,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
 
         private ICollectionLoader TargetLoader
-            => _loader ??= Metadata is ISkipNavigation skipNavigation
+            => _loader ??= Metadata is IRuntimeSkipNavigation skipNavigation
                 ? skipNavigation.GetManyToManyLoader()
                 : new EntityFinderCollectionLoaderAdapter(
                     InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType),

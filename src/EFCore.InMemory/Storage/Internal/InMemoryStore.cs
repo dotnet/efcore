@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private readonly IInMemoryTableFactory _tableFactory;
         private readonly bool _useNameMatching;
 
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
         private Dictionary<object, IInMemoryTable> _tables;
 
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         private static Dictionary<object, IInMemoryTable> CreateTables()
-            => new Dictionary<object, IInMemoryTable>();
+            => new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 {
                     foreach (var et in entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract()))
                     {
-                        var key = _useNameMatching ? (object)et.FullName() : et;
+                        var key = _useNameMatching ? (object)et.Name : et;
                         if (_tables.TryGetValue(key, out var table))
                         {
                             data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             var entityTypes = entityType.GetAllBaseTypesInclusive();
             foreach (var currentEntityType in entityTypes)
             {
-                var key = _useNameMatching ? (object)currentEntityType.FullName() : currentEntityType;
+                var key = _useNameMatching ? (object)currentEntityType.Name : currentEntityType;
                 if (!_tables.TryGetValue(key, out var table))
                 {
                     _tables.Add(key, table = _tableFactory.Create(currentEntityType, baseTable));
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 baseTable = table;
             }
 
-            return _tables[_useNameMatching ? (object)entityType.FullName() : entityType];
+            return _tables[_useNameMatching ? (object)entityType.Name : entityType];
         }
     }
 }

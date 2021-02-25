@@ -4,6 +4,8 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
 
         private static EventId MakeValidationId(Id id)
-            => new EventId((int)id, _validationPrefix + id);
+            => new((int)id, _validationPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -127,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
 
         private static EventId MakeTransactionId(Id id)
-            => new EventId((int)id, _transactionPrefix + id);
+            => new((int)id, _transactionPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -143,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
 
         private static EventId MakeScaffoldingId(Id id)
-            => new EventId((int)id, _scaffoldingPrefix + id);
+            => new((int)id, _scaffoldingPrefix + id);
 
         /// <summary>
         ///     A column was found.

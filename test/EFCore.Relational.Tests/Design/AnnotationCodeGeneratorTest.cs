@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             var entityType = modelBuilder.Model.GetEntityTypes().Single();
 
             var annotations = entityType.GetAnnotations().ToDictionary(a => a.Name, a => a);
-            CreateGenerator().RemoveAnnotationsHandledByConventions(entityType, annotations);
+            CreateGenerator().RemoveAnnotationsHandledByConventions((IEntityType)entityType, annotations);
 
             Assert.DoesNotContain(RelationalAnnotationNames.IsTableExcludedFromMigrations, annotations.Keys);
         }
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
         private AnnotationCodeGenerator CreateGenerator()
-            => new AnnotationCodeGenerator(
+            => new(
                 new AnnotationCodeGeneratorDependencies(
                     new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

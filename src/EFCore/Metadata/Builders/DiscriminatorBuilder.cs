@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -41,24 +43,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="complete"> The value indicating if this discriminator mapping is complete. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder IsComplete(bool complete = true)
+        public virtual DiscriminatorBuilder? IsComplete(bool complete = true)
             => IsComplete(complete, ConfigurationSource.Explicit);
 
-        private DiscriminatorBuilder IsComplete(bool complete, ConfigurationSource configurationSource)
+        private DiscriminatorBuilder? IsComplete(bool complete, ConfigurationSource configurationSource)
         {
             if (configurationSource == ConfigurationSource.Explicit)
             {
-                EntityTypeBuilder.Metadata.SetDiscriminatorMappingComplete(complete);
+                ((IMutableEntityType)EntityTypeBuilder.Metadata).SetDiscriminatorMappingComplete(complete);
             }
             else
             {
-                if (!EntityTypeBuilder.CanSetAnnotation(
-                    CoreAnnotationNames.DiscriminatorMappingComplete, complete, configurationSource))
+                if (!((IConventionEntityTypeBuilder)EntityTypeBuilder).CanSetAnnotation(
+                    CoreAnnotationNames.DiscriminatorMappingComplete, complete,
+                    configurationSource == ConfigurationSource.DataAnnotation))
                 {
                     return null;
                 }
 
-                EntityTypeBuilder.Metadata.SetDiscriminatorMappingComplete(
+                ((IConventionEntityType)EntityTypeBuilder.Metadata).SetDiscriminatorMappingComplete(
                     complete, configurationSource == ConfigurationSource.DataAnnotation);
             }
 
@@ -70,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder HasValue([CanBeNull] object value)
+        public virtual DiscriminatorBuilder? HasValue([CanBeNull] object? value)
             => HasValue(EntityTypeBuilder, value, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -79,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TEntity"> The entity type for which a discriminator value is being set. </typeparam>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder HasValue<TEntity>([CanBeNull] object value)
+        public virtual DiscriminatorBuilder? HasValue<TEntity>([CanBeNull] object? value)
             => HasValue(typeof(TEntity), value);
 
         /// <summary>
@@ -88,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityType"> The entity type for which a discriminator value is being set. </param>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder HasValue([NotNull] Type entityType, [CanBeNull] object value)
+        public virtual DiscriminatorBuilder? HasValue([NotNull] Type entityType, [CanBeNull] object? value)
         {
             var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(
                 entityType, ConfigurationSource.Explicit, shouldBeOwned: null);
@@ -102,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityTypeName"> The name of the entity type for which a discriminator value is being set. </param>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder HasValue([NotNull] string entityTypeName, [CanBeNull] object value)
+        public virtual DiscriminatorBuilder? HasValue([NotNull] string entityTypeName, [CanBeNull] object? value)
         {
             var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(
                 entityTypeName, ConfigurationSource.Explicit, shouldBeOwned: null);
@@ -110,9 +113,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return HasValue(entityTypeBuilder, value, ConfigurationSource.Explicit);
         }
 
-        private DiscriminatorBuilder HasValue(
-            InternalEntityTypeBuilder entityTypeBuilder,
-            object value,
+        private DiscriminatorBuilder? HasValue(
+            InternalEntityTypeBuilder? entityTypeBuilder,
+            object? value,
             ConfigurationSource configurationSource)
         {
             if (entityTypeBuilder == null)
@@ -122,9 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             var baseEntityTypeBuilder = EntityTypeBuilder;
             if (!baseEntityTypeBuilder.Metadata.IsAssignableFrom(entityTypeBuilder.Metadata)
-                && ((baseEntityTypeBuilder.Metadata.ClrType != null
-                        && entityTypeBuilder.Metadata.ClrType != null
-                        && !baseEntityTypeBuilder.Metadata.ClrType.IsAssignableFrom(entityTypeBuilder.Metadata.ClrType))
+                && (!baseEntityTypeBuilder.Metadata.ClrType.IsAssignableFrom(entityTypeBuilder.Metadata.ClrType)
                     || entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, configurationSource) == null))
             {
                 throw new InvalidOperationException(
@@ -135,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             if (configurationSource == ConfigurationSource.Explicit)
             {
-                entityTypeBuilder.Metadata.SetDiscriminatorValue(value);
+                ((IMutableEntityType)entityTypeBuilder.Metadata).SetDiscriminatorValue(value);
             }
             else
             {
@@ -144,14 +145,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     return null;
                 }
 
-                entityTypeBuilder.Metadata.SetDiscriminatorValue(value, configurationSource == ConfigurationSource.DataAnnotation);
+                ((IConventionEntityType)entityTypeBuilder.Metadata)
+                    .SetDiscriminatorValue(value, configurationSource == ConfigurationSource.DataAnnotation);
             }
 
             return this;
         }
 
         /// <inheritdoc />
-        IConventionDiscriminatorBuilder IConventionDiscriminatorBuilder.IsComplete(bool complete, bool fromDataAnnotation)
+        IConventionDiscriminatorBuilder? IConventionDiscriminatorBuilder.IsComplete(bool complete, bool fromDataAnnotation)
             => IsComplete(complete, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -160,30 +162,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 CoreAnnotationNames.DiscriminatorMappingComplete, fromDataAnnotation);
 
         /// <inheritdoc />
-        IConventionDiscriminatorBuilder IConventionDiscriminatorBuilder.HasValue(object value, bool fromDataAnnotation)
+        IConventionDiscriminatorBuilder? IConventionDiscriminatorBuilder.HasValue(object? value, bool fromDataAnnotation)
             => HasValue(
                 EntityTypeBuilder, value,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
-        IConventionDiscriminatorBuilder IConventionDiscriminatorBuilder.HasValue(
+        IConventionDiscriminatorBuilder? IConventionDiscriminatorBuilder.HasValue(
             IConventionEntityType entityType,
-            object value,
+            object? value,
             bool fromDataAnnotation)
             => HasValue(
-                (InternalEntityTypeBuilder)entityType.Builder, value,
+                (InternalEntityTypeBuilder?)entityType.Builder, value,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
-        bool IConventionDiscriminatorBuilder.CanSetValue(object value, bool fromDataAnnotation)
+        bool IConventionDiscriminatorBuilder.CanSetValue(object? value, bool fromDataAnnotation)
             => ((IConventionDiscriminatorBuilder)this).CanSetValue(EntityTypeBuilder.Metadata, value, fromDataAnnotation);
 
         /// <inheritdoc />
-        bool IConventionDiscriminatorBuilder.CanSetValue(IConventionEntityType entityType, object value, bool fromDataAnnotation)
+        bool IConventionDiscriminatorBuilder.CanSetValue(IConventionEntityType entityType, object? value, bool fromDataAnnotation)
         {
-            var baseEntityTypeBuilder = EntityTypeBuilder;
-            if (!baseEntityTypeBuilder.Metadata.IsAssignableFrom(entityType)
-                && !entityType.Builder.CanSetBaseType(baseEntityTypeBuilder.Metadata, fromDataAnnotation))
+            IConventionEntityType baseEntityType = EntityTypeBuilder.Metadata;
+            if (!baseEntityType.IsAssignableFrom(entityType)
+                && !entityType.Builder.CanSetBaseType(baseEntityType, fromDataAnnotation))
             {
                 return false;
             }
@@ -198,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -208,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

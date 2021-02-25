@@ -9,6 +9,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -16,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public class FactoryMethodBinding : InstantiationBinding
     {
-        private readonly object _factoryInstance;
+        private readonly object? _factoryInstance;
         private readonly MethodInfo _factoryMethod;
 
         /// <summary>

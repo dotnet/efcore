@@ -790,14 +790,14 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var attendees1 = new List<TestModels.ConferencePlanner.Attendee>
                 {
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "sonicrainboom@sample.com",
                         FirstName = "Rainbow",
                         LastName = "Dash",
                         UserName = "RainbowDash"
                     },
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "solovely@sample.com",
                         FirstName = "Flutter",
@@ -808,14 +808,14 @@ namespace Microsoft.EntityFrameworkCore
 
                 var attendees2 = new List<TestModels.ConferencePlanner.Attendee>
                 {
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "applesforever@sample.com",
                         FirstName = "Apple",
                         LastName = "Jack",
                         UserName = "Applejack"
                     },
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "precious@sample.com",
                         FirstName = "Rarity",
@@ -826,14 +826,14 @@ namespace Microsoft.EntityFrameworkCore
 
                 var attendees3 = new List<TestModels.ConferencePlanner.Attendee>
                 {
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "princess@sample.com",
                         FirstName = "Twilight",
                         LastName = "Sparkle",
                         UserName = "Princess"
                     },
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "pinkie@sample.com",
                         FirstName = "Pinkie",

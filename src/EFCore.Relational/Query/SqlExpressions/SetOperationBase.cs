@@ -4,6 +4,9 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -41,6 +44,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
+        [CA.NotNull]
+        public override string? Alias
+        {
+            get => base.Alias!;
+            internal set => base.Alias = value;
+        }
+
+        /// <summary>
         ///     The bool value indicating whether result will remove duplicate rows.
         /// </summary>
         public virtual bool IsDistinct { get; }
@@ -56,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual SelectExpression Source2 { get; }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SetOperationBase setOperationBase
