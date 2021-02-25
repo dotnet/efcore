@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             internal static int And { private get; set; }
             internal static int Chocolate { get; private set; }
 
-            protected internal static int With => 0;
+            protected internal static int With
+                => 0;
 
             public static int No
             {
@@ -50,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             internal int May { private get; set; }
             protected internal int Contain { get; private set; }
 
-            public int TreeNuts => 0;
+            public int TreeNuts
+                => 0;
 
             public int Just
             {

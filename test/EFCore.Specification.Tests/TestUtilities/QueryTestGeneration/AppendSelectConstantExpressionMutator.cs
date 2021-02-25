@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
         {
         }
 
-        private readonly List<(Type type, Expression expression)> _expressions = new List<(Type type, Expression expression)>
+        private readonly List<(Type type, Expression expression)> _expressions = new()
         {
             (type: typeof(int), expression: Expression.Constant(42, typeof(int))),
             (type: typeof(int?), expression: Expression.Constant(7, typeof(int?))),
@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             (type: typeof(string), expression: Expression.Constant(null, typeof(string)))
         };
 
-        public override bool IsValid(Expression expression) => IsQueryableResult(expression);
+        public override bool IsValid(Expression expression)
+            => IsQueryableResult(expression);
 
         public override Expression Apply(Expression expression, Random random)
         {

@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
     public class ProcedurallyGeneratedQueryExecutor
     {
-        private static readonly Dictionary<string, List<string>> _knownFailingTests = new Dictionary<string, List<string>>();
+        private static readonly Dictionary<string, List<string>> _knownFailingTests = new();
 
         static ProcedurallyGeneratedQueryExecutor()
         {
@@ -127,7 +127,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure("Except_dbset", "cannot be used for"); // 12568
             AddExpectedFailure("Except_nested", "cannot be used for"); // 12568
 
-            AddExpectedFailure("GroupBy_aggregate_Pushdown", "Invalid column name 'c'."); // 12569
             AddExpectedFailure("GroupBy_with_orderby_take_skip_distinct", "Invalid column name 'c'."); // 12569
 
             AddExpectedFailure(
@@ -159,14 +158,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 "Project_single_element_from_collection_with_OrderBy_Distinct_and_FirstOrDefault",
                 "Only one expression can be specified in the select list when the subquery is not introduced with EXISTS."); // 12580
 
-            AddExpectedFailure("Optional_navigation_type_compensation_works_with_DTOs", "Value cannot be null."); // 12591
-            AddExpectedFailure("ToString_with_formatter_is_evaluated_on_the_client", "Value cannot be null."); // 12591
-            AddExpectedFailure("Select_expression_datetime_add_hour", "Value cannot be null."); // 12591
-            AddExpectedFailure("Select_expression_long_to_string", "Value cannot be null."); // 12591
-            AddExpectedFailure("Query_expression_with_to_string_and_contains", "Value cannot be null."); // 12591
-            AddExpectedFailure("Queryable_reprojection", "Value cannot be null."); // 12591
-            AddExpectedFailure("Queryable_simple_anonymous_subquery", "Value cannot be null."); // 12591
-
             AddExpectedFailure(
                 "Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault",
                 "Object reference not set to an instance of an object."); // 12597
@@ -182,25 +173,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 "Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method",
                 "Unable to cast object of type 'System.String' to type"); // 12601
 
-            AddExpectedFailure("GroupBy_Shadow", "Value does not fall within the expected range."); // 12640
-            AddExpectedFailure("GroupBy_Shadow3", "Value does not fall within the expected range."); // 12640
-            AddExpectedFailure("GroupBy_SelectMany", "Value does not fall within the expected range."); // 12640
-
-            AddExpectedFailure(
-                "Select_collection_navigation_simple",
-                "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
-            AddExpectedFailure(
-                "Correlated_collections_nested_with_custom_ordering",
-                "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
-            AddExpectedFailure(
-                "Correlated_collections_multiple_nested_complex_collections",
-                "Index was out of range. Must be non-negative and less than the size of the collection."); // 12643
+            AddExpectedFailure("GroupBy_Shadow", "Value does not fall within the expected range."); // 12088
+            AddExpectedFailure("GroupBy_Shadow3", "Value does not fall within the expected range."); // 12088
+            AddExpectedFailure("GroupBy_SelectMany", "Value does not fall within the expected range."); // 12088
 
             AddExpectedFailure("GroupJoin_GroupBy_Aggregate_5", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_Key_as_part_of_element_selector", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_Property_Select_Key_Min", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_Property_Include_Aggregate_with_anonymous_selector", "Incorrect syntax near '+'."); // 12656
-            AddExpectedFailure("GroupBy_aggregate_Pushdown", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_anonymous_with_alias_Select_Key_Sum", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_Property_Select_Key_LongCount", "Incorrect syntax near '+'."); // 12656
             AddExpectedFailure("GroupBy_filter_count_OrderBy_count_Select_sum", "Incorrect syntax near '+'."); // 12656
@@ -307,32 +287,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure("Where_Join_Exists", "Conversion failed when converting date and/or time from character string."); // 12797
 
             AddExpectedFailure(
-                "Parameter_extraction_short_circuits_1",
-                "An exception was thrown while attempting to evaluate the LINQ query parameter expression"); // 12820
-            AddExpectedFailure(
-                "Parameter_extraction_short_circuits_3",
-                "An exception was thrown while attempting to evaluate the LINQ query parameter expression"); // 12820
-
-            AddExpectedFailure(
                 "Entity_equality_local",
                 "has already been declared. Variable names must be unique within a query batch or stored procedure."); // 12871
             AddExpectedFailure(
                 "Where_poco_closure",
                 "has already been declared. Variable names must be unique within a query batch or stored procedure."); // 12871
-
-            AddExpectedFailure(
-                "QueryType_with_included_navs_multi_level", "Object reference not set to an instance of an object."); // 12874
-
-            AddExpectedFailure("Select_null_propagation_negative1", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative2", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative3", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative4", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative5", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative6", "Specified cast is not valid."); // 12958
-            AddExpectedFailure("Select_null_propagation_negative7", "Specified cast is not valid."); // 12958
-
-            AddExpectedFailure("DefaultIfEmpty_in_subquery", "' is not defined for type '"); // 12960
-            AddExpectedFailure("SelectMany_Joined_DefaultIfEmpty2", "' is not defined for type '"); // 12960
         }
 
         private static void AddExpectedFailure(string testName, string expectedException)
@@ -394,17 +353,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 {
                 }
                 else if (exception.Message.StartsWith(
-                    @"Error generated for warning 'Microsoft.EntityFrameworkCore.Query.IncludeIgnoredWarning"))
-                {
-                }
-                else if (exception.Message.Contains(@"The expected type was 'System.Int64' but the actual value was of type")) // 12570
-                {
-                }
-                else if (exception.Message.Contains(
-                        @"The expected type was 'System.UInt32' but the actual value was of type 'System.Int32'")
-                    || exception.Message.Contains(
-                        @"The expected type was 'System.Nullable`1[System.UInt32]' but the actual value was of type 'System.Int32'.")
-                ) // 13753
+                    @"Error generated for warning 'Microsoft.EntityFrameworkCore.Query.IncludeIgnoredWarning", StringComparison.Ordinal))
                 {
                 }
                 else if (exception.Message

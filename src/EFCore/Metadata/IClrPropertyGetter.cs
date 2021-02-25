@@ -3,6 +3,8 @@
 
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -16,13 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
         /// <returns> The property value. </returns>
-        object GetClrValue([NotNull] object entity);
+        object? GetClrValue([NotNull] object entity);
 
         /// <summary>
         ///     Checks whether or not the property is set to the CLR default for its type.
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
-        /// <returns> True if the property value is the CLR default; false it is any other value. </returns>
+        /// <returns> <see langword="true" /> if the property value is the CLR default; <see langword="false" /> it is any other value. </returns>
         bool HasDefaultValue([NotNull] object entity);
     }
 }

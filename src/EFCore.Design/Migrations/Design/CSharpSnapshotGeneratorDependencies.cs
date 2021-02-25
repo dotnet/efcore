@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class CSharpSnapshotGeneratorDependencies
+    public sealed record CSharpSnapshotGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -50,38 +50,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         [EntityFrameworkInternal]
         public CSharpSnapshotGeneratorDependencies(
             [NotNull] ICSharpHelper csharpHelper,
-            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
+            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource,
+            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator)
         {
             Check.NotNull(csharpHelper, nameof(csharpHelper));
 
             CSharpHelper = csharpHelper;
             RelationalTypeMappingSource = relationalTypeMappingSource;
+            AnnotationCodeGenerator = annotationCodeGenerator;
         }
 
         /// <summary>
         ///     The C# helper.
         /// </summary>
-        public ICSharpHelper CSharpHelper { get; }
+        public ICSharpHelper CSharpHelper { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; }
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
+        ///     The annotation code generator.
         /// </summary>
-        /// <param name="csharpHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CSharpSnapshotGeneratorDependencies With([NotNull] ICSharpHelper csharpHelper)
-            => new CSharpSnapshotGeneratorDependencies(csharpHelper, RelationalTypeMappingSource);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="relationalTypeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CSharpSnapshotGeneratorDependencies With([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
-            => new CSharpSnapshotGeneratorDependencies(CSharpHelper, relationalTypeMappingSource);
+        public IAnnotationCodeGenerator AnnotationCodeGenerator { get; [param: NotNull] init; }
     }
 }

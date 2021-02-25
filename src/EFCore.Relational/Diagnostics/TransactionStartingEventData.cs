@@ -7,6 +7,8 @@ using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently in use, or <c>null</c> if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently in use, or <see langword="null" /> if not known. </param>
         /// <param name="isolationLevel"> The transaction isolation level. </param>
         /// <param name="transactionId"> A correlation ID that identifies the Entity Framework transaction being used. </param>
         /// <param name="connectionId"> A correlation ID that identifies the <see cref="DbConnection" /> instance being used. </param>
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public TransactionStartingEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             IsolationLevel isolationLevel,
             Guid transactionId,
             Guid connectionId,

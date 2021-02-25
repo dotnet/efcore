@@ -3,9 +3,10 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] Expression materializationContextExpression)
         {
             Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(materializationContextExpression, nameof(materializationContextExpression));
+            Check.NotNull(entityType, nameof(materializationContextExpression));
 
             EntityType = entityType;
             MaterializationContextExpression = materializationContextExpression;
@@ -45,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The index where its value can be found. </returns>
-        public int GetValueBufferIndex([NotNull] IPropertyBase property) => property.GetIndex();
+        public int GetValueBufferIndex([NotNull] IPropertyBase property)
+            => property.GetIndex();
     }
 }

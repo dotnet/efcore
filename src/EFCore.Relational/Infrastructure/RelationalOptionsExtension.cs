@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -28,16 +30,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     {
         // NB: When adding new options, make sure to update the copy constructor below.
 
-        private string _connectionString;
-        private DbConnection _connection;
+        private string? _connectionString;
+        private DbConnection? _connection;
         private int? _commandTimeout;
         private int? _maxBatchSize;
         private int? _minBatchSize;
         private bool _useRelationalNulls;
-        private string _migrationsAssembly;
-        private string _migrationsHistoryTableName;
-        private string _migrationsHistoryTableSchema;
-        private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
+        private QuerySplittingBehavior? _querySplittingBehavior;
+        private string? _migrationsAssembly;
+        private string? _migrationsHistoryTableName;
+        private string? _migrationsHistoryTableSchema;
+        private Func<ExecutionStrategyDependencies, IExecutionStrategy>? _executionStrategyFactory;
 
         /// <summary>
         ///     Creates a new set of options with everything set to default values.
@@ -60,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _maxBatchSize = copyFrom._maxBatchSize;
             _minBatchSize = copyFrom._minBatchSize;
             _useRelationalNulls = copyFrom._useRelationalNulls;
+            _querySplittingBehavior = copyFrom._querySplittingBehavior;
             _migrationsAssembly = copyFrom._migrationsAssembly;
             _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
             _migrationsHistoryTableSchema = copyFrom._migrationsHistoryTableSchema;
@@ -78,10 +82,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected abstract RelationalOptionsExtension Clone();
 
         /// <summary>
-        ///     The connection string, or <c>null</c> if a <see cref="DbConnection" /> was used instead of
+        ///     The connection string, or <see langword="null" /> if a <see cref="DbConnection" /> was used instead of
         ///     a connection string.
         /// </summary>
-        public virtual string ConnectionString => _connectionString;
+        public virtual string? ConnectionString
+            => _connectionString;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -89,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="connectionString"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual RelationalOptionsExtension WithConnectionString([NotNull] string connectionString)
+        public virtual RelationalOptionsExtension WithConnectionString([CanBeNull] string? connectionString)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
 
@@ -101,10 +106,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The <see cref="DbConnection" />, or <c>null</c> if a connection string was used instead of
+        ///     The <see cref="DbConnection" />, or <see langword="null" /> if a connection string was used instead of
         ///     the full connection object.
         /// </summary>
-        public virtual DbConnection Connection => _connection;
+        public virtual DbConnection? Connection
+            => _connection;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -124,9 +130,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The command timeout, or <c>null</c> if none has been set.
+        ///     The command timeout, or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual int? CommandTimeout => _commandTimeout;
+        public virtual int? CommandTimeout
+            => _commandTimeout;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -139,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (commandTimeout.HasValue
                 && commandTimeout <= 0)
             {
-                throw new InvalidOperationException(RelationalStrings.InvalidCommandTimeout);
+                throw new InvalidOperationException(RelationalStrings.InvalidCommandTimeout(commandTimeout));
             }
 
             var clone = Clone();
@@ -151,9 +158,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     The maximum number of statements that will be included in commands sent to the database
-        ///     during <see cref="DbContext.SaveChanges()" /> or <c>null</c> if none has been set.
+        ///     during <see cref="DbContext.SaveChanges()" /> or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual int? MaxBatchSize => _maxBatchSize;
+        public virtual int? MaxBatchSize
+            => _maxBatchSize;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -166,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (maxBatchSize.HasValue
                 && maxBatchSize <= 0)
             {
-                throw new InvalidOperationException(RelationalStrings.InvalidMaxBatchSize);
+                throw new InvalidOperationException(RelationalStrings.InvalidMaxBatchSize(maxBatchSize));
             }
 
             var clone = Clone();
@@ -178,9 +186,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     The minimum number of statements that are needed for a multi-statement command sent to the database
-        ///     during <see cref="DbContext.SaveChanges()" /> or <c>null</c> if none has been set.
+        ///     during <see cref="DbContext.SaveChanges()" /> or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual int? MinBatchSize => _minBatchSize;
+        public virtual int? MinBatchSize
+            => _minBatchSize;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -193,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (minBatchSize.HasValue
                 && minBatchSize <= 0)
             {
-                throw new InvalidOperationException(RelationalStrings.InvalidMinBatchSize);
+                throw new InvalidOperationException(RelationalStrings.InvalidMinBatchSize(minBatchSize));
             }
 
             var clone = Clone();
@@ -208,7 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Entity Framework will use C# semantics for null values, and generate SQL to compensate for differences
         ///     in how the database handles nulls.
         /// </summary>
-        public virtual bool UseRelationalNulls => _useRelationalNulls;
+        public virtual bool UseRelationalNulls
+            => _useRelationalNulls;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -226,9 +236,31 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The name of the assembly that contains migrations, or <c>null</c> if none has been set.
+        ///     The <see cref="QuerySplittingBehavior" /> to use when loading related collections in a query.
         /// </summary>
-        public virtual string MigrationsAssembly => _migrationsAssembly;
+        public virtual QuerySplittingBehavior? QuerySplittingBehavior
+            => _querySplittingBehavior;
+
+        /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
+        /// <param name="querySplittingBehavior"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual RelationalOptionsExtension WithUseQuerySplittingBehavior(QuerySplittingBehavior querySplittingBehavior)
+        {
+            var clone = Clone();
+
+            clone._querySplittingBehavior = querySplittingBehavior;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     The name of the assembly that contains migrations, or <see langword="null" /> if none has been set.
+        /// </summary>
+        public virtual string? MigrationsAssembly
+            => _migrationsAssembly;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -236,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="migrationsAssembly"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual RelationalOptionsExtension WithMigrationsAssembly([CanBeNull] string migrationsAssembly)
+        public virtual RelationalOptionsExtension WithMigrationsAssembly([CanBeNull] string? migrationsAssembly)
         {
             var clone = Clone();
 
@@ -246,9 +278,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The table name to use for the migrations history table, or <c>null</c> if none has been set.
+        ///     The table name to use for the migrations history table, or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual string MigrationsHistoryTableName => _migrationsHistoryTableName;
+        public virtual string? MigrationsHistoryTableName
+            => _migrationsHistoryTableName;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -256,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="migrationsHistoryTableName"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual RelationalOptionsExtension WithMigrationsHistoryTableName([CanBeNull] string migrationsHistoryTableName)
+        public virtual RelationalOptionsExtension WithMigrationsHistoryTableName([CanBeNull] string? migrationsHistoryTableName)
         {
             var clone = Clone();
 
@@ -266,9 +299,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The schema to use for the migrations history table, or <c>null</c> if none has been set.
+        ///     The schema to use for the migrations history table, or <see langword="null" /> if none has been set.
         /// </summary>
-        public virtual string MigrationsHistoryTableSchema => _migrationsHistoryTableSchema;
+        public virtual string? MigrationsHistoryTableSchema
+            => _migrationsHistoryTableSchema;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -276,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="migrationsHistoryTableSchema"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual RelationalOptionsExtension WithMigrationsHistoryTableSchema([CanBeNull] string migrationsHistoryTableSchema)
+        public virtual RelationalOptionsExtension WithMigrationsHistoryTableSchema([CanBeNull] string? migrationsHistoryTableSchema)
         {
             var clone = Clone();
 
@@ -286,10 +320,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     A factory for creating the default <see cref="IExecutionStrategy" />, or <c>null</c> if none has been
+        ///     A factory for creating the default <see cref="IExecutionStrategy" />, or <see langword="null" /> if none has been
         ///     configured.
         /// </summary>
-        public virtual Func<ExecutionStrategyDependencies, IExecutionStrategy> ExecutionStrategyFactory => _executionStrategyFactory;
+        public virtual Func<ExecutionStrategyDependencies, IExecutionStrategy>? ExecutionStrategyFactory
+            => _executionStrategyFactory;
 
         /// <summary>
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
@@ -298,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="executionStrategyFactory"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual RelationalOptionsExtension WithExecutionStrategyFactory(
-            [CanBeNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> executionStrategyFactory)
+            [CanBeNull] Func<ExecutionStrategyDependencies, IExecutionStrategy>? executionStrategyFactory)
         {
             var clone = Clone();
 
@@ -356,14 +391,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
+        ///     Adds default <see cref="WarningBehavior"/> for relational events.
+        /// </summary>
+        /// <param name="coreOptionsExtension"> The core options extension. </param>
+        /// <returns> The new core options extension. </returns>
+        public static CoreOptionsExtension WithDefaultWarningConfiguration([NotNull] CoreOptionsExtension coreOptionsExtension)
+            => coreOptionsExtension.WithWarningsConfiguration(coreOptionsExtension.WarningsConfiguration
+                .TryWithExplicit(RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw)
+                .TryWithExplicit(RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable, WarningBehavior.Throw)
+                .TryWithExplicit(RelationalEventId.IndexPropertiesMappedToNonOverlappingTables, WarningBehavior.Throw)
+                .TryWithExplicit(RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables, WarningBehavior.Throw));
+
+        /// <summary>
         ///     Information/metadata for a <see cref="RelationalOptionsExtension" />.
         /// </summary>
         protected abstract class RelationalExtensionInfo : DbContextOptionsExtensionInfo
         {
-            private string _logFragment;
+            private string? _logFragment;
 
             /// <summary>
-            ///     Creates a new <see cref="RelationalOptionsExtension.RelationalExtensionInfo" /> instance containing
+            ///     Creates a new <see cref="RelationalExtensionInfo" /> instance containing
             ///     info/metadata for the given extension.
             /// </summary>
             /// <param name="extension"> The extension. </param>
@@ -381,14 +428,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             /// <summary>
             ///     True, since this is a database provider base class.
             /// </summary>
-            public override bool IsDatabaseProvider => true;
+            public override bool IsDatabaseProvider
+                => true;
 
             /// <summary>
             ///     Returns a hash code created from any options that would cause a new <see cref="IServiceProvider" />
             ///     to be needed. Most extensions do not have any such options and should return zero.
             /// </summary>
             /// <returns> A hash over options that require a new service provider when changed. </returns>
-            public override long GetServiceProviderHashCode() => 0;
+            public override long GetServiceProviderHashCode()
+                => 0;
 
             /// <summary>
             ///     A message fragment for logging typically containing information about
@@ -415,6 +464,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         if (Extension._useRelationalNulls)
                         {
                             builder.Append("UseRelationalNulls ");
+                        }
+
+                        if (Extension._querySplittingBehavior != null)
+                        {
+                            builder.Append("QuerySplittingBehavior=").Append(Extension._querySplittingBehavior).Append(' ');
                         }
 
                         if (Extension._migrationsAssembly != null)

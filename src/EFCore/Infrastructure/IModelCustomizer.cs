@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -16,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     ///     <para>
     ///         When replacing this service consider deriving the implementation from <see cref="ModelCustomizer" /> or
-    ///         'RelationalModelCustomizer' to preserve the default behavior.
+    ///         <see cref="T:Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelCustomizer" /> to preserve the default behavior.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance

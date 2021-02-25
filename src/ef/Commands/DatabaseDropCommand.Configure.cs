@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class DatabaseDropCommand : ContextCommandBase
     {
-        private CommandOption _force;
-        private CommandOption _dryRun;
+        private CommandOption? _force;
+        private CommandOption? _dryRun;
 
         public override void Configure(CommandLineApplication command)
         {

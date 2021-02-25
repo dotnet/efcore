@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class NorthwindQuerySqliteFixture<TModelCustomizer> : NorthwindQueryRelationalFixture<TModelCustomizer>
         where TModelCustomizer : IModelCustomizer, new()
     {
-        protected override ITestStoreFactory TestStoreFactory => SqliteNorthwindTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteNorthwindTestStoreFactory.Instance;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Internal;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -33,14 +35,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
-            MemberInfo memberInfo, IPropertyBase propertyBase)
+            MemberInfo memberInfo,
+            IPropertyBase? propertyBase)
         {
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
 
             Expression readExpression;
-            if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
+            if (memberInfo.DeclaringType!.IsAssignableFrom(typeof(TEntity)))
             {
-                readExpression = Expression.MakeMemberAccess(entityParameter, memberInfo);
+                readExpression = PropertyBase.CreateMemberAccess(propertyBase, entityParameter, memberInfo);
             }
             else
             {
@@ -57,47 +60,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Expression.Condition(
                             Expression.ReferenceEqual(converted, Expression.Constant(null)),
                             Expression.Default(memberInfo.GetMemberType()),
-                            Expression.MakeMemberAccess(converted, memberInfo))
+                            PropertyBase.CreateMemberAccess(propertyBase, converted, memberInfo))
                     });
             }
 
+            var hasDefaultValueExpression = readExpression.MakeHasDefaultValue(propertyBase);
+
             if (readExpression.Type != typeof(TValue))
             {
-                readExpression = Expression.Convert(readExpression, typeof(TValue));
-            }
-
-            Expression hasDefaultValueExpression;
-
-            if (!readExpression.Type.IsValueType)
-            {
-                hasDefaultValueExpression
-                    = Expression.ReferenceEqual(
-                        readExpression,
-                        Expression.Constant(null, readExpression.Type));
-            }
-            else if (readExpression.Type.IsGenericType
-                && readExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                hasDefaultValueExpression
-                    = Expression.Not(
-                        Expression.Call(
-                            readExpression,
-                            readExpression.Type.GetMethod("get_HasValue")));
-            }
-            else
-            {
-                var property = propertyBase as IProperty;
-                var comparer = property?.GetValueComparer()
-                    ?? property?.FindTypeMapping()?.Comparer
-                    ?? (ValueComparer)Activator.CreateInstance(
-                        typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
-                        new object[] { false });
-
-                hasDefaultValueExpression = comparer.ExtractEqualsBody(
-                    comparer.Type != typeof(TValue)
-                        ? Expression.Convert(readExpression, comparer.Type)
-                        : readExpression,
-                    Expression.Default(comparer.Type));
+                readExpression = Expression.Condition(
+                    hasDefaultValueExpression,
+                    Expression.Constant(default(TValue), typeof(TValue)),
+                    Expression.Convert(readExpression, typeof(TValue)));
             }
 
             return new ClrPropertyGetter<TEntity, TValue>(

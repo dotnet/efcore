@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -17,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessForeignKeyUniquenessChanged(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder,
-            [NotNull] IConventionContext<IConventionRelationshipBuilder> context);
+            [NotNull] IConventionForeignKeyBuilder relationshipBuilder,
+            [NotNull] IConventionContext<bool?> context);
     }
 }

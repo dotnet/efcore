@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -17,6 +17,35 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class SqlServerDbContextOptionsExtensions
     {
+        /// <summary>
+        ///     <para>
+        ///         Configures the context to connect to a Microsoft SQL Server database, but without initially setting any
+        ///         <see cref="DbConnection" /> or connection string.
+        ///     </para>
+        ///     <para>
+        ///         The connection or connection string must be set before the <see cref="DbContext" /> is used to connect
+        ///         to a database. Set a connection using <see cref="RelationalDatabaseFacadeExtensions.SetDbConnection" />.
+        ///         Set a connection string using <see cref="RelationalDatabaseFacadeExtensions.SetConnectionString" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
+        public static DbContextOptionsBuilder UseSqlServer(
+            [NotNull] this DbContextOptionsBuilder optionsBuilder,
+            [CanBeNull] Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null)
+        {
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension(optionsBuilder));
+
+            ConfigureWarnings(optionsBuilder);
+
+            sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
+
+            return optionsBuilder;
+        }
+
         /// <summary>
         ///     Configures the context to connect to a Microsoft SQL Server database.
         /// </summary>
@@ -73,6 +102,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         Configures the context to connect to a Microsoft SQL Server database, but without initially setting any
+        ///         <see cref="DbConnection" /> or connection string.
+        ///     </para>
+        ///     <para>
+        ///         The connection or connection string must be set before the <see cref="DbContext" /> is used to connect
+        ///         to a database. Set a connection using <see cref="RelationalDatabaseFacadeExtensions.SetDbConnection" />.
+        ///         Set a connection string using <see cref="RelationalDatabaseFacadeExtensions.SetConnectionString" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
+        public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
+            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
+            [CanBeNull] Action<SqlServerDbContextOptionsBuilder> sqlServerOptionsAction = null)
+            where TContext : DbContext
+            => (DbContextOptionsBuilder<TContext>)UseSqlServer(
+                (DbContextOptionsBuilder)optionsBuilder, sqlServerOptionsAction);
+
+        /// <summary>
         ///     Configures the context to connect to a Microsoft SQL Server database.
         /// </summary>
         /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
@@ -119,9 +169,9 @@ namespace Microsoft.EntityFrameworkCore
                 = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
                 ?? new CoreOptionsExtension();
 
-            coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
-                coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
-                    RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw));
+            coreOptionsExtension = RelationalOptionsExtension.WithDefaultWarningConfiguration(coreOptionsExtension)
+                .WithWarningsConfiguration(coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
+                    SqlServerEventId.ConflictingValueGenerationStrategiesWarning, WarningBehavior.Throw));
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
         }

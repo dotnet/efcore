@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -14,13 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public abstract class EventDefinitionBase
     {
-        private readonly WarningBehavior _warningBehavior;
-
         /// <summary>
         ///     Creates an event definition instance.
         /// </summary>
         /// <param name="loggingOptions"> Logging options. </param>
-        /// <param name="eventId"> The <see cref="Microsoft.Extensions.Logging.EventId" />. </param>
+        /// <param name="eventId"> The <see cref="Extensions.Logging.EventId" />. </param>
         /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
         /// <param name="eventIdCode">
         ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
 
                 var behavior = warningsConfiguration.GetBehavior(eventId);
-                _warningBehavior = behavior
+                WarningBehavior = behavior
                     ?? (level == LogLevel.Warning
                         && warningsConfiguration.DefaultBehavior == WarningBehavior.Throw
                             ? WarningBehavior.Throw
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
             else
             {
-                _warningBehavior = WarningBehavior.Log;
+                WarningBehavior = WarningBehavior.Log;
             }
 
             Level = level;
@@ -87,21 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 CoreStrings.WarningAsErrorTemplate(EventId.ToString(), message, EventIdCode));
 
         /// <summary>
-        ///     Gets the log behavior for this event. This determines whether it should be logged, thrown as an exception or ignored.
+        ///     The configured <see cref="WarningBehavior" />.
         /// </summary>
-        /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
-        /// <param name="logger"> The logger to which the event would be logged. </param>
-        /// <returns> Whether the event should be logged, thrown as an exception or ignored. </returns>
-        public virtual WarningBehavior GetLogBehavior<TLoggerCategory>(
-            [NotNull] IDiagnosticsLogger<TLoggerCategory> logger)
-            where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
-            => _warningBehavior == WarningBehavior.Log
-                ? logger.Logger.IsEnabled(Level) ? WarningBehavior.Log : WarningBehavior.Ignore
-                : _warningBehavior;
+        public virtual WarningBehavior WarningBehavior { get; }
 
         internal sealed class MessageExtractingLogger : ILogger
         {
-            private string _message;
+            private string? _message;
 
             public string Message
             {
@@ -113,15 +105,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 LogLevel logLevel,
                 EventId eventId,
                 [CanBeNull] TState state,
-                [CanBeNull] Exception exception,
-                [NotNull] Func<TState, Exception, string> formatter)
+                Exception? exception,
+                Func<TState, Exception?, string> formatter)
             {
                 Message = formatter(state, exception);
             }
 
-            bool ILogger.IsEnabled(LogLevel logLevel) => true;
+            bool ILogger.IsEnabled(LogLevel logLevel)
+                => true;
 
-            IDisposable ILogger.BeginScope<TState>([CanBeNull] TState state) => throw new NotImplementedException();
+            IDisposable ILogger.BeginScope<TState>([CanBeNull] TState state)
+                => throw new NotSupportedException();
         }
     }
 }

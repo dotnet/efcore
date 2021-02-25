@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
@@ -20,10 +19,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
         public virtual DbSet<Product> Products { get; set; }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        public virtual DbQuery<CustomerView> CustomerQueries { get; set; }
-#pragma warning restore CS0618 // Type or member is obsolete
+        public virtual DbSet<CustomerQuery> CustomerQueries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -77,63 +73,17 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                         od => new { od.OrderID, od.ProductID });
                 });
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            modelBuilder
-                .Query<CustomerView>()
-                .ToQuery(
-                    () => Customers
-                        .Select(
-                            c => new CustomerView
-                            {
-                                Address = c.Address,
-                                City = c.City,
-                                CompanyName = c.CompanyName,
-                                ContactName = c.ContactName,
-                                ContactTitle = c.ContactTitle
-                            }));
-
-            modelBuilder
-                .Query<OrderQuery>()
-                .ToQuery(
-                    () => Orders
-                        .Select(
-                            o => new OrderQuery { CustomerID = o.CustomerID }));
-
-            modelBuilder
-                .Query<ProductQuery>()
-                .ToQuery(
-                    () => Products
-                        .Where(p => !p.Discontinued)
-                        .Select(
-                            p => new ProductQuery
-                            {
-                                ProductID = p.ProductID,
-                                ProductName = p.ProductName,
-                                CategoryName = "Food"
-                            }));
-
-            modelBuilder
-                .Query<CustomerQuery>()
-                .HasQueryFilter(cq => cq.CompanyName.StartsWith(_searchTerm))
-                .ToQuery(
-                    () =>
-                        Customers
-                            .Include(c => c.Orders) // ignored
-                            .Select(
-                                c =>
-                                    new CustomerQuery
-                                    {
-                                        CompanyName = c.CompanyName,
-                                        OrderCount = c.Orders.Count(),
-                                        SearchTerm = _searchTerm
-                                    }));
-#pragma warning restore CS0618 // Type or member is obsolete
+            modelBuilder.Entity<CustomerQuery>().HasNoKey();
+            modelBuilder.Entity<OrderQuery>().HasNoKey();
+            modelBuilder.Entity<ProductQuery>().HasNoKey();
+            modelBuilder.Entity<ProductView>().HasNoKey();
+            modelBuilder.Entity<CustomerQueryWithQueryFilter>().HasNoKey();
         }
 
         public string TenantPrefix { get; set; } = "B";
 
         private readonly short _quantity = 50;
-        private readonly string _searchTerm = "A";
+        public readonly string SearchTerm = "A";
 
         public void ConfigureFilters(ModelBuilder modelBuilder)
         {
@@ -142,9 +92,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
             modelBuilder.Entity<Customer>().HasQueryFilter(c => c.CompanyName.StartsWith(TenantPrefix));
             modelBuilder.Entity<Order>().HasQueryFilter(o => o.Customer != null && o.Customer.CompanyName != null);
-            modelBuilder.Entity<OrderDetail>().HasQueryFilter(od => EF.Property<short>(od, "Quantity") > _quantity);
+            modelBuilder.Entity<OrderDetail>().HasQueryFilter(od => od.Order != null && EF.Property<short>(od, "Quantity") > _quantity);
             modelBuilder.Entity<Employee>().HasQueryFilter(e => e.Address.StartsWith("A"));
             modelBuilder.Entity<Product>().HasQueryFilter(p => ClientMethod(p));
+            modelBuilder.Entity<CustomerQueryWithQueryFilter>().HasQueryFilter(cq => cq.CompanyName.StartsWith(SearchTerm));
         }
 
         private static bool ClientMethod(Product product)

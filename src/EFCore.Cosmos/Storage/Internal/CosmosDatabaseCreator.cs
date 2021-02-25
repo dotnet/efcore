@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     /// </summary>
     public class CosmosDatabaseCreator : IDatabaseCreator
     {
-        private readonly CosmosClientWrapper _cosmosClient;
+        private readonly ICosmosClientWrapper _cosmosClient;
         private readonly IModel _model;
         private readonly IUpdateAdapterFactory _updateAdapterFactory;
         private readonly IDatabase _database;
@@ -31,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosDatabaseCreator(
-            CosmosClientWrapper cosmosClient,
-            IModel model,
-            IUpdateAdapterFactory updateAdapterFactory,
-            IDatabase database)
+            [NotNull] ICosmosClientWrapper cosmosClient,
+            [NotNull] IModel model,
+            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
+            [NotNull] IDatabase database)
         {
             _cosmosClient = cosmosClient;
             _model = model;
@@ -78,22 +79,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
         {
-            var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken);
+            var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken)
+                .ConfigureAwait(false);
             foreach (var entityType in _model.GetEntityTypes())
             {
                 var containerName = entityType.GetContainer();
                 if (containerName != null)
                 {
                     created |= await _cosmosClient.CreateContainerIfNotExistsAsync(
-                        containerName,
-                        GetPartitionKeyStoreName(entityType),
-                        cancellationToken);
+                            containerName,
+                            GetPartitionKeyStoreName(entityType),
+                            cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
 
             if (created)
             {
-                await SeedAsync(cancellationToken);
+                await SeedAsync(cancellationToken).ConfigureAwait(false);
             }
 
             return created;
@@ -146,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool EnsureDeleted() => _cosmosClient.DeleteDatabase();
+        public virtual bool EnsureDeleted()
+            => _cosmosClient.DeleteDatabase();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -164,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanConnect()
-            => throw new NotImplementedException();
+            => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -173,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
 
         /// <summary>
         ///     Returns the store name of the property that is used to store the partition key.
@@ -185,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var name = entityType.GetPartitionKeyPropertyName();
             if (name != null)
             {
-                return entityType.FindProperty(name).GetPropertyName();
+                return entityType.FindProperty(name).GetJsonPropertyName();
             }
 
             return CosmosClientWrapper.DefaultPartitionKey;

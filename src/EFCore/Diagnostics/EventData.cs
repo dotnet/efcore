@@ -6,6 +6,8 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -32,17 +34,26 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The <see cref="EventId" /> that defines the message ID and name.
         /// </summary>
-        public virtual EventId EventId => _eventDefinition.EventId;
+        public virtual EventId EventId
+            => _eventDefinition.EventId;
 
         /// <summary>
         ///     The <see cref="LogLevel" /> that would be used to log message for this event.
         /// </summary>
-        public virtual LogLevel LogLevel => _eventDefinition.Level;
+        public virtual LogLevel LogLevel
+            => _eventDefinition.Level;
+
+        /// <summary>
+        ///     A string representing the code where this event is defined.
+        /// </summary>
+        public virtual string EventIdCode
+            => _eventDefinition.EventIdCode;
 
         /// <summary>
         ///     A logger message describing this event.
         /// </summary>
         /// <returns> A logger message describing this event. </returns>
-        public override string ToString() => _messageGenerator(_eventDefinition, this);
+        public override string ToString()
+            => _messageGenerator(_eventDefinition, this);
     }
 }

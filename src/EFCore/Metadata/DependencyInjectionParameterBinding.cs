@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class DependencyInjectionParameterBinding : ServiceParameterBinding
     {
         private static readonly MethodInfo _getServiceMethod
-            = typeof(InfrastructureExtensions).GetMethod(nameof(InfrastructureExtensions.GetService));
+            = typeof(InfrastructureExtensions).GetMethod(nameof(InfrastructureExtensions.GetService))!;
 
         /// <summary>
         ///     Creates a new <see cref="DependencyInjectionParameterBinding" /> instance for the given service type.
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public DependencyInjectionParameterBinding(
             [NotNull] Type parameterType,
             [NotNull] Type serviceType,
-            [CanBeNull] IPropertyBase serviceProperty = null)
+            [CanBeNull] IPropertyBase? serviceProperty = null)
             : base(parameterType, serviceType, serviceProperty)
         {
         }

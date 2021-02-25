@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalQueryableMethodTranslatingExpressionVisitorDependencies
+    public sealed record RelationalQueryableMethodTranslatingExpressionVisitorDependencies
     {
         /// <summary>
         ///     <para>
@@ -66,30 +68,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The SQL-translating expression visitor factory.
         /// </summary>
-        public IRelationalSqlTranslatingExpressionVisitorFactory RelationalSqlTranslatingExpressionVisitorFactory { get; }
+        public IRelationalSqlTranslatingExpressionVisitorFactory RelationalSqlTranslatingExpressionVisitorFactory
+        {
+            get;
+            [param: NotNull] init;
+        }
 
         /// <summary>
         ///     The SQL expression factory.
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="relationalSqlTranslatingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryableMethodTranslatingExpressionVisitorDependencies With(
-            [NotNull] IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory)
-            => new RelationalQueryableMethodTranslatingExpressionVisitorDependencies(
-                relationalSqlTranslatingExpressionVisitorFactory, SqlExpressionFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryableMethodTranslatingExpressionVisitorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalQueryableMethodTranslatingExpressionVisitorDependencies(
-                RelationalSqlTranslatingExpressionVisitorFactory, sqlExpressionFactory);
+        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
     }
 }

@@ -23,39 +23,35 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Values_are_copied_into_change_tracker()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var entity = new PointEntity { Id = Guid.NewGuid(), Point = new Point(0, 0) };
-                db.Attach(entity);
+            using var db = Fixture.CreateContext();
+            var entity = new PointEntity { Id = Guid.NewGuid(), Point = new Point(0, 0) };
+            db.Attach(entity);
 
-                entity.Point.X = 1;
+            entity.Point.X = 1;
 
-                Assert.Equal(0, db.Entry(entity).Property(e => e.Point).OriginalValue.X);
-            }
+            Assert.Equal(0, db.Entry(entity).Property(e => e.Point).OriginalValue.X);
         }
 
         [ConditionalFact]
         public virtual void Values_arent_compared_by_reference()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var entity = new PointEntity { Id = Guid.NewGuid(), Point = new Point(0, 0) };
-                db.Attach(entity);
+            using var db = Fixture.CreateContext();
+            var entity = new PointEntity { Id = Guid.NewGuid(), Point = new Point(0, 0) };
+            db.Attach(entity);
 
-                entity.Point = new Point(0, 0);
+            entity.Point = new Point(0, 0);
 
-                Assert.False(db.Entry(entity).Property(e => e.Point).IsModified);
-            }
+            Assert.False(db.Entry(entity).Property(e => e.Point).IsModified);
         }
 
         [ConditionalFact]
         public virtual void Mutation_of_tracked_values_does_not_mutate_values_in_store()
         {
             Point CreatePoint(double y = 2.2)
-                => new Point(1.1, y, 3.3);
+                => new(1.1, y, 3.3);
 
             Polygon CreatePolygon(double y = 2.2)
-                => new Polygon(
+                => new(
                     new LinearRing(
                         new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, y), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2) }));
 
@@ -104,18 +100,36 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Translators_handle_static_members()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                (from e in db.Set<PointEntity>()
-                 select new
-                 {
-                     e.Id,
-                     e.Point,
-                     Point.Empty,
-                     DateTime.UtcNow,
-                     Guid = Guid.NewGuid()
-                 }).FirstOrDefault();
-            }
+            using var db = Fixture.CreateContext();
+            (from e in db.Set<PointEntity>()
+             orderby e.Id
+             select new
+             {
+                 e.Id,
+                 e.Point,
+                 Point.Empty,
+                 DateTime.UtcNow,
+                 Guid = Guid.NewGuid()
+             }).FirstOrDefault();
+        }
+
+        [ConditionalFact]
+        public virtual void Can_roundtrip_Z_and_M()
+        {
+            using var db = Fixture.CreateContext();
+            var entity = db.Set<PointEntity>()
+                .FirstOrDefault(e => e.Id == PointEntity.WellKnownId);
+
+            Assert.NotNull(entity);
+            Assert.NotNull(entity.Point);
+            Assert.True(double.IsNaN(entity.Point.Z));
+            Assert.True(double.IsNaN(entity.Point.M));
+            Assert.Equal(0, entity.PointZ.Z);
+            Assert.True(double.IsNaN(entity.PointZ.M));
+            Assert.True(double.IsNaN(entity.PointM.Z));
+            Assert.Equal(0, entity.PointM.M);
+            Assert.Equal(0, entity.PointZM.Z);
+            Assert.Equal(0, entity.PointZM.M);
         }
 
         protected virtual void ExecuteWithStrategyInTransaction(
@@ -128,6 +142,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected abstract void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction);
 
-        protected SpatialContext CreateContext() => Fixture.CreateContext();
+        protected SpatialContext CreateContext()
+            => Fixture.CreateContext();
     }
 }

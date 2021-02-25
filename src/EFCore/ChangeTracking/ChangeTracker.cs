@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -22,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public class ChangeTracker : IResettableService
     {
-        private readonly IModel _model;
+        private readonly IRuntimeModel _model;
         private QueryTrackingBehavior _queryTrackingBehavior;
         private readonly QueryTrackingBehavior _defaultQueryTrackingBehavior;
 
@@ -59,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             StateManager = stateManager;
             ChangeDetector = changeDetector;
-            _model = model;
+            _model = (IRuntimeModel)model;
             GraphIterator = graphIterator;
         }
 
@@ -104,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})" /> methods.
         ///     </para>
         ///     <para>
-        ///         The default value is <see cref="EntityFrameworkCore.QueryTrackingBehavior.TrackAll" />. This means the change tracker will
+        ///         The default value is <see cref="QueryTrackingBehavior.TrackAll" />. This means the change tracker will
         ///         keep track of changes for all entities that are returned from a LINQ query.
         ///     </para>
         /// </summary>
@@ -152,8 +153,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     Gets an <see cref="EntityEntry" /> for each entity being tracked by the context.
-        ///     The entries provide access to change tracking information and operations for each entity.
+        ///     <para>
+        ///         Returns an <see cref="EntityEntry" /> for each entity being tracked by the context.
+        ///         The entries provide access to change tracking information and operations for each entity.
+        ///     </para>
+        ///     <para>
+        ///         This method calls <see cref="DetectChanges" /> to ensure all entries returned reflect up-to-date state.
+        ///         Use <see cref="AutoDetectChangesEnabled" /> to prevent DetectChanges from being called automatically.
+        ///     </para>
+        ///     <para>
+        ///         Note that modification of entity state while iterating over the returned enumeration may result in
+        ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
+        ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+        ///     </para>
         /// </summary>
         /// <returns> An entry for each entity being tracked. </returns>
         public virtual IEnumerable<EntityEntry> Entries()
@@ -191,14 +203,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     <para>
         ///         Checks if any new, deleted, or changed entities are being tracked
         ///         such that these changes will be sent to the database if <see cref="DbContext.SaveChanges()" />
-        ///         or <see cref="DbContext.SaveChangesAsync(System.Threading.CancellationToken)" /> is called.
+        ///         or <see cref="DbContext.SaveChangesAsync(CancellationToken)" /> is called.
         ///     </para>
         ///     <para>
         ///         Note that this method calls <see cref="DetectChanges" /> unless
-        ///         <see cref="AutoDetectChangesEnabled" /> has been set to false.
+        ///         <see cref="AutoDetectChangesEnabled" /> has been set to <see langword="false" />.
         ///     </para>
         /// </summary>
-        /// <returns> True if there are changes to save, otherwise false. </returns>
+        /// <returns> <see langword="true" /> if there are changes to save, otherwise <see langword="false" />. </returns>
         public virtual bool HasChanges()
         {
             TryDetectChanges();
@@ -219,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if ((string)_model[Internal.ChangeDetector.SkipDetectChangesAnnotation] != "true")
+            if (!_model.SkipDetectChanges)
             {
                 ChangeDetector.DetectChanges(StateManager);
             }
@@ -230,7 +242,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     represent the current state of the database. This method is typically called by <see cref="DbContext.SaveChanges()" />
         ///     after changes have been successfully saved to the database.
         /// </summary>
-        public virtual void AcceptAllChanges() => StateManager.AcceptAllChanges();
+        public virtual void AcceptAllChanges()
+            => StateManager.AcceptAllChanges();
 
         /// <summary>
         ///     <para>
@@ -303,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="callback">
         ///     An delegate to configure the change tracking information for each entity. The second parameter to the
         ///     callback is the arbitrary state object passed above. Iteration of the graph will not continue down the graph
-        ///     if the callback returns <c>false</c>.
+        ///     if the callback returns <see langword="false" />.
         /// </param>
         /// <typeparam name="TState"> The type of the state object. </typeparam>
         public virtual void TrackGraph<TState>(
@@ -365,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         to manually force the deletes to have at a time controlled by the application.
         ///     </para>
         ///     <para>
-        ///         If <see cref="AutoDetectChangesEnabled" /> is <code>true</code> then this method
+        ///         If <see cref="AutoDetectChangesEnabled" /> is <see langword="true" /> then this method
         ///         will call <see cref="DetectChanges" />.
         ///     </para>
         /// </summary>
@@ -393,8 +406,44 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             ((IResettableService)this).ResetState();
 
-            return default;
+            return Task.CompletedTask;
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Stops tracking all currently tracked entities.
+        ///     </para>
+        ///     <para>
+        ///         <see cref="DbContext" /> is designed to have a short lifetime where a new instance is created for each unit-of-work.
+        ///         This manner means all tracked entities are discarded when the context is disposed at the end of each unit-of-work.
+        ///         However, clearing all tracked entities using this method may be useful in situations where creating a new context
+        ///         instance is not practical.
+        ///     </para>
+        ///     <para>
+        ///         This method should always be preferred over detaching every tracked entity.
+        ///         Detaching entities is a slow process that may have side effects.
+        ///         This method is much more efficient at clearing all tracked entities from the context.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not generate <see cref="StateChanged" /> events since entities are not individually detached.
+        ///     </para>
+        /// </summary>
+        public virtual void Clear()
+            => StateManager.Clear();
+
+        /// <summary>
+        ///     <para>
+        ///         Expand this property in the debugger for a human-readable view of the entities being tracked.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the debug strings.
+        ///         They are designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        public virtual DebugView DebugView
+            => new(
+                () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
+                () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
 
         #region Hidden System.Object members
 
@@ -403,22 +452,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

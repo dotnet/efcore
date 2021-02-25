@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -49,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if ((newBaseType == null
@@ -63,20 +65,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
-            var entityType = entityTypeBuilder.Metadata;
-            if (entityType.HasClrType())
+            foreach (var propertyInfo in entityTypeBuilder.Metadata.GetRuntimeProperties().Values)
             {
-                foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
+                if (IsCandidatePrimitiveProperty(propertyInfo))
                 {
-                    if (IsCandidatePrimitiveProperty(propertyInfo))
-                    {
-                        entityTypeBuilder.Property(propertyInfo);
-                    }
+                    entityTypeBuilder.Property(propertyInfo);
                 }
             }
         }
 
-        private bool IsCandidatePrimitiveProperty([NotNull] PropertyInfo propertyInfo)
+        /// <summary>
+        ///     Returns a value indicating whether the given CLR property should be mapped as an entity type property.
+        /// </summary>
+        /// <param name="propertyInfo"> The property. </param>
+        /// <returns> <see langword="true"/> if the property should be mapped. </returns>
+        protected virtual bool IsCandidatePrimitiveProperty([NotNull] PropertyInfo propertyInfo)
             => propertyInfo.IsCandidateProperty()
                 && Dependencies.TypeMappingSource.FindMapping(propertyInfo) != null;
     }

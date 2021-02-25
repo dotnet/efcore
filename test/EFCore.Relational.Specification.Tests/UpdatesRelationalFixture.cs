@@ -8,11 +8,16 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract class UpdatesRelationalFixture : UpdatesFixtureBase
     {
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
+
+            modelBuilder.Entity<ProductViewTable>().HasBaseType((string)null).ToTable("ProductView");
+            modelBuilder.Entity<ProductTableWithView>().HasBaseType((string)null).ToView("ProductView").ToTable("ProductTable");
+            modelBuilder.Entity<ProductTableView>().HasBaseType((string)null).ToView("ProductTable");
 
             modelBuilder
                 .Entity<

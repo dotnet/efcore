@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class ServiceProviderCache
     {
         private readonly ConcurrentDictionary<long, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)>
-            _configurations
-                = new ConcurrentDictionary<long, (IServiceProvider, IDictionary<string, string>)>();
+            _configurations = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static ServiceProviderCache Instance { get; } = new ServiceProviderCache();
+        public static ServiceProviderCache Instance { get; } = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,21 +90,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var replacedServices = coreOptionsExtension?.ReplacedServices;
                 if (replacedServices != null)
                 {
-                    // For replaced services we use the service collection to obtain the lifetime of
-                    // the service to replace. The replaced services are added to a new collection, after
-                    // which provider and core services are applied. This ensures that any patching happens
-                    // to the replaced service.
                     var updatedServices = new ServiceCollection();
                     foreach (var descriptor in services)
                     {
-                        if (replacedServices.TryGetValue(descriptor.ServiceType, out var replacementType))
+                        if (replacedServices.TryGetValue((descriptor.ServiceType, descriptor.ImplementationType), out var replacementType))
                         {
                             ((IList<ServiceDescriptor>)updatedServices).Add(
                                 new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
                         }
+                        else if (replacedServices.TryGetValue((descriptor.ServiceType, null), out replacementType))
+                        {
+                            ((IList<ServiceDescriptor>)updatedServices).Add(
+                                new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
+                        }
+                        else
+                        {
+                            ((IList<ServiceDescriptor>)updatedServices).Add(descriptor);
+                        }
                     }
 
-                    ApplyServices(options, updatedServices);
                     services = updatedServices;
                 }
 
@@ -131,7 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             ScopedLoggerFactory.Create(scopedProvider, options),
                             scopedProvider.GetService<ILoggingOptions>(),
                             scopedProvider.GetService<DiagnosticSource>(),
-                            loggingDefinitions);
+                            loggingDefinitions,
+                            new NullDbContextLogger());
 
                         if (_configurations.Count == 0)
                         {

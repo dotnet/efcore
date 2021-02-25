@@ -3,6 +3,8 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -17,6 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface IQuerySqlGeneratorFactory
     {
+        /// <summary>
+        ///     Creates a new <see cref="QuerySqlGenerator" />.
+        /// </summary>
+        /// <returns> A SQL generator. </returns>
         QuerySqlGenerator Create();
     }
 }

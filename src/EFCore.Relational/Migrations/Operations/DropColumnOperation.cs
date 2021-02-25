@@ -10,13 +10,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping an existing column.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} DROP COLUMN {Name}")]
-    public class DropColumnOperation : MigrationOperation
+    public class DropColumnOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     Creates a new instance of the <see cref="DropColumnOperation" />.
         /// </summary>
         // ReSharper disable once VirtualMemberCallInConstructor
-        public DropColumnOperation() => IsDestructiveChange = true;
+        public DropColumnOperation()
+            => IsDestructiveChange = true;
 
         /// <summary>
         ///     The name of the column.
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Name { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 

@@ -5,11 +5,13 @@ using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     <para>
-    ///         Options set at the <see cref="IServiceProvider" /> singleton level to control how\
+    ///         Options set at the <see cref="IServiceProvider" /> singleton level to control how
     ///         messages are logged and/or thrown in exceptions.
     ///     </para>
     ///     <para>

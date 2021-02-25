@@ -4,15 +4,27 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class SqlServerDateTimeMemberTranslator : IMemberTranslator
     {
         private static readonly Dictionary<string, string> _datePartMapping
-            = new Dictionary<string, string>
+            = new()
             {
                 { nameof(DateTime.Year), "year" },
                 { nameof(DateTime.Month), "month" },
@@ -25,14 +37,41 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
 
-        public SqlServerDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public SqlServerDateTimeMemberTranslator(
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
+            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
+
             _sqlExpressionFactory = sqlExpressionFactory;
+            _typeMappingSource = typeMappingSource;
         }
 
-        public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
+            MemberInfo member,
+            Type returnType,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
+            Check.NotNull(member, nameof(member));
+            Check.NotNull(returnType, nameof(returnType));
+            Check.NotNull(logger, nameof(logger));
+
             var declaringType = member.DeclaringType;
 
             if (declaringType == typeof(DateTime)
@@ -44,43 +83,47 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 {
                     return _sqlExpressionFactory.Function(
                         "DATEPART",
-                        new[] { _sqlExpressionFactory.Fragment(datePart), instance },
+                        new[] { _sqlExpressionFactory.Fragment(datePart), instance! },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false, true },
                         returnType);
                 }
 
                 switch (memberName)
                 {
                     case nameof(DateTime.Date):
-                        if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19052", out var isEnabled) && isEnabled)
-                        {
-                            return _sqlExpressionFactory.Function(
-                                "CONVERT",
-                                new[] { _sqlExpressionFactory.Fragment("date"), instance },
-                                returnType,
-                                instance.TypeMapping);
-                        }
-
                         return _sqlExpressionFactory.Function(
                             "CONVERT",
-                            new[] { _sqlExpressionFactory.Fragment("date"), instance },
+                            new[] { _sqlExpressionFactory.Fragment("date"), instance! },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { false, true },
                             returnType,
                             declaringType == typeof(DateTime)
-                                ? instance.TypeMapping
-                                : _sqlExpressionFactory.FindMapping(typeof(DateTime)));
+                                ? instance!.TypeMapping
+                                : _typeMappingSource.FindMapping(typeof(DateTime)));
 
                     case nameof(DateTime.TimeOfDay):
-                        return _sqlExpressionFactory.Convert(instance, returnType);
+                        return _sqlExpressionFactory.Function(
+                            "CONVERT",
+                            new[] { _sqlExpressionFactory.Fragment("time"), instance! },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { false, true },
+                            returnType);
 
                     case nameof(DateTime.Now):
                         return _sqlExpressionFactory.Function(
                             declaringType == typeof(DateTime) ? "GETDATE" : "SYSDATETIMEOFFSET",
                             Array.Empty<SqlExpression>(),
+                            nullable: false,
+                            argumentsPropagateNullability: Array.Empty<bool>(),
                             returnType);
 
                     case nameof(DateTime.UtcNow):
                         var serverTranslation = _sqlExpressionFactory.Function(
                             declaringType == typeof(DateTime) ? "GETUTCDATE" : "SYSUTCDATETIME",
                             Array.Empty<SqlExpression>(),
+                            nullable: false,
+                            argumentsPropagateNullability: Array.Empty<bool>(),
                             returnType);
 
                         return declaringType == typeof(DateTime)
@@ -96,8 +139,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 _sqlExpressionFactory.Function(
                                     "GETDATE",
                                     Array.Empty<SqlExpression>(),
+                                    nullable: false,
+                                    argumentsPropagateNullability: Array.Empty<bool>(),
                                     typeof(DateTime))
                             },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { false, true },
                             returnType);
                 }
             }

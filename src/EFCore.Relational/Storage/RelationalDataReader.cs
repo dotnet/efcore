@@ -10,6 +10,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly DbCommand _command;
         private readonly DbDataReader _reader;
         private readonly Guid _commandId;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command>? _logger;
         private readonly DateTimeOffset _startTime;
         private readonly Stopwatch _stopwatch;
 
@@ -48,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
             Guid commandId,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(command, nameof(command));
@@ -66,17 +68,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the underlying reader for the result set.
         /// </summary>
-        public virtual DbDataReader DbDataReader => _reader;
+        public virtual DbDataReader DbDataReader
+            => _reader;
 
         /// <summary>
         ///     Gets the underlying command for the result set.
         /// </summary>
-        public virtual DbCommand DbCommand => _command;
+        public virtual DbCommand DbCommand
+            => _command;
 
         /// <summary>
-        ///     Calls Read on the underlying DbDataReader.
+        ///     Calls <see cref="DbDataReader.Read()" /> on the underlying <see cref="System.Data.Common.DbDataReader" />.
         /// </summary>
-        /// <returns>true if there are more rows; otherwise false.</returns>
+        /// <returns> <see langword="true" /> if there are more rows; otherwise <see langword="false" />. </returns>
         public virtual bool Read()
         {
             _readCount++;
@@ -85,9 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Calls Read on the underlying DbDataReader.
+        ///     Calls <see cref="DbDataReader.ReadAsync(CancellationToken)" /> on the underlying
+        ///     <see cref="System.Data.Common.DbDataReader" />.
         /// </summary>
-        /// <returns>true if there are more rows; otherwise false.</returns>
+        /// <returns> <see langword="true" /> if there are more rows; otherwise <see langword="false" />. </returns>
         public virtual Task<bool> ReadAsync(CancellationToken cancellationToken = default)
         {
             _readCount++;
@@ -166,10 +171,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     if (!interceptionResult.IsSuppressed)
                     {
-                        await _reader.DisposeAsyncIfAvailable();
+                        await _reader.DisposeAsync().ConfigureAwait(false);
                         _command.Parameters.Clear();
-                        await _command.DisposeAsyncIfAvailable();
-                        await _connection.CloseAsync();
+                        await _command.DisposeAsync().ConfigureAwait(false);
+                        await _connection.CloseAsync().ConfigureAwait(false);
                     }
                 }
             }

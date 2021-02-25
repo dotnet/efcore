@@ -3,9 +3,11 @@
 
 using System;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -41,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ValueBuffer Create(DbDataReader dataReader)
         {
-            Debug.Assert(dataReader != null); // hot path
+            Check.DebugAssert(dataReader != null, "dataReader != null"); // hot path
 
             var values = _valueFactory(dataReader);
 

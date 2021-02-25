@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    class DatabaseTableRef : DatabaseTable
+    internal class DatabaseTableRef : DatabaseTable
     {
         public DatabaseTableRef(string name, string schema = null)
         {
@@ -34,15 +34,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override IList<DatabaseColumn> Columns
-             => throw new NotImplementedException();
+            => throw new NotImplementedException();
 
         public override IList<DatabaseUniqueConstraint> UniqueConstraints
-             => throw new NotImplementedException();
+            => throw new NotImplementedException();
 
         public override IList<DatabaseIndex> Indexes
-             => throw new NotImplementedException();
+            => throw new NotImplementedException();
 
         public override IList<DatabaseForeignKey> ForeignKeys
-             => throw new NotImplementedException();
+            => throw new NotImplementedException();
     }
 }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 // ReSharper disable UnusedParameter.Local
@@ -36,12 +37,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         public virtual List<Order> Orders { get; set; }
 
+        [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         public NorthwindContext Context { get; set; }
 
         [NotMapped]
-        public bool IsLondon => City == "London";
+        public bool IsLondon
+            => City == "London";
 
-        protected bool Equals(Customer other) => string.Equals(CustomerID, other.CustomerID);
+        protected bool Equals(Customer other)
+            => string.Equals(CustomerID, other.CustomerID);
 
         public override bool Equals(object obj)
         {
@@ -56,15 +61,19 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 && Equals((Customer)obj);
         }
 
-        public static bool operator ==(Customer left, Customer right) => Equals(left, right);
+        public static bool operator ==(Customer left, Customer right)
+            => Equals(left, right);
 
-        public static bool operator !=(Customer left, Customer right) => !Equals(left, right);
+        public static bool operator !=(Customer left, Customer right)
+            => !Equals(left, right);
 
-        public int CompareTo(Customer other) =>
-            other == null ? 1 : CustomerID.CompareTo(other.CustomerID);
+        public int CompareTo(Customer other)
+            => other == null ? 1 : CustomerID.CompareTo(other.CustomerID);
 
-        public override int GetHashCode() => CustomerID.GetHashCode();
+        public override int GetHashCode()
+            => CustomerID.GetHashCode();
 
-        public override string ToString() => "Customer " + CustomerID;
+        public override string ToString()
+            => "Customer " + CustomerID;
     }
 }

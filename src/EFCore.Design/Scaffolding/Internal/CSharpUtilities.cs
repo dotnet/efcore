@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -17,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class CSharpUtilities : ICSharpUtilities
     {
-        private static readonly HashSet<string> _cSharpKeywords = new HashSet<string>
+        private static readonly HashSet<string> _cSharpKeywords = new()
         {
             "abstract",
             "as",
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         };
 
         private static readonly Regex _invalidCharsRegex
-            = new Regex(
+            = new(
                 @"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]",
                 default,
                 TimeSpan.FromMilliseconds(1000.0));
@@ -176,7 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string Uniquifier(
-            string proposedIdentifier, ICollection<string> existingIdentifiers)
+            [NotNull] string proposedIdentifier,
+            [CanBeNull] ICollection<string> existingIdentifiers)
         {
             Check.NotEmpty(proposedIdentifier, nameof(proposedIdentifier));
 
@@ -233,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return ch < 'A'
                     ? false
                     : ch <= 'Z'
-                      || ch == '_';
+                    || ch == '_';
             }
 
             if (ch <= 'z')
@@ -250,9 +252,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 return ch < 'A'
                     ? ch >= '0'
-                      && ch <= '9'
+                    && ch <= '9'
                     : ch <= 'Z'
-                      || ch == '_';
+                    || ch == '_';
             }
 
             if (ch <= 'z')

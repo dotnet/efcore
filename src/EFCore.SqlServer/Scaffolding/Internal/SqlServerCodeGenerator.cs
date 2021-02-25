@@ -5,6 +5,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
     /// <summary>
@@ -32,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         /// </summary>
         public override MethodCallCodeFragment GenerateUseProvider(
             string connectionString,
-            MethodCallCodeFragment providerOptions)
-            => new MethodCallCodeFragment(
+            MethodCallCodeFragment? providerOptions)
+            => new(
                 nameof(SqlServerDbContextOptionsExtensions.UseSqlServer),
                 providerOptions == null
                     ? new object[] { connectionString }

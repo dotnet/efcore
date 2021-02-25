@@ -3,10 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -16,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class CheckConstraint : IConventionCheckConstraint
+    public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, IConventionCheckConstraint, ICheckConstraint
     {
         private ConfigurationSource _configurationSource;
 
@@ -41,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Sql = sql;
             _configurationSource = configurationSource;
 
-            var dataDictionary = GetAnnotationsDictionary(EntityType);
+            var dataDictionary = GetConstraintsDictionary(EntityType);
             if (dataDictionary == null)
             {
                 dataDictionary = new Dictionary<string, CheckConstraint>();
@@ -53,6 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(RelationalStrings.DuplicateCheckConstraint(Name, EntityType.DisplayName()));
             }
 
+            EnsureMutable();
+
             dataDictionary.Add(name, this);
         }
 
@@ -62,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<CheckConstraint> GetCheckConstraints([NotNull] IEntityType entityType)
+        public static IEnumerable<CheckConstraint> GetCheckConstraints([NotNull] IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return GetAnnotationsDictionary(entityType)?.Values ?? Enumerable.Empty<CheckConstraint>();
+            return GetConstraintsDictionary(entityType)?.Values ?? Enumerable.Empty<CheckConstraint>();
         }
 
         /// <summary>
@@ -75,17 +81,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static ICheckConstraint FindCheckConstraint(
-            [NotNull] IEntityType entityType, [NotNull] string name)
+        public static ICheckConstraint? FindCheckConstraint(
+            [NotNull] IReadOnlyEntityType entityType,
+            [NotNull] string name)
         {
-            var dataDictionary = GetAnnotationsDictionary(entityType);
+            var dataDictionary = GetConstraintsDictionary(entityType);
 
-            if (dataDictionary == null)
+            return dataDictionary == null
+                ? null
+                : dataDictionary.TryGetValue(name, out var checkConstraint)
+                    ? checkConstraint
+                    : null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static CheckConstraint? RemoveCheckConstraint(
+            [NotNull] IMutableEntityType entityType,
+            [NotNull] string name)
+        {
+            var dataDictionary = GetConstraintsDictionary(entityType);
+
+            if (dataDictionary != null
+                && dataDictionary.TryGetValue(name, out var constraint))
             {
-                return null;
+                constraint.EnsureMutable();
+
+                dataDictionary.Remove(name);
+                return constraint;
             }
 
-            return dataDictionary.TryGetValue(name, out var checkConstraint) ? checkConstraint : null;
+            return null;
         }
 
         /// <summary>
@@ -94,21 +124,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool RemoveCheckConstraint(
-            [NotNull] IMutableEntityType entityType, [NotNull] string name)
-        {
-            var dataDictionary = GetAnnotationsDictionary(entityType);
-
-            return dataDictionary?.Remove(name) ?? false;
-        }
+        public virtual IReadOnlyEntityType EntityType { get; }
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Indicates whether the check constraint is read-only.
         /// </summary>
-        public virtual IEntityType EntityType { get; }
+        public override bool IsReadOnly => ((Annotatable)EntityType.Model).IsReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -132,7 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+        public virtual ConfigurationSource GetConfigurationSource()
+            => _configurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -145,9 +167,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _configurationSource = configurationSource.Max(_configurationSource);
         }
 
-        private static Dictionary<string, CheckConstraint> GetAnnotationsDictionary(IEntityType entityType)
+        private static Dictionary<string, CheckConstraint>? GetConstraintsDictionary(IReadOnlyEntityType entityType)
+            => (Dictionary<string, CheckConstraint>?)entityType[RelationalAnnotationNames.CheckConstraints];
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override string ToString()
+            => ((ICheckConstraint)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionEntityType IConventionCheckConstraint.EntityType
         {
-            return (Dictionary<string, CheckConstraint>)entityType[RelationalAnnotationNames.CheckConstraints];
+            [DebuggerStepThrough]
+            get => (IConventionEntityType)EntityType;
         }
 
         /// <summary>
@@ -156,6 +197,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionEntityType IConventionCheckConstraint.EntityType => (IConventionEntityType)EntityType;
+        IMutableEntityType IMutableCheckConstraint.EntityType
+        {
+            [DebuggerStepThrough]
+            get => (IMutableEntityType)EntityType;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IEntityType ICheckConstraint.EntityType
+        {
+            [DebuggerStepThrough]
+            get => (IEntityType)EntityType;
+        }
     }
 }

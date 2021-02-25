@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore
                         foreach (var entity in entities.Take(100))
                         {
                             Assert.Equal(0, entity.Id);
+                            Assert.Null(entity._id);
                         }
 
                         Assert.Equal(1777, entities[100].Id);
@@ -65,11 +66,17 @@ namespace Microsoft.EntityFrameworkCore
                                     new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue }).Entity);
                         }
 
-                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        // DbUpdateException : An error occurred while updating the entries. See the
+                        // inner exception for details.
+                        // SqlException : Cannot insert explicit value for identity column in table
+                        // 'Blog' when IDENTITY_INSERT is set to OFF.
+                        var updateException = Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        Assert.Single(updateException.Entries);
 
                         foreach (var entity in entities.Take(100))
                         {
                             Assert.Equal(0, entity.Id);
+                            Assert.Null(entity._id);
                         }
 
                         Assert.Equal(1777, entities[100].Id);
@@ -95,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class StoreGeneratedSqlServerFixture : StoreGeneratedFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => builder
@@ -172,9 +180,22 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<WithNullableBackingFields>(
                     b =>
                     {
-                        b.Property(e => e.NullableBackedBool).HasDefaultValue(true);
-                        b.Property(e => e.NullableBackedInt).HasDefaultValue(-1);
+                        b.Property(e => e.NullableBackedBoolTrueDefault).HasDefaultValue(true);
+                        b.Property(e => e.NullableBackedIntNonZeroDefault).HasDefaultValue(-1);
+                        b.Property(e => e.NullableBackedBoolFalseDefault).HasDefaultValue(false);
+                        b.Property(e => e.NullableBackedIntZeroDefault).HasDefaultValue(0);
                     });
+
+                modelBuilder.Entity<WithObjectBackingFields>(
+                    b =>
+                    {
+                        b.Property(e => e.NullableBackedBoolTrueDefault).HasDefaultValue(true);
+                        b.Property(e => e.NullableBackedIntNonZeroDefault).HasDefaultValue(-1);
+                        b.Property(e => e.NullableBackedBoolFalseDefault).HasDefaultValue(false);
+                        b.Property(e => e.NullableBackedIntZeroDefault).HasDefaultValue(0);
+                    });
+
+                modelBuilder.Entity<NonStoreGenDependent>().Property(e => e.HasTemp).HasDefaultValue(777);
 
                 base.OnModelCreating(modelBuilder, context);
             }

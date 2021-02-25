@@ -7,11 +7,11 @@ using System.Data;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 #pragma warning disable IDE0022 // Use block body for methods
 // ReSharper disable SuggestBaseTypeForParameter
@@ -20,23 +20,25 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public class SqlServerTestStore : RelationalTestStore
     {
         public const int CommandTimeout = 300;
-        private static string CurrentDirectory => Environment.CurrentDirectory;
+
+        private static string CurrentDirectory
+            => Environment.CurrentDirectory;
 
         public static SqlServerTestStore GetNorthwindStore()
             => (SqlServerTestStore)SqlServerNorthwindTestStoreFactory.Instance
                 .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>)null);
 
         public static SqlServerTestStore GetOrCreate(string name)
-            => new SqlServerTestStore(name);
+            => new(name);
 
         public static SqlServerTestStore GetOrCreateInitialized(string name)
             => new SqlServerTestStore(name).InitializeSqlServer(null, (Func<DbContext>)null, null);
 
-        public static SqlServerTestStore GetOrCreate(string name, string scriptPath)
-            => new SqlServerTestStore(name, scriptPath: scriptPath);
+        public static SqlServerTestStore GetOrCreate(string name, string scriptPath, bool? multipleActiveResultSets = null)
+            => new(name, scriptPath: scriptPath, multipleActiveResultSets: multipleActiveResultSets);
 
         public static SqlServerTestStore Create(string name, bool useFileName = false)
-            => new SqlServerTestStore(name, useFileName, shared: false);
+            => new(name, useFileName, shared: false);
 
         public static SqlServerTestStore CreateInitialized(string name, bool useFileName = false, bool? multipleActiveResultSets = null)
             => new SqlServerTestStore(name, useFileName, shared: false, multipleActiveResultSets: multipleActiveResultSets)
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (scriptPath != null)
             {
-                _scriptPath = Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).GetTypeInfo().Assembly.Location), scriptPath);
+                _scriptPath = Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).Assembly.Location), scriptPath);
             }
 
             ConnectionString = CreateConnectionString(Name, _fileName, multipleActiveResultSets);
@@ -68,11 +70,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public SqlServerTestStore InitializeSqlServer(
-            IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+            IServiceProvider serviceProvider,
+            Func<DbContext> createContext,
+            Action<DbContext> seed)
             => (SqlServerTestStore)Initialize(serviceProvider, createContext, seed);
 
         public SqlServerTestStore InitializeSqlServer(
-            IServiceProvider serviceProvider, Func<SqlServerTestStore, DbContext> createContext, Action<DbContext> seed)
+            IServiceProvider serviceProvider,
+            Func<SqlServerTestStore, DbContext> createContext,
+            Action<DbContext> seed)
             => InitializeSqlServer(serviceProvider, () => createContext(this), seed);
 
         protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
@@ -85,17 +91,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
                 else
                 {
-                    using (var context = createContext())
-                    {
-                        context.Database.EnsureCreatedResiliently();
-                        seed?.Invoke(context);
-                    }
+                    using var context = createContext();
+                    context.Database.EnsureCreatedResiliently();
+                    seed?.Invoke(context);
                 }
             }
         }
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-            => builder.UseSqlServer(Connection, b => b.ApplyConfiguration());
+            => builder
+                .UseSqlServer(Connection, b => b.ApplyConfiguration())
+                .ConfigureWarnings(b => b.Ignore(SqlServerEventId.SavepointsDisabledBecauseOfMARS));
 
         private bool CreateDatabase(Action<DbContext> clean)
         {
@@ -112,16 +118,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                     if (_fileName == null)
                     {
-                        using (var context = new DbContext(
+                        using var context = new DbContext(
                             AddProviderOptions(
                                     new DbContextOptionsBuilder()
                                         .EnableServiceProviderCaching(false))
-                                .Options))
-                        {
-                            clean?.Invoke(context);
-                            Clean(context);
-                            return true;
-                        }
+                                .Options);
+                        clean?.Invoke(context);
+                        Clean(context);
+                        return true;
                     }
 
                     // Delete the database to ensure it's recreated with the correct file path
@@ -218,18 +222,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public void DeleteDatabase()
         {
-            using (var master = new SqlConnection(CreateConnectionString("master")))
-            {
-                ExecuteNonQuery(
-                    master, string.Format(
-                        @"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
+            using var master = new SqlConnection(CreateConnectionString("master"));
+            ExecuteNonQuery(
+                master, string.Format(
+                    @"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
                                           BEGIN
                                               ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
                                               DROP DATABASE [{0}];
                                           END", Name));
 
-                SqlConnection.ClearAllPools();
-            }
+            SqlConnection.ClearAllPools();
         }
 
         public override void OpenConnection()
@@ -269,16 +271,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => Execute(
                 connection, command =>
                 {
-                    using (var dataReader = command.ExecuteReader())
+                    using var dataReader = command.ExecuteReader();
+                    var results = Enumerable.Empty<T>();
+                    while (dataReader.Read())
                     {
-                        var results = Enumerable.Empty<T>();
-                        while (dataReader.Read())
-                        {
-                            results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
-                        }
-
-                        return results;
+                        results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
                     }
+
+                    return results;
                 }, sql, false, parameters);
 
         public Task<IEnumerable<T>> QueryAsync<T>(string sql, params object[] parameters)
@@ -288,21 +288,22 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => ExecuteAsync(
                 connection, async command =>
                 {
-                    using (var dataReader = await command.ExecuteReaderAsync())
+                    using var dataReader = await command.ExecuteReaderAsync();
+                    var results = Enumerable.Empty<T>();
+                    while (await dataReader.ReadAsync())
                     {
-                        var results = Enumerable.Empty<T>();
-                        while (await dataReader.ReadAsync())
-                        {
-                            results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
-                        }
-
-                        return results;
+                        results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
                     }
+
+                    return results;
                 }, sql, false, parameters);
 
         private static T Execute<T>(
-            DbConnection connection, Func<DbCommand, T> execute, string sql,
-            bool useTransaction = false, object[] parameters = null)
+            DbConnection connection,
+            Func<DbCommand, T> execute,
+            string sql,
+            bool useTransaction = false,
+            object[] parameters = null)
             => new TestSqlServerRetryingExecutionStrategy().Execute(
                 new
                 {
@@ -315,7 +316,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 state => ExecuteCommand(state.connection, state.execute, state.sql, state.useTransaction, state.parameters));
 
         private static T ExecuteCommand<T>(
-            DbConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction, object[] parameters)
+            DbConnection connection,
+            Func<DbCommand, T> execute,
+            string sql,
+            bool useTransaction,
+            object[] parameters)
         {
             if (connection.State != ConnectionState.Closed)
             {
@@ -325,19 +330,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             connection.Open();
             try
             {
-                using (var transaction = useTransaction ? connection.BeginTransaction() : null)
+                using var transaction = useTransaction ? connection.BeginTransaction() : null;
+                T result;
+                using (var command = CreateCommand(connection, sql, parameters))
                 {
-                    T result;
-                    using (var command = CreateCommand(connection, sql, parameters))
-                    {
-                        command.Transaction = transaction;
-                        result = execute(command);
-                    }
-
-                    transaction?.Commit();
-
-                    return result;
+                    command.Transaction = transaction;
+                    result = execute(command);
                 }
+
+                transaction?.Commit();
+
+                return result;
             }
             finally
             {
@@ -349,8 +352,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         private static Task<T> ExecuteAsync<T>(
-            DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql,
-            bool useTransaction = false, IReadOnlyList<object> parameters = null)
+            DbConnection connection,
+            Func<DbCommand, Task<T>> executeAsync,
+            string sql,
+            bool useTransaction = false,
+            IReadOnlyList<object> parameters = null)
             => new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
                 new
                 {
@@ -363,7 +369,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 state => ExecuteCommandAsync(state.connection, state.executeAsync, state.sql, state.useTransaction, state.parameters));
 
         private static async Task<T> ExecuteCommandAsync<T>(
-            DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction,
+            DbConnection connection,
+            Func<DbCommand, Task<T>> executeAsync,
+            string sql,
+            bool useTransaction,
             IReadOnlyList<object> parameters)
         {
             if (connection.State != ConnectionState.Closed)
@@ -374,21 +383,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             await connection.OpenAsync();
             try
             {
-                using (var transaction = useTransaction ? await connection.BeginTransactionAsync() : null)
+                using var transaction = useTransaction ? await connection.BeginTransactionAsync() : null;
+                T result;
+                using (var command = CreateCommand(connection, sql, parameters))
                 {
-                    T result;
-                    using (var command = CreateCommand(connection, sql, parameters))
-                    {
-                        result = await executeAsync(command);
-                    }
-
-                    if (transaction != null)
-                    {
-                        await transaction.CommitAsync();
-                    }
-
-                    return result;
+                    result = await executeAsync(command);
                 }
+
+                if (transaction != null)
+                {
+                    await transaction.CommitAsync();
+                }
+
+                return result;
             }
             finally
             {
@@ -400,7 +407,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         private static DbCommand CreateCommand(
-            DbConnection connection, string commandText, IReadOnlyList<object> parameters = null)
+            DbConnection connection,
+            string commandText,
+            IReadOnlyList<object> parameters = null)
         {
             var command = (SqlCommand)connection.CreateCommand();
 

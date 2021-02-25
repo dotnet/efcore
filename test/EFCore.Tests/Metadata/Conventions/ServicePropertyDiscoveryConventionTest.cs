@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -94,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Validate(EntityType entityType)
         {
             var convention = CreateServicePropertyDiscoveryConvention();
-            convention.ProcessModelFinalized(
+            convention.ProcessModelFinalizing(
                 entityType.Model.Builder,
                 new ConventionContext<IConventionModelBuilder>(entityType.Model.ConventionDispatcher));
         }

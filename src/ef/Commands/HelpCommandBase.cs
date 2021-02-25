@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal class HelpCommandBase : EFCommandBase
     {
-        private CommandLineApplication _command;
+        private CommandLineApplication? _command;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -16,11 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             base.Configure(command);
         }
 
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            _command.ShowHelp();
+            _command!.ShowHelp();
 
-            return base.Execute();
+            return base.Execute(args);
         }
     }
 }

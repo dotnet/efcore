@@ -7,14 +7,13 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
-    public class SqlServerSqlGenerationHelperTest : SqlGenerationHelperTestBase
+    public class SqlServerSqlGenerationHelperTest
     {
-        public override void BatchSeparator_returns_separator()
-        {
-            Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerationHelper().BatchTerminator);
-        }
+        [ConditionalFact]
+        public void BatchSeparator_returns_separator()
+            => Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerationHelper().BatchTerminator);
 
-        protected override ISqlGenerationHelper CreateSqlGenerationHelper()
+        private ISqlGenerationHelper CreateSqlGenerationHelper()
             => new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
     }
 }

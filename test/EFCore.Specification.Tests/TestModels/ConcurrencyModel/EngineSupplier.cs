@@ -15,14 +15,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
         {
         }
 
-        private EngineSupplier(ILazyLoader loader, int id, string name)
+        private EngineSupplier(ILazyLoader loader, string name)
         {
             _loader = loader;
-            Id = id;
             Name = name;
         }
 
-        public int Id { get; set; }
         public string Name { get; set; }
 
         public virtual ICollection<Engine> Engines

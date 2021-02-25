@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -37,27 +39,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (oldBaseType != null
+                && oldBaseType.IsInModel
                 && oldBaseType.BaseType == null
                 && !oldBaseType.GetDirectlyDerivedTypes().Any())
             {
-                oldBaseType.Builder?.HasNoDeclaredDiscriminator();
+                oldBaseType.Builder.HasNoDiscriminator();
             }
 
             var conventionEntityTypeBuilder = entityTypeBuilder;
             var entityType = entityTypeBuilder.Metadata;
             var derivedEntityTypes = entityType.GetDerivedTypes().ToList();
 
-            IConventionDiscriminatorBuilder discriminator;
+            IConventionDiscriminatorBuilder? discriminator;
             if (newBaseType == null)
             {
                 if (derivedEntityTypes.Count == 0)
                 {
-                    conventionEntityTypeBuilder.HasNoDeclaredDiscriminator();
+                    conventionEntityTypeBuilder.HasNoDiscriminator();
                     return;
                 }
 
@@ -65,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                if (conventionEntityTypeBuilder.HasNoDeclaredDiscriminator() == null)
+                if (conventionEntityTypeBuilder.HasNoDiscriminator() == null)
                 {
                     return;
                 }
@@ -99,10 +102,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var oldBaseType = entityType.BaseType;
             if (oldBaseType != null
+                && oldBaseType.IsInModel
                 && oldBaseType.BaseType == null
                 && !oldBaseType.GetDirectlyDerivedTypes().Any())
             {
-                oldBaseType.Builder?.HasNoDeclaredDiscriminator();
+                oldBaseType.Builder.HasNoDiscriminator();
             }
         }
 
@@ -112,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="entityTypes"> The entity types to configure. </param>
         /// <param name="discriminatorBuilder"> The discriminator builder. </param>
         protected virtual void SetDefaultDiscriminatorValues(
-            [NotNull] IEnumerable<IConventionEntityType> entityTypes, [NotNull] IConventionDiscriminatorBuilder discriminatorBuilder)
+            [NotNull] IEnumerable<IConventionEntityType> entityTypes,
+            [NotNull] IConventionDiscriminatorBuilder discriminatorBuilder)
         {
             foreach (var entityType in entityTypes)
             {

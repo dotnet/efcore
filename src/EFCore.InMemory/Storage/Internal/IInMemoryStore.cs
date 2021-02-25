@@ -59,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         int ExecuteTransaction(
-            [NotNull] IList<IUpdateEntry> entries, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger);
+            [NotNull] IList<IUpdateEntry> entries,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger);
     }
 }

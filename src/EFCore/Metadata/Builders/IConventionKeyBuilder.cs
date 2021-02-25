@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -15,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     public interface IConventionKeyBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
-        ///     The key being configured.
+        ///     Gets the key being configured.
         /// </summary>
         new IConventionKey Metadata { get; }
     }

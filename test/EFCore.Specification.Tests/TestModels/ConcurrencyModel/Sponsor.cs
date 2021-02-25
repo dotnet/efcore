@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 {
@@ -11,12 +10,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
     {
         public static readonly string ClientTokenPropertyName = "ClientToken";
 
-        private readonly ObservableCollection<Team> _teams = new ObservableCollection<Team>();
+        private readonly ObservableCollection<Team> _teams = new();
 
         public int Id { get; set; }
         public string Name { get; set; }
 
-        [NotMapped]
-        public virtual ICollection<Team> Teams => _teams;
+        public virtual ICollection<Team> Teams
+            => _teams;
     }
 }

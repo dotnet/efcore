@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 
         public Location StorageLocation { get; set; }
 
-        public int EngineSupplierId { get; set; }
+        public string EngineSupplierId { get; set; }
 
         public virtual EngineSupplier EngineSupplier
         {

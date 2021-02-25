@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
-        private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
+        private readonly List<ModificationCommand> _modificationCommands = new();
 
         /// <summary>
         ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The update SQL generator.
         /// </summary>
-        protected virtual IUpdateSqlGenerator UpdateSqlGenerator => Dependencies.UpdateSqlGenerator;
+        protected virtual IUpdateSqlGenerator UpdateSqlGenerator
+            => Dependencies.UpdateSqlGenerator;
 
         /// <summary>
         ///     Gets or sets the cached command text for the commands in the batch.
@@ -61,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
         /// </summary>
-        public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
+        public override IReadOnlyList<ModificationCommand> ModificationCommands
+            => _modificationCommands;
 
         /// <summary>
         ///     The <see cref="ResultSetMapping" />s for each command in <see cref="ModificationCommands" />.
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="modificationCommand"> The command to add. </param>
         /// <returns>
-        ///     <c>True</c> if the command was successfully added; <c>false</c> if there was no
+        ///     <see langword="true" /> if the command was successfully added; <see langword="false" /> if there was no
         ///     room in the current batch to add the command and it must instead be added to a new batch.
         /// </returns>
         public override bool AddCommand(ModificationCommand modificationCommand)
@@ -118,13 +120,13 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Checks whether or not a new command can be added to the batch.
         /// </summary>
         /// <param name="modificationCommand"> The command to potentially add. </param>
-        /// <returns> <c>True</c> if the command can be added; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the command can be added; <see langword="false" /> otherwise. </returns>
         protected abstract bool CanAddCommand([NotNull] ModificationCommand modificationCommand);
 
         /// <summary>
         ///     Checks whether or not the command text is valid.
         /// </summary>
-        /// <returns> <c>True</c> if the command text is valid; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the command text is valid; <see langword="false" /> otherwise. </returns>
         protected abstract bool IsCommandTextValid();
 
         /// <summary>
@@ -202,7 +204,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         commandBuilder.AddParameter(
                             columnModification.ParameterName,
                             Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
-                            columnModification.Property);
+                            columnModification.TypeMapping,
+                            columnModification.IsNullable);
 
                         parameterValues.Add(columnModification.ParameterName, columnModification.Value);
                     }
@@ -212,7 +215,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         commandBuilder.AddParameter(
                             columnModification.OriginalParameterName,
                             Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
-                            columnModification.Property);
+                            columnModification.TypeMapping,
+                            columnModification.IsNullable);
 
                         parameterValues.Add(columnModification.OriginalParameterName, columnModification.OriginalValue);
                     }
@@ -235,16 +239,14 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             try
             {
-                using (var dataReader = storeCommand.RelationalCommand.ExecuteReader(
+                using var dataReader = storeCommand.RelationalCommand.ExecuteReader(
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
                         null,
                         Dependencies.CurrentContext.Context,
-                        Dependencies.Logger)))
-                {
-                    Consume(dataReader);
-                }
+                        Dependencies.Logger));
+                Consume(dataReader);
             }
             catch (DbUpdateException)
             {
@@ -252,7 +254,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
             catch (Exception ex)
             {
-                throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
+                throw new DbUpdateException(
+                    RelationalStrings.UpdateStoreException,
+                    ex,
+                    ModificationCommands.SelectMany(c => c.Entries).ToList());
             }
         }
 
@@ -261,8 +266,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     database using the given connection.
         /// </summary>
         /// <param name="connection"> The connection to the database to update. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public override async Task ExecuteAsync(
             IRelationalConnection connection,
             CancellationToken cancellationToken = default)
@@ -273,17 +279,15 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             try
             {
-                await using (var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
+                await using var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
                         null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.Logger),
-                    cancellationToken))
-                {
-                    await ConsumeAsync(dataReader, cancellationToken);
-                }
+                    cancellationToken).ConfigureAwait(false);
+                await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
             }
             catch (DbUpdateException)
             {
@@ -291,7 +295,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
             catch (Exception ex)
             {
-                throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
+                throw new DbUpdateException(
+                    RelationalStrings.UpdateStoreException,
+                    ex,
+                    ModificationCommands.SelectMany(c => c.Entries).ToList());
             }
         }
 
@@ -305,8 +312,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Consumes the data reader created by <see cref="ExecuteAsync" />.
         /// </summary>
         /// <param name="reader"> The data reader. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         protected abstract Task ConsumeAsync(
             [NotNull] RelationalDataReader reader,
             CancellationToken cancellationToken = default);
@@ -326,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))
                         .Where(c => c.IsRead)
-                        .Select(c => new TypeMaterializationInfo(c.Property.ClrType, c.Property, null))
+                        .Select(c => new TypeMaterializationInfo(c.Property.ClrType, c.Property, c.TypeMapping))
                         .ToArray());
     }
 }

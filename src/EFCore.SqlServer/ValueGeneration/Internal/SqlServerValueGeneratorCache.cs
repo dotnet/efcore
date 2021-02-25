@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
     public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValueGeneratorCache
     {
         private readonly ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState> _sequenceGeneratorCache
-            = new ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState>();
+            = new();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
@@ -48,9 +48,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             IProperty property,
             IRelationalConnection connection)
         {
-            var sequence = property.FindHiLoSequence();
+            var sequence = property.FindHiLoSequence(
+                StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table).Value);
 
-            Debug.Assert(sequence != null);
+            Check.DebugAssert(sequence != null, "sequence is null");
 
             return _sequenceGeneratorCache.GetOrAdd(
                 GetSequenceName(sequence, connection),

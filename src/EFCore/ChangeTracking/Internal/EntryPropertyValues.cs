@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var property in Properties.Where(p => !p.IsShadowProperty()))
                 {
-                    SetValueInternal(property, ((Property)property).Getter.GetClrValue(obj));
+                    SetValueInternal(property, property.GetGetter().GetClrValue(obj));
                 }
             }
             else

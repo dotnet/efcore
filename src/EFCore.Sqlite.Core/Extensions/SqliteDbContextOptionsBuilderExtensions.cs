@@ -18,6 +18,35 @@ namespace Microsoft.EntityFrameworkCore
     public static class SqliteDbContextOptionsBuilderExtensions
     {
         /// <summary>
+        ///     <para>
+        ///         Configures the context to connect to a SQLite database, but without initially setting any
+        ///         <see cref="DbConnection" /> or connection string.
+        ///     </para>
+        ///     <para>
+        ///         The connection or connection string must be set before the <see cref="DbContext" /> is used to connect
+        ///         to a database. Set a connection using <see cref="RelationalDatabaseFacadeExtensions.SetDbConnection" />.
+        ///         Set a connection string using <see cref="RelationalDatabaseFacadeExtensions.SetConnectionString" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
+        public static DbContextOptionsBuilder UseSqlite(
+            [NotNull] this DbContextOptionsBuilder optionsBuilder,
+            [CanBeNull] Action<SqliteDbContextOptionsBuilder> sqliteOptionsAction = null)
+        {
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension(optionsBuilder));
+
+            ConfigureWarnings(optionsBuilder);
+
+            sqliteOptionsAction?.Invoke(new SqliteDbContextOptionsBuilder(optionsBuilder));
+
+            return optionsBuilder;
+        }
+
+        /// <summary>
         ///     Configures the context to connect to a SQLite database.
         /// </summary>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
@@ -72,6 +101,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         Configures the context to connect to a SQLite database, but without initially setting any
+        ///         <see cref="DbConnection" /> or connection string.
+        ///     </para>
+        ///     <para>
+        ///         The connection or connection string must be set before the <see cref="DbContext" /> is used to connect
+        ///         to a database. Set a connection using <see cref="RelationalDatabaseFacadeExtensions.SetDbConnection" />.
+        ///         Set a connection string using <see cref="RelationalDatabaseFacadeExtensions.SetConnectionString" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
+        /// <returns> The options builder so that further configuration can be chained. </returns>
+        public static DbContextOptionsBuilder<TContext> UseSqlite<TContext>(
+            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
+            [CanBeNull] Action<SqliteDbContextOptionsBuilder> sqliteOptionsAction = null)
+            where TContext : DbContext
+            => (DbContextOptionsBuilder<TContext>)UseSqlite(
+                (DbContextOptionsBuilder)optionsBuilder, sqliteOptionsAction);
+
+        /// <summary>
         ///     Configures the context to connect to a SQLite database.
         /// </summary>
         /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
@@ -117,9 +167,7 @@ namespace Microsoft.EntityFrameworkCore
                 = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
                 ?? new CoreOptionsExtension();
 
-            coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
-                coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
-                    RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw));
+            coreOptionsExtension = RelationalOptionsExtension.WithDefaultWarningConfiguration(coreOptionsExtension);
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
         }

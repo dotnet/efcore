@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     ///     <para>
     ///         Get an Entity Framework Core logger category using its Name property. For example,
-    ///         <code>LoggerCategory.Database.Sql.Name</code>.
+    ///         <c>LoggerCategory.Database.Sql.Name</c>.
     ///     </para>
     ///     <para>
     ///         Use these types with <see cref="IDiagnosticsLogger{TLoggerCategory}" /> or

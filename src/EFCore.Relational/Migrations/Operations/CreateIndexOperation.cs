@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -10,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for creating a new index.
     /// </summary>
     [DebuggerDisplay("CREATE INDEX {Name} ON {Table}")]
-    public class CreateIndexOperation : MigrationOperation
+    public class CreateIndexOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     Indicates whether or not the index should enforce uniqueness.
@@ -23,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Name { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The schema that contains the index, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the index, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 
@@ -41,5 +44,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     An expression to use as the index filter.
         /// </summary>
         public virtual string Filter { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     Creates a new <see cref="CreateIndexOperation" /> from the specified index.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <returns> The operation. </returns>
+        public static CreateIndexOperation CreateFrom([NotNull] ITableIndex index)
+        {
+            Check.NotNull(index, nameof(index));
+
+            var operation = new CreateIndexOperation
+            {
+                IsUnique = index.IsUnique,
+                Name = index.Name,
+                Schema = index.Table.Schema,
+                Table = index.Table.Name,
+                Columns = index.Columns.Select(p => p.Name).ToArray(),
+                Filter = index.Filter
+            };
+            operation.AddAnnotations(index.GetAnnotations());
+
+            return operation;
+        }
     }
 }

@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class DesignTimeConnectionStringResolver : NamedConnectionStringResolverBase
     {
-        private readonly Func<IServiceProvider> _applicationServiceProviderAccessor;
+        private readonly Func<IServiceProvider>? _applicationServiceProviderAccessor;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DesignTimeConnectionStringResolver([CanBeNull] Func<IServiceProvider> applicationServiceProviderAccessor)
+        public DesignTimeConnectionStringResolver([CanBeNull] Func<IServiceProvider>? applicationServiceProviderAccessor)
         {
             _applicationServiceProviderAccessor = applicationServiceProviderAccessor;
         }
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override IServiceProvider ApplicationServiceProvider
+        protected override IServiceProvider? ApplicationServiceProvider
             => _applicationServiceProviderAccessor?.Invoke();
     }
 }

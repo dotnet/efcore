@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
@@ -74,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
 
-            var parameterValues = new Dictionary<string, object>();
+            var parameterValues = new Dictionary<string, object?>();
 
             foreach (var parameter in parameters)
             {
@@ -85,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         dbParameter.ParameterName = _sqlGenerationHelper.GenerateParameterName(parameterNameGenerator.GenerateNext());
                     }
 
-                    substitutions.Add(dbParameter.ParameterName);
+                    substitutions.Add(_sqlGenerationHelper.GenerateParameterName(dbParameter.ParameterName));
                     relationalCommandBuilder.AddRawParameter(dbParameter.ParameterName, dbParameter);
                 }
                 else

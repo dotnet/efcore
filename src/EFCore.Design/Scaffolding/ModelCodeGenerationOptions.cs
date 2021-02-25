@@ -23,6 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public virtual bool SuppressConnectionStringWarning { get; set; }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether to suppress generation of the OnConfiguring() method.
+        /// </summary>
+        /// <value> A value indicating whether to suppress generation of the OnConfiguring() method. </value>
+        public virtual bool SuppressOnConfiguring { get; set; }
+
+        /// <summary>
         ///     Gets or sets the namespace of the project.
         /// </summary>
         /// <value>The namespace of the project.</value>

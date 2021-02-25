@@ -3,6 +3,8 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Finds a type mapping for the given info.
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
-        /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo);
+        /// <returns> The type mapping, or <see langword="null" /> if none could be found. </returns>
+        RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo);
     }
 }

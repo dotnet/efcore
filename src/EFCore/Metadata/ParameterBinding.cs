@@ -7,6 +7,8 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] params IPropertyBase[] consumedProperties)
         {
             Check.NotNull(parameterType, nameof(parameterType));
-            Check.NotNull(consumedProperties, nameof(parameterType));
+            Check.NotNull(consumedProperties, nameof(consumedProperties));
 
             ParameterType = parameterType;
             ConsumedProperties = consumedProperties;

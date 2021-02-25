@@ -22,16 +22,22 @@ Register-TabExpansion Add-Migration @{
     The name of the migration.
 
 .PARAMETER OutputDir
-    The directory (and sub-namespace) to use. Paths are relative to the project directory. Defaults to "Migrations".
+    The directory to put files in. Paths are relative to the project directory. Defaults to "Migrations".
 
 .PARAMETER Context
-    The DbContext type to use.
+    The DbContext to use.
 
 .PARAMETER Project
     The project to use.
 
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Namespace
+    The namespace to use. Matches the directory by default.
+
+.PARAMETER Args
+    Arguments passed to the application.
 
 .LINK
     Remove-Migration
@@ -47,7 +53,9 @@ function Add-Migration
         [string] $OutputDir,
         [string] $Context,
         [string] $Project,
-        [string] $StartupProject)
+        [string] $StartupProject,
+        [string] $Namespace,
+        [string] $Args)
 
     WarnIfEF6 'Add-Migration'
 
@@ -61,10 +69,15 @@ function Add-Migration
         $params += '--output-dir', $OutputDir
     }
 
+    if ($Namespace)
+    {
+        $params += '--namespace', $Namespace
+    }
+
     $params += GetParams $Context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
+    $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
     Write-Host 'To undo this action, use Remove-Migration.'
 
     $dteProject.ProjectItems.AddFromFile($result.migrationFile) | Out-Null
@@ -102,6 +115,9 @@ Register-TabExpansion Drop-Database @{
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Update-Database
     about_EntityFrameworkCore
@@ -109,7 +125,11 @@ Register-TabExpansion Drop-Database @{
 function Drop-Database
 {
     [CmdletBinding(PositionalBinding = $false, SupportsShouldProcess = $true, ConfirmImpact = 'High')]
-    param([string] $Context, [string] $Project, [string] $StartupProject)
+    param(
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Args)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
@@ -121,7 +141,7 @@ function Drop-Database
         $params = 'database', 'drop', '--force'
         $params += GetParams $Context
 
-        EF $dteProject $dteStartupProject $params -skipBuild
+        EF $dteProject $dteStartupProject $params $Args -skipBuild
     }
 }
 
@@ -147,10 +167,10 @@ Register-TabExpansion Get-DbContext @{
 
 <#
 .SYNOPSIS
-    Gets information about DbContext types.
+    Lists and gets information about available DbContext types.
 
 .DESCRIPTION
-    Gets information about DbContext types.
+    Lists and gets information about available DbContext types.
 
 .PARAMETER Context
     The DbContext to use.
@@ -161,13 +181,20 @@ Register-TabExpansion Get-DbContext @{
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     about_EntityFrameworkCore
 #>
 function Get-DbContext
 {
     [CmdletBinding(PositionalBinding = $false)]
-    param([string] $Context, [string] $Project, [string] $StartupProject)
+    param(
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Args)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
@@ -176,15 +203,91 @@ function Get-DbContext
     {
        $params = 'dbcontext', 'info', '--json'
        $params += GetParams $Context
+
        # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-       return (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
+       return (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
     }
     else
     {
        $params = 'dbcontext', 'list', '--json'
        # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-       return (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json | Format-Table -Property safeName -HideTableHeaders
+       # NB: Write-Output is here to break the JSON array into individual items
+       return (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json | Write-Output | Format-Table -Property safeName -HideTableHeaders
     }
+}
+
+#
+# Get-Migration
+#
+
+Register-TabExpansion Get-Migration @{
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+<#
+.SYNOPSIS
+    Lists available migrations.
+
+.DESCRIPTION
+    Lists available migrations.
+
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
+.PARAMETER NoConnect
+    Don't connect to the database.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Args
+    Arguments passed to the application.
+
+.LINK
+    Add-Migration
+    Remove-Migration
+    Update-Database
+    about_EntityFrameworkCore
+#>
+function Get-Migration
+{
+    [CmdletBinding(PositionalBinding = $false)]
+    param(
+        [string] $Connection,
+        [switch] $NoConnect,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Args)
+
+    $dteProject = GetProject $Project
+    $dteStartupProject = GetStartupProject $StartupProject $dteProject
+
+    $params = 'migrations', 'list', '--json'
+
+    if ($Connection)
+    {
+        $params += '--connection', $Connection
+    }
+
+    if ($NoConnect)
+    {
+        $params += '--no-connect'
+    }
+
+    $params += GetParams $Context
+
+    # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
+    # NB: Write-Output is here to break the JSON array into individual items
+    return (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json | Write-Output
 }
 
 #
@@ -216,14 +319,23 @@ Register-TabExpansion Remove-Migration @{
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Add-Migration
+    Get-Migration
     about_EntityFrameworkCore
 #>
 function Remove-Migration
 {
     [CmdletBinding(PositionalBinding = $false)]
-    param([switch] $Force, [string] $Context, [string] $Project, [string] $StartupProject)
+    param(
+        [switch] $Force,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Args)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
@@ -238,14 +350,17 @@ function Remove-Migration
     $params += GetParams $Context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
+    $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
 
-    $files = $result.migrationFile, $result.metadataFile, $result.snapshotFile
-    $files | ?{ $_ -ne $null } | %{
-        $projectItem = GetProjectItem $dteProject $_
-        if ($projectItem)
-        {
-            $projectItem.Remove()
+    if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true')
+    {
+        $files = $result.migrationFile, $result.metadataFile, $result.snapshotFile
+        $files | ?{ $_ -ne $null } | %{
+            $projectItem = GetProjectItem $dteProject $_
+            if ($projectItem)
+            {
+                $projectItem.Remove()
+            }
         }
     }
 }
@@ -279,10 +394,10 @@ Register-TabExpansion Scaffold-DbContext @{
     The directory to put files in. Paths are relative to the project directory.
 
 .PARAMETER ContextDir
-    The directory to put DbContext file in. Paths are relative to the project directory.
+    The directory to put the DbContext file in. Paths are relative to the project directory.
 
 .PARAMETER Context
-    The name of the DbContext to generate.
+    The name of the DbContext. Defaults to the database name.
 
 .PARAMETER Schemas
     The schemas of tables to generate entity types for.
@@ -299,11 +414,26 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER Force
     Overwrite existing files.
 
+.PARAMETER NoOnConfiguring
+    Don't generate DbContext.OnConfiguring.
+
 .PARAMETER Project
     The project to use.
 
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Namespace
+    The namespace to use. Matches the directory by default.
+
+.PARAMETER ContextNamespace
+    The namespace of the DbContext class. Matches the directory by default.
+
+.PARAMETER NoPluralize
+    Don't use the pluralizer.
+
+.PARAMETER Args
+    Arguments passed to the application.
 
 .LINK
     about_EntityFrameworkCore
@@ -324,8 +454,13 @@ function Scaffold-DbContext
         [switch] $DataAnnotations,
         [switch] $UseDatabaseNames,
         [switch] $Force,
+        [switch] $NoOnConfiguring,
         [string] $Project,
-        [string] $StartupProject)
+        [string] $StartupProject,
+        [string] $Namespace,
+        [string] $ContextNamespace,
+        [switch] $NoPluralize,
+        [string] $Args)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
@@ -347,6 +482,16 @@ function Scaffold-DbContext
         $params += '--context', $Context
     }
 
+    if ($Namespace)
+    {
+        $params += '--namespace', $Namespace
+    }
+
+    if ($ContextNamespace)
+    {
+        $params += '--context-namespace', $ContextNamespace
+    }
+
     $params += $Schemas | %{ '--schema', $_ }
     $params += $Tables | %{ '--table', $_ }
 
@@ -365,8 +510,18 @@ function Scaffold-DbContext
         $params += '--force'
     }
 
+    if ($NoOnConfiguring)
+    {
+        $params += '--no-onconfiguring'
+    }
+
+    if ($NoPluralize)
+    {
+        $params += '--no-pluralize'
+    }
+
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
+    $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
 
     $files = $result.entityTypeFiles + $result.contextFile
     $files | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
@@ -386,10 +541,10 @@ Register-TabExpansion Script-DbContext @{
 
 <#
 .SYNOPSIS
-    Generates a SQL script from current DbContext.
+    Generates a SQL script from the DbContext. Bypasses any migrations.
 
 .DESCRIPTION
-    Generates a SQL script from current DbContext.
+    Generates a SQL script from the DbContext. Bypasses any migrations.
 
 .PARAMETER Output
     The file to write the result to.
@@ -403,6 +558,9 @@ Register-TabExpansion Script-DbContext @{
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     about_EntityFrameworkCore
 #>
@@ -413,7 +571,8 @@ function Script-DbContext
         [string] $Output,
         [string] $Context,
         [string] $Project,
-        [string] $StartupProject)
+        [string] $StartupProject,
+        [string] $Args)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
@@ -424,7 +583,7 @@ function Script-DbContext
         if (![IO.Path]::IsPathRooted($intermediatePath))
         {
             $projectDir = GetProperty $dteProject.Properties 'FullPath'
-            $intermediatePath = Join-Path $projectDir $intermediatePath -Resolve | Convert-Path
+            $intermediatePath = [IO.Path]::GetFullPath((Join-Path $projectDir $intermediatePath))
         }
 
         $scriptFileName = [IO.Path]::ChangeExtension([IO.Path]::GetRandomFileName(), '.sql')
@@ -436,10 +595,9 @@ function Script-DbContext
     }
 
     $params = 'dbcontext', 'script', '--output', $Output
-
     $params += GetParams $Context
 
-    EF $dteProject $dteStartupProject $params
+    EF $dteProject $dteStartupProject $params $Args
 
     $DTE.ItemOperations.OpenFile($Output) | Out-Null
     ShowConsole
@@ -468,10 +626,13 @@ Register-TabExpansion Script-Migration @{
     The starting migration. Defaults to '0' (the initial database).
 
 .PARAMETER To
-    The ending migration. Defaults to the last migration.
+    The target migration. Defaults to the last migration.
 
 .PARAMETER Idempotent
     Generate a script that can be used on a database at any migration.
+
+.PARAMETER NoTransactions
+    Don't generate SQL transaction statements.
 
 .PARAMETER Output
     The file to write the result to.
@@ -485,8 +646,12 @@ Register-TabExpansion Script-Migration @{
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
+.PARAMETER Args
+    Arguments passed to the application.
+
 .LINK
     Update-Database
+    Get-Migration
     about_EntityFrameworkCore
 #>
 function Script-Migration
@@ -499,10 +664,12 @@ function Script-Migration
         [Parameter(ParameterSetName = 'WithTo', Position = 1, Mandatory = $true)]
         [string] $To,
         [switch] $Idempotent,
+        [switch] $NoTransactions,
         [string] $Output,
         [string] $Context,
         [string] $Project,
-        [string] $StartupProject)
+        [string] $StartupProject,
+        [string] $Args)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
@@ -513,7 +680,7 @@ function Script-Migration
         if (![IO.Path]::IsPathRooted($intermediatePath))
         {
             $projectDir = GetProperty $dteProject.Properties 'FullPath'
-            $intermediatePath = Join-Path $projectDir $intermediatePath -Resolve | Convert-Path
+            $intermediatePath = [IO.Path]::GetFullPath((Join-Path $projectDir $intermediatePath))
         }
 
         $scriptFileName = [IO.Path]::ChangeExtension([IO.Path]::GetRandomFileName(), '.sql')
@@ -541,9 +708,15 @@ function Script-Migration
         $params += '--idempotent'
     }
 
+    if ($NoTransactions)
+    {
+        $params += '--no-transactions'
+    }
+
     $params += GetParams $Context
 
-    EF $dteProject $dteStartupProject $params
+
+    EF $dteProject $dteStartupProject $params $Args
 
     $DTE.ItemOperations.OpenFile($Output) | Out-Null
     ShowConsole
@@ -570,6 +743,9 @@ Register-TabExpansion Update-Database @{
 .PARAMETER Migration
     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
 
+.PARAMETER Connection
+    The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -578,6 +754,9 @@ Register-TabExpansion Update-Database @{
 
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Args
+    Arguments passed to the application.
 
 .LINK
     Script-Migration
@@ -589,9 +768,11 @@ function Update-Database
     param(
         [Parameter(Position = 0)]
         [string] $Migration,
+        [string] $Connection,
         [string] $Context,
         [string] $Project,
-        [string] $StartupProject)
+        [string] $StartupProject,
+        [string] $Args)
 
     WarnIfEF6 'Update-Database'
 
@@ -605,9 +786,15 @@ function Update-Database
         $params += $Migration
     }
 
+    if ($Connection)
+    {
+        $params += '--connection', $Connection
+    }
+
     $params += GetParams $Context
 
-    EF $dteProject $dteStartupProject $params
+
+    EF $dteProject $dteStartupProject $params $Args
 }
 
 #
@@ -637,7 +824,8 @@ function GetContextTypes($projectName, $startupProjectName)
     $params = 'dbcontext', 'list', '--json'
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $result = (EF $project $startupProject $params -skipBuild) -join "`n" | ConvertFrom-Json
+    # NB: Write-Output is here to break the JSON array into individual items
+    $result = (EF $project $startupProject $params $null -skipBuild) -join "`n" | ConvertFrom-Json | Write-Output
 
     return $result | %{ $_.safeName }
 }
@@ -647,11 +835,12 @@ function GetMigrations($context, $projectName, $startupProjectName)
     $project = GetProject $projectName
     $startupProject = GetStartupProject $startupProjectName $project
 
-    $params = 'migrations', 'list', '--json'
+    $params = 'migrations', 'list', '--no-connect', '--json'
     $params += GetParams $context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $result = (EF $project $startupProject $params -skipBuild) -join "`n" | ConvertFrom-Json
+    # NB: Write-Output is here to break the JSON array into individual items
+    $result = (EF $project $startupProject $params $null -skipBuild) -join "`n" | ConvertFrom-Json | Write-Output
 
     return $result | %{ $_.safeName }
 }
@@ -694,7 +883,7 @@ function GetStartupProject($name, $fallbackProject)
             if (![IO.Path]::IsPathRooted($startupProjectPath))
             {
                 $solutionPath = Split-Path (GetProperty $DTE.Solution.Properties 'Path')
-                $startupProjectPath = Join-Path $solutionPath $startupProjectPath -Resolve | Convert-Path
+                $startupProjectPath = [IO.Path]::GetFullPath((Join-Path $solutionPath $startupProjectPath))
             }
 
             $startupProject = GetSolutionProjects | ?{
@@ -798,7 +987,7 @@ function WriteErrorLine($message)
     }
 }
 
-function EF($project, $startupProject, $params, [switch] $skipBuild)
+function EF($project, $startupProject, $params, $applicationArgs, [switch] $skipBuild)
 {
     if (IsDocker $startupProject)
     {
@@ -831,8 +1020,16 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         Write-Host 'Build succeeded.'
     }
 
+    $activeConfiguration = $startupProject.ConfigurationManager.ActiveConfiguration
+    if ($activeConfiguration -eq $null)
+    {
+        throw "Unable to read project configuration settings of project '$($startupProject.ProjectName)' for the " +
+            'active solution configuration. Try closing Package Manager Console and restarting Visual Studio. If the ' +
+            'problem persists, use Help > Send Feedback > Report a Problem.'
+    }
+
     $startupProjectDir = GetProperty $startupProject.Properties 'FullPath'
-    $outputPath = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties 'OutputPath'
+    $outputPath = GetProperty $activeConfiguration.Properties 'OutputPath'
     $targetDir = [IO.Path]::GetFullPath([IO.Path]::Combine($startupProjectDir, $outputPath))
     $startupTargetFileName = GetProperty $startupProject.Properties 'OutputFileName'
     $startupTargetPath = Join-Path $targetDir $startupTargetFileName
@@ -880,7 +1077,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
             }
         }
 
-        if (Test-Path $runtimeConfig)
+        if ([IO.File]::Exists($runtimeConfig))
         {
             $dotnetParams += '--runtimeconfig', $runtimeConfig
         }
@@ -934,6 +1131,12 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     }
 
     $arguments = ToArguments $params
+    if ($applicationArgs)
+    {
+        $arguments += ' -- '
+        $arguments += $applicationArgs
+    }
+
     $startInfo = New-Object 'System.Diagnostics.ProcessStartInfo' -Property @{
         FileName = $exePath;
         Arguments = $arguments;

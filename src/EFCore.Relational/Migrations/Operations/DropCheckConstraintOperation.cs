@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for dropping an existing check constraint.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} DROP CONSTRAINT {Name}")]
-    public class DropCheckConstraintOperation : MigrationOperation
+    public class DropCheckConstraintOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The name of the constraint.
@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Name { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 

@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _foreignKeys = key.DeclaringEntityType
                     .GetDerivedTypesInclusive()
-                    .SelectMany(EntityTypeExtensions.GetDeclaredForeignKeys)
+                    .SelectMany(t => t.GetDeclaredForeignKeys())
                     .ToArray();
             }
         }
@@ -175,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityEntry TryGetEntryUsingPreStoreGeneratedValues(
-            IForeignKey foreignKey, InternalEntityEntry dependentEntry)
+            IForeignKey foreignKey,
+            InternalEntityEntry dependentEntry)
             => foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromPreStoreGeneratedCurrentValues(dependentEntry, out var key)
                 && _identityMap.TryGetValue(key, out var entry)
                     ? entry
@@ -289,7 +290,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                if (!bothStatesEquivalent)
+                if (!bothStatesEquivalent
+                    && Key.IsPrimaryKey())
                 {
                     entry.SharedIdentityEntry = existingEntry;
                     existingEntry.SharedIdentityEntry = entry;
@@ -330,12 +332,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_dependentMaps == null)
             {
-                _dependentMaps = new Dictionary<IForeignKey, IDependentsMap>(ReferenceEqualityComparer.Instance);
+                _dependentMaps = new Dictionary<IForeignKey, IDependentsMap>(LegacyReferenceEqualityComparer.Instance);
             }
 
             if (!_dependentMaps.TryGetValue(foreignKey, out var map))
             {
-                map = foreignKey.CreateDependentsMapFactory();
+                map = ((IRuntimeForeignKey)foreignKey).DependentsMapFactory();
 
                 foreach (var value in _identityMap.Values)
                 {
@@ -413,7 +415,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (otherEntry == null)
             {
-                _identityMap.Remove(key);
+                if (_identityMap.TryGetValue(key, out var existingEntry)
+                    && existingEntry == entry)
+                {
+                    _identityMap.Remove(key);
+                }
             }
             else
             {

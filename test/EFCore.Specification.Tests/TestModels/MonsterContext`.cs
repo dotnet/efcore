@@ -59,67 +59,98 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         {
         }
 
-        public override IQueryable<ICustomer> Customers => Set<TCustomer>();
+        public override IQueryable<ICustomer> Customers
+            => Set<TCustomer>();
 
-        public override IQueryable<IBarcode> Barcodes => Set<TBarcode>();
+        public override IQueryable<IBarcode> Barcodes
+            => Set<TBarcode>();
 
-        public override IQueryable<IIncorrectScan> IncorrectScans => Set<TIncorrectScan>();
+        public override IQueryable<IIncorrectScan> IncorrectScans
+            => Set<TIncorrectScan>();
 
-        public override IQueryable<IBarcodeDetail> BarcodeDetails => Set<TBarcodeDetail>();
+        public override IQueryable<IBarcodeDetail> BarcodeDetails
+            => Set<TBarcodeDetail>();
 
-        public override IQueryable<IComplaint> Complaints => Set<TComplaint>();
+        public override IQueryable<IComplaint> Complaints
+            => Set<TComplaint>();
 
-        public override IQueryable<IResolution> Resolutions => Set<TResolution>();
+        public override IQueryable<IResolution> Resolutions
+            => Set<TResolution>();
 
-        public override IQueryable<ILogin> Logins => Set<TLogin>();
+        public override IQueryable<ILogin> Logins
+            => Set<TLogin>();
 
-        public override IQueryable<ISuspiciousActivity> SuspiciousActivities => Set<TSuspiciousActivity>();
+        public override IQueryable<ISuspiciousActivity> SuspiciousActivities
+            => Set<TSuspiciousActivity>();
 
-        public override IQueryable<ISmartCard> SmartCards => Set<TSmartCard>();
+        public override IQueryable<ISmartCard> SmartCards
+            => Set<TSmartCard>();
 
-        public override IQueryable<IRsaToken> RsaTokens => Set<TRsaToken>();
+        public override IQueryable<IRsaToken> RsaTokens
+            => Set<TRsaToken>();
 
-        public override IQueryable<IPasswordReset> PasswordResets => Set<TPasswordReset>();
+        public override IQueryable<IPasswordReset> PasswordResets
+            => Set<TPasswordReset>();
 
-        public override IQueryable<IPageView> PageViews => Set<TPageView>();
+        public override IQueryable<IPageView> PageViews
+            => Set<TPageView>();
 
-        public override IQueryable<ILastLogin> LastLogins => Set<TLastLogin>();
+        public override IQueryable<ILastLogin> LastLogins
+            => Set<TLastLogin>();
 
-        public override IQueryable<IMessage> Messages => Set<TMessage>();
+        public override IQueryable<IMessage> Messages
+            => Set<TMessage>();
 
-        public override IQueryable<IAnOrder> Orders => Set<TAnOrder>();
+        public override IQueryable<IAnOrder> Orders
+            => Set<TAnOrder>();
 
-        public override IQueryable<IOrderNote> OrderNotes => Set<TOrderNote>();
+        public override IQueryable<IOrderNote> OrderNotes
+            => Set<TOrderNote>();
 
-        public override IQueryable<IOrderQualityCheck> OrderQualityChecks => Set<TOrderQualityCheck>();
+        public override IQueryable<IOrderQualityCheck> OrderQualityChecks
+            => Set<TOrderQualityCheck>();
 
-        public override IQueryable<IOrderLine> OrderLines => Set<TOrderLine>();
+        public override IQueryable<IOrderLine> OrderLines
+            => Set<TOrderLine>();
 
-        public override IQueryable<IProduct> Products => Set<TProduct>();
+        public override IQueryable<IProduct> Products
+            => Set<TProduct>();
 
-        public override IQueryable<IProductDetail> ProductDetails => Set<TProductDetail>();
+        public override IQueryable<IProductDetail> ProductDetails
+            => Set<TProductDetail>();
 
-        public override IQueryable<IProductReview> ProductReviews => Set<TProductReview>();
+        public override IQueryable<IProductReview> ProductReviews
+            => Set<TProductReview>();
 
-        public override IQueryable<IProductPhoto> ProductPhotos => Set<TProductPhoto>();
+        public override IQueryable<IProductPhoto> ProductPhotos
+            => Set<TProductPhoto>();
 
-        public override IQueryable<IProductWebFeature> ProductWebFeatures => Set<TProductWebFeature>();
+        public override IQueryable<IProductWebFeature> ProductWebFeatures
+            => Set<TProductWebFeature>();
 
-        public override IQueryable<ISupplier> Suppliers => Set<TSupplier>();
+        public override IQueryable<ISupplier> Suppliers
+            => Set<TSupplier>();
 
-        public override IQueryable<ISupplierLogo> SupplierLogos => Set<TSupplierLogo>();
+        public override IQueryable<ISupplierLogo> SupplierLogos
+            => Set<TSupplierLogo>();
 
-        public override IQueryable<ISupplierInfo> SupplierInformation => Set<TSupplierInfo>();
+        public override IQueryable<ISupplierInfo> SupplierInformation
+            => Set<TSupplierInfo>();
 
-        public override IQueryable<ICustomerInfo> CustomerInformation => Set<TCustomerInfo>();
+        public override IQueryable<ICustomerInfo> CustomerInformation
+            => Set<TCustomerInfo>();
 
-        public override IQueryable<IComputer> Computers => Set<TComputer>();
+        public override IQueryable<IComputer> Computers
+            => Set<TComputer>();
 
-        public override IQueryable<IComputerDetail> ComputerDetails => Set<TComputerDetail>();
+        public override IQueryable<IComputerDetail> ComputerDetails
+            => Set<TComputerDetail>();
 
-        public override IQueryable<IDriver> Drivers => Set<TDriver>();
+        public override IQueryable<IDriver> Drivers
+            => Set<TDriver>();
 
-        public override IQueryable<ILicense> Licenses => Set<TLicense>();
+        public override IQueryable<ILicense> Licenses
+            => Set<TLicense>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

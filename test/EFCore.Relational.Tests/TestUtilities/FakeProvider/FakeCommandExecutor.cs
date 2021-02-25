@@ -45,9 +45,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                 ?? ((c, ct, b) => Task.FromResult<DbDataReader>(new FakeDbDataReader()));
         }
 
-        public virtual int ExecuteNonQuery(FakeDbCommand command) => _executeNonQuery(command);
+        public virtual int ExecuteNonQuery(FakeDbCommand command)
+            => _executeNonQuery(command);
 
-        public virtual object ExecuteScalar(FakeDbCommand command) => _executeScalar(command);
+        public virtual object ExecuteScalar(FakeDbCommand command)
+            => _executeScalar(command);
 
         public virtual DbDataReader ExecuteReader(FakeDbCommand command, CommandBehavior behavior)
             => _executeReader(command, behavior);

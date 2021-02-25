@@ -1,12 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
-using System.Reflection;
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -14,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that finds derived entity types that are already part of the model based on the associated
     ///     CLR type hierarchy.
     /// </summary>
+    [Obsolete]
     public class DerivedTypeDiscoveryConvention : InheritanceDiscoveryConventionBase, IEntityTypeAddedConvention
     {
         /// <summary>
@@ -31,30 +33,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeAdded(
-            IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionContext<IConventionEntityTypeBuilder> context)
         {
             var entityType = entityTypeBuilder.Metadata;
             var clrType = entityType.ClrType;
             if (clrType == null
-                || entityType.HasDefiningNavigation())
+                || entityType.HasSharedClrType
+                || entityType.HasDefiningNavigation()
+                || entityType.Model.IsOwned(clrType)
+                || entityType.FindOwnership() != null)
             {
                 return;
             }
 
             var model = entityType.Model;
-            var directlyDerivedTypes = model.GetEntityTypes().Where(
-                    t => t != entityType
-                        && t.HasClrType()
-                        && !t.HasDefiningNavigation()
-                        && t.FindDeclaredOwnership() == null
-                        && model.FindIsOwnedConfigurationSource(t.ClrType) == null
-                        && ((t.BaseType == null && clrType.GetTypeInfo().IsAssignableFrom(t.ClrType.GetTypeInfo()))
-                            || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType)))
-                .ToList();
-
-            foreach (var directlyDerivedType in directlyDerivedTypes)
+            foreach (var directlyDerivedType in model.GetEntityTypes())
             {
-                directlyDerivedType.Builder.HasBaseType(entityType);
+                if (directlyDerivedType != entityType
+                        && !directlyDerivedType.HasSharedClrType
+                        && !directlyDerivedType.HasDefiningNavigation()
+                        && !model.IsOwned(directlyDerivedType.ClrType)
+                        && directlyDerivedType.FindDeclaredOwnership() == null
+                        && ((directlyDerivedType.BaseType == null && clrType.IsAssignableFrom(directlyDerivedType.ClrType))
+                            || (directlyDerivedType.BaseType == entityType.BaseType && FindClosestBaseType(directlyDerivedType) == entityType)))
+                {
+                    directlyDerivedType.Builder.HasBaseType(entityType);
+                }
             }
         }
     }

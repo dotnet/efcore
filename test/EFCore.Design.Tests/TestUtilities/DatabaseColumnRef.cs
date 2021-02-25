@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    class DatabaseColumnRef : DatabaseColumn
+    internal class DatabaseColumnRef : DatabaseColumn
     {
         public DatabaseColumnRef(string name)
         {

@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -38,26 +40,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeAdded(
-            IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionContext<IConventionEntityTypeBuilder> context)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             var entityType = entityTypeBuilder.Metadata;
-            if (!entityType.HasClrType())
-            {
-                return;
-            }
-
             var members = entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
                 .Concat(entityType.GetRuntimeFields().Values);
 
             foreach (var member in members)
             {
-                if (Attribute.IsDefined(member, typeof(NotMappedAttribute), inherit: true))
+                if (Attribute.IsDefined(member, typeof(NotMappedAttribute), inherit: true)
+                    && ShouldIgnore(member))
                 {
                     entityTypeBuilder.Ignore(member.GetSimpleMemberName(), fromDataAnnotation: true);
                 }
             }
         }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given CLR member should be ignored.
+        /// </summary>
+        /// <param name="memberInfo"> The member. </param>
+        /// <returns> <see langword="true"/> if the member should be ignored. </returns>
+        protected virtual bool ShouldIgnore([NotNull] MemberInfo memberInfo)
+            => true;
     }
 }

@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The type of context that these options are for (<typeparamref name="TContext" />).
         /// </summary>
-        public override Type ContextType => typeof(TContext);
+        public override Type ContextType
+            => typeof(TContext);
     }
 }

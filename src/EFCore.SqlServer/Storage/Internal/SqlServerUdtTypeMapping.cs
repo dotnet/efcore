@@ -4,13 +4,14 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlTypes;
 using System.Linq.Expressions;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -22,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// </summary>
     public class SqlServerUdtTypeMapping : RelationalTypeMapping
     {
-        private static Action<DbParameter, string> _udtTypeNameSetter;
+        private static Action<DbParameter, string>? _udtTypeNameSetter;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             [NotNull] string storeType,
             [NotNull] Func<object, Expression> literalGenerator,
             StoreTypePostfix storeTypePostfix = StoreTypePostfix.None,
-            [CanBeNull] string udtTypeName = null,
-            [CanBeNull] ValueConverter converter = null,
-            [CanBeNull] ValueComparer comparer = null,
-            [CanBeNull] ValueComparer keyComparer = null,
+            [CanBeNull] string? udtTypeName = null,
+            [CanBeNull] ValueConverter? converter = null,
+            [CanBeNull] ValueComparer? comparer = null,
+            [CanBeNull] ValueComparer? keyComparer = null,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null,
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         protected SqlServerUdtTypeMapping(
             RelationalTypeMappingParameters parameters,
             [NotNull] Func<object, Expression> literalGenerator,
-            [CanBeNull] string udtTypeName)
+            [CanBeNull] string? udtTypeName)
             : base(parameters)
         {
             LiteralGenerator = literalGenerator;
@@ -135,56 +136,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             return Expression.Lambda<Action<DbParameter, string>>(
                 Expression.Call(
                     Expression.Convert(paramParam, paramType),
-                    paramType.GetProperty("UdtTypeName").SetMethod,
+                    paramType.GetProperty("UdtTypeName")!.SetMethod!,
                     valueParam),
                 paramParam,
                 valueParam).Compile();
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static SqlServerUdtTypeMapping CreateSqlHierarchyIdMapping(Type udtType)
-            => new SqlServerUdtTypeMapping(
-                udtType,
-                "hierarchyid",
-                v => Expression.Call(
-                    v.GetType().GetMethod("Parse"),
-                    Expression.New(
-                        typeof(SqlString).GetConstructor(new[] { typeof(string) }),
-                        Expression.Constant(v.ToString(), typeof(string)))));
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static SqlServerUdtTypeMapping CreateSqlSpatialMapping(Type udtType, string storeName)
-            => new SqlServerUdtTypeMapping(
-                udtType,
-                storeName,
-                v =>
-                {
-                    var spatialType = v.GetType();
-                    var noParams = new object[0];
-
-                    var wkt = ((SqlChars)spatialType.GetMethod("AsTextZM").Invoke(v, noParams)).ToSqlString().ToString();
-                    var srid = ((SqlInt32)spatialType.GetMethod("get_STSrid").Invoke(v, noParams)).Value;
-
-                    return Expression.Call(
-                        spatialType.GetMethod("STGeomFromText"),
-                        Expression.New(
-                            typeof(SqlChars).GetConstructor(
-                                new[] { typeof(SqlString) }),
-                            Expression.New(
-                                typeof(SqlString).GetConstructor(
-                                    new[] { typeof(string) }),
-                                Expression.Constant(wkt, typeof(string)))),
-                        Expression.Constant(srid, typeof(int)));
-                });
     }
 }

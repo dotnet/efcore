@@ -9,14 +9,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class GeometryComparer : IEqualityComparer<Geometry>
     {
-        public static GeometryComparer Instance { get; } = new GeometryComparer();
+        public static GeometryComparer Instance { get; } = new();
 
         private GeometryComparer()
         {
         }
 
         public bool Equals(Geometry x, Geometry y)
-            => x == null ? y == null : x.Normalized().EqualsExact(y.Normalized(), tolerance: 0.1);
+            => (x == null && y == null)
+                || (x != null
+                    && y != null
+                    && x.Normalized().EqualsExact(y.Normalized(), tolerance: 0.1));
 
         public int GetHashCode(Geometry obj)
             => throw new NotImplementedException();

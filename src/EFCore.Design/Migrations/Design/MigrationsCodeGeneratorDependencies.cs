@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class MigrationsCodeGeneratorDependencies
+    public sealed record MigrationsCodeGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -46,22 +47,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public MigrationsCodeGeneratorDependencies([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
+        public MigrationsCodeGeneratorDependencies(
+            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource,
+            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator)
         {
             RelationalTypeMappingSource = relationalTypeMappingSource;
+            AnnotationCodeGenerator = annotationCodeGenerator;
         }
 
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; }
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
+        ///     The annotation code generator.
         /// </summary>
-        /// <param name="relationalTypeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsCodeGeneratorDependencies With([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
-            => new MigrationsCodeGeneratorDependencies(relationalTypeMappingSource);
+        public IAnnotationCodeGenerator AnnotationCodeGenerator { get; [param: NotNull] init; }
     }
 }

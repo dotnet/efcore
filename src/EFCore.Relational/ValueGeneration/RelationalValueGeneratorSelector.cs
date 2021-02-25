@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     {
         private readonly TemporaryNumberValueGeneratorFactory _numberFactory
-            = new TemporaryNumberValueGeneratorFactory();
+            = new();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalValueGeneratorSelector" /> class.
@@ -84,12 +84,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
                     if (propertyType == typeof(string))
                     {
-                        return new StringValueGenerator(generateTemporaryValues: true);
+                        return new TemporaryStringValueGenerator();
                     }
 
                     if (propertyType == typeof(byte[]))
                     {
-                        return new BinaryValueGenerator(generateTemporaryValues: true);
+                        return new TemporaryBinaryValueGenerator();
                     }
                 }
             }

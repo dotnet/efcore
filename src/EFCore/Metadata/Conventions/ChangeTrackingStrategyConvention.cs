@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -12,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that sets a flag on the model to always skip detecting changes if no entity type is using the
     ///     <see cref="ChangeTrackingStrategy.Snapshot" /> strategy.
     /// </summary>
-    public class ChangeTrackingStrategyConvention : IModelFinalizedConvention
+    public class ChangeTrackingStrategyConvention : IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="ChangeTrackingStrategyConvention" />.
@@ -28,12 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
@@ -43,7 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            modelBuilder.HasAnnotation(ChangeDetector.SkipDetectChangesAnnotation, "true");
+            if (modelBuilder.Metadata is Model model)
+            {
+                model.SetSkipDetectChanges(true);
+            }
         }
     }
 }

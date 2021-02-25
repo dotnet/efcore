@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -20,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldPrincipalKey"> The old principal key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessForeignKeyPropertiesChanged(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder,
+            [NotNull] IConventionForeignKeyBuilder relationshipBuilder,
             [NotNull] IReadOnlyList<IConventionProperty> oldDependentProperties,
             [NotNull] IConventionKey oldPrincipalKey,
-            [NotNull] IConventionContext<IConventionRelationshipBuilder> context);
+            [NotNull] IConventionContext<IReadOnlyList<IConventionProperty>> context);
     }
 }

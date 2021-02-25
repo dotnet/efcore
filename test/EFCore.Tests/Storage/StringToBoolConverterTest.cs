@@ -8,8 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class StringToBoolConverterTest
     {
-        private static readonly StringToBoolConverter _stringToBool
-            = new StringToBoolConverter();
+        private static readonly StringToBoolConverter _stringToBool = new();
 
         [ConditionalFact]
         public void Can_convert_strings_to_bools()

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -22,12 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var fk = entityType.AddForeignKey(new[] { fkProp }, pk, entityType);
             fk.IsUnique = true;
-            var dependentToPrincipal = fk.HasDependentToPrincipal(nameof(SelfRef.SelfRefPrincipal));
-            var principalToDependent = fk.HasPrincipalToDependent(nameof(SelfRef.SelfRefDependent));
+            var dependentToPrincipal = fk.SetDependentToPrincipal(nameof(SelfRef.SelfRefPrincipal));
+            var principalToDependent = fk.SetPrincipalToDependent(nameof(SelfRef.SelfRefDependent));
 
             Assert.Equal(
-                new IPropertyBase[] { pk.Properties.Single(), fkProp, principalToDependent, dependentToPrincipal },
-                entityType.GetPropertiesAndNavigations().ToArray());
+                new IReadOnlyPropertyBase[] { pk.Properties.Single(), fkProp, principalToDependent, dependentToPrincipal },
+                ((IEntityType)entityType).GetPropertiesAndNavigations().ToArray());
         }
 
         [ConditionalFact]
@@ -106,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Setting_discriminator_on_non_root_type_throws()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -126,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Setting_discriminator_from_different_entity_type_throws()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -146,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_discriminator_value()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -169,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Setting_discriminator_value_when_discriminator_not_set_throws()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -184,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Setting_incompatible_discriminator_value_throws()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var entityType = modelBuilder
                 .Entity<Customer>()
@@ -201,7 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityType.SetDiscriminatorValue(null);
         }
 
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
 
         private class A<T>
         {

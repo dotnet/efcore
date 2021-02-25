@@ -1,18 +1,22 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention configure type mapping for <see cref="IDbFunction" /> instances.
     /// </summary>
-    public class DbFunctionTypeMappingConvention : IModelFinalizedConvention
+    [Obsolete("Use IModelRuntimeInitializer.Initialize instead.")]
+    public class DbFunctionTypeMappingConvention : IModelFinalizingConvention
     {
         private readonly IRelationalTypeMappingSource _relationalTypeMappingSource;
 
@@ -31,12 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             _relationalTypeMappingSource = (IRelationalTypeMappingSource)dependencies.TypeMappingSource;
         }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(
             IConventionModelBuilder modelBuilder,
             IConventionContext<IConventionModelBuilder> context)
         {
@@ -45,19 +45,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var dbFunction in modelBuilder.Metadata.GetDbFunctions())
             {
-                var typeMapping = !string.IsNullOrEmpty(dbFunction.StoreType)
-                    ? _relationalTypeMappingSource.FindMapping(dbFunction.StoreType)
-                    : _relationalTypeMappingSource.FindMapping(dbFunction.MethodInfo.ReturnType);
-
-                dbFunction.Builder.HasTypeMapping(typeMapping);
-
+                // TODO: This check needs to be updated to skip over enumerable parameter of aggregate.
+                // Also in DbFunctionParameter.TypeMapping
                 foreach (var parameter in dbFunction.Parameters)
                 {
-                    typeMapping = !string.IsNullOrEmpty(parameter.StoreType)
-                        ? _relationalTypeMappingSource.FindMapping(parameter.StoreType)
-                        : _relationalTypeMappingSource.FindMapping(parameter.ClrType);
+                    parameter.Builder!.HasTypeMapping(
+                        !string.IsNullOrEmpty(parameter.StoreType)
+                            ? _relationalTypeMappingSource.FindMapping(parameter.StoreType)
+                            : _relationalTypeMappingSource.FindMapping(parameter.ClrType));
+                }
 
-                    parameter.Builder.HasTypeMapping(typeMapping);
+                if (dbFunction.IsScalar)
+                {
+                    dbFunction.Builder.HasTypeMapping(
+                        !string.IsNullOrEmpty(dbFunction.StoreType)
+                            ? _relationalTypeMappingSource.FindMapping(dbFunction.StoreType)
+                            : _relationalTypeMappingSource.FindMapping(dbFunction.ReturnType));
                 }
             }
         }

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for renaming an existing column.
     /// </summary>
     [DebuggerDisplay("ALTER TABLE {Table} RENAME COLUMN {Name} TO {NewName}")]
-    public class RenameColumnOperation : MigrationOperation
+    public class RenameColumnOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The old name of the column.
@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Name { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: NotNull] set; }
 

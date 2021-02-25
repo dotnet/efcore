@@ -6,6 +6,8 @@ using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="transaction"> The <see cref="DbTransaction" />. </param>
-        /// <param name="context"> The <see cref="DbContext" /> currently being used, or <c>null</c> if not known. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, or <see langword="null" /> if not known. </param>
         /// <param name="transactionId"> A correlation ID that identifies the Entity Framework transaction being used. </param>
         /// <param name="connectionId"> A correlation ID that identifies the <see cref="DbConnection" /> instance being used. </param>
         /// <param name="async"> Indicates whether or not the transaction is being used asynchronously. </param>
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbTransaction transaction,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid transactionId,
             Guid connectionId,
             bool async,

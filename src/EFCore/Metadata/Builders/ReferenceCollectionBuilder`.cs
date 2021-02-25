@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -49,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected ReferenceCollectionBuilder(
-            InternalRelationshipBuilder builder,
-            ReferenceCollectionBuilder oldBuilder,
+            [NotNull] InternalForeignKeyBuilder builder,
+            [NotNull] ReferenceCollectionBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -70,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="HasPrincipalKey(System.Linq.Expressions.Expression{System.Func{TPrincipalEntity,object}})" /> is not specified,
+        ///         If <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity,object}})" /> is not specified,
         ///         then an attempt will be made to match the data type and order of foreign key properties against
         ///         the primary key of the principal entity type. If they do not match, new shadow state properties
         ///         that form a unique index will be added to the principal entity type to serve as the reference key.
@@ -82,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
             [NotNull] params string[] foreignKeyPropertyNames)
-            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+            => new(
                 HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 foreignKeySet: true);
@@ -114,8 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
             [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                HasForeignKeyBuilder(Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList()),
+            => new(
+                HasForeignKeyBuilder(Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList()),
                 this,
                 foreignKeySet: true);
 
@@ -129,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
             [NotNull] params string[] keyPropertyNames)
-            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
+            => new(
                 HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 principalKeySet: true);
@@ -153,8 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
             [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
-            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                HasPrincipalKeyBuilder(Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList()),
+            => new(
+                HasPrincipalKeyBuilder(Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList()),
                 this,
                 principalKeySet: true);
 
@@ -174,13 +176,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
-        ///     be assigned <c>null</c>).
+        ///     be assigned <see langword="null" />).
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> IsRequired(bool required = true)
-            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
+            => new(Builder.IsRequired(required, ConfigurationSource.Explicit)!, this, requiredSet: true);
 
         /// <summary>
         ///     Configures the operation applied to dependent entities in the relationship when the
@@ -189,7 +190,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit), this);
+            => new(Builder.OnDelete(deleteBehavior, ConfigurationSource.Explicit)!, this);
     }
 }

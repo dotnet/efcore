@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -75,11 +75,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ColumnType = "int",
                     IsUnicode = false,
                     MaxLength = 30,
+                    Precision = 10,
+                    Scale = 5,
                     IsRowVersion = true,
                     IsNullable = true,
                     DefaultValue = 1,
                     IsFixedLength = true,
-                    Comment = "My Comment"
+                    Comment = "My Comment",
+                    Collation = "Some Collation"
                 },
                 "mb.AddColumn<int>("
                 + _eol
@@ -97,13 +100,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    maxLength: 30,"
                 + _eol
+                + "    precision: 10,"
+                + _eol
+                + "    scale: 5,"
+                + _eol
                 + "    rowVersion: true,"
                 + _eol
                 + "    nullable: true,"
                 + _eol
                 + "    defaultValue: 1,"
                 + _eol
-                + "    comment: \"My Comment\");",
+                + "    comment: \"My Comment\","
+                + _eol
+                + "    collation: \"Some Collation\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -116,6 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.False(o.IsUnicode);
                     Assert.True(o.IsFixedLength);
                     Assert.Equal("My Comment", o.Comment);
+                    Assert.Equal("Some Collation", o.Collation);
                 });
         }
 
@@ -157,7 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "Id",
                     Table = "Post",
                     ClrType = typeof(int),
-                    ComputedColumnSql = "1"
+                    ComputedColumnSql = "1",
+                    IsStored = true
                 },
                 "mb.AddColumn<int>("
                 + _eol
@@ -167,13 +178,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    nullable: false,"
                 + _eol
-                + "    computedColumnSql: \"1\");",
+                + "    computedColumnSql: \"1\","
+                + _eol
+                + "    stored: true);",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(typeof(int), o.ClrType);
                     Assert.Equal("1", o.ComputedColumnSql);
+                    Assert.True(o.IsStored);
                 });
         }
 
@@ -183,11 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new AddForeignKeyOperation
                 {
-                    Table = "Post",
                     Name = "FK_Post_Blog_BlogId",
+                    Table = "Post",
                     Columns = new[] { "BlogId" },
-                    PrincipalTable = "Blog",
-                    PrincipalColumns = new[] { "Id" }
+                    PrincipalTable = "Blog"
                 },
                 "mb.AddForeignKey("
                 + _eol
@@ -197,15 +210,44 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    column: \"BlogId\","
                 + _eol
-                + "    principalTable: \"Blog\","
-                + _eol
-                + "    principalColumn: \"Id\");",
+                + "    principalTable: \"Blog\");",
                 o =>
                 {
-                    Assert.Equal("Post", o.Table);
                     Assert.Equal("FK_Post_Blog_BlogId", o.Name);
+                    Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "BlogId" }, o.Columns);
                     Assert.Equal("Blog", o.PrincipalTable);
+                    Assert.Null(o.PrincipalColumns);
+                });
+        }
+
+        [ConditionalFact]
+        public void AddForeignKeyOperation_required_args_composite()
+        {
+            Test(
+                new AddForeignKeyOperation
+                {
+                    Name = "FK_Post_Blog_BlogId1_BlogId2",
+                    Table = "Post",
+                    Columns = new[] { "BlogId1", "BlogId2" },
+                    PrincipalTable = "Blog"
+                },
+                "mb.AddForeignKey("
+                + _eol
+                + "    name: \"FK_Post_Blog_BlogId1_BlogId2\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    columns: new[] { \"BlogId1\", \"BlogId2\" },"
+                + _eol
+                + "    principalTable: \"Blog\");",
+                o =>
+                {
+                    Assert.Equal("FK_Post_Blog_BlogId1_BlogId2", o.Name);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal(new[] { "BlogId1", "BlogId2" }, o.Columns);
+                    Assert.Equal("Blog", o.PrincipalTable);
+                    Assert.Null(o.PrincipalColumns);
                 });
         }
 
@@ -215,9 +257,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new AddForeignKeyOperation
                 {
+                    Name = "FK_Post_Blog_BlogId",
                     Schema = "dbo",
                     Table = "Post",
-                    Name = "FK_Post_Blog_BlogId",
                     Columns = new[] { "BlogId" },
                     PrincipalSchema = "my",
                     PrincipalTable = "Blog",
@@ -246,47 +288,64 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    onDelete: ReferentialAction.Cascade);",
                 o =>
                 {
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("dbo", o.Schema);
                     Assert.Equal("FK_Post_Blog_BlogId", o.Name);
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "BlogId" }, o.Columns);
-                    Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Equal("my", o.PrincipalSchema);
+                    Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, o.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Restrict, o.OnUpdate);
                     Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
                 });
         }
 
         [ConditionalFact]
-        public void AddForeignKeyOperation_composite()
+        public void AddForeignKeyOperation_all_args_composite()
         {
             Test(
                 new AddForeignKeyOperation
                 {
                     Name = "FK_Post_Blog_BlogId1_BlogId2",
+                    Schema = "dbo",
                     Table = "Post",
                     Columns = new[] { "BlogId1", "BlogId2" },
+                    PrincipalSchema = "my",
                     PrincipalTable = "Blog",
-                    PrincipalColumns = new[] { "Id1", "Id2" }
+                    PrincipalColumns = new[] { "Id1", "Id2" },
+                    OnUpdate = ReferentialAction.Restrict,
+                    OnDelete = ReferentialAction.Cascade
                 },
                 "mb.AddForeignKey("
                 + _eol
                 + "    name: \"FK_Post_Blog_BlogId1_BlogId2\","
                 + _eol
+                + "    schema: \"dbo\","
+                + _eol
                 + "    table: \"Post\","
                 + _eol
                 + "    columns: new[] { \"BlogId1\", \"BlogId2\" },"
                 + _eol
+                + "    principalSchema: \"my\","
+                + _eol
                 + "    principalTable: \"Blog\","
                 + _eol
-                + "    principalColumns: new[] { \"Id1\", \"Id2\" });",
+                + "    principalColumns: new[] { \"Id1\", \"Id2\" },"
+                + _eol
+                + "    onUpdate: ReferentialAction.Restrict,"
+                + _eol
+                + "    onDelete: ReferentialAction.Cascade);",
                 o =>
                 {
                     Assert.Equal("FK_Post_Blog_BlogId1_BlogId2", o.Name);
+                    Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "BlogId1", "BlogId2" }, o.Columns);
+                    Assert.Equal("my", o.PrincipalSchema);
                     Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Equal(new[] { "Id1", "Id2" }, o.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Restrict, o.OnUpdate);
+                    Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
                 });
         }
 
@@ -443,16 +502,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
-        public void CreateCheckConstraint_required_args()
+        public void AddCheckConstraint_required_args()
         {
             Test(
-                new CreateCheckConstraintOperation
+                new AddCheckConstraintOperation
                 {
                     Name = "CK_Post_AltId1_AltId2",
                     Table = "Post",
                     Sql = "AltId1 > AltId2"
                 },
-                "mb.CreateCheckConstraint("
+                "mb.AddCheckConstraint("
                 + _eol
                 + "    name: \"CK_Post_AltId1_AltId2\","
                 + _eol
@@ -468,17 +527,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
-        public void CreateCheckConstraint_all_args()
+        public void AddCheckConstraint_all_args()
         {
             Test(
-                new CreateCheckConstraintOperation
+                new AddCheckConstraintOperation
                 {
                     Name = "CK_Post_AltId1_AltId2",
                     Schema = "dbo",
                     Table = "Post",
                     Sql = "AltId1 > AltId2"
                 },
-                "mb.CreateCheckConstraint("
+                "mb.AddCheckConstraint("
                 + _eol
                 + "    name: \"CK_Post_AltId1_AltId2\","
                 + _eol
@@ -516,21 +575,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.IsUnicode);
                     Assert.Null(o.IsFixedLength);
                     Assert.Null(o.MaxLength);
+                    Assert.Null(o.Precision);
+                    Assert.Null(o.Scale);
                     Assert.False(o.IsRowVersion);
                     Assert.False(o.IsNullable);
                     Assert.Null(o.DefaultValue);
                     Assert.Null(o.DefaultValueSql);
                     Assert.Null(o.ComputedColumnSql);
+                    Assert.Null(o.Comment);
+                    Assert.Null(o.Collation);
                     Assert.Equal(typeof(int), o.OldColumn.ClrType);
                     Assert.Null(o.OldColumn.ColumnType);
                     Assert.Null(o.OldColumn.IsUnicode);
                     Assert.Null(o.OldColumn.IsFixedLength);
                     Assert.Null(o.OldColumn.MaxLength);
+                    Assert.Null(o.OldColumn.Precision);
+                    Assert.Null(o.OldColumn.Scale);
                     Assert.False(o.OldColumn.IsRowVersion);
                     Assert.False(o.OldColumn.IsNullable);
                     Assert.Null(o.OldColumn.DefaultValue);
                     Assert.Null(o.OldColumn.DefaultValueSql);
                     Assert.Null(o.OldColumn.ComputedColumnSql);
+                    Assert.Null(o.OldColumn.Comment);
+                    Assert.Null(o.OldColumn.Collation);
                 });
         }
 
@@ -547,22 +614,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ColumnType = "int",
                     IsUnicode = false,
                     MaxLength = 30,
+                    Precision = 10,
+                    Scale = 5,
                     IsRowVersion = true,
                     IsNullable = true,
                     DefaultValue = 1,
                     IsFixedLength = true,
                     Comment = "My Comment 2",
+                    Collation = "Some Collation 2",
                     OldColumn =
                     {
                         ClrType = typeof(string),
                         ColumnType = "string",
                         IsUnicode = false,
                         MaxLength = 20,
+                        Precision = 5,
+                        Scale = 1,
                         IsRowVersion = true,
                         IsNullable = true,
                         DefaultValue = 0,
                         IsFixedLength = true,
-                        Comment = "My Comment"
+                        Comment = "My Comment",
+                        Collation = "Some Collation"
                     }
                 },
                 "mb.AlterColumn<int>("
@@ -581,6 +654,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    maxLength: 30,"
                 + _eol
+                + "    precision: 10,"
+                + _eol
+                + "    scale: 5,"
+                + _eol
                 + "    rowVersion: true,"
                 + _eol
                 + "    nullable: true,"
@@ -588,6 +665,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    defaultValue: 1,"
                 + _eol
                 + "    comment: \"My Comment 2\","
+                + _eol
+                + "    collation: \"Some Collation 2\","
                 + _eol
                 + "    oldClrType: typeof(string),"
                 + _eol
@@ -599,13 +678,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    oldMaxLength: 20,"
                 + _eol
+                + "    oldPrecision: 5,"
+                + _eol
+                + "    oldScale: 1,"
+                + _eol
                 + "    oldRowVersion: true,"
                 + _eol
                 + "    oldNullable: true,"
                 + _eol
                 + "    oldDefaultValue: 0,"
                 + _eol
-                + "    oldComment: \"My Comment\");",
+                + "    oldComment: \"My Comment\","
+                + _eol
+                + "    oldCollation: \"Some Collation\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -616,23 +701,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.False(o.IsUnicode);
                     Assert.True(o.IsFixedLength);
                     Assert.Equal(30, o.MaxLength);
+                    Assert.Equal(10, o.Precision);
+                    Assert.Equal(5, o.Scale);
                     Assert.True(o.IsRowVersion);
                     Assert.True(o.IsNullable);
                     Assert.Equal(1, o.DefaultValue);
                     Assert.Null(o.DefaultValueSql);
                     Assert.Null(o.ComputedColumnSql);
                     Assert.Equal("My Comment 2", o.Comment);
+                    Assert.Equal("Some Collation 2", o.Collation);
                     Assert.Equal(typeof(string), o.OldColumn.ClrType);
                     Assert.Equal("string", o.OldColumn.ColumnType);
                     Assert.False(o.OldColumn.IsUnicode);
                     Assert.True(o.OldColumn.IsFixedLength);
                     Assert.Equal(20, o.OldColumn.MaxLength);
+                    Assert.Equal(5, o.OldColumn.Precision);
+                    Assert.Equal(1, o.OldColumn.Scale);
                     Assert.True(o.OldColumn.IsRowVersion);
                     Assert.True(o.OldColumn.IsNullable);
                     Assert.Equal(0, o.OldColumn.DefaultValue);
                     Assert.Null(o.OldColumn.DefaultValueSql);
                     Assert.Null(o.OldColumn.ComputedColumnSql);
                     Assert.Equal("My Comment", o.OldColumn.Comment);
+                    Assert.Equal("Some Collation", o.OldColumn.Collation);
                 });
         }
 
@@ -692,7 +783,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Name = "Id",
                     Table = "Post",
                     ClrType = typeof(int),
-                    ComputedColumnSql = "1"
+                    ComputedColumnSql = "1",
+                    IsStored = true
                 },
                 "mb.AlterColumn<int>("
                 + _eol
@@ -702,12 +794,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    nullable: false,"
                 + _eol
-                + "    computedColumnSql: \"1\");",
+                + "    computedColumnSql: \"1\","
+                + _eol
+                + "    stored: true);",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal("1", o.ComputedColumnSql);
+                    Assert.True(o.IsStored);
                     Assert.Equal(typeof(int), o.ClrType);
                     Assert.Null(o.ColumnType);
                     Assert.Null(o.IsUnicode);
@@ -722,11 +817,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Null(o.OldColumn.IsUnicode);
                     Assert.Null(o.OldColumn.IsFixedLength);
                     Assert.Null(o.OldColumn.MaxLength);
+                    Assert.Null(o.OldColumn.Precision);
+                    Assert.Null(o.OldColumn.Scale);
                     Assert.False(o.OldColumn.IsRowVersion);
                     Assert.False(o.OldColumn.IsNullable);
                     Assert.Null(o.OldColumn.DefaultValue);
                     Assert.Null(o.OldColumn.DefaultValueSql);
                     Assert.Null(o.OldColumn.ComputedColumnSql);
+                    Assert.Null(o.OldColumn.IsStored);
                 });
         }
 
@@ -734,12 +832,60 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AlterDatabaseOperation()
         {
             Test(
-                new AlterDatabaseOperation { ["foo"] = "bar", OldDatabase = { ["bar"] = "foo" } },
-                "mb.AlterDatabase()" + _eol + "    .Annotation(\"foo\", \"bar\")" + _eol + "    .OldAnnotation(\"bar\", \"foo\");",
+                new AlterDatabaseOperation
+                {
+                    Collation = "Some collation",
+                    ["foo"] = "bar",
+                    OldDatabase = { Collation = "Some other collation", ["bar"] = "foo" }
+                },
+                "mb.AlterDatabase("
+                + _eol
+                + "    collation: \"Some collation\","
+                + _eol
+                + "    oldCollation: \"Some other collation\")"
+                + _eol
+                + "    .Annotation(\"foo\", \"bar\")"
+                + _eol
+                + "    .OldAnnotation(\"bar\", \"foo\");",
                 o =>
                 {
+                    Assert.Equal("Some collation", o.Collation);
+                    Assert.Equal("Some other collation", o.OldDatabase.Collation);
                     Assert.Equal("bar", o["foo"]);
                     Assert.Equal("foo", o.OldDatabase["bar"]);
+                });
+        }
+
+        [ConditionalFact]
+        public void AlterDatabaseOperation_with_default_old_collation()
+        {
+            Test(
+                new AlterDatabaseOperation { Collation = "Some collation" },
+                "mb.AlterDatabase("
+                + _eol
+                + "    collation: \"Some collation\");",
+                o =>
+                {
+                    Assert.Equal("Some collation", o.Collation);
+                    Assert.Null(o.OldDatabase.Collation);
+                });
+        }
+
+        [ConditionalFact]
+        public void AlterDatabaseOperation_with_default_new_collation()
+        {
+            Test(
+                new AlterDatabaseOperation
+                {
+                    OldDatabase = { Collation = "Some collation" }
+                },
+                "mb.AlterDatabase("
+                + _eol
+                + "    oldCollation: \"Some collation\");",
+                o =>
+                {
+                    Assert.Null(o.Collation);
+                    Assert.Equal("Some collation", o.OldDatabase.Collation);
                 });
         }
 
@@ -1133,9 +1279,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             IsUnicode = false,
                             IsFixedLength = true,
                             MaxLength = 30,
+                            Precision = 20,
+                            Scale = 10,
                             IsRowVersion = true,
                             IsNullable = true,
-                            DefaultValue = 1
+                            DefaultValue = 1,
+                            Comment = "My Comment",
+                            Collation = "Some Collation"
                         }
                     }
                 },
@@ -1149,7 +1299,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    {"
                 + _eol
-                + "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)"
+                + "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, precision: 20, scale: 10, rowVersion: true, nullable: true, defaultValue: 1, comment: \"My Comment\", collation: \"Some Collation\")"
                 + _eol
                 + "    },"
                 + _eol
@@ -1173,6 +1323,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.False(o.Columns[0].IsUnicode);
                     Assert.True(o.Columns[0].IsFixedLength);
                     Assert.Equal(1, o.Columns[0].DefaultValue);
+                    Assert.Equal("My Comment", o.Columns[0].Comment);
+                    Assert.Equal("Some Collation", o.Columns[0].Collation);
                 });
         }
 
@@ -1236,7 +1388,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             Name = "Id",
                             Table = "Post",
                             ClrType = typeof(int),
-                            ComputedColumnSql = "1"
+                            ComputedColumnSql = "1",
+                            IsStored = true
                         }
                     }
                 },
@@ -1248,7 +1401,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    {"
                 + _eol
-                + "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\")"
+                + "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\", stored: true)"
                 + _eol
                 + "    },"
                 + _eol
@@ -1265,6 +1418,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal("Post", o.Columns[0].Table);
                     Assert.Equal(typeof(int), o.Columns[0].ClrType);
                     Assert.Equal("1", o.Columns[0].ComputedColumnSql);
+                    Assert.True(o.Columns[0].IsStored);
                 });
         }
 
@@ -1778,7 +1932,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     },
                     CheckConstraints =
                     {
-                        new CreateCheckConstraintOperation
+                        new AddCheckConstraintOperation
                         {
                             Name = "CK_Post_AltId1_AltId2",
                             Table = "Post",
@@ -1832,7 +1986,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     },
                     CheckConstraints =
                     {
-                        new CreateCheckConstraintOperation
+                        new AddCheckConstraintOperation
                         {
                             Name = "CK_Post_AltId1_AltId2",
                             Schema = "dbo",
@@ -2448,44 +2602,44 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 o => Assert.Equal("-- I <3 DDL", o.Sql));
         }
 
-        private static readonly LineString _lineString1 = new LineString(
+        private static readonly LineString _lineString1 = new(
             new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2) })
         {
             SRID = 4326
         };
 
-        private static readonly LineString _lineString2 = new LineString(
+        private static readonly LineString _lineString2 = new(
             new[] { new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2) })
         {
             SRID = 4326
         };
 
-        private static readonly MultiPoint _multiPoint = new MultiPoint(
+        private static readonly MultiPoint _multiPoint = new(
             new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) }) { SRID = 4326 };
 
-        private static readonly Polygon _polygon1 = new Polygon(
+        private static readonly Polygon _polygon1 = new(
             new LinearRing(
                 new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2) }))
         {
             SRID = 4326
         };
 
-        private static readonly Polygon _polygon2 = new Polygon(
+        private static readonly Polygon _polygon2 = new(
             new LinearRing(
                 new[] { new Coordinate(10.1, 20.2), new Coordinate(20.2, 20.2), new Coordinate(20.2, 10.1), new Coordinate(10.1, 20.2) }))
         {
             SRID = 4326
         };
 
-        private static readonly Point _point1 = new Point(1.1, 2.2, 3.3) { SRID = 4326 };
+        private static readonly Point _point1 = new(1.1, 2.2, 3.3) { SRID = 4326 };
 
-        private static readonly MultiLineString _multiLineString = new MultiLineString(
+        private static readonly MultiLineString _multiLineString = new(
             new[] { _lineString1, _lineString2 }) { SRID = 4326 };
 
-        private static readonly MultiPolygon _multiPolygon = new MultiPolygon(
+        private static readonly MultiPolygon _multiPolygon = new(
             new[] { _polygon2, _polygon1 }) { SRID = 4326 };
 
-        private static readonly GeometryCollection _geometryCollection = new GeometryCollection(
+        private static readonly GeometryCollection _geometryCollection = new(
             new Geometry[] { _lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon })
         {
             SRID = 4326
@@ -2587,6 +2741,61 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
+        public void InsertDataOperation_required_empty_array()
+        {
+            Test(
+                new InsertDataOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "Tags" },
+                    Values = new object[,] { { new string[0] } }
+                },
+                "mb.InsertData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    column: \"Tags\","
+                + _eol
+                + "    value: new string[0]);",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Single(o.Columns);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(1, o.Values.GetLength(1));
+                    Assert.Equal(new string[0], (string[])o.Values[0, 0]);
+                });
+        }
+
+        [ConditionalFact]
+        public void InsertDataOperation_required_empty_array_composite()
+        {
+            Test(
+                new InsertDataOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "First Name", "Last Name", "Geometry" },
+                    Values = new object[,] { { "John", null, new string[0] } }
+                },
+                "mb.InsertData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    columns: new[] { \"First Name\", \"Last Name\", \"Geometry\" },"
+                + _eol
+                + "    values: new object[] { \"John\", null, new string[0] });",
+                o =>
+                {
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(3, o.Columns.Length);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(3, o.Values.GetLength(1));
+                    Assert.Null(o.Values[0, 1]);
+                    Assert.Equal(new string[0], (string[])o.Values[0, 2]);
+                });
+        }
+
+        [ConditionalFact]
         public void InsertDataOperation_required_args_composite()
         {
             Test(
@@ -2651,6 +2860,54 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
+        public void InsertDataOperation_args_with_linebreaks()
+        {
+            Test(
+                new InsertDataOperation
+                {
+                    Schema = "dbo",
+                    Table = "TestLineBreaks",
+                    Columns = new[] { "Id", "Description" },
+                    Values = new object[,]
+                    {
+                        { 0, "Contains\r\na Windows linebreak" },
+                        { 1, "Contains a\nLinux linebreak" },
+                        { 2, "Contains a single Backslash r,\rjust in case" },
+                    }
+                },
+                "mb.InsertData("
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"TestLineBreaks\","
+                + _eol
+                + "    columns: new[] { \"Id\", \"Description\" },"
+                + _eol
+                + "    values: new object[,]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        { 0, \"Contains\\r\\na Windows linebreak\" },"
+                + _eol
+                + "        { 1, \"Contains a\\nLinux linebreak\" },"
+                + _eol
+                + "        { 2, \"Contains a single Backslash r,\\rjust in case\" }"
+                + _eol
+                + "    });",
+                operation =>
+                {
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("TestLineBreaks", operation.Table);
+                    Assert.Equal(2, operation.Columns.Length);
+                    Assert.Equal(3, operation.Values.GetLength(0));
+                    Assert.Equal(2, operation.Values.GetLength(1));
+                    Assert.Equal("Contains\r\na Windows linebreak", operation.Values[0, 1]);
+                    Assert.Equal("Contains a\nLinux linebreak", operation.Values[1, 1]);
+                    Assert.Equal("Contains a single Backslash r,\rjust in case", operation.Values[2, 1]);
+                });
+        }
+
+        [ConditionalFact]
         public void DeleteDataOperation_all_args()
         {
             Test(
@@ -2659,6 +2916,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Schema = "dbo",
                     Table = "People",
                     KeyColumns = new[] { "First Name" },
+                    KeyColumnTypes = new[] { "string" },
                     KeyValues = new object[,] { { "Hodor" }, { "Daenerys" }, { "John" }, { "Arya" }, { "Harry" } }
                 },
                 "mb.DeleteData("
@@ -2668,6 +2926,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    table: \"People\","
                 + _eol
                 + "    keyColumn: \"First Name\","
+                + _eol
+                + "    keyColumnType: \"string\","
                 + _eol
                 + "    keyValues: new object[]"
                 + _eol
@@ -2703,6 +2963,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     Table = "People",
                     KeyColumns = new[] { "First Name", "Last Name" },
+                    KeyColumnTypes = new[] { "string", "string" },
                     KeyValues = new object[,]
                     {
                         { "Hodor", null }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
@@ -2713,6 +2974,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    table: \"People\","
                 + _eol
                 + "    keyColumns: new[] { \"First Name\", \"Last Name\" },"
+                + _eol
+                + "    keyColumnTypes: new[] { \"string\", \"string\" },"
                 + _eol
                 + "    keyValues: new object[,]"
                 + _eol
@@ -2790,6 +3053,50 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.KeyValues.GetLength(0));
                     Assert.Equal(2, o.KeyValues.GetLength(1));
                     Assert.Equal("Snow", o.KeyValues[0, 1]);
+                });
+        }
+
+        [ConditionalFact]
+        public void DeleteDataOperation_args_with_linebreaks()
+        {
+            Test(
+                new DeleteDataOperation
+                {
+                    Table = "TestLineBreaks",
+                    KeyColumns = new[] { "Id", "Description" },
+                    KeyValues = new object[,]
+                    {
+                        { 0, "Contains\r\na Windows linebreak" },
+                        { 1, "Contains a\nLinux linebreak" },
+                        { 2, "Contains a single Backslash r,\rjust in case" },
+                    }
+                },
+                "mb.DeleteData("
+                + _eol
+                + "    table: \"TestLineBreaks\","
+                + _eol
+                + "    keyColumns: new[] { \"Id\", \"Description\" },"
+                + _eol
+                + "    keyValues: new object[,]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        { 0, \"Contains\\r\\na Windows linebreak\" },"
+                + _eol
+                + "        { 1, \"Contains a\\nLinux linebreak\" },"
+                + _eol
+                + "        { 2, \"Contains a single Backslash r,\\rjust in case\" }"
+                + _eol
+                + "    });",
+                operation =>
+                {
+                    Assert.Equal("TestLineBreaks", operation.Table);
+                    Assert.Equal(2, operation.KeyColumns.Length);
+                    Assert.Equal(3, operation.KeyValues.GetLength(0));
+                    Assert.Equal(2, operation.KeyValues.GetLength(1));
+                    Assert.Equal("Contains\r\na Windows linebreak", operation.KeyValues[0, 1]);
+                    Assert.Equal("Contains a\nLinux linebreak", operation.KeyValues[1, 1]);
+                    Assert.Equal("Contains a single Backslash r,\rjust in case", operation.KeyValues[2, 1]);
                 });
         }
 
@@ -3195,6 +3502,73 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(1, o.Values.GetLength(0));
                     Assert.Equal(3, o.Values.GetLength(1));
                     Assert.Equal("Targaryen", o.Values[0, 1]);
+                });
+        }
+
+        [ConditionalFact]
+        public void UpdateDataOperation_with_linebreaks()
+        {
+            Test(
+                new UpdateDataOperation
+                {
+                    Schema = "dbo",
+                    Table = "TestLineBreaks",
+                    KeyColumns = new[] { "Id" },
+                    KeyValues = new object[,] { { 0 }, { 1 }, { 2 }, },
+                    Columns = new[] { "Description" },
+                    Values = new object[,]
+                    {
+                        { "Contains\r\na Windows linebreak" },
+                        { "Contains a\nLinux linebreak" },
+                        { "Contains a single Backslash r,\rjust in case" },
+                    }
+                },
+                "mb.UpdateData("
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"TestLineBreaks\","
+                + _eol
+                + "    keyColumn: \"Id\","
+                + _eol
+                + "    keyValues: new object[]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        0,"
+                + _eol
+                + "        1,"
+                + _eol
+                + "        2"
+                + _eol
+                + "    },"
+                + _eol
+                + "    column: \"Description\","
+                + _eol
+                + "    values: new object[]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        \"Contains\\r\\na Windows linebreak\","
+                + _eol
+                + "        \"Contains a\\nLinux linebreak\","
+                + _eol
+                + "        \"Contains a single Backslash r,\\rjust in case\""
+                + _eol
+                + "    });",
+                operation =>
+                {
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("TestLineBreaks", operation.Table);
+                    Assert.Single(operation.KeyColumns);
+                    Assert.Equal(3, operation.KeyValues.GetLength(0));
+                    Assert.Equal(1, operation.KeyValues.GetLength(1));
+                    Assert.Single(operation.Columns);
+                    Assert.Equal(3, operation.Values.GetLength(0));
+                    Assert.Equal(1, operation.Values.GetLength(1));
+                    Assert.Equal("Contains\r\na Windows linebreak", operation.Values[0, 0]);
+                    Assert.Equal("Contains a\nLinux linebreak", operation.Values[1, 0]);
+                    Assert.Equal("Contains a single Backslash r,\rjust in case", operation.Values[2, 0]);
                 });
         }
 

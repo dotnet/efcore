@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -42,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="propertyBuilder"> The builder for the property. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessPropertyAdded(
-            IConventionPropertyBuilder propertyBuilder, IConventionContext<IConventionPropertyBuilder> context)
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<IConventionPropertyBuilder> context)
         {
             Process(propertyBuilder);
         }
@@ -56,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessPropertyFieldChanged(
             IConventionPropertyBuilder propertyBuilder,
-            FieldInfo newFieldInfo,
-            FieldInfo oldFieldInfo,
+            FieldInfo? newFieldInfo,
+            FieldInfo? oldFieldInfo,
             IConventionContext<FieldInfo> context)
         {
             Process(propertyBuilder);

@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the extensions that store the configured options.
         /// </summary>
-        public virtual IEnumerable<IDbContextOptionsExtension> Extensions => _extensions.Values;
+        public virtual IEnumerable<IDbContextOptionsExtension> Extensions
+            => _extensions.Values;
 
         /// <summary>
         ///     Gets the extension of the specified type. Returns null if no extension of the specified type is configured.
@@ -83,10 +84,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Specifies that no further configuration of this options object should occur.
         /// </summary>
-        public virtual void Freeze() => IsFrozen = true;
+        public virtual void Freeze()
+            => IsFrozen = true;
 
         /// <summary>
-        ///     Returns true if <see cref="Freeze" />. has been called. A frozen options object cannot be further
+        ///     Returns <see langword="true" /> if <see cref="Freeze" /> has been called. A frozen options object cannot be further
         ///     configured with <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
         /// </summary>
         public virtual bool IsFrozen { get; private set; }

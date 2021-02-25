@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -24,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         For one-to-one relationships the attribute has to be specified on the navigation property pointing to the principal.
     ///     </para>
     /// </summary>
-    public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, IModelFinalizedConvention
+    public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, INavigationAddedConvention, IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="ForeignKeyAttributeConvention" />.
@@ -46,10 +48,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyAdded(
-            IConventionRelationshipBuilder relationshipBuilder, IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<IConventionForeignKeyBuilder> context)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
 
+            var newRelationshipBuilder = UpdateRelationshipBuilder(relationshipBuilder, context);
+            if (newRelationshipBuilder != null)
+            {
+                context.StopProcessingIfChanged(newRelationshipBuilder);
+            }
+        }
+
+        /// <summary>
+        ///     Called after a navigation is added to the entity type.
+        /// </summary>
+        /// <param name="navigationBuilder"> The builder for the navigation. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessNavigationAdded(
+            IConventionNavigationBuilder navigationBuilder,
+            IConventionContext<IConventionNavigationBuilder> context)
+        {
+            Check.NotNull(navigationBuilder, nameof(navigationBuilder));
+
+            var onDependent = navigationBuilder.Metadata.IsOnDependent;
+            var newRelationshipBuilder =
+                UpdateRelationshipBuilder(navigationBuilder.Metadata.ForeignKey.Builder, context);
+            if (newRelationshipBuilder != null)
+            {
+                var newNavigationBuilder = onDependent
+                    ? newRelationshipBuilder.Metadata.DependentToPrincipal!.Builder
+                    : newRelationshipBuilder.Metadata.PrincipalToDependent!.Builder;
+                context.StopProcessingIfChanged(newNavigationBuilder);
+            }
+        }
+
+        private IConventionForeignKeyBuilder? UpdateRelationshipBuilder(
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext context)
+        {
             var foreignKey = relationshipBuilder.Metadata;
 
             var fkPropertyOnPrincipal
@@ -62,18 +99,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && fkPropertyOnPrincipal != null)
             {
                 Dependencies.Logger.ForeignKeyAttributesOnBothPropertiesWarning(
-                    foreignKey.PrincipalToDependent,
-                    foreignKey.DependentToPrincipal,
+                    foreignKey.PrincipalToDependent!,
+                    foreignKey.DependentToPrincipal!,
                     fkPropertyOnPrincipal,
                     fkPropertyOnDependent);
 
-                relationshipBuilder = SplitNavigationsToSeparateRelationships(relationshipBuilder);
-                if (relationshipBuilder == null)
+                var newBuilder = SplitNavigationsToSeparateRelationships(relationshipBuilder);
+                if (newBuilder is null)
                 {
                     context.StopProcessing();
-                    return;
+                    return null;
                 }
 
+                relationshipBuilder = newBuilder;
                 fkPropertyOnPrincipal = null;
             }
 
@@ -87,15 +125,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && fkPropertiesOnPrincipalToDependent != null)
             {
                 Dependencies.Logger.ForeignKeyAttributesOnBothNavigationsWarning(
-                    relationshipBuilder.Metadata.DependentToPrincipal, relationshipBuilder.Metadata.PrincipalToDependent);
+                    relationshipBuilder.Metadata.DependentToPrincipal!, relationshipBuilder.Metadata.PrincipalToDependent!);
 
-                relationshipBuilder = SplitNavigationsToSeparateRelationships(relationshipBuilder);
-                if (relationshipBuilder == null)
+                var newBuilder = SplitNavigationsToSeparateRelationships(relationshipBuilder);
+                if (newBuilder is null)
                 {
                     context.StopProcessing();
-                    return;
+                    return null;
                 }
 
+                relationshipBuilder = newBuilder;
                 fkPropertiesOnPrincipalToDependent = null;
             }
 
@@ -111,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (fkPropertyOnDependent == null
                     && fkPropertyOnPrincipal == null)
                 {
-                    return;
+                    return null;
                 }
 
                 if (fkPropertyOnDependent != null)
@@ -121,10 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
                 else
                 {
-                    if (foreignKey.PrincipalToDependent.IsCollection())
+                    if (foreignKey.PrincipalToDependent!.IsCollection)
                     {
                         context.StopProcessing();
-                        return;
+                        return null;
                     }
 
                     shouldInvert = true;
@@ -153,17 +192,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         Dependencies.Logger.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(
                             fkPropertiesOnDependentToPrincipal != null
-                                ? relationshipBuilder.Metadata.DependentToPrincipal
-                                : relationshipBuilder.Metadata.PrincipalToDependent,
-                            fkProperty);
+                                ? relationshipBuilder.Metadata.DependentToPrincipal!
+                                : relationshipBuilder.Metadata.PrincipalToDependent!,
+                            fkProperty!);
 
-                        relationshipBuilder = SplitNavigationsToSeparateRelationships(relationshipBuilder);
-                        if (relationshipBuilder == null)
+                        var newBuilder = SplitNavigationsToSeparateRelationships(relationshipBuilder);
+                        if (newBuilder is null)
                         {
                             context.StopProcessing();
-                            return;
+                            return null;
                         }
 
+                        relationshipBuilder = newBuilder;
                         upgradePrincipalToDependentNavigationSource = false;
 
                         fkPropertiesToSet = fkPropertiesOnDependentToPrincipal
@@ -186,19 +226,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (upgradeDependentToPrincipalNavigationSource)
             {
                 newRelationshipBuilder = newRelationshipBuilder.HasNavigation(
-                    newRelationshipBuilder.Metadata.DependentToPrincipal.Name, pointsToPrincipal: true, fromDataAnnotation: true);
+                    newRelationshipBuilder.Metadata.DependentToPrincipal!.Name, pointsToPrincipal: true, fromDataAnnotation: true)!;
             }
 
             if (upgradePrincipalToDependentNavigationSource)
             {
                 newRelationshipBuilder = newRelationshipBuilder.HasNavigation(
-                    newRelationshipBuilder.Metadata.PrincipalToDependent.Name, pointsToPrincipal: false, fromDataAnnotation: true);
+                    newRelationshipBuilder.Metadata.PrincipalToDependent!.Name, pointsToPrincipal: false, fromDataAnnotation: true)!;
             }
 
             if (shouldInvert)
             {
                 newRelationshipBuilder = newRelationshipBuilder.HasEntityTypes(
-                    foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, fromDataAnnotation: true);
+                    foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, fromDataAnnotation: true)!;
             }
             else
             {
@@ -216,25 +256,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         throw new InvalidOperationException(
                             CoreStrings.ConflictingForeignKeyAttributes(
                                 existingProperties.Format(),
-                                foreignKey.DeclaringEntityType.DisplayName()));
+                                foreignKey.DeclaringEntityType.DisplayName(),
+                                foreignKey.PrincipalEntityType.DisplayName()));
                     }
                 }
             }
 
-            newRelationshipBuilder = newRelationshipBuilder?.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
-
-            if (newRelationshipBuilder != null)
-            {
-                context.StopProcessingIfChanged(newRelationshipBuilder);
-            }
+            return newRelationshipBuilder?.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
         }
 
-        private static IConventionRelationshipBuilder SplitNavigationsToSeparateRelationships(
-            IConventionRelationshipBuilder relationshipBuilder)
+        private static IConventionForeignKeyBuilder? SplitNavigationsToSeparateRelationships(
+            IConventionForeignKeyBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
-            var dependentToPrincipalNavigationName = foreignKey.DependentToPrincipal.Name;
-            var principalToDependentNavigationName = foreignKey.PrincipalToDependent.Name;
+            var dependentToPrincipalNavigationName = foreignKey.DependentToPrincipal!.Name;
+            var principalToDependentNavigationName = foreignKey.PrincipalToDependent!.Name;
 
             if (GetInversePropertyAttribute(foreignKey.PrincipalToDependent) != null
                 || GetInversePropertyAttribute(foreignKey.DependentToPrincipal) != null)
@@ -248,11 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         foreignKey.PrincipalEntityType.DisplayName()));
             }
 
-            relationshipBuilder = relationshipBuilder.HasNavigation(
-                (string)null,
-                pointsToPrincipal: false,
-                fromDataAnnotation: true);
-            return relationshipBuilder == null
+            return relationshipBuilder.HasNavigation((string?)null, pointsToPrincipal: false, fromDataAnnotation: true) is null
                 ? null
                 : foreignKey.PrincipalEntityType.Builder.HasRelationship(
                     foreignKey.DeclaringEntityType,
@@ -264,20 +296,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     : relationshipBuilder;
         }
 
-        private static ForeignKeyAttribute GetForeignKeyAttribute(IConventionTypeBase entityType, string propertyName)
-            => entityType.GetRuntimeProperties()?.Values
+        private static ForeignKeyAttribute? GetForeignKeyAttribute(IConventionTypeBase entityType, string propertyName)
+            => entityType.GetRuntimeProperties().Values
                 .FirstOrDefault(
                     p => string.Equals(p.GetSimpleMemberName(), propertyName, StringComparison.OrdinalIgnoreCase)
                         && Attribute.IsDefined(p, typeof(ForeignKeyAttribute), inherit: true))
                 ?.GetCustomAttribute<ForeignKeyAttribute>(inherit: true);
 
-        private static ForeignKeyAttribute GetForeignKeyAttribute(IConventionNavigation navigation)
+        private static ForeignKeyAttribute? GetForeignKeyAttribute(IConventionNavigationBase navigation)
             => GetAttribute<ForeignKeyAttribute>(navigation.GetIdentifyingMemberInfo());
 
-        private static InversePropertyAttribute GetInversePropertyAttribute(IConventionNavigation navigation)
+        private static InversePropertyAttribute? GetInversePropertyAttribute(IConventionNavigation navigation)
             => GetAttribute<InversePropertyAttribute>(navigation.GetIdentifyingMemberInfo());
 
-        private static TAttribute GetAttribute<TAttribute>(MemberInfo memberInfo)
+        private static TAttribute? GetAttribute<TAttribute>(MemberInfo? memberInfo)
             where TAttribute : Attribute
         {
             if (memberInfo == null
@@ -290,15 +322,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ContractAnnotation("navigationName:null => null")]
-        private MemberInfo FindForeignKeyAttributeOnProperty(IConventionEntityType entityType, string navigationName)
+        private MemberInfo? FindForeignKeyAttributeOnProperty(IConventionEntityType entityType, string? navigationName)
         {
-            if (string.IsNullOrWhiteSpace(navigationName)
-                || !entityType.HasClrType())
+            if (string.IsNullOrWhiteSpace(navigationName))
             {
                 return null;
             }
 
-            MemberInfo candidateProperty = null;
+            MemberInfo? candidateProperty = null;
 
             foreach (var memberInfo in entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
                 .Concat(entityType.GetRuntimeFields().Values))
@@ -309,11 +340,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                var attribute = memberInfo.GetCustomAttribute<ForeignKeyAttribute>(inherit: true);
+                var attribute = memberInfo.GetCustomAttribute<ForeignKeyAttribute>(inherit: true)!;
 
                 if (attribute.Name != navigationName
                     || (memberInfo is PropertyInfo propertyInfo
-                        && FindCandidateNavigationPropertyType(propertyInfo) != null))
+                        && (FindCandidateNavigationPropertyType(propertyInfo) != null
+                            || IsNavigationToSharedType(entityType.Model, propertyInfo))))
                 {
                     continue;
                 }
@@ -342,16 +374,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return candidateProperty;
         }
 
-        private Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
+        private Type? FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
             => Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
-        private static IReadOnlyList<string> FindCandidateDependentPropertiesThroughNavigation(
-            IConventionRelationshipBuilder relationshipBuilder,
+        private bool IsNavigationToSharedType(IConventionModel model, PropertyInfo propertyInfo)
+            => model.IsShared(propertyInfo.PropertyType)
+                || (propertyInfo.PropertyType.TryGetSequenceType() is Type elementType
+                    && model.IsShared(elementType));
+
+        private static IReadOnlyList<string>? FindCandidateDependentPropertiesThroughNavigation(
+            IConventionForeignKeyBuilder relationshipBuilder,
             bool pointsToPrincipal)
         {
             var navigation = pointsToPrincipal
                 ? relationshipBuilder.Metadata.DependentToPrincipal
-                : relationshipBuilder.Metadata.PrincipalToDependent;
+                : relationshipBuilder.Metadata.PrincipalToDependent!;
 
             var navigationFkAttribute = navigation != null
                 ? GetForeignKeyAttribute(navigation)
@@ -364,11 +401,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (properties.Any(string.IsNullOrWhiteSpace))
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.InvalidPropertyListOnNavigation(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+                        CoreStrings.InvalidPropertyListOnNavigation(navigation!.Name, navigation.DeclaringEntityType.DisplayName()));
                 }
 
                 var navigationPropertyTargetType =
-                    navigation.DeclaringEntityType.GetRuntimeProperties()[navigation.Name].PropertyType;
+                    navigation!.DeclaringEntityType.GetRuntimeProperties()[navigation.Name].PropertyType;
 
                 var otherNavigations = navigation.DeclaringEntityType.GetRuntimeProperties().Values
                     .Where(p => p.PropertyType == navigationPropertyTargetType && p.GetSimpleMemberName() != navigation.Name)
@@ -380,7 +417,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (attribute?.Name == navigationFkAttribute.Name)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.MultipleNavigationsSameFk(navigation.DeclaringEntityType.DisplayName(), attribute.Name));
+                            CoreStrings.MultipleNavigationsSameFk(
+                                navigation.DeclaringEntityType.DisplayName(),
+                                attribute.Name,
+                                $"'{navigation.Name}', '{propertyInfo.Name}'"));
                     }
                 }
 
@@ -390,18 +430,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return null;
         }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 foreach (var declaredNavigation in entityType.GetDeclaredNavigations())
                 {
-                    if (declaredNavigation.IsCollection())
+                    if (declaredNavigation.IsCollection)
                     {
                         var foreignKey = declaredNavigation.ForeignKey;
                         var fkPropertyOnPrincipal
@@ -414,6 +452,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                     foreignKey.PrincipalEntityType.DisplayName(),
                                     foreignKey.DeclaringEntityType.DisplayName()));
                         }
+                    }
+                }
+
+                foreach (var declaredSkipNavigation in entityType.GetDeclaredSkipNavigations())
+                {
+                    var fkAttribute = GetForeignKeyAttribute(declaredSkipNavigation);
+                    if (fkAttribute != null
+                        && declaredSkipNavigation.ForeignKey?.GetPropertiesConfigurationSource() != ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.FkAttributeOnSkipNavigation(entityType.DisplayName(), declaredSkipNavigation.Name));
                     }
                 }
             }

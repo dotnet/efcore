@@ -4,6 +4,8 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -31,7 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
-        private static EventId MakeTransactionId(Id id) => new EventId((int)id, _transactionPrefix + id);
+
+        private static EventId MakeTransactionId(Id id)
+            => new((int)id, _transactionPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -47,7 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId TransactionIgnoredWarning = MakeTransactionId(Id.TransactionIgnoredWarning);
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
-        private static EventId MakeUpdateId(Id id) => new EventId((int)id, _updatePrefix + id);
+
+        private static EventId MakeUpdateId(Id id)
+            => new((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     <para>

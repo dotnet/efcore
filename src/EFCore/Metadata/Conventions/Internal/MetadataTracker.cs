@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -14,10 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class MetadataTracker : IReferenceRoot<ForeignKey>
+    public class MetadataTracker : IReferenceRoot<IConventionForeignKey>
     {
-        private readonly Dictionary<ForeignKey, Reference<ForeignKey>> _trackedForeignKeys =
-            new Dictionary<ForeignKey, Reference<ForeignKey>>();
+        private readonly Dictionary<IConventionForeignKey, Reference<IConventionForeignKey>> _trackedForeignKeys = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,9 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Update([NotNull] ForeignKey oldForeignKey, [NotNull] ForeignKey newForeignKey)
+        public virtual void Update([NotNull] IConventionForeignKey oldForeignKey, [NotNull] IConventionForeignKey newForeignKey)
         {
-            Debug.Assert(oldForeignKey.Builder == null && newForeignKey.Builder != null);
+            Check.DebugAssert(
+                !oldForeignKey.IsInModel && newForeignKey.IsInModel,
+                $"{nameof(oldForeignKey)} is in the model or {nameof(newForeignKey)} isn't");
 
             if (_trackedForeignKeys.TryGetValue(oldForeignKey, out var reference))
             {
@@ -43,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Reference<ForeignKey> Track(ForeignKey foreignKey)
+        public virtual Reference<IConventionForeignKey> Track(IConventionForeignKey foreignKey)
         {
             if (_trackedForeignKeys.TryGetValue(foreignKey, out var reference))
             {
@@ -51,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return reference;
             }
 
-            reference = new Reference<ForeignKey>(foreignKey, this);
+            reference = new Reference<IConventionForeignKey>(foreignKey, this);
             _trackedForeignKeys.Add(foreignKey, reference);
 
             return reference;
@@ -63,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IReferenceRoot<ForeignKey>.Release(Reference<ForeignKey> foreignKeyReference)
+        void IReferenceRoot<IConventionForeignKey>.Release(Reference<IConventionForeignKey> foreignKeyReference)
         {
             _trackedForeignKeys.Remove(foreignKeyReference.Object);
         }

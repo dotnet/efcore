@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -14,10 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a foreign key is added to the entity type.
         /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
+        /// <param name="foreignKeyBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessForeignKeyAdded(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder,
-            [NotNull] IConventionContext<IConventionRelationshipBuilder> context);
+            [NotNull] IConventionForeignKeyBuilder foreignKeyBuilder,
+            [NotNull] IConventionContext<IConventionForeignKeyBuilder> context);
     }
 }

@@ -1,12 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+
+#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -40,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public override void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (annotation == null
@@ -97,34 +98,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             base.ProcessPropertyAnnotationChanged(propertyBuilder, name, annotation, oldAnnotation, context);
         }
 
-        protected override void Validate(IConventionProperty property)
+        /// <inheritdoc />
+        protected override void Validate(IConventionProperty property, in StoreObjectIdentifier storeObject)
         {
-            if (property.GetValueGenerationStrategyConfigurationSource() != null
-                && property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None)
+            if (property.GetValueGenerationStrategyConfigurationSource() != null)
             {
-                if (property.GetDefaultValue() != null)
+                var generationStrategy = property.GetValueGenerationStrategy(storeObject, Dependencies.TypeMappingSource);
+                if (generationStrategy == SqlServerValueGenerationStrategy.None)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.ConflictingColumnServerGeneration(
-                            "SqlServerValueGenerationStrategy", property.Name, "DefaultValue"));
+                    base.Validate(property, storeObject);
+                    return;
                 }
 
-                if (property.GetDefaultValueSql() != null)
+                if (property.GetDefaultValue(storeObject) != null)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.ConflictingColumnServerGeneration(
-                            "SqlServerValueGenerationStrategy", property.Name, "DefaultValueSql"));
+                    Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
+                        generationStrategy, "DefaultValue", property);
                 }
 
-                if (property.GetComputedColumnSql() != null)
+                if (property.GetDefaultValueSql(storeObject) != null)
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.ConflictingColumnServerGeneration(
-                            "SqlServerValueGenerationStrategy", property.Name, "ComputedColumnSql"));
+                    Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
+                        generationStrategy, "DefaultValueSql", property);
+                }
+
+                if (property.GetComputedColumnSql(storeObject) != null)
+                {
+                    Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
+                        generationStrategy, "ComputedColumnSql", property);
                 }
             }
 
-            base.Validate(property);
+            base.Validate(property, storeObject);
         }
     }
 }

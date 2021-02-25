@@ -5,11 +5,13 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IKey" /> for SQL Server-specific metadata.
+    ///     Key extension methods for SQL Server-specific metadata.
     /// </summary>
     public static class SqlServerKeyExtensions
     {
@@ -17,14 +19,31 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the key is clustered.
         /// </summary>
         /// <param name="key"> The key. </param>
-        /// <returns> <c>true</c> if the key is clustered. </returns>
-        public static bool? IsClustered([NotNull] this IKey key)
-            => (bool?)key[SqlServerAnnotationNames.Clustered] ?? GetDefaultIsClustered(key);
+        /// <returns> <see langword="true" /> if the key is clustered. </returns>
+        public static bool? IsClustered([NotNull] this IReadOnlyKey key)
+            => (bool?)key[SqlServerAnnotationNames.Clustered];
 
-        private static bool? GetDefaultIsClustered(IKey key)
+        /// <summary>
+        ///     Returns a value indicating whether the key is clustered.
+        /// </summary>
+        /// <param name="key"> The key. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <returns> <see langword="true" /> if the key is clustered. </returns>
+        public static bool? IsClustered([NotNull] this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
         {
-            var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedTableRootPrimaryKeyProperty();
-            return sharedTablePrincipalPrimaryKeyProperty?.FindContainingPrimaryKey().IsClustered();
+            var annotation = key.FindAnnotation(SqlServerAnnotationNames.Clustered);
+            if (annotation != null)
+            {
+                return (bool?)annotation.Value;
+            }
+
+            return GetDefaultIsClustered(key, storeObject);
+        }
+
+        private static bool? GetDefaultIsClustered([NotNull] IReadOnlyKey key, in StoreObjectIdentifier storeObject)
+        {
+            var sharedTableRootKey = key.FindSharedObjectRootKey(storeObject);
+            return sharedTableRootKey?.IsClustered(storeObject);
         }
 
         /// <summary>
@@ -41,8 +60,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <param name="clustered"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetIsClustered([NotNull] this IConventionKey key, bool? clustered, bool fromDataAnnotation = false)
-            => key.SetOrRemoveAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
+        /// <returns> The configured value. </returns>
+        public static bool? SetIsClustered([NotNull] this IConventionKey key, bool? clustered, bool fromDataAnnotation = false)
+        {
+            key.SetOrRemoveAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
+
+            return clustered;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for whether the key is clustered.

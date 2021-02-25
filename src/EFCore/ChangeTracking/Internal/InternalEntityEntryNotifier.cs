@@ -98,10 +98,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void NavigationCollectionChanged(
             InternalEntityEntry entry,
-            INavigation navigation,
+            INavigationBase navigationBase,
             IEnumerable<object> added,
             IEnumerable<object> removed)
-            => _navigationFixer.NavigationCollectionChanged(entry, navigation, added, removed);
+            => _navigationFixer.NavigationCollectionChanged(entry, navigationBase, added, removed);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,8 +112,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void KeyPropertyChanged(
             InternalEntityEntry entry,
             IProperty property,
-            IReadOnlyList<IKey> keys,
-            IReadOnlyList<IForeignKey> foreignKeys,
+            IEnumerable<IKey> keys,
+            IEnumerable<IForeignKey> foreignKeys,
             object oldValue,
             object newValue)
             => _navigationFixer.KeyPropertyChanged(entry, property, keys, foreignKeys, oldValue, newValue);

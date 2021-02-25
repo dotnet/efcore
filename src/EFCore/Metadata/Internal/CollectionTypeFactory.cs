@@ -4,9 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -24,7 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type TryFindTypeToInstantiate([NotNull] Type entityType, [NotNull] Type collectionType)
+        public virtual Type? TryFindTypeToInstantiate(
+            [NotNull] Type entityType,
+            [NotNull] Type collectionType,
+            bool requireFullNotifications)
         {
             // Code taken from EF6. The rules are:
             // If the collection is defined as a concrete type with a public parameterless constructor, then create an instance of that type
@@ -40,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            if (!collectionType.GetTypeInfo().IsAbstract)
+            if (!collectionType.IsAbstract)
             {
                 var constructor = collectionType.GetDeclaredConstructor(null);
                 if (constructor?.IsPublic == true)
@@ -49,23 +53,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.GetTypeInfo()))
+            if (requireFullNotifications
+                || typeof(INotifyPropertyChanged).IsAssignableFrom(entityType))
             {
                 var observableHashSetOfT = typeof(ObservableHashSet<>).MakeGenericType(elementType);
-                if (collectionType.GetTypeInfo().IsAssignableFrom(observableHashSetOfT.GetTypeInfo()))
+                if (collectionType.IsAssignableFrom(observableHashSetOfT))
                 {
                     return observableHashSetOfT;
                 }
             }
 
             var hashSetOfT = typeof(HashSet<>).MakeGenericType(elementType);
-            if (collectionType.GetTypeInfo().IsAssignableFrom(hashSetOfT.GetTypeInfo()))
+            if (collectionType.IsAssignableFrom(hashSetOfT))
             {
                 return hashSetOfT;
             }
 
             var listOfT = typeof(List<>).MakeGenericType(elementType);
-            return collectionType.GetTypeInfo().IsAssignableFrom(listOfT.GetTypeInfo()) ? listOfT : null;
+            return collectionType.IsAssignableFrom(listOfT) ? listOfT : null;
         }
     }
 }

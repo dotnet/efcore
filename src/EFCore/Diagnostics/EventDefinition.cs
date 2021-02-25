@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -14,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class EventDefinition : EventDefinitionBase
     {
-        private readonly Action<ILogger, Exception> _logAction;
+        private readonly Action<ILogger, Exception?> _logAction;
 
         /// <summary>
         ///     Creates an event definition instance.
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EventId eventId,
             LogLevel level,
             [NotNull] string eventIdCode,
-            [NotNull] Func<LogLevel, Action<ILogger, Exception>> logActionFunc)
+            [NotNull] Func<LogLevel, Action<ILogger, Exception?>> logActionFunc)
             : base(loggingOptions, eventId, level, eventIdCode)
         {
             Check.NotNull(logActionFunc, nameof(logActionFunc));
@@ -56,18 +58,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
         /// <param name="logger"> The logger to which the event should be logged. </param>
-        /// <param name="warningBehavior"> Whether the event should be logged, thrown as an exception or ignored. </param>
         /// <param name="exception"> Optional exception associated with the event. </param>
         public virtual void Log<TLoggerCategory>(
             [NotNull] IDiagnosticsLogger<TLoggerCategory> logger,
-            WarningBehavior warningBehavior,
-            [CanBeNull] Exception exception = null)
+            [CanBeNull] Exception? exception = null)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
-            switch (warningBehavior)
+            switch (WarningBehavior)
             {
                 case WarningBehavior.Log:
-                    _logAction(logger.Logger, null);
+                    _logAction(logger.Logger, exception);
                     break;
                 case WarningBehavior.Throw:
                     throw WarningAsError(GenerateMessage());

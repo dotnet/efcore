@@ -26,9 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string GenerateCandidateIdentifier(DatabaseTable originalTable)
-        {
-            return GenerateCandidateIdentifier(originalTable.Name);
-        }
+            => GenerateCandidateIdentifier(originalTable.Name!);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,9 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string GenerateCandidateIdentifier(DatabaseColumn originalColumn)
-        {
-            return GenerateCandidateIdentifier(originalColumn.Name);
-        }
+            => GenerateCandidateIdentifier(originalColumn.Name!);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string GetDependentEndCandidateNavigationPropertyName(IForeignKey foreignKey)
+        public virtual string GetDependentEndCandidateNavigationPropertyName(IReadOnlyForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
@@ -63,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string GetPrincipalEndCandidateNavigationPropertyName(
-            IForeignKey foreignKey,
+            IReadOnlyForeignKey foreignKey,
             string dependentEndNavigationPropertyName)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -76,13 +72,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             return allForeignKeysBetweenDependentAndPrincipal?.Count() > 1
                 ? foreignKey.DeclaringEntityType.ShortName()
-                  + dependentEndNavigationPropertyName
+                + dependentEndNavigationPropertyName
                 : foreignKey.DeclaringEntityType.ShortName();
         }
 
         private static string GenerateCandidateIdentifier(string originalIdentifier)
         {
-            Check.NotEmpty(originalIdentifier, nameof(originalIdentifier));
+            Check.NotNull(originalIdentifier, nameof(originalIdentifier));
 
             var candidateStringBuilder = new StringBuilder();
             var previousLetterCharInWordIsLowerCase = false;
@@ -113,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return candidateStringBuilder.ToString();
         }
 
-        private static string FindCandidateNavigationName(IEnumerable<IProperty> properties)
+        private static string FindCandidateNavigationName(IEnumerable<IReadOnlyProperty> properties)
         {
             if (!properties.Any())
             {
@@ -156,9 +152,23 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static string StripId(string commonPrefix)
         {
-            return commonPrefix.Length > 2
-                   && commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase)
-                ? commonPrefix.Substring(0, commonPrefix.Length - 2)
+            if (commonPrefix.Length < 3
+                || !commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase))
+            {
+                return commonPrefix;
+            }
+
+            int i;
+            for (i = commonPrefix.Length - 3; i >= 0; i--)
+            {
+                if (char.IsLetterOrDigit(commonPrefix[i]))
+                {
+                    break;
+                }
+            }
+
+            return i != 0
+                ? commonPrefix.Substring(0, i + 1)
                 : commonPrefix;
         }
     }

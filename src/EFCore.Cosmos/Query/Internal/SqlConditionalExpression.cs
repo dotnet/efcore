@@ -3,7 +3,11 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -22,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlConditionalExpression(
-            SqlExpression test,
-            SqlExpression ifTrue,
-            SqlExpression ifFalse)
+            [NotNull] SqlExpression test,
+            [NotNull] SqlExpression ifTrue,
+            [NotNull] SqlExpression ifFalse)
             : base(ifTrue.Type, ifTrue.TypeMapping ?? ifFalse.TypeMapping)
         {
             Test = test;
@@ -64,6 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var test = (SqlExpression)visitor.Visit(Test);
             var ifTrue = (SqlExpression)visitor.Visit(IfTrue);
             var ifFalse = (SqlExpression)visitor.Visit(IfFalse);
@@ -78,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlConditionalExpression Update(
-            SqlExpression test,
-            SqlExpression ifTrue,
-            SqlExpression ifFalse)
+            [NotNull] SqlExpression test,
+            [NotNull] SqlExpression ifTrue,
+            [NotNull] SqlExpression ifFalse)
             => test != Test || ifTrue != IfTrue || ifFalse != IfFalse
                 ? new SqlConditionalExpression(test, ifTrue, ifFalse)
                 : this;
@@ -91,8 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void Print(ExpressionPrinter expressionPrinter)
+        protected override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append("(");
             expressionPrinter.Visit(Test);
             expressionPrinter.Append(" ? ");
@@ -108,17 +116,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlConditionalExpression sqlConditionalExpression
-                   && Equals(sqlConditionalExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlConditionalExpression sqlConditionalExpression
+                    && Equals(sqlConditionalExpression));
 
         private bool Equals(SqlConditionalExpression sqlConditionalExpression)
             => base.Equals(sqlConditionalExpression)
-               && Test.Equals(sqlConditionalExpression.Test)
-               && IfTrue.Equals(sqlConditionalExpression.IfTrue)
-               && IfFalse.Equals(sqlConditionalExpression.IfFalse);
+                && Test.Equals(sqlConditionalExpression.Test)
+                && IfTrue.Equals(sqlConditionalExpression.IfTrue)
+                && IfFalse.Equals(sqlConditionalExpression.IfFalse);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

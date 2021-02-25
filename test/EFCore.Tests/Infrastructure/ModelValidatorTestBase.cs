@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,10 +6,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Internal;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -57,7 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => CreateForeignKey(dependentKey.DeclaringEntityType, dependentKey.Properties, principalKey);
 
         protected IMutableForeignKey CreateForeignKey(
-            IMutableEntityType dependEntityType, IReadOnlyList<IMutableProperty> dependentProperties, IMutableKey principalKey)
+            IMutableEntityType dependEntityType,
+            IReadOnlyList<IMutableProperty> dependentProperties,
+            IMutableKey principalKey)
         {
             var foreignKey = dependEntityType.AddForeignKey(dependentProperties, principalKey, principalKey.DeclaringEntityType);
             foreignKey.IsUnique = true;
@@ -191,6 +196,61 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
+        protected class Customer
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string PartitionId { get; set; }
+            public ICollection<Order> Orders { get; set; }
+        }
+
+        protected class Order
+        {
+            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty(nameof(Id));
+
+            public int Id { get; set; }
+            public string PartitionId { get; set; }
+            public Customer Customer { get; set; }
+
+            public OrderDetails OrderDetails { get; set; }
+
+            [NotMapped]
+            public virtual ICollection<Product> Products { get; set; }
+        }
+
+        [Owned]
+        protected class OrderDetails
+        {
+            public Customer Customer { get; set; }
+            public string ShippingAddress { get; set; }
+        }
+
+        protected class OrderProduct
+        {
+            public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId));
+            public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId));
+
+            public int OrderId { get; set; }
+            public int ProductId { get; set; }
+            public virtual Order Order { get; set; }
+            public virtual Product Product { get; set; }
+        }
+
+        protected class Product
+        {
+            public static readonly PropertyInfo IdProperty = typeof(Product).GetProperty(nameof(Id));
+
+            public int Id { get; set; }
+
+            [NotMapped]
+            public virtual ICollection<Order> Orders { get; set; }
+        }
+
+        protected class KeylessSeed
+        {
+            public string Species { get; set; }
+        }
+
         protected ModelValidatorTestBase()
             => LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
 
@@ -204,13 +264,42 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(expectedMessage, logEntry.Message);
         }
 
-        protected virtual void VerifyError(string expectedMessage, IMutableModel model)
+        protected virtual void VerifyWarnings(string[] expectedMessages, IMutableModel model, LogLevel level = LogLevel.Warning)
         {
-            var message = Assert.Throws<InvalidOperationException>(() => Validate(model)).Message;
+            Validate(model);
+            var logEntries = LoggerFactory.Log.Where(l => l.Level == level);
+            Assert.Equal(expectedMessages.Length, logEntries.Count());
+
+            int count = 0;
+            foreach (var logEntry in logEntries)
+            {
+                Assert.Equal(expectedMessages[count++], logEntry.Message);
+            }
+        }
+
+        protected virtual void VerifyError(string expectedMessage, IMutableModel model, bool sensitiveDataLoggingEnabled = false)
+        {
+            var message = Assert.Throws<InvalidOperationException>(() => Validate(model, sensitiveDataLoggingEnabled)).Message;
             Assert.Equal(expectedMessage, message);
         }
 
-        protected virtual void Validate(IMutableModel model) => model.FinalizeModel();
+        protected virtual void VerifyLogDoesNotContain(string expectedMessage, IMutableModel model)
+        {
+            Validate(model);
+
+            var logEntries = LoggerFactory.Log.Where(l => l.Message.Contains(expectedMessage));
+
+            Assert.Empty(logEntries);
+        }
+
+        protected virtual IModel Validate(IMutableModel model, bool sensitiveDataLoggingEnabled = false)
+        {
+            var serviceProvider = CreateServiceProvider(sensitiveDataLoggingEnabled);
+            var modelRuntimeInitializer = serviceProvider.GetRequiredService<IModelRuntimeInitializer>();
+            var validationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
+
+            return modelRuntimeInitializer.Initialize(model.FinalizeModel(), validationLogger);
+        }
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {
@@ -220,7 +309,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 LoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                TestHelpers.LoggingDefinitions);
+                TestHelpers.LoggingDefinitions,
+                new NullDbContextLogger());
         }
 
         protected DiagnosticsLogger<DbLoggerCategory.Model> CreateModelLogger(bool sensitiveDataLoggingEnabled = false)
@@ -231,7 +321,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 LoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                TestHelpers.LoggingDefinitions);
+                TestHelpers.LoggingDefinitions,
+                new NullDbContextLogger());
         }
 
         protected virtual ModelBuilder CreateConventionalModelBuilder(bool sensitiveDataLoggingEnabled = false)
@@ -240,19 +331,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected virtual ModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)
         {
-            var conventionSet = new ConventionSet();
-
-            var dependencies = CreateDependencies(sensitiveDataLoggingEnabled);
-            conventionSet.ModelFinalizedConventions.Add(new TypeMappingConvention(dependencies));
-            conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(dependencies));
-
-            return new ModelBuilder(conventionSet);
+            var serviceProvider = CreateServiceProvider(sensitiveDataLoggingEnabled);
+            return new ModelBuilder(new ConventionSet(), serviceProvider.GetRequiredService<ModelDependencies>());
         }
 
-        protected ProviderConventionSetBuilderDependencies CreateDependencies(bool sensitiveDataLoggingEnabled = false)
-            => TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                .With(CreateValidationLogger(sensitiveDataLoggingEnabled));
+        protected IServiceProvider CreateServiceProvider(bool sensitiveDataLoggingEnabled = false)
+            => TestHelpers.CreateContextServices(
+                new ServiceCollection()
+                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => CreateModelLogger(sensitiveDataLoggingEnabled))
+                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(
+                        _ => CreateValidationLogger(sensitiveDataLoggingEnabled)));
 
-        protected virtual TestHelpers TestHelpers => InMemoryTestHelpers.Instance;
+        protected ProviderConventionSetBuilderDependencies CreateDependencies(bool sensitiveDataLoggingEnabled = false)
+            => CreateServiceProvider(sensitiveDataLoggingEnabled).GetRequiredService<ProviderConventionSetBuilderDependencies>();
+
+        protected virtual TestHelpers TestHelpers
+            => InMemoryTestHelpers.Instance;
+
+        protected virtual InternalModelBuilder CreateConventionlessInternalModelBuilder()
+            => (InternalModelBuilder)CreateConventionlessModelBuilder().GetInfrastructure();
     }
 }

@@ -8,10 +8,10 @@ using System.Data;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -46,119 +46,96 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new SqlServerLongTypeMapping("bigint", DbType.Int64);
 
         private readonly SqlServerByteArrayTypeMapping _rowversion
-            = new SqlServerByteArrayTypeMapping(
+            = new(
                 "rowversion",
                 size: 8,
                 comparer: new ValueComparer<byte[]>(
                     (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
                     v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
-                    v => v == null ? null : v.ToArray()),
+                    // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
+                    v => v == null ? null! : v.ToArray()),
                 storeTypePostfix: StoreTypePostfix.None);
 
         private readonly IntTypeMapping _int
-            = new IntTypeMapping("int", DbType.Int32);
+            = new("int", DbType.Int32);
 
         private readonly BoolTypeMapping _bool
             = new SqlServerBoolTypeMapping("bit");
 
         private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
-            = new SqlServerStringTypeMapping(unicode: true, fixedLength: true);
+            = new(unicode: true, fixedLength: true);
 
         private readonly SqlServerStringTypeMapping _textUnicodeString
-            = new SqlServerStringTypeMapping("ntext", unicode: true, sqlDbType: SqlDbType.NText);
+            = new("ntext", unicode: true, sqlDbType: SqlDbType.NText, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
-            = new SqlServerStringTypeMapping(unicode: true);
+            = new(unicode: true);
 
         private readonly SqlServerStringTypeMapping _variableLengthMaxUnicodeString
-            = new SqlServerStringTypeMapping("nvarchar(max)", unicode: true, storeTypePostfix: StoreTypePostfix.None);
+            = new("nvarchar(max)", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
-            = new SqlServerStringTypeMapping(fixedLength: true);
+            = new(fixedLength: true);
 
         private readonly SqlServerStringTypeMapping _textAnsiString
-            = new SqlServerStringTypeMapping("text", sqlDbType: SqlDbType.Text);
+            = new("text", sqlDbType: SqlDbType.Text, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerStringTypeMapping _variableLengthAnsiString
-            = new SqlServerStringTypeMapping();
+            = new();
 
         private readonly SqlServerStringTypeMapping _variableLengthMaxAnsiString
-            = new SqlServerStringTypeMapping("varchar(max)", storeTypePostfix: StoreTypePostfix.None);
+            = new("varchar(max)", storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerByteArrayTypeMapping _variableLengthBinary
-            = new SqlServerByteArrayTypeMapping();
+            = new();
 
         private readonly SqlServerByteArrayTypeMapping _imageBinary
-            = new SqlServerByteArrayTypeMapping("image", sqlDbType: SqlDbType.Image);
+            = new("image", sqlDbType: SqlDbType.Image);
 
         private readonly SqlServerByteArrayTypeMapping _variableLengthMaxBinary
-            = new SqlServerByteArrayTypeMapping("varbinary(max)", storeTypePostfix: StoreTypePostfix.None);
+            = new("varbinary(max)", storeTypePostfix: StoreTypePostfix.None);
 
         private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
-            = new SqlServerByteArrayTypeMapping(fixedLength: true);
+            = new(fixedLength: true);
 
         private readonly SqlServerDateTimeTypeMapping _date
-            = new SqlServerDateTimeTypeMapping("date", DbType.Date);
+            = new("date", DbType.Date);
 
         private readonly SqlServerDateTimeTypeMapping _datetime
-            = new SqlServerDateTimeTypeMapping("datetime", DbType.DateTime);
+            = new("datetime", DbType.DateTime);
 
         private readonly SqlServerDateTimeTypeMapping _datetime2
-            = new SqlServerDateTimeTypeMapping("datetime2", DbType.DateTime2);
+            = new("datetime2", DbType.DateTime2);
 
         private readonly DoubleTypeMapping _double
             = new SqlServerDoubleTypeMapping("float");
 
         private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffset
-            = new SqlServerDateTimeOffsetTypeMapping("datetimeoffset");
+            = new("datetimeoffset");
 
         private readonly GuidTypeMapping _uniqueidentifier
-            = new GuidTypeMapping("uniqueidentifier", DbType.Guid);
+            = new("uniqueidentifier", DbType.Guid);
 
         private readonly DecimalTypeMapping _decimal
             = new SqlServerDecimalTypeMapping(
-                "decimal(18, 2)", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.PrecisionAndScale);
+                "decimal");
+
+        private readonly DecimalTypeMapping _decimal182
+            = new SqlServerDecimalTypeMapping(
+                "decimal(18, 2)", precision: 18, scale: 2);
 
         private readonly DecimalTypeMapping _money
-            = new SqlServerDecimalTypeMapping("money");
+            = new SqlServerDecimalTypeMapping("money", storeTypePostfix: StoreTypePostfix.None);
 
         private readonly TimeSpanTypeMapping _time
             = new SqlServerTimeSpanTypeMapping("time");
 
         private readonly SqlServerStringTypeMapping _xml
-            = new SqlServerStringTypeMapping("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
+            = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
-
-        // These are disallowed only if specified without any kind of length specified in parenthesis.
-        private readonly HashSet<string> _disallowedMappings
-            = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "binary",
-                "binary varying",
-                "varbinary",
-                "char",
-                "character",
-                "char varying",
-                "character varying",
-                "varchar",
-                "national char",
-                "national character",
-                "nchar",
-                "national char varying",
-                "national character varying",
-                "nvarchar"
-            };
-
-        private readonly IReadOnlyDictionary<string, Func<Type, RelationalTypeMapping>> _namedClrMappings
-            = new Dictionary<string, Func<Type, RelationalTypeMapping>>(StringComparer.Ordinal)
-            {
-                { "Microsoft.SqlServer.Types.SqlHierarchyId", t => SqlServerUdtTypeMapping.CreateSqlHierarchyIdMapping(t) },
-                { "Microsoft.SqlServer.Types.SqlGeography", t => SqlServerUdtTypeMapping.CreateSqlSpatialMapping(t, "geography") },
-                { "Microsoft.SqlServer.Types.SqlGeometry", t => SqlServerUdtTypeMapping.CreateSqlSpatialMapping(t, "geometry") }
-            };
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -184,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { typeof(DateTimeOffset), _datetimeoffset },
                     { typeof(short), _short },
                     { typeof(float), _real },
-                    { typeof(decimal), _decimal },
+                    { typeof(decimal), _decimal182 },
                     { typeof(TimeSpan), _time }
                 };
 
@@ -196,8 +173,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { "binary", _fixedLengthBinary },
                     { "bit", _bool },
                     { "char varying", _variableLengthAnsiString },
+                    { "char varying(max)", _variableLengthMaxAnsiString },
                     { "char", _fixedLengthAnsiString },
                     { "character varying", _variableLengthAnsiString },
+                    { "character varying(max)", _variableLengthMaxAnsiString },
                     { "character", _fixedLengthAnsiString },
                     { "date", _date },
                     { "datetime", _datetime },
@@ -211,7 +190,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { "int", _int },
                     { "money", _money },
                     { "national char varying", _variableLengthUnicodeString },
+                    { "national char varying(max)", _variableLengthMaxUnicodeString },
                     { "national character varying", _variableLengthUnicodeString },
+                    { "national character varying(max)", _variableLengthMaxUnicodeString },
                     { "national character", _fixedLengthUnicodeString },
                     { "nchar", _fixedLengthUnicodeString },
                     { "ntext", _textUnicodeString },
@@ -243,42 +224,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override void ValidateMapping(CoreTypeMapping mapping, IProperty property)
-        {
-            var relationalMapping = mapping as RelationalTypeMapping;
-
-            if (_disallowedMappings.Contains(relationalMapping?.StoreType))
-            {
-                if (property == null)
-                {
-                    throw new ArgumentException(SqlServerStrings.UnqualifiedDataType(relationalMapping.StoreType));
-                }
-
-                throw new ArgumentException(SqlServerStrings.UnqualifiedDataTypeOnProperty(relationalMapping.StoreType, property.Name));
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+        protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => FindRawMapping(mappingInfo)?.Clone(mappingInfo)
                 ?? base.FindMapping(mappingInfo);
 
-        private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
+        private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
             var storeTypeName = mappingInfo.StoreTypeName;
-            var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
 
             if (storeTypeName != null)
             {
+                var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
+                if (storeTypeNameBase!.StartsWith("[", StringComparison.Ordinal)
+                    && storeTypeNameBase.EndsWith("]", StringComparison.Ordinal))
+                {
+                    storeTypeNameBase = storeTypeNameBase.Substring(1, storeTypeNameBase.Length - 2);
+                }
+
                 if (clrType == typeof(float)
-                    && mappingInfo.Size != null
-                    && mappingInfo.Size <= 24
+                    && mappingInfo.Precision != null
+                    && mappingInfo.Precision <= 24
                     && (storeTypeNameBase.Equals("float", StringComparison.OrdinalIgnoreCase)
                         || storeTypeNameBase.Equals("double precision", StringComparison.OrdinalIgnoreCase)))
                 {
@@ -302,11 +268,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     return mapping;
                 }
 
-                if (_namedClrMappings.TryGetValue(clrType.FullName, out var mappingFunc))
-                {
-                    return mappingFunc(clrType);
-                }
-
                 if (clrType == typeof(string))
                 {
                     var isAnsi = mappingInfo.IsUnicode == false;
@@ -319,12 +280,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         size = isFixedLength ? maxSize : (int?)null;
                     }
 
-                    return size == null
-                        ? isAnsi ? _variableLengthMaxAnsiString : _variableLengthMaxUnicodeString
-                        : new SqlServerStringTypeMapping(
-                            unicode: !isAnsi,
-                            size: size,
-                            fixedLength: isFixedLength);
+                    if (size == null)
+                    {
+                        return isAnsi
+                            ? isFixedLength
+                                ? _fixedLengthAnsiString
+                                : _variableLengthMaxAnsiString
+                            : isFixedLength
+                                ? _fixedLengthUnicodeString
+                                : _variableLengthMaxUnicodeString;
+                    }
+
+                    return new SqlServerStringTypeMapping(
+                        unicode: !isAnsi,
+                        size: size,
+                        fixedLength: isFixedLength);
                 }
 
                 if (clrType == typeof(byte[]))
@@ -349,6 +319,43 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             }
 
             return null;
+        }
+
+        private static readonly List<string> _nameBasesUsingPrecision = new()
+        {
+            "decimal",
+            "dec",
+            "numeric",
+            "datetime2",
+            "datetimeoffset",
+            "double precision",
+            "float"
+        };
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override string? ParseStoreTypeName(
+            string? storeTypeName,
+            out bool? unicode,
+            out int? size,
+            out int? precision,
+            out int? scale)
+        {
+            var parsedName = base.ParseStoreTypeName(storeTypeName, out unicode, out size, out precision, out scale);
+
+            if (size.HasValue
+                && storeTypeName != null
+                && _nameBasesUsingPrecision.Any(n => storeTypeName.StartsWith(n, StringComparison.OrdinalIgnoreCase)))
+            {
+                precision = size;
+                size = null;
+            }
+
+            return parsedName;
         }
     }
 }

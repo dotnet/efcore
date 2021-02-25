@@ -61,8 +61,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual InternalEntityEntry Propagate(InternalEntityEntry entry)
         {
             InternalEntityEntry chosenPrincipal = null;
-            foreach (var property in FindPropagatingProperties(entry))
+            foreach (var property in entry.EntityType.GetForeignKeyProperties())
             {
+                if (!entry.HasDefaultValue(property))
+                {
+                    continue;
+                }
+
                 var principalEntry = _keyPropagator.PropagateValue(entry, property);
                 if (chosenPrincipal == null)
                 {
@@ -79,12 +84,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Generate(InternalEntityEntry entry)
+        public virtual void Generate(InternalEntityEntry entry, bool includePrimaryKey = true)
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var property in FindGeneratingProperties(entry))
+            foreach (var property in entry.EntityType.GetValueGeneratingProperties())
             {
+                if (!entry.HasDefaultValue(property)
+                    || (!includePrimaryKey
+                        && property.IsPrimaryKey()))
+                {
+                    continue;
+                }
+
                 var valueGenerator = GetValueGenerator(entry, property);
 
                 var generatedValue = valueGenerator.Next(entityEntry);
@@ -120,14 +132,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual async Task GenerateAsync(
             InternalEntityEntry entry,
+            bool includePrimaryKey = true,
             CancellationToken cancellationToken = default)
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var property in FindGeneratingProperties(entry))
+            foreach (var property in entry.EntityType.GetValueGeneratingProperties())
             {
+                if (!entry.HasDefaultValue(property)
+                    || (!includePrimaryKey
+                        && property.IsPrimaryKey()))
+                {
+                    continue;
+                }
+
                 var valueGenerator = GetValueGenerator(entry, property);
-                var generatedValue = await valueGenerator.NextAsync(entityEntry, cancellationToken);
+                var generatedValue = await valueGenerator.NextAsync(entityEntry, cancellationToken)
+                    .ConfigureAwait(false);
                 var temporary = valueGenerator.GeneratesTemporaryValues;
 
                 Log(entry, property, generatedValue, temporary);
@@ -137,30 +158,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     property,
                     generatedValue,
                     temporary);
-            }
-        }
-
-        private static IEnumerable<IProperty> FindPropagatingProperties(InternalEntityEntry entry)
-        {
-            foreach (var property in ((EntityType)entry.EntityType).GetProperties())
-            {
-                if (property.IsForeignKey()
-                    && entry.HasDefaultValue(property))
-                {
-                    yield return property;
-                }
-            }
-        }
-
-        private static IEnumerable<IProperty> FindGeneratingProperties(InternalEntityEntry entry)
-        {
-            foreach (var property in ((EntityType)entry.EntityType).GetProperties())
-            {
-                if (property.RequiresValueGenerator()
-                    && entry.HasDefaultValue(property))
-                {
-                    yield return property;
-                }
             }
         }
 

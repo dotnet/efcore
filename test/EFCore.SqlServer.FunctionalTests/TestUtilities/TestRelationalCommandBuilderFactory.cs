@@ -1,10 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -24,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private class TestRelationalCommandBuilder : IRelationalCommandBuilder
         {
-            private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
+            private readonly List<IRelationalParameter> _parameters = new();
 
             public TestRelationalCommandBuilder(
                 RelationalCommandBuilderDependencies dependencies)
@@ -32,11 +35,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Dependencies = dependencies;
             }
 
-            public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
+            public IndentedStringBuilder Instance { get; } = new();
 
             public RelationalCommandBuilderDependencies Dependencies { get; }
 
-            public IReadOnlyList<IRelationalParameter> Parameters => _parameters;
+            public IReadOnlyList<IRelationalParameter> Parameters
+                => _parameters;
 
             public IRelationalCommandBuilder AddParameter(IRelationalParameter parameter)
             {
@@ -45,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return this;
             }
 
-            public IRelationalTypeMappingSource TypeMappingSource => Dependencies.TypeMappingSource;
+            public IRelationalTypeMappingSource TypeMappingSource
+                => Dependencies.TypeMappingSource;
 
             public IRelationalCommand Build()
                 => new TestRelationalCommand(
@@ -53,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     Instance.ToString(),
                     Parameters);
 
-            public IRelationalCommandBuilder Append(object value)
+            public IRelationalCommandBuilder Append(string value)
             {
                 Instance.Append(value);
 
@@ -81,7 +86,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return this;
             }
 
-            public int CommandTextLength => Instance.Length;
+            public int CommandTextLength
+                => Instance.Length;
         }
 
         private class TestRelationalCommand : IRelationalCommand
@@ -96,9 +102,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 _realRelationalCommand = new RelationalCommand(dependencies, commandText, parameters);
             }
 
-            public string CommandText => _realRelationalCommand.CommandText;
+            public string CommandText
+                => _realRelationalCommand.CommandText;
 
-            public IReadOnlyList<IRelationalParameter> Parameters => _realRelationalCommand.Parameters;
+            public IReadOnlyList<IRelationalParameter> Parameters
+                => _realRelationalCommand.Parameters;
 
             public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
             {
@@ -117,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public Task<int> ExecuteNonQueryAsync(
                 RelationalCommandParameterObject parameterObject,
-                CancellationToken cancellationToken = new CancellationToken())
+                CancellationToken cancellationToken = new())
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
@@ -149,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public async Task<object> ExecuteScalarAsync(
                 RelationalCommandParameterObject parameterObject,
-                CancellationToken cancellationToken = new CancellationToken())
+                CancellationToken cancellationToken = new())
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
@@ -182,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public async Task<RelationalDataReader> ExecuteReaderAsync(
                 RelationalCommandParameterObject parameterObject,
-                CancellationToken cancellationToken = new CancellationToken())
+                CancellationToken cancellationToken = new())
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
@@ -197,6 +205,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 return result;
             }
+
+            public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
+                => throw new NotImplementedException();
 
             private int? PreExecution(IRelationalConnection connection)
             {

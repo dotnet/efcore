@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
@@ -48,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             return services
                 .AddSingleton<AnnotationCodeGeneratorDependencies>()
-                .AddSingleton<TypeMappingSourceDependencies>()
                 .AddSingleton<CSharpMigrationOperationGeneratorDependencies>()
                 .AddSingleton<CSharpMigrationsGeneratorDependencies>()
                 .AddSingleton<CSharpSnapshotGeneratorDependencies>()
@@ -73,14 +71,16 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<IMigrationsCodeGeneratorSelector, MigrationsCodeGeneratorSelector>()
                 .AddSingleton<IModelCodeGenerator, CSharpModelGenerator>()
                 .AddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
+                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<INamedConnectionStringResolver>(
                     new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                 .AddSingleton(reporter)
-                .AddSingleton<IPluralizer, NullPluralizer>()
+                .AddSingleton<IPluralizer, HumanizerPluralizer>()
                 .AddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
                 .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
+                .AddSingleton<IDbContextLogger, NullDbContextLogger>()
                 .AddTransient<MigrationsScaffolderDependencies>()
                 .AddTransient<IMigrationsScaffolder, MigrationsScaffolder>()
                 .AddTransient<ISnapshotModelProcessor, SnapshotModelProcessor>()
@@ -106,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddTransient(_ => context.GetService<IMigrationsModelDiffer>())
                 .AddTransient(_ => context.GetService<IMigrator>())
                 .AddTransient(_ => context.GetService<IRelationalTypeMappingSource>())
-                .AddTransient(_ => context.GetService<IModel>());
+                .AddTransient(_ => context.GetService<IModel>())
+                .AddTransient(_ => context.GetService<IModelRuntimeInitializer>());
     }
 }

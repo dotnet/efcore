@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -94,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 property.ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             }
 
-            return builder.FinalizeModel();
+            return InMemoryTestHelpers.Instance.Finalize(builder);
         }
 
         private class AnEntity
@@ -140,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 throw new NotImplementedException();
             }
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
     }
 }

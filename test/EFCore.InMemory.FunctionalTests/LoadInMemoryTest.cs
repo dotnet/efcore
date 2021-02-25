@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class LoadInMemoryFixture : LoadFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
         }
     }
 }

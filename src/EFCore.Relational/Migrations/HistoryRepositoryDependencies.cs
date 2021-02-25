@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -42,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class HistoryRepositoryDependencies
+    public sealed record HistoryRepositoryDependencies
     {
         /// <summary>
         ///     <para>
@@ -69,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         doing so can result in application failures when updating to a new Entity Framework Core release.
         ///     </para>
         /// </summary>
+#pragma warning disable CS0618 // Type or member is obsolete
         [EntityFrameworkInternal]
         public HistoryRepositoryDependencies(
             [NotNull] IRelationalDatabaseCreator databaseCreator,
@@ -79,8 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IConventionSetBuilder conventionSetBuilder,
+            [NotNull] ModelDependencies modelDependencies,
             [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] ICurrentDbContext currentContext,
+            [NotNull] IModelRuntimeInitializer modelRuntimeInitializer,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
@@ -92,8 +96,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(conventionSetBuilder, nameof(conventionSetBuilder));
+            Check.NotNull(modelDependencies, nameof(modelDependencies));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(currentContext, nameof(currentContext));
+            Check.NotNull(modelRuntimeInitializer, nameof(modelRuntimeInitializer));
             Check.NotNull(modelLogger, nameof(modelLogger));
             Check.NotNull(commandLogger, nameof(commandLogger));
 
@@ -105,310 +111,84 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationsSqlGenerator = migrationsSqlGenerator;
             SqlGenerationHelper = sqlGenerationHelper;
             ConventionSetBuilder = conventionSetBuilder;
+            ModelDependencies = modelDependencies;
             TypeMappingSource = typeMappingSource;
             CurrentContext = currentContext;
-            ModelLogger = modelLogger;
+            ModelRuntimeInitializer = modelRuntimeInitializer;
+            ModelLogger = modelDependencies.Logger;
             CommandLogger = commandLogger;
         }
+#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <summary>
         ///     The database creator.
         /// </summary>
-        public IRelationalDatabaseCreator DatabaseCreator { get; }
+        public IRelationalDatabaseCreator DatabaseCreator { get; [param: NotNull] init; }
 
         /// <summary>
         ///     A command builder for building raw SQL commands.
         /// </summary>
-        public IRawSqlCommandBuilder RawSqlCommandBuilder { get; }
+        public IRawSqlCommandBuilder RawSqlCommandBuilder { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The connection to the database.
         /// </summary>
-        public IRelationalConnection Connection { get; }
+        public IRelationalConnection Connection { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Options for the current context instance.
         /// </summary>
-        public IDbContextOptions Options { get; }
+        public IDbContextOptions Options { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The model differ.
         /// </summary>
-        public IMigrationsModelDiffer ModelDiffer { get; }
+        public IMigrationsModelDiffer ModelDiffer { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The SQL generator for Migrations operations.
         /// </summary>
-        public IMigrationsSqlGenerator MigrationsSqlGenerator { get; }
+        public IMigrationsSqlGenerator MigrationsSqlGenerator { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Helpers for generating update SQL.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The core convention set to use when creating the model.
         /// </summary>
-        public IConventionSetBuilder ConventionSetBuilder { get; }
+        public IConventionSetBuilder ConventionSetBuilder { get; [param: NotNull] init; }
+
+        /// <summary>
+        ///     The model dependencies.
+        /// </summary>
+        public ModelDependencies ModelDependencies { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
+        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
+
+        /// <summary>
+        ///     The model runtime initializer
+        /// </summary>
+        public IModelRuntimeInitializer ModelRuntimeInitializer { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The model logger
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; }
+        [Obsolete("This is contained in ModelDependencies now.")]
+        public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The command logger
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="databaseCreator"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IRelationalDatabaseCreator databaseCreator)
-            => new HistoryRepositoryDependencies(
-                databaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                ConventionSetBuilder,
-                TypeMappingSource,
-                CurrentContext,
-                ModelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="rawSqlCommandBuilder"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                rawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                ConventionSetBuilder,
-                TypeMappingSource,
-                CurrentContext,
-                ModelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="connection"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IRelationalConnection connection)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                ConventionSetBuilder,
-                TypeMappingSource,
-                CurrentContext,
-                ModelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="options"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IDbContextOptions options)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                ConventionSetBuilder,
-                TypeMappingSource,
-                CurrentContext,
-                ModelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modelDiffer"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IMigrationsModelDiffer modelDiffer)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                modelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                ConventionSetBuilder,
-                TypeMappingSource,
-                CurrentContext,
-                ModelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="migrationsSqlGenerator"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IMigrationsSqlGenerator migrationsSqlGenerator)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                migrationsSqlGenerator,
-                SqlGenerationHelper,
-                ConventionSetBuilder,
-                TypeMappingSource,
-                CurrentContext,
-                ModelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                sqlGenerationHelper,
-                ConventionSetBuilder,
-                TypeMappingSource,
-                CurrentContext,
-                ModelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="conventionSetBuilder"> The core convention set to use when creating the model. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IConventionSetBuilder conventionSetBuilder)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                conventionSetBuilder,
-                TypeMappingSource,
-                CurrentContext,
-                ModelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> The type mapper. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                ConventionSetBuilder,
-                typeMappingSource,
-                CurrentContext,
-                ModelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> The type mapper. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                ConventionSetBuilder,
-                TypeMappingSource,
-                currentContext,
-                ModelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modelLogger"> The type mapper. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                ConventionSetBuilder,
-                TypeMappingSource,
-                CurrentContext,
-                modelLogger,
-                CommandLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="commandLogger"> The command logger. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                ConventionSetBuilder,
-                TypeMappingSource,
-                CurrentContext,
-                ModelLogger,
-                commandLogger);
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; [param: NotNull] init; }
     }
 }

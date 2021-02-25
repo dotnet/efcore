@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public async Task Metadata_methods_return_expected_results(bool async)
         {
             var reader = new FakeDbDataReader(new[] { "columnName" }, new[] { new[] { new object() }, new[] { new object() } });
-            var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, (r, _) => r.GetValue(0)) };
-            var bufferedDataReader = new BufferedDataReader(reader);
+            var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(0)) };
+            var bufferedDataReader = new BufferedDataReader(reader, false);
             if (async)
             {
                 await bufferedDataReader.InitializeAsync(columns, CancellationToken.None);
@@ -51,10 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 new List<IList<object[]>> { new[] { new object[] { 1, "a" } }, new object[0][] });
             var columns = new ReaderColumn[]
             {
-                new ReaderColumn<int>(false, null, (r, _) => r.GetInt32(0)), new ReaderColumn<object>(true, null, (r, _) => r.GetValue(1))
+                new ReaderColumn<int>(false, null,  null,(r, _) => r.GetInt32(0)),
+                new ReaderColumn<object>(true, null,  null,(r, _) => r.GetValue(1))
             };
 
-            var bufferedDataReader = new BufferedDataReader(reader);
+            var bufferedDataReader = new BufferedDataReader(reader, false);
 
             Assert.False(bufferedDataReader.IsClosed);
             if (async)
@@ -112,14 +113,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public async Task Initialize_is_idempotent(bool isAsync)
+        public async Task Initialize_is_idempotent(bool async)
         {
             var reader = new FakeDbDataReader(new[] { "name" }, new[] { new[] { new object() } });
-            var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, (r, _) => r.GetValue(0)) };
-            var bufferedReader = new BufferedDataReader(reader);
+            var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, null, (r, _) => r.GetValue(0)) };
+            var bufferedReader = new BufferedDataReader(reader, false);
 
             Assert.False(reader.IsClosed);
-            if (isAsync)
+            if (async)
             {
                 await bufferedReader.InitializeAsync(columns, CancellationToken.None);
             }
@@ -130,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             Assert.True(reader.IsClosed);
 
-            if (isAsync)
+            if (async)
             {
                 await bufferedReader.InitializeAsync(columns, CancellationToken.None);
             }
@@ -172,7 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private async Task Verify_method_result<T>(
-            Func<BufferedDataReader, T> method, bool async, T expectedResult,
+            Func<BufferedDataReader, T> method,
+            bool async,
+            T expectedResult,
             params object[][] dataReaderContents)
         {
             var reader = new FakeDbDataReader(new[] { "name" }, dataReaderContents);
@@ -184,10 +187,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var columns = new[]
             {
-                ReaderColumn.Create(columnType, true, null, (Func<DbDataReader, int[], T>)((r, _) => r.GetFieldValue<T>(0)))
+                ReaderColumn.Create(columnType, true, null,  null,(Func<DbDataReader, int[], T>)((r, _) => r.GetFieldValue<T>(0)))
             };
 
-            var bufferedReader = new BufferedDataReader(reader);
+            var bufferedReader = new BufferedDataReader(reader, false);
             if (async)
             {
                 await bufferedReader.InitializeAsync(columns, CancellationToken.None);
@@ -212,6 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 r => (T)readerMethod.Invoke(r, new object[] { 0 }), async, value, new object[] { value });
         }
 
-        private static MethodInfo GetReaderMethod(Type type) => RelationalTypeMapping.GetDataReaderMethod(type);
+        private static MethodInfo GetReaderMethod(Type type)
+            => RelationalTypeMapping.GetDataReaderMethod(type);
     }
 }

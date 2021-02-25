@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     {
         private readonly IOperationReporter _operationReporter;
         private readonly HashSet<string> _relationalNames;
+        private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,15 +32,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SnapshotModelProcessor([NotNull] IOperationReporter operationReporter)
+        public SnapshotModelProcessor(
+            [NotNull] IOperationReporter operationReporter,
+            [NotNull] IModelRuntimeInitializer modelRuntimeInitializer)
         {
             _operationReporter = operationReporter;
             _relationalNames = new HashSet<string>(
                 typeof(RelationalAnnotationNames)
-                    .GetTypeInfo()
                     .GetRuntimeFields()
                     .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
                     .Select(p => ((string)p.GetValue(null)).Substring(RelationalAnnotationNames.Prefix.Length - 1)));
+            _modelRuntimeInitializer = modelRuntimeInitializer;
         }
 
         /// <summary>
@@ -48,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Process(IModel model)
+        public virtual IModel Process(IReadOnlyModel model)
         {
             if (model == null)
             {
@@ -59,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (version != null)
             {
                 ProcessElement(model, version);
+                UpdateSequences(model, version);
 
                 foreach (var entityType in model.GetEntityTypes())
                 {
@@ -76,12 +80,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            return model is IMutableModel mutableModel
-                ? mutableModel.FinalizeModel()
-                : model;
+            if (model is IMutableModel mutableModel)
+            {
+                model = mutableModel.FinalizeModel();
+            }
+
+            return _modelRuntimeInitializer.Initialize((IModel)model, validationLogger: null);
         }
 
-        private void ProcessCollection(IEnumerable<IAnnotatable> metadata, string version)
+        private void ProcessCollection(IEnumerable<IReadOnlyAnnotatable> metadata, string version)
         {
             foreach (var element in metadata)
             {
@@ -89,12 +96,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void ProcessElement(IEntityType entityType, string version)
+        private void ProcessElement(IReadOnlyEntityType entityType, string version)
         {
-            ProcessElement((IAnnotatable)entityType, version);
+            ProcessElement((IReadOnlyAnnotatable)entityType, version);
 
             if ((version.StartsWith("2.0", StringComparison.Ordinal)
-                 || version.StartsWith("2.1", StringComparison.Ordinal))
+                    || version.StartsWith("2.1", StringComparison.Ordinal))
                 && entityType is IMutableEntityType mutableEntityType
                 && !entityType.IsOwned())
             {
@@ -102,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void ProcessElement(IAnnotatable metadata, string version)
+        private void ProcessElement(IReadOnlyAnnotatable metadata, string version)
         {
             if (version.StartsWith("1.", StringComparison.Ordinal)
                 && metadata is IMutableAnnotatable mutableMetadata)
@@ -134,6 +141,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        private void UpdateSequences(IReadOnlyModel model, string version)
+        {
+            if ((!version.StartsWith("1.", StringComparison.Ordinal)
+                    && !version.StartsWith("2.", StringComparison.Ordinal)
+                    && !version.StartsWith("3.", StringComparison.Ordinal))
+                || !(model is IMutableModel mutableModel))
+            {
+                return;
+            }
+
+            var sequences = model.GetAnnotations()
+#pragma warning disable CS0618 // Type or member is obsolete
+                .Where(a => a.Name.StartsWith(RelationalAnnotationNames.SequencePrefix, StringComparison.Ordinal))
+                .Select(a => new Sequence(model, a.Name));
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            var sequencesDictionary = new SortedDictionary<(string, string), Sequence>();
+            foreach (var sequence in sequences)
+            {
+                sequencesDictionary[(sequence.Name, sequence.Schema)] = sequence;
+            }
+
+            if (sequencesDictionary.Count > 0)
+            {
+                mutableModel[RelationalAnnotationNames.Sequences] = sequencesDictionary;
+            }
+        }
+
         private void UpdateOwnedTypes(IMutableEntityType entityType)
         {
             var ownerships = entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership && fk.IsUnique)
@@ -146,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 if (!oldPrincipalKey.IsPrimaryKey())
                 {
                     ownership.SetProperties(
-                        (IReadOnlyList<Property>)ownership.Properties,
+                        ownership.Properties,
                         ownership.PrincipalEntityType.FindPrimaryKey());
 
                     if (oldPrincipalKey is IConventionKey conventionKey

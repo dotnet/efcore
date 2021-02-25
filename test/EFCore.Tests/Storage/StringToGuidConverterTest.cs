@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class StringToGuidConverterTest
     {
-        private static readonly StringToGuidConverter _stringToGuid
-            = new StringToGuidConverter();
+        private static readonly StringToGuidConverter _stringToGuid = new();
 
         [ConditionalFact]
         public void Can_convert_String_to_GUIDs()

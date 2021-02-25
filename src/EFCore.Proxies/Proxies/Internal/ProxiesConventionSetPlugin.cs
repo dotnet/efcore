@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
     /// <summary>
@@ -58,14 +60,19 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public virtual ConventionSet ModifyConventions(ConventionSet conventionSet)
         {
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
+            var extension = _options.FindExtension<ProxiesOptionsExtension>();
+
+            ConventionSet.AddAfter(
+                conventionSet.ModelInitializedConventions,
+                new ProxyChangeTrackingConvention(extension),
+                typeof(DbSetFindingConvention));
+
+            conventionSet.ModelFinalizingConventions.Add(
                 new ProxyBindingRewriter(
                     _proxyFactory,
-                    _options.FindExtension<ProxiesOptionsExtension>(),
+                    extension,
                     _lazyLoaderParameterBindingFactoryDependencies,
-                    _conventionSetBuilderDependencies),
-                typeof(ValidatingConvention));
+                    _conventionSetBuilderDependencies));
 
             return conventionSet;
         }

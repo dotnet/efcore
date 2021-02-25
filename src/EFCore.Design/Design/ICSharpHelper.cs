@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -31,8 +33,18 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Generates a property accessor lambda.
         /// </summary>
         /// <param name="properties"> The property names. </param>
+        /// <param name="lambdaIdentifier"> The identifier to use for parameter in the lambda. </param>
         /// <returns> The lambda. </returns>
-        string Lambda([NotNull] IReadOnlyList<string> properties);
+        string Lambda([NotNull] IReadOnlyList<string> properties, [CanBeNull] string lambdaIdentifier = null);
+
+        /// <summary>
+        ///     Generates a property accessor lambda.
+        /// </summary>
+        /// <param name="properties"> The properties. </param>
+        /// <param name="lambdaIdentifier"> The identifier to use for parameter in the lambda. </param>
+        /// <returns> The lambda. </returns>
+        string Lambda([NotNull] IEnumerable<IProperty> properties, [CanBeNull] string lambdaIdentifier = null)
+            => Lambda(properties.Select(p => p.Name).ToList(), lambdaIdentifier);
 
         /// <summary>
         ///     Generates a multidimensional array literal.

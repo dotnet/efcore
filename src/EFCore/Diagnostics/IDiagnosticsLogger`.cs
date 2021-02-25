@@ -5,6 +5,8 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -28,9 +30,5 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public interface IDiagnosticsLogger<TLoggerCategory> : IDiagnosticsLogger
         where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
     {
-        /// <summary>
-        ///     Holds registered interceptors, if any.
-        /// </summary>
-        IInterceptors Interceptors { get; }
     }
 }

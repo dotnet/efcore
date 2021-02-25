@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                 && SeatingCapacity == other.SeatingCapacity
                 && Equals(Operator, other.Operator);
 
-        public override int GetHashCode() => HashCode.Combine(Name, SeatingCapacity, Operator);
+        public override int GetHashCode()
+            => HashCode.Combine(Name, SeatingCapacity, Operator);
     }
 }

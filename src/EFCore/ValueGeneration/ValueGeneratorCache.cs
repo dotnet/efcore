@@ -35,10 +35,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Check.NotNull(dependencies, nameof(dependencies));
         }
 
-        private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache
-            = new ConcurrentDictionary<CacheKey, ValueGenerator>();
+        private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache = new();
 
-        private readonly struct CacheKey
+        private readonly struct CacheKey : IEquatable<CacheKey>
         {
             public CacheKey(IProperty property, IEntityType entityType, Func<IProperty, IEntityType, ValueGenerator> factory)
             {
@@ -53,15 +52,14 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
             public Func<IProperty, IEntityType, ValueGenerator> Factory { get; }
 
-            private bool Equals(CacheKey other)
+            public bool Equals(CacheKey other)
                 => Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
 
             public override bool Equals(object obj)
-            {
-                return obj is null ? false : obj is CacheKey cacheKey && Equals(cacheKey);
-            }
+                => obj is CacheKey cacheKey && Equals(cacheKey);
 
-            public override int GetHashCode() => HashCode.Combine(Property, EntityType);
+            public override int GetHashCode()
+                => HashCode.Combine(Property, EntityType);
         }
 
         /// <summary>
@@ -76,7 +74,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="factory"> Factory to create a new value generator if one is not present in the cache. </param>
         /// <returns> The existing or newly created value generator. </returns>
         public virtual ValueGenerator GetOrAdd(
-            IProperty property, IEntityType entityType, Func<IProperty, IEntityType, ValueGenerator> factory)
+            IProperty property,
+            IEntityType entityType,
+            Func<IProperty, IEntityType, ValueGenerator> factory)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(factory, nameof(factory));

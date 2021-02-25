@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for renaming an existing index.
     /// </summary>
     [DebuggerDisplay("ALTER INDEX {Name} RENAME TO {NewName}")]
-    public class RenameIndexOperation : MigrationOperation
+    public class RenameIndexOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>
         ///     The old name of the index.
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string NewName { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 

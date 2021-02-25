@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -34,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ArrayPropertyValues([NotNull] InternalEntityEntry internalEntry, [NotNull] object[] values)
-            : base(internalEntry) => _values = values;
+            : base(internalEntry)
+            => _values = values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (!Properties[i].IsShadowProperty())
                     {
-                        SetValue(i, ((Property)Properties[i]).Getter.GetClrValue(obj));
+                        SetValue(i, Properties[i].GetGetter().GetClrValue(obj));
                     }
                 }
             }
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (value != null)
             {
-                if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+                if (!property.ClrType.IsAssignableFrom(value.GetType()))
                 {
                     throw new InvalidCastException(
                         CoreStrings.InvalidType(

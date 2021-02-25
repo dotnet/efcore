@@ -4,6 +4,8 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -18,6 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessIndexUniquenessChanged(
             [NotNull] IConventionIndexBuilder indexBuilder,
-            [NotNull] IConventionContext<IConventionIndexBuilder> context);
+            [NotNull] IConventionContext<bool?> context);
     }
 }

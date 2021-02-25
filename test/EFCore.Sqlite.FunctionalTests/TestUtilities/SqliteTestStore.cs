@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public const int CommandTimeout = 30;
 
         public static SqliteTestStore GetOrCreate(string name, bool sharedCache = true)
-            => new SqliteTestStore(name, sharedCache: sharedCache);
+            => new(name, sharedCache: sharedCache);
 
         public static SqliteTestStore GetOrCreateInitialized(string name)
             => new SqliteTestStore(name).InitializeSqlite(
@@ -23,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 null);
 
         public static SqliteTestStore GetExisting(string name)
-            => new SqliteTestStore(name, seed: false);
+            => new(name, seed: false);
 
         public static SqliteTestStore Create(string name, bool sharedCache = true)
-            => new SqliteTestStore(name, sharedCache: sharedCache, shared: false);
+            => new(name, sharedCache: sharedCache, shared: false);
 
         private readonly bool _seed;
 
@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Connection, b =>
                 {
                     b.CommandTimeout(CommandTimeout);
+                    b.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
                     configureSqlite?.Invoke(b);
                 });
 
@@ -62,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => (SqliteTestStore)Initialize(serviceProvider, createContext, seed);
 
         public SqliteTestStore InitializeSqlite(
-            IServiceProvider serviceProvider, Func<SqliteTestStore, DbContext> createContext, Action<DbContext> seed)
+            IServiceProvider serviceProvider,
+            Func<SqliteTestStore, DbContext> createContext,
+            Action<DbContext> seed)
             => (SqliteTestStore)Initialize(serviceProvider, () => createContext(this), seed);
 
         protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
@@ -72,16 +75,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return;
             }
 
-            using (var context = createContext())
+            using var context = createContext();
+            if (!context.Database.EnsureCreated())
             {
-                if (!context.Database.EnsureCreated())
-                {
-                    clean?.Invoke(context);
-                    Clean(context);
-                }
-
-                seed?.Invoke(context);
+                clean?.Invoke(context);
+                Clean(context);
             }
+
+            seed?.Invoke(context);
         }
 
         public override void Clean(DbContext context)
@@ -89,18 +90,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public int ExecuteNonQuery(string sql, params object[] parameters)
         {
-            using (var command = CreateCommand(sql, parameters))
-            {
-                return command.ExecuteNonQuery();
-            }
+            using var command = CreateCommand(sql, parameters);
+            return command.ExecuteNonQuery();
         }
 
         public T ExecuteScalar<T>(string sql, params object[] parameters)
         {
-            using (var command = CreateCommand(sql, parameters))
-            {
-                return (T)command.ExecuteScalar();
-            }
+            using var command = CreateCommand(sql, parameters);
+            return (T)command.ExecuteScalar();
         }
 
         private DbCommand CreateCommand(string commandText, object[] parameters)

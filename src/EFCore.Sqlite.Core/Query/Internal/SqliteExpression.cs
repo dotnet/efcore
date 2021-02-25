@@ -4,9 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -25,25 +28,25 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static SqlFunctionExpression Strftime(
-            ISqlExpressionFactory sqlExpressionFactory,
-            Type returnType,
-            string format,
-            SqlExpression timestring,
-            IEnumerable<SqlExpression> modifiers = null,
-            RelationalTypeMapping typeMapping = null)
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] Type returnType,
+            [NotNull] string format,
+            [NotNull] SqlExpression timestring,
+            [CanBeNull] IEnumerable<SqlExpression>? modifiers = null,
+            [CanBeNull] RelationalTypeMapping? typeMapping = null)
         {
             modifiers ??= Enumerable.Empty<SqlExpression>();
 
             // If the inner call is another strftime then shortcut a double call
             if (timestring is SqlFunctionExpression rtrimFunction
                 && rtrimFunction.Name == "rtrim"
-                && rtrimFunction.Arguments.Count == 2
+                && rtrimFunction.Arguments!.Count == 2
                 && rtrimFunction.Arguments[0] is SqlFunctionExpression rtrimFunction2
                 && rtrimFunction2.Name == "rtrim"
-                && rtrimFunction2.Arguments.Count == 2
+                && rtrimFunction2.Arguments!.Count == 2
                 && rtrimFunction2.Arguments[0] is SqlFunctionExpression strftimeFunction
                 && strftimeFunction.Name == "strftime"
-                && strftimeFunction.Arguments.Count > 1)
+                && strftimeFunction.Arguments!.Count > 1)
             {
                 // Use its timestring parameter directly in place of ours
                 timestring = strftimeFunction.Arguments[1];
@@ -52,9 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 modifiers = strftimeFunction.Arguments.Skip(2).Concat(modifiers);
             }
 
+            var finalArguments = new[] { sqlExpressionFactory.Constant(format), timestring }.Concat(modifiers);
+
             return sqlExpressionFactory.Function(
                 "strftime",
-                new[] { sqlExpressionFactory.Constant(format), timestring }.Concat(modifiers),
+                finalArguments,
+                nullable: true,
+                argumentsPropagateNullability: finalArguments.Select(a => true),
                 returnType,
                 typeMapping);
         }

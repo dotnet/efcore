@@ -3,7 +3,8 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {

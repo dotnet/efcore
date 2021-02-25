@@ -21,21 +21,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [ConditionalFact]
         public void Does_not_throw_if_Add_during_fixup()
         {
-            using (var context = new FixupContext())
-            {
-                var blog1 = new Blog { Id = 1 };
-                var blog2 = new Blog { Id = 2 };
+            using var context = new FixupContext();
+            var blog1 = new Blog { Id = 1 };
+            var blog2 = new Blog { Id = 2 };
 
-                var post1 = context.Add(
-                    new Post { BlogId = 2 }).Entity;
+            var post1 = context.Add(
+                new Post { BlogId = 2 }).Entity;
 
-                blog1.Posts.Add(post1);
-                blog1.Posts.Add(
-                    new Post { BlogId = 2 });
+            blog1.Posts.Add(post1);
+            blog1.Posts.Add(
+                new Post { BlogId = 2 });
 
-                context.Add(blog2);
-                context.Add(blog1);
-            }
+            context.Add(blog2);
+            context.Add(blog1);
         }
 
         private class FixupContext : DbContext
@@ -52,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class Blog
         {
             public int Id { get; set; }
-            public HashSet<Post> Posts { get; } = new HashSet<Post>();
+            public HashSet<Post> Posts { get; } = new();
         }
 
         private class Post
@@ -1268,7 +1266,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 throw new NotImplementedException();
             }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator()
+                => GetEnumerator();
         }
 
         private class ProductPhoto

@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 { typeof(string), () => "Fake" },
                 { typeof(IEntityType), () => entityType },
-                { typeof(ISequence), () => new FakeSequence() }
+                { typeof(IReadOnlySequence), () => new FakeSequence() },
+                { typeof(Type), () => typeof(object) }
             };
 
             TestEventLogging(
@@ -37,17 +38,37 @@ namespace Microsoft.EntityFrameworkCore
                 fakeFactories);
         }
 
-        private class FakeSequence : ISequence
+        private class FakeSequence : Annotatable, IReadOnlySequence
         {
-            public string Name => "SequenceName";
-            public string Schema => throw new NotImplementedException();
-            public long StartValue => throw new NotImplementedException();
-            public int IncrementBy => throw new NotImplementedException();
-            public long? MinValue => throw new NotImplementedException();
-            public long? MaxValue => throw new NotImplementedException();
-            public Type ClrType => throw new NotImplementedException();
-            public IModel Model => throw new NotImplementedException();
-            public bool IsCyclic => throw new NotImplementedException();
+            public string Name
+                => "SequenceName";
+
+            public string Schema
+                => throw new NotImplementedException();
+
+            public long StartValue
+                => throw new NotImplementedException();
+
+            public int IncrementBy
+                => throw new NotImplementedException();
+
+            public long? MinValue
+                => throw new NotImplementedException();
+
+            public long? MaxValue
+                => throw new NotImplementedException();
+
+            public Type ClrType
+                => throw new NotImplementedException();
+
+            public Type Type
+                => throw new NotImplementedException();
+
+            public IReadOnlyModel Model
+                => throw new NotImplementedException();
+
+            public bool IsCyclic
+                => throw new NotImplementedException();
         }
     }
 }

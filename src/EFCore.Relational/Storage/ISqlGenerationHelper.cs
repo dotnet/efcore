@@ -5,6 +5,8 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -32,6 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The terminator to be used for batches of SQL statements.
         /// </summary>
         string BatchTerminator { get; }
+
+        /// <summary>
+        ///     Gets the SQL for a START TRANSACTION statement.
+        /// </summary>
+        string StartTransactionStatement { get; }
+
+        /// <summary>
+        ///     Gets the SQL for a COMMIT statement.
+        /// </summary>
+        string CommitTransactionStatement { get; }
 
         /// <summary>
         ///     The default single-line comment prefix.
@@ -94,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
         /// <returns> The generated string. </returns>
-        string DelimitIdentifier([NotNull] string name, [CanBeNull] string schema);
+        string DelimitIdentifier([NotNull] string name, [CanBeNull] string? schema);
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
@@ -102,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
-        void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string name, [CanBeNull] string schema);
+        void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string name, [CanBeNull] string? schema);
 
         /// <summary>
         ///     Generates a SQL comment.
@@ -110,5 +122,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="text"> The comment text. </param>
         /// <returns> The generated SQL. </returns>
         string GenerateComment([NotNull] string text);
+
+        /// <summary>
+        ///     Generates an SQL statement which creates a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be created. </param>
+        /// <returns> An SQL string to create the savepoint. </returns>
+        string GenerateCreateSavepointStatement([NotNull] string name);
+
+        /// <summary>
+        ///     Generates an SQL statement which which rolls back to a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be rolled back to. </param>
+        /// <returns> An SQL string to roll back the savepoint. </returns>
+        string GenerateRollbackToSavepointStatement([NotNull] string name);
+
+        /// <summary>
+        ///     Generates an SQL statement which which releases a savepoint with the given name.
+        /// </summary>
+        /// <param name="name"> The name of the savepoint to be released. </param>
+        /// <returns> An SQL string to release the savepoint. </returns>
+        string GenerateReleaseSavepointStatement([NotNull] string name);
     }
 }

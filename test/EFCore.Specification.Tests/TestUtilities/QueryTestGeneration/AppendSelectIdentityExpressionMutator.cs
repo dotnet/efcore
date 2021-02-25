@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
         {
         }
 
-        public override bool IsValid(Expression expression) => IsQueryableResult(expression);
+        public override bool IsValid(Expression expression)
+            => IsQueryableResult(expression);
 
         public override Expression Apply(Expression expression, Random random)
         {

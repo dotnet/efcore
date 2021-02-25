@@ -3,6 +3,7 @@
 
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 setInfo.Setter.SetClrValue(
                     context,
-                    ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.ClrType));
+                    ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.Type));
             }
         }
     }

@@ -3,8 +3,10 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -22,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public KeyAccessExpression(IProperty property, Expression accessExpression)
+        public KeyAccessExpression([NotNull] IProperty property, [NotNull] Expression accessExpression)
             : base(property.ClrType, property.GetTypeMapping())
         {
-            Name = property.GetPropertyName();
+            Name = property.GetJsonPropertyName();
             Property = property;
             AccessExpression = accessExpression;
         }
@@ -64,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var outerExpression = visitor.Visit(AccessExpression);
+            Check.NotNull(visitor, nameof(visitor));
 
-            return Update(outerExpression);
+            return Update(visitor.Visit(AccessExpression));
         }
 
         /// <summary>
@@ -75,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual KeyAccessExpression Update(Expression outerExpression)
+        public virtual KeyAccessExpression Update([NotNull] Expression outerExpression)
             => outerExpression != AccessExpression
                 ? new KeyAccessExpression(Property, outerExpression)
                 : this;
@@ -86,8 +88,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.Append(ToString());
+        protected override void Print(ExpressionPrinter expressionPrinter)
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            expressionPrinter.Append(ToString());
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -95,7 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => $"{AccessExpression}[\"{Name}\"]";
+        public override string ToString()
+            => Name?.Length > 0
+                ? $"{AccessExpression}[\"{Name}\"]"
+                // TODO: Remove once __jObject is translated to the access root in a better fashion.
+                // See issue #17670 and related issue #14121.
+                : $"{AccessExpression}";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -105,14 +116,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is KeyAccessExpression keyAccessExpression
-                   && Equals(keyAccessExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is KeyAccessExpression keyAccessExpression
+                    && Equals(keyAccessExpression));
 
         private bool Equals(KeyAccessExpression keyAccessExpression)
             => base.Equals(keyAccessExpression)
-               && string.Equals(Name, keyAccessExpression.Name)
-               && AccessExpression.Equals(keyAccessExpression.AccessExpression);
+                && Name == keyAccessExpression.Name
+                && AccessExpression.Equals(keyAccessExpression.AccessExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -120,6 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, AccessExpression);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Name, AccessExpression);
     }
 }

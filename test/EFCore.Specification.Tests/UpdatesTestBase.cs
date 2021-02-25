@@ -17,7 +17,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : UpdatesFixtureBase
     {
-        protected UpdatesTestBase(TFixture fixture) => Fixture = fixture;
+        protected UpdatesTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -551,6 +552,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected UpdatesContext CreateContext() => Fixture.CreateContext();
+        protected UpdatesContext CreateContext()
+            => Fixture.CreateContext();
     }
 }

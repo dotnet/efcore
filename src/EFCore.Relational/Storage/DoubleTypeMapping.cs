@@ -4,7 +4,10 @@
 using System;
 using System.Data;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using JetBrains.Annotations;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {

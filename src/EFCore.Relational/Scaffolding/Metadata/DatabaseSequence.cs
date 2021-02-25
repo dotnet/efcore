@@ -22,38 +22,45 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual string Name { get; [param: NotNull] set; }
 
         /// <summary>
-        ///     The schema that contains the sequence, or <c>null</c> to use the default schema.
+        ///     The schema that contains the sequence, or <see langword="null" /> to use the default schema.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The database/store type of the sequence, or <c>null</c> if not set.
+        ///     The database/store type of the sequence, or <see langword="null" /> if not set.
         /// </summary>
         public virtual string StoreType { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The start value for the sequence, or <c>null</c> if not set.
+        ///     The start value for the sequence, or <see langword="null" /> if not set.
         /// </summary>
         public virtual long? StartValue { get; set; }
 
         /// <summary>
-        ///     The amount to increment by to generate the next value in, the sequence, or <c>null</c> if not set.
+        ///     The amount to increment by to generate the next value in, the sequence, or <see langword="null" /> if not set.
         /// </summary>
         public virtual int? IncrementBy { get; set; }
 
         /// <summary>
-        ///     The minimum value supported by the sequence, or <c>null</c> if not set.
+        ///     The minimum value supported by the sequence, or <see langword="null" /> if not set.
         /// </summary>
         public virtual long? MinValue { get; set; }
 
         /// <summary>
-        ///     The maximum value supported by the sequence, or <c>null</c> if not set.
+        ///     The maximum value supported by the sequence, or <see langword="null" /> if not set.
         /// </summary>
         public virtual long? MaxValue { get; set; }
 
         /// <summary>
-        ///     Indicates whether or not the sequence will start over when the max value is reached, or <c>null</c> if not set.
+        ///     Indicates whether or not the sequence will start over when the max value is reached, or <see langword="null" /> if not set.
         /// </summary>
         public virtual bool? IsCyclic { get; set; }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            var name = Name ?? "<UNKNOWN>";
+            return Schema == null ? name : $"{Schema}.{name}";
+        }
     }
 }

@@ -1,11 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -21,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private const string SmallDateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss}'";
         private const string DateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss.fff}'";
 
+        // Note: this array will be accessed using the precision as an index
+        // so the order of the entries in this array is important
         private readonly string[] _dateTime2Formats =
         {
             "'{0:yyyy-MM-ddTHH:mm:ss}'",
@@ -42,7 +47,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         public SqlServerDateTimeTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(storeType, dbType)
+            : base(
+                new RelationalTypeMappingParameters(
+                    new CoreTypeMappingParameters(typeof(DateTime)),
+                    storeType,
+                    StoreTypePostfix.Precision,
+                    dbType))
         {
         }
 
@@ -78,6 +88,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             {
                 parameter.Size = Size.Value;
             }
+
+            if (Precision.HasValue)
+            {
+                parameter.Precision = unchecked((byte)Precision.Value);
+            }
         }
 
         /// <summary>
@@ -107,13 +122,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     case "smalldatetime":
                         return SmallDateTimeFormatConst;
                     default:
-                        if (Size.HasValue)
+                        if (Precision.HasValue)
                         {
-                            var size = Size.Value;
-                            if (size <= 7
-                                && size >= 0)
+                            var precision = Precision.Value;
+                            if (precision <= 7
+                                && precision >= 0)
                             {
-                                return _dateTime2Formats[size];
+                                return _dateTime2Formats[precision];
                             }
                         }
 

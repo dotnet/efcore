@@ -23,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class WithConstructorsInMemoryFixture : WithConstructorsFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(w => w.Log(InMemoryEventId.TransactionIgnoredWarning));
@@ -32,10 +33,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.OnModelCreating(modelBuilder, context);
 
-                modelBuilder
-                    .Entity<BlogQuery>()
-                    .HasNoKey()
-                    .ToQuery(() => context.Set<Blog>().Select(b => new BlogQuery(b.Title, b.MonthlyRevenue)));
+                modelBuilder.Entity<BlogQuery>().HasNoKey().ToInMemoryQuery(
+                    () => context.Set<Blog>().Select(b => new BlogQuery(b.Title, b.MonthlyRevenue)));
             }
         }
     }

@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.Extensions.Logging;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -27,6 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             SchemaConfiguredWarning = CoreEventId.ProviderBaseId,
             SequenceConfiguredWarning,
 
+            // Infrastructure events
+            UnexpectedConnectionTypeWarning = CoreEventId.ProviderBaseId + 100,
+
+            // Migrations events
+            TableRebuildPendingWarning = CoreEventId.ProviderBaseId + 200,
+
             // Scaffolding events
             ColumnFound = CoreEventId.ProviderDesignBaseId,
             ForeignKeyFound,
@@ -41,7 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
-        private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
+
+        private static EventId MakeValidationId(Id id)
+            => new((int)id, _validationPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -69,8 +80,40 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId SequenceConfiguredWarning = MakeValidationId(Id.SequenceConfiguredWarning);
 
+        private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
+
+        private static EventId MakeInfraId(Id id)
+            => new((int)id, _infraPrefix + id);
+
+        /// <summary>
+        ///     <para>
+        ///         A connection of an unexpected type is being used.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="UnexpectedConnectionTypeEventData" />
+        ///         payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId UnexpectedConnectionTypeWarning = MakeInfraId(Id.UnexpectedConnectionTypeWarning);
+
+        private static readonly string _migrationsPrefix = DbLoggerCategory.Migrations.Name + ".";
+
+        private static EventId MakeMigrationsId(Id id)
+            => new((int)id, _migrationsPrefix + id);
+
+        /// <summary>
+        ///     An operation may fail due to a pending rebuild of the table.
+        ///     This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        /// </summary>
+        public static readonly EventId TableRebuildPendingWarning = MakeMigrationsId(Id.TableRebuildPendingWarning);
+
         private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
-        private static EventId MakeScaffoldingId(Id id) => new EventId((int)id, _scaffoldingPrefix + id);
+
+        private static EventId MakeScaffoldingId(Id id)
+            => new((int)id, _scaffoldingPrefix + id);
 
         /// <summary>
         ///     A column was found.

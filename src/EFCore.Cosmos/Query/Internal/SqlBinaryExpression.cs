@@ -4,9 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -36,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             ExpressionType.Equal,
             ExpressionType.NotEqual,
             ExpressionType.ExclusiveOr,
-            ExpressionType.Coalesce,
             ExpressionType.RightShift,
             ExpressionType.LeftShift
         };
@@ -44,7 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private static ExpressionType VerifyOperator(ExpressionType operatorType)
             => _allowedOperators.Contains(operatorType)
                 ? operatorType
-                : throw new InvalidOperationException("Unsupported Binary operator type specified.");
+                : throw new InvalidOperationException(
+                    CosmosStrings.UnsupportedOperatorForSqlExpression(
+                        operatorType, typeof(SqlBinaryExpression).ShortDisplayName()));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,10 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public SqlBinaryExpression(
             ExpressionType operatorType,
-            SqlExpression left,
-            SqlExpression right,
-            Type type,
-            CoreTypeMapping typeMapping)
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [NotNull] Type type,
+            [CanBeNull] CoreTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
             Check.NotNull(left, nameof(left));
@@ -101,6 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var left = (SqlExpression)visitor.Visit(Left);
             var right = (SqlExpression)visitor.Visit(Right);
 
@@ -113,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlBinaryExpression Update(SqlExpression left, SqlExpression right)
+        public virtual SqlBinaryExpression Update([NotNull] SqlExpression left, [NotNull] SqlExpression right)
             => left != Left || right != Right
                 ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
                 : this;
@@ -124,8 +132,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void Print(ExpressionPrinter expressionPrinter)
+        protected override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             var requiresBrackets = RequiresBrackets(Left);
 
             if (requiresBrackets)
@@ -155,12 +165,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 expressionPrinter.Append(")");
             }
-        }
 
-        private bool RequiresBrackets(SqlExpression expression)
-        {
-            return expression is SqlBinaryExpression sqlBinary
-                   && sqlBinary.OperatorType != ExpressionType.Coalesce;
+            static bool RequiresBrackets(SqlExpression expression)
+                => expression is SqlBinaryExpression;
         }
 
         /// <summary>
@@ -169,17 +176,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlBinaryExpression sqlBinaryExpression
-                   && Equals(sqlBinaryExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlBinaryExpression sqlBinaryExpression
+                    && Equals(sqlBinaryExpression));
 
         private bool Equals(SqlBinaryExpression sqlBinaryExpression)
             => base.Equals(sqlBinaryExpression)
-               && OperatorType == sqlBinaryExpression.OperatorType
-               && Left.Equals(sqlBinaryExpression.Left)
-               && Right.Equals(sqlBinaryExpression.Right);
+                && OperatorType == sqlBinaryExpression.OperatorType
+                && Left.Equals(sqlBinaryExpression.Left)
+                && Right.Equals(sqlBinaryExpression.Right);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -187,6 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), OperatorType, Left, Right);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), OperatorType, Left, Right);
     }
 }

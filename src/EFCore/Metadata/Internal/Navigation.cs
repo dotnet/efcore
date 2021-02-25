@@ -8,7 +8,10 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -18,10 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigation
+    public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigation, INavigation
     {
+        private InternalNavigationBuilder? _builder;
+
         // Warning: Never access these fields directly as access needs to be thread-safe
-        private IClrCollectionAccessor _collectionAccessor;
+        private IClrCollectionAccessor? _collectionAccessor;
+        private bool _collectionAccessorInitialized;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,16 +37,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public Navigation(
             [NotNull] string name,
-            [CanBeNull] PropertyInfo propertyInfo,
-            [CanBeNull] FieldInfo fieldInfo,
+            [CanBeNull] PropertyInfo? propertyInfo,
+            [CanBeNull] FieldInfo? fieldInfo,
             [NotNull] ForeignKey foreignKey)
-            : base(name, propertyInfo, fieldInfo)
+            : base(name, propertyInfo, fieldInfo, ConfigurationSource.Convention)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             ForeignKey = foreignKey;
 
-            Builder = new InternalNavigationBuilder(this, foreignKey.DeclaringEntityType.Model.Builder);
+            _builder = new InternalNavigationBuilder(this, foreignKey.DeclaringEntityType.Model.Builder);
         }
 
         /// <summary>
@@ -49,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type ClrType => this.GetIdentifyingMemberInfo()?.GetMemberType() ?? typeof(object);
+        public override Type ClrType
+            => this.GetIdentifyingMemberInfo()?.GetMemberType() ?? typeof(object);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,10 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalNavigationBuilder Builder
         {
-            [DebuggerStepThrough] get;
-            [DebuggerStepThrough]
-            [param: CanBeNull]
-            set;
+            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
         }
 
         /// <summary>
@@ -79,10 +83,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual EntityType DeclaringEntityType
-            => this.IsDependentToPrincipal()
-                ? ForeignKey.DeclaringEntityType
-                : ForeignKey.PrincipalEntityType;
+        {
+            [DebuggerStepThrough]
+            get => (EntityType)((IReadOnlyNavigation)this).DeclaringEntityType;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -92,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public override TypeBase DeclaringType
         {
-            [DebuggerStepThrough] get => DeclaringEntityType;
+            [DebuggerStepThrough]
+            get => (EntityType)((IReadOnlyNavigation)this).DeclaringEntityType;
         }
 
         /// <summary>
@@ -101,8 +125,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetIsEagerLoaded(bool? eagerLoaded, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded, configurationSource);
+        public virtual EntityType TargetEntityType
+        {
+            [DebuggerStepThrough]
+            get => (EntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsOnDependent
+        {
+            [DebuggerStepThrough]
+            get => ForeignKey.DependentToPrincipal == this;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override ConfigurationSource GetConfigurationSource()
+            => (ConfigurationSource)(IsOnDependent
+                ? ForeignKey.GetDependentToPrincipalConfigurationSource()
+                : ForeignKey.GetPrincipalToDependentConfigurationSource())!;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override void UpdateConfigurationSource(ConfigurationSource configurationSource)
+        {
+            if (IsOnDependent)
+            {
+                ForeignKey.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+            }
+            else
+            {
+                ForeignKey.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override PropertyAccessMode GetPropertyAccessMode()
+            => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
+                ?? ((IReadOnlyTypeBase)DeclaringType).GetNavigationAccessMode());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,64 +190,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsCompatible(
             [NotNull] string navigationName,
-            [CanBeNull] MemberInfo navigationProperty,
+            [NotNull] MemberInfo navigationProperty,
             [NotNull] EntityType sourceType,
             [NotNull] EntityType targetType,
             bool? shouldBeCollection,
             bool shouldThrow)
         {
+            if (!navigationProperty.DeclaringType!.IsAssignableFrom(sourceType.ClrType))
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NoClrNavigation(navigationName, sourceType.DisplayName()));
+                }
+
+                return false;
+            }
+
             var targetClrType = targetType.ClrType;
-            if (targetClrType == null)
-            {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.NavigationToShadowEntity(navigationName, sourceType.DisplayName(), targetType.DisplayName()));
-                }
-
-                return false;
-            }
-
-            return navigationProperty == null
-                || IsCompatible(navigationProperty, sourceType.ClrType, targetClrType, shouldBeCollection, shouldThrow);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static bool IsCompatible(
-            [NotNull] MemberInfo navigationProperty,
-            [NotNull] Type sourceClrType,
-            [NotNull] Type targetClrType,
-            bool? shouldBeCollection,
-            bool shouldThrow)
-        {
-            if (!navigationProperty.DeclaringType.GetTypeInfo().IsAssignableFrom(sourceClrType.GetTypeInfo()))
-            {
-                if (shouldThrow)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.NoClrNavigation(
-                            navigationProperty.Name, sourceClrType.ShortDisplayName()));
-                }
-
-                return false;
-            }
-
             var navigationTargetClrType = navigationProperty.GetMemberType().TryGetSequenceType();
             shouldBeCollection ??= navigationTargetClrType != null && navigationProperty.GetMemberType() != targetClrType;
             if (shouldBeCollection.Value
-                && navigationTargetClrType?.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()) != true)
+                && navigationTargetClrType?.IsAssignableFrom(targetClrType) != true)
             {
                 if (shouldThrow)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NavigationCollectionWrongClrType(
-                            navigationProperty.Name,
-                            sourceClrType.ShortDisplayName(),
+                            navigationName,
+                            sourceType.DisplayName(),
                             navigationProperty.GetMemberType().ShortDisplayName(),
                             targetClrType.ShortDisplayName()));
                 }
@@ -178,14 +227,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (!shouldBeCollection.Value
-                && !navigationProperty.GetMemberType().GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
+                && !navigationProperty.GetMemberType().IsAssignableFrom(targetClrType))
             {
                 if (shouldThrow)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NavigationSingleWrongClrType(
-                            navigationProperty.Name,
-                            sourceClrType.ShortDisplayName(),
+                            navigationName,
+                            sourceType.DisplayName(),
                             navigationProperty.GetMemberType().ShortDisplayName(),
                             targetClrType.ShortDisplayName()));
                 }
@@ -202,9 +251,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [DebuggerStepThrough]
-        public virtual Navigation FindInverse()
-            => (Navigation)((INavigation)this).FindInverse();
+        public virtual Navigation? Inverse
+        {
+            [DebuggerStepThrough]
+            get => (Navigation?)((IReadOnlyNavigationBase)this).Inverse;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -212,9 +263,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [DebuggerStepThrough]
-        public virtual EntityType GetTargetType()
-            => (EntityType)((INavigation)this).GetTargetType();
+        public virtual Navigation? SetInverse([CanBeNull] string? inverseName, ConfigurationSource configurationSource)
+            => IsOnDependent
+                ? ForeignKey.HasPrincipalToDependent(inverseName, configurationSource)
+                : ForeignKey.SetDependentToPrincipal(inverseName, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -222,12 +274,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IClrCollectionAccessor CollectionAccessor
+        public virtual Navigation? SetInverse([CanBeNull] MemberInfo? inverse, ConfigurationSource configurationSource)
+            => IsOnDependent
+                ? ForeignKey.HasPrincipalToDependent(inverse, configurationSource)
+                : ForeignKey.SetDependentToPrincipal(inverse, configurationSource);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? GetInverseConfigurationSource()
+            => IsOnDependent
+                ? ForeignKey.GetPrincipalToDependentConfigurationSource()
+                : ForeignKey.GetDependentToPrincipalConfigurationSource();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IClrCollectionAccessor? CollectionAccessor
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _collectionAccessor, this, n =>
-                    !n.IsCollection() || n.IsShadowProperty()
-                        ? null
-                        : new ClrCollectionAccessorFactory().Create(n));
+                ref _collectionAccessor,
+                ref _collectionAccessorInitialized,
+                this,
+                static navigation =>
+                {
+                    navigation.EnsureReadOnly();
+                    return new ClrCollectionAccessorFactory().Create(navigation);
+                });
+
+        /// <summary>
+        ///     Runs the conventions when an annotation was set or removed.
+        /// </summary>
+        /// <param name="name"> The key of the set annotation. </param>
+        /// <param name="annotation"> The annotation set. </param>
+        /// <param name="oldAnnotation"> The old annotation. </param>
+        /// <returns> The annotation that was set. </returns>
+        protected override IConventionAnnotation? OnAnnotationSet(
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
+            => DeclaringType.Model.ConventionDispatcher.OnNavigationAnnotationChanged(
+                ForeignKey.Builder, this, name, annotation, oldAnnotation);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -235,7 +327,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString();
+        public override string ToString()
+            => ((IReadOnlyNavigation)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -243,8 +336,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DebugView<Navigation> DebugView
-            => new DebugView<Navigation>(this, m => m.ToDebugString(false));
+        public virtual DebugView DebugView
+            => new(
+                () => ((IReadOnlyNavigation)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlyNavigation)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -252,20 +347,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IForeignKey INavigation.ForeignKey
+        IReadOnlyForeignKey IReadOnlyNavigation.ForeignKey
         {
             [DebuggerStepThrough] get => ForeignKey;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IMutableForeignKey IMutableNavigation.ForeignKey
+        [DebuggerStepThrough]
+        IMutableNavigation? IMutableNavigation.SetInverse(string? inverseName)
+            => SetInverse(inverseName, ConfigurationSource.Explicit);
+
+        [DebuggerStepThrough]
+        IMutableNavigation? IMutableNavigation.SetInverse(MemberInfo? inverse)
+            => SetInverse(inverse, ConfigurationSource.Explicit);
+
+        [DebuggerStepThrough]
+        IConventionNavigation? IConventionNavigation.SetInverse(string? inverseName, bool fromDataAnnotation)
+            => SetInverse(inverseName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        [DebuggerStepThrough]
+        IConventionNavigation? IConventionNavigation.SetInverse(MemberInfo? inverse, bool fromDataAnnotation)
+            => SetInverse(inverse, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        IConventionNavigationBuilder IConventionNavigation.Builder
         {
-            [DebuggerStepThrough] get => ForeignKey;
+            [DebuggerStepThrough] get => Builder;
         }
 
         /// <summary>
@@ -274,9 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEntityType INavigation.DeclaringEntityType
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
-            [DebuggerStepThrough] get => DeclaringEntityType;
+            [DebuggerStepThrough] get => Builder;
         }
 
         /// <summary>
@@ -285,25 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IMutableEntityType IMutableNavigation.DeclaringEntityType
-        {
-            [DebuggerStepThrough] get => DeclaringEntityType;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IConventionEntityType IConventionNavigation.DeclaringEntityType => DeclaringEntityType;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IConventionForeignKey IConventionNavigation.ForeignKey => ForeignKey;
+        IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
+            => CollectionAccessor;
     }
 }

@@ -7,12 +7,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -97,12 +100,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             using (var masterConnection = _connection.CreateMasterConnection())
             {
                 await Dependencies.MigrationCommandExecutor
-                    .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, cancellationToken);
+                    .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, cancellationToken)
+                    .ConfigureAwait(false);
 
                 ClearPool();
             }
 
-            await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken);
+            await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
         }
 
         /// <summary>
@@ -123,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                     null,
                                     null,
                                     Dependencies.CurrentContext.Context,
-                                    Dependencies.CommandLogger))
+                                    Dependencies.CommandLogger))!
                         != 0);
 
         /// <summary>
@@ -135,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
             => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 _connection,
-                async (connection, ct) => (int)await CreateHasTablesCommand()
+                async (connection, ct) => (int)(await CreateHasTablesCommand()
                         .ExecuteScalarAsync(
                             new RelationalCommandParameterObject(
                                 connection,
@@ -144,6 +149,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 Dependencies.CurrentContext.Context,
                                 Dependencies.CommandLogger),
                             cancellationToken: ct)
+                        .ConfigureAwait(false))!
                     != 0, cancellationToken);
 
         private IRelationalCommand CreateHasTablesCommand()
@@ -169,7 +175,16 @@ SELECT 1 ELSE SELECT 0");
         {
             var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
             return Dependencies.MigrationsSqlGenerator.Generate(
-                new[] { new SqlServerCreateDatabaseOperation { Name = builder.InitialCatalog, FileName = builder.AttachDBFilename } });
+                new[]
+                {
+                    new SqlServerCreateDatabaseOperation
+                    {
+                        Name = builder.InitialCatalog,
+                        FileName = builder.AttachDBFilename,
+                        Collation = Dependencies.Model.GetCollation()
+                    }
+                },
+                null);
         }
 
         /// <summary>
@@ -252,7 +267,7 @@ SELECT 1 ELSE SELECT 0");
                         try
                         {
                             using var _ = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
-                            await _connection.OpenAsync(ct, errorsExpected: true);
+                            await _connection.OpenAsync(ct, errorsExpected: true).ConfigureAwait(false);
                             opened = true;
 
                             await _rawSqlCommandBuilder
@@ -264,7 +279,8 @@ SELECT 1 ELSE SELECT 0");
                                         null,
                                         Dependencies.CurrentContext.Context,
                                         Dependencies.CommandLogger),
-                                    ct);
+                                    ct)
+                                .ConfigureAwait(false);
 
                             return true;
                         }
@@ -282,13 +298,13 @@ SELECT 1 ELSE SELECT 0");
                                 throw;
                             }
 
-                            await Task.Delay(RetryDelay, ct);
+                            await Task.Delay(RetryDelay, ct).ConfigureAwait(false);
                         }
                         finally
                         {
                             if (opened)
                             {
-                                await _connection.CloseAsync();
+                                await _connection.CloseAsync().ConfigureAwait(false);
                             }
                         }
                     }
@@ -297,8 +313,8 @@ SELECT 1 ELSE SELECT 0");
         // Login failed is thrown when database does not exist (See Issue #776)
         // Unable to attach database file is thrown when file does not exist (See Issue #2810)
         // Unable to open the physical file is thrown when file does not exist (See Issue #2810)
-        private static bool IsDoesNotExist(SqlException exception) =>
-            exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
+        private static bool IsDoesNotExist(SqlException exception)
+            => exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
 
         // See Issue #985
         private bool RetryOnExistsFailure(SqlException exception)
@@ -344,11 +360,9 @@ SELECT 1 ELSE SELECT 0");
         {
             ClearAllPools();
 
-            using (var masterConnection = _connection.CreateMasterConnection())
-            {
-                Dependencies.MigrationCommandExecutor
-                    .ExecuteNonQuery(CreateDropCommands(), masterConnection);
-            }
+            using var masterConnection = _connection.CreateMasterConnection();
+            Dependencies.MigrationCommandExecutor
+                .ExecuteNonQuery(CreateDropCommands(), masterConnection);
         }
 
         /// <summary>
@@ -361,11 +375,10 @@ SELECT 1 ELSE SELECT 0");
         {
             ClearAllPools();
 
-            using (var masterConnection = _connection.CreateMasterConnection())
-            {
-                await Dependencies.MigrationCommandExecutor
-                    .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken);
-            }
+            using var masterConnection = _connection.CreateMasterConnection();
+            await Dependencies.MigrationCommandExecutor
+                .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         private IReadOnlyList<MigrationCommand> CreateDropCommands()
@@ -378,14 +391,16 @@ SELECT 1 ELSE SELECT 0");
 
             var operations = new MigrationOperation[] { new SqlServerDropDatabaseOperation { Name = databaseName } };
 
-            return Dependencies.MigrationsSqlGenerator.Generate(operations);
+            return Dependencies.MigrationsSqlGenerator.Generate(operations, null);
         }
 
         // Clear connection pools in case there are active connections that are pooled
-        private static void ClearAllPools() => SqlConnection.ClearAllPools();
+        private static void ClearAllPools()
+            => SqlConnection.ClearAllPools();
 
         // Clear connection pool for the database connection since after the 'create database' call, a previously
         // invalid connection may now be valid.
-        private void ClearPool() => SqlConnection.ClearPool((SqlConnection)_connection.DbConnection);
+        private void ClearPool()
+            => SqlConnection.ClearPool((SqlConnection)_connection.DbConnection);
     }
 }

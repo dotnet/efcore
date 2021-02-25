@@ -10,9 +10,14 @@ namespace Microsoft.EntityFrameworkCore
         protected override string GetTableName<TEntity>(DbContext context)
             => context.Model.FindEntityType(typeof(TEntity)).GetTableName();
 
-        protected override SetsContext CreateContext() => new SqliteSetsContext();
+        protected override string GetTableName<TEntity>(DbContext context, string entityTypeName)
+            => context.Model.FindEntityType(entityTypeName).GetTableName();
 
-        protected override SetsContext CreateNamedTablesContext() => new SqliteNamedTablesContextContext();
+        protected override SetsContext CreateContext()
+            => new SqliteSetsContext();
+
+        protected override SetsContext CreateNamedTablesContext()
+            => new SqliteNamedTablesContextContext();
 
         protected class SqliteSetsContext : SetsContext
         {

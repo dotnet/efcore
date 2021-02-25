@@ -5,6 +5,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -41,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The context to get the model cache key for.
         /// </param>
         /// <returns> The created key. </returns>
-        public virtual object Create(DbContext context) => new ModelCacheKey(context);
+        public virtual object Create(DbContext context)
+            => new ModelCacheKey(context);
     }
 }

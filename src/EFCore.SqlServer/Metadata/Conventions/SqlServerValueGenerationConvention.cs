@@ -5,6 +5,9 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+
+#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -40,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public override void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (name == SqlServerAnnotationNames.ValueGenerationStrategy)
@@ -59,16 +62,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
         protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
-            => GetValueGenerated(property);
+        {
+            var tableName = property.DeclaringEntityType.GetTableName();
+            if (tableName == null)
+            {
+                return null;
+            }
+
+            return GetValueGenerated(
+                property,
+                StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()),
+                Dependencies.TypeMappingSource);
+        }
 
         /// <summary>
         ///     Returns the store value generation strategy to set for the given property.
         /// </summary>
         /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
-        public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property)
-            => RelationalValueGenerationConvention.GetValueGenerated(property)
-                ?? (property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None
+        public static new ValueGenerated? GetValueGenerated([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+            => RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
+                ?? (property.GetValueGenerationStrategy(storeObject) != SqlServerValueGenerationStrategy.None
+                    ? ValueGenerated.OnAdd
+                    : (ValueGenerated?)null);
+
+        private ValueGenerated? GetValueGenerated(
+            [NotNull] IReadOnlyProperty property,
+            in StoreObjectIdentifier storeObject,
+            ITypeMappingSource typeMappingSource)
+            => RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
+                ?? (property.GetValueGenerationStrategy(storeObject, typeMappingSource) != SqlServerValueGenerationStrategy.None
                     ? ValueGenerated.OnAdd
                     : (ValueGenerated?)null);
     }

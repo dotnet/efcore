@@ -51,13 +51,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
             var internalServiceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider;
             if (internalServiceProvider != null)
             {
-                using (var scope = internalServiceProvider.CreateScope())
+                using var scope = internalServiceProvider.CreateScope();
+                var plugins = scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>();
+                if (plugins?.Any(s => s is SqliteNetTopologySuiteTypeMappingSourcePlugin) != true)
                 {
-                    var plugins = scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>();
-                    if (plugins?.Any(s => s is SqliteNetTopologySuiteTypeMappingSourcePlugin) != true)
-                    {
-                        throw new InvalidOperationException(SqliteNTSStrings.NTSServicesMissing);
-                    }
+                    throw new InvalidOperationException(SqliteNTSStrings.NTSServicesMissing);
                 }
             }
         }
@@ -72,11 +70,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
             private new SqliteNetTopologySuiteOptionsExtension Extension
                 => (SqliteNetTopologySuiteOptionsExtension)base.Extension;
 
-            public override bool IsDatabaseProvider => false;
+            public override bool IsDatabaseProvider
+                => false;
 
-            public override string LogFragment => "using NetTopologySuite ";
+            public override string LogFragment
+                => "using NetTopologySuite ";
 
-            public override long GetServiceProviderHashCode() => 0;
+            public override long GetServiceProviderHashCode()
+                => 0;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 => debugInfo["NetTopologySuite"] = "1";

@@ -38,13 +38,11 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public async Task HasTables_returns_false_when_database_is_empty(bool async)
         {
-            using (var testStore = SqliteTestStore.GetOrCreateInitialized("Empty"))
-            {
-                var context = CreateContext(testStore.ConnectionString);
+            using var testStore = SqliteTestStore.GetOrCreateInitialized("Empty");
+            var context = CreateContext(testStore.ConnectionString);
 
-                var creator = context.GetService<IRelationalDatabaseCreator>();
-                Assert.False(async ? await creator.HasTablesAsync() : creator.HasTables());
-            }
+            var creator = context.GetService<IRelationalDatabaseCreator>();
+            Assert.False(async ? await creator.HasTablesAsync() : creator.HasTables());
         }
 
         [ConditionalTheory]
@@ -52,14 +50,12 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public async Task HasTables_returns_true_when_database_is_not_empty(bool async)
         {
-            using (var testStore = SqliteTestStore.GetOrCreateInitialized($"HasATable{(async ? 'A' : 'S')}"))
-            {
-                var context = CreateContext(testStore.ConnectionString);
-                context.Database.ExecuteSqlRaw("CREATE TABLE Dummy (Foo INTEGER)");
+            using var testStore = SqliteTestStore.GetOrCreateInitialized($"HasATable{(async ? 'A' : 'S')}");
+            var context = CreateContext(testStore.ConnectionString);
+            context.Database.ExecuteSqlRaw("CREATE TABLE Dummy (Foo INTEGER)");
 
-                var creator = context.GetService<IRelationalDatabaseCreator>();
-                Assert.True(async ? await creator.HasTablesAsync() : creator.HasTables());
-            }
+            var creator = context.GetService<IRelationalDatabaseCreator>();
+            Assert.True(async ? await creator.HasTablesAsync() : creator.HasTables());
         }
 
         [ConditionalTheory]
@@ -69,19 +65,17 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public async Task Exists_returns_true_when_database_exists(bool async, bool useCanConnect)
         {
-            using (var testStore = SqliteTestStore.GetOrCreateInitialized("Empty"))
-            {
-                var context = CreateContext(testStore.ConnectionString);
+            using var testStore = SqliteTestStore.GetOrCreateInitialized("Empty");
+            var context = CreateContext(testStore.ConnectionString);
 
-                if (useCanConnect)
-                {
-                    Assert.True(async ? await context.Database.CanConnectAsync() : context.Database.CanConnect());
-                }
-                else
-                {
-                    var creator = context.GetService<IRelationalDatabaseCreator>();
-                    Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
-                }
+            if (useCanConnect)
+            {
+                Assert.True(async ? await context.Database.CanConnectAsync() : context.Database.CanConnect());
+            }
+            else
+            {
+                var creator = context.GetService<IRelationalDatabaseCreator>();
+                Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
             }
         }
 
@@ -90,24 +84,22 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public async Task Create_sets_journal_mode_to_wal(bool async)
         {
-            using (var testStore = SqliteTestStore.GetOrCreate("Create"))
-            using (var context = CreateContext(testStore.ConnectionString))
+            using var testStore = SqliteTestStore.GetOrCreate("Create");
+            using var context = CreateContext(testStore.ConnectionString);
+            var creator = context.GetService<IRelationalDatabaseCreator>();
+
+            if (async)
             {
-                var creator = context.GetService<IRelationalDatabaseCreator>();
-
-                if (async)
-                {
-                    await creator.CreateAsync();
-                }
-                else
-                {
-                    creator.Create();
-                }
-
-                testStore.OpenConnection();
-                var journalMode = testStore.ExecuteScalar<string>("PRAGMA journal_mode;");
-                Assert.Equal("wal", journalMode);
+                await creator.CreateAsync();
             }
+            else
+            {
+                creator.Create();
+            }
+
+            testStore.OpenConnection();
+            var journalMode = testStore.ExecuteScalar<string>("PRAGMA journal_mode;");
+            Assert.Equal("wal", journalMode);
         }
 
         [ConditionalTheory]
@@ -122,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private DbContext CreateContext(string connectionString)
-            => new DbContext(
+            => new(
                 new DbContextOptionsBuilder()
                     .UseSqlite(connectionString)
                     .UseInternalServiceProvider(

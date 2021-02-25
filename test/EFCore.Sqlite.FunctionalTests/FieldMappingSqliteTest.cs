@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract class FieldMappingSqliteFixtureBase : FieldMappingFixtureBase
             {
-                protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+                protected override ITestStoreFactory TestStoreFactory
+                    => SqliteTestStoreFactory.Instance;
             }
         }
 
@@ -321,6 +322,42 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public override void Update_full_props()
+            {
+            }
+
+            public override void Simple_query_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Include_collection_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Include_reference_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Load_collection_props_with_IReadOnlyCollection()
+            {
+            }
+
+            public override void Load_reference_props_with_IReadOnlyCollection()
+            {
+            }
+
+            public override void Query_with_conditional_constant_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Query_with_conditional_param_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Projection_props_with_IReadOnlyCollection(bool tracking)
+            {
+            }
+
+            public override void Update_props_with_IReadOnlyCollection()
             {
             }
 

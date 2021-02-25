@@ -34,5 +34,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <returns> The method chain. May be null. </returns>
         MethodCallCodeFragment GenerateContextOptions();
+
+        /// <summary>
+        ///     Generates a code fragment like <c>.UseSqlServer("Database=Foo")</c> which can be used in
+        ///     the <see cref="DbContext.OnConfiguring" /> method of the generated DbContext.
+        /// </summary>
+        /// <param name="connectionString"> The connection string to include in the code fragment. </param>
+        /// <returns> The code fragment. </returns>
+        MethodCallCodeFragment GenerateUseProvider([NotNull] string connectionString)
+        {
+            var useProviderCall = GenerateUseProvider(
+                connectionString,
+                GenerateProviderOptions());
+            var contextOptions = GenerateContextOptions();
+            if (contextOptions != null)
+            {
+                useProviderCall = useProviderCall.Chain(contextOptions);
+            }
+
+            return useProviderCall;
+        }
     }
 }

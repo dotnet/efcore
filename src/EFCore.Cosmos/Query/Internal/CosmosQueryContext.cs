@@ -4,6 +4,9 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -23,9 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public CosmosQueryContext(
             [NotNull] QueryContextDependencies dependencies,
-            [NotNull] CosmosClientWrapper cosmosClient)
+            [NotNull] ICosmosClientWrapper cosmosClient)
             : base(dependencies)
         {
+            Check.NotNull(cosmosClient, nameof(cosmosClient));
+
             CosmosClient = cosmosClient;
         }
 
@@ -35,6 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosClientWrapper CosmosClient { get; }
+        public virtual ICosmosClientWrapper CosmosClient { get; }
     }
 }

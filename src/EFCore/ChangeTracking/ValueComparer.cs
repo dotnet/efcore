@@ -4,11 +4,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
+using MethodInfoExtensions = Microsoft.EntityFrameworkCore.Internal.MethodInfoExtensions;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -26,8 +28,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         reference.
     ///     </para>
     /// </summary>
-    public abstract class ValueComparer : IEqualityComparer
+    public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<object>
     {
+        private protected static readonly MethodInfo _doubleEqualsMethodInfo
+            = typeof(double).GetRuntimeMethod(nameof(double.Equals), new[] { typeof(double) });
+
+        private protected static readonly MethodInfo _floatEqualsMethodInfo
+            = typeof(float).GetRuntimeMethod(nameof(float.Equals), new[] { typeof(float) });
+
+        internal static readonly MethodInfo ArrayCopyMethod
+            = typeof(Array).GetMethods()
+                .Single(
+                    t => t.Name == nameof(Array.Copy)
+                        && t.GetParameters().Length == 3
+                        && t.GetParameters()[0].ParameterType == typeof(Array)
+                        && t.GetParameters()[1].ParameterType == typeof(Array)
+                        && t.GetParameters()[2].ParameterType == typeof(int));
+
         internal static readonly MethodInfo EqualityComparerHashCodeMethod
             = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.GetHashCode), new[] { typeof(object) });
 
@@ -71,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="left"> The first instance. </param>
         /// <param name="right"> The second instance. </param>
-        /// <returns> <c>True</c> if they are equal; <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if they are equal; <see langword="false" /> otherwise. </returns>
         public new abstract bool Equals(object left, object right);
 
         /// <summary>
@@ -173,6 +190,88 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 SnapshotExpression.Parameters[0],
                 expression,
                 SnapshotExpression.Body);
+        }
+
+        /// <summary>
+        ///     Creates a default <see cref="ValueComparer{T}" /> for the given type.
+        /// </summary>
+        /// <param name="type"> The type. </param>
+        /// <param name="favorStructuralComparisons">
+        ///     If <see langword="true" />, then EF will use <see cref="IStructuralEquatable" /> if the type
+        ///     implements it. This is usually used when byte arrays act as keys.
+        /// </param>
+        /// <returns> The <see cref="ValueComparer{T}" />. </returns>
+        public static ValueComparer CreateDefault([NotNull] Type type, bool favorStructuralComparisons)
+        {
+            var nonNullabletype = type.UnwrapNullableType();
+
+            // The equality operator returns false for NaNs, but the Equals methods returns true
+            if (nonNullabletype == typeof(double))
+            {
+                return new DefaultDoubleValueComparer(favorStructuralComparisons);
+            }
+
+            if (nonNullabletype == typeof(float))
+            {
+                return new DefaultFloatValueComparer(favorStructuralComparisons);
+            }
+
+            var comparerType = nonNullabletype.IsInteger()
+                || nonNullabletype == typeof(decimal)
+                || nonNullabletype == typeof(bool)
+                || nonNullabletype == typeof(string)
+                || nonNullabletype == typeof(DateTime)
+                || nonNullabletype == typeof(Guid)
+                || nonNullabletype == typeof(DateTimeOffset)
+                || nonNullabletype == typeof(TimeSpan)
+                    ? typeof(DefaultValueComparer<>)
+                    : typeof(ValueComparer<>);
+
+            return (ValueComparer)Activator.CreateInstance(
+                comparerType.MakeGenericType(type),
+                new object[] { favorStructuralComparisons });
+        }
+
+        internal class DefaultValueComparer<T> : ValueComparer<T>
+        {
+            public DefaultValueComparer(bool favorStructuralComparisons)
+                : base(favorStructuralComparisons)
+            {
+            }
+
+            public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
+                => Expression.Equal(leftExpression, rightExpression);
+
+            public override Expression ExtractSnapshotBody(Expression expression)
+                => expression;
+
+            public override object Snapshot(object instance)
+                => instance;
+
+            public override T Snapshot(T instance)
+                => instance;
+        }
+
+        internal sealed class DefaultDoubleValueComparer : DefaultValueComparer<double>
+        {
+            public DefaultDoubleValueComparer(bool favorStructuralComparisons)
+                : base(favorStructuralComparisons)
+            {
+            }
+
+            public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
+                => Expression.Call(leftExpression, _doubleEqualsMethodInfo, rightExpression);
+        }
+
+        internal sealed class DefaultFloatValueComparer : DefaultValueComparer<float>
+        {
+            public DefaultFloatValueComparer(bool favorStructuralComparisons)
+                : base(favorStructuralComparisons)
+            {
+            }
+
+            public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
+                => Expression.Call(leftExpression, _floatEqualsMethodInfo, rightExpression);
         }
     }
 }

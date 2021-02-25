@@ -12,7 +12,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class IndexTest
     {
         [ConditionalFact]
-        public void Can_create_index_from_properties()
+        public void Throws_when_model_is_readonly()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType("E");
+            var property = entityType.AddProperty("P", typeof(int));
+            var index = entityType.AddIndex(new[] { property });
+
+            model.FinalizeModel();
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { property })).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.AddIndex(new[] { property }, "Name")).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.RemoveIndex(index)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => index.IsUnique = false).Message);
+        }
+
+        [ConditionalFact]
+        public void Gets_expected_default_values()
         {
             var entityType = ((IConventionModel)CreateModel()).AddEntityType(typeof(Customer));
             var property1 = entityType.AddProperty(Customer.IdProperty);
@@ -26,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Can_create_unique_index_from_properties()
+        public void Can_set_unique()
         {
             var entityType = CreateModel().AddEntityType(typeof(Customer));
             var property1 = entityType.AddProperty(Customer.IdProperty);
@@ -39,20 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.True(index.IsUnique);
         }
 
-        [ConditionalFact]
-        public void Constructor_validates_properties_from_same_entity()
-        {
-            var model = CreateModel();
-            var property1 = model.AddEntityType(typeof(Customer)).AddProperty(Customer.IdProperty);
-            var property2 = model.AddEntityType(typeof(Order)).AddProperty(Order.IdProperty);
-
-            Assert.Equal(
-                CoreStrings.IndexPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", typeof(Customer).Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => property1.DeclaringEntityType.AddIndex(new[] { property1, property2 })).Message);
-        }
-
-        private static IMutableModel CreateModel() => new Model();
+        private static IMutableModel CreateModel()
+            => new Model();
 
         private class Customer
         {

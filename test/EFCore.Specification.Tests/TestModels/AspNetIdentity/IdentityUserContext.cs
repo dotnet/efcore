@@ -40,8 +40,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity
 
         private class PersonalDataProtector : IPersonalDataProtector
         {
-            public string Protect(string data) => data;
-            public string Unprotect(string data) => data;
+            public string Protect(string data)
+                => data;
+
+            public string Unprotect(string data)
+                => data;
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

@@ -1,6 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
+using System.Reflection;
+using JetBrains.Annotations;
+
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -12,16 +18,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="INavigation" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableNavigation : INavigation, IMutablePropertyBase
+    public interface IMutableNavigation : IReadOnlyNavigation, IMutableNavigationBase
     {
         /// <summary>
-        ///     Gets the type that this property belongs to.
+        ///     Gets the type that this navigation property belongs to.
         /// </summary>
-        new IMutableEntityType DeclaringEntityType { get; }
+        new IMutableEntityType DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IMutableEntityType)((IReadOnlyNavigationBase)this).DeclaringEntityType;
+        }
+
+        /// <summary>
+        ///     Gets the entity type that this navigation property will hold an instance(s) of.
+        /// </summary>
+        new IMutableEntityType TargetEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IMutableEntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
+        }
 
         /// <summary>
         ///     Gets the foreign key that defines the relationship this navigation property will navigate.
         /// </summary>
-        new IMutableForeignKey ForeignKey { get; }
+        new IMutableForeignKey ForeignKey
+        {
+            [DebuggerStepThrough]
+            get => (IMutableForeignKey)((IReadOnlyNavigation)this).ForeignKey;
+        }
+
+        /// <summary>
+        ///     Gets the inverse navigation.
+        /// </summary>
+        new IMutableNavigation? Inverse
+        {
+            [DebuggerStepThrough]
+            get => (IMutableNavigation?)((IReadOnlyNavigation)this).Inverse;
+        }
+
+        /// <summary>
+        ///     Sets the inverse navigation.
+        /// </summary>
+        /// <param name="inverseName">
+        ///     The name of the inverse navigation property. Passing <see langword="null" /> will result in there being
+        ///     no inverse navigation property defined.
+        /// </param>
+        /// <returns> The inverse navigation. </returns>
+        IMutableNavigation? SetInverse([CanBeNull] string? inverseName);
+
+        /// <summary>
+        ///     Sets the inverse navigation.
+        /// </summary>
+        /// <param name="inverse">
+        ///     The inverse navigation property. Passing <see langword="null" /> will result in there being
+        ///     no inverse navigation property defined.
+        /// </param>
+        /// <returns> The inverse navigation. </returns>
+        IMutableNavigation? SetInverse([CanBeNull] MemberInfo? inverse);
     }
 }

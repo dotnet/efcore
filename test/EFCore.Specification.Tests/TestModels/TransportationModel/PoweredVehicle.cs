@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                 && base.Equals(other)
                 && Equals(Engine, other.Engine);
 
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Engine);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Engine);
     }
 }

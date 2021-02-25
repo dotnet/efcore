@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
     /// <summary>
@@ -19,13 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     public class LazyLoadingInterceptor : IInterceptor
     {
         private static readonly PropertyInfo _lazyLoaderProperty
-            = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader));
+            = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader))!;
 
-        private static readonly MethodInfo _lazyLoaderGetter = _lazyLoaderProperty.GetMethod;
-        private static readonly MethodInfo _lazyLoaderSetter = _lazyLoaderProperty.SetMethod;
+        private static readonly MethodInfo _lazyLoaderGetter = _lazyLoaderProperty.GetMethod!;
+        private static readonly MethodInfo _lazyLoaderSetter = _lazyLoaderProperty.SetMethod!;
 
         private readonly IEntityType _entityType;
-        private ILazyLoader _loader;
+        private ILazyLoader? _loader;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -65,9 +67,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                     && methodName.StartsWith("get_", StringComparison.Ordinal))
                 {
                     var navigationName = methodName.Substring(4);
-                    var navigation = _entityType.FindNavigation(navigationName);
+                    var navigationBase = _entityType.FindNavigation(navigationName)
+                        ?? (INavigationBase?)_entityType.FindSkipNavigation(navigationName);
 
-                    if (navigation != null)
+                    if (navigationBase != null
+                        && (!(navigationBase is INavigation navigation
+                            && navigation.ForeignKey.IsOwnership)))
                     {
                         _loader.Load(invocation.Proxy, navigationName);
                     }

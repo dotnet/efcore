@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
@@ -114,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual void DetectChanges()
         {
-            if ((string)_stateManager.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true")
+            if (!((IRuntimeModel)_stateManager.Model).SkipDetectChanges)
             {
                 _changeDetector.DetectChanges(_stateManager);
             }
@@ -165,7 +166,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Model
-            => _stateManager.Model;
+        public virtual IModel Model => _stateManager.Model;
     }
 }

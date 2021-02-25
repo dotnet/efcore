@@ -4,9 +4,7 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -24,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class KeyValueIndexFactorySource : IdentityMapFactoryFactoryBase, IKeyValueIndexFactorySource
+    public class KeyValueIndexFactorySource : IKeyValueIndexFactorySource
     {
         private readonly ConcurrentDictionary<IKey, IKeyValueIndexFactory> _factories
-            = new ConcurrentDictionary<IKey, IKeyValueIndexFactory>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public virtual IKeyValueIndexFactory Create([NotNull] IKey key)
             => (IKeyValueIndexFactory)typeof(KeyValueIndexFactorySource).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))
-                .MakeGenericMethod(GetKeyType(key))
+                .MakeGenericMethod(key.GetKeyType())
                 .Invoke(null, new object[] { key });
 
         [UsedImplicitly]

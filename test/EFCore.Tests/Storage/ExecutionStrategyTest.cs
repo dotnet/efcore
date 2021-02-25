@@ -19,12 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         private readonly DbContext Context;
 
-        public ExecutionStrategyTest() => Context = CreateContext();
+        public ExecutionStrategyTest()
+            => Context = CreateContext();
 
-        public void Dispose() => Context.Dispose();
+        public void Dispose()
+            => Context.Dispose();
 
         private TestExecutionStrategy CreateFailOnRetryStrategy()
-            => new TestExecutionStrategy(
+            => new(
                 Context,
                 shouldRetryOn: e =>
                 {
@@ -144,17 +146,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private void Execute_throws_for_an_enlisted_transaction(Action<ExecutionStrategy> execute)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
-            using (var t = new CommittableTransaction())
-            {
-                Context.Database.EnlistTransaction(t);
+            using var t = new CommittableTransaction();
+            Context.Database.EnlistTransaction(t);
 
-                Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(
-                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-                    Assert.Throws<InvalidOperationException>(
-                            () => execute(mockExecutionStrategy))
-                        .Message);
-            }
+            Assert.Equal(
+                CoreStrings.ExecutionStrategyExistingTransaction(
+                    mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                Assert.Throws<InvalidOperationException>(
+                        () => execute(mockExecutionStrategy))
+                    .Message);
         }
 
         [ConditionalFact]
@@ -424,17 +424,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private async Task ExecuteAsync_throws_for_an_enlisted_transaction(Func<ExecutionStrategy, Task> executeAsync)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
-            using (var t = new CommittableTransaction())
-            {
-                Context.Database.EnlistTransaction(t);
+            using var t = new CommittableTransaction();
+            Context.Database.EnlistTransaction(t);
 
-                Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(
-                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => executeAsync(mockExecutionStrategy)))
-                    .Message);
-            }
+            Assert.Equal(
+                CoreStrings.ExecutionStrategyExistingTransaction(
+                    mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => executeAsync(mockExecutionStrategy)))
+                .Message);
         }
 
         [ConditionalFact]
@@ -651,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         .AddScoped<IDbContextTransactionManager, TestInMemoryTransactionManager>()),
                 InMemoryTestHelpers.Instance.CreateOptions());
 
-        private class TestExecutionStrategy : ExecutionStrategy
+        public class TestExecutionStrategy : ExecutionStrategy
         {
             private readonly Func<Exception, bool> _shouldRetryOn;
             private readonly Func<Exception, TimeSpan?> _getNextDelay;

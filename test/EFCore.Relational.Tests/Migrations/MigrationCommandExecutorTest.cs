@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), null, logger),
-                new MigrationCommand(CreateRelationalCommand(), null, logger)
+                new(CreateRelationalCommand(), null, logger),
+                new(CreateRelationalCommand(), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), null, logger),
-                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
+                new(CreateRelationalCommand(), null, logger),
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -144,8 +144,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(), null, logger)
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
+                new(CreateRelationalCommand(), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -185,9 +185,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(commandText: "First"), null, logger),
-                new MigrationCommand(CreateRelationalCommand(commandText: "Second"), null, logger, transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(commandText: "Third"), null, logger)
+                new(CreateRelationalCommand(commandText: "First"), null, logger),
+                new(CreateRelationalCommand(commandText: "Second"), null, logger, transactionSuppressed: true),
+                new(CreateRelationalCommand(commandText: "Third"), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
 
-            var commandList = new List<MigrationCommand> { new MigrationCommand(CreateRelationalCommand(), null, logger) };
+            var commandList = new List<MigrationCommand> { new(CreateRelationalCommand(), null, logger) };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
 
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private const string ConnectionString = "Fake Connection String";
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
-            => new FakeRelationalConnection(options ?? CreateOptions());
+            => new(options ?? CreateOptions());
 
         private static IDbContextOptions CreateOptions(RelationalOptionsExtension optionsExtension = null)
         {

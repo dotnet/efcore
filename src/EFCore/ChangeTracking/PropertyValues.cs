@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -149,6 +150,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public abstract TValue GetValue<TValue>([NotNull] string propertyName);
 
         /// <summary>
+        ///     Try to gets the value of the property just like using the indexed property getter but
+        ///     typed to the type of the generic parameter.
+        ///     If property exists it return the value into the out parameter, otherwise the default value of TValue
+        /// </summary>
+        /// <typeparam name="TValue"> The type of the property. </typeparam>
+        /// <param name="propertyName"> The property name. </param>
+        /// <param name="value"> The property value if any. </param>
+        /// <returns> True if the property exists, otherwise false. </returns>
+        public virtual bool TryGetValue<TValue>([NotNull] string propertyName, out TValue value)
+        {
+            var property = Properties.FirstOrDefault(p => p.Name == propertyName);
+            if (property != null)
+            {
+                value = GetValue<TValue>(propertyName);
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        /// <summary>
         ///     Gets the value of the property just like using the indexed property getter but
         ///     typed to the type of the generic parameter.
         /// </summary>
@@ -164,22 +187,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

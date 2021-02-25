@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -130,9 +131,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
 
-            if (adding)
+            if (adding || oldState is EntityState.Detached)
             {
-                StateManager.ValueGenerationManager.Generate(this);
+                StateManager.ValueGenerationManager.Generate(this, includePrimaryKey: adding);
             }
 
             SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
@@ -156,16 +157,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
 
-            if (adding)
+            if (adding || oldState is EntityState.Detached)
             {
-                await StateManager.ValueGenerationManager.GenerateAsync(this, cancellationToken);
+                await StateManager.ValueGenerationManager.GenerateAsync(this, includePrimaryKey: adding, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
         }
 
         private EntityState PropagateToUnknownKey(
-            EntityState oldState, EntityState entityState, bool adding, EntityState? forceStateWhenUnknownKey)
+            EntityState oldState,
+            EntityState entityState,
+            bool adding,
+            EntityState? forceStateWhenUnknownKey)
         {
             var keyUnknown = IsKeyUnknown;
 
@@ -214,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges, bool modifyProperties)
         {
-            var entityType = (EntityType)EntityType;
+            var entityType = EntityType;
 
             // Prevent temp values from becoming permanent values
             if (oldState == EntityState.Added
@@ -224,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var property in entityType.GetProperties())
                 {
-                    if (HasTemporaryValue(property))
+                    if (property.IsKey() && HasTemporaryValue(property))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.TempValuePersists(
@@ -321,6 +326,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             FireStateChanged(oldState);
 
+            if (newState == EntityState.Unchanged)
+            {
+                SharedIdentityEntry?.SetEntityState(EntityState.Detached);
+            }
+
             if ((newState == EntityState.Deleted
                     || newState == EntityState.Detached)
                 && StateManager.CascadeDeleteTiming == CascadeTiming.Immediate)
@@ -347,11 +357,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (oldState == EntityState.Detached)
             {
-                foreach (var serviceProperty in ((EntityType)EntityType).GetServiceProperties())
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
                 {
                     this[serviceProperty]
                         = serviceProperty
-                            .GetParameterBinding()
+                            .ParameterBinding
                             .ServiceDelegate(
                                 new MaterializationContext(
                                     ValueBuffer.Empty,
@@ -362,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (newState == EntityState.Detached)
             {
-                foreach (var serviceProperty in ((EntityType)EntityType).GetServiceProperties())
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
                 {
                     this[serviceProperty] = null;
                 }
@@ -394,7 +404,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityState EntityState => _stateData.EntityState;
+        public virtual EntityState EntityState
+            => _stateData.EntityState;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -529,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsConceptualNull([NotNull] IProperty property)
+        public virtual bool IsConceptualNull(IProperty property)
             => _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null);
 
         /// <summary>
@@ -554,6 +565,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (equals == null)
             {
                 equals = ValuesEqualFunc(property);
+            }
+
+            if (!PropertyHasDefaultValue(property))
+            {
+                return CurrentValueType.Normal;
             }
 
             var defaultValue = property.ClrType.GetDefaultValue();
@@ -584,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetTemporaryValue([NotNull] IProperty property, object value, bool setModified = true)
+        public virtual void SetTemporaryValue([NotNull] IProperty property, [CanBeNull] object value, bool setModified = true)
         {
             if (property.GetStoreGeneratedIndex() == -1)
             {
@@ -635,6 +651,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void MarkUnknown([NotNull] IProperty property)
+            => _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Unknown, true);
+
         internal static readonly MethodInfo ReadShadowValueMethod
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue));
 
@@ -645,7 +670,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [UsedImplicitly]
-        protected virtual T ReadShadowValue<T>(int shadowIndex) => default;
+        protected virtual T ReadShadowValue<T>(int shadowIndex)
+            => default;
 
         internal static readonly MethodInfo ReadOriginalValueMethod
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue));
@@ -676,8 +702,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => _temporaryValues.GetValue<T>(storeGeneratedIndex);
 
         internal static readonly MethodInfo GetCurrentValueMethod
-            =
-            typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(
+            = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(
                 m => m.IsGenericMethod);
 
         /// <summary>
@@ -705,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual TProperty GetRelationshipSnapshotValue<TProperty>([NotNull] IPropertyBase propertyBase)
-            => ((Func<InternalEntityEntry, TProperty>)propertyBase.GetPropertyAccessors().RelationshipSnapshotGetter)(
+            => ((Func<IUpdateEntry, TProperty>)propertyBase.GetPropertyAccessors().RelationshipSnapshotGetter)(
                 this);
 
         /// <summary>
@@ -716,9 +741,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
         {
-            Debug.Assert(!propertyBase.IsShadowProperty());
+            Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
-            return ((PropertyBase)propertyBase).Getter.GetClrValue(Entity);
+            return propertyBase.GetGetter().GetClrValue(Entity);
         }
 
         /// <summary>
@@ -729,9 +754,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual bool PropertyHasDefaultValue([NotNull] IPropertyBase propertyBase)
         {
-            Debug.Assert(!propertyBase.IsShadowProperty());
+            Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
-            return ((PropertyBase)propertyBase).Getter.HasDefaultValue(Entity);
+            return propertyBase.GetGetter().HasDefaultValue(Entity);
         }
 
         /// <summary>
@@ -745,9 +770,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [CanBeNull] object value,
             bool forMaterialization)
         {
-            Debug.Assert(!propertyBase.IsShadowProperty());
+            Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
-            var concretePropertyBase = (PropertyBase)propertyBase;
+            var concretePropertyBase = (IRuntimePropertyBase)propertyBase;
 
             var setter = forMaterialization
                 ? concretePropertyBase.MaterializationSetter
@@ -762,11 +787,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object GetOrCreateCollection([NotNull] INavigation navigation, bool forMaterialization)
+        public virtual object GetOrCreateCollection([NotNull] INavigationBase navigationBase, bool forMaterialization)
         {
-            Debug.Assert(!navigation.IsShadowProperty());
+            Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
-            return ((Navigation)navigation).CollectionAccessor.GetOrCreate(Entity, forMaterialization);
+            return navigationBase.GetCollectionAccessor().GetOrCreate(Entity, forMaterialization);
         }
 
         /// <summary>
@@ -775,11 +800,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CollectionContains([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
+        public virtual bool CollectionContains([NotNull] INavigationBase navigationBase, [NotNull] InternalEntityEntry value)
         {
-            Debug.Assert(!navigation.IsShadowProperty());
+            Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
-            return ((Navigation)navigation).CollectionAccessor.Contains(Entity, value.Entity);
+            return navigationBase.GetCollectionAccessor().Contains(Entity, value.Entity);
         }
 
         /// <summary>
@@ -789,13 +814,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool AddToCollection(
-            [NotNull] INavigation navigation,
+            [NotNull] INavigationBase navigationBase,
             [NotNull] InternalEntityEntry value,
             bool forMaterialization)
         {
-            Debug.Assert(!navigation.IsShadowProperty());
+            Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
-            return ((Navigation)navigation).CollectionAccessor.Add(Entity, value.Entity, forMaterialization);
+            return navigationBase.GetCollectionAccessor().Add(Entity, value.Entity, forMaterialization);
         }
 
         /// <summary>
@@ -804,11 +829,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool RemoveFromCollection([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
+        public virtual bool RemoveFromCollection([NotNull] INavigationBase navigationBase, [NotNull] InternalEntityEntry value)
         {
-            Debug.Assert(!navigation.IsShadowProperty());
+            Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
-            return ((Navigation)navigation).CollectionAccessor.Remove(Entity, value.Entity);
+            return navigationBase.GetCollectionAccessor().Remove(Entity, value.Entity);
         }
 
         /// <summary>
@@ -828,7 +853,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object GetPreStoreGeneratedCurrentValue([NotNull] IPropertyBase propertyBase)
+        public virtual object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase)
             => !(propertyBase is IProperty property) || !IsConceptualNull(property)
                 ? ReadPropertyValue(propertyBase)
                 : null;
@@ -848,7 +873,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object GetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase)
+        public virtual object GetRelationshipSnapshotValue(IPropertyBase propertyBase)
             => _relationshipsSnapshot.GetValue(this, propertyBase);
 
         /// <summary>
@@ -858,11 +883,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void SetOriginalValue(
-            [NotNull] IPropertyBase propertyBase, [CanBeNull] object value, int index = -1)
+            [NotNull] IPropertyBase propertyBase,
+            [CanBeNull] object value,
+            int index = -1)
         {
             EnsureOriginalValues();
 
-            var property = (Property)propertyBase;
+            var property = (IProperty)propertyBase;
 
             _originalValues.SetValue(property, value, index);
 
@@ -918,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_temporaryValues.IsEmpty)
             {
-                _temporaryValues = new SidecarValues(((EntityType)EntityType).TemporaryValuesFactory(this));
+                _temporaryValues = new SidecarValues(((IRuntimeEntityType)EntityType).TemporaryValuesFactory(this));
             }
         }
 
@@ -932,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_storeGeneratedValues.IsEmpty)
             {
-                _storeGeneratedValues = new SidecarValues(((EntityType)EntityType).StoreGeneratedValuesFactory(this));
+                _storeGeneratedValues = new SidecarValues(((IRuntimeEntityType)EntityType).StoreGeneratedValuesFactory(this));
             }
         }
 
@@ -956,7 +983,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasOriginalValuesSnapshot => !_originalValues.IsEmpty;
+        public virtual bool HasOriginalValuesSnapshot
+            => !_originalValues.IsEmpty;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -964,7 +992,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasRelationshipSnapshot => !_relationshipsSnapshot.IsEmpty;
+        public virtual bool HasRelationshipSnapshot
+            => !_relationshipsSnapshot.IsEmpty;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1012,12 +1041,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[[NotNull] IPropertyBase propertyBase]
+        public object this[[NotNull] IPropertyBase propertyBase] // Intentionally non-virtual
         {
             get
             {
-                var value = ReadPropertyValue(propertyBase);
-
                 var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
                 if (storeGeneratedIndex != -1)
                 {
@@ -1027,23 +1054,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     var equals = ValuesEqualFunc(property);
 
+                    if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
+                        && !equals(generatedValue, defaultValue))
+                    {
+                        return generatedValue;
+                    }
+
+                    var value = ReadPropertyValue(propertyBase);
                     if (equals(value, defaultValue))
                     {
-                        if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-                            && !equals(generatedValue, defaultValue))
-                        {
-                            return generatedValue;
-                        }
-
                         if (_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
                             && !equals(generatedValue, defaultValue))
                         {
                             return generatedValue;
                         }
                     }
+
+                    return value;
                 }
 
-                return value;
+                return ReadPropertyValue(propertyBase);
             }
 
             [param: CanBeNull] set => SetProperty(propertyBase, value, isMaterialization: false);
@@ -1071,9 +1101,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool isCascadeDelete,
             CurrentValueType valueType)
         {
-            var currentValue = this[propertyBase];
+            var currentValue = ReadPropertyValue(propertyBase);
 
-            var asProperty = propertyBase as Property;
+            var asProperty = propertyBase as IProperty;
             int propertyIndex;
             CurrentValueType currentValueType;
             Func<object, object, bool> equals;
@@ -1149,34 +1179,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         WritePropertyValue(propertyBase, value, isMaterialization);
 
-                        var useNewBehavior
-                            = !AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19137", out var isEnabled) || !isEnabled;
-
-                        if (useNewBehavior)
+                        switch (currentValueType)
                         {
-                            if (currentValueType != CurrentValueType.Normal
-                                && !_temporaryValues.IsEmpty)
-                            {
-                                var defaultValue = asProperty.ClrType.GetDefaultValue();
-                                var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
-                                _temporaryValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
-                            }
-                        }
-                        else
-                        {
-                            if (currentValueType != CurrentValueType.Normal
-                                && !_temporaryValues.IsEmpty
-                                && equals(value, asProperty.ClrType.GetDefaultValue()))
-                            {
-                                var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
-                                _temporaryValues.SetValue(asProperty, value, storeGeneratedIndex);
-                            }
+                            case CurrentValueType.StoreGenerated:
+                                if (!_storeGeneratedValues.IsEmpty)
+                                {
+                                    var defaultValue = asProperty.ClrType.GetDefaultValue();
+                                    var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
+                                    _storeGeneratedValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
+                                }
+                                break;
+                            case CurrentValueType.Temporary:
+                                if (!_temporaryValues.IsEmpty)
+                                {
+                                    var defaultValue = asProperty.ClrType.GetDefaultValue();
+                                    var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
+                                    _temporaryValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
+                                }
+                                break;
                         }
                     }
                     else
                     {
                         var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
-                        Debug.Assert(storeGeneratedIndex >= 0);
+                        Check.DebugAssert(storeGeneratedIndex >= 0, $"storeGeneratedIndex is {storeGeneratedIndex}");
 
                         if (valueType == CurrentValueType.StoreGenerated)
                         {
@@ -1207,9 +1233,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, isFlagged: false);
                     }
 
-                    if (propertyBase is INavigation navigation)
+                    if (propertyBase is INavigationBase navigation)
                     {
-                        if (!navigation.IsCollection())
+                        if (!navigation.IsCollection)
                         {
                             SetIsLoaded(navigation, value != null);
                         }
@@ -1222,8 +1248,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static Func<object, object, bool> ValuesEqualFunc(IProperty property)
         {
-            var comparer = property.GetValueComparer()
-                ?? property.FindTypeMapping()?.Comparer;
+            var comparer = property.GetValueComparer();
 
             return comparer != null
                 ? (Func<object, object, bool>)((l, r) => comparer.Equals(l, r))
@@ -1246,7 +1271,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (storeGeneratedIndex != -1
                         && _storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var value))
                     {
-                        this[property] = value;
+                        var equals = ValuesEqualFunc(property);
+                        var defaultValue = property.ClrType.GetDefaultValue();
+                        if (!equals(value, defaultValue))
+                        {
+                            this[property] = value;
+                        }
                     }
                 }
 
@@ -1283,7 +1313,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry PrepareToSave()
         {
-            var entityType = (EntityType)EntityType;
+            var entityType = EntityType;
 
             if (EntityState == EntityState.Added)
             {
@@ -1297,6 +1327,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             CoreStrings.PropertyReadOnlyBeforeSave(
                                 property.Name,
                                 EntityType.DisplayName()));
+                    }
+
+                    if (property.IsKey()
+                        && property.IsForeignKey()
+                        && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
+                    {
+                        throw new InvalidOperationException(CoreStrings.UnknownKeyValue(entityType.DisplayName(), property.Name));
                     }
                 }
             }
@@ -1459,7 +1496,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         || HasTemporaryValue(property)
                         || HasDefaultValue(property)))
                 || (property.ValueGenerated.ForUpdate()
-                    && EntityState == EntityState.Modified
+                    && (EntityState == EntityState.Modified || EntityState == EntityState.Deleted)
                     && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Ignore
                         || !IsModified(property)));
 
@@ -1470,7 +1507,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasDefaultValue(IProperty property)
+        public bool HasDefaultValue([NotNull] IProperty property) // Intentionally non-virtual
         {
             if (!PropertyHasDefaultValue(property))
             {
@@ -1512,7 +1549,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             get
             {
                 var isGenerated = false;
-                var keyProperties = ((EntityType)EntityType).FindPrimaryKey().Properties;
+                var keyProperties = EntityType.FindPrimaryKey().Properties;
 
                 // ReSharper disable once ForCanBeConvertedToForeach
                 // ReSharper disable once LoopCanBeConvertedToQuery
@@ -1548,7 +1585,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                var keyProperties = ((EntityType)EntityType).FindPrimaryKey().Properties;
+                var keyProperties = EntityType.FindPrimaryKey().Properties;
                 // ReSharper disable once ForCanBeConvertedToForeach
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 for (var i = 0; i < keyProperties.Count; i++)
@@ -1570,7 +1607,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityEntry ToEntityEntry() => new EntityEntry(this);
+        public virtual EntityEntry ToEntityEntry()
+            => new(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1582,7 +1620,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] object sender,
             [NotNull] PropertyChangingEventArgs eventArgs)
         {
-            foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
+            foreach (var propertyBase in GetNotificationProperties(EntityType, eventArgs.PropertyName))
             {
                 StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
             }
@@ -1598,9 +1636,45 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] object sender,
             [NotNull] PropertyChangedEventArgs eventArgs)
         {
-            foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
+            foreach (var propertyBase in GetNotificationProperties(EntityType, eventArgs.PropertyName))
             {
                 StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified: true);
+            }
+        }
+
+        private static IEnumerable<IPropertyBase> GetNotificationProperties(
+            [NotNull] IEntityType entityType,
+            [CanBeNull] string propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                foreach (var property in entityType.GetProperties()
+                    .Where(p => p.GetAfterSaveBehavior() == PropertySaveBehavior.Save))
+                {
+                    yield return property;
+                }
+
+                foreach (var navigation in entityType.GetNavigations())
+                {
+                    yield return navigation;
+                }
+
+                foreach (var navigation in entityType.GetSkipNavigations())
+                {
+                    yield return navigation;
+                }
+            }
+            else
+            {
+                // ReSharper disable once AssignNullToNotNullAttribute
+                var property = entityType.FindProperty(propertyName)
+                    ?? entityType.FindNavigation(propertyName)
+                    ?? (IPropertyBase)entityType.FindSkipNavigation(propertyName);
+
+                if (property != null)
+                {
+                    yield return property;
+                }
             }
         }
 
@@ -1614,7 +1688,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] object sender,
             [NotNull] NotifyCollectionChangedEventArgs eventArgs)
         {
-            var navigation = EntityType.GetNavigations().FirstOrDefault(n => n.IsCollection() && this[n] == sender);
+            var navigation = EntityType.GetNavigations()
+                .Concat<INavigationBase>(EntityType.GetSkipNavigations())
+                .FirstOrDefault(n => n.IsCollection && this[n] == sender);
+
             if (navigation != null)
             {
                 switch (eventArgs.Action)
@@ -1653,10 +1730,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetIsLoaded([NotNull] INavigation navigation, bool loaded = true)
+        public virtual void SetIsLoaded([NotNull] INavigationBase navigation, bool loaded = true)
         {
             if (!loaded
-                && !navigation.IsCollection()
+                && !navigation.IsCollection
                 && this[navigation] != null)
             {
                 throw new InvalidOperationException(
@@ -1678,7 +1755,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsLoaded([NotNull] INavigation navigation)
+        public virtual bool IsLoaded([NotNull] INavigationBase navigation)
             => _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
 
         /// <summary>
@@ -1688,10 +1765,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString()
-            => $"{this.BuildCurrentValuesString(EntityType.FindPrimaryKey().Properties)} {EntityState}"
-                + $"{(((IUpdateEntry)this).SharedIdentityEntry == null ? "" : " Shared")} {EntityType}";
+            => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault);
 
-        IUpdateEntry IUpdateEntry.SharedIdentityEntry => SharedIdentityEntry;
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DebugView DebugView
+            => new(
+                () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
+                () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
+
+        IUpdateEntry IUpdateEntry.SharedIdentityEntry
+            => SharedIdentityEntry;
 
         private enum CurrentValueType
         {

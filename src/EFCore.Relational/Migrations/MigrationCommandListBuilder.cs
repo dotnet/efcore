@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public class MigrationCommandListBuilder
     {
-        private readonly List<MigrationCommand> _commands = new List<MigrationCommand>();
+        private readonly List<MigrationCommand> _commands = new();
         private readonly MigrationsSqlGeneratorDependencies _dependencies;
 
         private IRelationalCommandBuilder _commandBuilder;
@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Gets the list of built commands.
         /// </summary>
         /// <returns> The <see cref="MigrationCommand" />s that have been built. </returns>
-        public virtual IReadOnlyList<MigrationCommand> GetCommandList() => _commands;
+        public virtual IReadOnlyList<MigrationCommand> GetCommandList()
+            => _commands;
 
         /// <summary>
         ///     Ends the building of the current command and adds it to the list of built commands.
@@ -65,11 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Appends the given object (as a string) to the command being built.
+        ///     Appends the given string to the command being built.
         /// </summary>
-        /// <param name="o"> The object to append. </param>
+        /// <param name="o"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual MigrationCommandListBuilder Append([NotNull] object o)
+        public virtual MigrationCommandListBuilder Append([NotNull] string o)
         {
             Check.NotNull(o, nameof(o));
 
@@ -90,31 +91,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Appends the given object (as a string) to the command being built, and then starts a new line.
+        ///     Appends the given string to the command being built, and then starts a new line.
         /// </summary>
-        /// <param name="o"> The object to append. </param>
+        /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual MigrationCommandListBuilder AppendLine([NotNull] object o)
+        public virtual MigrationCommandListBuilder AppendLine([NotNull] string value)
         {
-            Check.NotNull(o, nameof(o));
+            Check.NotNull(value, nameof(value));
 
-            _commandBuilder.AppendLine(o);
+            _commandBuilder.AppendLine(value);
 
             return this;
         }
 
         /// <summary>
         ///     Appends the given object to the command being built as multiple lines of text. That is,
-        ///     each line in the passed object (as a string) is added as a line to the command being built.
+        ///     each line in the passed string is added as a line to the command being built.
         ///     This results in the lines having the correct indentation.
         /// </summary>
-        /// <param name="o"> The object to append. </param>
+        /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual MigrationCommandListBuilder AppendLines([NotNull] object o)
+        public virtual MigrationCommandListBuilder AppendLines([NotNull] string value)
         {
-            Check.NotNull(o, nameof(o));
+            Check.NotNull(value, nameof(value));
 
-            _commandBuilder.AppendLines(o);
+            _commandBuilder.AppendLines(value);
 
             return this;
         }
@@ -124,7 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     block is disposed will be indented one level more than the current level.
         /// </summary>
         /// <returns> The object to dispose to indicate that the indentation should go back up a level. </returns>
-        public virtual IDisposable Indent() => _commandBuilder.Indent();
+        public virtual IDisposable Indent()
+            => _commandBuilder.Indent();
 
         /// <summary>
         ///     Increases the current indentation by one level.

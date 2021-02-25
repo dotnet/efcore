@@ -1,10 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class ModelCustomizerDependencies
+    public sealed record ModelCustomizerDependencies
     {
         /// <summary>
         ///     <para>
@@ -57,21 +59,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(setFinder, nameof(setFinder));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             SetFinder = setFinder;
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>
         ///     Gets the <see cref="IDbSetFinder" /> that will locate the <see cref="DbSet{TEntity}" /> properties
         ///     on the derived context.
         /// </summary>
-        public IDbSetFinder SetFinder { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelCustomizerDependencies With([NotNull] IDbSetFinder setFinder)
-            => new ModelCustomizerDependencies(setFinder);
+        [Obsolete("This is part of ProviderConventionSetBuilderDependencies now")]
+        public IDbSetFinder SetFinder { get; [param: NotNull] init; }
     }
 }

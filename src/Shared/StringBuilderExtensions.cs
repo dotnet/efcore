@@ -2,17 +2,22 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace System.Text
 {
     internal static class StringBuilderExtensions
     {
         public static StringBuilder AppendJoin(
-            this StringBuilder stringBuilder, IEnumerable<string> values, string separator = ", ")
+            this StringBuilder stringBuilder,
+            IEnumerable<string> values,
+            string separator = ", ")
             => stringBuilder.AppendJoin(values, (sb, value) => sb.Append(value), separator);
 
         public static StringBuilder AppendJoin(
-            this StringBuilder stringBuilder, string separator, params string[] values)
+            this StringBuilder stringBuilder,
+            string separator,
+            params string[] values)
             => stringBuilder.AppendJoin(values, (sb, value) => sb.Append(value), separator);
 
         public static StringBuilder AppendJoin<T>(
@@ -85,6 +90,24 @@ namespace System.Text
             }
 
             return stringBuilder;
+        }
+
+        public static void AppendBytes(this StringBuilder builder, byte[] bytes)
+        {
+            builder.Append("'0x");
+
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                if (i > 31)
+                {
+                    builder.Append("...");
+                    break;
+                }
+
+                builder.Append(bytes[i].ToString("X2", CultureInfo.InvariantCulture));
+            }
+
+            builder.Append('\'');
         }
     }
 }

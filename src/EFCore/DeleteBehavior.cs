@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         For entities being tracked by the <see cref="DbContext" />, dependent entities
-        ///         will deleted when the related principal is deleted.
+        ///         will be deleted when the related principal is deleted.
         ///     </para>
         ///     <para>
         ///         If the database has been created from the model using Entity Framework Migrations or the
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     <para>
         ///         For entities being tracked by the <see cref="DbContext" />, dependent entities
-        ///         will deleted when the related principal is deleted.
+        ///         will be deleted when the related principal is deleted.
         ///     </para>
         ///     <para>
         ///         If the database has been created from the model using Entity Framework Migrations or the

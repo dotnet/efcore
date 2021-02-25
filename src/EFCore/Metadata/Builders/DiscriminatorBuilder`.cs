@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -31,11 +33,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private DiscriminatorBuilder Builder { get; }
 
         /// <summary>
+        ///     Configures if the discriminator mapping is complete.
+        /// </summary>
+        /// <param name="complete"> The value indicating if this discriminator mapping is complete. </param>
+        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        public virtual DiscriminatorBuilder<TDiscriminator>? IsComplete(bool complete = true)
+        {
+            var builder = Builder.IsComplete(complete);
+            return builder == null ? null : new DiscriminatorBuilder<TDiscriminator>(builder);
+        }
+
+        /// <summary>
         ///     Configures the default discriminator value to use.
         /// </summary>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder<TDiscriminator> HasValue([CanBeNull] TDiscriminator value)
+        public virtual DiscriminatorBuilder<TDiscriminator>? HasValue([CanBeNull] TDiscriminator? value)
         {
             var builder = Builder.HasValue(value);
             return builder == null ? null : new DiscriminatorBuilder<TDiscriminator>(builder);
@@ -47,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TEntity"> The entity type for which a discriminator value is being set. </typeparam>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder<TDiscriminator> HasValue<TEntity>([CanBeNull] TDiscriminator value)
+        public virtual DiscriminatorBuilder<TDiscriminator>? HasValue<TEntity>([CanBeNull] TDiscriminator? value)
             => HasValue(typeof(TEntity), value);
 
         /// <summary>
@@ -56,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityType"> The entity type for which a discriminator value is being set. </param>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder<TDiscriminator> HasValue([NotNull] Type entityType, [CanBeNull] TDiscriminator value)
+        public virtual DiscriminatorBuilder<TDiscriminator>? HasValue([NotNull] Type entityType, [CanBeNull] TDiscriminator? value)
         {
             var builder = Builder.HasValue(entityType, value);
             return builder == null ? null : new DiscriminatorBuilder<TDiscriminator>(builder);
@@ -68,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityTypeName"> The name of the entity type for which a discriminator value is being set. </param>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder<TDiscriminator> HasValue([NotNull] string entityTypeName, [CanBeNull] TDiscriminator value)
+        public virtual DiscriminatorBuilder<TDiscriminator>? HasValue([NotNull] string entityTypeName, [CanBeNull] TDiscriminator? value)
         {
             var builder = Builder.HasValue(entityTypeName, value);
             return builder == null ? null : new DiscriminatorBuilder<TDiscriminator>(builder);

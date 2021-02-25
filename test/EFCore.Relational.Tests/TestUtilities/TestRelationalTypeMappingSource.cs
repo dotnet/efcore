@@ -188,11 +188,37 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     }
 
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
 
                     return new ByteArrayTypeMapping(
-                        storeTypeName ?? "just_binary(" + (size == null ? "max" : size.ToString()) + ")",
+                        storeTypeName
+                        ?? (isFixedLength ? "just_binary_fixed(" : "just_binary(") + (size == null ? "max" : size.ToString()) + ")",
                         DbType.Binary,
                         size);
+                }
+
+                if (clrType == typeof(decimal)
+                    && !string.Equals("money", storeTypeName, StringComparison.Ordinal))
+                {
+                    var precision = mappingInfo.Precision;
+                    var scale = mappingInfo.Scale;
+                    if (precision == _defaultDecimalMapping.Precision
+                        && scale == _defaultDecimalMapping.Scale)
+                    {
+                        return _defaultDecimalMapping;
+                    }
+
+                    if (scale == null || scale == 0)
+                    {
+                        return new DecimalTypeMapping(
+                            "decimal_mapping(" + precision + ")",
+                            precision: precision);
+                    }
+
+                    return new DecimalTypeMapping(
+                        "decimal_mapping(" + precision + "," + scale + ")",
+                        precision: precision,
+                        scale: scale);
                 }
 
                 if (_simpleMappings.TryGetValue(clrType, out var mapping))
@@ -209,6 +235,26 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 && (clrType == null || mappingFromName.ClrType == clrType)
                     ? mappingFromName
                     : null;
+        }
+
+        protected override string ParseStoreTypeName(
+            string storeTypeName,
+            out bool? unicode,
+            out int? size,
+            out int? precision,
+            out int? scale)
+        {
+            var parsedName = base.ParseStoreTypeName(storeTypeName, out unicode, out size, out precision, out scale);
+
+            if (size.HasValue
+                && storeTypeName?.StartsWith("default_decimal_mapping", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                precision = size;
+                size = null;
+                scale = 0;
+            }
+
+            return parsedName;
         }
     }
 }

@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public EmbeddedDocumentsTest(CosmosFixture fixture, ITestOutputHelper testOutputHelper)
         {
             Fixture = fixture;
-            TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         [ConditionalFact(Skip = "Issue #17670")]
@@ -188,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     Street = "Another",
                     City = "City",
                     AddressTitle = new AddressTitle { Title = "P3 Alternative" },
-                    Notes = new List<Note> { new Note { Content = "Another note" } }
+                    Notes = new List<Note> { new() { Content = "Another note" } }
                 };
 
                 var existingFirstAddressEntry = context.Entry(people[2].Addresses.First());
@@ -267,6 +268,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
+        public virtual async Task Properties_on_owned_types_can_be_client_generated()
+        {
+            var options = Fixture.CreateOptions(seed: false);
+
+            using (var context = new EmbeddedTransportationContext(options))
+            {
+                var address = new Address
+                {
+                    Street = "First",
+                    City = "City",
+                    AddressTitle = new AddressTitle()
+                };
+
+                context.Add(new Person { Id = 1, Addresses = new List<Address> { address} });
+                Assert.Equal("DefaultTitle", address.AddressTitle.Title);
+
+                await context.SaveChangesAsync();
+
+                var people = await context.Set<Person>().ToListAsync();
+                Assert.Same(address, people[0].Addresses.Single());
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task Can_use_non_int_keys_for_embedded_entities()
         {
             var options = Fixture.CreateOptions(
@@ -339,14 +364,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public virtual async Task Can_query_just_embedded_reference()
         {
             var options = Fixture.CreateOptions();
-            using (var context = new EmbeddedTransportationContext(options))
-            {
-                var firstOperator = await context.Set<Vehicle>().OrderBy(o => o.Name).Select(v => v.Operator)
-                    .AsNoTracking().FirstAsync();
+            using var context = new EmbeddedTransportationContext(options);
+            var firstOperator = await context.Set<Vehicle>().OrderBy(o => o.Name).Select(v => v.Operator)
+                .AsNoTracking().FirstAsync();
 
-                Assert.Equal("Albert Williams", firstOperator.Name);
-                Assert.Null(firstOperator.Vehicle);
-            }
+            Assert.Equal("Albert Williams", firstOperator.Name);
+            Assert.Null(firstOperator.Vehicle);
         }
 
         [ConditionalFact]
@@ -381,21 +404,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public virtual async Task Inserting_dependent_without_principal_throws()
         {
             var options = Fixture.CreateOptions(seed: false);
-            using (var context = new EmbeddedTransportationContext(options))
-            {
-                context.Add(
-                    new LicensedOperator
-                    {
-                        Name = "Jack Jackson",
-                        LicenseType = "Class A CDC",
-                        VehicleName = "Fuel transport"
-                    });
+            using var context = new EmbeddedTransportationContext(options);
+            context.Add(
+                new LicensedOperator
+                {
+                    Name = "Jack Jackson",
+                    LicenseType = "Class A CDC",
+                    VehicleName = "Fuel transport"
+                });
 
-                Assert.Equal(
-                    CosmosStrings.OrphanedNestedDocumentSensitive(
-                        nameof(Operator), nameof(Vehicle), "{VehicleName: Fuel transport}"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
-            }
+            Assert.Equal(
+                CosmosStrings.OrphanedNestedDocumentSensitive(
+                    nameof(Operator), nameof(Vehicle), "{VehicleName: Fuel transport}"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
         }
 
         [ConditionalFact]
@@ -454,7 +475,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        protected TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)Fixture.ListLoggerFactory;
+        protected TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)Fixture.ListLoggerFactory;
 
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
@@ -469,7 +491,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 TestStore = CosmosTestStore.Create(DatabaseName);
             }
 
-            protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => CosmosTestStoreFactory.Instance;
+
             public virtual CosmosTestStore TestStore { get; }
             private Action<ModelBuilder> OnModelCreatingAction { get; set; }
             private object AdditionalModelCacheKey { get; set; }
@@ -480,7 +504,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
 
             public DbContextOptions CreateOptions(
-                Action<ModelBuilder> onModelCreating = null, object additionalModelCacheKey = null, bool seed = true)
+                Action<ModelBuilder> onModelCreating = null,
+                object additionalModelCacheKey = null,
+                bool seed = true)
             {
                 OnModelCreatingAction = onModelCreating;
                 AdditionalModelCacheKey = additionalModelCacheKey;
@@ -502,9 +528,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 => base.AddServices(serviceCollection)
                     .AddSingleton<IModelCacheKeyFactory>(new TestModelCacheKeyFactory(() => AdditionalModelCacheKey));
 
-            public Task InitializeAsync() => Task.CompletedTask;
+            public Task InitializeAsync()
+                => Task.CompletedTask;
 
-            public Task DisposeAsync() => TestStore.DisposeAsync();
+            public Task DisposeAsync()
+                => TestStore.DisposeAsync();
 
             private class TestModelCacheKeyFactory : IModelCacheKeyFactory
             {
@@ -515,7 +543,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     _getAdditionalKey = getAdditionalKey;
                 }
 
-                public object Create(DbContext context) => Tuple.Create(context.GetType(), _getAdditionalKey());
+                public object Create(DbContext context)
+                    => Tuple.Create(context.GetType(), _getAdditionalKey());
             }
         }
 
@@ -566,10 +595,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                         v => v.Addresses, b =>
                         {
                             b.ToJsonProperty("Stored Addresses");
-                            b.OwnsOne(a => a.AddressTitle);
+                            b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
                             b.OwnsMany(a => a.Notes);
                         }));
             }
+        }
+
+        private class TitleGenerator : ValueGenerator<string>
+        {
+            public override bool GeneratesTemporaryValues => false;
+
+            public override string Next(EntityEntry entry) => "DefaultTitle";
         }
 
         private abstract class PersonBase

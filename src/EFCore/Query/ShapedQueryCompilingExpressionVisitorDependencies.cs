@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class ShapedQueryCompilingExpressionVisitorDependencies
+    public sealed record ShapedQueryCompilingExpressionVisitorDependencies
     {
         /// <summary>
         ///     <para>
@@ -58,54 +60,38 @@ namespace Microsoft.EntityFrameworkCore.Query
         public ShapedQueryCompilingExpressionVisitorDependencies(
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IMemoryCache memoryCache)
+            [NotNull] IMemoryCache memoryCache,
+            [NotNull] ICoreSingletonOptions coreSingletonOptions)
         {
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(memoryCache, nameof(memoryCache));
+            Check.NotNull(coreSingletonOptions, nameof(coreSingletonOptions));
 
             EntityMaterializerSource = entityMaterializerSource;
             TypeMappingSource = typeMappingSource;
             MemoryCache = memoryCache;
+            CoreSingletonOptions = coreSingletonOptions;
         }
 
         /// <summary>
         ///     The materializer source.
         /// </summary>
-        public IEntityMaterializerSource EntityMaterializerSource { get; }
+        public IEntityMaterializerSource EntityMaterializerSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        public ITypeMappingSource TypeMappingSource { get; }
+        public ITypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The memory cache.
         /// </summary>
-        public IMemoryCache MemoryCache { get; }
+        public IMemoryCache MemoryCache { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
+        ///     Core singleton options.
         /// </summary>
-        /// <param name="entityMaterializerSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ShapedQueryCompilingExpressionVisitorDependencies With([NotNull] IEntityMaterializerSource entityMaterializerSource)
-            => new ShapedQueryCompilingExpressionVisitorDependencies(entityMaterializerSource, TypeMappingSource, MemoryCache);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ShapedQueryCompilingExpressionVisitorDependencies With([NotNull] ITypeMappingSource typeMappingSource)
-            => new ShapedQueryCompilingExpressionVisitorDependencies(EntityMaterializerSource, typeMappingSource, MemoryCache);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="memoryCache"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ShapedQueryCompilingExpressionVisitorDependencies With([NotNull] IMemoryCache memoryCache)
-            => new ShapedQueryCompilingExpressionVisitorDependencies(EntityMaterializerSource, TypeMappingSource, memoryCache);
+        public ICoreSingletonOptions CoreSingletonOptions { get; [param: NotNull] init; }
     }
 }

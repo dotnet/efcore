@@ -22,19 +22,11 @@ namespace System.Reflection
                 && (!publicOnly || propertyInfo.GetMethod.IsPublic)
                 && propertyInfo.GetIndexParameters().Length == 0;
 
-        public static bool IsEFIndexerProperty([NotNull] this PropertyInfo propertyInfo)
+        public static bool IsIndexerProperty([NotNull] this PropertyInfo propertyInfo)
         {
-            if (propertyInfo.PropertyType == typeof(object))
-            {
-                var indexParams = propertyInfo.GetIndexParameters();
-                if (indexParams.Length == 1
-                    && indexParams[0].ParameterType == typeof(string))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            var indexParams = propertyInfo.GetIndexParameters();
+            return indexParams.Length == 1
+                && indexParams[0].ParameterType == typeof(string);
         }
 
         public static PropertyInfo FindGetterProperty([NotNull] this PropertyInfo propertyInfo)

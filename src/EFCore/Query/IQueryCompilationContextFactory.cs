@@ -3,6 +3,8 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -18,6 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface IQueryCompilationContextFactory
     {
+        /// <summary>
+        ///     Creates a new <see cref="QueryCompilationContext" />.
+        /// </summary>
+        /// <param name="async"> Specifies whether the query is async. </param>
+        /// <returns> The created query compilation context. </returns>
         QueryCompilationContext Create(bool async);
     }
 }

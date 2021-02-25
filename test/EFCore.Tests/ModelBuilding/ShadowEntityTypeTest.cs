@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     public class ShadowEntityTypeTest
     {
         [ConditionalFact]
-        public virtual void Can_create_two_shadow_weak_owned_types()
+        public virtual void Can_create_two_shadow_owned_types()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -62,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.Equal(
                 ownership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name,
                 ownership2.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
-            Assert.Equal(2, model.GetEntityTypes().Count(e => e.Name == "CustomerDetails"));
+            Assert.Equal(2, model.GetEntityTypes().Count(e => e.ShortName() == "CustomerDetails"));
         }
 
         [ConditionalFact]
-        public virtual void Can_create_One_to_One_shadow_navigations_between_shadow_entity_types()
+        public virtual void Can_create_one_to_one_shadow_navigations_between_shadow_entity_types()
         {
             var modelBuilder = CreateModelBuilder();
             var foreignKey = modelBuilder.Entity("Order")
@@ -80,12 +80,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.True(foreignKey.IsUnique);
 
             Assert.Equal(
-                CoreStrings.ShadowEntity("Order"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                CoreStrings.EntityRequiresKey("Order (Dictionary<string, object>)"),
+                Assert.Throws<InvalidOperationException>(() => InMemoryTestHelpers.Instance.Finalize(modelBuilder)).Message);
         }
 
         [ConditionalFact]
-        public virtual void Can_create_One_to_Many_shadow_navigations_between_shadow_entity_types()
+        public virtual void Can_create_one_to_many_shadow_navigations_between_shadow_entity_types()
         {
             var modelBuilder = CreateModelBuilder();
             var foreignKey = modelBuilder.Entity("Order")
@@ -98,8 +98,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             Assert.False(foreignKey.IsUnique);
 
             Assert.Equal(
-                CoreStrings.ShadowEntity("Customer"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                CoreStrings.EntityRequiresKey("Customer (Dictionary<string, object>)"),
+                Assert.Throws<InvalidOperationException>(() => InMemoryTestHelpers.Instance.Finalize(modelBuilder)).Message);
         }
 
         [ConditionalFact]
@@ -109,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             var orderEntityType = modelBuilder.Entity(typeof(Order));
 
             Assert.Equal(
-                CoreStrings.NavigationToShadowEntity("Customer", typeof(Order).ShortDisplayName(), "Customer"),
+                CoreStrings.NavigationSingleWrongClrType(
+                    "Customer", typeof(Order).ShortDisplayName(), "Customer", "Dictionary<string, object>"),
                 Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne("Customer", "Customer")).Message);
         }
 

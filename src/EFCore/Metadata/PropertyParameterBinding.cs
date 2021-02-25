@@ -3,8 +3,10 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -33,11 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var property = ConsumedProperties[0];
 
-            return Expression.Call(
-                EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(property.ClrType),
-                Expression.Call(bindingInfo.MaterializationContextExpression, MaterializationContext.GetValueBufferMethod),
-                Expression.Constant(bindingInfo.GetValueBufferIndex(property)),
-                Expression.Constant(property, typeof(IPropertyBase)));
+            return Expression.Call(bindingInfo.MaterializationContextExpression, MaterializationContext.GetValueBufferMethod)
+                .CreateValueBufferReadValueExpression(property.ClrType, bindingInfo.GetValueBufferIndex(property), property);
         }
     }
 }

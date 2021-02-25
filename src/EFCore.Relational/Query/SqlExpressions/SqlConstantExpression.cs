@@ -4,32 +4,73 @@
 using System;
 using System.Collections;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents a constant in a SQL tree.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class SqlConstantExpression : SqlExpression
     {
         private readonly ConstantExpression _constantExpression;
 
-        public SqlConstantExpression(ConstantExpression constantExpression, RelationalTypeMapping typeMapping)
-            : base(constantExpression.Type, typeMapping)
+        /// <summary>
+        ///     Creates a new instance of the <see cref="SqlConstantExpression" /> class.
+        /// </summary>
+        /// <param name="constantExpression"> A <see cref="ConstantExpression" />. </param>
+        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        public SqlConstantExpression([NotNull] ConstantExpression constantExpression, [CanBeNull] RelationalTypeMapping? typeMapping)
+            : base(Check.NotNull(constantExpression, nameof(constantExpression)).Type.UnwrapNullableType(), typeMapping)
         {
             _constantExpression = constantExpression;
         }
 
-        public virtual object Value => _constantExpression.Value;
+        /// <summary>
+        ///     The constant value.
+        /// </summary>
+        public virtual object? Value
+            => _constantExpression.Value;
 
-        public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping typeMapping)
+        /// <summary>
+        ///     Applies supplied type mapping to this expression.
+        /// </summary>
+        /// <param name="typeMapping"> A relational type mapping to apply. </param>
+        /// <returns> A new expression which has supplied type mapping. </returns>
+        public virtual SqlExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping)
             => new SqlConstantExpression(_constantExpression, typeMapping);
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
-        public override void Print(ExpressionPrinter expressionPrinter) => Print(Value, expressionPrinter);
+        /// <inheritdoc />
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
 
-        private void Print(object value, ExpressionPrinter expressionPrinter)
+            return this;
+        }
+
+        /// <inheritdoc />
+        protected override void Print(ExpressionPrinter expressionPrinter)
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            Print(Value, expressionPrinter);
+        }
+
+        private void Print(object? value, ExpressionPrinter expressionPrinter)
             => expressionPrinter.Append(TypeMapping?.GenerateSqlLiteral(value) ?? Value?.ToString() ?? "NULL");
 
-        public override bool Equals(object obj)
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlConstantExpression sqlConstantExpression
@@ -39,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => base.Equals(sqlConstantExpression)
                 && ValueEquals(Value, sqlConstantExpression.Value);
 
-        private bool ValueEquals(object value1, object value2)
+        private bool ValueEquals(object? value1, object? value2)
         {
             if (value1 == null)
             {
@@ -68,6 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return value1.Equals(value2);
         }
 
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Value);
+        /// <inheritdoc />
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Value);
     }
 }

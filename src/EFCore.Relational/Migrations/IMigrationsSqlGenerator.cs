@@ -27,10 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Generates commands from a list of operations.
         /// </summary>
         /// <param name="operations"> The operations. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="model"> The target model which may be <see langword="null" /> if the operations exist without a model. </param>
+        /// <param name="options"> The options to use when generating commands. </param>
         /// <returns> The list of commands to be executed or scripted. </returns>
         IReadOnlyList<MigrationCommand> Generate(
             [NotNull] IReadOnlyList<MigrationOperation> operations,
-            [CanBeNull] IModel model = null);
+            [CanBeNull] IModel model = null,
+            MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default);
     }
 }

@@ -47,6 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     <para><c>startupTargetName</c>--The assembly name of the startup project.</para>
         ///     <para><c>projectDir</c>--The target project's root directory.</para>
         ///     <para><c>rootNamespace</c>--The target project's root namespace.</para>
+        ///     <para><c>language</c>--The programming language to be used to generate classes.</para>
+        ///     <para><c>remainingArguments</c>--Extra arguments passed into the operation.</para>
         /// </summary>
         /// <param name="reportHandler"> The <see cref="IOperationReportHandler" />. </param>
         /// <param name="args"> The executor arguments. </param>
@@ -61,9 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _projectDir = (string)args["projectDir"];
             _rootNamespace = (string)args["rootNamespace"];
             _language = (string)args["language"];
-
-            // TODO: Flow in from tools (issue #8332)
-            _designArgs = Array.Empty<string>();
+            _designArgs = (string[])args["remainingArguments"];
 
             var toolsVersion = (string)args["toolsVersion"];
             var runtimeVersion = ProductInfo.GetVersion();
@@ -160,26 +160,31 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var name = (string)args["name"];
                 var outputDir = (string)args["outputDir"];
                 var contextType = (string)args["contextType"];
+                var @namespace = (string)args["namespace"];
 
-                Execute(() => executor.AddMigrationImpl(name, outputDir, contextType));
+                Execute(() => executor.AddMigrationImpl(name, outputDir, contextType, @namespace));
             }
         }
 
         private IDictionary AddMigrationImpl(
             [NotNull] string name,
             [CanBeNull] string outputDir,
-            [CanBeNull] string contextType)
+            [CanBeNull] string contextType,
+            [CanBeNull] string @namespace)
         {
             Check.NotEmpty(name, nameof(name));
 
             var files = MigrationsOperations.AddMigration(
                 name,
                 outputDir,
-                contextType);
+                contextType,
+                @namespace);
 
             return new Hashtable
             {
-                ["MigrationFile"] = files.MigrationFile, ["MetadataFile"] = files.MetadataFile, ["SnapshotFile"] = files.SnapshotFile
+                ["MigrationFile"] = files.MigrationFile,
+                ["MetadataFile"] = files.MetadataFile,
+                ["SnapshotFile"] = files.SnapshotFile
             };
         }
 
@@ -197,7 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
             public GetContextInfo(
-                [NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
+                [NotNull] OperationExecutor executor,
+                [NotNull] IOperationResultHandler resultHandler,
+                [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -232,27 +239,38 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///         <c>targetMigration</c>--The target <see cref="Migration" />. If <see cref="Migration.InitialDatabase" />, all migrations will be
             ///         reverted. Defaults to the last migration.
             ///     </para>
+            ///     <para>
+            ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+            ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+            ///         <see cref="DbContext.OnConfiguring" />.
+            ///     </para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             /// </summary>
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
             public UpdateDatabase(
-                [NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
+                [NotNull] OperationExecutor executor,
+                [NotNull] IOperationResultHandler resultHandler,
+                [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
                 var targetMigration = (string)args["targetMigration"];
+                var connectionString = (string)args["connectionString"];
                 var contextType = (string)args["contextType"];
 
-                Execute(() => executor.UpdateDatabaseImpl(targetMigration, contextType));
+                Execute(() => executor.UpdateDatabaseImpl(targetMigration, connectionString, contextType));
             }
         }
 
-        private void UpdateDatabaseImpl([CanBeNull] string targetMigration, [CanBeNull] string contextType) =>
-            MigrationsOperations.UpdateDatabase(targetMigration, contextType);
+        private void UpdateDatabaseImpl(
+            [CanBeNull] string targetMigration,
+            [CanBeNull] string connectionString,
+            [CanBeNull] string contextType)
+            => MigrationsOperations.UpdateDatabase(targetMigration, connectionString, contextType);
 
         /// <summary>
         ///     Represents an operation to generate a SQL script from migrations.
@@ -265,6 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>fromMigration</c>--The starting migration. Defaults to <see cref="Migration.InitialDatabase" />.</para>
             ///     <para><c>toMigration</c>--The ending migration. Defaults to the last migration.</para>
             ///     <para><c>idempotent</c>--Generate a script that can be used on a database at any migration.</para>
+            ///     <para><c>noTransactions</c>--Don't generate SQL transaction statements.</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
             /// </summary>
             /// <param name="executor"> The operation executor. </param>
@@ -282,9 +301,10 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var fromMigration = (string)args["fromMigration"];
                 var toMigration = (string)args["toMigration"];
                 var idempotent = (bool)args["idempotent"];
+                var noTransactions = (bool)(args["noTransactions"] ?? false);
                 var contextType = (string)args["contextType"];
 
-                Execute(() => executor.ScriptMigrationImpl(fromMigration, toMigration, idempotent, contextType));
+                Execute(() => executor.ScriptMigrationImpl(fromMigration, toMigration, idempotent, noTransactions, contextType));
             }
         }
 
@@ -292,12 +312,26 @@ namespace Microsoft.EntityFrameworkCore.Design
             [CanBeNull] string fromMigration,
             [CanBeNull] string toMigration,
             bool idempotent,
+            bool noTransactions,
             [CanBeNull] string contextType)
-            => MigrationsOperations.ScriptMigration(
+        {
+            var options = MigrationsSqlGenerationOptions.Default;
+            if (idempotent)
+            {
+                options |= MigrationsSqlGenerationOptions.Idempotent;
+            }
+
+            if (noTransactions)
+            {
+                options |= MigrationsSqlGenerationOptions.NoTransactions;
+            }
+
+            return MigrationsOperations.ScriptMigration(
                 fromMigration,
                 toMigration,
-                idempotent,
+                options,
                 contextType);
+        }
 
         /// <summary>
         ///     Represents an operation to remove the last migration.
@@ -335,7 +369,9 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             return new Hashtable
             {
-                ["MigrationFile"] = files.MigrationFile, ["MetadataFile"] = files.MetadataFile, ["SnapshotFile"] = files.SnapshotFile
+                ["MigrationFile"] = files.MigrationFile,
+                ["MetadataFile"] = files.MetadataFile,
+                ["SnapshotFile"] = files.SnapshotFile
             };
         }
 
@@ -352,7 +388,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
             public GetContextTypes(
-                [NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
+                [NotNull] OperationExecutor executor,
+                [NotNull] IOperationResultHandler resultHandler,
+                [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -391,26 +429,39 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para>Initializes a new instance of the <see cref="GetMigrations" /> class.</para>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
+            ///     <para>
+            ///         <c>connectionString</c>--The connection string to the database. Defaults to the one specified in
+            ///         <see cref="O:Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext" /> or
+            ///         <see cref="DbContext.OnConfiguring" />.
+            ///     </para>
+            ///     <para><c>noConnect</c>--Don't connect to the database.</para>
             /// </summary>
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
             public GetMigrations(
-                [NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
+                [NotNull] OperationExecutor executor,
+                [NotNull] IOperationResultHandler resultHandler,
+                [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
                 var contextType = (string)args["contextType"];
+                var connectionString = (string)args["connectionString"];
+                var noConnect = (bool)(args["noConnect"] ?? true);
 
-                Execute(() => executor.GetMigrationsImpl(contextType));
+                Execute(() => executor.GetMigrationsImpl(contextType, connectionString, noConnect));
             }
         }
 
-        private IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextType)
+        private IEnumerable<IDictionary> GetMigrationsImpl(
+            [CanBeNull] string contextType,
+            string connectionString,
+            bool noConnect)
         {
-            var migrations = MigrationsOperations.GetMigrations(contextType).ToList();
+            var migrations = MigrationsOperations.GetMigrations(contextType, connectionString, noConnect).ToList();
             var nameGroups = migrations.GroupBy(m => m.Name).ToList();
 
             return migrations.Select(
@@ -420,7 +471,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                     ["Name"] = m.Name,
                     ["SafeName"] = nameGroups.Count(g => g.Key == m.Name) == 1
                         ? m.Name
-                        : m.Id
+                        : m.Id,
+                    ["Applied"] = m.Applied
                 });
         }
 
@@ -442,12 +494,17 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>useDataAnnotations</c>--Use attributes to configure the model (where possible). If false, only the fluent API is used.</para>
             ///     <para><c>overwriteFiles</c>--Overwrite existing files.</para>
             ///     <para><c>useDatabaseNames</c>--Use table and column names directly from the database.</para>
+            ///     <para><c>modelNamespace</c>--Specify to override the namespace of the generated entity types.</para>
+            ///     <para><c>contextNamespace</c>--Specify to override the namespace of the generated DbContext class.</para>
+            ///     <para><c>noPluralize</c>--Don't use the pluralizer.</para>
             /// </summary>
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
             public ScaffoldContext(
-                [NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
+                [NotNull] OperationExecutor executor,
+                [NotNull] IOperationResultHandler resultHandler,
+                [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -460,14 +517,19 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var dbContextClassName = (string)args["dbContextClassName"];
                 var schemaFilters = (IEnumerable<string>)args["schemaFilters"];
                 var tableFilters = (IEnumerable<string>)args["tableFilters"];
+                var modelNamespace = (string)args["modelNamespace"];
+                var contextNamespace = (string)args["contextNamespace"];
                 var useDataAnnotations = (bool)args["useDataAnnotations"];
                 var overwriteFiles = (bool)args["overwriteFiles"];
                 var useDatabaseNames = (bool)args["useDatabaseNames"];
+                var suppressOnConfiguring = (bool)(args["suppressOnConfiguring"] ?? false);
+                var noPluralize = (bool)(args["noPluralize"] ?? false);
 
                 Execute(
                     () => executor.ScaffoldContextImpl(
                         provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
-                        schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames));
+                        schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
+                        overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluralize));
             }
         }
 
@@ -479,9 +541,13 @@ namespace Microsoft.EntityFrameworkCore.Design
             [CanBeNull] string dbContextClassName,
             [NotNull] IEnumerable<string> schemaFilters,
             [NotNull] IEnumerable<string> tableFilters,
+            [CanBeNull] string modelNamespace,
+            [CanBeNull] string contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            bool suppressOnConfiguring,
+            bool noPluarlize)
         {
             Check.NotNull(provider, nameof(provider));
             Check.NotNull(connectionString, nameof(connectionString));
@@ -490,7 +556,8 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             var files = DatabaseOperations.ScaffoldContext(
                 provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
-                schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames);
+                schemaFilters, tableFilters, modelNamespace, contextNamespace, useDataAnnotations,
+                overwriteFiles, useDatabaseNames, suppressOnConfiguring, noPluarlize);
 
             return new Hashtable { ["ContextFile"] = files.ContextFile, ["EntityTypeFiles"] = files.AdditionalFiles.ToArray() };
         }

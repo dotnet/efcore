@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public EntityGraphAttacher(
-            [NotNull] IEntityEntryGraphIterator graphIterator) => _graphIterator = graphIterator;
+            [NotNull] IEntityEntryGraphIterator graphIterator)
+            => _graphIterator = graphIterator;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -118,12 +119,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var (isGenerated, isSet) = internalEntityEntry.IsKeySet;
 
             await internalEntityEntry.SetEntityStateAsync(
-                isSet
-                    ? (isGenerated ? storeGenTargetState : targetState)
-                    : EntityState.Added, // Key can only be not-set if it is store-generated
-                acceptChanges: true,
-                forceStateWhenUnknownKey: force ? (EntityState?)targetState : null,
-                cancellationToken: cancellationToken);
+                    isSet
+                        ? (isGenerated ? storeGenTargetState : targetState)
+                        : EntityState.Added, // Key can only be not-set if it is store-generated
+                    acceptChanges: true,
+                    forceStateWhenUnknownKey: force ? (EntityState?)targetState : null,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             return true;
         }
@@ -133,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var inboundNavigation = node.InboundNavigation;
             if (inboundNavigation != null
-                && !inboundNavigation.IsCollection())
+                && !inboundNavigation.IsCollection)
             {
                 node.SourceEntry.GetInfrastructure().SetIsLoaded(inboundNavigation);
             }

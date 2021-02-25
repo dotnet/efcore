@@ -3,31 +3,76 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class SqlParameterExpression : SqlExpression
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents a parameter in a SQL tree.
+    ///     </para>
+    ///     <para>
+    ///         This is a simple wrapper around a <see cref="ParameterExpression" /> in the SQL tree.
+    ///         Instances of this type cannot be constructed by application or database provider code. If this is a problem for your
+    ///         application or provider, then please file an issue at https://github.com/dotnet/efcore.
+    ///     </para>
+    /// </summary>
+    public sealed class SqlParameterExpression : SqlExpression
     {
         private readonly ParameterExpression _parameterExpression;
+        private readonly string _name;
 
-        internal SqlParameterExpression(ParameterExpression parameterExpression, RelationalTypeMapping typeMapping)
-            : base(parameterExpression.Type, typeMapping)
+        internal SqlParameterExpression(ParameterExpression parameterExpression, RelationalTypeMapping? typeMapping)
+            : base(parameterExpression.Type.UnwrapNullableType(), typeMapping)
         {
+            Check.DebugAssert(parameterExpression.Name != null, "Parameter must have name.");
+
             _parameterExpression = parameterExpression;
+            _name = parameterExpression.Name;
+            IsNullable = parameterExpression.Type.IsNullableType();
         }
 
-        public string Name => _parameterExpression.Name;
+        /// <summary>
+        ///     The name of the parameter.
+        /// </summary>
+        public string Name
+            => _name;
 
-        public SqlExpression ApplyTypeMapping(RelationalTypeMapping typeMapping)
+        /// <summary>
+        ///     The bool value indicating if this parameter can have null values.
+        /// </summary>
+        public bool IsNullable { get; }
+
+        /// <summary>
+        ///     Applies supplied type mapping to this expression.
+        /// </summary>
+        /// <param name="typeMapping"> A relational type mapping to apply. </param>
+        /// <returns> A new expression which has supplied type mapping. </returns>
+        public SqlExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping)
             => new SqlParameterExpression(_parameterExpression, typeMapping);
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        /// <inheritdoc />
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
 
-        public override void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.Append("@" + _parameterExpression.Name);
+            return this;
+        }
 
-        public override bool Equals(object obj)
+        /// <inheritdoc />
+        protected override void Print(ExpressionPrinter expressionPrinter)
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            expressionPrinter.Append("@" + _parameterExpression.Name);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlParameterExpression sqlParameterExpression
@@ -35,8 +80,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(SqlParameterExpression sqlParameterExpression)
             => base.Equals(sqlParameterExpression)
-                && string.Equals(Name, sqlParameterExpression.Name);
+                && Name == sqlParameterExpression.Name;
 
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name);
+        /// <inheritdoc />
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Name);
     }
 }

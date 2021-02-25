@@ -55,105 +55,98 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             bool? scaffoldUnicode = null;
             bool? scaffoldFixedLength = null;
             int? scaffoldMaxLength = null;
+            int? scaffoldPrecision = null;
+            int? scaffoldScale = null;
 
-            if (mapping.ClrType == typeof(byte[]))
+            var unwrappedClrType = mapping.ClrType.UnwrapNullableType();
+
+            // Check for inference
+            var defaultTypeMapping = _typeMappingSource.FindMapping(
+                unwrappedClrType,
+                null,
+                keyOrIndex,
+                unicode: mapping.IsUnicode,
+                size: mapping.Size,
+                rowVersion: rowVersion,
+                fixedLength: mapping.IsFixedLength,
+                precision: mapping.Precision,
+                scale: mapping.Scale);
+
+            if (defaultTypeMapping != null
+                && string.Equals(defaultTypeMapping.StoreType, storeType, StringComparison.Ordinal))
             {
-                // Check for inference
-                var byteArrayMapping = _typeMappingSource.FindMapping(
-                    typeof(byte[]),
+                canInfer = true;
+
+                // Check for Unicode
+                var unicodeMapping = _typeMappingSource.FindMapping(
+                    unwrappedClrType,
                     null,
                     keyOrIndex,
-                    rowVersion: rowVersion,
+                    unicode: null,
                     size: mapping.Size,
-                    fixedLength: mapping.IsFixedLength);
+                    rowVersion: rowVersion,
+                    fixedLength: mapping.IsFixedLength,
+                    precision: mapping.Precision,
+                    scale: mapping.Scale);
 
-                if (byteArrayMapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
-                {
-                    canInfer = true;
+                scaffoldUnicode = unicodeMapping.IsUnicode != defaultTypeMapping.IsUnicode ? (bool?)defaultTypeMapping.IsUnicode : null;
 
-                    // Check for fixed-length
-                    var fixedLengthMapping = _typeMappingSource.FindMapping(
-                        typeof(byte[]),
-                        null,
-                        keyOrIndex,
-                        rowVersion: rowVersion,
-                        size: mapping.Size,
-                        fixedLength: false);
-
-                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != byteArrayMapping.IsFixedLength
-                        ? (bool?)byteArrayMapping.IsFixedLength
-                        : null;
-
-                    // Check for size
-                    var sizedMapping = _typeMappingSource.FindMapping(
-                        typeof(byte[]),
-                        null,
-                        keyOrIndex,
-                        rowVersion: rowVersion,
-                        fixedLength: mapping.IsFixedLength);
-
-                    scaffoldMaxLength = sizedMapping.Size != byteArrayMapping.Size ? byteArrayMapping.Size : null;
-                }
-            }
-            else if (mapping.ClrType == typeof(string))
-            {
-                // Check for inference
-                var stringMapping = _typeMappingSource.FindMapping(
-                    typeof(string),
+                // Check for fixed-length
+                var fixedLengthMapping = _typeMappingSource.FindMapping(
+                    unwrappedClrType,
                     null,
                     keyOrIndex,
                     unicode: mapping.IsUnicode,
                     size: mapping.Size,
-                    fixedLength: mapping.IsFixedLength);
+                    fixedLength: null,
+                    precision: mapping.Precision,
+                    scale: mapping.Scale);
 
-                if (stringMapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
-                {
-                    canInfer = true;
+                scaffoldFixedLength = fixedLengthMapping.IsFixedLength != defaultTypeMapping.IsFixedLength
+                    ? (bool?)defaultTypeMapping.IsFixedLength
+                    : null;
 
-                    // Check for Unicode
-                    var unicodeMapping = _typeMappingSource.FindMapping(
-                        typeof(string),
-                        null,
-                        keyOrIndex,
-                        unicode: true,
-                        size: mapping.Size,
-                        fixedLength: mapping.IsFixedLength);
+                // Check for size (= max-length)
+                var sizedMapping = _typeMappingSource.FindMapping(
+                    unwrappedClrType,
+                    null,
+                    keyOrIndex,
+                    unicode: mapping.IsUnicode,
+                    size: null,
+                    rowVersion: rowVersion,
+                    fixedLength: false, // Fixed length with no size is not valid
+                    precision: mapping.Precision,
+                    scale: mapping.Scale);
 
-                    scaffoldUnicode = unicodeMapping.IsUnicode != stringMapping.IsUnicode ? (bool?)stringMapping.IsUnicode : null;
+                scaffoldMaxLength = sizedMapping.Size != defaultTypeMapping.Size ? defaultTypeMapping.Size : null;
 
-                    // Check for fixed-length
-                    var fixedLengthMapping = _typeMappingSource.FindMapping(
-                        typeof(string),
-                        null,
-                        keyOrIndex,
-                        unicode: mapping.IsUnicode,
-                        size: mapping.Size,
-                        fixedLength: false);
+                // Check for precision
+                var precisionMapping = _typeMappingSource.FindMapping(
+                    unwrappedClrType,
+                    null,
+                    keyOrIndex,
+                    unicode: mapping.IsUnicode,
+                    size: mapping.Size,
+                    rowVersion: rowVersion,
+                    fixedLength: mapping.IsFixedLength,
+                    precision: null,
+                    scale: mapping.Scale);
 
-                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != stringMapping.IsFixedLength
-                        ? (bool?)stringMapping.IsFixedLength
-                        : null;
+                scaffoldPrecision = precisionMapping.Precision != defaultTypeMapping.Precision ? defaultTypeMapping.Precision : null;
 
-                    // Check for size
-                    var sizedMapping = _typeMappingSource.FindMapping(
-                        typeof(string),
-                        null,
-                        keyOrIndex,
-                        unicode: mapping.IsUnicode,
-                        fixedLength: mapping.IsFixedLength);
+                // Check for scale
+                var scaleMapping = _typeMappingSource.FindMapping(
+                    unwrappedClrType,
+                    null,
+                    keyOrIndex,
+                    unicode: mapping.IsUnicode,
+                    size: mapping.Size,
+                    rowVersion: rowVersion,
+                    fixedLength: mapping.IsFixedLength,
+                    precision: mapping.Precision,
+                    scale: null);
 
-                    scaffoldMaxLength = sizedMapping.Size != stringMapping.Size ? stringMapping.Size : null;
-                }
-            }
-            else
-            {
-                var defaultMapping = _typeMappingSource.FindMapping(mapping.ClrType);
-
-                if (string.Equals(defaultMapping?.StoreType, storeType, StringComparison.OrdinalIgnoreCase)
-                    && mapping.ClrType.UnwrapNullableType() != typeof(decimal))
-                {
-                    canInfer = true;
-                }
+                scaffoldScale = scaleMapping.Scale != defaultTypeMapping.Scale ? defaultTypeMapping.Scale : null;
             }
 
             return new TypeScaffoldingInfo(
@@ -161,7 +154,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 canInfer,
                 scaffoldUnicode,
                 scaffoldMaxLength,
-                scaffoldFixedLength);
+                scaffoldFixedLength,
+                scaffoldPrecision,
+                scaffoldScale);
         }
     }
 }

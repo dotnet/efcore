@@ -3,11 +3,12 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         been completed.
     ///     </para>
     /// </summary>
-    public class ServiceCollectionMap : IInfrastructure<InternalServiceCollectionMap>
+    public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMap>
     {
         private readonly InternalServiceCollectionMap _map;
 
@@ -41,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The underlying <see cref="IServiceCollection" />.
         /// </summary>
-        public virtual IServiceCollection ServiceCollection => _map.ServiceCollection;
+        public virtual IServiceCollection ServiceCollection
+            => _map.ServiceCollection;
 
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given concrete
@@ -271,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <typeparam name="TService"> The contract for the service. </typeparam>
         /// <param name="implementation"> The object that implements the service. </param>
         /// <returns> The map, such that further calls can be chained. </returns>
-        public virtual ServiceCollectionMap TryAddSingleton<TService>([CanBeNull] TService implementation)
+        public virtual ServiceCollectionMap TryAddSingleton<TService>([NotNull] TService implementation)
             where TService : class
             => TryAddSingleton(typeof(TService), implementation);
 
@@ -282,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="serviceType"> The contract for the service. </param>
         /// <param name="implementation"> The object that implements the service. </param>
         /// <returns> The map, such that further calls can be chained. </returns>
-        public virtual ServiceCollectionMap TryAddSingleton([NotNull] Type serviceType, [CanBeNull] object implementation)
+        public virtual ServiceCollectionMap TryAddSingleton([NotNull] Type serviceType, [NotNull] object implementation)
         {
             Check.NotNull(serviceType, nameof(serviceType));
 
@@ -507,8 +509,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => descriptor.ImplementationType
                 ?? descriptor.ImplementationInstance?.GetType()
                 // Generic arg on Func may be object, but this is the best we can do and matches logic in D.I. container
-                ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
+                ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1]!;
 
-        InternalServiceCollectionMap IInfrastructure<InternalServiceCollectionMap>.Instance => _map;
+        IInternalServiceCollectionMap IInfrastructure<IInternalServiceCollectionMap>.Instance
+            => _map;
     }
 }

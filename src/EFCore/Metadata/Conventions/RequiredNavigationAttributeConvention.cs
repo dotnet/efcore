@@ -1,13 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -26,64 +28,69 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
         }
 
-        /// <summary>
-        ///     Called after a navigation property that has an attribute is added to an entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the relationship. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public override void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
+            IConventionNavigationBuilder navigationBuilder,
             RequiredAttribute attribute,
-            IConventionContext<IConventionNavigation> context)
+            IConventionContext<IConventionNavigationBuilder> context)
         {
-            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
-            Check.NotNull(navigation, nameof(navigation));
-            Check.NotNull(attribute, nameof(attribute));
+            ProcessNavigation(navigationBuilder);
+            context.StopProcessingIfChanged(navigationBuilder.Metadata.Builder);
+        }
 
-            if (navigation.IsCollection())
+        /// <inheritdoc />
+        public override void ProcessForeignKeyPrincipalEndChanged(
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IEnumerable<RequiredAttribute>? dependentToPrincipalAttributes,
+            IEnumerable<RequiredAttribute>? principalToDependentAttributes,
+            IConventionContext<IConventionForeignKeyBuilder> context)
+        {
+            var fk = relationshipBuilder.Metadata;
+            if (dependentToPrincipalAttributes != null
+                && dependentToPrincipalAttributes.Any())
             {
-                Dependencies.Logger.RequiredAttributeOnCollection(navigation.ForeignKey.DependentToPrincipal);
+                ProcessNavigation(fk.DependentToPrincipal!.Builder);
+            }
+
+            if (principalToDependentAttributes != null
+                && principalToDependentAttributes.Any())
+            {
+                ProcessNavigation(fk.PrincipalToDependent!.Builder);
+            }
+
+            context.StopProcessingIfChanged(relationshipBuilder.Metadata.Builder);
+        }
+
+        private void ProcessNavigation(IConventionNavigationBuilder navigationBuilder)
+        {
+            var navigation = navigationBuilder.Metadata;
+            var foreignKey = navigation.ForeignKey;
+            if (navigation.IsCollection)
+            {
+                Dependencies.Logger.RequiredAttributeOnCollection(navigation);
                 return;
             }
 
-            if (!navigation.IsDependentToPrincipal())
+            if (foreignKey.GetPrincipalEndConfigurationSource() != null)
             {
-                var inverse = navigation.FindInverse();
-                if (inverse != null)
+                if (navigation.IsOnDependent)
                 {
-                    var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse);
-                    if (attributes.Any())
-                    {
-                        Dependencies.Logger.RequiredAttributeOnBothNavigations(navigation, inverse);
-                        return;
-                    }
+                    foreignKey.Builder.IsRequired(true, fromDataAnnotation: true);
                 }
-
-                if (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
+                else
                 {
-                    Dependencies.Logger.RequiredAttributeOnDependent(navigation.ForeignKey.PrincipalToDependent);
-                    return;
+                    foreignKey.Builder.IsRequiredDependent(true, fromDataAnnotation: true);
                 }
-
-                var newRelationshipBuilder = relationshipBuilder.HasEntityTypes(
-                    relationshipBuilder.Metadata.DeclaringEntityType,
-                    relationshipBuilder.Metadata.PrincipalEntityType);
-
-                if (newRelationshipBuilder == null)
-                {
-                    return;
-                }
-
-                Dependencies.Logger.RequiredAttributeInverted(newRelationshipBuilder.Metadata.DependentToPrincipal);
-                relationshipBuilder = newRelationshipBuilder;
             }
+        }
 
-            relationshipBuilder.IsRequired(true, fromDataAnnotation: true);
-
-            context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal);
+        /// <inheritdoc />
+        public override void ProcessSkipNavigationAdded(
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
+            RequiredAttribute attribute,
+            IConventionContext<IConventionSkipNavigationBuilder> context)
+        {
+            Dependencies.Logger.RequiredAttributeOnSkipNavigation(skipNavigationBuilder.Metadata);
         }
     }
 }

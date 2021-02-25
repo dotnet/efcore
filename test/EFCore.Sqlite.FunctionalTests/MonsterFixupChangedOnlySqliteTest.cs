@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class MonsterFixupChangedOnlySqliteFixture : MonsterFixupChangedOnlyFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
 
             protected override void OnModelCreating<TMessage, TProduct, TProductPhoto, TProductReview, TComputerDetail, TDimensions>(
                 ModelBuilder builder)

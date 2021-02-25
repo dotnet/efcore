@@ -4,10 +4,13 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -47,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures whether this property must have a value assigned or whether null is a valid value.
         ///     A property can only be configured as non-required if it is based on a CLR type that can be
-        ///     assigned <c>null</c>.
+        ///     assigned <see langword="null" />.
         /// </summary>
         /// <param name="required"> A value indicating whether the property is required. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -62,6 +65,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> HasMaxLength(int maxLength)
             => (PropertyBuilder<TProperty>)base.HasMaxLength(maxLength);
+
+        /// <summary>
+        ///     Configures the precision and scale of the property.
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <param name="scale"> The scale of the property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasPrecision(int precision, int scale)
+            => (PropertyBuilder<TProperty>)base.HasPrecision(precision, scale);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the precision of the property.
+        ///     </para>
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasPrecision(int precision)
+            => (PropertyBuilder<TProperty>)base.HasPrecision(precision);
 
         /// <summary>
         ///     Configures the property as capable of persisting unicode characters.
@@ -93,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
         ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
@@ -118,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
         ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
@@ -136,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="valueGeneratorType"> A type that inherits from <see cref="ValueGenerator" />. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasValueGenerator([CanBeNull] Type valueGeneratorType)
+        public new virtual PropertyBuilder<TProperty> HasValueGenerator([CanBeNull] Type? valueGeneratorType)
             => (PropertyBuilder<TProperty>)base.HasValueGenerator(valueGeneratorType);
 
         /// <summary>
@@ -147,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
         ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
@@ -213,6 +235,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.ValueGeneratedOnUpdate();
 
         /// <summary>
+        ///     Configures a property to have a value generated under certain conditions when saving an existing entity.
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> ValueGeneratedOnUpdateSometimes()
+            => (PropertyBuilder<TProperty>)base.ValueGeneratedOnUpdateSometimes();
+
+        /// <summary>
         ///     <para>
         ///         Sets the backing field to use for this property.
         ///     </para>
@@ -249,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="providerClrType"> The type to convert to and from. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasConversion([CanBeNull] Type providerClrType)
+        public new virtual PropertyBuilder<TProperty> HasConversion([CanBeNull] Type? providerClrType)
             => (PropertyBuilder<TProperty>)base.HasConversion(providerClrType);
 
         /// <summary>
@@ -275,8 +304,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TProvider"> The store type generated by the converter. </typeparam>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder<TProperty> HasConversion<TProvider>([CanBeNull] ValueConverter<TProperty, TProvider> converter)
-            => HasConversion((ValueConverter)converter);
+        public virtual PropertyBuilder<TProperty> HasConversion<TProvider>([CanBeNull] ValueConverter<TProperty, TProvider>? converter)
+            => HasConversion((ValueConverter?)converter);
 
         /// <summary>
         ///     Configures the property so that the property value is converted to and from the database
@@ -284,8 +313,74 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasConversion([CanBeNull] ValueConverter converter)
+        public new virtual PropertyBuilder<TProperty> HasConversion([CanBeNull] ValueConverter? converter)
             => (PropertyBuilder<TProperty>)base.HasConversion(converter);
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to the given type before
+        ///     writing to the database and converted back when reading from the database.
+        /// </summary>
+        /// <typeparam name="TProvider"> The type to convert to and from. </typeparam>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasConversion<TProvider>([CanBeNull] ValueComparer? valueComparer)
+            => (PropertyBuilder<TProperty>)base.HasConversion<TProvider>(valueComparer);
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to the given type before
+        ///     writing to the database and converted back when reading from the database.
+        /// </summary>
+        /// <param name="providerClrType"> The type to convert to and from. </param>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasConversion(
+            [CanBeNull] Type? providerClrType,
+            [CanBeNull] ValueComparer? valueComparer)
+            => (PropertyBuilder<TProperty>)base.HasConversion(providerClrType, valueComparer);
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given conversion expressions.
+        /// </summary>
+        /// <typeparam name="TProvider"> The store type generated by the conversions. </typeparam>
+        /// <param name="convertToProviderExpression"> An expression to convert objects when writing data to the store. </param>
+        /// <param name="convertFromProviderExpression"> An expression to convert objects when reading data from the store. </param>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder<TProperty> HasConversion<TProvider>(
+            [NotNull] Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            [NotNull] Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            [CanBeNull] ValueComparer? valueComparer)
+            => HasConversion(
+                new ValueConverter<TProperty, TProvider>(
+                    Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression)),
+                    Check.NotNull(convertFromProviderExpression, nameof(convertFromProviderExpression))),
+                valueComparer);
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given <see cref="ValueConverter{TModel,TProvider}" />.
+        /// </summary>
+        /// <typeparam name="TProvider"> The store type generated by the converter. </typeparam>
+        /// <param name="converter"> The converter to use. </param>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder<TProperty> HasConversion<TProvider>(
+            [CanBeNull] ValueConverter<TProperty, TProvider>? converter,
+            [CanBeNull] ValueComparer? valueComparer)
+            => HasConversion((ValueConverter?)converter, valueComparer);
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given <see cref="ValueConverter" />.
+        /// </summary>
+        /// <param name="converter"> The converter to use. </param>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasConversion(
+            [CanBeNull] ValueConverter? converter,
+            [CanBeNull] ValueComparer? valueComparer)
+            => (PropertyBuilder<TProperty>)base.HasConversion(converter, valueComparer);
 
         /// <summary>
         ///     <para>

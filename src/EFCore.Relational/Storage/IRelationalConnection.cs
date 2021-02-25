@@ -5,7 +5,11 @@ using System;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -27,14 +31,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public interface IRelationalConnection : IRelationalTransactionManager, IDisposable, IAsyncDisposable
     {
         /// <summary>
-        ///     Gets the connection string for the database.
+        ///     Gets or sets the connection string for the database.
         /// </summary>
-        string ConnectionString { get; }
+        string? ConnectionString { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Gets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
+        ///     <para>
+        ///         Gets or sets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
+        ///     </para>
+        ///     <para>
+        ///         The connection can only be changed when the existing connection, if any, is not open.
+        ///     </para>
+        ///     <para>
+        ///         Note that the connection must be disposed by application code since it was not created by Entity Framework.
+        ///     </para>
         /// </summary>
-        DbConnection DbConnection { get; }
+        [CA.AllowNull]
+        DbConnection DbConnection { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The <see cref="DbContext" /> currently in use, or null if not known.
@@ -55,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Opens the connection to the database.
         /// </summary>
         /// <param name="errorsExpected"> Indicate if the connection errors are expected and should be logged as debug message. </param>
-        /// <returns> True if the underlying connection was actually opened; false otherwise. </returns>
+        /// <returns> <see langword="true" /> if the underlying connection was actually opened; <see langword="false" /> otherwise. </returns>
         bool Open(bool errorsExpected = false);
 
         /// <summary>
@@ -66,35 +79,31 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
         /// <returns>
-        ///     A task that represents the asynchronous operation, with a value of true if the connection
+        ///     A task that represents the asynchronous operation, with a value of <see langword="true" /> if the connection
         ///     was actually opened.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false);
 
         /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
-        /// <returns> True if the underlying connection was actually closed; false otherwise. </returns>
+        /// <returns> <see langword="true" /> if the underlying connection was actually closed; <see langword="false" /> otherwise. </returns>
         bool Close();
 
         /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
         /// <returns>
-        ///     A task that represents the asynchronous operation, with a value of true if the connection
+        ///     A task that represents the asynchronous operation, with a value of <see langword="true" /> if the connection
         ///     was actually closed.
         /// </returns>
         Task<bool> CloseAsync();
 
         /// <summary>
-        ///     Gets a value indicating whether the multiple active result sets feature is enabled.
-        /// </summary>
-        bool IsMultipleActiveResultSetsEnabled { get; }
-
-        /// <summary>
         ///     Gets the current transaction.
         /// </summary>
-        new IDbContextTransaction CurrentTransaction { get; }
+        new IDbContextTransaction? CurrentTransaction { get; }
 
         /// <summary>
         ///     Gets a semaphore used to serialize access to this connection.
@@ -102,6 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <value>
         ///     The semaphore.
         /// </value>
+        [Obsolete("EF Core no longer uses this semaphore. It will be removed in an upcoming release.")]
         SemaphoreSlim Semaphore { get; }
     }
 }

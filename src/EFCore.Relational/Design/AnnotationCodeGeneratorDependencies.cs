@@ -1,7 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -22,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class AnnotationCodeGeneratorDependencies
+    public sealed record AnnotationCodeGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -44,8 +47,17 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public AnnotationCodeGeneratorDependencies()
+        public AnnotationCodeGeneratorDependencies(
+            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
         {
+            Check.NotNull(relationalTypeMappingSource, nameof(relationalTypeMappingSource));
+
+            RelationalTypeMappingSource = relationalTypeMappingSource;
         }
+
+        /// <summary>
+        ///     The type mapper.
+        /// </summary>
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; [param: NotNull] init; }
     }
 }

@@ -13,14 +13,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     public class DatabaseModel : Annotatable
     {
         /// <summary>
-        ///     The database name, or <c>null</c> if none is set.
+        ///     The database name, or <see langword="null" /> if none is set.
         /// </summary>
         public virtual string DatabaseName { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The database schema, or <c>null</c> to use the default schema.
+        ///     The database schema, or <see langword="null" /> to use the default schema.
         /// </summary>
         public virtual string DefaultSchema { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     The database collation, or <see langword="null" /> if none is set.
+        /// </summary>
+        public virtual string Collation { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The list of tables in the database.

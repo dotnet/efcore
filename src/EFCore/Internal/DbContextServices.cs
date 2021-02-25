@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private IServiceProvider _scopedProvider;
         private IDbContextOptions _contextOptions;
         private ICurrentDbContext _currentContext;
-        private IModel _modelFromSource;
+        private IModel _model;
         private bool _inOnModelCreating;
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private static string BuildDatabaseNamesString(IEnumerable<IDatabaseProvider> available)
             => string.Join(", ", available.Select(e => "'" + e.Name + "'"));
 
-        private IModel CreateModel()
+        private IModel CreateModel(IModel modelFromOptions)
         {
             if (_inOnModelCreating)
             {
@@ -81,9 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 _inOnModelCreating = true;
 
-                return _scopedProvider.GetService<IModelSource>().GetModel(
-                    _currentContext.Context,
-                    _scopedProvider.GetService<IConventionSetBuilder>());
+                var dependencies = _scopedProvider.GetService<ModelCreationDependencies>();
+                return modelFromOptions == null
+                    ? dependencies.ModelSource.GetModel(_currentContext.Context, dependencies)
+                    : dependencies.ModelRuntimeInitializer.Initialize(modelFromOptions, dependencies.ValidationLogger);
             }
             finally
             {
@@ -97,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ICurrentDbContext CurrentContext => _currentContext;
+        public virtual ICurrentDbContext CurrentContext
+            => _currentContext;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -106,9 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IModel Model
-            => CoreOptions?.Model
-                ?? (_modelFromSource
-                    ?? (_modelFromSource = CreateModel()));
+            => _model ??= CreateModel(CoreOptions?.Model);
 
         private CoreOptionsExtension CoreOptions
             => _contextOptions?.FindExtension<CoreOptionsExtension>();
@@ -119,7 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDbContextOptions ContextOptions => _contextOptions;
+        public virtual IDbContextOptions ContextOptions
+            => _contextOptions;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -127,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IServiceProvider InternalServiceProvider => _scopedProvider;
+        public virtual IServiceProvider InternalServiceProvider
+            => _scopedProvider;
     }
 }

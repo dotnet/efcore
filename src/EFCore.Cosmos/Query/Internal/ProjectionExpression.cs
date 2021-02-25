@@ -3,7 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ProjectionExpression(Expression expression, string alias)
+        public ProjectionExpression([NotNull] Expression expression, [NotNull] string alias)
         {
             Expression = expression;
             Alias = alias;
@@ -58,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type Type => Expression.Type;
+        public override Type Type
+            => Expression.Type;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,7 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update(visitor.Visit(Expression));
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return Update(visitor.Visit(Expression));
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ProjectionExpression Update(Expression expression)
+        public virtual ProjectionExpression Update([NotNull] Expression expression)
             => expression != Expression
                 ? new ProjectionExpression(expression, Alias)
                 : this;
@@ -94,11 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Print(ExpressionPrinter expressionPrinter)
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Visit(Expression);
-            if (!string.Equals(string.Empty, Alias)
-                && !string.Equals(Alias, Name))
+            if (Alias != string.Empty && Alias != Name)
             {
                 expressionPrinter.Append(" AS " + Alias);
             }
@@ -112,13 +121,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is ProjectionExpression projectionExpression
-                   && Equals(projectionExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is ProjectionExpression projectionExpression
+                    && Equals(projectionExpression));
 
         private bool Equals(ProjectionExpression projectionExpression)
-            => string.Equals(Alias, projectionExpression.Alias)
-               && Expression.Equals(projectionExpression.Expression);
+            => Alias == projectionExpression.Alias
+                && Expression.Equals(projectionExpression.Expression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,6 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int GetHashCode() => HashCode.Combine(Alias, Expression);
+        public override int GetHashCode()
+            => HashCode.Combine(Alias, Expression);
     }
 }

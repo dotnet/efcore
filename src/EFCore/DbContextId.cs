@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Compares this ID to another ID to see if they represent the same leased context.
         /// </summary>
         /// <param name="other"> The other ID. </param>
-        /// <returns> True if they represent the same leased context; false otherwise. </returns>
+        /// <returns> <see langword="true" /> if they represent the same leased context; <see langword="false" /> otherwise. </returns>
         public bool Equals(DbContextId other)
             => InstanceId == other.InstanceId
                 && Lease == other.Lease;
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Compares this ID to another ID to see if they represent the same leased context.
         /// </summary>
         /// <param name="obj"> The other ID. </param>
-        /// <returns> True if they represent the same leased context; false otherwise. </returns>
+        /// <returns> <see langword="true" /> if they represent the same leased context; <see langword="false" /> otherwise. </returns>
         public override bool Equals(object obj)
             => obj is DbContextId other && Equals(other);
 
@@ -46,16 +46,18 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="left"> The first ID. </param>
         /// <param name="right"> The second ID. </param>
-        /// <returns> True if they represent the same leased context; false otherwise. </returns>
-        public static bool operator ==(DbContextId left, DbContextId right) => left.Equals(right);
+        /// <returns> <see langword="true" /> if they represent the same leased context; <see langword="false" /> otherwise. </returns>
+        public static bool operator ==(DbContextId left, DbContextId right)
+            => left.Equals(right);
 
         /// <summary>
         ///     Compares one ID to another ID to see if they represent different leased contexts.
         /// </summary>
         /// <param name="left"> The first ID. </param>
         /// <param name="right"> The second ID. </param>
-        /// <returns> True if they represent different leased contexts; false otherwise. </returns>
-        public static bool operator !=(DbContextId left, DbContextId right) => !left.Equals(right);
+        /// <returns> <see langword="true" /> if they represent different leased contexts; <see langword="false" /> otherwise. </returns>
+        public static bool operator !=(DbContextId left, DbContextId right)
+            => !left.Equals(right);
 
         /// <summary>
         ///     Creates a new <see cref="DbContextId" /> with the given <see cref="InstanceId" /> and lease number.

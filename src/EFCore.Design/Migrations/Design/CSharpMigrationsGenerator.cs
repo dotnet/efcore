@@ -7,7 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -39,19 +39,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         protected virtual CSharpMigrationsGeneratorDependencies CSharpDependencies { get; }
 
-        private ICSharpHelper Code => CSharpDependencies.CSharpHelper;
+        private ICSharpHelper Code
+            => CSharpDependencies.CSharpHelper;
 
         /// <summary>
         ///     Gets the file extension code files should use.
         /// </summary>
         /// <value> The file extension. </value>
-        public override string FileExtension => ".cs";
+        public override string FileExtension
+            => ".cs";
 
         /// <summary>
         ///     Gets the programming language supported by this service.
         /// </summary>
         /// <value> The language. </value>
-        public override string Language => "C#";
+        public override string Language
+            => "C#";
 
         /// <summary>
         ///     Generates the migration code.

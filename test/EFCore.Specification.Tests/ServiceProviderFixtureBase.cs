@@ -16,8 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         private ListLoggerFactory _listLoggerFactory;
 
         public ListLoggerFactory ListLoggerFactory
-            => _listLoggerFactory
-                ?? (_listLoggerFactory = (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>());
+            => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
         protected ServiceProviderFixtureBase()
         {
@@ -36,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore
             => base.AddServices(serviceCollection)
                 .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(ShouldLogCategory));
 
-        protected virtual bool ShouldLogCategory(string logCategory) => false;
+        protected virtual bool ShouldLogCategory(string logCategory)
+            => false;
     }
 }

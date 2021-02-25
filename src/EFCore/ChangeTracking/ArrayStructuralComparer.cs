@@ -7,8 +7,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
     ///     <para>
-    ///         Specifies value snapshotting and comparison for arrays where each element is compared
-    ///         a new array is constructed when snapshotting.
+    ///         Specifies value comparison for arrays where each element pair is compared.
+    ///         A new array is constructed when snapshotting.
     ///     </para>
     /// </summary>
     /// <typeparam name="TElement"> The array element type. </typeparam>

@@ -4,7 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
@@ -22,12 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(property, new ClrPropertySetterFactory().Create(property));
         }
 
-        private class FakeProperty : IProperty, IClrPropertySetter
+        private class FakeProperty : Annotatable, IProperty, IClrPropertySetter
         {
-            public void SetClrValue(object instance, object value) => throw new NotImplementedException();
-            public object this[string name] => throw new NotImplementedException();
-            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
-            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
             public Type ClrType { get; }
@@ -40,6 +41,123 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public bool IsConcurrencyToken { get; }
             public PropertyInfo PropertyInfo { get; }
             public FieldInfo FieldInfo { get; }
+
+            IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType => throw new NotImplementedException();
+
+            IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType => throw new NotImplementedException();
+
+            public void SetClrValue(object instance, object value)
+                => throw new NotImplementedException();
+
+            public IEnumerable<IForeignKey> GetContainingForeignKeys()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IIndex> GetContainingIndexes()
+                => throw new NotImplementedException();
+
+            public IEnumerable<IKey> GetContainingKeys()
+                => throw new NotImplementedException();
+
+            public IClrPropertyGetter GetGetter()
+                => throw new NotImplementedException();
+
+            public IComparer<IUpdateEntry> GetCurrentValueComparer()
+                => throw new NotImplementedException();
+
+            public CoreTypeMapping FindTypeMapping()
+            {
+                throw new NotImplementedException();
+            }
+
+            public int? GetMaxLength()
+            {
+                throw new NotImplementedException();
+            }
+
+            public int? GetPrecision()
+            {
+                throw new NotImplementedException();
+            }
+
+            public int? GetScale()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool? IsUnicode()
+            {
+                throw new NotImplementedException();
+            }
+
+            public PropertySaveBehavior GetBeforeSaveBehavior()
+            {
+                throw new NotImplementedException();
+            }
+
+            public PropertySaveBehavior GetAfterSaveBehavior()
+            {
+                throw new NotImplementedException();
+            }
+
+            public Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory()
+            {
+                throw new NotImplementedException();
+            }
+
+            public ValueConverter GetValueConverter()
+            {
+                throw new NotImplementedException();
+            }
+
+            public Type GetProviderClrType()
+            {
+                throw new NotImplementedException();
+            }
+
+            public ValueComparer GetValueComparer()
+            {
+                throw new NotImplementedException();
+            }
+
+            public ValueComparer GetKeyValueComparer()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsForeignKey()
+            {
+                throw new NotImplementedException();
+            }
+
+            IEnumerable<IReadOnlyForeignKey> IReadOnlyProperty.GetContainingForeignKeys()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsIndex()
+            {
+                throw new NotImplementedException();
+            }
+
+            IEnumerable<IReadOnlyIndex> IReadOnlyProperty.GetContainingIndexes()
+            {
+                throw new NotImplementedException();
+            }
+
+            public IReadOnlyKey FindContainingPrimaryKey()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsKey()
+            {
+                throw new NotImplementedException();
+            }
+
+            IEnumerable<IReadOnlyKey> IReadOnlyProperty.GetContainingKeys()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [ConditionalFact]
@@ -50,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 77);
+            new ClrPropertySetterFactory().Create((IProperty)idProperty).SetClrValue(customer, 77);
 
             Assert.Equal(77, customer.Id);
         }
@@ -73,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 1);
+            new ClrPropertySetterFactory().Create((IProperty)idProperty).SetClrValue(customer, 1);
 
             Assert.Equal(1, customer.Id);
         }
@@ -86,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, "MyString");
+            new ClrPropertySetterFactory().Create((IProperty)idProperty).SetClrValue(customer, "MyString");
 
             Assert.Equal("MyString", customer.Content);
         }
@@ -99,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 3);
+            new ClrPropertySetterFactory().Create((IProperty)idProperty).SetClrValue(customer, 3);
 
             Assert.Equal(3, customer.OptionalInt);
         }
@@ -112,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, null);
+            new ClrPropertySetterFactory().Create((IProperty)idProperty).SetClrValue(customer, null);
 
             Assert.Null(customer.OptionalInt);
         }
@@ -125,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, Flag.One);
+            new ClrPropertySetterFactory().Create((IProperty)idProperty).SetClrValue(customer, Flag.One);
 
             Assert.Equal(Flag.One, customer.Flag);
         }
@@ -138,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, Flag.Two);
+            new ClrPropertySetterFactory().Create((IProperty)idProperty).SetClrValue(customer, Flag.Two);
 
             Assert.Equal(Flag.Two, customer.OptionalFlag);
         }
@@ -151,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.VirtualPrivateProperty_Override)));
             var entity = new ConcreteEntity1();
 
-            new ClrPropertySetterFactory().Create(property).SetClrValue(entity, 100);
+            new ClrPropertySetterFactory().Create((IProperty)property).SetClrValue(entity, 100);
             Assert.Equal(100, entity.VirtualPrivateProperty_Override);
         }
 
@@ -163,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.VirtualPrivateProperty_Override)));
             var entity = new ConcreteEntity2();
 
-            new ClrPropertySetterFactory().Create(property).SetClrValue(entity, 100);
+            new ClrPropertySetterFactory().Create((IProperty)property).SetClrValue(entity, 100);
             Assert.Equal(100, entity.VirtualPrivateProperty_Override);
         }
 
@@ -175,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.VirtualPrivateProperty_NoOverride)));
             var entity = new ConcreteEntity1();
 
-            new ClrPropertySetterFactory().Create(property).SetClrValue(entity, 100);
+            new ClrPropertySetterFactory().Create((IProperty)property).SetClrValue(entity, 100);
             Assert.Equal(100, entity.VirtualPrivateProperty_NoOverride);
         }
 
@@ -187,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.VirtualPrivateProperty_NoOverride)));
             var entity = new ConcreteEntity2();
 
-            new ClrPropertySetterFactory().Create(property).SetClrValue(entity, 100);
+            new ClrPropertySetterFactory().Create((IProperty)property).SetClrValue(entity, 100);
             Assert.Equal(100, entity.VirtualPrivateProperty_NoOverride);
         }
 
@@ -198,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = entityType.AddProperty(typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.PrivateProperty)));
             var entity = new ConcreteEntity1();
 
-            new ClrPropertySetterFactory().Create(property).SetClrValue(entity, 100);
+            new ClrPropertySetterFactory().Create((IProperty)property).SetClrValue(entity, 100);
             Assert.Equal(100, entity.PrivateProperty);
         }
 
@@ -209,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.PrivateProperty)));
             var entity = new ConcreteEntity2();
 
-            new ClrPropertySetterFactory().Create(property).SetClrValue(entity, 100);
+            new ClrPropertySetterFactory().Create((IProperty)property).SetClrValue(entity, 100);
             Assert.Equal(100, entity.PrivateProperty);
         }
 
@@ -220,13 +338,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = entityType.AddProperty(typeof(ConcreteEntity1).GetProperty(nameof(ConcreteEntity1.NoSetterProperty)));
 
             Assert.Throws<InvalidOperationException>(
-                () => new ClrPropertySetterFactory().Create(property));
+                () => new ClrPropertySetterFactory().Create((IProperty)property));
 
             entityType = CreateModel().AddEntityType(typeof(ConcreteEntity2));
             property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.NoSetterProperty)));
 
             Assert.Throws<InvalidOperationException>(
-                () => new ClrPropertySetterFactory().Create(property));
+                () => new ClrPropertySetterFactory().Create((IProperty)property));
+        }
+
+        [ConditionalFact]
+        public void Delegate_setter_can_set_index_properties()
+        {
+            var entityType = CreateModel().AddEntityType(typeof(IndexedClass));
+            var propertyA = entityType.AddIndexerProperty("PropertyA", typeof(string));
+            var propertyB = entityType.AddIndexerProperty("PropertyB", typeof(int));
+
+            var indexedClass = new IndexedClass { Id = 7 };
+
+            Assert.Equal("ValueA", indexedClass["PropertyA"]);
+            Assert.Equal(123, indexedClass["PropertyB"]);
+
+            new ClrPropertySetterFactory().Create((IProperty)propertyA).SetClrValue(indexedClass, "UpdatedValue");
+            new ClrPropertySetterFactory().Create((IProperty)propertyB).SetClrValue(indexedClass, 42);
+
+            Assert.Equal("UpdatedValue", indexedClass["PropertyA"]);
+            Assert.Equal(42, indexedClass["PropertyB"]);
         }
 
         private IMutableModel CreateModel()
@@ -258,13 +395,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class ConcreteEntity2 : ConcreteEntity1
         {
             // ReSharper disable once RedundantOverriddenMember
-            public override int VirtualPrivateProperty_Override => base.VirtualPrivateProperty_Override;
+            public override int VirtualPrivateProperty_Override
+                => base.VirtualPrivateProperty_Override;
         }
 
         private class ConcreteEntity1 : BaseEntity
         {
             // ReSharper disable once RedundantOverriddenMember
-            public override int VirtualPrivateProperty_Override => base.VirtualPrivateProperty_Override;
+            public override int VirtualPrivateProperty_Override
+                => base.VirtualPrivateProperty_Override;
         }
 
         private class BaseEntity
@@ -273,6 +412,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public virtual int VirtualPrivateProperty_NoOverride { get; private set; }
             public int PrivateProperty { get; private set; }
             public int NoSetterProperty { get; }
+        }
+
+        private class IndexedClass
+        {
+            private readonly Dictionary<string, object> _internalValues = new()
+            {
+                { "PropertyA", "ValueA" }, { "PropertyB", 123 }
+            };
+
+            internal int Id { get; set; }
+            internal object this[string name] { get => _internalValues[name]; set => _internalValues[name] = value; }
         }
 
         #endregion

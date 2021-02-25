@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <returns> The model files. </returns>
         SavedModelFiles Save(
             [NotNull] ScaffoldedModel scaffoldedModel,
-            [CanBeNull] string outputDir,
+            [NotNull] string outputDir,
             bool overwriteFiles);
     }
 }

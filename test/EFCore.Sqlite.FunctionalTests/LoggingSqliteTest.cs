@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInternalServiceProvider(services.AddEntityFrameworkSqlite().BuildServiceProvider())
                 .UseSqlite("Data Source=LoggingSqliteTest.db", relationalAction);
 
-        protected override string ProviderName => "Microsoft.EntityFrameworkCore.Sqlite";
+        protected override string ProviderName
+            => "Microsoft.EntityFrameworkCore.Sqlite";
     }
 }

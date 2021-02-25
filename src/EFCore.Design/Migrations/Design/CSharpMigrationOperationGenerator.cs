@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
@@ -35,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         protected virtual CSharpMigrationOperationGeneratorDependencies Dependencies { get; }
 
-        private ICSharpHelper Code => Dependencies.CSharpHelper;
+        private ICSharpHelper Code
+            => Dependencies.CSharpHelper;
 
         /// <summary>
         ///     Generates code for creating <see cref="MigrationOperation" /> objects.
@@ -149,6 +149,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.MaxLength.Value));
                 }
 
+                if (operation.Precision.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("precision: ")
+                        .Append(Code.Literal(operation.Precision.Value));
+                }
+
+                if (operation.Scale.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("scale: ")
+                        .Append(Code.Literal(operation.Scale.Value));
+                }
+
                 if (operation.IsRowVersion)
                 {
                     builder
@@ -173,6 +187,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine(",")
                         .Append("computedColumnSql: ")
                         .Append(Code.Literal(operation.ComputedColumnSql));
+
+                    if (operation.IsStored != null)
+                    {
+                        builder
+                            .AppendLine(",")
+                            .Append("stored: ")
+                            .Append(Code.Literal(operation.IsStored));
+                    }
                 }
                 else if (operation.DefaultValue != null)
                 {
@@ -188,6 +210,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine(",")
                         .Append("comment: ")
                         .Append(Code.Literal(operation.Comment));
+                }
+
+                if (operation.Collation != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("collation: ")
+                        .Append(Code.Literal(operation.Collation));
                 }
 
                 builder.Append(")");
@@ -252,20 +282,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 builder
                     .AppendLine(",")
                     .Append("principalTable: ")
-                    .Append(Code.Literal(operation.PrincipalTable))
-                    .AppendLine(",");
+                    .Append(Code.Literal(operation.PrincipalTable));
 
-                if (operation.PrincipalColumns.Length == 1)
+                if (operation.PrincipalColumns != null)
                 {
-                    builder
-                        .Append("principalColumn: ")
-                        .Append(Code.Literal(operation.PrincipalColumns[0]));
-                }
-                else
-                {
-                    builder
-                        .Append("principalColumns: ")
-                        .Append(Code.Literal(operation.PrincipalColumns));
+                    if (operation.PrincipalColumns.Length == 1)
+                    {
+                        builder
+                            .AppendLine(",")
+                            .Append("principalColumn: ")
+                            .Append(Code.Literal(operation.PrincipalColumns[0]));
+                    }
+                    else
+                    {
+                        builder
+                            .AppendLine(",")
+                            .Append("principalColumns: ")
+                            .Append(Code.Literal(operation.PrincipalColumns));
+                    }
                 }
 
                 if (operation.OnUpdate != ReferentialAction.NoAction)
@@ -393,16 +427,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="CreateCheckConstraintOperation" />.
+        ///     Generates code for an <see cref="AddCheckConstraintOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
-        protected virtual void Generate([NotNull] CreateCheckConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate([NotNull] AddCheckConstraintOperation operation, [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.AppendLine(".CreateCheckConstraint(");
+            builder.AppendLine(".AddCheckConstraint(");
 
             using (builder.Indent())
             {
@@ -493,6 +527,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.MaxLength.Value));
                 }
 
+                if (operation.Precision.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("precision: ")
+                        .Append(Code.Literal(operation.Precision.Value));
+                }
+
+                if (operation.Scale.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("scale: ")
+                        .Append(Code.Literal(operation.Scale.Value));
+                }
+
                 if (operation.IsRowVersion)
                 {
                     builder
@@ -517,6 +565,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine(",")
                         .Append("computedColumnSql: ")
                         .Append(Code.Literal(operation.ComputedColumnSql));
+
+                    if (operation.IsStored != null)
+                    {
+                        builder
+                            .AppendLine(",")
+                            .Append("stored: ")
+                            .Append(Code.Literal(operation.IsStored));
+                    }
                 }
                 else if (operation.DefaultValue != null)
                 {
@@ -532,6 +588,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine(",")
                         .Append("comment: ")
                         .Append(Code.Literal(operation.Comment));
+                }
+
+                if (operation.Collation != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("collation: ")
+                        .Append(Code.Literal(operation.Collation));
                 }
 
                 if (operation.OldColumn.ClrType != null)
@@ -570,6 +634,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.OldColumn.MaxLength.Value));
                 }
 
+                if (operation.OldColumn.Precision.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("oldPrecision: ")
+                        .Append(Code.Literal(operation.OldColumn.Precision.Value));
+                }
+
+                if (operation.OldColumn.Scale.HasValue)
+                {
+                    builder.AppendLine(",")
+                        .Append("oldScale: ")
+                        .Append(Code.Literal(operation.OldColumn.Scale.Value));
+                }
+
                 if (operation.OldColumn.IsRowVersion)
                 {
                     builder
@@ -596,6 +674,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine(",")
                         .Append("oldComputedColumnSql: ")
                         .Append(Code.Literal(operation.OldColumn.ComputedColumnSql));
+
+                    if (operation.IsStored != null)
+                    {
+                        builder
+                            .AppendLine(",")
+                            .Append("oldStored: ")
+                            .Append(Code.Literal(operation.OldColumn.IsStored));
+                    }
                 }
                 else if (operation.OldColumn.DefaultValue != null)
                 {
@@ -611,6 +697,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .AppendLine(",")
                         .Append("oldComment: ")
                         .Append(Code.Literal(operation.OldColumn.Comment));
+                }
+
+                if (operation.OldColumn.Collation != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldCollation: ")
+                        .Append(Code.Literal(operation.OldColumn.Collation));
                 }
 
                 builder.Append(")");
@@ -630,10 +724,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.Append(".AlterDatabase()");
+            builder.Append(".AlterDatabase(");
 
             using (builder.Indent())
             {
+                var needComma = false;
+
+                if (operation.Collation != null)
+                {
+                    builder
+                        .AppendLine()
+                        .Append("collation: ")
+                        .Append(Code.Literal(operation.Collation));
+
+                    needComma = true;
+                }
+
+                if (operation.OldDatabase.Collation != null)
+                {
+                    if (needComma)
+                    {
+                        builder.Append(",");
+                    }
+
+                    builder
+                        .AppendLine()
+                        .Append("oldCollation: ")
+                        .Append(Code.Literal(operation.OldDatabase.Collation));
+
+                    needComma = true;
+                }
+
+                builder.Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
                 OldAnnotations(operation.OldDatabase.GetAnnotations(), builder);
             }
@@ -1034,6 +1157,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                 .Append(", ");
                         }
 
+                        if (column.Precision.HasValue)
+                        {
+                            builder
+                                .Append("precision: ")
+                                .Append(Code.Literal(column.Precision.Value))
+                                .Append(", ");
+                        }
+
+                        if (column.Scale.HasValue)
+                        {
+                            builder
+                                .Append("scale: ")
+                                .Append(Code.Literal(column.Scale.Value))
+                                .Append(", ");
+                        }
+
                         if (column.IsRowVersion)
                         {
                             builder.Append("rowVersion: true, ");
@@ -1053,6 +1192,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             builder
                                 .Append(", computedColumnSql: ")
                                 .Append(Code.Literal(column.ComputedColumnSql));
+
+                            if (column.IsStored != null)
+                            {
+                                builder
+                                    .Append(", stored: ")
+                                    .Append(Code.Literal(column.IsStored));
+                            }
                         }
                         else if (column.DefaultValue != null)
                         {
@@ -1066,6 +1212,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             builder
                                 .Append(", comment: ")
                                 .Append(Code.Literal(column.Comment));
+                        }
+
+                        if (column.Collation != null)
+                        {
+                            builder
+                                .Append(", collation: ")
+                                .Append(Code.Literal(column.Collation));
                         }
 
                         builder.Append(")");
@@ -1882,6 +2035,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 builder.AppendLine(",");
 
+                if (operation.KeyColumnTypes != null)
+                {
+                    if (operation.KeyColumnTypes.Length == 1)
+                    {
+                        builder
+                            .Append("keyColumnType: ")
+                            .Append(Code.Literal(operation.KeyColumnTypes[0]));
+                    }
+                    else
+                    {
+                        builder
+                            .Append("keyColumnTypes: ")
+                            .Append(Code.Literal(operation.KeyColumnTypes));
+                    }
+
+                    builder.AppendLine(",");
+                }
+
                 if (operation.KeyValues.GetLength(0) == 1
                     && operation.KeyValues.GetLength(1) == 1)
                 {
@@ -2098,7 +2269,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         private static object[] ToOnedimensionalArray(object[,] values, bool firstDimension = false)
         {
-            Debug.Assert(
+            Check.DebugAssert(
                 values.GetLength(firstDimension ? 1 : 0) == 1,
                 $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
 
