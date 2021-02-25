@@ -1478,14 +1478,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
 
                         dataReader = await relationalCommand.ExecuteReaderAsync(
-                            new RelationalCommandParameterObject(
-                                queryContext.Connection,
-                                queryContext.ParameterValues,
-                                relationalCommandCache.ReaderColumns,
-                                queryContext.Context,
-                                queryContext.CommandLogger,
-                                detailedErrorsEnabled),
-                            cancellationToken)
+                                new RelationalCommandParameterObject(
+                                    queryContext.Connection,
+                                    queryContext.ParameterValues,
+                                    relationalCommandCache.ReaderColumns,
+                                    queryContext.Context,
+                                    queryContext.CommandLogger,
+                                    detailedErrorsEnabled),
+                                cancellationToken)
                             .ConfigureAwait(false);
 
                         return result;

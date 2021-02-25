@@ -115,7 +115,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string ToQueryString()
-            => _relationalQueryContext.RelationalQueryStringFactory.Create(CreateDbCommand());
+        {
+            using var dbCommand = CreateDbCommand();
+            return _relationalQueryContext.RelationalQueryStringFactory.Create(dbCommand);
+        }
 
         private sealed class Enumerator : IEnumerator<T>
         {
@@ -128,6 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly bool _detailedErrorsEnabled;
             private readonly IConcurrencyDetector? _concurrencyDetector;
 
+            private IRelationalCommand? _relationalCommand;
             private RelationalDataReader? _dataReader;
             private SingleQueryResultCoordinator? _resultCoordinator;
 
@@ -218,8 +222,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 EntityFrameworkEventSource.Log.QueryExecuting();
 
-                var relationalCommand = enumerator._relationalCommandCache.GetRelationalCommand(
+                var relationalCommandTemplate = enumerator._relationalCommandCache.GetRelationalCommand(
                     enumerator._relationalQueryContext.ParameterValues);
+
+                var relationalCommand = enumerator._relationalCommand = enumerator._relationalQueryContext.Connection.RentCommand();
+                relationalCommand.PopulateFromTemplate(relationalCommandTemplate);
 
                 enumerator._dataReader = relationalCommand.ExecuteReader(
                     new RelationalCommandParameterObject(
@@ -239,8 +246,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public void Dispose()
             {
-                _dataReader?.Dispose();
-                _dataReader = null;
+                if (_dataReader is not null)
+                {
+                    _relationalQueryContext.Connection.ReturnCommand(_relationalCommand!);
+                    _dataReader.Dispose();
+                    _dataReader = null;
+                }
             }
 
             public void Reset()
@@ -258,6 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly bool _detailedErrorsEnabled;
             private readonly IConcurrencyDetector? _concurrencyDetector;
 
+            private IRelationalCommand? _relationalCommand;
             private RelationalDataReader? _dataReader;
             private SingleQueryResultCoordinator? _resultCoordinator;
 
@@ -351,8 +363,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 EntityFrameworkEventSource.Log.QueryExecuting();
 
-                var relationalCommand = enumerator._relationalCommandCache.GetRelationalCommand(
+                var relationalCommandTemplate = enumerator._relationalCommandCache.GetRelationalCommand(
                     enumerator._relationalQueryContext.ParameterValues);
+
+                var relationalCommand = enumerator._relationalCommand = enumerator._relationalQueryContext.Connection.RentCommand();
+                relationalCommand.PopulateFromTemplate(relationalCommandTemplate);
 
                 enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
@@ -374,8 +389,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public ValueTask DisposeAsync()
             {
-                if (_dataReader != null)
+                if (_dataReader is not null)
                 {
+                    _relationalQueryContext.Connection.ReturnCommand(_relationalCommand!);
+
                     var dataReader = _dataReader;
                     _dataReader = null;
 

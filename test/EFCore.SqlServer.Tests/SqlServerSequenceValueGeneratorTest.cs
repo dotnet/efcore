@@ -280,6 +280,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
                     => throw new NotImplementedException();
+
+                public void PopulateFromTemplate(IRelationalCommand templateCommand)
+                    => throw new NotImplementedException();
             }
         }
     }
