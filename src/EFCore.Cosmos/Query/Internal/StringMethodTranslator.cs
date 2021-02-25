@@ -36,6 +36,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private static readonly MethodInfo _toUpperMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
 
+        private static readonly MethodInfo _trimStartMethodInfoWithoutArgs
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), Array.Empty<Type>());
+
+        private static readonly MethodInfo _trimEndMethodInfoWithoutArgs
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), Array.Empty<Type>());
+
+        private static readonly MethodInfo _trimMethodInfoWithoutArgs
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
+
+        private static readonly MethodInfo _trimStartMethodInfoWithCharArrayArg
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char[]) });
+
+        private static readonly MethodInfo _trimEndMethodInfoWithCharArrayArg
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char[]) });
+
+        private static readonly MethodInfo _trimMethodInfoWithCharArrayArg
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
+
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
             = typeof(Enumerable).GetRuntimeMethods().Single(
                 m => m.Name == nameof(Enumerable.FirstOrDefault)
@@ -108,10 +126,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     return TranslateSystemFunction("LOWER", method.ReturnType, instance);
                 }
-                
+
                 if (_toUpperMethodInfo.Equals(method))
                 {
                     return TranslateSystemFunction("UPPER", method.ReturnType, instance);
+                }
+
+                if (_trimStartMethodInfoWithoutArgs?.Equals(method) == true
+                    || (_trimStartMethodInfoWithCharArrayArg.Equals(method)
+                        // Cosmos DB LTRIM does not take arguments
+                        && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+                {
+                    return TranslateSystemFunction("LTRIM", method.ReturnType, instance);
+                }
+
+                if (_trimEndMethodInfoWithoutArgs?.Equals(method) == true
+                    || (_trimEndMethodInfoWithCharArrayArg.Equals(method)
+                        // Cosmos DB RTRIM does not take arguments
+                        && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+                {
+                    return TranslateSystemFunction("RTRIM", method.ReturnType, instance);
+                }
+
+                if (_trimMethodInfoWithoutArgs?.Equals(method) == true
+                    || (_trimMethodInfoWithCharArrayArg.Equals(method)
+                        // Cosmos DB TRIM does not take arguments
+                        && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+                {
+                    return TranslateSystemFunction("TRIM", method.ReturnType, instance);
                 }
             }
 
