@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public abstract class EntryPropertyValues : PropertyValues
     {
-        private IReadOnlyList<IProperty> _properties;
+        private IReadOnlyList<IProperty>? _properties;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -81,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public override PropertyValues Clone()
         {
-            var values = new object[Properties.Count];
+            var values = new object?[Properties.Count];
             for (var i = 0; i < values.Length; i++)
             {
                 values[i] = GetValueInternal(Properties[i]);
@@ -114,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public override IReadOnlyList<IProperty> Properties
         {
-            [DebuggerStepThrough] get => _properties ?? (_properties = EntityType.GetProperties().ToList());
+            [DebuggerStepThrough] get => _properties ??= EntityType.GetProperties().ToList();
         }
 
         /// <summary>
@@ -123,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object this[string propertyName]
+        public override object? this[string propertyName]
         {
             get => GetValueInternal(EntityType.GetProperty(propertyName));
             set => SetValueInternal(EntityType.GetProperty(propertyName), value);
@@ -135,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object this[IProperty property]
+        public override object? this[IProperty property]
         {
             get => GetValueInternal(EntityType.CheckPropertyBelongsToType(property));
             set => SetValueInternal(EntityType.CheckPropertyBelongsToType(property), value);
@@ -147,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract void SetValueInternal([NotNull] IProperty property, [CanBeNull] object value);
+        protected abstract void SetValueInternal([NotNull] IProperty property, [CanBeNull] object? value);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -155,6 +157,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract object GetValueInternal([NotNull] IProperty property);
+        protected abstract object? GetValueInternal([NotNull] IProperty property);
     }
 }

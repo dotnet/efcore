@@ -2120,8 +2120,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] InternalEntityEntry internalEntityEntry,
             [NotNull] IProperty property,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue)
+            [CanBeNull] object? oldValue,
+            [CanBeNull] object? newValue)
         {
             var definition = CoreResources.LogPropertyChangeDetected(diagnostics);
 
@@ -2165,8 +2165,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] InternalEntityEntry internalEntityEntry,
             [NotNull] IProperty property,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue)
+            [CanBeNull] object? oldValue,
+            [CanBeNull] object? newValue)
         {
             var definition = CoreResources.LogPropertyChangeDetectedSensitive(diagnostics);
 
@@ -2219,8 +2219,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] InternalEntityEntry internalEntityEntry,
             [NotNull] IProperty property,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue)
+            [CanBeNull] object? oldValue,
+            [CanBeNull] object? newValue)
         {
             var definition = CoreResources.LogForeignKeyChangeDetected(diagnostics);
 
@@ -2267,8 +2267,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] InternalEntityEntry internalEntityEntry,
             [NotNull] IProperty property,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue)
+            [CanBeNull] object? oldValue,
+            [CanBeNull] object? newValue)
         {
             var definition = CoreResources.LogForeignKeyChangeDetectedSensitive(diagnostics);
 
@@ -2533,8 +2533,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] InternalEntityEntry internalEntityEntry,
             [NotNull] INavigation navigation,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue)
+            [CanBeNull] object? oldValue,
+            [CanBeNull] object? newValue)
         {
             var definition = CoreResources.LogReferenceChangeDetected(diagnostics);
 
@@ -2578,8 +2578,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
             [NotNull] InternalEntityEntry internalEntityEntry,
             [NotNull] INavigation navigation,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue)
+            [CanBeNull] object? oldValue,
+            [CanBeNull] object? newValue)
         {
             var definition = CoreResources.LogReferenceChangeDetectedSensitive(diagnostics);
 

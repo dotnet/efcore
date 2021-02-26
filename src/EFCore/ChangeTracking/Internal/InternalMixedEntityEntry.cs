@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override object ReadPropertyValue(IPropertyBase propertyBase)
+        protected override object? ReadPropertyValue(IPropertyBase propertyBase)
             => !propertyBase.IsShadowProperty()
                 ? base.ReadPropertyValue(propertyBase)
                 : _shadowValues[propertyBase.GetShadowIndex()];
@@ -101,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override void WritePropertyValue(IPropertyBase propertyBase, object value, bool forMaterialization)
+        protected override void WritePropertyValue(IPropertyBase propertyBase, object? value, bool forMaterialization)
         {
             if (!propertyBase.IsShadowProperty())
             {

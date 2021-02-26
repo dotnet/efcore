@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, out TKey key)
         {
-            var value = _propertyAccessors.ValueBufferGetter(valueBuffer);
+            var value = _propertyAccessors.ValueBufferGetter!(valueBuffer);
             if (value == null)
             {
                 key = default;
@@ -89,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, out TKey key)
-            => HandleNullableValue(((Func<IUpdateEntry, TKey?>)_propertyAccessors.OriginalValueGetter)(entry), out key);
+            => HandleNullableValue(((Func<IUpdateEntry, TKey?>)_propertyAccessors.OriginalValueGetter!)(entry), out key);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

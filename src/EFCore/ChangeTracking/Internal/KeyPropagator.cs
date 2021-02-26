@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry PropagateValue(InternalEntityEntry entry, IProperty property)
+        public virtual InternalEntityEntry? PropagateValue(InternalEntityEntry entry, IProperty property)
         {
             Check.DebugAssert(property.IsForeignKey(), $"property {property} is not part of an FK");
 
@@ -87,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual async Task<InternalEntityEntry> PropagateValueAsync(
+        public virtual async Task<InternalEntityEntry?> PropagateValueAsync(
             InternalEntityEntry entry,
             IProperty property,
             CancellationToken cancellationToken = default)
@@ -122,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return principalEntry;
         }
 
-        private static InternalEntityEntry TryPropagateValue(InternalEntityEntry entry, IProperty property, IProperty generationProperty)
+        private static InternalEntityEntry? TryPropagateValue(InternalEntityEntry entry, IProperty property, IProperty? generationProperty)
         {
             var entityType = entry.EntityType;
             var stateManager = entry.StateManager;
@@ -136,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var principal = foreignKey.DependentToPrincipal == null
                             ? null
                             : entry[foreignKey.DependentToPrincipal];
-                        InternalEntityEntry principalEntry = null;
+                        InternalEntityEntry? principalEntry = null;
                         if (principal != null)
                         {
                             principalEntry = stateManager.GetOrCreateEntry(principal, foreignKey.PrincipalEntityType);
@@ -185,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return null;
         }
 
-        private ValueGenerator TryGetValueGenerator(IProperty generationProperty)
+        private ValueGenerator? TryGetValueGenerator(IProperty? generationProperty)
             => generationProperty != null
                 ? _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType)
                 : null;

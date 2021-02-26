@@ -6,6 +6,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -24,12 +26,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual Func<bool, IIdentityMap> Create([NotNull] IKey key)
             => (Func<bool, IIdentityMap>)typeof(IdentityMapFactoryFactory).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateFactory))
+                .GetRequiredDeclaredMethod(nameof(CreateFactory))
                 .MakeGenericMethod(key.GetKeyType())
-                .Invoke(null, new object[] { key });
+                .Invoke(null, new object[] { key })!;
 
         [UsedImplicitly]
         private static Func<bool, IIdentityMap> CreateFactory<TKey>(IKey key)
+            where TKey : notnull
         {
             var factory = key.GetPrincipalKeyValueFactory<TKey>();
 

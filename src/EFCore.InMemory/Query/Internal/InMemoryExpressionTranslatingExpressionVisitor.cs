@@ -1068,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var valueComparer = discriminatorProperty.GetKeyValueComparer()!;
 
                     var equals = valueComparer.ExtractEqualsBody(
-                        boundProperty,
+                        boundProperty!,
                         Expression.Constant(derivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType));
 
                     foreach (var derivedDerivedType in derivedType.GetDerivedTypes())
@@ -1076,7 +1076,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         equals = Expression.OrElse(
                             equals,
                             valueComparer.ExtractEqualsBody(
-                                boundProperty,
+                                boundProperty!,
                                 Expression.Constant(derivedDerivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType)));
                     }
 
