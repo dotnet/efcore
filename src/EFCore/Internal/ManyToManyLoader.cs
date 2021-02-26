@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return Query(context, keyValues);
         }
 
-        private object[] PrepareForLoad(InternalEntityEntry entry)
+        private object[]? PrepareForLoad(InternalEntityEntry entry)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -174,7 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     EnumerableMethods.Where.MakeGenericMethod(typeof(TSourceEntity)),
                     Expression.MakeMemberAccess(
                         entityParameter,
-                        skipNavigation.PropertyInfo),
+                        // TODO-Nullable: This could be product bug.
+                        skipNavigation.PropertyInfo!),
                     Expression.Lambda<Func<TSourceEntity, bool>>(
                         ExpressionExtensions.BuildPredicate(keyProperties, keyValues, whereParameter),
                         whereParameter)), entityParameter);
@@ -197,7 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return Expression.Lambda<Func<TSourceEntity, IEnumerable<TEntity>>>(
                 Expression.MakeMemberAccess(
                     entityParameter,
-                    navigation.PropertyInfo),
+                    // TODO-Nullable: This could be product bug.
+                    navigation.PropertyInfo!),
                 entityParameter);
         }
     }

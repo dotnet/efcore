@@ -16,6 +16,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -253,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             for (var i = 0; i < categoriesArray.Length; i++)
                             {
-                                if (eventId.Name.StartsWith(categoriesArray[i], StringComparison.OrdinalIgnoreCase))
+                                if (eventId.Name!.StartsWith(categoriesArray[i], StringComparison.OrdinalIgnoreCase))
                                 {
                                     return true;
                                 }
@@ -269,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore
             return LogTo(
                 action,
                 (eventId, level) => level >= minimumLevel
-                    && eventId.Name.StartsWith(singleCategory, StringComparison.OrdinalIgnoreCase),
+                    && eventId.Name!.StartsWith(singleCategory, StringComparison.OrdinalIgnoreCase),
                 options);
         }
 
@@ -663,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -672,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

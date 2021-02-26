@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class ManyToManyLoaderFactory
     {
         private static readonly MethodInfo _genericCreate
-            = typeof(ManyToManyLoaderFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateManyToMany));
+            = typeof(ManyToManyLoaderFactory).GetTypeInfo().GetRequiredDeclaredMethod(nameof(CreateManyToMany));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => (ICollectionLoader)_genericCreate.MakeGenericMethod(
                     skipNavigation.TargetEntityType.ClrType,
                     skipNavigation.DeclaringEntityType.ClrType)
-                .Invoke(null, new object[] { skipNavigation });
+                .Invoke(null, new object[] { skipNavigation })!;
 
         [UsedImplicitly]
         private static ICollectionLoader CreateManyToMany<TEntity, TTargetEntity>(ISkipNavigation skipNavigation)

@@ -7,9 +7,12 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
     internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
+        where TVertex : notnull
     {
         private readonly HashSet<TVertex> _vertices = new();
         private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap = new();
@@ -130,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             => TopologicalSort(null, formatCycle);
 
         public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge,
-            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle,
-            Func<string, string> formatException = null)
+            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? tryBreakEdge,
+            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
+            Func<string, string>? formatException = null)
         {
             var sortedQueue = new List<TVertex>();
             var predecessorCounts = new Dictionary<TVertex, int>();
@@ -255,13 +258,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         private void ThrowCycle(
             List<TVertex> cycle,
-            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle,
-            Func<string, string> formatException = null)
+            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
+            Func<string, string>? formatException = null)
         {
             string cycleString;
             if (formatCycle == null)
             {
-                cycleString = cycle.Select(ToString).Join(" ->" + Environment.NewLine);
+                cycleString = cycle.Select(e => ToString(e)!).Join(" ->" + Environment.NewLine);
             }
             else
             {
@@ -281,14 +284,14 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             throw new InvalidOperationException(message);
         }
 
-        protected virtual string ToString(TVertex vertex)
+        protected virtual string? ToString(TVertex vertex)
             => vertex.ToString();
 
         public IReadOnlyList<List<TVertex>> BatchingTopologicalSort()
             => BatchingTopologicalSort(null);
 
         public IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
-            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle)
         {
             var currentRootsQueue = new List<TVertex>();
             var predecessorCounts = new Dictionary<TVertex, int>();
@@ -353,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             if (result.Sum(b => b.Count) != _vertices.Count)
             {
                 var currentCycleVertex = _vertices.First(
-                    v => predecessorCounts.TryGetValue(v, out var predecessorNumber) ? predecessorNumber != 0 : false);
+                    v => predecessorCounts.TryGetValue(v, out var predecessorNumber) && predecessorNumber != 0);
                 var cyclicWalk = new List<TVertex> { currentCycleVertex };
                 var finished = false;
                 while (!finished)

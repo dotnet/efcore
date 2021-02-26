@@ -37,6 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="model"> The model for which a tracker is needed, or null to use the current model. </param>
         /// <returns> The new tracker. </returns>
-        IUpdateAdapter CreateStandalone([CanBeNull] IModel model = null);
+        IUpdateAdapter CreateStandalone([CanBeNull] IModel? model = null);
     }
 }

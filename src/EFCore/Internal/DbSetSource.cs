@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class DbSetSource : IDbSetSource
     {
         private static readonly MethodInfo _genericCreateSet
-            = typeof(DbSetSource).GetTypeInfo().GetDeclaredMethod(nameof(CreateSetFactory));
+            = typeof(DbSetSource).GetTypeInfo().GetRequiredDeclaredMethod(nameof(CreateSetFactory));
 
-        private readonly ConcurrentDictionary<(Type Type, string Name), Func<DbContext, string, object>> _cache = new();
+        private readonly ConcurrentDictionary<(Type Type, string? Name), Func<DbContext, string?, object>> _cache = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,15 +47,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual object Create(DbContext context, string name, Type type)
             => CreateCore(context, type, name, _genericCreateSet);
 
-        private object CreateCore(DbContext context, Type type, string name, MethodInfo createMethod)
+        private object CreateCore(DbContext context, Type type, string? name, MethodInfo createMethod)
             => _cache.GetOrAdd(
                 (type, name),
-                t => (Func<DbContext, string, object>)createMethod
+                t => (Func<DbContext, string?, object>)createMethod
                     .MakeGenericMethod(t.Type)
-                    .Invoke(null, null))(context, name);
+                    .Invoke(null, null)!)(context, name);
 
         [UsedImplicitly]
-        private static Func<DbContext, string, object> CreateSetFactory<TEntity>()
+        private static Func<DbContext, string?, object> CreateSetFactory<TEntity>()
             where TEntity : class
             => (c, name) => new InternalDbSet<TEntity>(c, name);
     }

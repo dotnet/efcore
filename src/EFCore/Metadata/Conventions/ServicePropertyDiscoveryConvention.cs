@@ -140,8 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            var member = (MemberInfo)entityType.GetRuntimeProperties().Find(name)
-                ?? entityType.GetRuntimeFields().Find(name);
+            var member = (MemberInfo?)entityType.GetRuntimeProperties().Find(name)
+                ?? entityType.GetRuntimeFields().Find(name)!;
             var type = member.GetMemberType();
             if (duplicateMap.TryGetValue(type, out var duplicateServiceProperties)
                 && duplicateServiceProperties.Remove(member))

@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void Log(InternalEntityEntry entry, IProperty property, object generatedValue, bool temporary)
+        private void Log(InternalEntityEntry entry, IProperty property, object? generatedValue, bool temporary)
         {
             if (_loggingOptions.IsSensitiveDataLoggingEnabled)
             {
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => property.RequiresValueGenerator()
                 && _valueGeneratorSelector.Select(property, entityType).GeneratesTemporaryValues;
 
-        private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object generatedValue, bool isTemporary)
+        private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object? generatedValue, bool isTemporary)
         {
             if (generatedValue != null)
             {

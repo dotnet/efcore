@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 Check.DebugAssert(!IsEmpty, "relationship snapshot is empty");
                 Check.DebugAssert(
-                    propertyBase is not INavigation navigation || !navigation.IsCollection,
+                    propertyBase is not INavigation { IsCollection : true },
                     $"property {propertyBase} is is not reference navigation");
 
                 _values[propertyBase.GetRelationshipIndex()] = SnapshotValue(propertyBase, value);
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             private HashSet<object> GetOrCreateCollection(int index)
             {
-                var snapshot = (HashSet<object>)_values[index]!;
+                var snapshot = (HashSet<object>?)_values[index];
                 if (snapshot == null)
                 {
                     snapshot = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);

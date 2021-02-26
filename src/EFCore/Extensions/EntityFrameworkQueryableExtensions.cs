@@ -342,13 +342,13 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static Task<TSource> FirstOrDefaultAsync<TSource>(
+        public static Task<TSource?> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(QueryableMethods.FirstOrDefaultWithoutPredicate, source, cancellationToken);
+            return ExecuteAsync<TSource, Task<TSource?>>(QueryableMethods.FirstOrDefaultWithoutPredicate, source, cancellationToken);
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static Task<TSource> FirstOrDefaultAsync<TSource>(
+        public static Task<TSource?> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource>>(QueryableMethods.FirstOrDefaultWithPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, Task<TSource?>>(QueryableMethods.FirstOrDefaultWithPredicate, source, predicate, cancellationToken);
         }
 
         #endregion
@@ -473,13 +473,13 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static Task<TSource> LastOrDefaultAsync<TSource>(
+        public static Task<TSource?> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(QueryableMethods.LastOrDefaultWithoutPredicate, source, cancellationToken);
+            return ExecuteAsync<TSource, Task<TSource?>>(QueryableMethods.LastOrDefaultWithoutPredicate, source, cancellationToken);
         }
 
         /// <summary>
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static Task<TSource> LastOrDefaultAsync<TSource>(
+        public static Task<TSource?> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource>>(QueryableMethods.LastOrDefaultWithPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, Task<TSource?>>(QueryableMethods.LastOrDefaultWithPredicate, source, predicate, cancellationToken);
         }
 
         #endregion
@@ -625,13 +625,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains more than one element. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static Task<TSource> SingleOrDefaultAsync<TSource>(
+        public static Task<TSource?> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<TSource, Task<TSource>>(QueryableMethods.SingleOrDefaultWithoutPredicate, source, cancellationToken);
+            return ExecuteAsync<TSource, Task<TSource?>>(QueryableMethods.SingleOrDefaultWithoutPredicate, source, cancellationToken);
         }
 
         /// <summary>
@@ -659,7 +659,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     More than one element satisfies the condition in <paramref name="predicate" />.
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static Task<TSource> SingleOrDefaultAsync<TSource>(
+        public static Task<TSource?> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
@@ -667,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource>>(
+            return ExecuteAsync<TSource, Task<TSource?>>(
                 QueryableMethods.SingleOrDefaultWithPredicate, source, predicate, cancellationToken);
         }
 

@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         IEnumerable<ICheckConstraint> CheckConstraints
             => EntityTypeMappings.SelectMany(m => CheckConstraint.GetCheckConstraints(m.EntityType))
-                .Distinct((x, y) => x.Name == y.Name);
+                .Distinct((x, y) => x!.Name == y!.Name);
 
         /// <summary>
         ///     Gets the comment for this table.

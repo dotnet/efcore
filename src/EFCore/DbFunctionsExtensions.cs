@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -33,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="pattern">The pattern which may involve wildcards <c>%,_,[,],^</c>.</param>
         /// <returns><see langword="true" /> if there is a match.</returns>
         public static bool Like(
-            [CanBeNull] this DbFunctions _,
-            [CanBeNull] string matchExpression,
-            [CanBeNull] string pattern)
+            [NotNull] this DbFunctions _,
+            [NotNull] string matchExpression,
+            [NotNull] string pattern)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Like)));
 
         /// <summary>
@@ -61,10 +63,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns><see langword="true" /> if there is a match.</returns>
         public static bool Like(
-            [CanBeNull] this DbFunctions _,
-            [CanBeNull] string matchExpression,
-            [CanBeNull] string pattern,
-            [CanBeNull] string escapeCharacter)
+            [NotNull] this DbFunctions _,
+            [NotNull] string matchExpression,
+            [NotNull] string pattern,
+            [NotNull] string escapeCharacter)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Like)));
 
         /// <summary>
@@ -76,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="_"> The <see cref="DbFunctions" /> instance. </param>
         /// <returns> A random double number between 0 and 1, exclusive. </returns>
-        public static double Random([CanBeNull] this DbFunctions _)
+        public static double Random([NotNull] this DbFunctions _)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Random)));
     }
 }
