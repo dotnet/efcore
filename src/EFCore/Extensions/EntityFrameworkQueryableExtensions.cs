@@ -752,6 +752,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the maximum value in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> MaxAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -783,6 +784,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
+        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> MaxAsync<TSource, TResult>(
             [NotNull] this IQueryable<TSource> source,
