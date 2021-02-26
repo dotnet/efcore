@@ -1016,7 +1016,6 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_string_substring(bool async)
         {
             await base.Where_string_substring(async);
@@ -1024,7 +1023,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (SUBSTRING(c[""City""], 1, 2) = ""ea""))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
