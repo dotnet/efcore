@@ -687,9 +687,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         && previousNavigation?.Inverse == navigationBase)
                     {
                         // This skips one-to-one navigations which are pointing to each other.
-                        if (!navigationBase.IsEagerLoaded)
+                        if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23674", out var enabled)
+                            && enabled))
                         {
-                            _logger.NavigationBaseIncludeIgnored(navigationBase);
+                            if (!navigationBase.IsEagerLoaded)
+                            {
+                                _logger.NavigationBaseIncludeIgnored(navigationBase);
+                            }
                         }
 
                         continue;
@@ -744,10 +748,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             {
                                 // This skips inverse navigation of a collection navigation if they are pointing to each other.
                                 // Not a skip navigation
-                                if (innerEntityReference.IncludePaths.ContainsKey(inverseNavigation)
-                                    && !inverseNavigation.IsEagerLoaded)
+                                if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23674", out var enabled)
+                                    && enabled))
                                 {
-                                    _logger.NavigationBaseIncludeIgnored(inverseNavigation);
+                                    if (innerEntityReference.IncludePaths.ContainsKey(inverseNavigation)
+                                    && !inverseNavigation.IsEagerLoaded)
+                                    {
+                                        _logger.NavigationBaseIncludeIgnored(inverseNavigation);
+                                    }
                                 }
 
                                 innerEntityReference.IncludePaths.Remove(inverseNavigation);
