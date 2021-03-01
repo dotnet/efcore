@@ -339,11 +339,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 || operation.Collation != operation.OldColumn.Collation
                 || HasDifferences(operation.GetAnnotations(), operation.OldColumn.GetAnnotations());
 
+            var (oldDefaultValue, oldDefaultValueSql) = (operation.OldColumn.DefaultValue, operation.OldColumn.DefaultValueSql);
+
             if (alterStatementNeeded
-                || !Equals(operation.DefaultValue, operation.OldColumn.DefaultValue)
-                || operation.DefaultValueSql != operation.OldColumn.DefaultValueSql)
+                || !Equals(operation.DefaultValue, oldDefaultValue)
+                || operation.DefaultValueSql != oldDefaultValueSql)
             {
                 DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
+                (oldDefaultValue, oldDefaultValueSql) = (null, null);
             }
 
             if (alterStatementNeeded)
@@ -388,8 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
 
-            if (operation.DefaultValue != null
-                || operation.DefaultValueSql != null)
+            if (!Equals(operation.DefaultValue, oldDefaultValue) || operation.DefaultValueSql != oldDefaultValueSql)
             {
                 builder
                     .Append("ALTER TABLE ")
