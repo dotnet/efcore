@@ -77,7 +77,9 @@ namespace Microsoft.EntityFrameworkCore
                 ?? GetDefaultContainingPropertyName(entityType);
 
         private static string? GetDefaultContainingPropertyName(IReadOnlyEntityType entityType)
-            => entityType.FindOwnership()?.PrincipalToDependent!.Name;
+            => entityType.FindOwnership() is IReadOnlyForeignKey ownership
+                ? ownership.PrincipalToDependent!.Name
+                : null;
 
         /// <summary>
         ///     Sets the name of the parent property to which the entity type is mapped.

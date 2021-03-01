@@ -966,7 +966,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                 foreach (var uniqueConstraintGroup in uniqueConstraintGroups)
                 {
-                    _logger.UniqueConstraintFound(uniqueConstraintGroup.Key.Name, DisplayName(tableSchema, tableName));
+                    _logger.UniqueConstraintFound(uniqueConstraintGroup.Key.Name!, DisplayName(tableSchema, tableName));
 
                     var uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
 
@@ -1005,7 +1005,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                 foreach (var indexGroup in indexGroups)
                 {
-                    _logger.IndexFound(indexGroup.Key.Name, DisplayName(tableSchema, tableName), indexGroup.Key.IsUnique);
+                    _logger.IndexFound(indexGroup.Key.Name!, DisplayName(tableSchema, tableName), indexGroup.Key.IsUnique);
 
                     var index = new DatabaseIndex
                     {
@@ -1100,10 +1100,10 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                     var onDeleteAction = foreignKeyGroup.Key.OnDeleteAction;
 
                     _logger.ForeignKeyFound(
-                        fkName,
+                        fkName!,
                         DisplayName(table.Schema, table.Name!),
                         DisplayName(principalTableSchema, principalTableName),
-                        onDeleteAction);
+                        onDeleteAction!);
 
                     var principalTable = tables.FirstOrDefault(
                             t => t.Schema == principalTableSchema
@@ -1148,9 +1148,9 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         {
                             invalid = true;
                             _logger.ForeignKeyPrincipalColumnMissingWarning(
-                                fkName,
+                                fkName!,
                                 DisplayName(table.Schema, table.Name!),
-                                principalColumnName,
+                                principalColumnName!,
                                 DisplayName(principalTableSchema, principalTableName));
                             break;
                         }
@@ -1164,7 +1164,7 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         if (foreignKey.Columns.SequenceEqual(foreignKey.PrincipalColumns))
                         {
                             _logger.ReflexiveConstraintIgnored(
-                                foreignKey.Name,
+                                foreignKey.Name!,
                                 DisplayName(table.Schema, table.Name!));
                         }
                         else

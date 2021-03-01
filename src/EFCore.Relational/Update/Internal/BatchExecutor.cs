@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     /// <summary>
@@ -105,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 if (beganTransaction)
                 {
-                    transaction.Commit();
+                    transaction!.Commit();
                 }
             }
             catch
@@ -114,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     try
                     {
-                        transaction.RollbackToSavepoint(SavepointName);
+                        transaction!.RollbackToSavepoint(SavepointName);
                     }
                     catch (Exception e)
                     {
@@ -128,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 if (beganTransaction)
                 {
-                    transaction.Dispose();
+                    transaction!.Dispose();
                 }
                 else
                 {
@@ -138,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         {
                             try
                             {
-                                transaction.ReleaseSavepoint(SavepointName);
+                                transaction!.ReleaseSavepoint(SavepointName);
                             }
                             catch (Exception e)
                             {
@@ -200,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 if (beganTransaction)
                 {
-                    await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+                    await transaction!.CommitAsync(cancellationToken).ConfigureAwait(false);
                 }
             }
             catch
@@ -209,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     try
                     {
-                        await transaction.RollbackToSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                        await transaction!.RollbackToSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
                     }
                     catch (Exception e)
                     {
@@ -223,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 if (beganTransaction)
                 {
-                    await transaction.DisposeAsync().ConfigureAwait(false);
+                    await transaction!.DisposeAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -233,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         {
                             try
                             {
-                                await transaction.ReleaseSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
+                                await transaction!.ReleaseSavepointAsync(SavepointName, cancellationToken).ConfigureAwait(false);
                             }
                             catch (Exception e)
                             {

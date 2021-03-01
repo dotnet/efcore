@@ -9,6 +9,8 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json.Linq;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     /// <summary>
@@ -144,7 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        FeedIterator CreateQuery([NotNull] string containerId, [NotNull] string partitionKey, [NotNull] CosmosSqlQuery query);
+        // TODO-NULLABLE: nullability change for partitionKey
+        FeedIterator CreateQuery([NotNull] string containerId, [CanBeNull] string? partitionKey, [NotNull] CosmosSqlQuery query);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -154,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         JObject ExecuteReadItem(
             [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
+            [CanBeNull] string? partitionKey,
             [NotNull] string resourceId);
 
         /// <summary>
@@ -165,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         Task<JObject> ExecuteReadItemAsync(
             [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
+            [CanBeNull] string? partitionKey,
             [NotNull] string resourceId,
             CancellationToken cancellationToken = default);
 
@@ -177,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         IEnumerable<JObject> ExecuteSqlQuery(
             [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
+            [CanBeNull] string? partitionKey,
             [NotNull] CosmosSqlQuery query);
 
         /// <summary>
@@ -188,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
             [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
+            [CanBeNull] string? partitionKey,
             [NotNull] CosmosSqlQuery query);
     }
 }

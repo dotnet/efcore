@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string FormatTables([NotNull] this IEnumerable<(string Table, string Schema)> tables)
+        public static string FormatTables([NotNull] this IEnumerable<(string Table, string? Schema)> tables)
             => "{"
                 + string.Join(", ", tables.Select(t => "'" + FormatTable(t) + "'"))
                 + "}";
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string FormatTable(this (string Table, string Schema) table)
+        public static string FormatTable(this (string Table, string? Schema) table)
             => table.Schema == null ? table.Table : table.Schema + "." + table.Table;
     }
 }

@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
     /// <summary>
@@ -26,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
         private readonly object _lock = new();
 
-        private Dictionary<object, IInMemoryTable> _tables;
+        private Dictionary<object, IInMemoryTable>? _tables;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -213,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 _tables = CreateTables();
             }
 
-            IInMemoryTable baseTable = null;
+            IInMemoryTable? baseTable = null;
 
             var entityTypes = entityType.GetAllBaseTypesInclusive();
             foreach (var currentEntityType in entityTypes)

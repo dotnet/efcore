@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 {
     /// <summary>
@@ -234,11 +236,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         private void AppendMergeCommandHeader(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] string toInsertTableAlias,
             [NotNull] IReadOnlyList<ModificationCommand> modificationCommands,
             [NotNull] IReadOnlyList<ColumnModification> writeOperations,
-            string additionalColumns = null)
+            string? additionalColumns = null)
         {
             commandStringBuilder.Append("MERGE ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, name, schema);
@@ -316,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                         {
                             if (o.IsWrite)
                             {
-                                helper.GenerateParameterName(sb, o.ParameterName);
+                                helper.GenerateParameterName(sb, o.ParameterName!);
                             }
                             else
                             {
@@ -334,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             string name,
             int index,
             IReadOnlyList<ColumnModification> operations,
-            string additionalColumns = null)
+            string? additionalColumns = null)
         {
             commandStringBuilder
                 .Append("DECLARE ")
@@ -347,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     (sb, o, generator) =>
                     {
                         generator.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
-                        sb.Append(" ").Append(generator.GetTypeNameForCopy(o.Property));
+                        sb.Append(" ").Append(generator.GetTypeNameForCopy(o.Property!));
                     });
 
             if (additionalColumns != null)
@@ -373,12 +375,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     ?? Dependencies.TypeMappingSource.FindMapping(property.ClrType)?.StoreType;
             }
 
+            // TODO-NULLABLE: if typeName is null and it's not byte[], looks like we generate bad SQL
             return property.ClrType == typeof(byte[])
                 && typeName != null
                 && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
                     || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
                     ? property.IsNullable ? "varbinary(8)" : "binary(8)"
-                    : typeName;
+                    : typeName!;
         }
 
         // ReSharper disable once ParameterTypeCanBeEnumerable.Local
@@ -387,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             IReadOnlyList<ColumnModification> operations,
             string tableName,
             int tableIndex,
-            string additionalColumns = null)
+            string? additionalColumns = null)
         {
             commandStringBuilder
                 .AppendLine()
@@ -443,8 +446,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             string insertedTableName,
             int insertedTableIndex,
             string tableName,
-            string schema,
-            string orderColumn = null)
+            string? schema,
+            string? orderColumn = null)
         {
             commandStringBuilder
                 .AppendLine()
@@ -495,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         protected override ResultSetMapping AppendSelectAffectedCountCommand(
             StringBuilder commandStringBuilder,
             string name,
-            string schema,
+            string? schema,
             int commandPosition)
         {
             commandStringBuilder

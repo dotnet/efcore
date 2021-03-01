@@ -3,6 +3,8 @@
 
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     /// <summary>
@@ -11,9 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    // TODO-NULLABLE: Dead code?
     public readonly struct CosmosConcurrencyToken
     {
-        private CosmosConcurrencyToken(string value, CosmosConcurrencyMode mode)
+        private CosmosConcurrencyToken(string? value, CosmosConcurrencyMode mode)
         {
             Value = value;
             Mode = mode;
@@ -33,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public string Value { get; }
+        public string? Value { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

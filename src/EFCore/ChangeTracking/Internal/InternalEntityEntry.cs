@@ -1209,11 +1209,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         if (valueType == CurrentValueType.StoreGenerated)
                         {
                             EnsureStoreGeneratedValues();
-                            _storeGeneratedValues.SetValue(asProperty, value, storeGeneratedIndex);
+                            _storeGeneratedValues.SetValue(asProperty!, value, storeGeneratedIndex);
                         }
                         else
                         {
-                            var defaultValue = asProperty.ClrType.GetDefaultValue();
+                            var defaultValue = asProperty!.ClrType.GetDefaultValue();
                             if (!equals(currentValue, defaultValue))
                             {
                                 WritePropertyValue(asProperty, defaultValue, isMaterialization);

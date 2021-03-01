@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> The list of commands to be executed or scripted. </returns>
         public override IReadOnlyList<MigrationCommand> Generate(
             IReadOnlyList<MigrationOperation> operations,
-            IModel model = null,
+            IModel? model = null,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
             => base.Generate(RewriteOperations(operations, model), model, options);
 
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private IReadOnlyList<MigrationOperation> RewriteOperations(
             IReadOnlyList<MigrationOperation> migrationOperations,
-            IModel model)
+            IModel? model)
         {
             var operations = new List<MigrationOperation>();
             var rebuilds = new Dictionary<(string Table, string Schema), RebuildContext>();

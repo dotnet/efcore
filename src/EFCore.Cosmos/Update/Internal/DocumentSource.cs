@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json.Linq;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         private readonly string _collectionId;
         private readonly CosmosDatabaseWrapper _database;
         private readonly IProperty _idProperty;
-        private readonly IProperty _jObjectProperty;
+        private readonly IProperty? _jObjectProperty;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,9 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         /// </summary>
         public DocumentSource([NotNull] IEntityType entityType, [NotNull] CosmosDatabaseWrapper database)
         {
-            _collectionId = entityType.GetContainer();
+            // TODO-NULLABLE: is it OK for collectionId to be null? Callers of GetCollectionId seem to expect it to be non-null
+            _collectionId = entityType.GetContainer()!;
             _database = database;
-            _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+            // TODO-NULLABLE: same
+            _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName)!;
             _jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
         }
 
@@ -56,8 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        // TODO-NULLABLE: Is it OK for method to return null
         public virtual string GetId([NotNull] IUpdateEntry entry)
-            => (string)entry.GetCurrentProviderValue(_idProperty);
+            => (string)entry.GetCurrentProviderValue(_idProperty)!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -114,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 {
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     // #16707
-                    var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType);
+                    var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
                     document[embeddedPropertyName] = _database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry);
 #pragma warning restore EF1001 // Internal EF Core API usage.
                 }
@@ -126,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     {
 #pragma warning disable EF1001 // Internal EF Core API usage.
                         // #16707
-                        var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
+                        var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
                         array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, embeddedOrdinal));
 #pragma warning restore EF1001 // Internal EF Core API usage.
                         embeddedOrdinal++;
@@ -145,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry)
+        public virtual JObject? UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry)
             => UpdateDocument(document, entry, null);
 
         /// <summary>
@@ -154,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry, int? ordinal)
+        public virtual JObject? UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry, int? ordinal)
         {
             var anyPropertyUpdated = false;
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -242,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                                 continue;
                             }
 
-                            if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty) != embeddedOrdinal)
+                            if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty)! != embeddedOrdinal)
                             {
                                 shouldSetTemporaryKeys = true;
                                 break;
@@ -303,8 +308,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             return anyPropertyUpdated ? document : null;
         }
 
-        private IProperty GetOrdinalKeyProperty(IEntityType entityType)
-            => entityType.FindPrimaryKey().Properties.FirstOrDefault(
+        private IProperty? GetOrdinalKeyProperty(IEntityType entityType)
+            => entityType.FindPrimaryKey()!.Properties.FirstOrDefault(
                 p =>
                     p.GetJsonPropertyName().Length == 0 && p.IsOrdinalKeyProperty());
 
@@ -314,12 +319,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject GetCurrentDocument([NotNull] IUpdateEntry entry)
+        public virtual JObject? GetCurrentDocument([NotNull] IUpdateEntry entry)
             => _jObjectProperty != null
-                ? (JObject)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(_jObjectProperty)
+                ? (JObject?)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(_jObjectProperty)
                 : null;
 
-        private static JToken ConvertPropertyValue(IProperty property, IUpdateEntry entry)
+        private static JToken? ConvertPropertyValue(IProperty property, IUpdateEntry entry)
         {
             var value = entry.GetCurrentProviderValue(property);
             return value == null

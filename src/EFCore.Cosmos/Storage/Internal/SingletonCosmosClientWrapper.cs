@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     /// <summary>
@@ -27,10 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     {
         private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
         private readonly CosmosClientOptions _options;
-        private readonly string _endpoint;
-        private readonly string _key;
-        private readonly string _connectionString;
-        private CosmosClient _client;
+        private readonly string? _endpoint;
+        private readonly string? _key;
+        private readonly string? _connectionString;
+        private CosmosClient? _client;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
