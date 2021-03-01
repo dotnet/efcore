@@ -945,6 +945,29 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ADD DEFAULT N'Doe' FOR [Name];");
         }
 
+        [ConditionalFact]
+        public virtual async Task Alter_column_change_comment_with_default()
+        {
+            await Test(
+                builder => builder.Entity("People").Property<string>("Name").HasDefaultValue("Doe"),
+                builder => { },
+                builder => builder.Entity("People").Property<string>("Name")
+                    .HasComment("Some comment"),
+                model =>
+                {
+                    var nameColumn = Assert.Single(Assert.Single(model.Tables).Columns);
+                    Assert.Equal("(N'Doe')", nameColumn.DefaultValueSql);
+                    Assert.Equal("Some comment", nameColumn.Comment);
+                });
+
+            AssertSql(
+                @"DECLARE @defaultSchema AS sysname;
+SET @defaultSchema = SCHEMA_NAME();
+DECLARE @description AS sql_variant;
+SET @description = N'Some comment';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'People', 'COLUMN', N'Name';");
+        }
+
         public override async Task Drop_column()
         {
             await base.Drop_column();
