@@ -111,7 +111,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new SqlServerDoubleTypeMapping("float");
 
         private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffset
+#pragma warning disable CS8620 // TODO: Follow up. Possibly dotnet/roslyn#50311
             = new("datetimeoffset");
+#pragma warning restore CS8620
 
         private readonly GuidTypeMapping _uniqueidentifier
             = new("uniqueidentifier", DbType.Guid);

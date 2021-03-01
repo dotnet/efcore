@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NetTopologySuite;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
 {
     /// <summary>

@@ -1725,7 +1725,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 definition.Log(
                     diagnostics,
-                    string.Join(", ", conflictingNavigations.Select(n => n.Item2.ShortDisplayName() + "." + n.Item1.Name)),
+                    string.Join(", ", conflictingNavigations.Select(n => n.Item2.ShortDisplayName() + "." + n.Item1?.Name)),
                     inverseNavigation.Name);
             }
 

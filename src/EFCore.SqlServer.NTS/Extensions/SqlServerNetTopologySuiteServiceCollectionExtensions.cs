@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NetTopologySuite;
 
+#nullable enable
+
 namespace Microsoft.Extensions.DependencyInjection
 {
     /// <summary>
