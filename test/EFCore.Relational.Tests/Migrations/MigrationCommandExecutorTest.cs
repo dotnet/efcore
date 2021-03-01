@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Executes_migration_commands_in_same_transaction(bool async)
         {
             var fakeConnection = CreateConnection();
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand>
             {
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Executes_migration_commands_with_transaction_suppressed_outside_of_transaction(bool async)
         {
             var fakeConnection = CreateConnection();
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand>
             {
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Ends_transaction_when_transaction_is_suppressed(bool async)
         {
             var fakeConnection = CreateConnection();
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand>
             {
@@ -140,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Begins_new_transaction_when_transaction_nolonger_suppressed(bool async)
         {
             var fakeConnection = CreateConnection();
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand>
             {
@@ -181,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Executes_commands_in_order_regardless_of_transaction_suppression(bool async)
         {
             var fakeConnection = CreateConnection();
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand>
             {
@@ -256,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     CreateOptions(
                         new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection)));
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand> { new(CreateRelationalCommand(), null, logger) };
 

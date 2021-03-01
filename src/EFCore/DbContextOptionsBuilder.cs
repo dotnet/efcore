@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -628,6 +629,21 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder AddInterceptors(params IInterceptor[] interceptors)
             => AddInterceptors((IEnumerable<IInterceptor>)interceptors);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures how long EF Core will cache logging configuration in certain high-performance paths. This makes
+        ///         EF Core skip potentially costly logging checks, but means that runtime logging changes (e.g. registering a
+        ///         new <see cref="DiagnosticListener" /> may not be taken into account right away).
+        ///     </para>
+        ///     <para>
+        ///         Defaults to one second.
+        ///     </para>
+        /// </summary>
+        /// <param name="loggingConfigCacheTime"> The maximum time period over which to skip logging checks before checking again. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder LoggingConfigCacheTime(TimeSpan loggingConfigCacheTime)
+            => WithOption(e => e.WithLoggingConfigCacheTime(loggingConfigCacheTime));
 
         /// <summary>
         ///     <para>

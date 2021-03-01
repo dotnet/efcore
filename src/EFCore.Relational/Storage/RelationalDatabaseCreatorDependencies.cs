@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ISqlGenerationHelper sqlGenerationHelper,
             IExecutionStrategyFactory executionStrategyFactory,
             ICurrentDbContext currentContext,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            IRelationalCommandDiagnosticsLogger commandLogger)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(connection, nameof(connection));
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The command logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; init; }
+        public IRelationalCommandDiagnosticsLogger CommandLogger { get; init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> currently in use.

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -206,8 +207,10 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionClosedAsync)),
                 typeof(IDbConnectionInterceptor).GetMethod(nameof(IDbConnectionInterceptor.ConnectionClosingAsync)),
                 typeof(IDbConnectionInterceptor).GetMethod(nameof(IDbConnectionInterceptor.ConnectionClosedAsync)),
-                typeof(RelationalLoggerExtensions).GetMethod(nameof(RelationalLoggerExtensions.ConnectionClosingAsync)),
-                typeof(RelationalLoggerExtensions).GetMethod(nameof(RelationalLoggerExtensions.ConnectionClosedAsync))
+                typeof(IRelationalConnectionDiagnosticsLogger).GetMethod(nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosingAsync)),
+                typeof(IRelationalConnectionDiagnosticsLogger).GetMethod(nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync)),
+                typeof(RelationalConnectionDiagnosticsLogger).GetMethod(nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosingAsync)),
+                typeof(RelationalConnectionDiagnosticsLogger).GetMethod(nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync))
             };
 
             public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = new();
