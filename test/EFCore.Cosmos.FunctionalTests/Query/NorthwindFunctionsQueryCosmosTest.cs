@@ -750,7 +750,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Substring_with_zero_startindex(async);
 
             AssertSql(
-                @"SELECT c[""ContactName""]
+                @"SELECT SUBSTRING(c[""ContactName""], 0, 3) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -760,7 +760,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Substring_with_zero_length(async);
 
             AssertSql(
-                @"SELECT c[""ContactName""]
+                @"SELECT SUBSTRING(c[""ContactName""], 2, 0) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -770,7 +770,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Substring_with_constant(async);
 
             AssertSql(
-                @"SELECT c[""ContactName""]
+                @"SELECT SUBSTRING(c[""ContactName""], 1, 3) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -780,7 +780,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Substring_with_closure(async);
 
             AssertSql(
-                @"SELECT c[""ContactName""]
+                @"@__start_0='2'
+
+SELECT SUBSTRING(c[""ContactName""], @__start_0, 3) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }

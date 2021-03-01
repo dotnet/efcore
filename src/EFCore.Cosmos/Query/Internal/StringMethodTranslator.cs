@@ -54,6 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private static readonly MethodInfo _trimMethodInfoWithCharArrayArg
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
 
+        private static readonly MethodInfo _substringMethodInfo
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
+
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
             = typeof(Enumerable).GetRuntimeMethods().Single(
                 m => m.Name == nameof(Enumerable.FirstOrDefault)
@@ -154,6 +157,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
                 {
                     return TranslateSystemFunction("TRIM", method.ReturnType, instance);
+                }
+
+                if (_substringMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("SUBSTRING", method.ReturnType, instance, arguments[0], arguments[1]);
                 }
             }
 
