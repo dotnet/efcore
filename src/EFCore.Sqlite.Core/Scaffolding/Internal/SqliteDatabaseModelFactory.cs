@@ -21,6 +21,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using static SQLitePCL.raw;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 {
     /// <summary>
@@ -272,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             }
         }
 
-        private string FilterClrDefaults(string dataType, bool notNull, string defaultValue)
+        private string? FilterClrDefaults(string dataType, bool notNull, string defaultValue)
         {
             if (string.Equals(defaultValue, "null", StringComparison.OrdinalIgnoreCase))
             {
@@ -281,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
             if (notNull
                 && defaultValue == "0"
-                && _typeMappingSource.FindMapping(dataType).ClrType.IsNumeric())
+                && _typeMappingSource.FindMapping(dataType)?.ClrType.IsNumeric() == true)
             {
                 return null;
             }
@@ -304,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             parameter.Value = table.Name;
             command.Parameters.Add(parameter);
 
-            var name = (string)command.ExecuteScalar();
+            var name = (string?)command.ExecuteScalar();
             if (name == null)
             {
                 GetRowidPrimaryKey(connection, table);
@@ -513,6 +515,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 var principalTable = tables.FirstOrDefault(t => t.Name == principalTableName)
                     ?? tables.FirstOrDefault(
                         t => t.Name!.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+
+                _logger.ForeignKeyFound(table.Name, id, principalTableName, onDelete);
+
+                if (principalTable == null)
+                {
+                    _logger.ForeignKeyReferencesMissingTableWarning(id.ToString(), table.Name, principalTableName);
+                    continue;
+                }
+
                 var foreignKey = new DatabaseForeignKey
                 {
                     Table = table,
@@ -520,14 +531,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     PrincipalTable = principalTable,
                     OnDelete = ConvertToReferentialAction(onDelete)
                 };
-
-                _logger.ForeignKeyFound(table.Name, id, principalTableName, onDelete);
-
-                if (foreignKey.PrincipalTable == null)
-                {
-                    _logger.ForeignKeyReferencesMissingTableWarning(id.ToString(), table.Name, principalTableName);
-                    continue;
-                }
 
                 using var command2 = connection.CreateCommand();
                 command2.CommandText = new StringBuilder()
@@ -560,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                         Check.DebugAssert(column != null, "column is null.");
 
                         var principalColumnName = reader2.IsDBNull(2) ? null : reader2.GetString(2);
-                        DatabaseColumn principalColumn = null;
+                        DatabaseColumn? principalColumn = null;
                         if (principalColumnName != null)
                         {
                             principalColumn =
