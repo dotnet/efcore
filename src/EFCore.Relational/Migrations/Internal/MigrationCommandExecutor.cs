@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     /// <summary>
@@ -45,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 try
                 {
-                    IDbContextTransaction transaction = null;
+                    IDbContextTransaction? transaction = null;
 
                     try
                     {
@@ -103,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 try
                 {
-                    IDbContextTransaction transaction = null;
+                    IDbContextTransaction? transaction = null;
 
                     try
                     {

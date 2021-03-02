@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The snapshot of the <see cref="IModel" /> contained in the assembly.
         /// </summary>
-        ModelSnapshot ModelSnapshot { get; }
+        ModelSnapshot? ModelSnapshot { get; }
 
         /// <summary>
         ///     The assembly that contains the migrations, snapshot, etc.
@@ -45,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="nameOrId"> The name or identifier to lookup. </param>
         /// <returns> The identifier of the migration, or <see langword="null" /> if none was found. </returns>
-        string FindMigrationId([NotNull] string nameOrId);
+        string? FindMigrationId([NotNull] string nameOrId);
 
         /// <summary>
         ///     Creates an instance of the migration class.

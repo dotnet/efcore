@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table, entityType, otherEntityType, memoryOptimizedEntityType, nonMemoryOptimizedEntityType);
 
         /// <summary>
-        ///     SQL Server requires the table name to be specified for rename index operations. Specify table name in the call to 'MigrationBuilder.RenameIndex'.
+        ///     SQL Server requires the table name to be specified for index operations. Specify table name in calls to 'MigrationBuilder.RenameIndex' and 'DropIndex'.
         /// </summary>
         public static string IndexTableRequired
             => GetString("IndexTableRequired");

@@ -3,6 +3,8 @@
 
 using System.Diagnostics;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
     /// <summary>
