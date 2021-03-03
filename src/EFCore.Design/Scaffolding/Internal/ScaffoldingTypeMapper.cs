@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TypeScaffoldingInfo FindMapping(
+        public virtual TypeScaffoldingInfo? FindMapping(
             string storeType,
             bool keyOrIndex,
             bool rowVersion)
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     rowVersion: rowVersion,
                     fixedLength: mapping.IsFixedLength,
                     precision: mapping.Precision,
-                    scale: mapping.Scale);
+                    scale: mapping.Scale)!;
 
                 scaffoldUnicode = unicodeMapping.IsUnicode != defaultTypeMapping.IsUnicode ? (bool?)defaultTypeMapping.IsUnicode : null;
 
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     size: mapping.Size,
                     fixedLength: null,
                     precision: mapping.Precision,
-                    scale: mapping.Scale);
+                    scale: mapping.Scale)!;
 
                 scaffoldFixedLength = fixedLengthMapping.IsFixedLength != defaultTypeMapping.IsFixedLength
                     ? (bool?)defaultTypeMapping.IsFixedLength
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     rowVersion: rowVersion,
                     fixedLength: false, // Fixed length with no size is not valid
                     precision: mapping.Precision,
-                    scale: mapping.Scale);
+                    scale: mapping.Scale)!;
 
                 scaffoldMaxLength = sizedMapping.Size != defaultTypeMapping.Size ? defaultTypeMapping.Size : null;
 
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     rowVersion: rowVersion,
                     fixedLength: mapping.IsFixedLength,
                     precision: null,
-                    scale: mapping.Scale);
+                    scale: mapping.Scale)!;
 
                 scaffoldPrecision = precisionMapping.Precision != defaultTypeMapping.Precision ? defaultTypeMapping.Precision : null;
 
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     rowVersion: rowVersion,
                     fixedLength: mapping.IsFixedLength,
                     precision: mapping.Precision,
-                    scale: null);
+                    scale: null)!;
 
                 scaffoldScale = scaleMapping.Scale != defaultTypeMapping.Scale ? defaultTypeMapping.Scale : null;
             }

@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="message"> The message that describes the error. </param>
         /// <param name="innerException"> The exception that is the cause of the current exception. </param>
-        public OperationException([NotNull] string message, [CanBeNull] Exception innerException)
+        public OperationException([NotNull] string message, [CanBeNull] Exception? innerException)
             : base(message, innerException)
         {
         }

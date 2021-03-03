@@ -40,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <returns> The <paramref name="services" />. This enables chaining additional method calls. </returns>
         public static IServiceCollection AddEntityFrameworkDesignTimeServices(
             [NotNull] this IServiceCollection services,
-            [CanBeNull] IOperationReporter reporter = null,
-            [CanBeNull] Func<IServiceProvider> applicationServiceProviderAccessor = null)
+            [CanBeNull] IOperationReporter? reporter = null,
+            [CanBeNull] Func<IServiceProvider>? applicationServiceProviderAccessor = null)
         {
             if (reporter == null)
             {
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
-                .AddSingleton<ITypeMappingSource>(p => p.GetService<IRelationalTypeMappingSource>())
+                .AddSingleton<ITypeMappingSource>(p => p.GetRequiredService<IRelationalTypeMappingSource>())
                 .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
                 .AddSingleton<MigrationsCodeGeneratorDependencies>()
                 .AddSingleton<ModelCodeGeneratorDependencies>()

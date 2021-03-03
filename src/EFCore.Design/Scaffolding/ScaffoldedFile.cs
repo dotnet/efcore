@@ -14,12 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Gets or sets the path.
         /// </summary>
         /// <value> The path. </value>
-        public virtual string Path { get; [param: NotNull] set; }
+        public virtual string Path { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     Gets or sets the scaffolded code.
         /// </summary>
         /// <value> The scaffolded code. </value>
-        public virtual string Code { get; [param: NotNull] set; }
+        public virtual string Code { get; [param: NotNull] set; } = null!;
     }
 }

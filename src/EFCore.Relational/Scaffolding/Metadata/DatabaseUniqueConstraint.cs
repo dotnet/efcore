@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
 
 #nullable enable
 
@@ -18,8 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The table on which the unique constraint is defined.
         /// </summary>
-        [DisallowNull]
-        public virtual DatabaseTable? Table { get; [param: NotNull] set; }
+        public virtual DatabaseTable Table { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The name of the constraint.

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="name"> The base identifier name. </param>
         /// <param name="scope"> A list of in-scope identifiers. </param>
         /// <returns> The identifier. </returns>
-        string Identifier([NotNull] string name, [CanBeNull] ICollection<string> scope = null);
+        string Identifier([NotNull] string name, [CanBeNull] ICollection<string>? scope = null);
 
         /// <summary>
         ///     Generates a property accessor lambda.
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="properties"> The property names. </param>
         /// <param name="lambdaIdentifier"> The identifier to use for parameter in the lambda. </param>
         /// <returns> The lambda. </returns>
-        string Lambda([NotNull] IReadOnlyList<string> properties, [CanBeNull] string lambdaIdentifier = null);
+        string Lambda([NotNull] IReadOnlyList<string> properties, [CanBeNull] string? lambdaIdentifier = null);
 
         /// <summary>
         ///     Generates a property accessor lambda.
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="properties"> The properties. </param>
         /// <param name="lambdaIdentifier"> The identifier to use for parameter in the lambda. </param>
         /// <returns> The lambda. </returns>
-        string Lambda([NotNull] IEnumerable<IProperty> properties, [CanBeNull] string lambdaIdentifier = null)
+        string Lambda([NotNull] IEnumerable<IProperty> properties, [CanBeNull] string? lambdaIdentifier = null)
             => Lambda(properties.Select(p => p.Name).ToList(), lambdaIdentifier);
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="values"> The multidimensional array. </param>
         /// <returns> The literal. </returns>
-        string Literal([NotNull] object[,] values);
+        string Literal([NotNull] object?[,] values);
 
         /// <summary>
         ///     Generates a nullable literal.
@@ -222,6 +222,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="value"> The value. </param>
         /// <returns> The literal. </returns>
-        string UnknownLiteral([CanBeNull] object value);
+        string UnknownLiteral([CanBeNull] object? value);
     }
 }
