@@ -366,18 +366,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private string GetTypeNameForCopy(IProperty property)
         {
-            var typeName = property.GetColumnType();
-            if (typeName == null)
-            {
-                var principalProperty = property.FindFirstPrincipal();
+            var typeName = property.GetRequiredColumnType();
 
-                typeName = principalProperty?.GetColumnType()
-                    ?? Dependencies.TypeMappingSource.FindMapping(property.ClrType)?.StoreType;
-            }
-
-            // TODO-NULLABLE: if typeName is null and it's not byte[], looks like we generate bad SQL
             return property.ClrType == typeof(byte[])
-                && typeName != null
                 && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
                     || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
                     ? property.IsNullable ? "varbinary(8)" : "binary(8)"

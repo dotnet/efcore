@@ -67,8 +67,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     _valueConverters.Add((property.GetIndex(), converter));
                 }
 
-                // TODO-NULLABLE: is there always a key value comparer set?
-                var comparer = property.GetKeyValueComparer()!;
+                var comparer = property.GetRequiredKeyValueComparer();
                 if (!comparer.IsDefault())
                 {
                     _valueComparers ??= new List<(int, ValueComparer)>();

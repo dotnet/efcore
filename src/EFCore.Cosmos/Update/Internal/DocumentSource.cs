@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
     /// </summary>
     public class DocumentSource
     {
-        private readonly string _collectionId;
+        private readonly string _containerId;
         private readonly CosmosDatabaseWrapper _database;
         private readonly IProperty _idProperty;
         private readonly IProperty? _jObjectProperty;
@@ -37,11 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         /// </summary>
         public DocumentSource([NotNull] IEntityType entityType, [NotNull] CosmosDatabaseWrapper database)
         {
-            // TODO-NULLABLE: is it OK for collectionId to be null? Callers of GetCollectionId seem to expect it to be non-null
-            _collectionId = entityType.GetContainer()!;
+            _containerId = entityType.GetContainer()!;
             _database = database;
-            // TODO-NULLABLE: same
-            _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName)!;
+            _idProperty = entityType.GetProperties().First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
             _jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
         }
 
@@ -51,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string GetCollectionId()
-            => _collectionId;
+        public virtual string GetContainerId()
+            => _containerId;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,7 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        // TODO-NULLABLE: Is it OK for method to return null
         public virtual string GetId([NotNull] IUpdateEntry entry)
             => (string)entry.GetCurrentProviderValue(_idProperty)!;
 
@@ -233,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 else
                 {
                     var embeddedOrdinal = 1;
-                    var ordinalKeyProperty = GetOrdinalKeyProperty(fk.DeclaringEntityType);
+                    var ordinalKeyProperty = FindOrdinalKeyProperty(fk.DeclaringEntityType);
                     if (ordinalKeyProperty != null)
                     {
                         var shouldSetTemporaryKeys = false;
@@ -308,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             return anyPropertyUpdated ? document : null;
         }
 
-        private IProperty? GetOrdinalKeyProperty(IEntityType entityType)
+        private IProperty? FindOrdinalKeyProperty(IEntityType entityType)
             => entityType.FindPrimaryKey()!.Properties.FirstOrDefault(
                 p =>
                     p.GetJsonPropertyName().Length == 0 && p.IsOrdinalKeyProperty());

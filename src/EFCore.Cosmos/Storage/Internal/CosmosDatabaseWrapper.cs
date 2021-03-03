@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var entityType = entry.EntityType;
             var documentSource = GetDocumentSource(entityType);
-            var collectionId = documentSource.GetCollectionId();
+            var collectionId = documentSource.GetContainerId();
             var state = entry.EntityState;
 
             if (entry.SharedIdentityEntry != null)
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var entityType = entry.EntityType;
             var documentSource = GetDocumentSource(entityType);
-            var collectionId = documentSource.GetCollectionId();
+            var collectionId = documentSource.GetContainerId();
             var state = entry.EntityState;
 
             if (entry.SharedIdentityEntry != null)
