@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private string GetTypeNameForCopy(IProperty property)
         {
-            var typeName = property.GetRequiredColumnType();
+            var typeName = property.GetColumnType();
 
             return property.ClrType == typeof(byte[])
                 && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)

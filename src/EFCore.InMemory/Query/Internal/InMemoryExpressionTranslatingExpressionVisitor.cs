@@ -1062,7 +1062,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var discriminatorProperty = entityType.FindDiscriminatorProperty()!;
                     var boundProperty = BindProperty(entityReferenceExpression, discriminatorProperty, discriminatorProperty.ClrType);
                     // KeyValueComparer is not null at runtime
-                    var valueComparer = discriminatorProperty.GetRequiredKeyValueComparer();
+                    var valueComparer = discriminatorProperty.GetKeyValueComparer();
 
                     var equals = valueComparer.ExtractEqualsBody(
                         boundProperty!,

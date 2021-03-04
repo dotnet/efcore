@@ -996,7 +996,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .ToList();
 
             var keyProperties = foreignKey.Properties.Concat(otherForeignKey.Properties).ToList();
-            var keyComparers = keyProperties.Select(e => e.GetRequiredKeyValueComparer()).ToList();
+            var keyComparers = keyProperties.Select(e => e.GetKeyValueComparer()).ToList();
             var propertiesCount = keyComparers.Count;
 
             foreach (var candidate in entry.StateManager.Entries)

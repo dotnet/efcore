@@ -302,8 +302,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The database type of the column to which the property is mapped. </returns>
-        public static string GetRequiredColumnType([NotNull] this IReadOnlyProperty property)
-            => GetColumnType(property)!;
+        public static string GetColumnType([NotNull] this IProperty property)
+            => ((IReadOnlyProperty)property).GetColumnType()!;
 
         /// <summary>
         ///     Returns the database type of the column to which the property is mapped, or <see langword="null" /> if the database type
@@ -332,8 +332,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> The database type of the column to which the property is mapped. </returns>
-        public static string GetRequiredColumnType([NotNull] this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
-            => property.GetColumnType(storeObject)!;
+        public static string GetColumnType([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+            => ((IReadOnlyProperty)property).GetColumnType(storeObject)!;
 
         private static string? GetDefaultColumnType(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {

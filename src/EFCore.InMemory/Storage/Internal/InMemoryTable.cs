@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     _valueConverters.Add((property.GetIndex(), converter));
                 }
 
-                var comparer = property.GetRequiredKeyValueComparer();
+                var comparer = property.GetKeyValueComparer();
                 if (!comparer.IsDefault())
                 {
                     _valueComparers ??= new List<(int, ValueComparer)>();
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             return rows;
         }
 
-        private static List<ValueComparer?> GetKeyComparers(IEnumerable<IProperty> properties)
+        private static List<ValueComparer> GetKeyComparers(IEnumerable<IProperty> properties)
             => properties.Select(p => p.GetKeyValueComparer()).ToList();
 
         /// <summary>

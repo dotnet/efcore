@@ -1,10 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
     {
         private readonly string _containerId;
         private readonly CosmosDatabaseWrapper _database;
-        private readonly IProperty _idProperty;
+        private readonly IEntityType _entityType;
+        private readonly IProperty? _idProperty;
         private readonly IProperty? _jObjectProperty;
 
         /// <summary>
@@ -39,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         {
             _containerId = entityType.GetContainer()!;
             _database = database;
-            _idProperty = entityType.GetProperties().First(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+            _entityType = entityType;
+            _idProperty = entityType.GetProperties().FirstOrDefault(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
             _jObjectProperty = entityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
         }
 
@@ -59,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string GetId([NotNull] IUpdateEntry entry)
-            => (string)entry.GetCurrentProviderValue(_idProperty)!;
+            => _idProperty is null
+                ? throw new InvalidOperationException(CosmosStrings.NoIdProperty(_entityType.DisplayName()))
+                : (string)entry.GetCurrentProviderValue(_idProperty)!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

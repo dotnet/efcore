@@ -937,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IMutableServiceProperty> GetServiceProperties();
 
         /// <summary>
-        ///     Removes a service propertie from this entity type.
+        ///     Removes a service property from this entity type.
         /// </summary>
         /// <param name="name"> The name of the property to remove. </param>
         /// <returns> The property that was removed, or <see langword="null" /> if the property was not found. </returns>

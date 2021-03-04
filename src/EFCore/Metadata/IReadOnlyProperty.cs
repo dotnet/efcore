@@ -165,13 +165,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ValueComparer? GetKeyValueComparer();
 
         /// <summary>
-        ///     Gets the <see cref="ValueComparer" /> to use with keys for this property.
-        /// </summary>
-        /// <returns> The comparer. </returns>
-        ValueComparer GetRequiredKeyValueComparer()
-            => GetKeyValueComparer()!;
-
-        /// <summary>
         ///     Finds the first principal property that the given property is constrained by
         ///     if the given property is part of a foreign key.
         /// </summary>
