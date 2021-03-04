@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 private class BadDataRelationalCommand : RelationalCommand
                 {
-                    private readonly object[] _values;
+                    private object[] _values;
 
                     public BadDataRelationalCommand(
                         RelationalCommandBuilderDependencies dependencies,
@@ -173,162 +173,92 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var command = parameterObject.Connection.DbConnection.CreateCommand();
                         command.CommandText = CommandText;
-                        return new BadDataRelationalDataReader(
+                        var reader = new BadDataRelationalDataReader(this);
+                        reader.Initialize(
+                            new FakeConnection(),
                             command,
-                            _values,
+                            new BadDataDataReader(_values),
+                            Guid.NewGuid(),
                             parameterObject.Logger);
+                        return reader;
+                    }
+
+                    public override void PopulateFromTemplate(IRelationalCommand templateCommand)
+                    {
+                        base.PopulateFromTemplate(templateCommand);
+                        _values = ((BadDataRelationalCommand)templateCommand)._values;
                     }
 
                     private class BadDataRelationalDataReader : RelationalDataReader
                     {
-                        public BadDataRelationalDataReader(
-                            DbCommand command,
-                            object[] values,
-                            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-                            : base(new FakeConnection(), command, new BadDataDataReader(values), Guid.NewGuid(), logger)
+                        public BadDataRelationalDataReader(BadDataRelationalCommand relationalCommand)
+                            : base(relationalCommand)
                         {
                         }
+                    }
 
-                        private class BadDataDataReader : DbDataReader
+                    private class BadDataDataReader : DbDataReader
+                    {
+                        private readonly object[] _values;
+
+                        public BadDataDataReader(object[] values)
                         {
-                            private readonly object[] _values;
-
-                            public BadDataDataReader(object[] values)
-                            {
-                                _values = values;
-                            }
-
-                            public override bool Read()
-                                => true;
-
-                            public override bool IsDBNull(int ordinal)
-                                => false;
-
-                            public override int GetInt32(int ordinal)
-                                => (int)GetValue(ordinal);
-
-                            public override short GetInt16(int ordinal)
-                                => (short)GetValue(ordinal);
-
-                            public override bool GetBoolean(int ordinal)
-                                => (bool)GetValue(ordinal);
-
-                            public override string GetString(int ordinal)
-                                => (string)GetValue(ordinal);
-
-                            public override object GetValue(int ordinal)
-                                => _values[ordinal];
-
-                            #region NotImplemented members
-
-                            public override string GetName(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override int GetValues(object[] values)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override int FieldCount
-                                => throw new NotImplementedException();
-
-                            public override object this[int ordinal]
-                                => throw new NotImplementedException();
-
-                            public override object this[string name]
-                                => throw new NotImplementedException();
-
-                            public override bool HasRows
-                                => throw new NotImplementedException();
-
-                            public override bool IsClosed
-                                => throw new NotImplementedException();
-
-                            public override int RecordsAffected
-                                => 0;
-
-                            public override bool NextResult()
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override int Depth
-                                => throw new NotImplementedException();
-
-                            public override int GetOrdinal(string name)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override byte GetByte(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override char GetChar(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override Guid GetGuid(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override long GetInt64(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override DateTime GetDateTime(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override decimal GetDecimal(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override double GetDouble(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override float GetFloat(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override string GetDataTypeName(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override Type GetFieldType(int ordinal)
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            public override IEnumerator GetEnumerator()
-                            {
-                                throw new NotImplementedException();
-                            }
-
-                            #endregion
+                            _values = values;
                         }
+
+                        public override bool Read()
+                            => true;
+
+                        public override bool IsDBNull(int ordinal)
+                            => false;
+
+                        public override int GetInt32(int ordinal)
+                            => (int)GetValue(ordinal);
+
+                        public override short GetInt16(int ordinal)
+                            => (short)GetValue(ordinal);
+
+                        public override bool GetBoolean(int ordinal)
+                            => (bool)GetValue(ordinal);
+
+                        public override string GetString(int ordinal)
+                            => (string)GetValue(ordinal);
+
+                        public override object GetValue(int ordinal)
+                            => _values[ordinal];
+
+                        #region NotImplemented members
+
+                        public override string GetName(int ordinal) => throw new NotImplementedException();
+                        public override int GetValues(object[] values) => throw new NotImplementedException();
+                        public override int FieldCount => throw new NotImplementedException();
+                        public override object this[int ordinal] => throw new NotImplementedException();
+                        public override object this[string name] => throw new NotImplementedException();
+                        public override bool HasRows => throw new NotImplementedException();
+                        public override bool IsClosed => throw new NotImplementedException();
+                        public override int RecordsAffected => 0;
+                        public override bool NextResult() => throw new NotImplementedException();
+                        public override int Depth => throw new NotImplementedException();
+                        public override int GetOrdinal(string name) => throw new NotImplementedException();
+                        public override byte GetByte(int ordinal) => throw new NotImplementedException();
+                        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
+                            => throw new NotImplementedException();
+
+                        public override char GetChar(int ordinal) => throw new NotImplementedException();
+                        public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
+                            => throw new NotImplementedException();
+
+                        public override Guid GetGuid(int ordinal) => throw new NotImplementedException();
+                        public override long GetInt64(int ordinal) => throw new NotImplementedException();
+                        public override DateTime GetDateTime(int ordinal) => throw new NotImplementedException();
+                        public override decimal GetDecimal(int ordinal) => throw new NotImplementedException();
+                        public override double GetDouble(int ordinal) => throw new NotImplementedException();
+                        public override float GetFloat(int ordinal) => throw new NotImplementedException();
+                        public override string GetDataTypeName(int ordinal) => throw new NotImplementedException();
+                        public override Type GetFieldType(int ordinal) => throw new NotImplementedException();
+                        public override IEnumerator GetEnumerator() => throw new NotImplementedException();
+
+                        #endregion
                     }
                 }
             }
@@ -420,6 +350,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 DbTransaction transaction,
                 Guid transactionId,
                 CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public IRelationalCommand RentCommand()
+                => throw new NotImplementedException();
+
+            public void ReturnCommand(IRelationalCommand command)
                 => throw new NotImplementedException();
 
             public void Dispose()

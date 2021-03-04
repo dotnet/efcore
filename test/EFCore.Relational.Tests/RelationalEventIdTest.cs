@@ -256,6 +256,12 @@ namespace Microsoft.EntityFrameworkCore
 
             public ValueTask DisposeAsync()
                 => throw new NotImplementedException();
+
+            public IRelationalCommand RentCommand()
+                => throw new NotImplementedException();
+
+            public void ReturnCommand(IRelationalCommand command)
+                => throw new NotImplementedException();
         }
 
         private class FakeDbConnection : DbConnection

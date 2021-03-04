@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -866,13 +867,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
             }
 
-            protected override RelationalDataReader CreateRelationalDataReader(
-                IRelationalConnection connection,
-                DbCommand command,
-                DbDataReader reader,
-                Guid commandId,
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-                => throw new InvalidOperationException("Bang!");
+            protected override RelationalDataReader CreateRelationalDataReader()
+                => new ThrowingRelationalReader(this);
 
             public static IRelationalCommand Create(string commandText = "Command Text")
                 => new ReaderThrowingRelationalCommand(
@@ -882,6 +878,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
                     commandText,
                     Array.Empty<IRelationalParameter>());
+
+            private class ThrowingRelationalReader : RelationalDataReader
+            {
+                public ThrowingRelationalReader([NotNull] IRelationalCommand relationalCommand)
+                    : base(relationalCommand)
+                {
+                }
+
+                public override void Initialize(
+                    IRelationalConnection relationalConnection,
+                    DbCommand command,
+                    DbDataReader reader,
+                    Guid commandId,
+                    IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+                    => throw new InvalidOperationException("Bang!");
+            }
         }
 
         [ConditionalTheory]
