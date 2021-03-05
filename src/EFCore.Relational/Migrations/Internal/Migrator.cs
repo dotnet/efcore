@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     /// <summary>
@@ -103,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Migrate(string targetMigration = null)
+        public virtual void Migrate(string? targetMigration = null)
         {
             _logger.MigrateUsingConnection(this, _connection);
 
@@ -140,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task MigrateAsync(
-            string targetMigration = null,
+            string? targetMigration = null,
             CancellationToken cancellationToken = default)
         {
             _logger.MigrateUsingConnection(this, _connection);
@@ -179,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private IEnumerable<Func<IReadOnlyList<MigrationCommand>>> GetMigrationCommandLists(
             IReadOnlyList<HistoryRow> appliedMigrationEntries,
-            string targetMigration = null)
+            string? targetMigration = null)
         {
             PopulateMigrations(
                 appliedMigrationEntries.Select(t => t.MigrationId),
@@ -229,10 +231,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual void PopulateMigrations(
             [NotNull] IEnumerable<string> appliedMigrationEntries,
-            [NotNull] string targetMigration,
+            [CanBeNull] string? targetMigration,
             [NotNull] out IReadOnlyList<Migration> migrationsToApply,
             [NotNull] out IReadOnlyList<Migration> migrationsToRevert,
-            [NotNull] out Migration actualTargetMigration)
+            [CanBeNull] out Migration? actualTargetMigration)
         {
             var appliedMigrations = new Dictionary<string, TypeInfo>();
             var unappliedMigrations = new Dictionary<string, TypeInfo>();
@@ -299,8 +301,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string GenerateScript(
-            string fromMigration = null,
-            string toMigration = null,
+            string? fromMigration = null,
+            string? toMigration = null,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             options |= MigrationsSqlGenerationOptions.Script;
@@ -482,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         protected virtual IReadOnlyList<MigrationCommand> GenerateDownSql(
             [NotNull] Migration migration,
-            [CanBeNull] Migration previousMigration,
+            [CanBeNull] Migration? previousMigration,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             Check.NotNull(migration, nameof(migration));

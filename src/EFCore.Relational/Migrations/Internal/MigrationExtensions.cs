@@ -4,6 +4,8 @@
 using System.Reflection;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     /// <summary>
@@ -21,6 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string GetId([NotNull] this Migration migration)
-            => migration.GetType().GetCustomAttribute<MigrationAttribute>()?.Id;
+            => migration.GetType().GetCustomAttribute<MigrationAttribute>()!.Id;
     }
 }

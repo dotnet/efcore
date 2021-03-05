@@ -4,6 +4,8 @@
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
     /// <summary>

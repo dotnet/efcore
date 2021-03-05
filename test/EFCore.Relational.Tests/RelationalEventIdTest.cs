@@ -120,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [Migration("00000000000000_FakeMigration")]
         private class FakeMigration : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)

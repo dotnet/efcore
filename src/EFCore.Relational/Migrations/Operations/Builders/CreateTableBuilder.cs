@@ -10,6 +10,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
 {
     /// <summary>
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             [NotNull] Expression<Func<TColumns, object>> column,
             [NotNull] string principalTable,
             [NotNull] string principalColumn,
-            [CanBeNull] string principalSchema = null,
+            [CanBeNull] string? principalSchema = null,
             ReferentialAction onUpdate = ReferentialAction.NoAction,
             ReferentialAction onDelete = ReferentialAction.NoAction)
             => ForeignKey(
@@ -80,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             [NotNull] Expression<Func<TColumns, object>> columns,
             [NotNull] string principalTable,
             [NotNull] string[] principalColumns,
-            [CanBeNull] string principalSchema = null,
+            [CanBeNull] string? principalSchema = null,
             ReferentialAction onUpdate = ReferentialAction.NoAction,
             ReferentialAction onDelete = ReferentialAction.NoAction)
         {

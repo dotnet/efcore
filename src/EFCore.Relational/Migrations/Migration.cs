@@ -7,6 +7,9 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -20,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         public const string InitialDatabase = "0";
 
-        private IModel _targetModel;
-        private List<MigrationOperation> _upOperations;
-        private List<MigrationOperation> _downOperations;
+        private IModel? _targetModel;
+        private List<MigrationOperation>? _upOperations;
+        private List<MigrationOperation>? _downOperations;
 
         /// <summary>
         ///     The <see cref="IModel" /> that the database will map to after the migration has been applied.
@@ -78,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         can be made to the database depending on the type of database being used.
         ///     </para>
         /// </summary>
-        public virtual string ActiveProvider { get; [param: NotNull] set; }
+        [DisallowNull]
+        public virtual string? ActiveProvider { get; [param: NotNull] set; }
 
         /// <summary>
         ///     Implemented to build the <see cref="TargetModel" />.
