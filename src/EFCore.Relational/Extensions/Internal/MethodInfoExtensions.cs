@@ -5,6 +5,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -22,6 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string DisplayName([NotNull] this MethodInfo methodInfo)
-            => $"{methodInfo.DeclaringType.ShortDisplayName()}.{methodInfo.Name}";
+            => $"{methodInfo.DeclaringType!.ShortDisplayName()}.{methodInfo.Name}";
     }
 }

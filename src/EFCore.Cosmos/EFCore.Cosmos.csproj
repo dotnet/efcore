@@ -8,6 +8,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore.Cosmos</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);CosmosDb;SQL API</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

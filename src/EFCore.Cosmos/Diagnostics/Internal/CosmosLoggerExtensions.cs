@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         public static void ExecutingReadItem(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
+            [CanBeNull] string? partitionKey,
             [NotNull] string resourceId)
         {
             var definition = CosmosResources.LogExecutingReadItem(diagnostics);

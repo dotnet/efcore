@@ -119,12 +119,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new("uniqueidentifier", DbType.Guid);
 
         private readonly DecimalTypeMapping _decimal
-            = new SqlServerDecimalTypeMapping(
-                "decimal");
+            = new SqlServerDecimalTypeMapping("decimal");
 
         private readonly DecimalTypeMapping _decimal182
-            = new SqlServerDecimalTypeMapping(
-                "decimal(18, 2)", precision: 18, scale: 2);
+            = new SqlServerDecimalTypeMapping("decimal(18, 2)", precision: 18, scale: 2);
 
         private readonly DecimalTypeMapping _money
             = new SqlServerDecimalTypeMapping("money", storeTypePostfix: StoreTypePostfix.None);

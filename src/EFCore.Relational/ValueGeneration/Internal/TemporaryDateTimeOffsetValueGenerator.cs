@@ -5,6 +5,8 @@ using System;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
     /// <summary>

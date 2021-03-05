@@ -1,10 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
+
+#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -28,8 +29,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> <see langword="true" /> if the in-memory database is being used. </returns>
         public static bool IsInMemory([NotNull] this DatabaseFacade database)
-            => database.ProviderName.Equals(
-                typeof(InMemoryOptionsExtension).Assembly.GetName().Name,
-                StringComparison.Ordinal);
+            => database.ProviderName == typeof(InMemoryOptionsExtension).Assembly.GetName().Name;
     }
 }

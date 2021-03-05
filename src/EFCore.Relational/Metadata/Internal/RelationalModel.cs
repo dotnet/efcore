@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var column = (ColumnBase?)defaultTable.FindColumn(columnName);
                 if (column == null)
                 {
-                    column = new(columnName, property.GetColumnType()!, defaultTable);
+                    column = new(columnName, property.GetColumnType(), defaultTable);
                     column.IsNullable = property.IsColumnNullable();
                     defaultTable.Columns.Add(columnName, column);
                 }
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var column = (Column?)table.FindColumn(columnName);
                         if (column == null)
                         {
-                            column = new(columnName, property.GetColumnType(mappedTable)!, table);
+                            column = new(columnName, property.GetColumnType(mappedTable), table);
                             column.IsNullable = property.IsColumnNullable(mappedTable);
                             table.Columns.Add(columnName, column);
                         }
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var column = (ViewColumn?)view.FindColumn(columnName);
                     if (column == null)
                     {
-                        column = new(columnName, property.GetColumnType(mappedView)!, view);
+                        column = new(columnName, property.GetColumnType(mappedView), view);
                         column.IsNullable = property.IsColumnNullable(mappedView);
                         view.Columns.Add(columnName, column);
                     }
@@ -550,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var column = (SqlQueryColumn?)sqlQuery.FindColumn(columnName);
                     if (column == null)
                     {
-                        column = new(columnName, property.GetColumnType(mappedQuery)!, sqlQuery);
+                        column = new(columnName, property.GetColumnType(mappedQuery), sqlQuery);
                         column.IsNullable = property.IsColumnNullable(mappedQuery);
                         sqlQuery.Columns.Add(columnName, column);
                     }
@@ -699,7 +699,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var column = (FunctionColumn?)storeFunction.FindColumn(columnName);
                 if (column == null)
                 {
-                    column = new(columnName, property.GetColumnType(mappedFunction)!, storeFunction);
+                    column = new(columnName, property.GetColumnType(mappedFunction), storeFunction);
                     column.IsNullable = property.IsColumnNullable(mappedFunction);
                     storeFunction.Columns.Add(columnName, column);
                 }

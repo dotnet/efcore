@@ -574,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// <summary>
         ///     Unable to find a schema in the database matching the selected schema '{schema}'.
         /// </summary>
-        public static EventDefinition<string> LogMissingSchema([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?> LogMissingSchema([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingSchema;
             if (definition == null)
@@ -582,24 +582,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingSchema,
                     logger,
-                    static logger => new EventDefinition<string>(
+                    static logger => new EventDefinition<string?>(
                         logger.Options,
                         SqlServerEventId.MissingSchemaWarning,
                         LogLevel.Warning,
                         "SqlServerEventId.MissingSchemaWarning",
-                        level => LoggerMessage.Define<string>(
+                        level => LoggerMessage.Define<string?>(
                             level,
                             SqlServerEventId.MissingSchemaWarning,
                             _resourceManager.GetString("LogMissingSchema")!)));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string?>)definition;
         }
 
         /// <summary>
         ///     Unable to find a table in the database matching the selected table '{table}'.
         /// </summary>
-        public static EventDefinition<string> LogMissingTable([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?> LogMissingTable([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingTable;
             if (definition == null)
@@ -607,18 +607,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingTable,
                     logger,
-                    static logger => new EventDefinition<string>(
+                    static logger => new EventDefinition<string?>(
                         logger.Options,
                         SqlServerEventId.MissingTableWarning,
                         LogLevel.Warning,
                         "SqlServerEventId.MissingTableWarning",
-                        level => LoggerMessage.Define<string>(
+                        level => LoggerMessage.Define<string?>(
                             level,
                             SqlServerEventId.MissingTableWarning,
                             _resourceManager.GetString("LogMissingTable")!)));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string?>)definition;
         }
 
         /// <summary>
@@ -649,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         /// <summary>
         ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.
         /// </summary>
-        public static EventDefinition<string, string, string> LogPrincipalTableNotInSelectionSet([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?, string?> LogPrincipalTableNotInSelectionSet([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableNotInSelectionSet;
             if (definition == null)
@@ -657,18 +657,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogPrincipalTableNotInSelectionSet,
                     logger,
-                    static logger => new EventDefinition<string, string, string>(
+                    static logger => new EventDefinition<string?, string?, string?>(
                         logger.Options,
                         SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
                         LogLevel.Warning,
                         "SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning",
-                        level => LoggerMessage.Define<string, string, string>(
+                        level => LoggerMessage.Define<string?, string?, string?>(
                             level,
                             SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
                             _resourceManager.GetString("LogPrincipalTableNotInSelectionSet")!)));
             }
 
-            return (EventDefinition<string, string, string>)definition;
+            return (EventDefinition<string?, string?, string?>)definition;
         }
 
         /// <summary>

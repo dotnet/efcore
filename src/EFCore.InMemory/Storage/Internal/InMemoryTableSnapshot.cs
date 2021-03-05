@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public InMemoryTableSnapshot(
             [NotNull] IEntityType entityType,
-            [NotNull] IReadOnlyList<object[]> rows)
+            [NotNull] IReadOnlyList<object?[]> rows)
         {
             EntityType = entityType;
             Rows = rows;
@@ -43,6 +45,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<object[]> Rows { get; }
+        public virtual IReadOnlyList<object?[]> Rows { get; }
     }
 }

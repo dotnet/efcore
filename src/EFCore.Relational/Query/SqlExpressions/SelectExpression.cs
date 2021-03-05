@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     foreach (var property in primaryKey.Properties)
                     {
-                        _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()!));
+                        _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
                     }
                 }
             }
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         {
                             var columnExpression = columns[property];
                             joinColumns.Add(columnExpression);
-                            _identifier.Add((columnExpression, property.GetKeyValueComparer()!));
+                            _identifier.Add((columnExpression, property.GetKeyValueComparer()));
                         }
                     }
                     else
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 foreach (var property in primaryKey.Properties)
                 {
-                    _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()!));
+                    _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
                 }
             }
         }

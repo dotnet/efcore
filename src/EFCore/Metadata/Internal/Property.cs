@@ -974,7 +974,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableProperty.SetTypeMapping([NotNull] CoreTypeMapping typeMapping)
+        void IMutableProperty.SetTypeMapping(CoreTypeMapping typeMapping)
             => SetTypeMapping(typeMapping, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1281,7 +1281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableProperty.SetValueGeneratorFactory([NotNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
+        void IMutableProperty.SetValueGeneratorFactory(Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
             => SetValueGeneratorFactory(valueGeneratorFactory, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1303,7 +1303,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableProperty.SetValueConverter([CanBeNull] ValueConverter? converter)
+        void IMutableProperty.SetValueConverter(ValueConverter? converter)
             => SetValueConverter(converter, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1324,7 +1324,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableProperty.SetProviderClrType([CanBeNull] Type? providerClrType)
+        void IMutableProperty.SetProviderClrType(Type? providerClrType)
             => SetProviderClrType(providerClrType, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1334,7 +1334,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        Type? IConventionProperty.SetProviderClrType([CanBeNull] Type? providerClrType, bool fromDataAnnotation)
+        Type? IConventionProperty.SetProviderClrType(Type? providerClrType, bool fromDataAnnotation)
             => SetProviderClrType(providerClrType,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -1345,7 +1345,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableProperty.SetValueComparer([CanBeNull] ValueComparer? comparer)
+        void IMutableProperty.SetValueComparer(ValueComparer? comparer)
             => SetValueComparer(comparer, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1355,8 +1355,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        ValueComparer? IConventionProperty.SetValueComparer([CanBeNull] ValueComparer? comparer, bool fromDataAnnotation)
+        ValueComparer? IConventionProperty.SetValueComparer(ValueComparer? comparer, bool fromDataAnnotation)
             => SetValueComparer(comparer,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        ValueComparer IProperty.GetValueComparer()
+            => GetValueComparer()!;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        ValueComparer IProperty.GetKeyValueComparer()
+            => GetKeyValueComparer()!;
     }
 }

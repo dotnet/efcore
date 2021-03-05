@@ -196,23 +196,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 || binaryExpression.NodeType == ExpressionType.NotEqual)
             {
                 var property = FindProperty(newLeft) ?? FindProperty(newRight);
-                if (property != null)
+                var comparer = property?.GetValueComparer();
+
+                if (comparer != null
+                    && comparer.Type.IsAssignableFrom(newLeft.Type)
+                    && comparer.Type.IsAssignableFrom(newRight.Type))
                 {
-                    var comparer = property.GetValueComparer();
-
-                    if (comparer != null
-                        && comparer.Type.IsAssignableFrom(newLeft.Type)
-                        && comparer.Type.IsAssignableFrom(newRight.Type))
+                    if (binaryExpression.NodeType == ExpressionType.Equal)
                     {
-                        if (binaryExpression.NodeType == ExpressionType.Equal)
-                        {
-                            return comparer.ExtractEqualsBody(newLeft, newRight);
-                        }
+                        return comparer.ExtractEqualsBody(newLeft, newRight);
+                    }
 
-                        if (binaryExpression.NodeType == ExpressionType.NotEqual)
-                        {
-                            return Expression.IsFalse(comparer.ExtractEqualsBody(newLeft, newRight));
-                        }
+                    if (binaryExpression.NodeType == ExpressionType.NotEqual)
+                    {
+                        return Expression.IsFalse(comparer.ExtractEqualsBody(newLeft, newRight));
                     }
                 }
             }
@@ -1065,7 +1062,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var discriminatorProperty = entityType.FindDiscriminatorProperty()!;
                     var boundProperty = BindProperty(entityReferenceExpression, discriminatorProperty, discriminatorProperty.ClrType);
                     // KeyValueComparer is not null at runtime
-                    var valueComparer = discriminatorProperty.GetKeyValueComparer()!;
+                    var valueComparer = discriminatorProperty.GetKeyValueComparer();
 
                     var equals = valueComparer.ExtractEqualsBody(
                         boundProperty!,
