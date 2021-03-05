@@ -915,7 +915,7 @@
     <comment>Debug CoreEventId.RequiredAttributeOnSkipNavigation string string</comment>
   </data>
   <data name="LogRowLimitingOperationWithoutOrderBy" xml:space="preserve">
-    <value>The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results.</value>
+    <value>The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used, then make sure to use the 'OrderBy' operator after 'Distinct' as the order would otherwise get erased.</value>
     <comment>Warning CoreEventId.RowLimitingOperationWithoutOrderByWarning</comment>
   </data>
   <data name="LogSaveChangesCompleted" xml:space="preserve">

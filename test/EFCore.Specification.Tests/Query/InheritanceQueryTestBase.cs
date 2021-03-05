@@ -457,9 +457,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Bird>()
-                    .Distinct()
                     .OrderBy(b => b.Species)
                     .Take(5)
+                    .Distinct()
                     .OfType<Kiwi>(),
                 entryCount: 1);
         }

@@ -388,7 +388,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(source, nameof(source));
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-            if (selectExpression.Orderings.Count > 0)
+            if (selectExpression.Orderings.Count > 0
+                && selectExpression.Limit == null
+                && selectExpression.Offset == null)
             {
                 _queryCompilationContext.Logger.DistinctAfterOrderByWarning();
             }

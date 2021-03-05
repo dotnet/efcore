@@ -358,12 +358,18 @@ WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (c[""Discriminator""] =
             AssertSql(" ");
         }
 
-        [ConditionalTheory(Skip = "Distinct ordering #16156")]
         public override async Task Subquery_OfType(bool async)
         {
             await base.Subquery_OfType(async);
 
-            AssertSql(@" ");
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT DISTINCT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (c[""Discriminator""] = ""Kiwi""))
+ORDER BY c[""Species""]
+OFFSET 0 LIMIT @__p_0");
         }
 
         public override async Task Union_entity_equality(bool async)

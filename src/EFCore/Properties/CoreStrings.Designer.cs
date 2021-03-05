@@ -4283,7 +4283,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results.
+        ///     The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used, then make sure to use the 'OrderBy' operator after 'Distinct' as the order would otherwise get erased.
         /// </summary>
         public static EventDefinition LogRowLimitingOperationWithoutOrderBy([NotNull] IDiagnosticsLogger logger)
         {
