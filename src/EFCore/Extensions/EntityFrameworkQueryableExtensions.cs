@@ -472,7 +472,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> is empty; otherwise, the last element in <paramref name="source" />.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource?> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -504,7 +503,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource?> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
