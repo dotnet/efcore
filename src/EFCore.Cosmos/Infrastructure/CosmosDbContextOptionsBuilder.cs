@@ -106,6 +106,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => e.WithGatewayModeMaxConnectionLimit(Check.NotNull(connectionLimit, nameof(connectionLimit))));
 
         /// <summary>
+        ///     Configures an optional JSON serializer. The client will use it to serialize or
+        ///     de-serialize user's cosmos request/responses. SDK owned types such as DatabaseProperties
+        ///     and ContainerProperties will always use the SDK default serializer.
+        /// </summary>
+        /// <param name="serializer"> The JSON serializer. </param>
+        public virtual CosmosDbContextOptionsBuilder Serializer(CosmosSerializer serializer)
+            => WithOption(e => e.WithSerializer(serializer));
+
+        /// <summary>
+        ///     Configures the optional serializer options.
+        /// </summary>
+        /// <param name="serializationOptions"> Provides a way to configure basic serializer settings. </param>
+        public virtual CosmosDbContextOptionsBuilder SerializationOptions(CosmosSerializationOptions serializationOptions)
+            => WithOption(e => e.WithSerializationOptions(serializationOptions));
+
+        /// <summary>
         ///     Configures the maximum number of TCP connections that may be opened to each Cosmos DB back-end.
         ///     Together with MaxRequestsPerTcpConnection, this setting limits the number of requests that are
         ///     simultaneously sent to a single Cosmos DB back-end (MaxRequestsPerTcpConnection x MaxTcpConnectionPerEndpoint).

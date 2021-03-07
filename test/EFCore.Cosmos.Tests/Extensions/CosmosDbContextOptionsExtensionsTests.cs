@@ -5,6 +5,7 @@ using System;
 using System.Net;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
@@ -42,6 +43,66 @@ namespace Microsoft.EntityFrameworkCore
                 .Options.FindExtension<CosmosOptionsExtension>();
 
             Assert.Equal(regionName, extension.Region);
+        }
+
+        [ConditionalFact]
+        public void Can_create_options_with_specified_serializer()
+        {
+            var serializer = new JsonCosmosSerializer();
+            var options = new DbContextOptionsBuilder().UseCosmos(
+                "serviceEndPoint",
+                "authKeyOrResourceToken",
+                "databaseName",
+                o => { o.Serializer(serializer); });
+
+            var extension = options
+                .Options.FindExtension<CosmosOptionsExtension>();
+
+            Assert.Same(serializer, extension.Serializer);
+        }
+
+        [ConditionalFact]
+        public void Can_create_options_with_specified_serialization_options()
+        {
+            var serializationOptions = new CosmosSerializationOptions{ IgnoreNullValues = true };
+            var options = new DbContextOptionsBuilder().UseCosmos(
+                "serviceEndPoint",
+                "authKeyOrResourceToken",
+                "databaseName",
+                o => { o.SerializationOptions(serializationOptions); });
+
+            var extension = options
+                .Options.FindExtension<CosmosOptionsExtension>();
+
+            Assert.Same(serializationOptions, extension.SerializationOptions);
+        }
+
+        [ConditionalFact]
+        public void Throws_if_specified_serializer_and_serialization_options()
+        {
+            var serializer = new JsonCosmosSerializer();
+            var serializationOptions = new CosmosSerializationOptions { IgnoreNullValues = true };
+            var options = Assert.Throws<InvalidOperationException>(
+                () =>
+                    new DbContextOptionsBuilder().UseCosmos(
+                        "serviceEndPoint",
+                        "authKeyOrResourceToken",
+                        "databaseName",
+                        o => { o.Serializer(serializer).SerializationOptions(serializationOptions); }));
+        }
+
+        [ConditionalFact]
+        public void Throws_if_specified_serialization_options_and_serializer()
+        {
+            var serializationOptions = new CosmosSerializationOptions { IgnoreNullValues = true };
+            var serializer = new JsonCosmosSerializer();
+            var options = Assert.Throws<InvalidOperationException>(
+                () =>
+                    new DbContextOptionsBuilder().UseCosmos(
+                        "serviceEndPoint",
+                        "authKeyOrResourceToken",
+                        "databaseName",
+                        o => { o.SerializationOptions(serializationOptions).Serializer(serializer); }));
         }
 
         [ConditionalFact]

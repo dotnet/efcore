@@ -9,6 +9,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -43,6 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         private int? _maxRequestsPerTcpConnection;
         private bool? _enableContentResponseOnWrite;
         private DbContextOptionsExtensionInfo? _info;
+        private CosmosSerializer? _serializer;
+        private CosmosSerializationOptions? _serializationOptions;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -77,6 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             _gatewayModeMaxConnectionLimit = copyFrom._gatewayModeMaxConnectionLimit;
             _maxTcpConnectionsPerEndpoint = copyFrom._maxTcpConnectionsPerEndpoint;
             _maxRequestsPerTcpConnection = copyFrom._maxRequestsPerTcpConnection;
+            _serializer = copyFrom._serializer;
+            _serializationOptions = copyFrom._serializationOptions;
         }
 
         /// <summary>
@@ -142,6 +147,62 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             var clone = Clone();
 
             clone._accountKey = accountKey;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosSerializer? Serializer => _serializer;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithSerializer([CanBeNull] CosmosSerializer? serializer)
+        {
+            if (serializer is not null && (_serializationOptions != null))
+            {
+                throw new InvalidOperationException(CosmosStrings.SerializerOptionsConflictingSerializer);
+            }
+
+            var clone = Clone();
+
+            clone._serializer = serializer ?? new JsonCosmosSerializer();
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosSerializationOptions? SerializationOptions => _serializationOptions;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithSerializationOptions([CanBeNull] CosmosSerializationOptions? serializationOptions)
+        {
+            if (serializationOptions is not null && (_serializer != null))
+            {
+                throw new InvalidOperationException(CosmosStrings.SerializerOptionsConflictingSerializer);
+            }
+
+            var clone = Clone();
+
+            clone._serializationOptions = serializationOptions;
 
             return clone;
         }
@@ -560,6 +621,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     hashCode = (hashCode * 131) ^ (Extension._gatewayModeMaxConnectionLimit?.GetHashCode() ?? 0);
                     hashCode = (hashCode * 397) ^ (Extension._maxTcpConnectionsPerEndpoint?.GetHashCode() ?? 0);
                     hashCode = (hashCode * 131) ^ (Extension._maxRequestsPerTcpConnection?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 131) ^ (Extension._serializer?.GetHashCode() ?? 0);
+                    hashCode = (hashCode * 397) ^ (Extension._serializationOptions?.GetHashCode() ?? 0);
                     _serviceProviderHash = hashCode;
                 }
 

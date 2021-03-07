@@ -218,6 +218,9 @@
   <data name="ReverseAfterSkipTakeNotSupported" xml:space="preserve">
     <value>Reversing the ordering is not supported when limit or offset are already applied.</value>
   </data>
+  <data name="SerializerOptionsConflictingSerializer" xml:space="preserve">
+    <value>SerializerOptions is not compatible with Serializer. Only one can be set.</value>
+  </data>
   <data name="TransactionsNotSupported" xml:space="preserve">
     <value>The Cosmos database provider does not support transactions.</value>
   </data>

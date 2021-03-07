@@ -290,6 +290,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         public static string VisitChildrenMustBeOverridden
             => GetString("VisitChildrenMustBeOverridden");
 
+        /// <summary>
+        ///     SerializerOptions is not compatible with Serializer. Only one can be set.
+        /// </summary>
+        public static string SerializerOptionsConflictingSerializer
+            => GetString("SerializerOptionsConflictingSerializer");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

@@ -127,6 +127,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 });
         }
 
+        [ConditionalFact]
+        public async Task Should_use_serialization_options()
+        {
+            var serializationOptions = new CosmosSerializationOptions
+            {
+                IgnoreNullValues = true
+            };
+
+            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o =>
+            {
+                o.SerializationOptions(serializationOptions);
+            });
+            var options = CreateOptions(testDatabase);
+
+            var customer = new Customer { Id = 43 };
+
+            using var context = new CustomerContext(options);
+            context.Database.EnsureCreated();
+
+            context.Add(customer);
+
+            context.SaveChanges();
+
+            var customerEntry = context.Entry(context.Find<Customer>(customer.Id));
+            var jsonProperty = customerEntry.Property<string>("Name");
+            Assert.Null(jsonProperty);
+        }
+
         private DbContextOptions CreateOptions(CosmosTestStore testDatabase)
             => Fixture.AddOptions(testDatabase.AddProviderOptions(new DbContextOptionsBuilder()))
                 .EnableDetailedErrors()

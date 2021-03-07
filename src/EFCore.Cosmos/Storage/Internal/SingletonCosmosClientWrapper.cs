@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _endpoint = options.AccountEndpoint;
             _key = options.AccountKey;
             _connectionString = options.ConnectionString;
-            var configuration = new CosmosClientOptions { ApplicationName = _userAgent, Serializer = new JsonCosmosSerializer() };
+            var configuration = new CosmosClientOptions { ApplicationName = _userAgent };
 
             if (options.Region != null)
             {
@@ -95,6 +95,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             if (options.MaxRequestsPerTcpConnection != null)
             {
                 configuration.MaxRequestsPerTcpConnection = options.MaxRequestsPerTcpConnection.Value;
+            }
+
+            if (options.Serializer != null)
+            {
+                configuration.Serializer = options.Serializer;
+            }
+
+            if (options.SerializationOptions != null)
+            {
+                configuration.SerializerOptions = options.SerializationOptions;
             }
 
             _options = configuration;
