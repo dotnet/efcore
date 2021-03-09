@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(modelDependencies, nameof(modelDependencies));
         }
 
-        private ModelBuilder(ConventionSet conventions, ModelDependencies modelDependencies, bool _)
+        private ModelBuilder(ConventionSet conventions, ModelDependencies? modelDependencies, bool _)
         {
             Check.NotNull(conventions, nameof(conventions));
 
@@ -132,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> Entity<TEntity>()
             where TEntity : class
-            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit).Metadata);
+            => new(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     <para>
@@ -155,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotEmpty(name, nameof(name));
 
-            return new EntityTypeBuilder<TEntity>(Builder.SharedTypeEntity(name, typeof(TEntity), ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder<TEntity>(Builder.SharedTypeEntity(name, typeof(TEntity), ConfigurationSource.Explicit)!.Metadata);
         }
 
         /// <summary>
@@ -168,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(type, nameof(type));
 
-            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit)!.Metadata);
         }
 
         /// <summary>
@@ -182,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotEmpty(name, nameof(name));
 
-            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit)!.Metadata);
         }
 
         /// <summary>
@@ -206,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
 
-            return new EntityTypeBuilder(Builder.SharedTypeEntity(name, type, ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder(Builder.SharedTypeEntity(name, type, ConfigurationSource.Explicit)!.Metadata);
         }
 
         /// <summary>
@@ -438,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual ModelBuilder ApplyConfigurationsFromAssembly(
             [NotNull] Assembly assembly,
-            [CanBeNull] Func<Type, bool> predicate = null)
+            [CanBeNull] Func<Type, bool>? predicate = null)
         {
             var applyEntityConfigurationMethod = typeof(ModelBuilder)
                 .GetMethods()
@@ -512,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual ModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            Builder.Metadata.SetChangeTrackingStrategy(changeTrackingStrategy);
+            Builder.HasChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -544,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
-        /// <returns> The finalized <see cref="IModel" />. </returns>
+        /// <returns> The finalized model. </returns>
         public virtual IModel FinalizeModel()
             => Builder.Metadata.FinalizeModel();
 
@@ -558,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -567,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

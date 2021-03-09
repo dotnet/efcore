@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -149,20 +151,20 @@ namespace Microsoft.EntityFrameworkCore
         private static FromSqlQueryRootExpression GenerateFromSqlQueryRoot(
             IQueryable source,
             string sql,
-            object[] arguments,
-            [CallerMemberName] string memberName = null)
+            object?[] arguments,
+            [CallerMemberName] string memberName = null!)
         {
             var queryRootExpression = (QueryRootExpression)source.Expression;
 
             var entityType = queryRootExpression.EntityType;
             if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
-                && entityType.GetDiscriminatorProperty() == null)
+                && entityType.FindDiscriminatorProperty() == null)
             {
                 throw new InvalidOperationException(RelationalStrings.MethodOnNonTPHRootNotSupported(memberName, entityType.DisplayName()));
             }
 
             return new FromSqlQueryRootExpression(
-                queryRootExpression.QueryProvider,
+                queryRootExpression.QueryProvider!,
                 entityType,
                 sql,
                 Expression.Constant(arguments));
@@ -198,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         internal static readonly MethodInfo AsSingleQueryMethodInfo
-            = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSingleQuery));
+            = typeof(RelationalQueryableExtensions).GetRequiredDeclaredMethod(nameof(AsSingleQuery));
 
         /// <summary>
         ///     <para>
@@ -231,6 +233,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         internal static readonly MethodInfo AsSplitQueryMethodInfo
-            = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSplitQuery));
+            = typeof(RelationalQueryableExtensions).GetRequiredDeclaredMethod(nameof(AsSplitQuery));
     }
 }

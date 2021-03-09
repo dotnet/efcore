@@ -16,7 +16,7 @@ namespace Microsoft.Data.Sqlite
     /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
     public class SqliteBlob : Stream
     {
-        private sqlite3_blob _blob;
+        private sqlite3_blob? _blob;
         private readonly sqlite3 _db;
         private long _position;
 
@@ -62,17 +62,17 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.SqlBlobRequiresOpenConnection);
             }
 
-            if (string.IsNullOrEmpty(tableName))
+            if (tableName is null)
             {
                 throw new ArgumentNullException(nameof(tableName));
             }
 
-            if (string.IsNullOrEmpty(columnName))
+            if (columnName is null)
             {
                 throw new ArgumentNullException(nameof(columnName));
             }
 
-            _db = connection.Handle;
+            _db = connection.Handle!;
             CanWrite = !readOnly;
             var rc = sqlite3_blob_open(
                 _db,

@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     /// <summary>
@@ -45,13 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IUpdateAdapter CreateStandalone(IModel model = null)
+        public virtual IUpdateAdapter CreateStandalone(IModel? model = null)
         {
             var stateManager = _currentContext.Context.GetDependencies().StateManager;
 
             return model == null
                 ? new UpdateAdapter(new StateManager(stateManager.Dependencies))
-                : new UpdateAdapter(new StateManager(stateManager.Dependencies.With(model)));
+                : new UpdateAdapter(new StateManager(stateManager.Dependencies with { Model = model }));
         }
     }
 }

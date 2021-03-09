@@ -3,4 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 
+#nullable enable
+
 [assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.SqlServer.Design.Internal.SqlServerDesignTimeServices")]

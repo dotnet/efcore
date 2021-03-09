@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TExtension"> The type of the extension to get. </typeparam>
         /// <returns> The extension, or null if none was found. </returns>
-        public virtual TExtension FindExtension<TExtension>()
+        public virtual TExtension? FindExtension<TExtension>()
             where TExtension : class, IDbContextOptionsExtension
             => _extensions.TryGetValue(typeof(TExtension), out var extension) ? (TExtension)extension : null;
 

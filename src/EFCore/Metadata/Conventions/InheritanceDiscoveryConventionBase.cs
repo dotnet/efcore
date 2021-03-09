@@ -5,6 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -32,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     associated CLR type is derived from and is the closest one in the CLR hierarchy.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
-        protected virtual IConventionEntityType FindClosestBaseType([NotNull] IConventionEntityType entityType)
+        protected virtual IConventionEntityType? FindClosestBaseType([NotNull] IConventionEntityType entityType)
         {
             var baseType = entityType.ClrType.BaseType;
             var model = entityType.Model;
-            IConventionEntityType baseEntityType = null;
+            IConventionEntityType? baseEntityType = null;
             while (baseType != null
                 && baseEntityType == null
                 && baseType != typeof(object))

@@ -4,6 +4,8 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
@@ -36,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     </para>
     /// </summary>
     [EntityFrameworkInternal]
-    public sealed class MigrationsAnnotationProviderDependencies
+    public sealed record MigrationsAnnotationProviderDependencies
     {
         /// <summary>
         ///     <para>

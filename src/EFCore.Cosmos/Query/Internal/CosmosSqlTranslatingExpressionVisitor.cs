@@ -17,6 +17,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -325,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
-            => null;
+            => throw new InvalidOperationException(CoreStrings.TranslationFailed(lambdaExpression.Print()));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -633,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (derivedType != null
                     && TryBindMember(
                         entityReferenceExpression,
-                        MemberIdentity.Create(entityType.GetDiscriminatorProperty().Name)) is SqlExpression discriminatorColumn)
+                        MemberIdentity.Create(entityType.GetDiscriminatorPropertyName())) is SqlExpression discriminatorColumn)
                 {
                     var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
 
@@ -701,7 +703,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             || innerType == typeof(sbyte)
                             || innerType == typeof(char)
                             || innerType == typeof(short)
-                            || innerType == typeof(ushort))))
+                            || innerType == typeof(ushort)))
+                    || (convertedType == typeof(double)
+                        && (innerType == typeof(float))))
                 {
                     return TryRemoveImplicitConvert(unaryExpression.Operand);
                 }
@@ -843,7 +847,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     entityType.DisplayName()));
             }
 
-            var quirk = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore23779", out var enabled) && enabled;
             result = Visit(
                 primaryKeyProperties.Select(
                         p =>
@@ -851,7 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 nodeType,
                                 CreatePropertyAccessExpression(left, p),
                                 CreatePropertyAccessExpression(right, p)))
-                    .Aggregate((l, r) => nodeType == ExpressionType.Equal || quirk
+                    .Aggregate((l, r) => nodeType == ExpressionType.Equal
                         ? Expression.AndAlso(l, r)
                         : Expression.OrElse(l, r)));
 

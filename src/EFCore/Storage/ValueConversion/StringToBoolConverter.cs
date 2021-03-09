@@ -4,6 +4,8 @@
 using System;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public StringToBoolConverter(
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            [CanBeNull] ConverterMappingHints? mappingHints = null)
             : base(
                 v => Convert.ToBoolean(v),
                 v => Convert.ToString(v),
@@ -31,6 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(string), typeof(bool), i => new StringToBoolConverter(i.MappingHints));
+            = new(typeof(string), typeof(bool), i => new StringToBoolConverter(i.MappingHints));
     }
 }

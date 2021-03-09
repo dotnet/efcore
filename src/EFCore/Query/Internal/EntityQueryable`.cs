@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -106,7 +108,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IAsyncEnumerator<TResult> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-            => _queryProvider.ExecuteAsync<IAsyncEnumerable<TResult>>(Expression).GetAsyncEnumerator(cancellationToken);
+            => _queryProvider
+                .ExecuteAsync<IAsyncEnumerable<TResult>>(Expression, cancellationToken)
+                .GetAsyncEnumerator(cancellationToken);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,6 +139,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual QueryDebugView DebugView
-            => new QueryDebugView(() => Expression.Print(), this.ToQueryString);
+            => new(() => Expression.Print(), this.ToQueryString);
     }
 }

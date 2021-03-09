@@ -7,6 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -30,11 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets or sets the connection string for the database.
         /// </summary>
-        string ConnectionString
-        {
-            get => throw new NotImplementedException();
-            [param: CanBeNull] set => throw new NotImplementedException();
-        }
+        string? ConnectionString { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     <para>
@@ -47,11 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note that the connection must be disposed by application code since it was not created by Entity Framework.
         ///     </para>
         /// </summary>
-        DbConnection DbConnection
-        {
-            get => throw new NotImplementedException();
-            [param: CanBeNull] set => throw new NotImplementedException();
-        }
+        [CA.AllowNull]
+        DbConnection DbConnection { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The <see cref="DbContext" /> currently in use, or null if not known.
@@ -86,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation, with a value of <see langword="true" /> if the connection
         ///     was actually opened.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false);
 
         /// <summary>
@@ -104,9 +101,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         Task<bool> CloseAsync();
 
         /// <summary>
+        ///     Rents a relational command that can be executed with this connection.
+        /// </summary>
+        /// <returns> A relational command that can be executed with this connection. </returns>
+        IRelationalCommand RentCommand();
+
+        /// <summary>
+        ///     Returns a relational command to this connection, so that it can be reused in the future.
+        /// </summary>
+        void ReturnCommand([NotNull] IRelationalCommand command);
+
+        /// <summary>
         ///     Gets the current transaction.
         /// </summary>
-        new IDbContextTransaction CurrentTransaction { get; }
+        new IDbContextTransaction? CurrentTransaction { get; }
 
         /// <summary>
         ///     Gets a semaphore used to serialize access to this connection.

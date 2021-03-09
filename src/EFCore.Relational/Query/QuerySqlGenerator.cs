@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
 
-        private static readonly Dictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
+        private static readonly Dictionary<ExpressionType, string> _operatorMap = new()
         {
             { ExpressionType.Equal, " = " },
             { ExpressionType.NotEqual, " <> " },
@@ -60,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _relationalCommandBuilderFactory = dependencies.RelationalCommandBuilderFactory;
             _sqlGenerationHelper = dependencies.SqlGenerationHelper;
+            _relationalCommandBuilder = default!;
         }
 
         /// <summary>
@@ -163,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return selectExpression;
             }
 
-            IDisposable subQueryIndent = null;
+            IDisposable? subQueryIndent = null;
 
             if (selectExpression.Alias != null)
             {
@@ -226,10 +229,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (selectExpression.Alias != null)
             {
-                subQueryIndent.Dispose();
+                subQueryIndent!.Dispose();
 
                 _relationalCommandBuilder.AppendLine()
-                    .Append(")" + AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
+                    .Append(")")
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
             }
 
             return selectExpression;
@@ -249,11 +254,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Visit(projectionExpression.Expression);
 
-            if (!string.Equals(string.Empty, projectionExpression.Alias)
-                && !(projectionExpression.Expression is ColumnExpression column
-                    && string.Equals(column.Name, projectionExpression.Alias)))
+            if (projectionExpression.Alias != string.Empty
+                && !(projectionExpression.Expression is ColumnExpression column && column.Name == projectionExpression.Alias))
             {
-                _relationalCommandBuilder.Append(AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
+                _relationalCommandBuilder
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
             }
 
             return projectionExpression;
@@ -329,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(columnExpression, nameof(columnExpression));
 
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias))
+                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias!))
                 .Append(".")
                 .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Name));
 
@@ -352,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void GenerateFromSql(FromSqlExpression fromSqlExpression)
         {
             var sql = fromSqlExpression.Sql;
-            string[] substitutions = null;
+            string[]? substitutions = null;
 
             switch (fromSqlExpression.Arguments)
             {
@@ -385,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                         else if (value is SqlConstantExpression sqlConstantExpression)
                         {
-                            substitutions[i] = sqlConstantExpression.TypeMapping.GenerateSqlLiteral(sqlConstantExpression.Value);
+                            substitutions[i] = sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value);
                         }
                     }
 
@@ -552,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(sqlConstantExpression, nameof(sqlConstantExpression));
 
             _relationalCommandBuilder
-                .Append(sqlConstantExpression.TypeMapping.GenerateSqlLiteral(sqlConstantExpression.Value));
+                .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value));
 
             return sqlConstantExpression;
         }
@@ -570,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _relationalCommandBuilder.AddParameter(
                     sqlParameterExpression.Name,
                     parameterNameInCommand,
-                    sqlParameterExpression.TypeMapping,
+                    sqlParameterExpression.TypeMapping!,
                     sqlParameterExpression.IsNullable);
             }
 
@@ -711,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     _relationalCommandBuilder.Append(" AS ");
-                    _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping.StoreType);
+                    _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping!.StoreType);
                     _relationalCommandBuilder.Append(")");
                     break;
                 }
@@ -801,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _relationalCommandBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
                 _relationalCommandBuilder.Append("(");
                 var valuesConstant = (SqlConstantExpression)inExpression.Values;
-                var valuesList = ((IEnumerable<object>)valuesConstant.Value)
+                var valuesList = ((IEnumerable<object?>)valuesConstant.Value!)
                     .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
                 GenerateList(valuesList, e => Visit(e));
                 _relationalCommandBuilder.Append(")");
@@ -925,7 +931,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void GenerateList<T>(
             IReadOnlyList<T> items,
             Action<T> generationAction,
-            Action<IRelationalCommandBuilder> joinAction = null)
+            Action<IRelationalCommandBuilder>? joinAction = null)
         {
             joinAction ??= (isb => isb.Append(", "));
 
@@ -1044,8 +1050,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(setOperation, nameof(setOperation));
 
             GenerateSetOperationOperand(setOperation, setOperation.Source1);
-            _relationalCommandBuilder.AppendLine();
-            _relationalCommandBuilder.AppendLine($"{GetSetOperation(setOperation)}{(setOperation.IsDistinct ? "" : " ALL")}");
+            _relationalCommandBuilder
+                .AppendLine()
+                .Append(GetSetOperation(setOperation))
+                .AppendLine(setOperation.IsDistinct ? string.Empty : " ALL");
             GenerateSetOperationOperand(setOperation, setOperation.Source2);
 
             static string GetSetOperation(SetOperationBase operation)

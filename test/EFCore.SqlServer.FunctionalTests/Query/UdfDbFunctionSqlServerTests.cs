@@ -104,7 +104,7 @@ WHERE [c].[Id] = @__customerId_0");
             base.Scalar_Function_Where_Correlated_Static();
 
             AssertSql(
-                @"SELECT LOWER(CONVERT(VARCHAR(11), [c].[Id]))
+                @"SELECT LOWER(CONVERT(varchar(11), [c].[Id]))
 FROM [Customers] AS [c]
 WHERE [dbo].[IsTopCustomer]([c].[Id]) = CAST(1 AS bit)");
         }
@@ -369,7 +369,7 @@ WHERE [c].[Id] = @__customerId_0");
             base.Scalar_Function_Where_Correlated_Instance();
 
             AssertSql(
-                @"SELECT LOWER(CONVERT(VARCHAR(11), [c].[Id]))
+                @"SELECT LOWER(CONVERT(varchar(11), [c].[Id]))
 FROM [Customers] AS [c]
 WHERE [dbo].[IsTopCustomer]([c].[Id]) = CAST(1 AS bit)");
         }

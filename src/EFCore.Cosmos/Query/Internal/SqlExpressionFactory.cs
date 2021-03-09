@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -142,7 +144,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     throw new InvalidOperationException(
                         CosmosStrings.UnsupportedOperatorForSqlExpression(
                             sqlUnaryExpression.OperatorType, typeof(SqlUnaryExpression).ShortDisplayName()));
-                    ;
             }
 
             return new SqlUnaryExpression(sqlUnaryExpression.OperatorType, operand, resultType, resultTypeMapping);
@@ -510,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlConstantExpression Constant(object value, CoreTypeMapping typeMapping = null)
-            => new SqlConstantExpression(Expression.Constant(value), typeMapping);
+            => new(Expression.Constant(value), typeMapping);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -533,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (concreteEntityTypes.Count == 1)
             {
                 var concreteEntityType = concreteEntityTypes[0];
-                var discriminatorProperty = concreteEntityType.GetDiscriminatorProperty();
+                var discriminatorProperty = concreteEntityType.FindDiscriminatorProperty();
                 if (discriminatorProperty != null)
                 {
                     var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
@@ -546,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             else
             {
                 var discriminatorColumn = ((EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember()))
-                    .BindProperty(concreteEntityTypes[0].GetDiscriminatorProperty(), clientEval: false);
+                    .BindProperty(concreteEntityTypes[0].FindDiscriminatorProperty(), clientEval: false);
 
                 selectExpression.ApplyPredicate(
                     In(

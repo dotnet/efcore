@@ -7,6 +7,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly ITable _table;
         private readonly IUpdateAdapter _updateAdapter;
         private readonly IComparer<IUpdateEntry> _comparer;
-        private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap = new Dictionary<IUpdateEntry, TValue>();
+        private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -133,12 +135,29 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 _table = table;
             }
 
-            public int Compare(IUpdateEntry x, IUpdateEntry y)
-                => !_table.GetRowInternalForeignKeys(x.EntityType).Any()
+            public int Compare(IUpdateEntry? x, IUpdateEntry? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return 0;
+                }
+
+                if (x == null)
+                {
+                    return -1;
+                }
+
+                if (y == null)
+                {
+                    return 1;
+                }
+
+                return !_table.GetRowInternalForeignKeys(x.EntityType).Any()
                     ? -1
                     : !_table.GetRowInternalForeignKeys(y.EntityType).Any()
                         ? 1
                         : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
+            }
         }
     }
 }

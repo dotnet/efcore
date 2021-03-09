@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using IInterceptor = Castle.DynamicProxy.IInterceptor;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private static readonly Type _notifyPropertyChangedInterface = typeof(INotifyPropertyChanged);
         private static readonly Type _notifyPropertyChangingInterface = typeof(INotifyPropertyChanging);
 
-        private readonly ProxyGenerator _generator = new ProxyGenerator();
+        private readonly ProxyGenerator _generator = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,11 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                     throw new InvalidOperationException(ProxiesStrings.EntityTypeNotFoundShared(type.ShortDisplayName()));
                 }
 
-                if (context.Model.HasEntityTypeWithDefiningNavigation(type))
-                {
-                    throw new InvalidOperationException(ProxiesStrings.EntityTypeNotFoundWeak(type.ShortDisplayName()));
-                }
-
                 throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(type.ShortDisplayName()));
             }
 
@@ -65,10 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public virtual Type CreateProxyType(
             ProxiesOptionsExtension options,
-            IEntityType entityType)
+            IReadOnlyEntityType entityType)
             => _generator.ProxyBuilder.CreateClassProxyType(
                 entityType.ClrType,
-                GetInterfacesToProxy(options, entityType),
+                GetInterfacesToProxy(options, entityType.ClrType),
                 ProxyGenerationOptions.Default);
 
         /// <summary>
@@ -103,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             object[] constructorArguments)
             => _generator.CreateClassProxy(
                 entityType.ClrType,
-                GetInterfacesToProxy(options, entityType),
+                GetInterfacesToProxy(options, entityType.ClrType),
                 ProxyGenerationOptions.Default,
                 constructorArguments,
                 GetNotifyChangeInterceptors(options, entityType, new LazyLoadingInterceptor(entityType, loader)));
@@ -146,14 +143,14 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             object[] constructorArguments)
             => _generator.CreateClassProxy(
                 entityType.ClrType,
-                GetInterfacesToProxy(options, entityType),
+                GetInterfacesToProxy(options, entityType.ClrType),
                 ProxyGenerationOptions.Default,
                 constructorArguments,
                 GetNotifyChangeInterceptors(options, entityType));
 
         private Type[] GetInterfacesToProxy(
             ProxiesOptionsExtension options,
-            IEntityType entityType)
+            Type type)
         {
             var interfacesToProxy = new List<Type>();
 
@@ -164,12 +161,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
             if (options.UseChangeTrackingProxies)
             {
-                if (!_notifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
+                if (!_notifyPropertyChangedInterface.IsAssignableFrom(type))
                 {
                     interfacesToProxy.Add(_notifyPropertyChangedInterface);
                 }
 
-                if (!_notifyPropertyChangingInterface.IsAssignableFrom(entityType.ClrType))
+                if (!_notifyPropertyChangingInterface.IsAssignableFrom(type))
                 {
                     interfacesToProxy.Add(_notifyPropertyChangingInterface);
                 }
@@ -181,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private IInterceptor[] GetNotifyChangeInterceptors(
             ProxiesOptionsExtension options,
             IEntityType entityType,
-            LazyLoadingInterceptor lazyLoadingInterceptor = null)
+            LazyLoadingInterceptor? lazyLoadingInterceptor = null)
         {
             var interceptors = new List<IInterceptor>();
 

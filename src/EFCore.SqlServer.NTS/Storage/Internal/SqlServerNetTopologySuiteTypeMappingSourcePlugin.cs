@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
     /// <summary>
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// </summary>
     public class SqlServerNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeMappingSourcePlugin
     {
-        private readonly HashSet<string> _spatialStoreTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private readonly HashSet<string> _spatialStoreTypes = new(StringComparer.OrdinalIgnoreCase)
         {
             "geometry", "geography"
         };
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+        public virtual RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
             var storeTypeName = mappingInfo.StoreTypeName;
@@ -65,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     ? (RelationalTypeMapping)Activator.CreateInstance(
                         typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(clrType ?? typeof(Geometry)),
                         _geometryServices,
-                        storeTypeName ?? "geography")
+                        storeTypeName ?? "geography")!
                     : null;
         }
     }

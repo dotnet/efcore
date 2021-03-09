@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class MigrationsCodeGeneratorDependencies
+    public sealed record MigrationsCodeGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -58,27 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; }
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The annotation code generator.
         /// </summary>
-        public IAnnotationCodeGenerator AnnotationCodeGenerator { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="relationalTypeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsCodeGeneratorDependencies With([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
-            => new MigrationsCodeGeneratorDependencies(relationalTypeMappingSource, AnnotationCodeGenerator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="annotationCodeGenerator"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsCodeGeneratorDependencies With([NotNull] IAnnotationCodeGenerator annotationCodeGenerator)
-            => new MigrationsCodeGeneratorDependencies(RelationalTypeMappingSource, annotationCodeGenerator);
+        public IAnnotationCodeGenerator AnnotationCodeGenerator { get; [param: NotNull] init; }
     }
 }

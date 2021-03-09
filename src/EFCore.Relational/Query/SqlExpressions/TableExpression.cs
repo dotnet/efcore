@@ -5,6 +5,9 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -21,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     public sealed class TableExpression : TableExpressionBase
     {
         internal TableExpression([NotNull] ITableBase table)
-            : base(table.Name.Substring(0, 1).ToLower())
+            : base(table.Name.Substring(0, 1).ToLowerInvariant())
         {
             Name = table.Name;
             Schema = table.Schema;
@@ -42,6 +45,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
+        [CA.NotNull]
+        public override string? Alias
+        {
+            get => base.Alias!;
+            internal set => base.Alias = value;
+        }
+
+        /// <summary>
         ///     The name of the table or view.
         /// </summary>
         public string Name { get; }
@@ -49,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The schema of the table or view.
         /// </summary>
-        public string Schema { get; }
+        public string? Schema { get; }
 
         /// <summary>
         ///     The <see cref="ITableBase" /> associated with this table or view.
@@ -57,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public ITableBase Table { get; }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             // This should be reference equal only.
             => obj != null && ReferenceEquals(this, obj);
 

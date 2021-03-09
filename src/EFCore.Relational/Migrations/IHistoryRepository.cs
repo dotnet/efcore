@@ -1,11 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -40,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -56,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     the list of applied migrations, as <see cref="HistoryRow" /> entities.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
             CancellationToken cancellationToken = default);
 

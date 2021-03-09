@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -26,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             _sets = new Dictionary<Type, string>();
-            List<Type> ambiguousTypes = null;
+            List<Type>? ambiguousTypes = null;
             foreach (var set in dependencies.SetFinder.FindSets(dependencies.ContextType))
             {
                 if (!_sets.ContainsKey(set.Type))
@@ -69,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             var entityType = entityTypeBuilder.Metadata;
@@ -82,7 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else if (oldBaseType != null
                 && newBaseType == null
-                && entityType.ClrType != null
                 && !entityType.HasSharedClrType
                 && _sets.TryGetValue(entityType.ClrType, out var setName))
             {
@@ -101,7 +102,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType == null
-                && entityType.ClrType != null
                 && !entityType.HasSharedClrType
                 && _sets.TryGetValue(entityType.ClrType, out var setName))
             {

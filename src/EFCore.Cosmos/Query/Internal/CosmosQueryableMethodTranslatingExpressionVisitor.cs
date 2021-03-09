@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -249,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         }
 
         private ShapedQueryExpression CreateShapedQueryExpression(Expression queryExpression, IEntityType entityType)
-            => new ShapedQueryExpression(
+            => new(
                 queryExpression,
                 new EntityShaperExpression(
                     entityType,
@@ -565,6 +567,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(outer, nameof(outer));
             Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
             return null;
@@ -618,6 +622,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(outer, nameof(outer));
             Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
             return null;
@@ -1159,7 +1165,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     if (valueExpression is ConstantExpression
                         || (valueExpression is ParameterExpression valueParameterExpression
-                            && valueParameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix) == true))
+                            && valueParameterExpression.Name?
+                                .StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true))
                     {
                         return valueExpression;
                     }

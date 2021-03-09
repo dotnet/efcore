@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
@@ -15,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public class MigrationCommandListBuilder
     {
-        private readonly List<MigrationCommand> _commands = new List<MigrationCommand>();
+        private readonly List<MigrationCommand> _commands = new();
         private readonly MigrationsSqlGeneratorDependencies _dependencies;
 
         private IRelationalCommandBuilder _commandBuilder;

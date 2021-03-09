@@ -4,6 +4,8 @@
 using System;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
@@ -11,10 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Design
     /// </summary>
     public class OperationReportHandler : MarshalByRefObject, IOperationReportHandler
     {
-        private readonly Action<string> _errorHandler;
-        private readonly Action<string> _warningHandler;
-        private readonly Action<string> _informationHandler;
-        private readonly Action<string> _verboseHandler;
+        private readonly Action<string>? _errorHandler;
+        private readonly Action<string>? _warningHandler;
+        private readonly Action<string>? _informationHandler;
+        private readonly Action<string>? _verboseHandler;
 
         /// <summary>
         ///     Gets the contract version of this handler.
@@ -31,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="informationHandler"> A callback for <see cref="OnInformation(string)" />. </param>
         /// <param name="verboseHandler"> A callback for <see cref="OnVerbose(string)" />. </param>
         public OperationReportHandler(
-            [CanBeNull] Action<string> errorHandler = null,
-            [CanBeNull] Action<string> warningHandler = null,
-            [CanBeNull] Action<string> informationHandler = null,
-            [CanBeNull] Action<string> verboseHandler = null)
+            [CanBeNull] Action<string>? errorHandler = null,
+            [CanBeNull] Action<string>? warningHandler = null,
+            [CanBeNull] Action<string>? informationHandler = null,
+            [CanBeNull] Action<string>? verboseHandler = null)
         {
             _errorHandler = errorHandler;
             _warningHandler = warningHandler;

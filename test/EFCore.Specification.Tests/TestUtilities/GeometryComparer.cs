@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class GeometryComparer : IEqualityComparer<Geometry>
     {
-        public static GeometryComparer Instance { get; } = new GeometryComparer();
+        public static GeometryComparer Instance { get; } = new();
 
         private GeometryComparer()
         {

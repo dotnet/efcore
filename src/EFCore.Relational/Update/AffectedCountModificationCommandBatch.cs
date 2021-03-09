@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Update
 {
     /// <summary>
@@ -98,8 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Consumes the data reader created by <see cref="ReaderModificationCommandBatch.ExecuteAsync" />.
         /// </summary>
         /// <param name="reader"> The data reader. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         protected override async Task ConsumeAsync(
             RelationalDataReader reader,
             CancellationToken cancellationToken = default)
@@ -203,11 +206,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="commandIndex"> The ordinal of the command being consumed. </param>
         /// <param name="reader"> The data reader. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task contains the ordinal of the next command that must be consumed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         protected virtual async Task<int> ConsumeResultSetWithPropagationAsync(
             int commandIndex,
             [NotNull] RelationalDataReader reader,
@@ -282,11 +286,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="commandIndex"> The ordinal of the command being consumed. </param>
         /// <param name="reader"> The data reader. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
         ///     The task contains the ordinal of the next command that must be consumed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         protected virtual async Task<int> ConsumeResultSetWithoutPropagationAsync(
             int commandIndex,
             [NotNull] RelationalDataReader reader,

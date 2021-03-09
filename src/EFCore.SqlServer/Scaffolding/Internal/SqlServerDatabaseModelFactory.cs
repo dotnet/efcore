@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -56,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
 
         private static readonly Regex _partExtractor
-            = new Regex(
+            = new(
                 string.Format(
                     CultureInfo.InvariantCulture,
                     @"^{0}(?:\.{1})?$",
@@ -68,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
         // decimal/numeric are excluded because default value varies based on the precision.
         private static readonly Dictionary<string, long[]> _defaultSequenceMinMax =
-            new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
+            new(StringComparer.OrdinalIgnoreCase)
             {
                 { "tinyint", new[] { 0L, 255L } },
                 { "smallint", new[] { -32768L, 32767L } },
@@ -187,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                 using var command = connection.CreateCommand();
                 command.CommandText = @"
 SELECT SERVERPROPERTY('EngineEdition');";
-                return (int)command.ExecuteScalar();
+                return (int)command.ExecuteScalar()!;
             }
 
             static byte GetCompatibilityLevel(DbConnection connection)
@@ -391,9 +392,21 @@ SELECT
     CAST([s].[scale] AS int) AS [scale],
     [s].[is_cycling],
     CAST([s].[increment] AS int) AS [increment],
-    CAST([s].[start_value] AS bigint) AS [start_value],
-    CAST([s].[minimum_value] AS bigint) AS [minimum_value],
-    CAST([s].[maximum_value] AS bigint) AS [maximum_value]
+    CAST(CASE 
+        WHEN [s].[start_value] >  9223372036854775807 THEN  9223372036854775807
+        WHEN [s].[start_value] < -9223372036854775808 THEN -9223372036854775808
+        ELSE [s].[start_value] 
+        END AS bigint) AS start_value,
+    CAST(CASE 
+        WHEN [s].[minimum_value] >  9223372036854775807 THEN  9223372036854775807
+        WHEN [s].[minimum_value] < -9223372036854775808 THEN -9223372036854775808 
+        ELSE [s].[minimum_value] 
+        END AS bigint) AS minimum_value,
+    CAST(CASE 
+        WHEN [s].[maximum_value] >  9223372036854775807 THEN  9223372036854775807
+        WHEN [s].[maximum_value] < -9223372036854775808 THEN -9223372036854775808
+        ELSE [s].[maximum_value] 
+        END AS bigint) AS maximum_value
 FROM [sys].[sequences] AS [s]
 JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]";
 
@@ -618,7 +631,8 @@ SELECT
     [cc].[definition] AS [computed_sql],
     [cc].[is_persisted] AS [computed_is_persisted],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
-    [c].[collation_name]
+    [c].[collation_name],
+    [c].[is_sparse]
 FROM
 (
     SELECT[v].[name], [v].[object_id], [v].[schema_id]
@@ -680,6 +694,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     var computedIsPersisted = dataRecord.GetValueOrDefault<bool>("computed_is_persisted");
                     var comment = dataRecord.GetValueOrDefault<string>("comment");
                     var collation = dataRecord.GetValueOrDefault<string>("collation_name");
+                    var isSparse = dataRecord.GetValueOrDefault<bool>("is_sparse");
 
                     _logger.ColumnFound(
                         DisplayName(tableSchema, tableName),
@@ -736,6 +751,11 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     {
                         // Note: annotation name must match `ScaffoldingAnnotationNames.ConcurrencyToken`
                         column["ConcurrencyToken"] = true;
+                    }
+
+                    if (isSparse)
+                    {
+                        column[SqlServerAnnotationNames.Sparse] = true;
                     }
 
                     table.Columns.Add(column);
@@ -946,7 +966,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                 foreach (var uniqueConstraintGroup in uniqueConstraintGroups)
                 {
-                    _logger.UniqueConstraintFound(uniqueConstraintGroup.Key.Name, DisplayName(tableSchema, tableName));
+                    _logger.UniqueConstraintFound(uniqueConstraintGroup.Key.Name!, DisplayName(tableSchema, tableName));
 
                     var uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
 
@@ -985,7 +1005,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                 foreach (var indexGroup in indexGroups)
                 {
-                    _logger.IndexFound(indexGroup.Key.Name, DisplayName(tableSchema, tableName), indexGroup.Key.IsUnique);
+                    _logger.IndexFound(indexGroup.Key.Name!, DisplayName(tableSchema, tableName), indexGroup.Key.IsUnique);
 
                     var index = new DatabaseIndex
                     {
@@ -1023,9 +1043,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         index.Columns.Add(column);
                     }
 
-                    var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23378", out var enabled) && enabled;
-                    if (index.Columns.Count > 0
-                        || useOldBehavior)
+                    if (index.Columns.Count > 0)
                     {
                         table.Indexes.Add(index);
                     }
@@ -1082,10 +1100,10 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                     var onDeleteAction = foreignKeyGroup.Key.OnDeleteAction;
 
                     _logger.ForeignKeyFound(
-                        fkName,
+                        fkName!,
                         DisplayName(table.Schema, table.Name!),
                         DisplayName(principalTableSchema, principalTableName),
-                        onDeleteAction);
+                        onDeleteAction!);
 
                     var principalTable = tables.FirstOrDefault(
                             t => t.Schema == principalTableSchema
@@ -1130,9 +1148,9 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         {
                             invalid = true;
                             _logger.ForeignKeyPrincipalColumnMissingWarning(
-                                fkName,
+                                fkName!,
                                 DisplayName(table.Schema, table.Name!),
-                                principalColumnName,
+                                principalColumnName!,
                                 DisplayName(principalTableSchema, principalTableName));
                             break;
                         }
@@ -1146,7 +1164,7 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         if (foreignKey.Columns.SequenceEqual(foreignKey.PrincipalColumns))
                         {
                             _logger.ReflexiveConstraintIgnored(
-                                foreignKey.Name,
+                                foreignKey.Name!,
                                 DisplayName(table.Schema, table.Name!));
                         }
                         else

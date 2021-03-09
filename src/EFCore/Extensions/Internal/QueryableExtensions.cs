@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 
+#nullable enable
+
 // ReSharper disable CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -35,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] Expression<Func<TInner, TKey>> innerKeySelector,
             [NotNull] Expression<Func<TOuter, TInner, TResult>> resultSelector)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

@@ -8,6 +8,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -21,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class ReaderColumn
     {
-        private static readonly ConcurrentDictionary<Type, ConstructorInfo> _constructors
-            = new ConcurrentDictionary<Type, ConstructorInfo>();
+        private static readonly ConcurrentDictionary<Type, ConstructorInfo> _constructors = new();
 
         /// <summary>
         ///     Creates a new instance of the <see cref="ReaderColumn" /> class.
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="nullable"> A value indicating if the column is nullable. </param>
         /// <param name="name"> The name of the column. </param>
         [Obsolete("Use constructor which also takes IPropertyBase.")]
-        protected ReaderColumn([NotNull] Type type, bool nullable, [CanBeNull] string name)
+        protected ReaderColumn([NotNull] Type type, bool nullable, [CanBeNull] string? name)
             : this(type, nullable, name, null)
         {
         }
@@ -43,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="nullable"> A value indicating if the column is nullable. </param>
         /// <param name="name"> The name of the column. </param>
         /// <param name="property"> The property being read if any, null otherwise. </param>
-        protected ReaderColumn([NotNull] Type type, bool nullable, [CanBeNull] string name, [CanBeNull] IPropertyBase property)
+        protected ReaderColumn([NotNull] Type type, bool nullable, [CanBeNull] string? name, [CanBeNull] IPropertyBase? property)
         {
             Type = type;
             IsNullable = nullable;
@@ -64,12 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The name of the column.
         /// </summary>
-        public virtual string Name { get; }
+        public virtual string? Name { get; }
 
         /// <summary>
         ///     The property being read if any, null otherwise.
         /// </summary>
-        public virtual IPropertyBase Property { get; }
+        public virtual IPropertyBase? Property { get; }
 
         /// <summary>
         ///     Creates an instance of <see cref="ReaderColumn{T}" />.
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> An instance of <see cref="ReaderColumn{T}" />.</returns>
         [Obsolete("Use method which also takes IPropertyBase.")]
-        public static ReaderColumn Create([NotNull] Type type, bool nullable, [CanBeNull] string columnName, [NotNull] object readFunc)
+        public static ReaderColumn Create([NotNull] Type type, bool nullable, [CanBeNull] string? columnName, [NotNull] object? readFunc)
             => (ReaderColumn)GetConstructor(type).Invoke(new[] { nullable, columnName, readFunc });
 
         /// <summary>
@@ -99,8 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public static ReaderColumn Create(
             [NotNull] Type type,
             bool nullable,
-            [CanBeNull] string columnName,
-            [CanBeNull] IPropertyBase property,
+            [CanBeNull] string? columnName,
+            [CanBeNull] IPropertyBase? property,
             [NotNull] object readFunc)
             => (ReaderColumn)GetConstructor(type).Invoke(new[] { nullable, columnName, property, readFunc });
 

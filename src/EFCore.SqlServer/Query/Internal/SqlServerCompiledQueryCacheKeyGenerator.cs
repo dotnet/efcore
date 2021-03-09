@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -61,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
                 => obj is SqlServerCompiledQueryCacheKey sqlServerCompiledQueryCacheKey
                     && Equals(sqlServerCompiledQueryCacheKey);
 

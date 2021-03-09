@@ -8,6 +8,9 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -29,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="arguments"> The arguments of the function. </param>
         public TableValuedFunctionExpression([NotNull] IStoreFunction storeFunction, [NotNull] IReadOnlyList<SqlExpression> arguments)
             : this(
-                storeFunction.Name.Substring(0, 1).ToLower(),
+                storeFunction.Name.Substring(0, 1).ToLowerInvariant(),
                 Check.NotNull(storeFunction, nameof(storeFunction)),
                 Check.NotNull(arguments, nameof(arguments)))
         {
@@ -43,6 +46,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
+        [CA.NotNull]
+        public override string? Alias
+        {
+            get => base.Alias!;
+            internal set => base.Alias = value;
+        }
+
+        /// <summary>
         ///     The store function.
         /// </summary>
         public virtual IStoreFunction StoreFunction { get; }
@@ -50,10 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The list of arguments of this function.
         /// </summary>
-        public virtual IReadOnlyList<SqlExpression> Arguments
-        {
-            get;
-        }
+        public virtual IReadOnlyList<SqlExpression> Arguments { get; }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -104,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is TableValuedFunctionExpression tableValuedFunctionExpression

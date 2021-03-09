@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
 {
     /// <summary>
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
                             context: null,
                             _commandLogger)),
                 typeof(long),
-                CultureInfo.InvariantCulture);
+                CultureInfo.InvariantCulture)!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -90,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
                         cancellationToken)
                     .ConfigureAwait(false),
                 typeof(long),
-                CultureInfo.InvariantCulture);
+                CultureInfo.InvariantCulture)!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

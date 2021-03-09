@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -19,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates a new <see cref="ServiceParameterBinding" /> instance for the given service type.
         /// </summary>
         /// <param name="contextType"> The <see cref="DbContext" /> CLR type. </param>
-        /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
+        /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or <see langword="null" />. </param>
         public ContextParameterBinding(
             [NotNull] Type contextType,
-            [CanBeNull] IPropertyBase serviceProperty = null)
+            [CanBeNull] IPropertyBase? serviceProperty = null)
             : base(contextType, contextType, serviceProperty)
         {
         }

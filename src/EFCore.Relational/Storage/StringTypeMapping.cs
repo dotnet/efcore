@@ -5,6 +5,8 @@ using System.Data;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="StringTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public StringTypeMapping(

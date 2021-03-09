@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
@@ -54,13 +56,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <value> An entry for the entity that owns this member. </value>
         public new virtual EntityEntry<TEntity> EntityEntry
-            => new EntityEntry<TEntity>(InternalEntry);
+            => new(InternalEntry);
 
         /// <summary>
         ///     The <see cref="EntityEntry{TEntity}" /> of the entity this navigation targets.
         /// </summary>
         /// <value> An entry for the entity that owns this navigation targets. </value>
-        public new virtual EntityEntry<TProperty> TargetEntry
+        public new virtual EntityEntry<TProperty>? TargetEntry
         {
             get
             {

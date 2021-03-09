@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -257,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void LogChangeDetected(InternalEntityEntry entry, IProperty property, object original, object current)
+        private void LogChangeDetected(InternalEntityEntry entry, IProperty property, object? original, object? current)
         {
             if (_loggingOptions.IsSensitiveDataLoggingEnabled)
             {
@@ -312,8 +314,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (navigationBase.IsCollection)
             {
-                var snapshotCollection = (IEnumerable)snapshotValue;
-                var currentCollection = (IEnumerable)currentValue;
+                var snapshotCollection = (IEnumerable?)snapshotValue;
+                var currentCollection = (IEnumerable?)currentValue;
 
                 var removed = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
                 if (snapshotCollection != null)
@@ -370,20 +372,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Check.DebugAssert(navigationBase is INavigation, "Issue #21673. Non-collection skip navigations not supported.");
 
                 var navigation = (INavigation)navigationBase;
-                if (!navigation.ForeignKey.IsOwnership
-                    || !navigation.IsOnDependent)
+                if (_loggingOptions.IsSensitiveDataLoggingEnabled)
                 {
-                    if (_loggingOptions.IsSensitiveDataLoggingEnabled)
-                    {
-                        _logger.ReferenceChangeDetectedSensitive(entry, navigation, snapshotValue, currentValue);
-                    }
-                    else
-                    {
-                        _logger.ReferenceChangeDetected(entry, navigation, snapshotValue, currentValue);
-                    }
-
-                    stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+                    _logger.ReferenceChangeDetectedSensitive(entry, navigation, snapshotValue, currentValue);
                 }
+                else
+                {
+                    _logger.ReferenceChangeDetected(entry, navigation, snapshotValue, currentValue);
+                }
+
+                stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
             }
         }
     }

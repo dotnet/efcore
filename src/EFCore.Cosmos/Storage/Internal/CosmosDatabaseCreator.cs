@@ -5,9 +5,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -19,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     /// </summary>
     public class CosmosDatabaseCreator : IDatabaseCreator
     {
-        private readonly CosmosClientWrapper _cosmosClient;
+        private readonly ICosmosClientWrapper _cosmosClient;
         private readonly IModel _model;
         private readonly IUpdateAdapterFactory _updateAdapterFactory;
         private readonly IDatabase _database;
@@ -31,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosDatabaseCreator(
-            [NotNull] CosmosClientWrapper cosmosClient,
+            [NotNull] ICosmosClientWrapper cosmosClient,
             [NotNull] IModel model,
             [NotNull] IUpdateAdapterFactory updateAdapterFactory,
             [NotNull] IDatabase database)
@@ -167,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanConnect()
-            => throw new NotImplementedException();
+            => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -176,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException(CosmosStrings.CanConnectNotSupported);
 
         /// <summary>
         ///     Returns the store name of the property that is used to store the partition key.
@@ -188,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var name = entityType.GetPartitionKeyPropertyName();
             if (name != null)
             {
-                return entityType.FindProperty(name).GetJsonPropertyName();
+                return entityType.FindProperty(name)!.GetJsonPropertyName();
             }
 
             return CosmosClientWrapper.DefaultPartitionKey;

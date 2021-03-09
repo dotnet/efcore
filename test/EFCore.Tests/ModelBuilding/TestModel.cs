@@ -876,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class IndexedClassByDictionary
         {
-            private readonly Dictionary<string, object> _indexerData = new Dictionary<string, object>();
+            private readonly Dictionary<string, object> _indexerData = new();
 
             public int Id { get; set; }
 
@@ -1097,15 +1097,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class AmbiguousManyToManyImplicitLeft
         {
             public int Id { get; set; }
-            public List<AmbiguousManyToManyImplicitRight> Navigation1 { get; } = new List<AmbiguousManyToManyImplicitRight>();
-            public List<AmbiguousManyToManyImplicitRight> Navigation2 { get; } = new List<AmbiguousManyToManyImplicitRight>();
+            public List<AmbiguousManyToManyImplicitRight> Navigation1 { get; } = new();
+            public List<AmbiguousManyToManyImplicitRight> Navigation2 { get; } = new();
         }
 
         protected class AmbiguousManyToManyImplicitRight
         {
             public int Id { get; set; }
-            public List<AmbiguousManyToManyImplicitLeft> Navigation1 { get; } = new List<AmbiguousManyToManyImplicitLeft>();
-            public List<AmbiguousManyToManyImplicitLeft> Navigation2 { get; } = new List<AmbiguousManyToManyImplicitLeft>();
+            public List<AmbiguousManyToManyImplicitLeft> Navigation1 { get; } = new();
+            public List<AmbiguousManyToManyImplicitLeft> Navigation2 { get; } = new();
         }
 
         protected class AmbiguousInversePropertyLeft

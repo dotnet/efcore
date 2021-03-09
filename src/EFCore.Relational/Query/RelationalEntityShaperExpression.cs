@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
             bool nullable,
-            [CanBeNull] LambdaExpression materializationCondition)
+            [CanBeNull] LambdaExpression? materializationCondition)
             : base(entityType, valueBufferExpression, nullable, materializationCondition)
         {
         }
@@ -64,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(entityType, nameof(EntityType));
 
             LambdaExpression baseCondition;
-            if (entityType.GetDiscriminatorProperty() == null
+            if (entityType.FindDiscriminatorProperty() == null
                 && entityType.GetDirectlyDerivedTypes().Any())
             {
                 // TPT
@@ -106,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // Optional dependent
                     var body = baseCondition.Body;
                     var valueBufferParameter = baseCondition.Parameters[0];
-                    Expression condition = null;
+                    Expression? condition = null;
                     var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
                     if (requiredNonPkProperties.Count > 0)
                     {
@@ -158,11 +160,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
+        [Obsolete("Use MakeNullable() instead.")]
         public override EntityShaperExpression MarkAsNullable()
-            => !IsNullable
+            => MakeNullable();
+
+        /// <inheritdoc />
+        public override EntityShaperExpression MakeNullable(bool nullable = true)
+        {
+            return IsNullable != nullable
                 // Marking nullable requires recomputation of Discriminator condition
                 ? new RelationalEntityShaperExpression(EntityType, ValueBufferExpression, true)
                 : this;
+        }
 
         /// <inheritdoc />
         public override EntityShaperExpression Update(Expression valueBufferExpression)
@@ -186,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     continue;
                 }
 
-                var propertyMappings = table.FindColumn(property).PropertyMappings;
+                var propertyMappings = table.FindColumn(property)!.PropertyMappings;
                 if (propertyMappings.Count() > 1
                     && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.EntityType)))
                 {

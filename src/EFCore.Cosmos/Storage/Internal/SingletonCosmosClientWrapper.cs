@@ -1,12 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -24,14 +25,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class SingletonCosmosClientWrapper : IDisposable
+    public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
     {
         private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
         private readonly CosmosClientOptions _options;
-        private readonly string _endpoint;
-        private readonly string _key;
-        private readonly string _connectionString;
-        private CosmosClient _client;
+        private readonly string? _endpoint;
+        private readonly string? _key;
+        private readonly string? _connectionString;
+        private CosmosClient? _client;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

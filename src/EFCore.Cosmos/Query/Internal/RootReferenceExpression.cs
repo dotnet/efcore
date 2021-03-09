@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -107,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     && Equals(rootReferenceExpression));
 
         private bool Equals(RootReferenceExpression rootReferenceExpression)
-            => string.Equals(Alias, rootReferenceExpression.Alias)
+            => Alias == rootReferenceExpression.Alias
                 && EntityType.Equals(rootReferenceExpression.EntityType);
 
         /// <summary>

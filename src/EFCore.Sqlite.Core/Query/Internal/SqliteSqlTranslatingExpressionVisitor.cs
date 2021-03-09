@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     /// <summary>
@@ -107,13 +109,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         nullable: true,
                         argumentsPropagateNullability: new[] { true },
                         typeof(int))
-                    : null;
+                    : QueryCompilationContext.NotTranslatedExpression;
             }
 
             var visitedExpression = base.VisitUnary(unaryExpression);
-            if (visitedExpression == null)
+            if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
             {
-                return null;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             if (visitedExpression is SqlUnaryExpression sqlUnary
@@ -132,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
                 if (operandType == typeof(TimeSpan))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
             }
 
@@ -149,9 +151,43 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
+            // See issue#16428
+            //if (binaryExpression.NodeType == ExpressionType.ArrayIndex
+            //    && binaryExpression.Left.Type == typeof(byte[]))
+            //{
+            //    var left = Visit(binaryExpression.Left);
+            //    var right = Visit(binaryExpression.Right);
+
+            //    if (left is SqlExpression leftSql
+            //        && right is SqlExpression rightSql)
+            //    {
+            //        return Dependencies.SqlExpressionFactory.Function(
+            //            "unicode",
+            //            new SqlExpression[]
+            //            {
+            //                Dependencies.SqlExpressionFactory.Function(
+            //                    "substr",
+            //                    new SqlExpression[]
+            //                    {
+            //                        leftSql,
+            //                        Dependencies.SqlExpressionFactory.Add(
+            //                            Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
+            //                            Dependencies.SqlExpressionFactory.Constant(1)),
+            //                        Dependencies.SqlExpressionFactory.Constant(1)
+            //                    },
+            //                    nullable: true,
+            //                    argumentsPropagateNullability: new[] { true, true, true },
+            //                    typeof(byte[]))
+            //            },
+            //            nullable: true,
+            //            argumentsPropagateNullability: new[] { true },
+            //            binaryExpression.Type);
+            //    }
+            //}
+
             if (!(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression))
             {
-                return null;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             if (visitedExpression is SqlBinaryExpression sqlBinary)
@@ -183,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
                         || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))))
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
             }
 
@@ -196,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateAverage(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateAverage(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -217,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateMax(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateMax(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -241,13 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override SqlExpression TranslateMin(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateMin(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -271,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override SqlExpression TranslateSum(SqlExpression sqlExpression)
+        public override SqlExpression? TranslateSum(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -286,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             return visitedExpression;
         }
 
-        private static Type GetProviderType(SqlExpression expression)
+        private static Type? GetProviderType(SqlExpression? expression)
             => expression == null
                 ? null
                 : expression.TypeMapping?.Converter?.ProviderClrType

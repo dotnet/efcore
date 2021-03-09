@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -121,6 +123,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => e.WithMaxRequestsPerTcpConnection(Check.NotNull(requestLimit, nameof(requestLimit))));
 
         /// <summary>
+        /// Sets the boolean to only return the headers and status code in the Cosmos DB response for write item operation 
+        /// like Create, Upsert, Patch and Replace. Setting the option to false will cause the response to have a null resource.
+        /// This reduces networking and CPU load by not sending the resource back over the network and serializing it on the client.
+        /// </summary>
+        /// <param name="enabled"><see langword="false" /> to have null resource</param>
+        public virtual CosmosDbContextOptionsBuilder ContentResponseOnWriteEnabled(bool enabled = true)
+            => WithOption(e => e.ContentResponseOnWriteEnabled(Check.NotNull(enabled, nameof(enabled))));
+
+        /// <summary>
         ///     Sets an option by cloning the extension used to store the settings. This ensures the builder
         ///     does not modify options that are already in use elsewhere.
         /// </summary>
@@ -141,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -150,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

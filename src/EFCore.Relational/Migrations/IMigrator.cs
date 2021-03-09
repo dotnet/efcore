@@ -1,10 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -29,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="targetMigration">
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
         /// </param>
-        void Migrate([CanBeNull] string targetMigration = null);
+        void Migrate([CanBeNull] string? targetMigration = null);
 
         /// <summary>
         ///     Migrates the database to either a specified target migration or up to the latest
@@ -40,8 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A task that represents the asynchronous operation </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task MigrateAsync(
-            [CanBeNull] string targetMigration = null,
+            [CanBeNull] string? targetMigration = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -59,8 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </param>
         /// <returns> The generated script. </returns>
         string GenerateScript(
-            [CanBeNull] string fromMigration = null,
-            [CanBeNull] string toMigration = null,
+            [CanBeNull] string? fromMigration = null,
+            [CanBeNull] string? toMigration = null,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default);
     }
 }

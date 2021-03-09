@@ -6,6 +6,8 @@ using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private byte _indent;
         private bool _indentPending = true;
 
-        private readonly StringBuilder _stringBuilder = new StringBuilder();
+        private readonly StringBuilder _stringBuilder = new();
 
         /// <summary>
         ///     The current length of the built string.
@@ -92,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             using (var reader = new StringReader(value))
             {
                 var first = true;
-                string line;
+                string? line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (first)
@@ -174,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (_indentPending && _indent > 0)
             {
-                _stringBuilder.Append(new string(' ', _indent * IndentSize));
+                _stringBuilder.Append(' ', _indent * IndentSize);
             }
 
             _indentPending = false;

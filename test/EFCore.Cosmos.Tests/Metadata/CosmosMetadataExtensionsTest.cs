@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private static ModelBuilder CreateModelBuilder()
-            => new ModelBuilder();
+            => new();
 
         private class Customer
         {

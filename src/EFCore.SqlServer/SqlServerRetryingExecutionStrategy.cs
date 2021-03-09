@@ -8,24 +8,33 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     An <see cref="IExecutionStrategy" /> implementation for retrying failed executions
-    ///     on SQL Server.
+    ///     <para>
+    ///         An <see cref="IExecutionStrategy" /> implementation for retrying failed executions on SQL Server.
+    ///     </para>
+    ///     <para>
+    ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+    ///         error numbers for transient errors that can be retried. Additional error numbers to retry on can also be supplied.
+    ///     </para>
     /// </summary>
     public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     {
-        private readonly ICollection<int> _additionalErrorNumbers;
+        private readonly ICollection<int>? _additionalErrorNumbers;
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+        ///     <para>
+        ///         Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+        ///     </para>
+        ///     <para>
+        ///         Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
+        ///     </para>
         /// </summary>
         /// <param name="context"> The context on which the operations will be invoked. </param>
-        /// <remarks>
-        ///     The default retry limit is 6, which means that the total amount of time spent before failing is about a minute.
-        /// </remarks>
         public SqlServerRetryingExecutionStrategy(
             [NotNull] DbContext context)
             : this(context, DefaultMaxRetryCount)
@@ -33,7 +42,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+        ///     <para>
+        ///         Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+        ///     </para>
+        ///     <para>
+        ///         Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
+        ///     </para>
         /// </summary>
         /// <param name="dependencies"> Parameter object containing service dependencies. </param>
         public SqlServerRetryingExecutionStrategy(
@@ -43,7 +57,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+        ///     <para>
+        ///         Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+        ///     </para>
+        ///     <para>
+        ///         A default value 30 seconds for the maximum default delay is used.
+        ///     </para>
         /// </summary>
         /// <param name="context"> The context on which the operations will be invoked. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
@@ -55,7 +74,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+        ///     <para>
+        ///         Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
+        ///     </para>
+        ///     <para>
+        ///         A default value 30 seconds for the maximum default delay is used.
+        ///     </para>
         /// </summary>
         /// <param name="dependencies"> Parameter object containing service dependencies. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
@@ -77,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] DbContext context,
             int maxRetryCount,
             TimeSpan maxRetryDelay,
-            [CanBeNull] ICollection<int> errorNumbersToAdd)
+            [CanBeNull] ICollection<int>? errorNumbersToAdd)
             : base(
                 context,
                 maxRetryCount,
@@ -95,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] ExecutionStrategyDependencies dependencies,
             int maxRetryCount,
             TimeSpan maxRetryDelay,
-            [CanBeNull] ICollection<int> errorNumbersToAdd)
+            [CanBeNull] ICollection<int>? errorNumbersToAdd)
             : base(dependencies, maxRetryCount, maxRetryDelay)
             => _additionalErrorNumbers = errorNumbersToAdd;
 
@@ -107,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
         /// </returns>
-        protected override bool ShouldRetryOn(Exception exception)
+        protected override bool ShouldRetryOn(Exception? exception)
         {
             if (_additionalErrorNumbers != null
                 && exception is SqlException sqlException)
@@ -145,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore
                 : baseDelay;
         }
 
-        private static bool IsMemoryOptimizedError(Exception exception)
+        private static bool IsMemoryOptimizedError(Exception? exception)
         {
             if (exception is SqlException sqlException)
             {

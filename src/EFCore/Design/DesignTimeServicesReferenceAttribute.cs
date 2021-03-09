@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     The name of the provider for which these services should be added. If null, the services will be added
         ///     for all providers.
         /// </param>
-        public DesignTimeServicesReferenceAttribute([NotNull] string typeName, [CanBeNull] string forProvider)
+        public DesignTimeServicesReferenceAttribute([NotNull] string typeName, [CanBeNull] string? forProvider)
         {
             Check.NotEmpty(typeName, nameof(typeName));
 
@@ -61,6 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Gets the name of the provider for which these services should be added. If null, the services will be
         ///     added for all providers.
         /// </summary>
-        public string ForProvider { get; }
+        public string? ForProvider { get; }
     }
 }

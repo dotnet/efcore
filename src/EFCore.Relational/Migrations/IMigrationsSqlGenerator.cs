@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> The list of commands to be executed or scripted. </returns>
         IReadOnlyList<MigrationCommand> Generate(
             [NotNull] IReadOnlyList<MigrationOperation> operations,
-            [CanBeNull] IModel model = null,
+            [CanBeNull] IModel? model = null,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default);
     }
 }

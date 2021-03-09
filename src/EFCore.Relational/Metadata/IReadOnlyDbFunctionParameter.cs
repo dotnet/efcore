@@ -1,0 +1,85 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+
+#nullable enable
+
+namespace Microsoft.EntityFrameworkCore.Metadata
+{
+    /// <summary>
+    ///     Represents a <see cref="IReadOnlyDbFunction" /> parameter.
+    /// </summary>
+    public interface IReadOnlyDbFunctionParameter : IReadOnlyAnnotatable
+    {
+        /// <summary>
+        ///     Gets the <see cref="IReadOnlyDbFunction" /> to which this parameter belongs.
+        /// </summary>
+        IReadOnlyDbFunction Function { get; }
+
+        /// <summary>
+        ///     Gets the parameter name.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        ///     Gets the parameter type.
+        /// </summary>
+        Type ClrType { get; }
+
+        /// <summary>
+        ///     Gets the store type of this parameter.
+        /// </summary>
+        string? StoreType { get; }
+
+        /// <summary>
+        ///     Gets the value which indicates whether parameter propagates nullability, meaning if it's value is null the database function itself
+        ///     returns null.
+        /// </summary>
+        bool PropagatesNullability { get; }
+
+        /// <summary>
+        ///     Gets the <see cref="RelationalTypeMapping" /> for this parameter.
+        /// </summary>
+        RelationalTypeMapping? TypeMapping { get; }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a human-readable representation of the given metadata.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the returned string.
+        ///         It is designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        /// <param name="options"> Options for generating the string. </param>
+        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
+        /// <returns> A human-readable representation. </returns>
+        string ToDebugString(MetadataDebugStringOptions options, int indent = 0)
+        {
+            var builder = new StringBuilder();
+            var indentString = new string(' ', indent);
+
+            builder
+                .Append(indentString)
+                .Append("DbFunctionParameter: ");
+
+            builder.Append(Name)
+                .Append(" ")
+                .Append(StoreType);
+
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
+            {
+                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+                {
+                    builder.Append(AnnotationsToDebugString(indent + 2));
+                }
+            }
+
+            return builder.ToString();
+        }
+    }
+}

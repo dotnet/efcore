@@ -3,6 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
 {
     /// <summary>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogSchemaConfigured;
+        public EventDefinitionBase? LogSchemaConfigured;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogSequenceConfigured;
+        public EventDefinitionBase? LogSequenceConfigured;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogUsingSchemaSelectionsWarning;
+        public EventDefinitionBase? LogUsingSchemaSelectionsWarning;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundColumn;
+        public EventDefinitionBase? LogFoundColumn;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundForeignKey;
+        public EventDefinitionBase? LogFoundForeignKey;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogForeignKeyScaffoldErrorPrincipalTableNotFound;
+        public EventDefinitionBase? LogForeignKeyScaffoldErrorPrincipalTableNotFound;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundTable;
+        public EventDefinitionBase? LogFoundTable;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogMissingTable;
+        public EventDefinitionBase? LogMissingTable;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogPrincipalColumnNotFound;
+        public EventDefinitionBase? LogPrincipalColumnNotFound;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundIndex;
+        public EventDefinitionBase? LogFoundIndex;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -99,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundPrimaryKey;
+        public EventDefinitionBase? LogFoundPrimaryKey;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -107,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundUniqueConstraint;
+        public EventDefinitionBase? LogFoundUniqueConstraint;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -115,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogUnexpectedConnectionType;
+        public EventDefinitionBase? LogUnexpectedConnectionType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -123,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogTableRebuildPendingWarning;
+        public EventDefinitionBase? LogTableRebuildPendingWarning;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,6 +133,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogTableRebuildsPendingWarning;
+        public EventDefinitionBase? LogTableRebuildsPendingWarning;
     }
 }

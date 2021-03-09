@@ -7,6 +7,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -30,16 +32,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Table = table;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual string Name { get; }
 
-        /// <inheritdoc />
-        public virtual ITableBase Table { get; }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual TableBase Table { get; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override bool IsReadOnly => Table.Model.IsReadOnly;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual string StoreType { get; }
 
-        /// <inheritdoc />
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual bool IsNullable { get; set; }
 
         /// <summary>
@@ -49,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SortedSet<ColumnMappingBase> PropertyMappings { get; }
-            = new SortedSet<ColumnMappingBase>(ColumnMappingBaseComparer.Instance);
+            = new(ColumnMappingBaseComparer.Instance);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -69,6 +99,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             [DebuggerStepThrough]
             get => PropertyMappings;
+        }
+
+        /// <inheritdoc />
+        ITableBase IColumnBase.Table
+        {
+            [DebuggerStepThrough]
+            get => Table;
         }
     }
 }

@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class MigrationsSqlGeneratorDependencies
+    public sealed record MigrationsSqlGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -88,169 +90,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The command builder factory.
         /// </summary>
-        public IRelationalCommandBuilderFactory CommandBuilderFactory { get; }
+        public IRelationalCommandBuilderFactory CommandBuilderFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     High level SQL generator.
         /// </summary>
-        public IUpdateSqlGenerator UpdateSqlGenerator { get; }
+        public IUpdateSqlGenerator UpdateSqlGenerator { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Helpers for SQL generation.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
+        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The logging options.
         /// </summary>
-        public ILoggingOptions LoggingOptions { get; }
+        public ILoggingOptions LoggingOptions { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The database command logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The database command logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Migrations> MigrationsLogger { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="commandBuilderFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
-            => new MigrationsSqlGeneratorDependencies(
-                commandBuilderFactory,
-                UpdateSqlGenerator,
-                SqlGenerationHelper,
-                TypeMappingSource,
-                CurrentContext,
-                LoggingOptions,
-                Logger,
-                MigrationsLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="updateSqlGenerator"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] IUpdateSqlGenerator updateSqlGenerator)
-            => new MigrationsSqlGeneratorDependencies(
-                CommandBuilderFactory,
-                updateSqlGenerator,
-                SqlGenerationHelper,
-                TypeMappingSource,
-                CurrentContext,
-                LoggingOptions,
-                Logger,
-                MigrationsLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            => new MigrationsSqlGeneratorDependencies(
-                CommandBuilderFactory,
-                UpdateSqlGenerator,
-                sqlGenerationHelper,
-                TypeMappingSource,
-                CurrentContext,
-                LoggingOptions,
-                Logger,
-                MigrationsLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new MigrationsSqlGeneratorDependencies(
-                CommandBuilderFactory,
-                UpdateSqlGenerator,
-                SqlGenerationHelper,
-                typeMappingSource,
-                CurrentContext,
-                LoggingOptions,
-                Logger,
-                MigrationsLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new MigrationsSqlGeneratorDependencies(
-                CommandBuilderFactory,
-                UpdateSqlGenerator,
-                SqlGenerationHelper,
-                TypeMappingSource,
-                currentContext,
-                LoggingOptions,
-                Logger,
-                MigrationsLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="loggingOptions"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] ILoggingOptions loggingOptions)
-            => new MigrationsSqlGeneratorDependencies(
-                CommandBuilderFactory,
-                UpdateSqlGenerator,
-                SqlGenerationHelper,
-                TypeMappingSource,
-                CurrentContext,
-                loggingOptions,
-                Logger,
-                MigrationsLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="logger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-            => new MigrationsSqlGeneratorDependencies(
-                CommandBuilderFactory,
-                UpdateSqlGenerator,
-                SqlGenerationHelper,
-                TypeMappingSource,
-                CurrentContext,
-                LoggingOptions,
-                logger,
-                MigrationsLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="migrationsLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public MigrationsSqlGeneratorDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> migrationsLogger)
-            => new MigrationsSqlGeneratorDependencies(
-                CommandBuilderFactory,
-                UpdateSqlGenerator,
-                SqlGenerationHelper,
-                TypeMappingSource,
-                CurrentContext,
-                LoggingOptions,
-                Logger,
-                migrationsLogger);
+        public IDiagnosticsLogger<DbLoggerCategory.Migrations> MigrationsLogger { get; [param: NotNull] init; }
     }
 }

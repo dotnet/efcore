@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -26,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public class LazyLoaderParameterBindingFactory : ServiceParameterBindingFactory
     {
-        private static readonly MethodInfo _loadMethod = typeof(ILazyLoader).GetMethod(nameof(ILazyLoader.Load));
-        private static readonly MethodInfo _loadAsyncMethod = typeof(ILazyLoader).GetMethod(nameof(ILazyLoader.LoadAsync));
+        private static readonly MethodInfo _loadMethod = typeof(ILazyLoader).GetMethod(nameof(ILazyLoader.Load))!;
+        private static readonly MethodInfo _loadAsyncMethod = typeof(ILazyLoader).GetMethod(nameof(ILazyLoader.LoadAsync))!;
 
         /// <summary>
         ///     Creates a new <see cref="LazyLoaderParameterBindingFactory" /> instance.
@@ -81,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
             while (baseType != null);
 
-            return Bind(entityType, parameterType);
+            return Bind((IEntityType)entityType, parameterType);
         }
 
         /// <summary>
@@ -108,7 +110,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
             while (baseType != null);
 
-            return Bind(entityType, parameterType);
+            return Bind((IEntityType)entityType, parameterType);
+        }
+
+        /// <summary>
+        ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="parameterType"> The parameter type. </param>
+        /// <param name="parameterName"> The parameter name. </param>
+        /// <returns> The binding. </returns>
+        public override ParameterBinding Bind(
+            IReadOnlyEntityType entityType,
+            Type parameterType,
+            string parameterName)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(parameterType, nameof(parameterType));
+            Check.NotEmpty(parameterName, nameof(parameterName));
+
+            return Bind((IEntityType)entityType, parameterType);
         }
 
         private static ParameterBinding Bind(IEntityType entityType, Type parameterType)

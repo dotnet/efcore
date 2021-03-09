@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlConstantExpression([NotNull] ConstantExpression constantExpression, [NotNull] CoreTypeMapping typeMapping)
+        public SqlConstantExpression([NotNull] ConstantExpression constantExpression, [CanBeNull] CoreTypeMapping? typeMapping)
             : base(constantExpression.Type, typeMapping)
         {
             _constantExpression = constantExpression;
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object Value
+        public virtual object? Value
             => _constantExpression.Value;
 
         /// <summary>
@@ -51,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression ApplyTypeMapping([NotNull] CoreTypeMapping typeMapping)
-            => new SqlConstantExpression(_constantExpression, typeMapping);
+        public virtual SqlExpression ApplyTypeMapping([CanBeNull] CoreTypeMapping? typeMapping)
+            => new SqlConstantExpression(_constantExpression, typeMapping ?? TypeMapping);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -81,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         }
 
         private void Print(
-            object value,
+            object? value,
             ExpressionPrinter expressionPrinter)
         {
             if (value is IEnumerable enumerable
@@ -108,16 +110,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
         }
 
-        private JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
+        private JToken? GenerateJToken(object? value, CoreTypeMapping? typeMapping)
         {
-            var mappingClrType = typeMapping.ClrType.UnwrapNullableType();
+            var mappingClrType = typeMapping?.ClrType.UnwrapNullableType() ?? Type;
             if (value?.GetType().IsInteger() == true
                 && mappingClrType.IsEnum)
             {
                 value = Enum.ToObject(mappingClrType, value);
             }
 
-            var converter = typeMapping.Converter;
+            var converter = typeMapping?.Converter;
             if (converter != null)
             {
                 value = converter.ConvertToProvider(value);
@@ -137,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlConstantExpression sqlConstantExpression

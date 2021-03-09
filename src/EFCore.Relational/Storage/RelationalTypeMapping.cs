@@ -12,6 +12,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -120,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="mappingInfo"> The mapping info containing the facets to use. </param>
             /// <returns> The new parameter object. </returns>
             public RelationalTypeMappingParameters WithTypeMappingInfo(in RelationalTypeMappingInfo mappingInfo)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters,
                     mappingInfo.StoreTypeName ?? StoreType,
                     StoreTypePostfix,
@@ -143,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 [NotNull] string storeType,
                 int? size,
                 StoreTypePostfix? storeTypePostfix = null)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters,
                     storeType,
                     storeTypePostfix ?? StoreTypePostfix,
@@ -163,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public RelationalTypeMappingParameters WithPrecisionAndScale(
                 int? precision,
                 int? scale)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters,
                     StoreType,
                     StoreTypePostfix,
@@ -180,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="precision"> The precision of data the property is configured to store, or null if no size is configured. </param>
             /// <returns> The new parameter object. </returns>
             public RelationalTypeMappingParameters WithPrecision(int? precision)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters,
                     StoreType,
                     StoreTypePostfix,
@@ -197,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="scale"> The scale of data the property is configured to store, or null if no size is configured. </param>
             /// <returns> The new parameter object. </returns>
             public RelationalTypeMappingParameters WithScale(int? scale)
-                => new RelationalTypeMappingParameters(
+                => new(
                     CoreParameters,
                     StoreType,
                     StoreTypePostfix,
@@ -214,8 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// </summary>
             /// <param name="converter"> The converter. </param>
             /// <returns> The new parameter object. </returns>
-            public RelationalTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter converter)
-                => new RelationalTypeMappingParameters(
+            public RelationalTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter? converter)
+                => new(
                     CoreParameters.WithComposedConverter(converter),
                     StoreType,
                     StoreTypePostfix,
@@ -248,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             };
 
         private static MethodInfo GetDataReaderMethod(string name)
-            => typeof(DbDataReader).GetRuntimeMethod(name, new[] { typeof(int) });
+            => typeof(DbDataReader).GetRuntimeMethod(name, new[] { typeof(int) })!;
 
         /// <summary>
         ///     Gets the mapping to be used when the only piece of information is that there is a null value.
@@ -276,16 +278,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Parameters = parameters;
 
             var storeType = parameters.StoreType;
+            var storeTypeNameBase = GetBaseName(storeType);
 
-            if (storeType != null)
-            {
-                var storeTypeNameBase = GetBaseName(storeType);
-                StoreTypeNameBase = storeTypeNameBase;
-
-                storeType = ProcessStoreType(parameters, storeType, storeTypeNameBase);
-            }
-
-            StoreType = storeType;
+            StoreTypeNameBase = storeTypeNameBase;
+            StoreType = ProcessStoreType(parameters, storeType, storeTypeNameBase);
         }
 
         /// <summary>
@@ -403,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
-        public override CoreTypeMapping Clone(ValueConverter converter)
+        public override CoreTypeMapping Clone(ValueConverter? converter)
             => Clone(Parameters.WithComposedConverter(converter));
 
         /// <summary>
@@ -482,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual DbParameter CreateParameter(
             [NotNull] DbCommand command,
             [NotNull] string name,
-            [CanBeNull] object value,
+            [CanBeNull] object? value,
             bool? nullable = null)
         {
             Check.NotNull(command, nameof(command));
@@ -520,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         // when enum would contain convert node. We remove the convert node but we also
         // need to convert the integral value to enum value.
         // This allows us to use converter on enum value or print enum value directly if supported by provider
-        private object ConvertUnderlyingEnumValueToEnum(object value)
+        private object? ConvertUnderlyingEnumValueToEnum(object? value)
             => value?.GetType().IsInteger() == true && ClrType.UnwrapNullableType().IsEnum
                 ? Enum.ToObject(ClrType.UnwrapNullableType(), value)
                 : value;
@@ -540,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string GenerateSqlLiteral([CanBeNull] object value)
+        public virtual string GenerateSqlLiteral([CanBeNull] object? value)
         {
             value = ConvertUnderlyingEnumValueToEnum(value);
 
@@ -559,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string GenerateProviderValueSqlLiteral([CanBeNull] object value)
+        public virtual string GenerateProviderValueSqlLiteral([CanBeNull] object? value)
             => value == null
                 ? "NULL"
                 : GenerateNonNullSqlLiteral(value);

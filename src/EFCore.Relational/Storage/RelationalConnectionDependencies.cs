@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalConnectionDependencies
+    public sealed record RelationalConnectionDependencies
     {
         /// <summary>
         ///     <para>
@@ -61,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Connection> connectionLogger,
             [NotNull] INamedConnectionStringResolver connectionStringResolver,
             [NotNull] IRelationalTransactionFactory relationalTransactionFactory,
-            [NotNull] ICurrentDbContext currentContext)
+            [NotNull] ICurrentDbContext currentContext,
+            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
         {
             Check.NotNull(contextOptions, nameof(contextOptions));
             Check.NotNull(transactionLogger, nameof(transactionLogger));
@@ -69,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(connectionStringResolver, nameof(connectionStringResolver));
             Check.NotNull(relationalTransactionFactory, nameof(relationalTransactionFactory));
             Check.NotNull(currentContext, nameof(currentContext));
+            Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
 
             ContextOptions = contextOptions;
             TransactionLogger = transactionLogger;
@@ -76,122 +80,43 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ConnectionStringResolver = connectionStringResolver;
             RelationalTransactionFactory = relationalTransactionFactory;
             CurrentContext = currentContext;
+            RelationalCommandBuilderFactory = relationalCommandBuilderFactory;
         }
 
         /// <summary>
         ///     The options for the current context instance.
         /// </summary>
-        public IDbContextOptions ContextOptions { get; }
+        public IDbContextOptions ContextOptions { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The logger to which transaction messages will be written.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> TransactionLogger { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> TransactionLogger { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The logger to which connection messages will be written.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Connection> ConnectionLogger { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Connection> ConnectionLogger { get; [param: NotNull] init; }
 
         /// <summary>
         ///     A service for resolving a connection string from a name.
         /// </summary>
         [EntityFrameworkInternal]
-        public INamedConnectionStringResolver ConnectionStringResolver { get; }
+        public INamedConnectionStringResolver ConnectionStringResolver { get; [param: NotNull] init; }
 
         /// <summary>
         ///     A service for creating <see cref="RelationalTransaction" /> instances.
         /// </summary>
-        public IRelationalTransactionFactory RelationalTransactionFactory { get; }
+        public IRelationalTransactionFactory RelationalTransactionFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> instance currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
+        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
 
         /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
+        ///     Contains the <see cref="DbContext" /> instance currently in use.
         /// </summary>
-        /// <param name="contextOptions"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConnectionDependencies With([NotNull] IDbContextOptions contextOptions)
-            => new RelationalConnectionDependencies(
-                contextOptions,
-                TransactionLogger,
-                ConnectionLogger,
-                ConnectionStringResolver,
-                RelationalTransactionFactory,
-                CurrentContext);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="connectionLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConnectionDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Connection> connectionLogger)
-            => new RelationalConnectionDependencies(
-                ContextOptions,
-                TransactionLogger,
-                connectionLogger,
-                ConnectionStringResolver,
-                RelationalTransactionFactory,
-                CurrentContext);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="transactionLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConnectionDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> transactionLogger)
-            => new RelationalConnectionDependencies(
-                ContextOptions,
-                transactionLogger,
-                ConnectionLogger,
-                ConnectionStringResolver,
-                RelationalTransactionFactory,
-                CurrentContext);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="connectionStringResolver"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        [EntityFrameworkInternal]
-        public RelationalConnectionDependencies With([NotNull] INamedConnectionStringResolver connectionStringResolver)
-            => new RelationalConnectionDependencies(
-                ContextOptions,
-                TransactionLogger,
-                ConnectionLogger,
-                connectionStringResolver,
-                RelationalTransactionFactory,
-                CurrentContext);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="relationalTransactionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConnectionDependencies With([NotNull] IRelationalTransactionFactory relationalTransactionFactory)
-            => new RelationalConnectionDependencies(
-                ContextOptions,
-                TransactionLogger,
-                ConnectionLogger,
-                ConnectionStringResolver,
-                relationalTransactionFactory,
-                CurrentContext);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalConnectionDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new RelationalConnectionDependencies(
-                ContextOptions,
-                TransactionLogger,
-                ConnectionLogger,
-                ConnectionStringResolver,
-                RelationalTransactionFactory,
-                currentContext);
+        public IRelationalCommandBuilderFactory RelationalCommandBuilderFactory { get; [param: NotNull] init; }
     }
 }

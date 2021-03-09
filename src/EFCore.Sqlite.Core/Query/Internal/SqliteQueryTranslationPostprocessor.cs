@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     /// <summary>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteQueryTranslationPostprocessor : RelationalQueryTranslationPostprocessor
     {
-        private readonly ApplyValidatingVisitor _applyValidator = new ApplyValidatingVisitor();
+        private readonly ApplyValidatingVisitor _applyValidator = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

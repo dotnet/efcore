@@ -20,6 +20,9 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -65,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             typeof(AddForeignKeyOperation), typeof(CreateIndexOperation), typeof(AddCheckConstraintOperation)
         };
 
-        private IUpdateAdapter _sourceUpdateAdapter;
-        private IUpdateAdapter _targetUpdateAdapter;
+        private IUpdateAdapter? _sourceUpdateAdapter;
+        private IUpdateAdapter? _targetUpdateAdapter;
 
         private readonly Dictionary<ITable, SharedIdentityMap> _sourceSharedIdentityEntryMaps =
-            new Dictionary<ITable, SharedIdentityMap>();
+            new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -149,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool HasDifferences(IRelationalModel source, IRelationalModel target)
+        public virtual bool HasDifferences(IRelationalModel? source, IRelationalModel? target)
             => Diff(source, target, new DiffContext()).Any();
 
         /// <summary>
@@ -158,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<MigrationOperation> GetDifferences(IRelationalModel source, IRelationalModel target)
+        public virtual IReadOnlyList<MigrationOperation> GetDifferences(IRelationalModel? source, IRelationalModel? target)
         {
             var diffContext = new DiffContext();
             return Sort(Diff(source, target, diffContext), diffContext);
@@ -327,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             dropTableGraph.AddVertices(dropTableOperations);
             foreach (var dropTableOperation in dropTableOperations)
             {
-                var table = diffContext.FindTable(dropTableOperation);
+                var table = diffContext.FindTable(dropTableOperation)!;
                 foreach (var foreignKey in table.ForeignKeyConstraints)
                 {
                     var principalDropTableOperation = diffContext.FindDrop(foreignKey.PrincipalTable);
@@ -379,8 +382,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [CanBeNull] IRelationalModel source,
-            [CanBeNull] IRelationalModel target,
+            [CanBeNull] IRelationalModel? source,
+            [CanBeNull] IRelationalModel? target,
             [NotNull] DiffContext diffContext)
         {
             var operations = Enumerable.Empty<MigrationOperation>();
@@ -394,7 +397,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     var alterDatabaseOperation = new AlterDatabaseOperation
                     {
-                        Collation = target.Collation, OldDatabase = { Collation = source.Collation }
+                        Collation = target.Collation,
+                        OldDatabase = { Collation = source.Collation }
                     };
 
                     alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);
@@ -426,8 +430,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         private IEnumerable<MigrationOperation> DiffAnnotations(
-            IRelationalModel source,
-            IRelationalModel target)
+            IRelationalModel? source,
+            IRelationalModel? target)
         {
             var targetMigrationsAnnotations = target?.GetAnnotations().ToList();
 
@@ -456,11 +460,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 yield break;
             }
 
-            var sourceMigrationsAnnotations = source?.GetAnnotations().ToList();
-            if (HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
+            var sourceMigrationsAnnotations = source.GetAnnotations().ToList();
+            if (HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations!))
             {
                 var alterDatabaseOperation = new AlterDatabaseOperation();
-                alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations);
+                alterDatabaseOperation.AddAnnotations(targetMigrationsAnnotations!);
                 alterDatabaseOperation.OldDatabase.AddAnnotations(sourceMigrationsAnnotations);
                 yield return alterDatabaseOperation;
             }
@@ -597,14 +601,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (source.IsExcludedFromMigrations
                 && target.IsExcludedFromMigrations)
             {
-                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23639", out var enabled) && enabled;
-                if (!useOldBehavior)
-                {
-                    // Populate column mapping
-                    foreach (var _ in Diff(source.Columns, target.Columns, diffContext))
-                    { }
-                }
-                
+                // Populate column mapping
+                foreach (var _ in Diff(source.Columns, target.Columns, diffContext))
+                { }
+
                 yield break;
             }
 
@@ -728,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var sortedColumns = new List<IColumn>(columns.Count);
             foreach (var property in GetSortedProperties(GetMainType(table).GetRootType(), table))
             {
-                var column = table.FindColumn(property);
+                var column = table.FindColumn(property)!;
                 if (columns.Remove(column))
                 {
                     sortedColumns.Add(column);
@@ -769,7 +769,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         continue;
                     }
 
-                    clrProperty = foreignKey.DependentToPrincipal.PropertyInfo;
+                    clrProperty = foreignKey.DependentToPrincipal!.PropertyInfo!;
                     var groupIndex = foreignKey.Properties.IndexOf(property);
 
                     unorderedGroups.GetOrAddNew(clrProperty).Add(groupIndex, property);
@@ -785,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         clrProperty, new List<IProperty> { property });
                 }
 
-                var clrType = clrProperty.DeclaringType;
+                var clrType = clrProperty.DeclaringType!;
                 var index = clrType.GetTypeInfo().DeclaredProperties
                     .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
 
@@ -813,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     groups.Add(linkingNavigationProperty, properties);
 
-                    var clrType = linkingNavigationProperty.DeclaringType;
+                    var clrType = linkingNavigationProperty.DeclaringType!;
                     var index = clrType.GetTypeInfo().DeclaredProperties
                         .IndexOf(linkingNavigationProperty, PropertyInfoEqualityComparer.Instance);
 
@@ -822,7 +822,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            var graph = new Multigraph<Type, object>();
+            var graph = new Multigraph<Type, object?>();
             graph.AddVertices(types.Keys);
 
             foreach (var left in types.Keys)
@@ -852,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             return sortedPropertyInfos
                 .Select(pi => primaryKeyPropertyGroups.ContainsKey(pi) ? primaryKeyPropertyGroups[pi] : null)
-                .Where(e => e != null)
+                .Where(e => e != null).Cast<IProperty>()
                 .Concat(leastPriorityPrimaryKeyProperties)
                 .Concat(
                     sortedPropertyInfos
@@ -872,13 +872,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
             }
 
-            public static readonly PropertyInfoEqualityComparer Instance = new PropertyInfoEqualityComparer();
+            public static readonly PropertyInfoEqualityComparer Instance = new();
 
-            public bool Equals(PropertyInfo x, PropertyInfo y)
+            public bool Equals(PropertyInfo? x, PropertyInfo? y)
                 => x.IsSameAs(y);
 
-            public int GetHashCode(PropertyInfo obj)
-                => throw new NotImplementedException();
+            public int GetHashCode([DisallowNull] PropertyInfo obj)
+                => throw new NotSupportedException();
         }
 
         #endregion
@@ -950,46 +950,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 return true;
             }
 
-            if (!string.Equals(source.Name, target.Name))
+            if (source.Name != target.Name)
             {
                 return false;
             }
 
-            if (!string.Equals(
-                GetDefiningNavigationName(source),
-                GetDefiningNavigationName(target)))
-            {
-                return false;
-            }
-
-            var nextSource = source.DefiningEntityType;
-            var nextTarget = target.DefiningEntityType;
+            var nextSource = sourceTable.GetRowInternalForeignKeys(source).FirstOrDefault()?.PrincipalEntityType;
+            var nextTarget = targetTable.GetRowInternalForeignKeys(target).FirstOrDefault()?.PrincipalEntityType;
             return (nextSource == null && nextTarget == null)
                 || (nextSource != null
                     && nextTarget != null
                     && EntityTypePathEquals(nextSource, nextTarget, diffContext));
-        }
-
-        private static string GetDefiningNavigationName(IEntityType entityType)
-        {
-            if (entityType.DefiningNavigationName != null)
-            {
-                return entityType.DefiningNavigationName;
-            }
-
-            var primaryKey = entityType.BaseType == null ? entityType.FindPrimaryKey() : null;
-            if (primaryKey != null)
-            {
-                var definingForeignKey = entityType
-                    .FindForeignKeys(primaryKey.Properties)
-                    .FirstOrDefault(fk => fk.PrincipalEntityType.GetTableName() == entityType.GetTableName());
-                if (definingForeignKey?.DependentToPrincipal != null)
-                {
-                    return definingForeignKey.DependentToPrincipal.Name;
-                }
-            }
-
-            return entityType.Name;
         }
 
         /// <summary>
@@ -1348,8 +1319,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var sourceTable = source.Table;
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled;
-            if (!useOldBehavior && sourceTable.IsExcludedFromMigrations)
+            if (sourceTable.IsExcludedFromMigrations)
             {
                 yield break;
             }
@@ -1524,7 +1494,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 Name = source.Name,
                 Schema = sourceEntityType.GetSchema(),
-                Table = sourceEntityType.GetTableName()
+                Table = sourceEntityType.GetTableName()!
             };
             operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
 
@@ -1667,8 +1637,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void TrackData(
-            [CanBeNull] IRelationalModel source,
-            [CanBeNull] IRelationalModel target,
+            [CanBeNull] IRelationalModel? source,
+            [CanBeNull] IRelationalModel? target,
             [NotNull] DiffContext diffContext)
         {
             if (target == null)
@@ -1684,9 +1654,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 foreach (var targetSeed in targetEntityType.GetSeedData())
                 {
-                    _targetUpdateAdapter
-                        .CreateEntry(targetSeed, targetEntityType)
-                        .EntityState = EntityState.Added;
+                    var targetEntry = _targetUpdateAdapter.CreateEntry(targetSeed, targetEntityType);
+                    if (targetEntry.ToEntityEntry().Entity is Dictionary<string, object> targetBag)
+                    {
+                        targetBag.Remove((key, _, target) => !target!.ContainsKey(key), targetSeed);
+                    }
+
+                    targetEntry.EntityState = EntityState.Added;
                 }
             }
 
@@ -1716,9 +1690,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual Dictionary<IEntityType, List<ITable>> DiffData(
-            [CanBeNull] IRelationalModel source,
-            [CanBeNull] IRelationalModel target,
+        protected virtual Dictionary<IEntityType, List<ITable>>? DiffData(
+            [CanBeNull] IRelationalModel? source,
+            [CanBeNull] IRelationalModel? target,
             [NotNull] DiffContext diffContext)
         {
             Check.NotNull(diffContext, nameof(diffContext));
@@ -1730,7 +1704,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             var keyMapping = new Dictionary<IEntityType,
-                Dictionary<(IKey, ITable), List<(IProperty Property, ValueConverter SourceConverter, ValueConverter TargetConverter)>>>();
+                Dictionary<(IKey, ITable), List<(IProperty Property, ValueConverter? SourceConverter, ValueConverter? TargetConverter)>>>();
             foreach (var sourceEntityType in source.Model.GetEntityTypes())
             {
                 foreach (var sourceTableMapping in sourceEntityType.GetTableMappings())
@@ -1744,7 +1718,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     foreach (var targetKey in targetTable.PrimaryKey.MappedKeys)
                     {
-                        var keyPropertiesMap = new List<(IProperty, ValueConverter, ValueConverter)>();
+                        var keyPropertiesMap = new List<(IProperty, ValueConverter?, ValueConverter?)>();
                         foreach (var keyProperty in targetKey.Properties)
                         {
                             var targetColumn = targetTable.FindColumn(keyProperty);
@@ -1792,7 +1766,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     continue;
                 }
 
-                ITable firstSourceTable = null;
+                ITable? firstSourceTable = null;
                 foreach (var targetTableMapping in targetEntityType.GetTableMappings())
                 {
                     var targetTable = targetTableMapping.Table;
@@ -1836,10 +1810,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var sourceEntityType in source.Model.GetEntityTypes())
             {
-                ITable firstSourceTable = null;
+                ITable? firstSourceTable = null;
                 if (keyMapping.TryGetValue(sourceEntityType, out var targetKeyMap))
                 {
-                    ITable firstTargetTable = null;
+                    ITable? firstTargetTable = null;
                     foreach (var sourceTableMapping in sourceEntityType.GetTableMappings())
                     {
                         var sourceTable = sourceTableMapping.Table;
@@ -1898,14 +1872,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     principalSourceTable = mainSourceEntityType.GetTableMappings().First().Table;
                 }
 
-                var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23792", out var enabled) && enabled;
                 foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
-                    var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceUpdateAdapter);
+                    var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceUpdateAdapter!);
 
                     if (!_sourceSharedIdentityEntryMaps.TryGetValue(principalSourceTable, out var sourceTableEntryMappingMap))
                     {
-                        sourceTableEntryMappingMap = new SharedIdentityMap(_sourceUpdateAdapter);
+                        sourceTableEntryMappingMap = new SharedIdentityMap(_sourceUpdateAdapter!);
                         _sourceSharedIdentityEntryMaps.Add(principalSourceTable, sourceTableEntryMappingMap);
                     }
 
@@ -1922,7 +1895,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         var (targetKey, targetTable) = targetKeyTuple.Key;
                         var keyPropertiesMap = targetKeyTuple.Value;
 
-                        var targetKeyValues = new object[keyPropertiesMap.Count];
+                        var targetKeyValues = new object?[keyPropertiesMap.Count];
                         for (var i = 0; i < keyPropertiesMap.Count; i++)
                         {
                             var (sourceProperty, sourceConverter, targetConverter) = keyPropertiesMap[i];
@@ -1930,11 +1903,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             targetKeyValues[i] = targetKey.Properties[i].ClrType != sourceProperty.ClrType
                                 ? sourceConverter != null
                                     ? sourceConverter.ConvertToProvider(sourceValue)
-                                    : targetConverter.ConvertFromProvider(sourceValue)
+                                    : targetConverter!.ConvertFromProvider(sourceValue)
                                 : sourceValue;
                         }
 
-                        var entry = _targetUpdateAdapter.TryGetEntry(targetKey, targetKeyValues);
+                        var entry = _targetUpdateAdapter!.TryGetEntry(targetKey, targetKeyValues);
                         if (entry == null)
                         {
                             continue;
@@ -1986,7 +1959,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             {
                                 if (targetProperty.GetAfterSaveBehavior() != PropertySaveBehavior.Save
                                     && (targetProperty.ValueGenerated & ValueGenerated.OnUpdate) == 0
-                                    && (useOldBehavior || targetKeyMap.Count == 1 || entry.EntityType.Name == sourceEntityType.Name))
+                                    && (targetKeyMap.Count == 1 || entry.EntityType.Name == sourceEntityType.Name))
                                 {
                                     entryMapping.RecreateRow = true;
                                     break;
@@ -2068,18 +2041,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         private static IUpdateEntry GetEntry(
-            IDictionary<string, object> sourceSeed,
+            IDictionary<string, object?> sourceSeed,
             IEntityType sourceEntityType,
             IUpdateAdapter updateAdapter)
         {
-            var key = sourceEntityType.FindPrimaryKey();
-            var keyValues = new object[key.Properties.Count];
+            var key = sourceEntityType.FindPrimaryKey()!;
+            var keyValues = new object?[key.Properties.Count];
             for (var i = 0; i < keyValues.Length; i++)
             {
                 keyValues[i] = sourceSeed[key.Properties[i].Name];
             }
 
-            return updateAdapter.TryGetEntry(key, keyValues);
+            return updateAdapter.TryGetEntry(key, keyValues)!;
         }
 
         /// <summary>
@@ -2089,8 +2062,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> GetDataOperations(
-            [NotNull] IRelationalModel source,
-            [NotNull] IRelationalModel target,
+            [CanBeNull] IRelationalModel? source,
+            [CanBeNull] IRelationalModel? target,
             [NotNull] DiffContext diffContext)
         {
             TrackData(source, target, diffContext);
@@ -2107,7 +2080,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         foreach (var sourceEntry in entryMapping.SourceEntries)
                         {
                             sourceEntry.EntityState = EntityState.Deleted;
-                            _sourceUpdateAdapter.CascadeDelete(
+                            _sourceUpdateAdapter!.CascadeDelete(
                                 sourceEntry,
                                 sourceEntry.EntityType.GetReferencingForeignKeys()
                                     .Where(
@@ -2138,7 +2111,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             sourceEntry.EntityState = EntityState.Deleted;
                         }
                     }
-                    else if (entryMapping.SourceEntries.Any(en => changedTableMappings.ContainsKey(en.EntityType)))
+                    else if (entryMapping.SourceEntries.Any(en => changedTableMappings!.ContainsKey(en.EntityType)))
                     {
                         foreach (var sourceEntry in entryMapping.SourceEntries)
                         {
@@ -2162,7 +2135,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private IEnumerable<MigrationOperation> GetDataOperations(
             bool forSource,
-            Dictionary<IEntityType, List<ITable>> changedTableMappings,
+            Dictionary<IEntityType, List<ITable>>? changedTableMappings,
             HashSet<IUpdateEntry> entriesWithRemovedMappings,
             DiffContext diffContext)
         {
@@ -2186,13 +2159,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             foreach (var commandBatch in commandBatches)
             {
-                InsertDataOperation batchInsertOperation = null;
+                InsertDataOperation? batchInsertOperation = null;
                 foreach (var command in commandBatch.ModificationCommands)
                 {
-                    var table = model.FindTable(command.TableName, command.Schema);
-                    var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23137", out var isEnabled) && isEnabled;
+                    var table = model.FindTable(command.TableName, command.Schema)!;
                     if (diffContext.FindDrop(table) != null
-                        || (!useOldBehavior && table.IsExcludedFromMigrations))
+                        || table.IsExcludedFromMigrations)
                     {
                         continue;
                     }
@@ -2249,7 +2221,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             }
 
                             if (command.Entries.Any(
-                                en => changedTableMappings.TryGetValue(en.EntityType, out var newTables)
+                                en => changedTableMappings!.TryGetValue(en.EntityType, out var newTables)
                                     && newTables.Any(t => t.Name == command.TableName && t.Schema == command.Schema)))
                             {
                                 // If the entity type uses TPT add the rows to the new tables to which the entity has been mapped
@@ -2282,14 +2254,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             // If the entity type used TPT delete the rows in the tables to which the entity is no longer mapped
                             if (command.Entries.Any(en => entriesWithRemovedMappings.Contains(en))
                                 && !command.Entries.Any(
-                                    en => changedTableMappings.TryGetValue(en.EntityType, out var removedTables)
+                                    en => changedTableMappings!.TryGetValue(en.EntityType, out var removedTables)
                                         && removedTables.Any(t => t.Name == command.TableName && t.Schema == command.Schema)))
                             {
                                 break;
                             }
 
                             var keyColumns = command.ColumnModifications.Where(col => col.IsKey)
-                                .Select(c => table.FindColumn(c.ColumnName));
+                                .Select(c => table.FindColumn(c.ColumnName)!);
                             var anyKeyColumnDropped = keyColumns.Any(c => diffContext.FindDrop(c) != null);
 
                             yield return new DeleteDataOperation
@@ -2318,9 +2290,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private object GetValue(ColumnModification columnModification)
+        private object? GetValue(ColumnModification columnModification)
         {
-            var converter = GetValueConverter(columnModification.Property);
+            var converter = GetValueConverter(columnModification.Property!);
             var value = columnModification.UseCurrentValueParameter
                 ? columnModification.Value
                 : columnModification.OriginalValue;
@@ -2345,6 +2317,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [NotNull] Func<T, DiffContext, IEnumerable<MigrationOperation>> add,
             [NotNull] Func<T, DiffContext, IEnumerable<MigrationOperation>> remove,
             [NotNull] params Func<T, T, DiffContext, bool>[] predicates)
+            where T : notnull
         {
             var sourceList = sources.ToList();
             var targetList = targets.ToList();
@@ -2434,6 +2407,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(model.Views.Where(t => t.ViewDefinitionSql != null).Select(s => s.Schema))
                 .Concat(model.Sequences.Select(s => s.Schema))
                 .Where(s => !string.IsNullOrEmpty(s))
+                .Cast<string>()
                 .Distinct();
 
         /// <summary>
@@ -2446,14 +2420,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => type == typeof(string)
                 ? string.Empty
                 : type.IsArray
-                    ? Array.CreateInstance(type.GetElementType(), 0)
+                    ? Array.CreateInstance(type.GetElementType()!, 0)
                     : type.UnwrapNullableType().GetDefaultValue();
 
-        private ValueConverter GetValueConverter(IProperty property, RelationalTypeMapping typeMapping = null)
+        private ValueConverter? GetValueConverter(IProperty property, RelationalTypeMapping? typeMapping = null)
             => property.GetValueConverter() ?? (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter;
 
         private static IEntityType GetMainType(ITable table)
-            => table.EntityTypeMappings.FirstOrDefault(t => t.IsSharedTablePrincipal).EntityType;
+            => table.EntityTypeMappings.First(t => t.IsSharedTablePrincipal).EntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2480,9 +2454,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return properties;
         }
 
-        private static object[,] ToMultidimensionalArray(IReadOnlyList<object> values)
+        private static object?[,] ToMultidimensionalArray(IReadOnlyList<object?> values)
         {
-            var result = new object[1, values.Count];
+            var result = new object?[1, values.Count];
             for (var i = 0; i < values.Count; i++)
             {
                 result[0, i] = values[i];
@@ -2491,14 +2465,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return result;
         }
 
-        private static object[,] AddToMultidimensionalArray(IReadOnlyList<object> values, object[,] array)
+        private static object?[,] AddToMultidimensionalArray(IReadOnlyList<object?> values, object?[,] array)
         {
             var width = array.GetLength(0);
             var height = array.GetLength(1);
 
             Check.DebugAssert(height == values.Count, $"height of {height} != values.Count of {values.Count}");
 
-            var result = new object[width + 1, height];
+            var result = new object?[width + 1, height];
             for (var i = 0; i < width; i++)
             {
                 Array.Copy(array, i * height, result, i * height, height);
@@ -2514,8 +2488,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private sealed class EntryMapping
         {
-            public HashSet<IUpdateEntry> SourceEntries { get; } = new HashSet<IUpdateEntry>();
-            public HashSet<IUpdateEntry> TargetEntries { get; } = new HashSet<IUpdateEntry>();
+            public HashSet<IUpdateEntry> SourceEntries { get; } = new();
+            public HashSet<IUpdateEntry> TargetEntries { get; } = new();
             public bool RecreateRow { get; set; }
         }
 
@@ -2524,7 +2498,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             private readonly IUpdateAdapter _updateAdapter;
 
             private readonly Dictionary<IUpdateEntry, EntryMapping> _entryValueMap
-                = new Dictionary<IUpdateEntry, EntryMapping>();
+                = new();
 
             public SharedIdentityMap(IUpdateAdapter updateAdapter)
             {
@@ -2613,6 +2587,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
             public virtual void AddMapping<T>([NotNull] T source, [NotNull] T target)
+                where T : notnull
             {
                 _targetToSource.Add(target, source);
                 _sourceToTarget.Add(source, target);
@@ -2665,7 +2640,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual T FindSource<T>([CanBeNull] T target)
+            public virtual T? FindSource<T>([CanBeNull] T? target)
                 where T : class
                 => target == null
                     ? null
@@ -2679,7 +2654,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual T FindTarget<T>([CanBeNull] T source)
+            public virtual T? FindTarget<T>([CanBeNull] T? source)
                 where T : class
                 => source == null
                     ? null
@@ -2693,7 +2668,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual CreateTableOperation FindCreate([NotNull] ITable target)
+            public virtual CreateTableOperation? FindCreate([NotNull] ITable target)
                 => _createTableOperations.TryGetValue(target, out var operation)
                     ? operation
                     : null;
@@ -2704,7 +2679,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual DropTableOperation FindDrop([NotNull] ITable source)
+            public virtual DropTableOperation? FindDrop([NotNull] ITable source)
                 => _dropTableOperations.TryGetValue(source, out var operation)
                     ? operation
                     : null;
@@ -2715,7 +2690,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual DropColumnOperation FindDrop([NotNull] IColumn source)
+            public virtual DropColumnOperation? FindDrop([NotNull] IColumn source)
                 => _dropColumnOperations.TryGetValue(source, out var operation)
                     ? operation
                     : null;
@@ -2726,7 +2701,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual ITable FindTable([NotNull] DropTableOperation operation)
+            public virtual ITable? FindTable([NotNull] DropTableOperation operation)
                 => _removedTables.TryGetValue(operation, out var source)
                     ? source
                     : null;

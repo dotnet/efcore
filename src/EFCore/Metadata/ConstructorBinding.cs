@@ -9,6 +9,8 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -51,6 +53,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The type that will be created from the expression tree created for this binding.
         /// </summary>
         public override Type RuntimeType
-            => Constructor.DeclaringType;
+            => Constructor.DeclaringType!;
     }
 }

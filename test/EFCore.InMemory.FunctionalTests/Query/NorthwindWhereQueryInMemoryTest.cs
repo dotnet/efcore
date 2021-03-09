@@ -21,24 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Where_bool_client_side_negated(bool async)
-        {
-            return base.Where_bool_client_side_negated(async);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Where_equals_method_string_with_ignore_case(bool async)
-        {
-            return base.Where_equals_method_string_with_ignore_case(async);
-        }
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Where_equals_on_null_nullable_int_types(bool async)
-        {
-            return base.Where_equals_on_null_nullable_int_types(async);
-        }
-
         public override async Task<string> Where_simple_closure(bool async)
         {
             var queryString = await base.Where_simple_closure(async);

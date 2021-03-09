@@ -5,6 +5,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
@@ -28,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Generates a method chain used to configure provider-specific options.
         /// </summary>
         /// <returns> The method chain. May be null. </returns>
-        public virtual MethodCallCodeFragment GenerateProviderOptions()
+        public virtual MethodCallCodeFragment? GenerateProviderOptions()
         {
-            MethodCallCodeFragment providerOptions = null;
+            MethodCallCodeFragment? providerOptions = null;
 
             foreach (var plugin in Dependencies.Plugins)
             {
@@ -55,15 +57,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <returns> The code fragment. </returns>
         public abstract MethodCallCodeFragment GenerateUseProvider(
             string connectionString,
-            MethodCallCodeFragment providerOptions);
+            MethodCallCodeFragment? providerOptions);
 
         /// <summary>
         ///     Generates a method chain to configure additional context options.
         /// </summary>
         /// <returns> The method chain. May be null. </returns>
-        public virtual MethodCallCodeFragment GenerateContextOptions()
+        public virtual MethodCallCodeFragment? GenerateContextOptions()
         {
-            MethodCallCodeFragment contextOptions = null;
+            MethodCallCodeFragment? contextOptions = null;
 
             foreach (var plugin in Dependencies.Plugins)
             {

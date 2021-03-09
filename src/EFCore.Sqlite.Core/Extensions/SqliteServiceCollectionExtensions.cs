@@ -22,6 +22,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -61,7 +63,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IProviderConventionSetBuilder, SqliteConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator, SqliteUpdateSqlGenerator>()
                 .TryAdd<IModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()
-                .TryAdd<IRelationalConnection>(p => p.GetService<ISqliteRelationalConnection>())
+                .TryAdd<IRelationalConnection>(p => p.GetRequiredService<ISqliteRelationalConnection>())
                 .TryAdd<IMigrationsSqlGenerator, SqliteMigrationsSqlGenerator>()
                 .TryAdd<IRelationalDatabaseCreator, SqliteDatabaseCreator>()
                 .TryAdd<IHistoryRepository, SqliteHistoryRepository>()

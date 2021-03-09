@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
 {
     /// <summary>
@@ -19,9 +21,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
     /// </summary>
     public class InMemoryOptionsExtension : IDbContextOptionsExtension
     {
-        private string _storeName;
-        private InMemoryDatabaseRoot _databaseRoot;
-        private DbContextOptionsExtensionInfo _info;
+        private string? _storeName;
+        private bool _nullabilityCheckEnabled;
+        private InMemoryDatabaseRoot? _databaseRoot;
+        private DbContextOptionsExtensionInfo? _info;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -61,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual InMemoryOptionsExtension Clone()
-            => new InMemoryOptionsExtension(this);
+            => new(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -70,7 +73,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string StoreName
-            => _storeName;
+            => _storeName!;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsNullabilityCheckEnabled
+            => _nullabilityCheckEnabled;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -93,7 +105,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InMemoryDatabaseRoot DatabaseRoot
+        public virtual InMemoryOptionsExtension WithNullabilityCheckEnabled(bool nullabilityCheckEnabled)
+        {
+            var clone = Clone();
+
+            clone._nullabilityCheckEnabled = nullabilityCheckEnabled;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InMemoryDatabaseRoot? DatabaseRoot
             => _databaseRoot;
 
         /// <summary>
@@ -132,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
 
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
-            private string _logFragment;
+            private string? _logFragment;
 
             public ExtensionInfo(IDbContextOptionsExtension extension)
                 : base(extension)

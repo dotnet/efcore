@@ -8,11 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class MigrationsScriptCommand : ContextCommandBase
     {
-        private CommandArgument _from;
-        private CommandArgument _to;
-        private CommandOption _output;
-        private CommandOption _idempotent;
-        private CommandOption _noTransactions;
+        private CommandArgument? _from;
+        private CommandArgument? _to;
+        private CommandOption? _output;
+        private CommandOption? _idempotent;
+        private CommandOption? _noTransactions;
 
         public override void Configure(CommandLineApplication command)
         {

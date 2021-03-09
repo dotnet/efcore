@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -9,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -21,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     public class SqliteLineStringMethodTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _getPointN
-            = typeof(LineString).GetRuntimeMethod(nameof(LineString.GetPointN), new[] { typeof(int) });
+            = typeof(LineString).GetRequiredRuntimeMethod(nameof(LineString.GetPointN), new[] { typeof(int) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -42,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -58,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     "PointN",
                     new[]
                     {
-                        instance,
+                        instance!,
                         _sqlExpressionFactory.Add(
                             arguments[0],
                             _sqlExpressionFactory.Constant(1))

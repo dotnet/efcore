@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     /// <summary>
@@ -40,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             Dependencies = dependencies;
 
-            _createExecutionStrategy = dependencies.Options?.FindExtension<CosmosOptionsExtension>()?.ExecutionStrategyFactory
+            _createExecutionStrategy = dependencies.Options.FindExtension<CosmosOptionsExtension>()?.ExecutionStrategyFactory
                 ?? CreateDefaultStrategy;
         }
 

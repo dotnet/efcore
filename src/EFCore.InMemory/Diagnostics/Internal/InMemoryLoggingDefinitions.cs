@@ -3,6 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal
 {
     /// <summary>
@@ -19,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogSavedChanges;
+        public EventDefinitionBase? LogSavedChanges;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,6 +29,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogTransactionsNotSupported;
+        public EventDefinitionBase? LogTransactionsNotSupported;
     }
 }

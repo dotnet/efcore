@@ -35,8 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Check.NotNull(dependencies, nameof(dependencies));
         }
 
-        private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache
-            = new ConcurrentDictionary<CacheKey, ValueGenerator>();
+        private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache = new();
 
         private readonly struct CacheKey : IEquatable<CacheKey>
         {
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             public bool Equals(CacheKey other)
                 => Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
                 => obj is CacheKey cacheKey && Equals(cacheKey);
 
             public override int GetHashCode()

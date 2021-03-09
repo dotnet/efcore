@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class DatabaseDependencies
+    public sealed record DatabaseDependencies
     {
         /// <summary>
         ///     <para>
@@ -69,31 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Factory for compilation contexts to process LINQ queries.
         /// </summary>
-        public IQueryCompilationContextFactory QueryCompilationContextFactory { get; }
+        public IQueryCompilationContextFactory QueryCompilationContextFactory { get; [param: NotNull] init; }
 
         /// <summary>
         ///     Factory for creating model data tracker.
         /// </summary>
-        public IUpdateAdapterFactory UpdateAdapterFactory { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="queryCompilationContextFactory">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public DatabaseDependencies With([NotNull] IQueryCompilationContextFactory queryCompilationContextFactory)
-            => new DatabaseDependencies(queryCompilationContextFactory, UpdateAdapterFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="updateAdapterFactory">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public DatabaseDependencies With([NotNull] IUpdateAdapterFactory updateAdapterFactory)
-            => new DatabaseDependencies(QueryCompilationContextFactory, updateAdapterFactory);
+        public IUpdateAdapterFactory UpdateAdapterFactory { get; [param: NotNull] init; }
     }
 }

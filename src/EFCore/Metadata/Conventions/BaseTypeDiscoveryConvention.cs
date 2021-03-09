@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -41,22 +43,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var clrType = entityType.ClrType;
             if (clrType == null
                 || entityType.HasSharedClrType
-                || entityType.HasDefiningNavigation()
-                || entityType.Model.FindIsOwnedConfigurationSource(clrType) != null
+                || entityType.Model.IsOwned(clrType)
                 || entityType.FindDeclaredOwnership() != null)
             {
                 return;
             }
 
             var model = entityType.Model;
-            var derivedTypesMap = (Dictionary<Type, List<IConventionEntityType>>)model[CoreAnnotationNames.DerivedTypes];
+            var derivedTypesMap = (Dictionary<Type, List<IConventionEntityType>>?)model[CoreAnnotationNames.DerivedTypes];
             if (derivedTypesMap == null)
             {
                 derivedTypesMap = new Dictionary<Type, List<IConventionEntityType>>();
                 model.SetAnnotation(CoreAnnotationNames.DerivedTypes, derivedTypesMap);
             }
 
-            var baseType = clrType.BaseType;
+            var baseType = clrType.BaseType!;
             if (derivedTypesMap.TryGetValue(clrType, out var derivedTypes))
             {
                 foreach (var derivedType in derivedTypes)
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             otherDerivedTypes.Remove(derivedType);
                         }
 
-                        otherBaseType = otherBaseType.BaseType;
+                        otherBaseType = otherBaseType.BaseType!;
                     }
                 }
 
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            IConventionEntityType baseEntityType = null;
+            IConventionEntityType? baseEntityType = null;
             while (baseEntityType == null
                 && baseType != typeof(object)
                 && baseType != null)
@@ -103,13 +104,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             if (!baseEntityType.HasSharedClrType
-                && !baseEntityType.HasDefiningNavigation()
                 && baseEntityType.FindOwnership() == null)
             {
-                entityTypeBuilder = entityTypeBuilder.HasBaseType(baseEntityType);
-                if (entityTypeBuilder != null)
+                if (entityTypeBuilder.HasBaseType(baseEntityType) is IConventionEntityTypeBuilder newEntityTypeBuilder)
                 {
-                    context.StopProcessingIfChanged(entityTypeBuilder);
+                    context.StopProcessingIfChanged(newEntityTypeBuilder);
                 }
             }
         }

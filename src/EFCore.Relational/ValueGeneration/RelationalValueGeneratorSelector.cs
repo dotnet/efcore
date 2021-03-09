@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     /// <summary>
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     {
         private readonly TemporaryNumberValueGeneratorFactory _numberFactory
-            = new TemporaryNumberValueGeneratorFactory();
+            = new();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalValueGeneratorSelector" /> class.

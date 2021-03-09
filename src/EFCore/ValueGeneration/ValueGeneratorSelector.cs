@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             return Cache.GetOrAdd(property, entityType, (p, t) => CreateFromFactory(p, t) ?? Create(p, t));
         }
 
-        private static ValueGenerator CreateFromFactory(IProperty property, IEntityType entityType)
+        private static ValueGenerator? CreateFromFactory(IProperty property, IEntityType entityType)
         {
             var factory = property.GetValueGeneratorFactory();
 

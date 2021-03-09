@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -325,11 +326,15 @@ namespace Microsoft.EntityFrameworkCore
             var facade = context.Database;
             context.Dispose();
 
-            Assert.Throws<ObjectDisposedException>(() => context.Database.GetService<IModel>());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Database.GetService<IModel>()).Message);
 
             foreach (var methodInfo in facade.GetType().GetMethods(BindingFlags.Public))
             {
-                Assert.Throws<ObjectDisposedException>(() => methodInfo.Invoke(facade, null));
+                Assert.StartsWith(
+                    CoreStrings.ContextDisposed,
+                    Assert.Throws<ObjectDisposedException>(() => methodInfo.Invoke(facade, null)).Message);
             }
         }
     }

@@ -4,11 +4,13 @@
 using System;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     <para>
-    ///         Represents a result from an <see cref="IInterceptor" /> such as an 'IDbCommandInterceptor' to allow
+    ///         Represents a result from an <see cref="IInterceptor" /> such as an <see cref="ISaveChangesInterceptor" /> to allow
     ///         suppression of the normal operation being intercepted.
     ///     </para>
     ///     <para>
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="result"> The result to use. </param>
         public static InterceptionResult<TResult> SuppressWithResult([CanBeNull] TResult result)
-            => new InterceptionResult<TResult>(result);
+            => new(result);
 
         private InterceptionResult(TResult result)
         {

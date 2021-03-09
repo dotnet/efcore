@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ExpressionPrinterTest
     {
-        private readonly ExpressionPrinter _expressionPrinter = new ExpressionPrinter();
+        private readonly ExpressionPrinter _expressionPrinter = new();
 
         [ConditionalFact]
         public void UnaryExpression_printed_correctly()
@@ -196,6 +196,16 @@ namespace Microsoft.EntityFrameworkCore.Query
     .Where(x => x.Length > 1)",
                 _expressionPrinter.Print(expr.Body),
                 ignoreLineEndingDifferences: true);
+        }
+
+        [ConditionalFact]
+        public void Enumerable_Constant_printed_correctly()
+        {
+            Assert.Equal(
+                @"int[] { 1, 2, 3 }",
+                _expressionPrinter.Print(
+                    Expression.Constant(
+                        new[] { 1, 2, 3 })));
         }
     }
 }

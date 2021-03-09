@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Update;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -51,10 +53,25 @@ namespace Microsoft.EntityFrameworkCore
 
         private sealed class EntityEntryComparer : IComparer<InternalEntityEntry>
         {
-            public static readonly EntityEntryComparer Instance = new EntityEntryComparer();
+            public static readonly EntityEntryComparer Instance = new();
 
-            public int Compare(InternalEntityEntry x, InternalEntityEntry y)
+            public int Compare(InternalEntityEntry? x, InternalEntityEntry? y)
             {
+                if (ReferenceEquals(x, y))
+                {
+                    return 0;
+                }
+
+                if (x is null)
+                {
+                    return -1;
+                }
+
+                if (y is null)
+                {
+                    return 1;
+                }
+
                 var result = StringComparer.InvariantCulture.Compare(x.EntityType.Name, y.EntityType.Name);
                 if (result != 0)
                 {

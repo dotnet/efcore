@@ -4,6 +4,8 @@
 using System;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <see langword="true" /> if the object is a <see cref="ModelCacheKey" /> and is for the same context type, otherwise
         ///     <see langword="false" />.
         /// </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => (obj is ModelCacheKey otherAsKey) && Equals(otherAsKey);
 
         /// <summary>
@@ -64,6 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The hash code for the key.
         /// </returns>
         public override int GetHashCode()
-            => _dbContextType?.GetHashCode() ?? 0;
+            => _dbContextType.GetHashCode();
     }
 }

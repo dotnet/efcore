@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     /// <summary>
@@ -37,8 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactorySource;
         private readonly int _minBatchSize;
         private readonly bool _sensitiveLoggingEnabled;
-        private static readonly bool _useOldStateBehavior =
-            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23668", out var enabled) && enabled;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] Func<string> generateParameterName)
         {
             var commands = new List<ModificationCommand>();
-            Dictionary<(string Name, string Schema), SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap =
+            Dictionary<(string Name, string? Schema), SharedTableEntryMap<ModificationCommand>>? sharedTablesCommandsMap =
                 null;
             foreach (var entry in entries)
             {
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
                 var mappingCount = mappings.Count;
-                ModificationCommand firstCommand = null;
+                ModificationCommand? firstCommand = null;
                 foreach (var mapping in mappings)
                 {
                     var table = mapping.Table;
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     {
                         if (sharedTablesCommandsMap == null)
                         {
-                            sharedTablesCommandsMap = new Dictionary<(string, string), SharedTableEntryMap<ModificationCommand>>();
+                            sharedTablesCommandsMap = new Dictionary<(string, string?), SharedTableEntryMap<ModificationCommand>>();
                         }
 
                         if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             if (_sensitiveLoggingEnabled)
             {
                 builder.Append(" { ");
-                var properties = entityType.FindPrimaryKey().Properties;
+                var properties = entityType.FindPrimaryKey()!.Properties;
                 for (var i = 0; i < properties.Count; i++)
                 {
                     var keyProperty = properties[i];
@@ -494,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 .Where(c => c.PrincipalTable.Name == command.TableName && c.PrincipalTable.Schema == command.Schema);
 
                             if (!constraints.Any()
-                                || ((_useOldStateBehavior ? command.EntityState : entry.EntityState) == EntityState.Modified
+                                || (entry.EntityState == EntityState.Modified
                                     && !foreignKey.PrincipalKey.Properties.Any(p => entry.IsModified(p))))
                             {
                                 continue;
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 .Where(c => c.Table.Name == command.TableName && c.Table.Schema == command.Schema);
 
                             if (!constraints.Any()
-                                || ((_useOldStateBehavior ? command.EntityState : entry.EntityState) == EntityState.Modified
+                                || (entry.EntityState == EntityState.Modified
                                     && !foreignKey.Properties.Any(p => entry.IsModified(p))))
                             {
                                 continue;
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             {
                                 if (!foreignKey.GetMappedConstraints()
                                         .Any(c => c.Table.Name == command.TableName && c.Table.Schema == command.Schema)
-                                    || ((_useOldStateBehavior ? command.EntityState : entry.EntityState) == EntityState.Modified
+                                    || (entry.EntityState == EntityState.Modified
                                         && !foreignKey.Properties.Any(p => entry.IsModified(p))))
                                 {
                                     continue;
@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private void AddUniqueValueEdges(Multigraph<ModificationCommand, IAnnotatable> commandGraph)
         {
-            Dictionary<IIndex, Dictionary<object[], ModificationCommand>> indexPredecessorsMap = null;
+            Dictionary<IIndex, Dictionary<object[], ModificationCommand>>? indexPredecessorsMap = null;
             var keyPredecessorsMap = new Dictionary<IKeyValueIndex, List<ModificationCommand>>();
             foreach (var command in commandGraph.Vertices)
             {
@@ -661,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     var entry = command.Entries[entryIndex];
                     foreach (var index in entry.EntityType.GetIndexes().Where(i => i.IsUnique && i.GetMappedTableIndexes().Any()))
                     {
-                        if ((_useOldStateBehavior ? command.EntityState : entry.EntityState) == EntityState.Modified
+                        if (entry.EntityState == EntityState.Modified
                             && !index.Properties.Any(p => entry.IsModified(p)))
                         {
                             continue;
@@ -722,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     {
                         foreach (var index in entry.EntityType.GetIndexes().Where(i => i.IsUnique && i.GetMappedTableIndexes().Any()))
                         {
-                            if ((_useOldStateBehavior ? command.EntityState : entry.EntityState) == EntityState.Modified
+                            if (entry.EntityState == EntityState.Modified
                                 && !index.Properties.Any(p => entry.IsModified(p)))
                             {
                                 continue;

@@ -5,12 +5,15 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     Extension methods for <see cref="IMutableNavigation" />.
     /// </summary>
+    [Obsolete("Use IMutableNavigation")]
     public static class MutableNavigationExtensions
     {
         /// <summary>
@@ -22,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The inverse navigation, or <see langword="null" /> if none is defined.
         /// </returns>
         [Obsolete("Use IMutableNavigation.Inverse")]
-        public static IMutableNavigation FindInverse([NotNull] this IMutableNavigation navigation)
+        public static IMutableNavigation? FindInverse([NotNull] this IMutableNavigation navigation)
             => navigation.Inverse;
 
         /// <summary>

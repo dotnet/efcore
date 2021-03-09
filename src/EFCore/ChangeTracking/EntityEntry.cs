@@ -18,6 +18,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         private static readonly int _maxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
-        private IEntityFinder _finder;
+        private IEntityFinder? _finder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 if (value < 0
                     || (int)value > _maxEntityState)
                 {
-                    throw new ArgumentException(CoreStrings.InvalidEnumValue(nameof(value), typeof(EntityState)));
+                    throw new ArgumentException(CoreStrings.InvalidEnumValue(value, nameof(value), typeof(EntityState)));
                 }
 
                 InternalEntry.SetEntityState(value);
@@ -102,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if (!((Model)Context.Model).SkipDetectChanges)
+            if (!((IRuntimeModel)Context.Model).SkipDetectChanges)
             {
                 Context.GetDependencies().ChangeDetector.DetectChanges(InternalEntry);
             }
@@ -146,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 return new PropertyEntry(InternalEntry, propertyName);
             }
 
-            var navigation = (INavigationBase)InternalEntry.EntityType.FindNavigation(propertyName)
+            var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
                 ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
             if (navigation != null)
             {
@@ -176,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
-            var navigation = (INavigationBase)InternalEntry.EntityType.FindNavigation(propertyName)
+            var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
                 ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
 
             if (navigation != null)
@@ -315,7 +317,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <value> The current values. </value>
         public virtual PropertyValues CurrentValues
         {
-            [DebuggerStepThrough] get => new CurrentPropertyValues(InternalEntry);
+            [DebuggerStepThrough]
+            get => new CurrentPropertyValues(InternalEntry);
         }
 
         /// <summary>
@@ -331,7 +334,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <value> The original values. </value>
         public virtual PropertyValues OriginalValues
         {
-            [DebuggerStepThrough] get => new OriginalPropertyValues(InternalEntry);
+            [DebuggerStepThrough]
+            get => new OriginalPropertyValues(InternalEntry);
         }
 
         /// <summary>
@@ -345,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <returns> The store values, or null if the entity does not exist in the database. </returns>
-        public virtual PropertyValues GetDatabaseValues()
+        public virtual PropertyValues? GetDatabaseValues()
         {
             var values = Finder.GetDatabaseValues(InternalEntry);
 
@@ -362,21 +366,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         in the database.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the store values,
-        ///     or null if the entity does not exist in the database.
+        ///     or <see langword="null" /> if the entity does not exist in the database.
         /// </returns>
-        public virtual async Task<PropertyValues> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public virtual async Task<PropertyValues?> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
         {
-            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken)
-                .ConfigureAwait(false);
+            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken).ConfigureAwait(false);
 
             return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
         }
@@ -408,16 +410,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         not yet have had its permanent key value created.
         ///     </para>
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation.
-        /// </returns>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task ReloadAsync(CancellationToken cancellationToken = default)
             => Reload(await GetDatabaseValuesAsync(cancellationToken).ConfigureAwait(false));
 
-        private void Reload(PropertyValues storeValues)
+        private void Reload(PropertyValues? storeValues)
         {
             if (storeValues == null)
             {
@@ -455,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => InternalEntry.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
                 () => InternalEntry.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
 
@@ -467,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

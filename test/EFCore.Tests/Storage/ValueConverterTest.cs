@@ -264,9 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private static readonly ValueConverter<int, string> _intToString
-            = new ValueConverter<int, string>(
-                v => v.ToString(),
-                v => ConvertToInt(v));
+            = new(v => v.ToString(), v => ConvertToInt(v));
 
         private static int ConvertToInt(string v)
             => int.TryParse(v, out var result) ? result : 0;

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 using Xunit;
 
@@ -11,143 +12,136 @@ using Xunit;
 // ReSharper disable ConvertMethodToExpressionBody
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class FiltersInheritanceQueryTestBase<TFixture> : IClassFixture<TFixture>
+    public abstract class FiltersInheritanceQueryTestBase<TFixture> : FilteredQueryTestBase<TFixture>
         where TFixture : InheritanceQueryFixtureBase, new()
     {
         protected FiltersInheritanceQueryTestBase(TFixture fixture)
-            => Fixture = fixture;
-
-        protected TFixture Fixture { get; }
-
-        [ConditionalFact]
-        public virtual void Can_use_of_type_animal()
+            : base(fixture)
         {
-            using var context = CreateContext();
-            var animals = context.Set<Animal>().OfType<Animal>().OrderBy(a => a.Species).ToList();
-
-            Assert.Single(animals);
-            Assert.IsType<Kiwi>(animals[0]);
-            Assert.Single(context.ChangeTracker.Entries());
         }
 
-        [ConditionalFact]
-        public virtual void Can_use_is_kiwi()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_of_type_animal(bool async)
         {
-            using var context = CreateContext();
-            var kiwis = context.Set<Animal>().Where(a => a is Kiwi).ToList();
-
-            Assert.Single(kiwis);
+            return AssertFilteredQuery(
+                async,
+                ss => ss.Set<Animal>().OfType<Animal>().OrderBy(a => a.Species),
+                assertOrder: true,
+                entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Can_use_is_kiwi_with_other_predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_is_kiwi(bool async)
         {
-            using var context = CreateContext();
-            var animals = context.Set<Animal>().Where(a => a is Kiwi && a.CountryId == 1).ToList();
-
-            Assert.Single(animals);
+            return AssertFilteredQuery(
+                async,
+                ss => ss.Set<Animal>().Where(a => a is Kiwi),
+                entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Can_use_is_kiwi_in_projection()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_is_kiwi_with_other_predicate(bool async)
         {
-            using var context = CreateContext();
-            var animals = context.Set<Animal>().Select(a => a is Kiwi).ToList();
-
-            Assert.Single(animals);
-            Assert.Equal(1, animals.Count(a => a));
-            Assert.Equal(0, animals.Count(a => !a));
+            return AssertFilteredQuery(
+                async,
+                ss => ss.Set<Animal>().Where(a => a is Kiwi && a.CountryId == 1),
+                entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Can_use_of_type_bird()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_is_kiwi_in_projection(bool async)
         {
-            using var context = CreateContext();
-            var animals = context.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species).ToList();
-
-            Assert.Single(animals);
-            Assert.IsType<Kiwi>(animals[0]);
-            Assert.Single(context.ChangeTracker.Entries());
+            return AssertFilteredQueryScalar(
+                async,
+                ss => ss.Set<Animal>().Select(a => a is Kiwi));
         }
 
-        [ConditionalFact]
-        public virtual void Can_use_of_type_bird_predicate()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_of_type_bird(bool async)
         {
-            using var context = CreateContext();
-            var animals
-                = context.Set<Animal>()
+            return AssertFilteredQuery(
+                async,
+                ss => ss.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species),
+                assertOrder: true,
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_of_type_bird_predicate(bool async)
+        {
+            return AssertFilteredQuery(
+                async,
+                ss => ss.Set<Animal>()
                     .Where(a => a.CountryId == 1)
                     .OfType<Bird>()
-                    .OrderBy(a => a.Species)
-                    .ToList();
-
-            Assert.Single(animals);
-            Assert.IsType<Kiwi>(animals[0]);
-            Assert.Single(context.ChangeTracker.Entries());
+                    .OrderBy(a => a.Species),
+                assertOrder: true,
+                entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Can_use_of_type_bird_with_projection()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_of_type_bird_with_projection(bool async)
         {
-            using var context = CreateContext();
-            var animals
-                = context.Set<Animal>()
+            return AssertFilteredQuery(
+                async,
+                ss => ss.Set<Animal>()
                     .OfType<Bird>()
-                    .Select(
-                        b => new { b.EagleId })
-                    .ToList();
-
-            Assert.Single(animals);
-            Assert.Empty(context.ChangeTracker.Entries());
+                    .Select(b => new { b.EagleId }),
+                elementSorter: e => e.EagleId);
         }
 
-        [ConditionalFact]
-        public virtual void Can_use_of_type_bird_first()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_of_type_bird_first(bool async)
         {
-            using var context = CreateContext();
-            var bird = context.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species).First();
-
-            Assert.NotNull(bird);
-            Assert.IsType<Kiwi>(bird);
-            Assert.Single(context.ChangeTracker.Entries());
+            return AssertFirst(
+                async,
+                ss => ss.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species),
+                entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Can_use_of_type_kiwi()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_of_type_kiwi(bool async)
         {
-            using var context = CreateContext();
-            var animals = context.Set<Animal>().OfType<Kiwi>().ToList();
-
-            Assert.Single(animals);
-            Assert.IsType<Kiwi>(animals[0]);
-            Assert.Single(context.ChangeTracker.Entries());
+            return AssertFilteredQuery(
+                async,
+                ss => ss.Set<Animal>().OfType<Kiwi>(),
+                entryCount: 1);
         }
 
-        [ConditionalFact]
-        public virtual void Can_use_derived_set()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Can_use_derived_set(bool async)
         {
-            using var context = CreateContext();
-            var eagles = context.Set<Eagle>().ToList();
-
-            Assert.Empty(eagles);
-            Assert.Empty(context.ChangeTracker.Entries());
+            return AssertFilteredQuery(
+                async,
+                ss => ss.Set<Eagle>());
         }
 
-        [ConditionalFact]
-        public virtual void Can_use_IgnoreQueryFilters_and_GetDatabaseValues()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Can_use_IgnoreQueryFilters_and_GetDatabaseValues(bool async)
         {
-            using var context = CreateContext();
+            using var context = Fixture.CreateContext();
             var eagle = context.Set<Eagle>().IgnoreQueryFilters().Single();
 
             Assert.Single(context.ChangeTracker.Entries());
-            Assert.NotNull(context.Entry(eagle).GetDatabaseValues());
-        }
-
-        protected InheritanceContext CreateContext()
-            => Fixture.CreateContext();
-
-        protected virtual void ClearLog()
-        {
+            if (async)
+            {
+                Assert.NotNull(await context.Entry(eagle).GetDatabaseValuesAsync());
+            }
+            else
+            {
+                Assert.NotNull(context.Entry(eagle).GetDatabaseValues());
+            }
         }
     }
 }

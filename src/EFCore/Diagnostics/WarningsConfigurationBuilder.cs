@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -36,7 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Sets the default behavior when a warning is generated.
+        ///     <para>
+        ///         Sets the default behavior when a warning is generated.
+        ///     </para>
+        ///     <para>
+        ///         Event ID values can be found in <see cref="CoreEventId" /> and
+        ///         <see cref="T:Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId" />.
+        ///         The database provider being used may also define provider-specific event IDs in a similar class.
+        ///     </para>
         /// </summary>
         /// <param name="warningBehavior"> The desired behavior. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -44,10 +53,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => WithOption(e => e.WithDefaultBehavior(warningBehavior));
 
         /// <summary>
-        ///     Causes an exception to be thrown when the specified event occurs, regardless of default configuration.
+        ///     <para>
+        ///         Causes an exception to be thrown when the specified event occurs, regardless of default configuration.
+        ///     </para>
+        ///     <para>
+        ///         Event ID values can be found in <see cref="CoreEventId" /> and
+        ///         <see cref="T:Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId" />.
+        ///         The database provider being used may also define provider-specific event IDs in a similar class.
+        ///     </para>
         /// </summary>
         /// <param name="eventIds">
-        ///     The <see cref="CoreEventId" /> and 'RelationalEventId' for the warnings.
+        ///     The IDs for events to configure.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Throw(
@@ -59,10 +75,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Causes an event to be logged, regardless of default configuration.
+        ///     <para>
+        ///         Causes an event to be logged, regardless of default configuration.
+        ///     </para>
+        ///     <para>
+        ///         Event ID values can be found in <see cref="CoreEventId" /> and
+        ///         <see cref="T:Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId" />.
+        ///         The database provider being used may also define provider-specific event IDs in a similar class.
+        ///     </para>
         /// </summary>
         /// <param name="eventIds">
-        ///     The <see cref="CoreEventId" /> and 'RelationalEventId' for EF Core events.
+        ///     The IDs for events to configure.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Log(
@@ -74,10 +97,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Causes an event to be logged at the specified level, regardless of default configuration.
+        ///     <para>
+        ///         Causes an event to be logged at the specified level, regardless of default configuration.
+        ///     </para>
+        ///     <para>
+        ///         Event ID values can be found in <see cref="CoreEventId" /> and
+        ///         <see cref="T:Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId" />.
+        ///         The database provider being used may also define provider-specific event IDs in a similar class.
+        ///     </para>
         /// </summary>
         /// <param name="eventsAndLevels">
-        ///     The <see cref="CoreEventId" /> and 'RelationalEventId' for EF Core events.
+        ///     The event IDs and levels to configure.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Log(
@@ -89,10 +119,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Causes nothing to happen when the specified event occurs, regardless of default configuration.
+        ///     <para>
+        ///         Causes nothing to happen when the specified event occurs, regardless of default configuration.
+        ///     </para>
+        ///     <para>
+        ///         Event ID values can be found in <see cref="CoreEventId" /> and
+        ///         <see cref="T:Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId" />.
+        ///         The database provider being used may also define provider-specific event IDs in a similar class.
+        ///     </para>
         /// </summary>
         /// <param name="eventIds">
-        ///     The <see cref="CoreEventId" /> and 'RelationalEventId' for EF Core events.
+        ///     The IDs for events to configure.
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Ignore(

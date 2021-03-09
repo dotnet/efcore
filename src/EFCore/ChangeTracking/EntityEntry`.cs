@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
@@ -155,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyName);
         }
 
-        private static void ValidateType<TProperty>(IProperty property)
+        private static void ValidateType<TProperty>(IProperty? property)
         {
             if (property != null
                 && property.ClrType != typeof(TProperty))

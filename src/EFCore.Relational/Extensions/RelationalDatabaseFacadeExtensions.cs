@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -62,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task<IEnumerable<string>> GetAppliedMigrationsAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
@@ -82,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task<IEnumerable<string>> GetPendingMigrationsAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
@@ -102,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous migration operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task MigrateAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
@@ -174,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore
         public static int ExecuteSqlInterpolated(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] FormattableString sql)
-            => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments());
+            => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments()!);
 
         /// <summary>
         ///     <para>
@@ -216,10 +221,14 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
-            var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
+            var concurrencyDetector = facadeDependencies.CoreOptions.IsConcurrencyDetectionEnabled
+                ? facadeDependencies.ConcurrencyDetector
+                : null;
             var logger = facadeDependencies.CommandLogger;
 
-            using (concurrencyDetector.EnterCriticalSection())
+            concurrencyDetector?.EnterCriticalSection();
+
+            try
             {
                 var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
                     .Build(sql, parameters);
@@ -233,6 +242,10 @@ namespace Microsoft.EntityFrameworkCore
                             null,
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
                             logger));
+            }
+            finally
+            {
+                concurrencyDetector?.ExitCriticalSection();
             }
         }
 
@@ -266,11 +279,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int> ExecuteSqlInterpolatedAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] FormattableString sql,
             CancellationToken cancellationToken = default)
-            => ExecuteSqlRawAsync(databaseFacade, sql.Format, sql.GetArguments(), cancellationToken);
+            => ExecuteSqlRawAsync(databaseFacade, sql.Format, sql.GetArguments()!, cancellationToken);
 
         /// <summary>
         ///     <para>
@@ -297,6 +311,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int> ExecuteSqlRawAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] string sql,
@@ -374,6 +389,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task<int> ExecuteSqlRawAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] string sql,
@@ -385,10 +401,14 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
-            var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
+            var concurrencyDetector = facadeDependencies.CoreOptions.IsConcurrencyDetectionEnabled
+                ? facadeDependencies.ConcurrencyDetector
+                : null;
             var logger = facadeDependencies.CommandLogger;
 
-            using (concurrencyDetector.EnterCriticalSection())
+            concurrencyDetector?.EnterCriticalSection();
+
+            try
             {
                 var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
                     .Build(sql, parameters);
@@ -405,10 +425,22 @@ namespace Microsoft.EntityFrameworkCore
                         cancellationToken)
                     .ConfigureAwait(false);
             }
+            finally
+            {
+                concurrencyDetector?.ExitCriticalSection();
+            }
         }
 
         /// <summary>
-        ///     Gets the underlying ADO.NET <see cref="DbConnection" /> for this <see cref="DbContext" />.
+        ///     <para>
+        ///         Gets the underlying ADO.NET <see cref="DbConnection" /> for this <see cref="DbContext" />.
+        ///     </para>
+        ///     <para>
+        ///         This connection should not be disposed if it was created by Entity Framework. Connections are created by
+        ///         Entity Framework when a connection string rather than a DbConnection object is passed to the the 'UseMyProvider'
+        ///         method for the database provider in use. Conversely, the application is responsible for disposing a DbConnection
+        ///         passed to Entity Framework in 'UseMyProvider'.
+        ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The <see cref="DbConnection" /> </returns>
@@ -428,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="connection"> The connection. </param>
-        public static void SetDbConnection([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbConnection connection)
+        public static void SetDbConnection([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbConnection? connection)
             => GetFacadeDependencies(databaseFacade).RelationalConnection.DbConnection = connection;
 
         /// <summary>
@@ -436,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The connection string. </returns>
-        public static string GetConnectionString([NotNull] this DatabaseFacade databaseFacade)
+        public static string? GetConnectionString([NotNull] this DatabaseFacade databaseFacade)
             => GetFacadeDependencies(databaseFacade).RelationalConnection.ConnectionString;
 
         /// <summary>
@@ -449,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="connectionString"> The connection string. </param>
-        public static void SetConnectionString([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] string connectionString)
+        public static void SetConnectionString([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] string? connectionString)
             => GetFacadeDependencies(databaseFacade).RelationalConnection.ConnectionString = connectionString;
 
         /// <summary>
@@ -467,12 +499,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task OpenConnectionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
                 databaseFacade, (database, ct) =>
-                    GetFacadeDependencies(database).RelationalConnection.OpenAsync(cancellationToken), cancellationToken);
+                    GetFacadeDependencies(database).RelationalConnection.OpenAsync(ct), cancellationToken);
 
         /// <summary>
         ///     Closes the underlying <see cref="DbConnection" />.
@@ -516,6 +549,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
         ///     that represents the started transaction.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<IDbContextTransaction> BeginTransactionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             IsolationLevel isolationLevel,
@@ -536,9 +570,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that encapsulates the given transaction. </returns>
-        public static IDbContextTransaction UseTransaction(
+        public static IDbContextTransaction? UseTransaction(
             [NotNull] this DatabaseFacade databaseFacade,
-            [CanBeNull] DbTransaction transaction)
+            [CanBeNull] DbTransaction? transaction)
             => databaseFacade.UseTransaction(transaction, Guid.NewGuid());
 
         /// <summary>
@@ -548,9 +582,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that encapsulates the given transaction. </returns>
-        public static IDbContextTransaction UseTransaction(
+        public static IDbContextTransaction? UseTransaction(
             [NotNull] this DatabaseFacade databaseFacade,
-            [CanBeNull] DbTransaction transaction,
+            [CanBeNull] DbTransaction? transaction,
             Guid transactionId)
         {
             var transactionManager = GetTransactionManager(databaseFacade);
@@ -568,11 +602,12 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
-        /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
-        public static Task<IDbContextTransaction> UseTransactionAsync(
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public static Task<IDbContextTransaction?> UseTransactionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            [CanBeNull] DbTransaction transaction,
+            [CanBeNull] DbTransaction? transaction,
             CancellationToken cancellationToken = default)
             => databaseFacade.UseTransactionAsync(transaction, Guid.NewGuid(), cancellationToken);
 
@@ -582,11 +617,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
-        /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
-        public static Task<IDbContextTransaction> UseTransactionAsync(
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public static Task<IDbContextTransaction?> UseTransactionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            [CanBeNull] DbTransaction transaction,
+            [CanBeNull] DbTransaction? transaction,
             Guid transactionId,
             CancellationToken cancellationToken = default)
         {
@@ -605,8 +641,19 @@ namespace Microsoft.EntityFrameworkCore
         ///         Sets the timeout (in seconds) to use for commands executed with this <see cref="DbContext" />.
         ///     </para>
         ///     <para>
-        ///         Note that the command timeout is distinct from the connection timeout, which is commonly
-        ///         set on the database connection string.
+        ///         If this value is set, then it is used to set <see cref="DbCommand.CommandTimeout" /> whenever Entity Framework creates a
+        ///         <see cref="DbCommand" /> to execute a query.
+        ///     </para>
+        ///     <para>
+        ///         If this value is not set, then the default value used is defined by the underlying ADO.NET data provider.
+        ///         Consult the documentation for the implementation of <see cref="DbCommand" /> in the ADO.NET data provider for details of
+        ///         default values, etc.
+        ///     </para>
+        ///     <para>
+        ///         Note that the command timeout is distinct from the connection timeout. Connection timeouts are usually
+        ///         configured in the connection string. More recently, some ADO.NET data providers are adding the capability
+        ///         to also set a command timeout in the connection string. A value set with this API for the command timeout
+        ///         will override any value set in the connection string.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -619,8 +666,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         Sets the timeout to use for commands executed with this <see cref="DbContext" />.
         ///     </para>
         ///     <para>
-        ///         Note that the command timeout is distinct from the connection timeout, which is commonly
-        ///         set on the database connection string.
+        ///         This is a sugar method allowing a <see cref="TimeSpan" /> to be used to set the value. It delegates to
+        ///         <see cref="SetCommandTimeout(DatabaseFacade,int?)" />.
         ///     </para>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>

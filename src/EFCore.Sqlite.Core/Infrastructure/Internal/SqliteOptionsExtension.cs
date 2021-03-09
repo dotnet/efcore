@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
 {
     /// <summary>
@@ -17,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
     /// </summary>
     public class SqliteOptionsExtension : RelationalOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
         private bool _loadSpatialite;
 
         /// <summary>
@@ -97,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
 
         private sealed class ExtensionInfo : RelationalExtensionInfo
         {
-            private string _logFragment;
+            private string? _logFragment;
 
             public ExtensionInfo(IDbContextOptionsExtension extension)
                 : base(extension)

@@ -39,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new DiagnosticListener("Fake"),
                     new TestRelationalLoggingDefinitions(),
                     new NullDbContextLogger()),
-                false);
+                false,
+                new RelationalSqlGenerationHelper(
+                    new RelationalSqlGenerationHelperDependencies()));
 
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());
         }

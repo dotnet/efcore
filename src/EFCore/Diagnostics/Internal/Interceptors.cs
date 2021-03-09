@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 {
     /// <summary>
@@ -21,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         private readonly IServiceProvider _serviceProvider;
         private readonly IEnumerable<IInterceptor> _injectedInterceptors;
         private readonly Dictionary<Type, IInterceptorAggregator> _aggregators;
-        private CoreOptionsExtension _coreOptionsExtension;
-        private List<IInterceptor> _interceptors;
+        private CoreOptionsExtension? _coreOptionsExtension;
+        private List<IInterceptor>? _interceptors;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -66,9 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TInterceptor Aggregate<TInterceptor>()
+        public virtual TInterceptor? Aggregate<TInterceptor>()
             where TInterceptor : class, IInterceptor
-            => (TInterceptor)_aggregators[typeof(TInterceptor)].AggregateInterceptors(RegisteredInterceptors);
+            => (TInterceptor?)_aggregators[typeof(TInterceptor)].AggregateInterceptors(RegisteredInterceptors);
 
         /// <summary>
         ///     We resolve this lazily because loggers are created very early in the initialization
@@ -76,9 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     This means those loggers can't do interception, but that's okay because nothing
         ///     else is ready for them to do interception anyway.
         /// </summary>
-        private CoreOptionsExtension CoreOptionsExtension
+        private CoreOptionsExtension? CoreOptionsExtension
             => _coreOptionsExtension ??= _serviceProvider
-                .GetService<IDbContextOptions>()
+                .GetRequiredService<IDbContextOptions>()
                 .Extensions
                 .OfType<CoreOptionsExtension>()
                 .FirstOrDefault();

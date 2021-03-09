@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public partial class CosmosShapedQueryCompilingExpressionVisitor
@@ -30,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             private int GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
                 => projectionBindingExpression.ProjectionMember != null
-                    ? (int)((ConstantExpression)_selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
+                    ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<int>()
                     : projectionBindingExpression.Index
-                    ?? throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
+                    ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
         }
     }
 }

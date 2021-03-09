@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class ProviderCodeGeneratorDependencies
+    public sealed record ProviderCodeGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -57,14 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Gets the plugins.
         /// </summary>
-        public IEnumerable<IProviderCodeGeneratorPlugin> Plugins { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="plugins"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderCodeGeneratorDependencies With([NotNull] IEnumerable<IProviderCodeGeneratorPlugin> plugins)
-            => new ProviderCodeGeneratorDependencies(plugins);
+        public IEnumerable<IProviderCodeGeneratorPlugin> Plugins { get; [param: NotNull] init; }
     }
 }

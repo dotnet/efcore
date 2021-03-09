@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -25,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder UseHiLo(
             [NotNull] this ModelBuilder modelBuilder,
-            [CanBeNull] string name = null,
-            [CanBeNull] string schema = null)
+            [CanBeNull] string? name = null,
+            [CanBeNull] string? schema = null)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -59,10 +61,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema">The schema of the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> A builder to further configure the sequence. </returns>
-        public static IConventionSequenceBuilder HasHiLoSequence(
+        public static IConventionSequenceBuilder? HasHiLoSequence(
             [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema,
             bool fromDataAnnotation = false)
         {
             if (!modelBuilder.CanSetHiLoSequence(name, schema))
@@ -86,8 +88,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given name and schema can be set for the hi-lo sequence. </returns>
         public static bool CanSetHiLoSequence(
             [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? name,
+            [CanBeNull] string? schema,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -135,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionModelBuilder HasIdentityColumnSeed(
+        public static IConventionModelBuilder? HasIdentityColumnSeed(
             [NotNull] this IConventionModelBuilder modelBuilder,
             int? seed,
             bool fromDataAnnotation = false)
@@ -176,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionModelBuilder HasIdentityColumnIncrement(
+        public static IConventionModelBuilder? HasIdentityColumnIncrement(
             [NotNull] this IConventionModelBuilder modelBuilder,
             int? increment,
             bool fromDataAnnotation = false)
@@ -218,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionModelBuilder HasValueGenerationStrategy(
+        public static IConventionModelBuilder? HasValueGenerationStrategy(
             [NotNull] this IConventionModelBuilder modelBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
             bool fromDataAnnotation = false)
@@ -297,9 +299,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionModelBuilder HasDatabaseMaxSize(
+        public static IConventionModelBuilder? HasDatabaseMaxSize(
             [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string maxSize,
+            [CanBeNull] string? maxSize,
             bool fromDataAnnotation = false)
         {
             if (modelBuilder.CanSetDatabaseMaxSize(maxSize, fromDataAnnotation))
@@ -320,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given value can be set as the maximum size of the database. </returns>
         public static bool CanSetDatabaseMaxSize(
             [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string maxSize,
+            [CanBeNull] string? maxSize,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -385,9 +387,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionModelBuilder HasServiceTierSql(
+        public static IConventionModelBuilder? HasServiceTierSql(
             [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string serviceTier,
+            [CanBeNull] string? serviceTier,
             bool fromDataAnnotation = false)
         {
             if (modelBuilder.CanSetServiceTierSql(serviceTier, fromDataAnnotation))
@@ -408,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given value can be set as the service tier of the database. </returns>
         public static bool CanSetServiceTierSql(
             [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string serviceTier,
+            [CanBeNull] string? serviceTier,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -473,9 +475,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionModelBuilder HasPerformanceLevelSql(
+        public static IConventionModelBuilder? HasPerformanceLevelSql(
             [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string performanceLevel,
+            [CanBeNull] string? performanceLevel,
             bool fromDataAnnotation = false)
         {
             if (modelBuilder.CanSetPerformanceLevelSql(performanceLevel, fromDataAnnotation))
@@ -496,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given value can be set as the performance level of the database. </returns>
         public static bool CanSetPerformanceLevelSql(
             [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string performanceLevel,
+            [CanBeNull] string? performanceLevel,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));

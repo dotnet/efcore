@@ -221,9 +221,15 @@ FROM ""Products"" AS ""p""
 WHERE CAST(""p"".""UnitPrice"" AS REAL) > 100.0");
         }
 
-        [ConditionalTheory(Skip = "Issue#17223")]
-        public override Task Like_with_non_string_column_using_ToString(bool async)
-            => base.Like_with_non_string_column_using_ToString(async);
+        public override async Task Like_with_non_string_column_using_ToString(bool async)
+        {
+            await base.Like_with_non_string_column_using_ToString(async);
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE CAST(""o"".""OrderID"" AS TEXT) LIKE '%20%'");
+        }
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

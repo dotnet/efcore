@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override IEnumerable<TypeInfo> DefinedTypes { get; }
 
         public override AssemblyName GetName()
-            => new AssemblyName(nameof(MockAssembly));
+            => new(nameof(MockAssembly));
 
         private class MockMethodInfo : MethodInfo
         {

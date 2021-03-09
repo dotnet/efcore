@@ -4,6 +4,8 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
     /// <summary>
@@ -21,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override MethodCallCodeFragment GenerateProviderOptions()
-            => new MethodCallCodeFragment(
-                nameof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite));
+            => new(nameof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite));
     }
 }

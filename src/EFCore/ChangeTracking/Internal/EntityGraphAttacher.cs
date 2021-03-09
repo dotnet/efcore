@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -137,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (inboundNavigation != null
                 && !inboundNavigation.IsCollection)
             {
-                node.SourceEntry.GetInfrastructure().SetIsLoaded(inboundNavigation);
+                node.SourceEntry!.GetInfrastructure().SetIsLoaded(inboundNavigation);
             }
         }
     }

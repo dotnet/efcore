@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -107,8 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
             expressionPrinter.Visit(Expression);
-            if (!string.Equals(string.Empty, Alias)
-                && !string.Equals(Alias, Name))
+            if (Alias != string.Empty && Alias != Name)
             {
                 expressionPrinter.Append(" AS " + Alias);
             }
@@ -127,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     && Equals(projectionExpression));
 
         private bool Equals(ProjectionExpression projectionExpression)
-            => string.Equals(Alias, projectionExpression.Alias)
+            => Alias == projectionExpression.Alias
                 && Expression.Equals(projectionExpression.Expression);
 
         /// <summary>

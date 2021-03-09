@@ -4,11 +4,12 @@
 using System.Diagnostics;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -81,8 +82,16 @@ namespace Microsoft.EntityFrameworkCore
                     new SqlServerLoggingDefinitions(),
                     new NullDbContextLogger()),
                 new NamedConnectionStringResolver(options),
-                new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
-                new CurrentDbContext(new FakeDbContext()));
+                new RelationalTransactionFactory(
+                    new RelationalTransactionFactoryDependencies(
+                        new RelationalSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies()))),
+                new CurrentDbContext(new FakeDbContext()),
+                new RelationalCommandBuilderFactory(
+                    new RelationalCommandBuilderDependencies(
+                        new TestRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
         }
 
         private class FakeDbContext : DbContext

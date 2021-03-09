@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -122,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         private bool Equals(KeyAccessExpression keyAccessExpression)
             => base.Equals(keyAccessExpression)
-                && string.Equals(Name, keyAccessExpression.Name)
+                && Name == keyAccessExpression.Name
                 && AccessExpression.Equals(keyAccessExpression.AccessExpression);
 
         /// <summary>

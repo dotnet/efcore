@@ -3,6 +3,8 @@
 
 using Microsoft.Extensions.Logging;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 {
     /// <summary>

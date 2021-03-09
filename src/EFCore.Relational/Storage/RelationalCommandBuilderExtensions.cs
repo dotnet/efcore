@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             using (var reader = new StringReader(value))
             {
                 var first = true;
-                string line;
+                string? line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (first)

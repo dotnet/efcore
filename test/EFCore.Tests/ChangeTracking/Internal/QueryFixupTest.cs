@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
@@ -796,11 +797,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Seed();
 
             using var context = new QueryFixupContext();
-            // TODO: Infer these includes
-            // Issue #2953
             var principal = context.Set<Order>()
-                .Include(o => o.OrderDetails.BillingAddress)
-                .Include(o => o.OrderDetails.ShippingAddress)
                 .Single();
 
             AssertFixup(
@@ -830,12 +827,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var subDependent1Entry = dependentEntry.Reference(p => p.BillingAddress).TargetEntry;
                     Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
                     Assert.Equal(EntityState.Unchanged, subDependent1Entry.State);
-                    Assert.Equal(nameof(OrderDetails.BillingAddress), subDependent1Entry.Metadata.DefiningNavigationName);
+                    Assert.Equal(typeof(OrderDetails).DisplayName() + "." + nameof(OrderDetails.BillingAddress) + "#" + typeof(Address).ShortDisplayName(), subDependent1Entry.Metadata.Name);
 
                     var subDependent2Entry = dependentEntry.Reference(p => p.ShippingAddress).TargetEntry;
                     Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
                     Assert.Equal(EntityState.Unchanged, subDependent2Entry.State);
-                    Assert.Equal(nameof(OrderDetails.ShippingAddress), subDependent2Entry.Metadata.DefiningNavigationName);
+                    Assert.Equal(typeof(OrderDetails).DisplayName() + "." + nameof(OrderDetails.ShippingAddress) + "#" + typeof(Address).ShortDisplayName(), subDependent2Entry.Metadata.Name);
                 });
         }
 
@@ -888,18 +885,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [ConditionalFact(Skip = "Issue #16752")]
+        [ConditionalFact]
         public void Query_subowned()
         {
             Seed();
 
             using var context = new QueryFixupContext();
             var subDependent1 = context.Set<Order>()
+                .Include(a => a.OrderDetails.BillingAddress.OrderDetails.Order)
                 .Select(o => o.OrderDetails.BillingAddress)
-                .Include(a => a.OrderDetails.Order).Single();
+                .Single();
             var subDependent2 = context.Set<Order>()
+                .Include(a => a.OrderDetails.ShippingAddress.OrderDetails.Order)
                 .Select(o => o.OrderDetails.ShippingAddress)
-                .Include(a => a.OrderDetails.Order).Single();
+                .Single();
 
             AssertFixup(
                 context,
@@ -915,11 +914,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     var subDependent1Entry = context.Entry(subDependent1);
                     Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
-                    Assert.Equal(nameof(OrderDetails.BillingAddress), subDependent1Entry.Metadata.DefiningNavigationName);
+                    Assert.Equal(typeof(OrderDetails).DisplayName() + "." + nameof(OrderDetails.BillingAddress) + "#" + typeof(Address).ShortDisplayName(), subDependent1Entry.Metadata.Name);
 
                     var subDependent2Entry = context.Entry(subDependent2);
                     Assert.Equal(principal.Id, subDependent2Entry.Property("OrderDetailsId").CurrentValue);
-                    Assert.Equal(nameof(OrderDetails.ShippingAddress), subDependent2Entry.Metadata.DefiningNavigationName);
+                    Assert.Equal(typeof(OrderDetails).DisplayName() + "." + nameof(OrderDetails.ShippingAddress) + "#" + typeof(Address).ShortDisplayName(), subDependent2Entry.Metadata.Name);
                 });
         }
 

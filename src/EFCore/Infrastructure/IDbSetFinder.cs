@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>

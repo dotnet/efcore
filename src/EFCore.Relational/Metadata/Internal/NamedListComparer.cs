@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -13,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // Sealed for perf
-    public sealed class NamedListComparer : IComparer<(string, string, IReadOnlyList<string>)>,
-        IEqualityComparer<(string, string, IReadOnlyList<string>)>
+    public sealed class NamedListComparer : IComparer<(string, string?, IReadOnlyList<string>)>,
+        IEqualityComparer<(string, string?, IReadOnlyList<string>)>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly NamedListComparer Instance = new NamedListComparer();
+        public static readonly NamedListComparer Instance = new();
 
         private NamedListComparer()
         {
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare((string, string, IReadOnlyList<string>) x, (string, string, IReadOnlyList<string>) y)
+        public int Compare((string, string?, IReadOnlyList<string>) x, (string, string?, IReadOnlyList<string>) y)
         {
             var result = StringComparer.Ordinal.Compare(x.Item1, y.Item1);
             if (result != 0)
@@ -71,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals((string, string, IReadOnlyList<string>) x, (string, string, IReadOnlyList<string>) y)
+        public bool Equals((string, string?, IReadOnlyList<string>) x, (string, string?, IReadOnlyList<string>) y)
             => Compare(x, y) == 0;
 
         /// <summary>
@@ -80,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int GetHashCode((string, string, IReadOnlyList<string>) obj)
+        public int GetHashCode((string, string?, IReadOnlyList<string>) obj)
         {
             var hash = new HashCode();
             hash.Add(obj.Item1);

@@ -8,21 +8,21 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class DbContextScaffoldCommand : ProjectCommandBase
     {
-        private CommandArgument _connection;
-        private CommandArgument _provider;
-        private CommandOption _dataAnnotations;
-        private CommandOption _context;
-        private CommandOption _contextDir;
-        private CommandOption _force;
-        private CommandOption _outputDir;
-        private CommandOption _schemas;
-        private CommandOption _tables;
-        private CommandOption _useDatabaseNames;
-        private CommandOption _json;
-        private CommandOption _namespace;
-        private CommandOption _contextNamespace;
-        private CommandOption _suppressOnConfiguring;
-        private CommandOption _noPluralize;
+        private CommandArgument? _connection;
+        private CommandArgument? _provider;
+        private CommandOption? _dataAnnotations;
+        private CommandOption? _context;
+        private CommandOption? _contextDir;
+        private CommandOption? _force;
+        private CommandOption? _outputDir;
+        private CommandOption? _schemas;
+        private CommandOption? _tables;
+        private CommandOption? _useDatabaseNames;
+        private CommandOption? _json;
+        private CommandOption? _namespace;
+        private CommandOption? _contextNamespace;
+        private CommandOption? _suppressOnConfiguring;
+        private CommandOption? _noPluralize;
 
         public override void Configure(CommandLineApplication command)
         {

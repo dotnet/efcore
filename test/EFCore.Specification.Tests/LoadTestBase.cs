@@ -129,10 +129,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Id = 707,
                 AlternateId = "Root",
-                Children = new List<Child> { new Child { Id = 11 }, new Child { Id = 12 } },
-                ChildrenAk = new List<ChildAk> { new ChildAk { Id = 31 }, new ChildAk { Id = 32 } },
-                ChildrenShadowFk = new List<ChildShadowFk> { new ChildShadowFk { Id = 51 }, new ChildShadowFk { Id = 52 } },
-                ChildrenCompositeKey = new List<ChildCompositeKey> { new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 } }
+                Children = new List<Child> { new() { Id = 11 }, new() { Id = 12 } },
+                ChildrenAk = new List<ChildAk> { new() { Id = 31 }, new() { Id = 32 } },
+                ChildrenShadowFk = new List<ChildShadowFk> { new() { Id = 51 }, new() { Id = 52 } },
+                ChildrenCompositeKey = new List<ChildCompositeKey> { new() { Id = 51 }, new() { Id = 52 } }
             };
 
             context.Attach(parent);

@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
@@ -73,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected static List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new List<(LogLevel, EventId, string)>();
+        protected static List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new();
 
         private class InfoLogContext : DbContext
         {
@@ -263,6 +266,16 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Throws<ObjectDisposedException>(() => loggerFactory.CreateLogger("MyLogger"));
             }
+        }
+
+        [ConditionalFact]
+        public void GetService_throws_for_unknown_service_type()
+        {
+            using var context = new EarlyLearningCenter();
+
+            Assert.Equal(
+                CoreStrings.NoProviderConfiguredFailedToResolveService("System.Random"),
+                Assert.Throws<InvalidOperationException>(() => context.GetService<Random>()).Message);
         }
 
         [ConditionalFact]
@@ -645,6 +658,11 @@ namespace Microsoft.EntityFrameworkCore
                 DbContext context,
                 IConventionSetBuilder conventionSetBuilder,
                 ModelDependencies modelDependencies)
+                => new Model();
+
+            public IModel GetModel(
+                DbContext context,
+                ModelCreationDependencies modelCreationDependencies)
                 => new Model();
         }
 
@@ -2691,6 +2709,9 @@ namespace Microsoft.EntityFrameworkCore
 
             public ParameterBinding Bind(IConventionEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
+
+            public ParameterBinding Bind([NotNull] IReadOnlyEntityType entityType, [NotNull] Type parameterType, [NotNull] string parameterName)
+                => throw new NotImplementedException();
         }
 
         private class CustomParameterBindingFactory2 : IParameterBindingFactory
@@ -2702,6 +2723,9 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
 
             public ParameterBinding Bind(IConventionEntityType entityType, Type parameterType, string parameterName)
+                => throw new NotImplementedException();
+
+            public ParameterBinding Bind([NotNull] IReadOnlyEntityType entityType, [NotNull] Type parameterType, [NotNull] string parameterName)
                 => throw new NotImplementedException();
         }
 
@@ -2725,8 +2749,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CustomInMemoryTableFactory : InMemoryTableFactory
         {
-            public CustomInMemoryTableFactory(ILoggingOptions loggingOptions)
-                : base(loggingOptions)
+            public CustomInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options)
+                : base(loggingOptions, options)
             {
             }
         }
@@ -3658,5 +3682,26 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
         }
+    }
+}
+
+namespace Microsoft.EntityFrameworkCore.DifferentNamespace
+{
+    internal class Category
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public List<Product> Products { get; set; }
+    }
+
+    internal class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
     }
 }

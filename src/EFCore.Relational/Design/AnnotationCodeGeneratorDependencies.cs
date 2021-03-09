@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class AnnotationCodeGeneratorDependencies
+    public sealed record AnnotationCodeGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -58,6 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; }
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; [param: NotNull] init; }
     }
 }

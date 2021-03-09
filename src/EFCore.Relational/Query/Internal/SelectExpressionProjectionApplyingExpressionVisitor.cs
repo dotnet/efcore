@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>

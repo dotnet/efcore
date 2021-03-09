@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Proxies.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -185,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The proxy instance. </returns>
         public static TEntity CreateProxy<TEntity>(
             [NotNull] this DbContext context,
-            [CanBeNull] Action<TEntity> configureEntity,
+            [CanBeNull] Action<TEntity>? configureEntity,
             [NotNull] params object[] constructorArguments)
         {
             var entity = (TEntity)context.CreateProxy(typeof(TEntity), constructorArguments);
@@ -218,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The proxy instance. </returns>
         public static TEntity CreateProxy<TEntity>(
             [NotNull] this DbSet<TEntity> set,
-            [CanBeNull] Action<TEntity> configureEntity,
+            [CanBeNull] Action<TEntity>? configureEntity,
             [NotNull] params object[] constructorArguments)
             where TEntity : class
         {
@@ -239,8 +241,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckProxyOptions(serviceProvider, entityType.DisplayName());
 
-            return serviceProvider.GetService<IProxyFactory>().CreateProxy(
-                serviceProvider.GetService<ICurrentDbContext>().Context,
+            return serviceProvider.GetRequiredService<IProxyFactory>().CreateProxy(
+                serviceProvider.GetRequiredService<ICurrentDbContext>().Context,
                 entityType,
                 constructorArguments);
         }
@@ -252,15 +254,15 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckProxyOptions(serviceProvider, entityType.ShortDisplayName());
 
-            return serviceProvider.GetService<IProxyFactory>().Create(
-                serviceProvider.GetService<ICurrentDbContext>().Context,
+            return serviceProvider.GetRequiredService<IProxyFactory>().Create(
+                serviceProvider.GetRequiredService<ICurrentDbContext>().Context,
                 entityType,
                 constructorArguments);
         }
 
         private static void CheckProxyOptions(IServiceProvider serviceProvider, string entityTypeName)
         {
-            var options = serviceProvider.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
+            var options = serviceProvider.GetRequiredService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
 
             if (options?.UseProxies != true)
             {

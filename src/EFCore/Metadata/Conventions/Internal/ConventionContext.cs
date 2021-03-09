@@ -3,6 +3,8 @@
 
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
@@ -15,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     {
         private bool _stopProcessing;
         private readonly ConventionDispatcher _dispatcher;
-        private TMetadata _result;
+        private TMetadata? _result;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TMetadata Result
+        public virtual TMetadata? Result
             => _result;
 
         /// <summary>
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     </para>
         /// </summary>
         /// <param name="result"> The new metadata object or <see langword="null" />. </param>
-        public virtual void StopProcessing(TMetadata result)
+        public virtual void StopProcessing(TMetadata? result)
         {
             _stopProcessing = true;
             _result = result;
@@ -70,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///         The common use case is when the metadata object was replaced by the convention.
         ///     </para>
         /// </summary>
-        /// <param name="result"> The new metadata object. </param>
-        public virtual void StopProcessingIfChanged(TMetadata result)
+        /// <param name="result"> The new metadata object or <see langword="null" />. </param>
+        public virtual void StopProcessingIfChanged(TMetadata? result)
         {
             if (!Equals(Result, result))
             {
@@ -107,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ResetState([CanBeNull] TMetadata input)
+        public virtual void ResetState([CanBeNull] TMetadata? input)
         {
             _stopProcessing = false;
             _result = input;

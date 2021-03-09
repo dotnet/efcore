@@ -9,6 +9,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Update;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 {
     /// <summary>
@@ -25,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         private const int MaxRowCount = 1000;
         private int _parameterCount = 1; // Implicit parameter for the command text
         private readonly int _maxBatchSize;
-        private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
+        private readonly List<ModificationCommand> _bulkInsertCommands = new();
         private int _commandsLeftToLengthCheck = 50;
 
         /// <summary>
@@ -42,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize);
+                throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize(maxBatchSize.Value));
             }
 
             _maxBatchSize = Math.Min(maxBatchSize ?? 42, MaxRowCount);

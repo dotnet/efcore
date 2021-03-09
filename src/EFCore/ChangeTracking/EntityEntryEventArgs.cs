@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
@@ -14,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class EntityEntryEventArgs : EventArgs
     {
         private readonly InternalEntityEntry _internalEntityEntry;
-        private EntityEntry _entry;
+        private EntityEntry? _entry;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

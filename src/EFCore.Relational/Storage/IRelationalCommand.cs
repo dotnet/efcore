@@ -6,7 +6,10 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -46,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the number of rows affected.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<int> ExecuteNonQueryAsync(
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default);
@@ -55,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="parameterObject"> Parameters for this method. </param>
         /// <returns> The result of the command. </returns>
-        object ExecuteScalar(RelationalCommandParameterObject parameterObject);
+        object? ExecuteScalar(RelationalCommandParameterObject parameterObject);
 
         /// <summary>
         ///     Asynchronously executes the command with a single scalar result.
@@ -65,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the result of the command.
         /// </returns>
-        Task<object> ExecuteScalarAsync(
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        Task<object?> ExecuteScalarAsync(
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default);
 
@@ -84,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the result of the command.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<RelationalDataReader> ExecuteReaderAsync(
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default);
@@ -105,7 +111,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         DbCommand CreateDbCommand(
             RelationalCommandParameterObject parameterObject,
             Guid commandId,
-            DbCommandMethod commandMethod)
-            => throw new NotImplementedException();
+            DbCommandMethod commandMethod);
+
+        /// <summary>
+        ///     Populates this command from the provided <paramref name="templateCommand"/>.
+        /// </summary>
+        /// <param name="templateCommand"> A template command from which the command text and parameters will be copied. </param>
+        void PopulateFromTemplate([NotNull] IRelationalCommand templateCommand);
     }
 }

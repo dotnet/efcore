@@ -4,6 +4,8 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public static string GetConfiguredColumnType([NotNull] this IProperty property)
-            => (string)property[RelationalAnnotationNames.ColumnType];
+        public static string? GetConfiguredColumnType([NotNull] this IReadOnlyProperty property)
+            => (string?)property[RelationalAnnotationNames.ColumnType];
     }
 }

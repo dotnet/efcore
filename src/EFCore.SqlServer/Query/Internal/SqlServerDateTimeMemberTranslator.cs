@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerDateTimeMemberTranslator : IMemberTranslator
     {
         private static readonly Dictionary<string, string> _datePartMapping
-            = new Dictionary<string, string>
+            = new()
             {
                 { nameof(DateTime.Year), "year" },
                 { nameof(DateTime.Month), "month" },
@@ -60,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -81,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 {
                     return _sqlExpressionFactory.Function(
                         "DATEPART",
-                        new[] { _sqlExpressionFactory.Fragment(datePart), instance },
+                        new[] { _sqlExpressionFactory.Fragment(datePart), instance! },
                         nullable: true,
                         argumentsPropagateNullability: new[] { false, true },
                         returnType);
@@ -92,16 +94,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     case nameof(DateTime.Date):
                         return _sqlExpressionFactory.Function(
                             "CONVERT",
-                            new[] { _sqlExpressionFactory.Fragment("date"), instance },
+                            new[] { _sqlExpressionFactory.Fragment("date"), instance! },
                             nullable: true,
                             argumentsPropagateNullability: new[] { false, true },
                             returnType,
                             declaringType == typeof(DateTime)
-                                ? instance.TypeMapping
+                                ? instance!.TypeMapping
                                 : _typeMappingSource.FindMapping(typeof(DateTime)));
 
                     case nameof(DateTime.TimeOfDay):
-                        return _sqlExpressionFactory.Convert(instance, returnType);
+                        return _sqlExpressionFactory.Function(
+                            "CONVERT",
+                            new[] { _sqlExpressionFactory.Fragment("time"), instance! },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { false, true },
+                            returnType);
 
                     case nameof(DateTime.Now):
                         return _sqlExpressionFactory.Function(

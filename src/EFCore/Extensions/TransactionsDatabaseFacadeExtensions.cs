@@ -41,7 +41,7 @@ namespace System.Transactions
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns> The currently enlisted transaction. </returns>
-        public static Transaction GetEnlistedTransaction([NotNull] this DatabaseFacade databaseFacade)
+        public static Transaction? GetEnlistedTransaction([NotNull] this DatabaseFacade databaseFacade)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
             if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager

@@ -7,6 +7,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -23,18 +25,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public View([NotNull] string name, [CanBeNull] string schema, [NotNull] RelationalModel model)
+        public View([NotNull] string name, [CanBeNull] string? schema, [NotNull] RelationalModel model)
             : base(name, schema, model)
         {
         }
 
         /// <inheritdoc />
-        public virtual string ViewDefinitionSql
-            => (string)EntityTypeMappings.Select(m => m.EntityType[RelationalAnnotationNames.ViewDefinitionSql])
+        public virtual string? ViewDefinitionSql
+            => (string?)EntityTypeMappings.Select(m => m.EntityType[RelationalAnnotationNames.ViewDefinitionSql])
                 .FirstOrDefault(d => d != null);
 
         /// <inheritdoc />
-        public override IColumnBase FindColumn(IProperty property)
+        public override IColumnBase? FindColumn(IProperty property)
             => property.GetViewColumnMappings()
                 .FirstOrDefault(cm => cm.TableMapping.Table == this)
                 ?.Column;
@@ -46,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString()
-            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+            => ((IView)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
         IEnumerable<IViewMapping> IView.EntityTypeMappings
@@ -64,12 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IViewColumn IView.FindColumn(string name)
-            => (IViewColumn)base.FindColumn(name);
+        IViewColumn? IView.FindColumn(string name)
+            => (IViewColumn?)base.FindColumn(name);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IViewColumn IView.FindColumn(IProperty property)
-            => (IViewColumn)FindColumn(property);
+        IViewColumn? IView.FindColumn(IProperty property)
+            => (IViewColumn?)FindColumn(property);
     }
 }

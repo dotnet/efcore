@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
@@ -16,8 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class MetadataTracker : IReferenceRoot<IConventionForeignKey>
     {
-        private readonly Dictionary<IConventionForeignKey, Reference<IConventionForeignKey>> _trackedForeignKeys =
-            new Dictionary<IConventionForeignKey, Reference<IConventionForeignKey>>();
+        private readonly Dictionary<IConventionForeignKey, Reference<IConventionForeignKey>> _trackedForeignKeys = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Update([NotNull] ForeignKey oldForeignKey, [NotNull] ForeignKey newForeignKey)
+        public virtual void Update([NotNull] IConventionForeignKey oldForeignKey, [NotNull] IConventionForeignKey newForeignKey)
         {
             Check.DebugAssert(
-                oldForeignKey.Builder == null && newForeignKey.Builder != null,
-                "oldForeignKey.Builder is not null or newForeignKey.Builder is null");
+                !oldForeignKey.IsInModel && newForeignKey.IsInModel,
+                $"{nameof(oldForeignKey)} is in the model or {nameof(newForeignKey)} isn't");
 
             if (_trackedForeignKeys.TryGetValue(oldForeignKey, out var reference))
             {

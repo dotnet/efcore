@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var principalToDependent = fk.SetPrincipalToDependent(nameof(SelfRef.SelfRefDependent));
 
             Assert.Equal(
-                new IPropertyBase[] { pk.Properties.Single(), fkProp, principalToDependent, dependentToPrincipal },
-                entityType.GetPropertiesAndNavigations().ToArray());
+                new IReadOnlyPropertyBase[] { pk.Properties.Single(), fkProp, principalToDependent, dependentToPrincipal },
+                ((IEntityType)entityType).GetPropertiesAndNavigations().ToArray());
         }
 
         [ConditionalFact]

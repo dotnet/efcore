@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -28,8 +30,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> <see langword="true" /> if SQLite is being used; <see langword="false" /> otherwise. </returns>
         public static bool IsSqlite([NotNull] this DatabaseFacade database)
-            => database.ProviderName.Equals(
-                typeof(SqliteOptionsExtension).Assembly.GetName().Name,
-                StringComparison.Ordinal);
+            => database.ProviderName == typeof(SqliteOptionsExtension).Assembly.GetName().Name;
     }
 }

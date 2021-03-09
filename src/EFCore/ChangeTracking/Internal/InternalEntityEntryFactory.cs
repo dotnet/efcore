@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -48,11 +50,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static InternalEntityEntry NewInternalEntityEntry(IStateManager stateManager, IEntityType entityType, object entity)
         {
-            if (!entityType.HasClrType())
-            {
-                return new InternalShadowEntityEntry(stateManager, entityType);
-            }
-
             Check.DebugAssert(entity != null, "entity is null");
 
             return entityType.ShadowPropertyCount() > 0
@@ -65,12 +62,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IEntityType entityType,
             object entity,
             in ValueBuffer valueBuffer)
-        {
-            return !entityType.HasClrType()
-                ? new InternalShadowEntityEntry(stateManager, entityType, valueBuffer)
-                : entityType.ShadowPropertyCount() > 0
-                    ? (InternalEntityEntry)new InternalMixedEntityEntry(stateManager, entityType, entity, valueBuffer)
-                    : new InternalClrEntityEntry(stateManager, entityType, entity);
-        }
+            => entityType.ShadowPropertyCount() > 0
+                ? (InternalEntityEntry)new InternalMixedEntityEntry(stateManager, entityType, entity, valueBuffer)
+                : new InternalClrEntityEntry(stateManager, entityType, entity);
     }
 }
