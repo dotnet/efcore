@@ -289,31 +289,21 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual bool IsKey { get; }
 
+#pragma warning disable CS8775 // Member must have a non-null value when exiting with 'true'.
         /// <summary>
         ///     Indicates whether the original value of the property must be passed as a parameter to the SQL
         /// </summary>
         [CA.MemberNotNullWhen(true, nameof(OriginalParameterName))]
         public virtual bool UseOriginalValueParameter
-        {
-            get
-            {
-                Check.DebugAssert(OriginalParameterName is not null, "OriginalParameterName is not null");
-                return _useParameters && IsCondition;
-            }
-        }
+            => _useParameters && IsCondition;
 
         /// <summary>
         ///     Indicates whether the current value of the property must be passed as a parameter to the SQL
         /// </summary>
         [CA.MemberNotNullWhen(true, nameof(ParameterName))]
         public virtual bool UseCurrentValueParameter
-        {
-            get
-            {
-                Check.DebugAssert(ParameterName is not null, "ParameterName is not null");
-                return _useParameters && IsWrite;
-            }
-        }
+            => _useParameters && IsWrite;
+#pragma warning restore CS8775
 
         /// <summary>
         ///     The parameter name to use for the current value parameter (<see cref="UseCurrentValueParameter" />), if needed.
