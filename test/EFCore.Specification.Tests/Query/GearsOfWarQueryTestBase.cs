@@ -6568,7 +6568,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Acessing_reference_navigation_collection_composition_generates_single_query(bool async)
+        public virtual Task Accessing_reference_navigation_collection_composition_generates_single_query(bool async)
         {
             return AssertQuery(
                 async,

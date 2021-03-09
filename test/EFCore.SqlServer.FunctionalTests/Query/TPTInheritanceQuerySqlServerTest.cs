@@ -64,7 +64,7 @@ LEFT JOIN (
     LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
 ) AS [t] ON [c].[Id] = [t].[CountryId]
-ORDER BY [c].[Name], [c].[Id], [t].[Species]");
+ORDER BY [c].[Name], [c].[Id]");
         }
 
         public override async Task Can_include_prey(bool async)
@@ -89,7 +89,7 @@ LEFT JOIN (
     LEFT JOIN [Eagle] AS [e0] ON [a0].[Species] = [e0].[Species]
     LEFT JOIN [Kiwi] AS [k] ON [a0].[Species] = [k].[Species]
 ) AS [t0] ON [t].[Species] = [t0].[EagleId]
-ORDER BY [t].[Species], [t0].[Species]");
+ORDER BY [t].[Species]");
         }
 
         public override void Can_insert_update_delete()

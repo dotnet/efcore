@@ -273,12 +273,12 @@ LEFT JOIN (
     FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
     LEFT JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g0] ON [w].[OwnerFullName] = [g0].[FullName]
 ) AS [t0] ON [g].[FullName] = [t0].[OwnerFullName]
-ORDER BY [t].[Note], [t].[Id], [g].[Nickname], [g].[SquadId], [t0].[Id], [t0].[Nickname], [t0].[SquadId]");
+ORDER BY [t].[Note], [t].[Id], [g].[Nickname], [g].[SquadId], [t0].[Id], [t0].[Nickname]");
         }
 
-        public override async Task Acessing_reference_navigation_collection_composition_generates_single_query(bool async)
+        public override async Task Accessing_reference_navigation_collection_composition_generates_single_query(bool async)
         {
-            await base.Acessing_reference_navigation_collection_composition_generates_single_query(async);
+            await base.Accessing_reference_navigation_collection_composition_generates_single_query(async);
 
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [t].[Id], [t].[IsAutomatic], [t].[Name], [t].[Id0]
@@ -288,7 +288,7 @@ LEFT JOIN (
     FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
     LEFT JOIN [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [t].[Id0]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
         }
 
         public override async Task All_with_optional_navigation_is_translated_to_sql(bool async)

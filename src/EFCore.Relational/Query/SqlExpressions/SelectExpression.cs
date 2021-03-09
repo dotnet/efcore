@@ -49,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly List<TableReferenceExpression> _tableReferences = new();
         private readonly List<SqlExpression> _groupBy = new();
         private readonly List<OrderingExpression> _orderings = new();
+        private OrderingExpression? _pendingOrdering;
         private HashSet<string> _usedAliases = new();
 
         private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier = new();
@@ -732,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                 {
                                     var updatedColumn = identifier.Column.MakeNullable();
                                     _childIdentifiers.Add((updatedColumn, identifier.Comparer));
-                                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
+                                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true), isPending: true);
                                 }
 
                                 var result = new SingleCollectionInfo(
@@ -1206,13 +1207,39 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="orderingExpression"> An ordering expression to use for ordering. </param>
         public void AppendOrdering(OrderingExpression orderingExpression)
+            => AppendOrdering(orderingExpression, isPending: false);
+
+        private void AppendOrdering(OrderingExpression orderingExpression, bool isPending)
         {
             Check.NotNull(orderingExpression, nameof(orderingExpression));
 
+            if (orderingExpression.Equals(_pendingOrdering))
+            {
+                AppendOrderingCore(_pendingOrdering);
+                _pendingOrdering = null;
+                return;
+            }
+
             if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
             {
-                _orderings.Add(orderingExpression.Update(AssignUniqueAliases(orderingExpression.Expression)));
+                if (_pendingOrdering is not null)
+                {
+                    AppendOrderingCore(_pendingOrdering);
+                    _pendingOrdering = null;
+                }
+
+                if (isPending)
+                {
+                    _pendingOrdering = orderingExpression;
+                }
+                else
+                {
+                    AppendOrderingCore(orderingExpression);
+                }
             }
+
+            void AppendOrderingCore(OrderingExpression orderingExpression)
+                => _orderings.Add(orderingExpression.Update(AssignUniqueAliases(orderingExpression.Expression)));
         }
 
         /// <summary>

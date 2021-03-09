@@ -1700,7 +1700,7 @@ ORDER BY CAST(LEN([c].[CustomerID]) AS int), [c].[CustomerID]");
                 @"SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY CAST(LEN([c].[CustomerID]) AS int), [c].[CustomerID], [o].[OrderID]");
+ORDER BY CAST(LEN([c].[CustomerID]) AS int), [c].[CustomerID]");
         }
 
         public override async Task Static_string_equals_in_predicate(bool async)

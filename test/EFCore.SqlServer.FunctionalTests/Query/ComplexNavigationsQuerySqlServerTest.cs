@@ -174,7 +174,7 @@ LEFT JOIN (
     FROM [Globalizations] AS [g0]
     LEFT JOIN [Languages] AS [l0] ON [g0].[LanguageName] = [l0].[Name]
 ) AS [t0] ON [m0].[DefaultText] = [t0].[ComplexNavigationStringDefaultText]
-ORDER BY [f].[Name], [m].[DefaultText], [m0].[DefaultText], [t].[Text], [t].[Name], [t0].[Text], [t0].[Name]");
+ORDER BY [f].[Name], [m].[DefaultText], [m0].[DefaultText], [t].[Text], [t].[Name], [t0].[Text]");
         }
 
         public override async Task Join_navigation_key_access_optional(bool async)
@@ -1119,7 +1119,7 @@ LEFT JOIN (
     FROM [LevelTwo] AS [l2]
     LEFT JOIN [LevelThree] AS [l3] ON [l2].[Id] = [l3].[Level2_Optional_Id]
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [l0].[Id], [l1].[Id], [t].[Id], [t].[Id0]");
+ORDER BY [l].[Id], [l0].[Id], [l1].[Id], [t].[Id]");
         }
 
         public override async Task Where_navigation_property_to_collection(bool async)
@@ -2595,7 +2595,7 @@ FROM [InheritanceOne] AS [i]
 LEFT JOIN [InheritanceLeafOne] AS [i0] ON [i].[Id] = [i0].[DifferentTypeReference_InheritanceDerived1Id]
 LEFT JOIN [InheritanceLeafTwo] AS [i1] ON [i].[Id] = [i1].[DifferentTypeReference_InheritanceDerived2Id]
 LEFT JOIN [InheritanceTwo] AS [i2] ON [i1].[Id] = [i2].[InheritanceLeaf2Id]
-ORDER BY [i].[Id], [i0].[Id], [i1].[Id], [i2].[Id]");
+ORDER BY [i].[Id], [i0].[Id], [i1].[Id]");
         }
 
         public override async Task String_include_multiple_derived_collection_navigation_with_same_name_and_same_type(bool async)
@@ -2607,7 +2607,7 @@ ORDER BY [i].[Id], [i0].[Id], [i1].[Id], [i2].[Id]");
 FROM [InheritanceOne] AS [i]
 LEFT JOIN [InheritanceLeafOne] AS [i0] ON [i].[Id] = [i0].[InheritanceDerived1Id1]
 LEFT JOIN [InheritanceLeafOne] AS [i1] ON [i].[Id] = [i1].[InheritanceDerived2Id]
-ORDER BY [i].[Id], [i0].[Id], [i1].[Id]");
+ORDER BY [i].[Id], [i0].[Id]");
         }
 
         public override async Task String_include_multiple_derived_collection_navigation_with_same_name_and_different_type(bool async)
@@ -2619,7 +2619,7 @@ ORDER BY [i].[Id], [i0].[Id], [i1].[Id]");
 FROM [InheritanceOne] AS [i]
 LEFT JOIN [InheritanceLeafOne] AS [i0] ON [i].[Id] = [i0].[InheritanceDerived1Id]
 LEFT JOIN [InheritanceLeafTwo] AS [i1] ON [i].[Id] = [i1].[InheritanceDerived2Id]
-ORDER BY [i].[Id], [i0].[Id], [i1].[Id]");
+ORDER BY [i].[Id], [i0].[Id]");
         }
 
         public override async Task
@@ -2639,7 +2639,7 @@ LEFT JOIN (
     FROM [InheritanceLeafTwo] AS [i1]
     LEFT JOIN [InheritanceTwo] AS [i2] ON [i1].[Id] = [i2].[InheritanceLeaf2Id]
 ) AS [t] ON [i].[Id] = [t].[InheritanceDerived2Id]
-ORDER BY [i].[Id], [i0].[Id], [t].[Id], [t].[Id0]");
+ORDER BY [i].[Id], [i0].[Id], [t].[Id]");
         }
 
         public override async Task String_include_multiple_derived_navigations_complex(bool async)
@@ -2658,7 +2658,7 @@ LEFT JOIN (
     LEFT JOIN [InheritanceLeafOne] AS [i4] ON [i3].[Id] = [i4].[SameTypeReference_InheritanceDerived1Id]
     LEFT JOIN [InheritanceLeafOne] AS [i5] ON [i3].[Id] = [i5].[SameTypeReference_InheritanceDerived2Id]
 ) AS [t] ON [i].[Id] = [t].[InheritanceBase2Id1]
-ORDER BY [i].[Id], [i0].[Id], [i1].[Id], [i2].[Id], [t].[Id], [t].[Id0], [t].[Id1]");
+ORDER BY [i].[Id], [i0].[Id], [i1].[Id], [i2].[Id], [t].[Id], [t].[Id0]");
         }
 
         public override async Task Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(bool async)
@@ -3057,7 +3057,7 @@ FROM [LevelOne] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
 LEFT JOIN [LevelThree] AS [l2] ON [l0].[Id] = [l2].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [l0].[Id], [l1].[Id], [l2].[Id]");
+ORDER BY [l].[Id], [l0].[Id], [l1].[Id]");
         }
 
         public override void GroupJoin_with_navigations_in_the_result_selector()
@@ -3248,7 +3248,7 @@ LEFT JOIN (
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Required_Inverse2Id]
-ORDER BY [l].[Id], [l0].[Id], [l1].[Id]");
+ORDER BY [l].[Id], [l0].[Id]");
         }
 
         public override async Task OrderBy_collection_count_ThenBy_reference_navigation(bool async)
@@ -3539,7 +3539,7 @@ OUTER APPLY (
         WHERE ([l].[Id] = [l1].[OneToMany_Required_Inverse2Id]) AND ([l1].[Id] = [l0].[Level2_Required_Id]))
 ) AS [t]
 LEFT JOIN [LevelTwo] AS [l2] ON [l].[Id] = [l2].[OneToMany_Required_Inverse2Id]
-ORDER BY [l].[Id], [t].[Id], [l2].[Id]");
+ORDER BY [l].[Id], [t].[Id]");
         }
 
         public override async Task Multiple_conditionals_in_projection(bool async)
