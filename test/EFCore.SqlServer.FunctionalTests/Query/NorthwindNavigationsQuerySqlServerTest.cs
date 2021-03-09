@@ -388,7 +388,7 @@ WHERE [e0].[EmployeeID] IS NULL");
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY [c].[CustomerID], [o].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Select_collection_navigation_simple2(bool async)
@@ -414,7 +414,7 @@ ORDER BY [c].[CustomerID]");
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY [c].[CustomerID], [o].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Select_collection_navigation_multi_part(bool async)
@@ -427,7 +427,7 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
 WHERE [o].[CustomerID] = N'ALFKI'
-ORDER BY [o].[OrderID], [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [o].[OrderID], [c].[CustomerID]");
         }
 
         public override async Task Select_collection_navigation_multi_part2(bool async)
@@ -441,7 +441,7 @@ INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
 WHERE [o0].[CustomerID] IN (N'ALFKI', N'ANTON')
-ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID], [o1].[OrderID]");
+ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID]");
         }
 
         public override async Task Collection_select_nav_prop_any(bool async)

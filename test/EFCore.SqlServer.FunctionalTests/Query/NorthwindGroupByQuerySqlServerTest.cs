@@ -1533,7 +1533,7 @@ OUTER APPLY (
     GROUP BY [o].[OrderID]
 ) AS [t]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY [c].[CustomerID], [t].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Select_uncorrelated_collection_with_groupby_multiple_collections_work(bool async)
@@ -1554,7 +1554,7 @@ OUTER APPLY (
     GROUP BY [p0].[ProductID]
 ) AS [t0]
 WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')
-ORDER BY [o].[OrderID], [t].[ProductID], [t0].[ProductID]");
+ORDER BY [o].[OrderID], [t].[ProductID]");
         }
 
         public override async Task Select_GroupBy_All(bool async)
@@ -2539,7 +2539,7 @@ OUTER APPLY (
     FROM [Products] AS [p0]
     GROUP BY [p0].[ProductID]
 ) AS [t1]
-ORDER BY [t].[City], [t0].[ProductID], [t1].[ProductID]");
+ORDER BY [t].[City], [t0].[ProductID]");
         }
 
         private void AssertSql(params string[] expected)

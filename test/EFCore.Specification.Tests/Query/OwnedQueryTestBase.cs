@@ -1064,11 +1064,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Assert.Equal(ee.Id, aa.Id);
                                 Assert.Equal(ee.Name, aa.Name);
                                 Assert.Equal(ee.Composition.Count, aa.Composition.Count);
-                                for (var i = 0; i < ee.Composition.Count; i++)
+                                var eComposition = ee.Composition.OrderBy(e => e.Id).ToList();
+                                var aComposition = aa.Composition.OrderBy(e => e.Id).ToList();
+                                for (var i = 0; i < eComposition.Count; i++)
                                 {
-                                    Assert.Equal(ee.Composition[i].Id, aa.Composition[i].Id);
-                                    Assert.Equal(ee.Composition[i].Name, aa.Composition[i].Name);
-                                    Assert.Equal(ee.Composition[i].StarId, aa.Composition[i].StarId);
+                                    Assert.Equal(eComposition[i].Id, aComposition[i].Id);
+                                    Assert.Equal(eComposition[i].Name, aComposition[i].Name);
+                                    Assert.Equal(eComposition[i].StarId, aComposition[i].StarId);
                                 }
                             }
                         }

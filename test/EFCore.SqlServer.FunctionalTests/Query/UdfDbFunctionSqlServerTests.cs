@@ -542,7 +542,7 @@ ORDER BY [g].[Year]");
 FROM [Customers] AS [c]
 OUTER APPLY [dbo].[GetOrdersWithMultipleProducts]([dbo].[AddValues]([c].[Id], 1)) AS [g]
 WHERE [c].[Id] = 1
-ORDER BY [c].[Id], [g].[OrderId]");
+ORDER BY [c].[Id]");
         }
 
         public override void QF_Select_Correlated_Subquery_In_Anonymous()
@@ -557,7 +557,7 @@ OUTER APPLY (
     FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
     WHERE DATEPART(day, [g].[OrderDate]) = 21
 ) AS [t]
-ORDER BY [c].[Id], [t].[OrderId]");
+ORDER BY [c].[Id]");
         }
 
         public override void QF_Select_Correlated_Subquery_In_Anonymous_Nested_With_QF()
@@ -582,7 +582,7 @@ INNER JOIN (
                 @"SELECT [c].[Id], [c].[LastName], [g].[OrderId], [g].[CustomerId], [g].[OrderDate]
 FROM [Customers] AS [c]
 OUTER APPLY [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
-ORDER BY [c].[Id], [g].[OrderId]");
+ORDER BY [c].[Id]");
         }
 
         public override void QF_CrossApply_Correlated_Select_Result()
@@ -728,7 +728,7 @@ OUTER APPLY (
     FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
     INNER JOIN [Customers] AS [c0] ON [g].[CustomerId] = [c0].[Id]
 ) AS [t]
-ORDER BY [c].[Id], [t].[OrderId], [t].[Id]");
+ORDER BY [c].[Id], [t].[OrderId]");
         }
 
         public override void DbSet_mapped_to_function()

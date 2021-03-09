@@ -276,7 +276,7 @@ LEFT JOIN (
     ) AS [t0] ON [l2].[Id] = [t0].[Id]
     WHERE [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [l2].[Level2_Required_Id] IS NOT NULL
 ) AS [t1] ON [t].[Id] = [t1].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [t].[Id], [t].[Id0], [t1].[Id], [t1].[Id0], [t1].[Id00]");
+ORDER BY [l].[Id], [t].[Id], [t].[Id0], [t1].[Id], [t1].[Id0]");
         }
 
         public override async Task SelectMany_with_navigation_and_Distinct(bool async)
@@ -299,7 +299,7 @@ LEFT JOIN (
     WHERE [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToOne_Required_PK_Date] IS NOT NULL)
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
 WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL) AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
-ORDER BY [l].[Id], [t].[Id], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Level2_Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id], [t0].[Id], [t0].[Id0]");
+ORDER BY [l].[Id], [t].[Id], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Level2_Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id], [t0].[Id]");
         }
 
         public override async Task SelectMany_with_navigation_and_Distinct_projecting_columns_including_join_key(bool async)
@@ -321,7 +321,7 @@ LEFT JOIN (
     INNER JOIN [Level1] AS [l3] ON [l2].[Id] = [l3].[Id]
     WHERE [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToOne_Required_PK_Date] IS NOT NULL)
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t].[Id], [t].[Name], [t].[FK], [t0].[Id], [t0].[Id0]");
+ORDER BY [l].[Id], [t].[Id], [t].[Name], [t].[FK], [t0].[Id]");
         }
 
         private void AssertSql(params string[] expected)

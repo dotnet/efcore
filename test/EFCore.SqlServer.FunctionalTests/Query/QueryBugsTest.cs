@@ -550,7 +550,7 @@ INSERT ZeroKey VALUES (NULL)");
                 @"SELECT [c].[FirstName], [c].[LastName], [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
 FROM [Customer] AS [c]
 LEFT JOIN [Order] AS [o] ON ([c].[FirstName] = [o].[CustomerFirstName]) AND ([c].[LastName] = [o].[CustomerLastName])
-ORDER BY [c].[FirstName], [c].[LastName], [o].[Id]");
+ORDER BY [c].[FirstName], [c].[LastName]");
         }
 
         [ConditionalFact]
@@ -2108,7 +2108,7 @@ WHERE [e].[Name] IS NULL");
                     @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info]
 FROM [Movies] AS [m]
 LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
-ORDER BY [m].[Id], [a].[Id]");
+ORDER BY [m].[Id]");
                 ClearLog();
             }
 
@@ -2126,7 +2126,7 @@ ORDER BY [m].[Id], [a].[Id]");
                     @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info]
 FROM [Movies] AS [m]
 LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
-ORDER BY [m].[Id], [a].[Id]");
+ORDER BY [m].[Id]");
             }
         }
 
@@ -2587,7 +2587,7 @@ LEFT JOIN [Configuration9468] AS [c0] ON [c].[ConfigurationId] = [c0].[Id]");
                     @"SELECT [p].[Id], [p].[Name], [c].[Id], [c].[Name], [c].[Parent10635Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Children] AS [c] ON [p].[Id] = [c].[Parent10635Id]
-ORDER BY [p].[Id], [c].[Id]");
+ORDER BY [p].[Id]");
                 ClearLog();
             }
 
@@ -2599,7 +2599,7 @@ ORDER BY [p].[Id], [c].[Id]");
                     @"SELECT [p].[Id], [c].[Id], [c].[Name], [c].[Parent10635Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Children] AS [c] ON [p].[Id] = [c].[Parent10635Id]
-ORDER BY [p].[Id], [c].[Id]");
+ORDER BY [p].[Id]");
             }
         }
 
@@ -3864,7 +3864,7 @@ END IN ('0a47bcb7-a1cb-4345-8944-c58f82d6aac7', '5f221fb9-66f4-442a-92c9-d97ed59
 END, [a].[Turnovers_AmountIn], [a].[Id]
 FROM [Partners] AS [p]
 LEFT JOIN [Address13157] AS [a] ON [p].[Id] = [a].[Partner13157Id]
-ORDER BY [p].[Id], [a].[Id]");
+ORDER BY [p].[Id]");
             }
         }
 
@@ -5395,7 +5395,7 @@ OUTER APPLY (
         FROM [Values] AS [v0]
         WHERE [e].[Id] = [v0].[Entity11023Id]) IS NULL AND [t].[Value11023Id] IS NULL))
 ) AS [t0]
-ORDER BY [e].[Id], [t0].[Id], [t0].[Id0]");
+ORDER BY [e].[Id], [t0].[Id]");
             }
         }
 
@@ -5648,7 +5648,7 @@ OUTER APPLY (
         FROM [CompetitionSeasons] AS [c1]
         WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate]))) AND ([a0].[Id] = [a1].[ActivityTypeId])
 ) AS [t]
-ORDER BY [a].[Id], [a0].[Id], [t].[Id], [t].[Id0]");
+ORDER BY [a].[Id], [a0].[Id], [t].[Id]");
                 ClearLog();
             }
 
@@ -5796,7 +5796,7 @@ LEFT JOIN (
     INNER JOIN [DbContract] AS [d1] ON [d0].[ContractId] = [d1].[Id]
     LEFT JOIN [DbSeason] AS [d2] ON [d1].[SeasonId] = [d2].[Id]
 ) AS [t1] ON [t0].[Id] = [t1].[DbTradeId]
-ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1]");
+ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0]");
             }
         }
 
@@ -6615,7 +6615,7 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
                     @"SELECT [p].[Id], [c].[Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
-ORDER BY [p].[Id], [c].[Id]"
+ORDER BY [p].[Id]"
                     });
                 ClearLog();
             }
@@ -6650,7 +6650,7 @@ ORDER BY [p].[Id]"
 FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
 LEFT JOIN [AnotherChild21355] AS [a] ON [p].[Id] = [a].[ParentId]
-ORDER BY [p].[Id], [c].[Id], [a].[Id]"
+ORDER BY [p].[Id], [c].[Id]"
                     });
             }
         }
@@ -6690,7 +6690,7 @@ ORDER BY [p].[Id]"
                     @"SELECT [p].[Id], [c].[Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
-ORDER BY [p].[Id], [c].[Id]"
+ORDER BY [p].[Id]"
                     });
                 ClearLog();
             }
@@ -6774,7 +6774,7 @@ ORDER BY [p].[Id]"
 FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
 LEFT JOIN [AnotherChild21355] AS [a] ON [p].[Id] = [a].[ParentId]
-ORDER BY [p].[Id], [c].[Id], [a].[Id]"
+ORDER BY [p].[Id], [c].[Id]"
                 });
         }
 
@@ -6893,7 +6893,7 @@ LEFT JOIN (
     FROM [JoinEntity21540] AS [j]
     INNER JOIN [OtherSide21540] AS [o] ON [j].[OtherSideId] = [o].[Id]
 ) AS [t] ON [p].[Id] = [t].[ParentId]
-ORDER BY [p].[Id], [r].[Id], [c].[Id], [t].[ParentId], [t].[OtherSideId], [t].[Id]");
+ORDER BY [p].[Id], [r].[Id], [c].[Id], [t].[ParentId], [t].[OtherSideId]");
                 ClearLog();
             }
 
@@ -7460,7 +7460,7 @@ ORDER BY [e].[Id]");
                         @"SELECT [e].[Id], [o].[Id], [o].[AppEntityId]
 FROM [Entities] AS [e]
 LEFT JOIN [OtherEntity21803] AS [o] ON [e].[Id] = [o].[AppEntityId]
-ORDER BY [e].[Id], [o].[Id]");
+ORDER BY [e].[Id]");
                 }
             }
         }
@@ -7745,7 +7745,7 @@ LEFT JOIN (
         LEFT JOIN [ThirdFifthValueObjects] AS [t1] ON [t0].[Id] = [t1].[ThirdValueObjectId]
     ) AS [t2] ON [s].[Id] = [t2].[SecondValueObjectId]
 ) AS [t3] ON [t].[Id] = [t3].[AggregateId]
-ORDER BY [t].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1], [t3].[Id00]");
+ORDER BY [t].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1]");
             }
         }
 
@@ -7999,7 +7999,7 @@ FROM (
 ) AS [t]
 LEFT JOIN [FungibleBag_Currencies] AS [f0] ON [t].[MasterTrunk22340Id] = [f0].[CurrencyBag22340MasterTrunk22340Id]
 LEFT JOIN [StaticBag_Currencies] AS [s0] ON [t].[MasterTrunk22340Id0] = [s0].[CurrencyBag22340MasterTrunk22340Id]
-ORDER BY [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id]");
+ORDER BY [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id]");
             }
         }
 
@@ -8142,13 +8142,13 @@ INNER JOIN [PrincipalOneToOne] AS [p] ON [d].[PrincipalId] = [p].[Id]");
                     @"SELECT [p].[Id], [d].[Id], [d].[PrincipalId]
 FROM [PrincipalOneToMany] AS [p]
 LEFT JOIN [DependentOneToMany] AS [d] ON [p].[Id] = [d].[PrincipalId]
-ORDER BY [p].[Id], [d].[Id]",
+ORDER BY [p].[Id]",
                     //
                     @"SELECT [d].[Id], [d].[PrincipalId], [p].[Id], [d0].[Id], [d0].[PrincipalId]
 FROM [DependentOneToMany] AS [d]
 INNER JOIN [PrincipalOneToMany] AS [p] ON [d].[PrincipalId] = [p].[Id]
 LEFT JOIN [DependentOneToMany] AS [d0] ON [p].[Id] = [d0].[PrincipalId]
-ORDER BY [d].[Id], [p].[Id], [d0].[Id]");
+ORDER BY [d].[Id], [p].[Id]");
                 ClearLog();
             }
 
@@ -8390,7 +8390,7 @@ LEFT JOIN (
     FROM [Posts] AS [p]
     WHERE [p].[Name] LIKE N'%2%'
 ) AS [t] ON [b].[Id] = [t].[BlogId]
-ORDER BY [b].[Id], [t].[Id]");
+ORDER BY [b].[Id]");
                 ClearLog();
             }
 

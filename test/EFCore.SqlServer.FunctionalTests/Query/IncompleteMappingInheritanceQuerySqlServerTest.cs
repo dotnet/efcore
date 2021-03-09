@@ -307,7 +307,7 @@ LEFT JOIN (
     FROM [Animals] AS [a0]
     WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi')
 ) AS [t0] ON [t].[Species] = [t0].[EagleId]
-ORDER BY [t].[Species], [t0].[Species]");
+ORDER BY [t].[Species]");
         }
 
         public override async Task Can_include_animals(bool async)
@@ -322,7 +322,7 @@ LEFT JOIN (
     FROM [Animals] AS [a]
     WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
 ) AS [t] ON [c].[Id] = [t].[CountryId]
-ORDER BY [c].[Name], [c].[Id], [t].[Species]");
+ORDER BY [c].[Name], [c].[Id]");
         }
 
         public override async Task Can_use_of_type_kiwi_where_north_on_derived_property(bool async)

@@ -342,7 +342,7 @@ FROM (
     WHERE [c0].[City] = N'London'
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]");
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task Include_Union(bool async)
@@ -361,7 +361,7 @@ FROM (
     WHERE [c0].[City] = N'London'
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]");
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task Select_Except_reference_projection(bool async)

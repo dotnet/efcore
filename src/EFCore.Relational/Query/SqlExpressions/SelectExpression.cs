@@ -55,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly List<TableExpressionBase> _tables = new();
         private readonly List<SqlExpression> _groupBy = new();
         private readonly List<OrderingExpression> _orderings = new();
+        private OrderingExpression? _pendingOrdering;
 
         private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier
             = new();
@@ -627,12 +628,28 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="orderingExpression"> An ordering expression to use for ordering. </param>
         public void AppendOrdering([NotNull] OrderingExpression orderingExpression)
+            => AppendOrdering(orderingExpression, isPending: false);
+
+        private void AppendOrdering([NotNull] OrderingExpression orderingExpression, bool isPending)
         {
             Check.NotNull(orderingExpression, nameof(orderingExpression));
 
             if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
             {
-                _orderings.Add(orderingExpression);
+                if (_pendingOrdering is not null)
+                {
+                    _orderings.Add(_pendingOrdering);
+                }
+
+                if (isPending)
+                {
+                    _pendingOrdering = orderingExpression;
+                }
+                else
+                {
+                    _pendingOrdering = null;
+                    _orderings.Add(orderingExpression);
+                }
             }
         }
 
@@ -1645,7 +1662,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     var updatedColumn = identifier.Column.MakeNullable();
                     _childIdentifiers.Add((updatedColumn, identifier.Comparer));
-                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
+                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true), isPending: true);
                 }
 
                 var result = new RelationalCollectionShaperExpression(

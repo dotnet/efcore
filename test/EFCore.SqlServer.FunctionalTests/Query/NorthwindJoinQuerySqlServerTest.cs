@@ -558,7 +558,7 @@ CROSS APPLY (
 ) AS [t]
 LEFT JOIN [Order Details] AS [o0] ON [t].[OrderID] = [o0].[OrderID]
 WHERE [c].[CustomerID] LIKE N'F%'
-ORDER BY [c].[CustomerID], [t].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+ORDER BY [c].[CustomerID], [t].[OrderID], [o0].[OrderID]");
         }
 
         public override async Task SelectMany_with_client_eval_with_collection_shaper_ignored(bool async)
@@ -593,7 +593,7 @@ LEFT JOIN (
     ) AS [t] ON [o].[OrderID] = [t].[OrderID]
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY [c].[CustomerID], [t0].[OrderID0], [t0].[OrderID1], [t0].[ProductID0]");
+ORDER BY [c].[CustomerID], [t0].[OrderID0], [t0].[OrderID1]");
         }
 
         public override async Task SelectMany_with_selecting_outer_entity(bool async)

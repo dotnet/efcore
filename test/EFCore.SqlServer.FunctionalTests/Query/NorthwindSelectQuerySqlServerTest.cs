@@ -81,7 +81,7 @@ FROM [Customers] AS [c]");
                 @"SELECT [c].[CustomerID], [o].[CustomerID], [o].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[CustomerID], [o].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Project_to_object_array(bool async)
@@ -1136,7 +1136,7 @@ LEFT JOIN (
     WHERE [o].[OrderID] > 11000
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY [c].[CustomerID], [t].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Filtered_collection_projection_with_to_list_is_tracked(bool async)
@@ -1152,7 +1152,7 @@ LEFT JOIN (
     WHERE [o].[OrderID] > 11000
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY [c].[CustomerID], [t].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(
@@ -1201,7 +1201,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
-ORDER BY [o].[OrderID], [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [o].[OrderID], [c].[CustomerID]");
         }
 
         public override async Task Select_entity_compared_to_null(bool async)
@@ -1317,7 +1317,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
                 @"SELECT [c].[CustomerID], [o].[OrderDate], [o].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-ORDER BY [c].[CustomerID], [o].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Coalesce_over_nullable_uint(bool async)
@@ -1397,7 +1397,7 @@ WHERE ([c].[CustomerID] LIKE N'A%') AND ((
     SELECT COUNT(*)
     FROM [Orders] AS [o0]
     WHERE ([o0].[CustomerID] = [c].[CustomerID]) AND ([o0].[OrderID] < 11000)) > 0)
-ORDER BY [c].[CustomerID], [t].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Projection_custom_type_in_both_sides_of_ternary(bool async)
@@ -1423,7 +1423,7 @@ FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
 WHERE [c].[CustomerID] = N'ALFKI'
-ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
         public override async Task Custom_projection_reference_navigation_PK_to_FK_optimization(bool async)
@@ -1559,7 +1559,7 @@ LEFT JOIN (
     WHERE [o2].[UnitPrice] < 10.0
 ) AS [t2] ON [o].[OrderID] = [t2].[OrderID]
 WHERE [o].[OrderID] < 10350
-ORDER BY [o].[OrderID], [t0].[OrderID], [t0].[ProductID], [t0].[ProductID0], [t1].[OrderID], [t1].[ProductID], [t1].[ProductID0], [t2].[OrderID], [t2].[ProductID], [t2].[ProductID0]");
+ORDER BY [o].[OrderID], [t0].[OrderID], [t0].[ProductID], [t0].[ProductID0], [t1].[OrderID], [t1].[ProductID], [t1].[ProductID0], [t2].[OrderID], [t2].[ProductID]");
         }
 
         public override async Task Ternary_in_client_eval_assigns_correct_types(bool async)
@@ -1613,7 +1613,7 @@ OUTER APPLY (
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND ([t].[OrderID] = [o0].[OrderID])
 ) AS [t0]
-ORDER BY [t].[OrderID], [t0].[Inner]");
+ORDER BY [t].[OrderID]");
         }
 
         public override async Task Correlated_collection_after_distinct_not_containing_original_identifier(bool async)
@@ -1631,7 +1631,7 @@ OUTER APPLY (
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND (([t].[CustomerID] = [o0].[CustomerID]) OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
 ) AS [t0]
-ORDER BY [t].[OrderDate], [t].[CustomerID], [t0].[Inner]");
+ORDER BY [t].[OrderDate], [t].[CustomerID]");
         }
 
         public override async Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
@@ -1649,7 +1649,7 @@ OUTER APPLY (
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND (([t].[CustomerID] = [o0].[CustomerID]) OR ([t].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
 ) AS [t0]
-ORDER BY [t].[OrderDate], [t].[CustomerID], [t].[Complex], [t0].[Inner]");
+ORDER BY [t].[OrderDate], [t].[CustomerID], [t].[Complex]");
         }
 
         public override async Task Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(bool async)
@@ -1668,7 +1668,7 @@ OUTER APPLY (
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] IN (10248, 10249, 10250) AND ([t].[OrderID] = [o0].[OrderID])
 ) AS [t0]
-ORDER BY [t].[OrderID], [t0].[Inner]");
+ORDER BY [t].[OrderID]");
         }
 
         public override async Task Select_nested_collection_deep(bool async)

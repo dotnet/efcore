@@ -81,7 +81,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 ) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
 LEFT JOIN [Weapons] AS [w] ON [t0].[FullName] = [w].[OwnerFullName]
-ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [w].[Id]");
+ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId]");
         }
 
         public override async Task Include_multiple_one_to_one_optional_and_one_to_one_required(bool async)
@@ -119,7 +119,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t] ON [c].[Name] = [t].[AssignedCityName]
-ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [t].[Nickname]");
         }
 
         public override async Task Include_multiple_circular_with_filter(bool async)
@@ -141,7 +141,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t] ON [c].[Name] = [t].[AssignedCityName]
 WHERE [g].[Nickname] = N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [t].[Nickname]");
         }
 
         public override async Task Include_using_alternate_key(bool async)
@@ -156,7 +156,7 @@ FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 WHERE [g].[Nickname] = N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Include_navigation_on_derived_type(bool async)
@@ -177,7 +177,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t] ON ([g].[Nickname] = [t].[LeaderNickname]) AND ([g].[SquadId] = [t].[LeaderSquadId])
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task String_based_Include_navigation_on_derived_type(bool async)
@@ -198,7 +198,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t] ON ([g].[Nickname] = [t].[LeaderNickname]) AND ([g].[SquadId] = [t].[LeaderSquadId])
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Select_Where_Navigation_Included(bool async)
@@ -261,7 +261,7 @@ FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 INNER JOIN [Tags] AS [t] ON ([g].[SquadId] = [t].[GearSquadId]) AND ([g].[Nickname] = [t].[GearNickName])
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
         }
 
         public override async Task Include_with_join_collection2(bool async)
@@ -279,7 +279,7 @@ INNER JOIN (
     LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 ) AS [t0] ON ([t].[GearSquadId] = [t0].[SquadId]) AND ([t].[GearNickName] = [t0].[Nickname])
 LEFT JOIN [Weapons] AS [w] ON [t0].[FullName] = [w].[OwnerFullName]
-ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [w].[Id]");
+ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId]");
         }
 
         public override async Task Include_where_list_contains_navigation(bool async)
@@ -353,7 +353,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t0] ON [c].[Name] = [t0].[AssignedCityName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [c].[Name], [t0].[Nickname], [t0].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [c].[Name], [t0].[Nickname]");
         }
 
         public override async Task Include_with_join_and_inheritance1(bool async)
@@ -396,7 +396,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t1] ON ([t0].[Nickname] = [t1].[LeaderNickname]) AND ([t0].[SquadId] = [t1].[LeaderSquadId])
-ORDER BY [t0].[HasSoulPatch], [t0].[Nickname] DESC, [t].[Id], [t0].[SquadId], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [t0].[HasSoulPatch], [t0].[Nickname] DESC, [t].[Id], [t0].[SquadId], [t1].[Nickname]");
         }
 
         public override async Task Include_with_join_and_inheritance2(bool async)
@@ -412,7 +412,7 @@ LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[Squad
 INNER JOIN [Tags] AS [t] ON ([g].[SquadId] = [t].[GearSquadId]) AND ([g].[Nickname] = [t].[GearNickName])
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
         }
 
         public override async Task Include_with_join_and_inheritance3(bool async)
@@ -437,7 +437,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t1] ON ([t0].[Nickname] = [t1].[LeaderNickname]) AND ([t0].[SquadId] = [t1].[LeaderSquadId])
-ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname]");
         }
 
         public override async Task Include_with_nested_navigation_in_order_by(bool async)
@@ -2286,7 +2286,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
         }
 
         public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2()
@@ -2308,7 +2308,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 LEFT JOIN [Weapons] AS [w] ON [t].[FullName] = [w].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
         }
 
         public override async Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result3(bool async)
@@ -2331,7 +2331,7 @@ LEFT JOIN (
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 LEFT JOIN [Weapons] AS [w] ON [t].[FullName] = [w].[OwnerFullName]
 LEFT JOIN [Weapons] AS [w0] ON [g].[FullName] = [w0].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [w].[Id], [w0].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [w].[Id]");
         }
 
         public override async Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result4(bool async)
@@ -2400,7 +2400,7 @@ LEFT JOIN (
 ) AS [t] ON [g].[LeaderNickname] = [t].[Nickname]
 LEFT JOIN [Weapons] AS [w] ON [t].[FullName] = [w].[OwnerFullName]
 LEFT JOIN [Weapons] AS [w0] ON [g].[FullName] = [w0].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [w].[Id], [w0].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [w].[Id]");
         }
 
         public override async Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_conditional_result(bool async)
@@ -2879,7 +2879,7 @@ LEFT JOIN (
     WHERE ([w].[Name] <> N'Lancer') OR [w].[Name] IS NULL
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
 WHERE [c].[Name] IN (N'Ephyra', N'Hanover')
-ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name], [t].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [c].[Name]");
         }
 
         public override async Task Select_correlated_filtered_collection_with_composite_key(bool async)
@@ -2899,7 +2899,7 @@ LEFT JOIN (
     WHERE [g0].[Nickname] <> N'Dom'
 ) AS [t] ON ([g].[Nickname] = [t].[LeaderNickname]) AND ([g].[SquadId] = [t].[LeaderSquadId])
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Select_correlated_filtered_collection_works_with_caching(bool async)
@@ -2916,7 +2916,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 ) AS [t0] ON [t].[GearNickName] = [t0].[Nickname]
-ORDER BY [t].[Note], [t].[Id], [t0].[Nickname], [t0].[SquadId]");
+ORDER BY [t].[Note], [t].[Id], [t0].[Nickname]");
         }
 
         public override async Task Join_predicate_value_equals_condition(bool async)
@@ -3760,7 +3760,7 @@ LEFT JOIN (
     LEFT JOIN [LocustCommanders] AS [l3] ON [l2].[Name] = [l3].[Name]
 ) AS [t0] ON [f].[Id] = [t0].[LocustHordeId]
 WHERE [l].[Id] IS NOT NULL
-ORDER BY [f].[Name], [f].[Id], [t].[Name], [t0].[Name]");
+ORDER BY [f].[Name], [f].[Id], [t].[Name]");
         }
 
         public override async Task Distinct_on_subquery_doesnt_get_lifted(bool async)
@@ -3935,7 +3935,7 @@ LEFT JOIN (
     LEFT JOIN [LocustCommanders] AS [l4] ON [l3].[Name] = [l4].[Name]
 ) AS [t1] ON [t0].[Id] = [t1].[LocustHordeId]
 WHERE [l].[Id] IS NOT NULL
-ORDER BY [f].[Id], [t].[Name], [t0].[Id], [t1].[Name]");
+ORDER BY [f].[Id], [t].[Name], [t0].[Id]");
         }
 
         public override async Task Project_collection_navigation_with_inheritance2(bool async)
@@ -3963,7 +3963,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t1] ON (([t0].[Nickname] = [t1].[LeaderNickname]) OR ([t0].[Nickname] IS NULL AND [t1].[LeaderNickname] IS NULL)) AND ([t0].[SquadId] = [t1].[LeaderSquadId])
 WHERE [l].[Id] IS NOT NULL
-ORDER BY [f].[Id], [t].[Name], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [f].[Id], [t].[Name], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname]");
         }
 
         public override async Task Project_collection_navigation_with_inheritance3(bool async)
@@ -3991,7 +3991,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t1] ON (([t0].[Nickname] = [t1].[LeaderNickname]) OR ([t0].[Nickname] IS NULL AND [t1].[LeaderNickname] IS NULL)) AND ([t0].[SquadId] = [t1].[LeaderSquadId])
 WHERE [l].[Id] IS NOT NULL
-ORDER BY [f].[Id], [t].[Name], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [f].[Id], [t].[Name], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname]");
         }
 
         public override async Task Include_reference_on_derived_type_using_string(bool async)
@@ -4058,7 +4058,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
     INNER JOIN [Cities] AS [c] ON [g0].[CityOfBirthName] = [c].[Name]
 ) AS [t0] ON (([t].[Nickname] = [t0].[LeaderNickname]) OR ([t].[Nickname] IS NULL AND [t0].[LeaderNickname] IS NULL)) AND ([t].[SquadId] = [t0].[LeaderSquadId])
-ORDER BY [l].[Name], [t].[Nickname], [t].[SquadId], [t0].[Nickname], [t0].[SquadId], [t0].[Name]");
+ORDER BY [l].[Name], [t].[Nickname], [t].[SquadId], [t0].[Nickname], [t0].[SquadId]");
         }
 
         public override async Task Include_reference_on_derived_type_using_lambda(bool async)
@@ -4135,7 +4135,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t] ON ([g].[Nickname] = [t].[LeaderNickname]) AND ([g].[SquadId] = [t].[LeaderSquadId])
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Include_collection_on_derived_type_using_lambda(bool async)
@@ -4155,7 +4155,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t] ON ([g].[Nickname] = [t].[LeaderNickname]) AND ([g].[SquadId] = [t].[LeaderSquadId])
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Include_collection_on_derived_type_using_lambda_with_soft_cast(bool async)
@@ -4175,7 +4175,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t] ON ([g].[Nickname] = [t].[LeaderNickname]) AND ([g].[SquadId] = [t].[LeaderSquadId])
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Include_base_navigation_on_derived_entity(bool async)
@@ -4190,7 +4190,7 @@ FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 LEFT JOIN [Tags] AS [t] ON ([g].[Nickname] = [t].[GearNickName]) AND ([g].[SquadId] = [t].[GearSquadId])
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
         }
 
         public override async Task ThenInclude_collection_on_derived_after_base_reference(bool async)
@@ -4208,7 +4208,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 ) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
 LEFT JOIN [Weapons] AS [w] ON [t0].[FullName] = [w].[OwnerFullName]
-ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [w].[Id]");
+ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId]");
         }
 
         public override async Task ThenInclude_collection_on_derived_after_derived_reference(bool async)
@@ -4240,7 +4240,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t1] ON (([t0].[Nickname] = [t1].[LeaderNickname]) OR ([t0].[Nickname] IS NULL AND [t1].[LeaderNickname] IS NULL)) AND ([t0].[SquadId] = [t1].[LeaderSquadId])
-ORDER BY [f].[Id], [t].[Name], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [f].[Id], [t].[Name], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname]");
         }
 
         public override async Task ThenInclude_collection_on_derived_after_derived_collection(bool async)
@@ -4267,7 +4267,7 @@ LEFT JOIN (
         LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
     ) AS [t] ON ([g0].[Nickname] = [t].[LeaderNickname]) AND ([g0].[SquadId] = [t].[LeaderSquadId])
 ) AS [t0] ON ([g].[Nickname] = [t0].[LeaderNickname]) AND ([g].[SquadId] = [t0].[LeaderSquadId])
-ORDER BY [g].[Nickname], [g].[SquadId], [t0].[Nickname], [t0].[SquadId], [t0].[Nickname0], [t0].[SquadId0]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t0].[Nickname], [t0].[SquadId], [t0].[Nickname0]");
         }
 
         public override async Task ThenInclude_reference_on_derived_after_derived_collection(bool async)
@@ -4294,7 +4294,7 @@ LEFT JOIN (
         LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
     ) AS [t] ON ([l1].[DefeatedByNickname] = [t].[Nickname]) AND ([l1].[DefeatedBySquadId] = [t].[SquadId])
 ) AS [t0] ON [f].[Id] = [t0].[LocustHordeId]
-ORDER BY [f].[Id], [t0].[Name], [t0].[Nickname], [t0].[SquadId]");
+ORDER BY [f].[Id], [t0].[Name], [t0].[Nickname]");
         }
 
         public override async Task Multiple_derived_included_on_one_method(bool async)
@@ -4326,7 +4326,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t1] ON (([t0].[Nickname] = [t1].[LeaderNickname]) OR ([t0].[Nickname] IS NULL AND [t1].[LeaderNickname] IS NULL)) AND ([t0].[SquadId] = [t1].[LeaderSquadId])
-ORDER BY [f].[Id], [t].[Name], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [f].[Id], [t].[Name], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname]");
         }
 
         public override async Task Include_on_derived_multi_level(bool async)
@@ -4348,7 +4348,7 @@ LEFT JOIN (
     INNER JOIN [Squads] AS [s] ON [g0].[SquadId] = [s].[Id]
     LEFT JOIN [SquadMissions] AS [s0] ON [s].[Id] = [s0].[SquadId]
 ) AS [t] ON ([g].[Nickname] = [t].[LeaderNickname]) AND ([g].[SquadId] = [t].[LeaderSquadId])
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [t].[Id], [t].[SquadId0], [t].[MissionId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId], [t].[Id], [t].[SquadId0]");
         }
 
         public override async Task Projecting_nullable_bool_in_conditional_works(bool async)
@@ -4386,7 +4386,7 @@ ORDER BY [g].[SquadId], [g].[Nickname]");
 FROM [Gears] AS [g]
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Correlated_collections_naked_navigation_with_ToList_followed_by_projecting_count(bool async)
@@ -4412,7 +4412,7 @@ ORDER BY [g].[Nickname]");
 FROM [Gears] AS [g]
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Correlated_collections_basic_projection(bool async)
@@ -4428,7 +4428,7 @@ LEFT JOIN (
     WHERE ([w].[IsAutomatic] = CAST(1 AS bit)) OR (([w].[Name] <> N'foo') OR [w].[Name] IS NULL)
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Correlated_collections_basic_projection_explicit_to_list(bool async)
@@ -4444,7 +4444,7 @@ LEFT JOIN (
     WHERE ([w].[IsAutomatic] = CAST(1 AS bit)) OR (([w].[Name] <> N'foo') OR [w].[Name] IS NULL)
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Correlated_collections_basic_projection_explicit_to_array(bool async)
@@ -4460,7 +4460,7 @@ LEFT JOIN (
     WHERE ([w].[IsAutomatic] = CAST(1 AS bit)) OR (([w].[Name] <> N'foo') OR [w].[Name] IS NULL)
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Correlated_collections_basic_projection_ordered(bool async)
@@ -4476,7 +4476,7 @@ LEFT JOIN (
     WHERE ([w].[IsAutomatic] = CAST(1 AS bit)) OR (([w].[Name] <> N'foo') OR [w].[Name] IS NULL)
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Name] DESC, [t].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Name] DESC");
         }
 
         public override async Task Correlated_collections_basic_projection_composite_key(bool async)
@@ -4493,7 +4493,7 @@ LEFT JOIN (
     WHERE [g0].[HasSoulPatch] = CAST(0 AS bit)
 ) AS [t] ON ([g].[Nickname] = [t].[LeaderNickname]) AND ([g].[SquadId] = [t].[LeaderSquadId])
 WHERE [o].[Nickname] IS NOT NULL AND ([g].[Nickname] <> N'Foo')
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Correlated_collections_basic_projecting_single_property(bool async)
@@ -4509,7 +4509,7 @@ LEFT JOIN (
     WHERE ([w].[IsAutomatic] = CAST(1 AS bit)) OR (([w].[Name] <> N'foo') OR [w].[Name] IS NULL)
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Correlated_collections_basic_projecting_constant(bool async)
@@ -4525,7 +4525,7 @@ LEFT JOIN (
     WHERE ([w].[IsAutomatic] = CAST(1 AS bit)) OR (([w].[Name] <> N'foo') OR [w].[Name] IS NULL)
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Correlated_collections_basic_projecting_constant_bool(bool async)
@@ -4541,7 +4541,7 @@ LEFT JOIN (
     WHERE ([w].[IsAutomatic] = CAST(1 AS bit)) OR (([w].[Name] <> N'foo') OR [w].[Name] IS NULL)
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Correlated_collections_projection_of_collection_thru_navigation(bool async)
@@ -4558,7 +4558,7 @@ LEFT JOIN (
     WHERE [s0].[MissionId] <> 17
 ) AS [t] ON [s].[Id] = [t].[SquadId]
 WHERE [g].[Nickname] <> N'Marcus'
-ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [s].[Id], [t].[SquadId], [t].[MissionId]");
+ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [s].[Id], [t].[SquadId]");
         }
 
         public override async Task Correlated_collections_project_anonymous_collection_result(bool async)
@@ -4573,7 +4573,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
 ) AS [t] ON [s].[Id] = [t].[SquadId]
 WHERE [s].[Id] < 20
-ORDER BY [s].[Id], [t].[Nickname], [t].[SquadId]");
+ORDER BY [s].[Id], [t].[Nickname]");
         }
 
         public override async Task Correlated_collections_nested(bool async)
@@ -4594,7 +4594,7 @@ LEFT JOIN (
     ) AS [t] ON [m].[Id] = [t].[MissionId]
     WHERE [s0].[MissionId] < 42
 ) AS [t0] ON [s].[Id] = [t0].[SquadId]
-ORDER BY [s].[Id], [t0].[SquadId], [t0].[MissionId], [t0].[Id], [t0].[SquadId0], [t0].[MissionId0]");
+ORDER BY [s].[Id], [t0].[SquadId], [t0].[MissionId], [t0].[Id], [t0].[SquadId0]");
         }
 
         public override async Task Correlated_collections_nested_mixed_streaming_with_buffer1(bool async)
@@ -4615,7 +4615,7 @@ LEFT JOIN (
     ) AS [t] ON [m].[Id] = [t].[MissionId]
     WHERE [s0].[MissionId] < 3
 ) AS [t0] ON [s].[Id] = [t0].[SquadId]
-ORDER BY [s].[Id], [t0].[SquadId], [t0].[MissionId], [t0].[Id], [t0].[SquadId0], [t0].[MissionId0]");
+ORDER BY [s].[Id], [t0].[SquadId], [t0].[MissionId], [t0].[Id], [t0].[SquadId0]");
         }
 
         public override async Task Correlated_collections_nested_mixed_streaming_with_buffer2(bool async)
@@ -4636,7 +4636,7 @@ LEFT JOIN (
     ) AS [t] ON [m].[Id] = [t].[MissionId]
     WHERE [s0].[MissionId] < 42
 ) AS [t0] ON [s].[Id] = [t0].[SquadId]
-ORDER BY [s].[Id], [t0].[SquadId], [t0].[MissionId], [t0].[Id], [t0].[SquadId0], [t0].[MissionId0]");
+ORDER BY [s].[Id], [t0].[SquadId], [t0].[MissionId], [t0].[Id], [t0].[SquadId0]");
         }
 
         public override async Task Correlated_collections_nested_with_custom_ordering(bool async)
@@ -4658,7 +4658,7 @@ LEFT JOIN (
     WHERE [g0].[FullName] <> N'Foo'
 ) AS [t0] ON ([g].[Nickname] = [t0].[LeaderNickname]) AND ([g].[SquadId] = [t0].[LeaderSquadId])
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[HasSoulPatch] DESC, [g].[Nickname], [g].[SquadId], [t0].[Rank], [t0].[Nickname], [t0].[SquadId], [t0].[IsAutomatic], [t0].[Id]");
+ORDER BY [g].[HasSoulPatch] DESC, [g].[Nickname], [g].[SquadId], [t0].[Rank], [t0].[Nickname], [t0].[SquadId], [t0].[IsAutomatic]");
         }
 
         public override async Task Correlated_collections_same_collection_projected_multiple_times(bool async)
@@ -4678,7 +4678,7 @@ LEFT JOIN (
     FROM [Weapons] AS [w0]
     WHERE [w0].[IsAutomatic] = CAST(1 AS bit)
 ) AS [t0] ON [g].[FullName] = [t0].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
         }
 
         public override async Task Correlated_collections_similar_collection_projected_multiple_times(bool async)
@@ -4698,7 +4698,7 @@ LEFT JOIN (
     FROM [Weapons] AS [w0]
     WHERE [w0].[IsAutomatic] = CAST(0 AS bit)
 ) AS [t0] ON [g].[FullName] = [t0].[OwnerFullName]
-ORDER BY [g].[Rank], [g].[Nickname], [g].[SquadId], [t].[OwnerFullName], [t].[Id], [t0].[IsAutomatic], [t0].[Id]");
+ORDER BY [g].[Rank], [g].[Nickname], [g].[SquadId], [t].[OwnerFullName], [t].[Id], [t0].[IsAutomatic]");
         }
 
         public override async Task Correlated_collections_different_collections_projected(bool async)
@@ -4719,7 +4719,7 @@ LEFT JOIN (
     FROM [Gears] AS [g0]
 ) AS [t0] ON ([g].[Nickname] = [t0].[LeaderNickname]) AND ([g].[SquadId] = [t0].[LeaderSquadId])
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[FullName], [t0].[Nickname], [t0].[SquadId]");
+ORDER BY [g].[FullName], [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[FullName], [t0].[Nickname]");
         }
 
         public override async Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys(bool async)
@@ -4765,7 +4765,7 @@ WHERE [o].[Nickname] IS NOT NULL AND EXISTS (
     FROM [Gears] AS [g2]
     LEFT JOIN [Officers] AS [o2] ON ([g2].[Nickname] = [o2].[Nickname]) AND ([g2].[SquadId] = [o2].[SquadId])
     WHERE ([g].[Nickname] = [g2].[LeaderNickname]) AND ([g].[SquadId] = [g2].[LeaderSquadId]))
-ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[Nickname], [t0].[SquadId], [t2].[IsAutomatic], [t2].[Nickname] DESC, [t2].[Id], [t2].[SquadId]");
+ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[Nickname], [t0].[SquadId], [t2].[IsAutomatic], [t2].[Nickname] DESC, [t2].[Id]");
         }
 
         public override async Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_duplicated_orderings(
@@ -4795,7 +4795,7 @@ WHERE [o].[Nickname] IS NOT NULL AND EXISTS (
     FROM [Gears] AS [g2]
     LEFT JOIN [Officers] AS [o2] ON ([g2].[Nickname] = [o2].[Nickname]) AND ([g2].[SquadId] = [o2].[SquadId])
     WHERE ([g].[Nickname] = [g2].[LeaderNickname]) AND ([g].[SquadId] = [g2].[LeaderSquadId]))
-ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[Nickname], [t0].[SquadId], [t2].[IsAutomatic], [t2].[Nickname] DESC, [t2].[Id], [t2].[SquadId]");
+ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[Nickname], [t0].[SquadId], [t2].[IsAutomatic], [t2].[Nickname] DESC, [t2].[Id]");
         }
 
         public override async Task Multiple_orderby_with_navigation_expansion_on_one_of_the_order_bys_inside_subquery_complex_orderings(
@@ -4828,7 +4828,7 @@ WHERE [o].[Nickname] IS NOT NULL AND EXISTS (
     FROM [Gears] AS [g2]
     LEFT JOIN [Officers] AS [o2] ON ([g2].[Nickname] = [o2].[Nickname]) AND ([g2].[SquadId] = [o2].[SquadId])
     WHERE ([g].[Nickname] = [g2].[LeaderNickname]) AND ([g].[SquadId] = [g2].[LeaderSquadId]))
-ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[Nickname], [t0].[SquadId], [t2].[Id] DESC, [t2].[c], [t2].[Nickname], [t2].[SquadId]");
+ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[Nickname], [t0].[SquadId], [t2].[Id] DESC, [t2].[c], [t2].[Nickname]");
         }
 
         public override async Task Correlated_collections_multiple_nested_complex_collections(bool async)
@@ -4877,7 +4877,7 @@ WHERE [o].[Nickname] IS NOT NULL AND EXISTS (
     FROM [Gears] AS [g5]
     LEFT JOIN [Officers] AS [o5] ON ([g5].[Nickname] = [o5].[Nickname]) AND ([g5].[SquadId] = [o5].[SquadId])
     WHERE ([g].[Nickname] = [g5].[LeaderNickname]) AND ([g].[SquadId] = [g5].[LeaderSquadId]))
-ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[Nickname], [t0].[SquadId], [t4].[Rank], [t4].[Nickname], [t4].[SquadId], [t4].[IsAutomatic0], [t4].[Id], [t4].[Nickname0], [t4].[SquadId0], [t4].[Id0], [t4].[Id1], [t4].[Nickname00], [t4].[SquadId00], [t6].[IsAutomatic], [t6].[Nickname] DESC, [t6].[Id], [t6].[SquadId]");
+ORDER BY [g].[HasSoulPatch] DESC, [t].[Note], [g].[Nickname], [g].[SquadId], [t].[Id], [t0].[Nickname], [t0].[SquadId], [t4].[Rank], [t4].[Nickname], [t4].[SquadId], [t4].[IsAutomatic0], [t4].[Id], [t4].[Nickname0], [t4].[SquadId0], [t4].[Id0], [t4].[Id1], [t4].[Nickname00], [t4].[SquadId00], [t6].[IsAutomatic], [t6].[Nickname] DESC, [t6].[Id]");
         }
 
         public override async Task Correlated_collections_inner_subquery_selector_references_outer_qsre(bool async)
@@ -4894,7 +4894,7 @@ OUTER APPLY (
     WHERE ([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId])
 ) AS [t]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Correlated_collections_inner_subquery_predicate_references_outer_qsre(bool async)
@@ -4911,7 +4911,7 @@ OUTER APPLY (
     WHERE ([g].[FullName] <> N'Foo') AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))
 ) AS [t]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Correlated_collections_nested_inner_subquery_references_outer_qsre_one_level_up(bool async)
@@ -4933,7 +4933,7 @@ LEFT JOIN (
     WHERE [g0].[FullName] <> N'Foo'
 ) AS [t0] ON ([g].[Nickname] = [t0].[LeaderNickname]) AND ([g].[SquadId] = [t0].[LeaderSquadId])
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t0].[Nickname], [t0].[SquadId], [t0].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t0].[Nickname], [t0].[SquadId]");
         }
 
         public override async Task Correlated_collections_nested_inner_subquery_references_outer_qsre_two_levels_up(bool async)
@@ -4955,7 +4955,7 @@ OUTER APPLY (
     WHERE ([g0].[FullName] <> N'Foo') AND (([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId]))
 ) AS [t0]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t0].[Nickname], [t0].[SquadId], [t0].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t0].[Nickname], [t0].[SquadId]");
         }
 
         public override async Task Correlated_collections_on_select_many(bool async)
@@ -4980,7 +4980,7 @@ LEFT JOIN (
     WHERE [g0].[HasSoulPatch] = CAST(0 AS bit)
 ) AS [t0] ON [s].[Id] = [t0].[SquadId]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
-ORDER BY [g].[Nickname], [s].[Id] DESC, [g].[SquadId], [t].[Id], [t0].[Nickname], [t0].[SquadId]");
+ORDER BY [g].[Nickname], [s].[Id] DESC, [g].[SquadId], [t].[Id], [t0].[Nickname]");
         }
 
         public override async Task Correlated_collections_with_Skip(bool async)
@@ -5047,7 +5047,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 ) AS [t] ON [s].[Id] = [t].[SquadId]
-ORDER BY [s].[Name], [s].[Id], [t].[Nickname], [t].[SquadId]");
+ORDER BY [s].[Name], [s].[Id], [t].[Nickname]");
         }
 
         public override async Task Correlated_collections_with_FirstOrDefault(bool async)
@@ -5078,7 +5078,7 @@ LEFT JOIN (
 ) AS [t0] ON [t].[GearNickName] = [t0].[Nickname]
 LEFT JOIN [Weapons] AS [w] ON [t0].[FullName] = [w].[OwnerFullName]
 WHERE [t0].[HasSoulPatch] = CAST(0 AS bit)
-ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [w].[Id]");
+ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId]");
         }
 
         public override async Task Correlated_collections_on_left_join_with_null_value(bool async)
@@ -5093,7 +5093,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
 ) AS [t0] ON [t].[GearNickName] = [t0].[Nickname]
 LEFT JOIN [Weapons] AS [w] ON [t0].[FullName] = [w].[OwnerFullName]
-ORDER BY [t].[Note], [t].[Id], [t0].[Nickname], [t0].[SquadId], [w].[Id]");
+ORDER BY [t].[Note], [t].[Id], [t0].[Nickname], [t0].[SquadId]");
         }
 
         public override async Task Correlated_collections_left_join_with_self_reference(bool async)
@@ -5113,7 +5113,7 @@ LEFT JOIN (
     SELECT [g0].[FullName], [g0].[Nickname], [g0].[SquadId], [g0].[LeaderNickname], [g0].[LeaderSquadId]
     FROM [Gears] AS [g0]
 ) AS [t1] ON (([t0].[Nickname] = [t1].[LeaderNickname]) OR ([t0].[Nickname] IS NULL AND [t1].[LeaderNickname] IS NULL)) AND ([t0].[SquadId] = [t1].[LeaderSquadId])
-ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname]");
         }
 
         public override async Task Correlated_collections_deeply_nested_left_join(bool async)
@@ -5138,7 +5138,7 @@ LEFT JOIN (
     ) AS [t1] ON [g0].[FullName] = [t1].[OwnerFullName]
     WHERE [g0].[HasSoulPatch] = CAST(1 AS bit)
 ) AS [t2] ON [s].[Id] = [t2].[SquadId]
-ORDER BY [t].[Note], [t0].[Nickname] DESC, [t].[Id], [t0].[SquadId], [s].[Id], [t2].[Nickname], [t2].[SquadId], [t2].[Id]");
+ORDER BY [t].[Note], [t0].[Nickname] DESC, [t].[Id], [t0].[SquadId], [s].[Id], [t2].[Nickname], [t2].[SquadId]");
         }
 
         public override async Task Correlated_collections_from_left_join_with_additional_elements_projected_of_that_join(bool async)
@@ -5185,7 +5185,7 @@ LEFT JOIN (
         FROM [Gears] AS [g1]
     ) AS [t0] ON [s].[Id] = [t0].[SquadId]
 ) AS [t1] ON [g].[FullName] = [t1].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t1].[Id], [t1].[Nickname], [t1].[SquadId], [t1].[Id0], [t1].[Nickname0], [t1].[SquadId0]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t1].[Id], [t1].[Nickname], [t1].[SquadId], [t1].[Id0], [t1].[Nickname0]");
         }
 
         public override async Task Correlated_collections_complex_scenario2(bool async)
@@ -5214,7 +5214,7 @@ LEFT JOIN (
     ) AS [t1] ON [g0].[FullName] = [t1].[OwnerFullName]
 ) AS [t2] ON ([g].[Nickname] = [t2].[LeaderNickname]) AND ([g].[SquadId] = [t2].[LeaderSquadId])
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t2].[Nickname], [t2].[SquadId], [t2].[Id], [t2].[Nickname0], [t2].[SquadId0], [t2].[Id0], [t2].[Nickname00], [t2].[SquadId00]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t2].[Nickname], [t2].[SquadId], [t2].[Id], [t2].[Nickname0], [t2].[SquadId0], [t2].[Id0], [t2].[Nickname00]");
         }
 
         public override async Task Correlated_collections_with_funky_orderby_complex_scenario1(bool async)
@@ -5237,7 +5237,7 @@ LEFT JOIN (
         FROM [Gears] AS [g1]
     ) AS [t0] ON [s].[Id] = [t0].[SquadId]
 ) AS [t1] ON [g].[FullName] = [t1].[OwnerFullName]
-ORDER BY [g].[FullName], [g].[Nickname] DESC, [g].[SquadId], [t1].[Id], [t1].[Nickname], [t1].[SquadId], [t1].[Id0], [t1].[Nickname0], [t1].[SquadId0]");
+ORDER BY [g].[FullName], [g].[Nickname] DESC, [g].[SquadId], [t1].[Id], [t1].[Nickname], [t1].[SquadId], [t1].[Id0], [t1].[Nickname0]");
         }
 
         public override async Task Correlated_collections_with_funky_orderby_complex_scenario2(bool async)
@@ -5266,7 +5266,7 @@ LEFT JOIN (
     ) AS [t1] ON [g0].[FullName] = [t1].[OwnerFullName]
 ) AS [t2] ON ([g].[Nickname] = [t2].[LeaderNickname]) AND ([g].[SquadId] = [t2].[LeaderSquadId])
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[HasSoulPatch], [g].[LeaderNickname], [g].[FullName], [g].[Nickname], [g].[SquadId], [t2].[FullName], [t2].[HasSoulPatch0] DESC, [t2].[Nickname], [t2].[SquadId], [t2].[IsAutomatic], [t2].[Name] DESC, [t2].[Id], [t2].[Nickname0], [t2].[SquadId0], [t2].[Id0], [t2].[Nickname00], [t2].[SquadId00]");
+ORDER BY [g].[HasSoulPatch], [g].[LeaderNickname], [g].[FullName], [g].[Nickname], [g].[SquadId], [t2].[FullName], [t2].[HasSoulPatch0] DESC, [t2].[Nickname], [t2].[SquadId], [t2].[IsAutomatic], [t2].[Name] DESC, [t2].[Id], [t2].[Nickname0], [t2].[SquadId0], [t2].[Id0], [t2].[Nickname00]");
         }
 
         public override async Task Correlated_collection_with_top_level_FirstOrDefault(bool async)
@@ -5281,7 +5281,7 @@ FROM (
     ORDER BY [g].[Nickname]
 ) AS [t]
 LEFT JOIN [Weapons] AS [w] ON [t].[FullName] = [w].[OwnerFullName]
-ORDER BY [t].[Nickname], [t].[SquadId], [w].[Id]");
+ORDER BY [t].[Nickname], [t].[SquadId]");
         }
 
         public override async Task Correlated_collection_with_top_level_Count(bool async)
@@ -5305,7 +5305,7 @@ FROM (
     ORDER BY [g].[FullName]
 ) AS [t]
 LEFT JOIN [Weapons] AS [w] ON [t].[FullName] = [w].[OwnerFullName]
-ORDER BY [t].[FullName], [t].[Nickname], [t].[SquadId], [w].[Id]");
+ORDER BY [t].[FullName], [t].[Nickname], [t].[SquadId]");
         }
 
         public override async Task Correlated_collection_with_top_level_Last_with_order_by_on_inner(bool async)
@@ -5323,7 +5323,7 @@ LEFT JOIN (
     SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
     FROM [Weapons] AS [w]
 ) AS [t0] ON [t].[FullName] = [t0].[OwnerFullName]
-ORDER BY [t].[FullName] DESC, [t].[Nickname], [t].[SquadId], [t0].[Name], [t0].[Id]");
+ORDER BY [t].[FullName] DESC, [t].[Nickname], [t].[SquadId], [t0].[Name]");
         }
 
         public override async Task Null_semantics_on_nullable_bool_from_inner_join_subquery_is_fully_applied(bool async)
@@ -5387,7 +5387,7 @@ FROM (
     ORDER BY [t0].[Note]
 ) AS [t1]
 LEFT JOIN [Weapons] AS [w] ON [t1].[FullName] = [w].[OwnerFullName]
-ORDER BY [t1].[Note], [t1].[Name], [t1].[Nickname], [t1].[SquadId], [t1].[Id], [w].[Id]");
+ORDER BY [t1].[Note], [t1].[Name], [t1].[Nickname], [t1].[SquadId], [t1].[Id]");
         }
 
         public override async Task Select_required_navigation_on_derived_type(bool async)
@@ -5442,7 +5442,7 @@ OUTER APPLY (
     ) AS [t0] ON [g].[FullName] = [t0].[FullName]
 ) AS [t1]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t1].[Id], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t1].[Id], [t1].[Nickname]");
         }
 
         public override async Task Outer_parameter_in_join_key_inner_and_outer(bool async)
@@ -5462,7 +5462,7 @@ OUTER APPLY (
     ) AS [t0] ON [g].[FullName] = [g].[Nickname]
 ) AS [t1]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t1].[Id], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t1].[Id], [t1].[Nickname]");
         }
 
         public override async Task Outer_parameter_in_group_join_with_DefaultIfEmpty(bool async)
@@ -5482,7 +5482,7 @@ OUTER APPLY (
     ) AS [t0] ON [g].[FullName] = [t0].[FullName]
 ) AS [t1]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t1].[Id], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t1].[Id], [t1].[Nickname]");
         }
 
         public override async Task Negated_bool_ternary_inside_anonymous_type_in_projection(bool async)
@@ -5844,7 +5844,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 ) AS [t] ON [s].[Id] = [t].[SquadId]
-ORDER BY [s].[Id], [t].[Nickname], [t].[SquadId]");
+ORDER BY [s].[Id], [t].[Nickname]");
         }
 
         public override async Task Correlated_collection_order_by_constant(bool async)
@@ -5855,7 +5855,7 @@ ORDER BY [s].[Id], [t].[Nickname], [t].[SquadId]");
                 @"SELECT [g].[Nickname], [g].[SquadId], [w].[Name], [w].[Id]
 FROM [Gears] AS [g]
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Select_subquery_projecting_single_constant_null_of_non_mapped_type(bool async)
@@ -5915,7 +5915,7 @@ WHERE [o].[Nickname] IS NOT NULL
 ORDER BY (
     SELECT COUNT(*)
     FROM [Weapons] AS [w]
-    WHERE [g].[FullName] = [w].[OwnerFullName]), [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+    WHERE [g].[FullName] = [w].[OwnerFullName]), [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Include_collection_with_complex_OrderBy2(bool async)
@@ -5940,7 +5940,7 @@ ORDER BY (
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+    ORDER BY [w].[Id]), [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Include_collection_with_complex_OrderBy3(bool async)
@@ -5965,7 +5965,7 @@ ORDER BY COALESCE((
     SELECT TOP(1) [w].[IsAutomatic]
     FROM [Weapons] AS [w]
     WHERE [g].[FullName] = [w].[OwnerFullName]
-    ORDER BY [w].[Id]), CAST(0 AS bit)), [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+    ORDER BY [w].[Id]), CAST(0 AS bit)), [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Correlated_collection_with_complex_OrderBy(bool async)
@@ -5988,7 +5988,7 @@ WHERE [o].[Nickname] IS NOT NULL
 ORDER BY (
     SELECT COUNT(*)
     FROM [Weapons] AS [w]
-    WHERE [g].[FullName] = [w].[OwnerFullName]), [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+    WHERE [g].[FullName] = [w].[OwnerFullName]), [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Correlated_collection_with_very_complex_order_by(bool async)
@@ -6015,7 +6015,7 @@ ORDER BY (
         SELECT TOP(1) [g1].[HasSoulPatch]
         FROM [Gears] AS [g1]
         LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-        WHERE [g1].[Nickname] = N'Marcus'), CAST(0 AS bit)))), [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+        WHERE [g1].[Nickname] = N'Marcus'), CAST(0 AS bit)))), [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Cast_to_derived_type_after_OfType_works(bool async)
@@ -6241,7 +6241,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
 ) AS [t] ON [c].[Name] = [t].[AssignedCityName]
 WHERE [c].[Name] = N'Ephyra'
-ORDER BY [c].[Name], [t].[Nickname], [t].[SquadId]");
+ORDER BY [c].[Name], [t].[Nickname]");
         }
 
         public override async Task Cast_ordered_subquery_to_base_type_using_typed_ToArray(bool async)
@@ -6256,7 +6256,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
 ) AS [t] ON [c].[Name] = [t].[AssignedCityName]
 WHERE [c].[Name] = N'Ephyra'
-ORDER BY [c].[Name], [t].[Nickname] DESC, [t].[SquadId]");
+ORDER BY [c].[Name], [t].[Nickname] DESC");
         }
 
         public override async Task Correlated_collection_with_complex_order_by_funcletized_to_constant_bool(bool async)
@@ -6531,7 +6531,7 @@ FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Include_with_client_method_and_member_access_still_applies_includes(bool async)
@@ -6558,7 +6558,7 @@ END AS [Discriminator], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Multiple_includes_with_client_method_around_entity_and_also_projecting_included_collection()
@@ -6577,7 +6577,7 @@ LEFT JOIN (
     LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 ) AS [t] ON [s].[Id] = [t].[SquadId]
 WHERE [s].[Name] = N'Delta'
-ORDER BY [s].[Id], [t].[Nickname], [t].[SquadId], [t].[Id]");
+ORDER BY [s].[Id], [t].[Nickname], [t].[SquadId]");
         }
 
         public override async Task OrderBy_same_expression_containing_IsNull_correctly_deduplicates_the_ordering(bool async)
@@ -6897,7 +6897,7 @@ LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 ORDER BY (
     SELECT TOP(1) [w0].[Name]
     FROM [Weapons] AS [w0]
-    WHERE ([g].[FullName] = [w0].[OwnerFullName]) AND ([w0].[Name] LIKE N'%Gnasher%')), [g].[Nickname], [g].[SquadId], [w].[Id]");
+    WHERE ([g].[FullName] = [w0].[OwnerFullName]) AND ([w0].[Name] LIKE N'%Gnasher%')), [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Anonymous_projection_take_followed_by_projecting_single_element_from_collection_navigation(bool async)
@@ -7040,7 +7040,7 @@ LEFT JOIN (
     LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
 ) AS [t1] ON (([t0].[Nickname] = [t1].[LeaderNickname]) OR ([t0].[Nickname] IS NULL AND [t1].[LeaderNickname] IS NULL)) AND ([t0].[SquadId] = [t1].[LeaderSquadId])
 WHERE [t0].[Discriminator] = N'Officer'
-ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname], [t1].[SquadId]");
+ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId], [t1].[Nickname]");
         }
 
         public override async Task Null_checks_in_correlated_predicate_are_correctly_translated(bool async)
@@ -7057,7 +7057,7 @@ LEFT JOIN (
     FROM [Gears] AS [g]
     LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 ) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])) AND [t].[Note] IS NOT NULL
-ORDER BY [t].[Id], [t0].[Nickname], [t0].[SquadId]");
+ORDER BY [t].[Id], [t0].[Nickname]");
         }
 
         public override async Task SelectMany_Where_DefaultIfEmpty_with_navigation_in_the_collection_selector(bool async)
@@ -7231,9 +7231,9 @@ FROM [Factions] AS [f]
 INNER JOIN [LocustHordes] AS [l] ON [f].[Id] = [l].[Id]");
         }
 
-        public override async Task Acessing_reference_navigation_collection_composition_generates_single_query(bool async)
+        public override async Task Accessing_reference_navigation_collection_composition_generates_single_query(bool async)
         {
-            await base.Acessing_reference_navigation_collection_composition_generates_single_query(async);
+            await base.Accessing_reference_navigation_collection_composition_generates_single_query(async);
 
             AssertSql(
                 @"SELECT [g].[Nickname], [g].[SquadId], [t].[Id], [t].[IsAutomatic], [t].[Name], [t].[Id0]
@@ -7243,7 +7243,7 @@ LEFT JOIN (
     FROM [Weapons] AS [w]
     LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id], [t].[Id0]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
         }
 
         public override async Task Reference_include_chain_loads_correctly_when_middle_is_null(bool async)
@@ -7286,7 +7286,7 @@ LEFT JOIN (
         FROM [Gears] AS [g0]
     ) AS [t1] ON [w].[OwnerFullName] = [t1].[FullName]
 ) AS [t2] ON [t0].[FullName] = [t2].[OwnerFullName]
-ORDER BY [t].[Note], [t].[Id], [t0].[Nickname], [t0].[SquadId], [t2].[Id], [t2].[Nickname], [t2].[SquadId]");
+ORDER BY [t].[Note], [t].[Id], [t0].[Nickname], [t0].[SquadId], [t2].[Id], [t2].[Nickname]");
         }
 
         public override async Task Collection_navigation_ofType_filter_works(bool async)
@@ -8422,7 +8422,7 @@ LEFT JOIN [Weapons] AS [w] ON ([g].[FullName] <> [w].[OwnerFullName]) OR [w].[Ow
                 @"SELECT [g].[Nickname], [g].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Gears] AS [g]
 LEFT JOIN [Weapons] AS [w] ON ([g].[FullName] = [w].[OwnerFullName]) AND ([g].[SquadId] < [w].[Id])
-ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Filtered_collection_projection_with_order_comparison_predicate_converted_to_join2(bool async)
@@ -8433,7 +8433,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
                 @"SELECT [g].[Nickname], [g].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Gears] AS [g]
 LEFT JOIN [Weapons] AS [w] ON ([g].[FullName] = [w].[OwnerFullName]) AND ([g].[SquadId] <= [w].[Id])
-ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task Filtered_collection_projection_with_order_comparison_predicate_converted_to_join3(bool async)
@@ -8444,7 +8444,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
                 @"SELECT [g].[Nickname], [g].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Gears] AS [g]
 LEFT JOIN [Weapons] AS [w] ON ([g].[FullName] = [w].[OwnerFullName]) AND ([g].[SquadId] >= [w].[Id])
-ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname], [g].[SquadId]");
         }
 
         public override async Task SelectMany_predicate_with_non_equality_comparison_with_Take_doesnt_convert_to_join(bool async)
@@ -8494,7 +8494,7 @@ OUTER APPLY (
     WHERE ([g].[Nickname] = [g0].[LeaderNickname]) AND ([g].[SquadId] = [g0].[LeaderSquadId])
 ) AS [t]
 WHERE [o].[Nickname] IS NOT NULL
-ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname], [t].[SquadId]");
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Nickname]");
         }
 
         public override async Task Accessing_derived_property_using_hard_and_soft_cast(bool async)
