@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\..\src\EFCore.SqlServer.NTS\EFCore.SqlServer.NTS.csproj" />
     <ProjectReference Include="..\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
   </ItemGroup>
