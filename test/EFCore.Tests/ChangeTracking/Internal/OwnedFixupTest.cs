@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -4209,6 +4210,72 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(1, user.Roles.Count);
                 Assert.Equal("BASIC", user.Roles.Select(e => e.Value).Single());
             }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task SaveChanges_when_owner_has_PK_with_default_values(bool async)
+        {
+            using (var context = new OneRowContext(async))
+            {
+                var blog = new Blog { Type = new OwnedType { Value = "A" } };
+
+                _ = async
+                    ? await context.AddAsync(blog)
+                    : context.Add(blog);
+
+                Assert.Equal(EntityState.Added, context.Entry(blog).State);
+                Assert.Equal(EntityState.Added, context.Entry(blog.Type).State);
+                Assert.Equal(0, blog.Id);
+                Assert.Equal(0, context.Entry(blog.Type).Property<int>("BlogId").CurrentValue);
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+
+                Assert.Equal(EntityState.Unchanged, context.Entry(blog).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(blog.Type).State);
+                Assert.Equal(0, blog.Id);
+                Assert.Equal(0, context.Entry(blog.Type).Property<int>("BlogId").CurrentValue);
+            }
+
+            using (var context = new OneRowContext(async))
+            {
+                // Trying to do the same thing again will throw since only one row can have ID zero.
+
+                context.Add(new Blog { Type = new OwnedType { Value = "A" } });
+                Assert.Throws<ArgumentException>(() => context.SaveChanges());
+            }
+        }
+
+        private class OneRowContext : DbContext
+        {
+            private readonly bool _async;
+
+            public OneRowContext(bool async)
+            {
+                _async = async;
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(nameof(OneRowContext) + _async);
+
+            public DbSet<Blog> Blogs { get; set; }
+        }
+
+        public class Blog
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public OwnedType Type { get; set; }
+        }
+
+        [Owned]
+        public class OwnedType
+        {
+            public string Value { get; set; }
         }
 
         private class User
