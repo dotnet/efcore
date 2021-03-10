@@ -952,6 +952,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_constant_with_where_on_grouping_with_aggregate_operators(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => 1)
+                    .OrderBy(g => g.Key)
+                    .Select(
+                        g => new {
+                            Min = g.Where(i => 1 == g.Key).Min(o => o.OrderDate),
+                            Max = g.Where(i => 1 == g.Key).Max(o => o.OrderDate),
+                            Sum = g.Where(i => 1 == g.Key).Sum(o => o.OrderID),
+                            Average = g.Where(i => 1 == g.Key).Average(o => o.OrderID),
+                        }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_param_Select_Sum_Min_Key_Max_Avg(bool async)
         {
             var a = 2;

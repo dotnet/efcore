@@ -16,12 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalTheory(Skip = "issue #19742")]
-        public override Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(bool async)
-        {
-            return base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(async);
-        }
-
         public class OwnedQueryInMemoryFixture : OwnedQueryFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory

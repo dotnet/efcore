@@ -572,6 +572,15 @@ WHERE [o].[OrderID] > 10500");
 FROM [Orders] AS [o]");
         }
 
+        public override async Task GroupBy_constant_with_where_on_grouping_with_aggregate_operators(bool async)
+        {
+            await base.GroupBy_constant_with_where_on_grouping_with_aggregate_operators(async);
+
+            AssertSql(
+                @"SELECT MIN([o].[OrderDate]) AS [Min], MAX([o].[OrderDate]) AS [Max], COALESCE(SUM([o].[OrderID]), 0) AS [Sum], AVG(CAST([o].[OrderID] AS float)) AS [Average]
+FROM [Orders] AS [o]");
+        }
+
         public override async Task GroupBy_param_Select_Sum_Min_Key_Max_Avg(bool async)
         {
             await base.GroupBy_param_Select_Sum_Min_Key_Max_Avg(async);

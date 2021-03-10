@@ -19,12 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalTheory(Skip = "Issue#17536")]
-        public override Task Join_GroupBy_Aggregate_with_left_join(bool async)
-        {
-            return base.Join_GroupBy_Aggregate_with_left_join(async);
-        }
-
         [ConditionalTheory(Skip = "Issue#24324")]
         public override Task Complex_query_with_groupBy_in_subquery4(bool async)
         {
