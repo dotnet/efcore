@@ -647,13 +647,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     {
                         var predicate = TranslateInternal(RemapLambda(groupingElement, lambdaExpression));
 
-                        return predicate == null
-                            ? null
-                            : groupingElement.UpdateSource(
-                                Expression.Call(
-                                    EnumerableMethods.Where.MakeGenericMethod(typeof(ValueBuffer)),
-                                    groupingElement.Source,
-                                    Expression.Lambda(predicate, groupingElement.ValueBufferParameter)));
+                        if (predicate == null)
+                        {
+                            return null;
+                        }
+
+                        if (predicate.Type != typeof(bool))
+                        {
+                            predicate = Expression.Equal(predicate, Expression.Constant(true, typeof(bool?)));
+                        }
+
+                        return groupingElement.UpdateSource(
+                            Expression.Call(
+                                EnumerableMethods.Where.MakeGenericMethod(typeof(ValueBuffer)),
+                                groupingElement.Source,
+                                Expression.Lambda(predicate, groupingElement.ValueBufferParameter)));
                     }
 
                     Expression? ApplySelect(GroupingElementExpression groupingElement)
