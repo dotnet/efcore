@@ -1890,6 +1890,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         join g2 in context.Gears
                             on g1.LeaderNickname equals g2.Nickname into grouping
                         from g2 in grouping.DefaultIfEmpty()
+                        orderby g1.Nickname
                         select g2 ?? g1;
 
             var result = query.ToList();
@@ -1906,6 +1907,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         join g2 in context.Gears.Include(g => g.Weapons)
                             on g1.LeaderNickname equals g2.Nickname into grouping
                         from g2 in grouping.DefaultIfEmpty()
+                        orderby g1.Nickname
                         select g2 ?? g1;
 
             var result = query.ToList();

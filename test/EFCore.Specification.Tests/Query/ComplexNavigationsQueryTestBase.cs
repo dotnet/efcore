@@ -6067,5 +6067,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                       },
                 elementSorter: e => e.Id);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_DefaultIfEmpty_multiple_times_with_joins_projecting_a_collection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l4 in ss.Set<Level1>().SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
+                      join l2 in ss.Set<Level4>().SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.DefaultIfEmpty()) on l4.Id equals l2.Id
+                      join l3 in ss.Set<Level4>().SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3.OneToMany_Required2.DefaultIfEmpty()) on l2.Id equals l3.Id into grouping
+                      from l3 in grouping.DefaultIfEmpty()
+                      where l4.OneToMany_Optional_Inverse4.Name != "Foo"
+                      orderby l2.OneToOne_Optional_FK2.Id
+                      select new { Entity = l4, Collection = l2.OneToMany_Optional_Self2.Where(e => e.Id != 42).ToList(), Property = l3.OneToOne_Optional_FK_Inverse3.OneToOne_Required_FK2.Name },
+                ss => from l4 in ss.Set<Level1>().SelectMany(l1 => l1.OneToOne_Required_FK1.OneToOne_Optional_FK2.OneToMany_Required3.DefaultIfEmpty())
+                      join l2 in ss.Set<Level4>().SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2.DefaultIfEmpty()) on l4.Id equals l2.Id
+                      join l3 in ss.Set<Level4>().SelectMany(l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Required_FK_Inverse3.OneToMany_Required2.DefaultIfEmpty()) on l2.Id equals l3.Id into grouping
+                      from l3 in grouping.DefaultIfEmpty()
+                      where l4.OneToMany_Optional_Inverse4.Name != "Foo"
+                      orderby l2.OneToOne_Optional_FK2.MaybeScalar(e => e.Id)
+                      select new { Entity = l4, Collection = l2.OneToMany_Optional_Self2.Where(e => e.Id != 42).ToList(), Property = l3.OneToOne_Optional_FK_Inverse3.OneToOne_Required_FK2.Name },
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Entity, a.Entity);
+                    AssertCollection(e.Collection, a.Collection);
+                    AssertEqual(e.Property, a.Property);
+                });
+        }
     }
 }

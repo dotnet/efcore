@@ -1185,15 +1185,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 // if the result type change was just nullability change e.g from int to int?
                 // we want to preserve the new type for null propagation
-                if (result.Type != type
+                return result.Type != type
                     && !(result.Type.IsNullableType()
                         && !type.IsNullableType()
-                        && result.Type.UnwrapNullableType() == type))
-                {
-                    result = Expression.Convert(result, type);
-                }
-
-                return result;
+                        && result.Type.UnwrapNullableType() == type)
+                    ? Expression.Convert(result, type)
+                    : (Expression)result;
             }
 
             if (entityReferenceExpression.SubqueryEntity != null)
