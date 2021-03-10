@@ -625,14 +625,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
-        private static void AddMatchingPredecessorEdge(
-            Dictionary<IKeyValueIndex, List<ModificationCommand>> predecessorsMap,
-            IKeyValueIndex dependentKeyValue,
+        private static void AddMatchingPredecessorEdge<T>(
+            Dictionary<T, List<ModificationCommand>> predecessorsMap,
+            T keyValue,
             Multigraph<ModificationCommand, IAnnotatable> commandGraph,
             ModificationCommand command,
             IAnnotatable edge)
         {
-            if (predecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
+            if (predecessorsMap.TryGetValue(keyValue, out var predecessorCommands))
             {
                 foreach (var predecessor in predecessorCommands)
                 {
@@ -647,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private void AddUniqueValueEdges(Multigraph<ModificationCommand, IAnnotatable> commandGraph)
         {
             Dictionary<IIndex, Dictionary<object[], ModificationCommand>> indexPredecessorsMap = null;
-            var keyPredecessorsMap = new Dictionary<IKeyValueIndex, List<ModificationCommand>>();
+            var keyPredecessorsMap = new Dictionary<(IKey, IKeyValueIndex), List<ModificationCommand>>();
             foreach (var command in commandGraph.Vertices)
             {
                 if (command.EntityState != EntityState.Modified
@@ -697,10 +697,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         if (principalKeyValue != null)
                         {
-                            if (!keyPredecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
+                            if (!keyPredecessorsMap.TryGetValue((GetKey(key), principalKeyValue), out var predecessorCommands))
                             {
                                 predecessorCommands = new List<ModificationCommand>();
-                                keyPredecessorsMap.Add(principalKeyValue, predecessorCommands);
+                                keyPredecessorsMap.Add((GetKey(key), principalKeyValue), predecessorCommands);
                             }
 
                             predecessorCommands.Add(command);
@@ -761,12 +761,18 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             if (principalKeyValue != null)
                             {
                                 AddMatchingPredecessorEdge(
-                                    keyPredecessorsMap, principalKeyValue, commandGraph, command, key);
+                                    keyPredecessorsMap, (GetKey(key), principalKeyValue), commandGraph, command, key);
                             }
                         }
                     }
                 }
             }
         }
+
+        private static readonly bool _useOldKeyComparison =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue24221", out var enabled) && enabled;
+
+        private IKey GetKey(IKey key)
+            => _useOldKeyComparison ? null : key;
     }
 }
