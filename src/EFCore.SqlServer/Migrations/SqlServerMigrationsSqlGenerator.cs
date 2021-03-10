@@ -38,6 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private IReadOnlyList<MigrationOperation> _operations;
         private int _variableCounter;
 
+        private static readonly bool _useOldAlterColumnDefaultValueLogic =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue24272", out var enabled) && enabled;
+
         /// <summary>
         ///     Creates a new <see cref="SqlServerMigrationsSqlGenerator" /> instance.
         /// </summary>
@@ -339,11 +342,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 || operation.Collation != operation.OldColumn.Collation
                 || HasDifferences(operation.GetAnnotations(), operation.OldColumn.GetAnnotations());
 
+            var (oldDefaultValue, oldDefaultValueSql) = (operation.OldColumn.DefaultValue, operation.OldColumn.DefaultValueSql);
+
             if (alterStatementNeeded
-                || !Equals(operation.DefaultValue, operation.OldColumn.DefaultValue)
-                || operation.DefaultValueSql != operation.OldColumn.DefaultValueSql)
+                || !Equals(operation.DefaultValue, oldDefaultValue)
+                || operation.DefaultValueSql != oldDefaultValueSql)
             {
                 DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
+                (oldDefaultValue, oldDefaultValueSql) = (null, null);
             }
 
             if (alterStatementNeeded)
@@ -388,8 +394,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
 
-            if (operation.DefaultValue != null
-                || operation.DefaultValueSql != null)
+            var addDefaultValue = _useOldAlterColumnDefaultValueLogic
+                ? operation.DefaultValue != null || operation.DefaultValueSql != null
+                : !Equals(operation.DefaultValue, oldDefaultValue) || operation.DefaultValueSql != oldDefaultValueSql;
+
+            if (addDefaultValue)
             {
                 builder
                     .Append("ALTER TABLE ")
