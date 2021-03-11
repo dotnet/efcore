@@ -1397,7 +1397,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal?> AverageAsync(
             [NotNull] this IQueryable<decimal?> source,
@@ -1461,7 +1460,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1514,7 +1512,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<int?> source,
@@ -1577,7 +1574,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1630,7 +1626,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<long?> source,
@@ -1693,7 +1688,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1747,7 +1741,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<double?> source,
@@ -1811,7 +1804,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
@@ -1864,7 +1856,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float?> AverageAsync(
             [NotNull] this IQueryable<float?> source,
@@ -1928,7 +1919,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
