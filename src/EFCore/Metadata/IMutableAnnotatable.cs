@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="annotations"> The annotations to be added. </param>
         void AddAnnotations([NotNull] IEnumerable<IAnnotation> annotations)
-            => Annotatable.AddAnnotations(this, annotations);
+            => AnnotatableBase.AddAnnotations((AnnotatableBase)this, annotations);
 
         /// <summary>
         ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
