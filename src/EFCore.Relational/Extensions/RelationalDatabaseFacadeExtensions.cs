@@ -42,6 +42,21 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate();
 
         /// <summary>
+        ///     <para>
+        ///         Applies any pending migrations for the context to the database. Will create the database
+        ///         if it does not already exist.
+        ///     </para>
+        ///     <para>
+        ///         Note that this API is mutually exclusive with <see cref="DatabaseFacade.EnsureCreated" />. EnsureCreated does not use migrations
+        ///         to create the database and therefore the database that is created cannot be later updated using migrations.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="throwWhenHasError">If you set this true, this will check and throw exception when you change models and forgot to add-migration</param>
+        public static void Migrate([NotNull] this DatabaseFacade databaseFacade, bool throwWhenHasError)
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate(throwWhenHasError: throwWhenHasError);
+
+        /// <summary>
         ///     Gets all the migrations that are defined in the configured migrations assembly.
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
@@ -113,6 +128,28 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>()
                 .MigrateAsync(cancellationToken: cancellationToken);
 
+        /// <summary>
+        ///     <para>
+        ///         Asynchronously applies any pending migrations for the context to the database. Will create the database
+        ///         if it does not already exist.
+        ///     </para>
+        ///     <para>
+        ///         Note that this API is mutually exclusive with <see cref="DatabaseFacade.EnsureCreated" />.
+        ///         <see cref="DatabaseFacade.EnsureCreated" /> does not use migrations to create the database and therefore the database
+        ///         that is created cannot be later updated using migrations.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <param name="throwWhenHasError">If you set this true, this will check and throw exception when you change models and forgot to add-migration</param>
+        /// <returns> A task that represents the asynchronous migration operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public static Task MigrateAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            bool throwWhenHasError,
+            CancellationToken cancellationToken = default)
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>()
+                .MigrateAsync(throwWhenHasError: throwWhenHasError, cancellationToken: cancellationToken);
         /// <summary>
         ///     <para>
         ///         Executes the given SQL against the database and returns the number of rows affected.

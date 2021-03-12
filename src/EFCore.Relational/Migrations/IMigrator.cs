@@ -38,6 +38,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Migrates the database to either a specified target migration or up to the latest
         ///     migration that exists in the <see cref="IMigrationsAssembly" />.
         /// </summary>
+        /// <param name="throwWhenHasError">
+        ///     If you set this true, this will check and throw exception when you change models and forgot to add-migration
+        /// </param>
+        /// <param name="targetMigration">
+        ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
+        /// </param>
+        void Migrate(bool throwWhenHasError, [CanBeNull] string? targetMigration = null);
+
+        /// <summary>
+        ///     Migrates the database to either a specified target migration or up to the latest
+        ///     migration that exists in the <see cref="IMigrationsAssembly" />.
+        /// </summary>
         /// <param name="targetMigration">
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
         /// </param>
@@ -48,6 +60,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string? targetMigration = null,
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        ///     Migrates the database to either a specified target migration or up to the latest
+        ///     migration that exists in the <see cref="IMigrationsAssembly" />.
+        /// </summary>
+        /// <param name="targetMigration">
+        ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
+        /// </param>
+        /// <param name="throwWhenHasError">
+        ///     If you set this true, this will check and throw exception when you change models and forgot to add-migration
+        /// </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A task that represents the asynchronous operation </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        Task MigrateAsync(bool throwWhenHasError,
+            [CanBeNull] string targetMigration = null,
+            CancellationToken cancellationToken = default);
         /// <summary>
         ///     Generates a SQL script to migrate a database either in its entirety, or starting and
         ///     ending at specified migrations.
