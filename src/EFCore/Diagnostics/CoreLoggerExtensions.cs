@@ -387,6 +387,36 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.DistinctAfterOrderByWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        public static void DistinctAfterOrderByWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
+        {
+            var definition = CoreResources.LogDistinctAfterOrderBy(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new EventData(
+                    definition,
+                    DistinctAfterOrderBy);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string DistinctAfterOrderBy(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition)definition;
+            return d.GenerateMessage();
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.NavigationBaseIncluded" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

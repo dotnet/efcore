@@ -72,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             InvalidIncludePathError,
             QueryCompilationStarting,
             NavigationBaseIncluded,
+            DistinctAfterOrderByWarning,
 
             // Infrastructure events
             SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
@@ -273,6 +274,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId FirstWithoutOrderByAndFilterWarning
             = MakeQueryId(Id.FirstWithoutOrderByAndFilterWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         A query uses the 'Distinct' operator after 'OrderBy'. The 'OrderBy' operator will be ignored and may lead to unpredictable results.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId DistinctAfterOrderByWarning
+            = MakeQueryId(Id.DistinctAfterOrderByWarning);
 
         private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
 

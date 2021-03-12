@@ -3352,6 +3352,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The query uses the 'Distinct' operator after a 'OrderBy' operator. This may lead to unpredictable results.
+        /// </summary>
+        public static EventDefinition LogDistinctAfterOrderBy([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderBy;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderBy,
+                    () => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.DistinctAfterOrderByWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.DistinctAfterOrderByWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.DistinctAfterOrderByWarning,
+                            _resourceManager.GetString("LogDistinctAfterOrderBy")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships since the [ForeignKey] attribute was specified on navigations on both sides.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogForeignKeyAttributesOnBothNavigations([NotNull] IDiagnosticsLogger logger)

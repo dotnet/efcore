@@ -387,8 +387,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(source, nameof(source));
 
-            ((SelectExpression)source.QueryExpression).ApplyDistinct();
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.Orderings.Count > 0)
+            {
+                _queryCompilationContext.Logger.DistinctAfterOrderByWarning();
+            }
 
+            selectExpression.ApplyDistinct();
             return source;
         }
 

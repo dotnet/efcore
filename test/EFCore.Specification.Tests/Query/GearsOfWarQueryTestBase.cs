@@ -4412,7 +4412,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Squad>().OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Distinct()),
+                ss => ss.Set<Squad>().OrderBy(s => s.Name).Select(s => s.Members.Distinct().OrderBy(m => m.Nickname).ToList()),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
         }

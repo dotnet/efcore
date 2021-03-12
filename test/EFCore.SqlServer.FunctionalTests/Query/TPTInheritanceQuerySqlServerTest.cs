@@ -538,19 +538,23 @@ VALUES (@p0, @p1, @p2);");
             AssertSql(
                 @"@__p_0='5'
 
-SELECT DISTINCT [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn], [t].[Discriminator]
+SELECT [t0].[Species], [t0].[CountryId], [t0].[Name], [t0].[EagleId], [t0].[IsFlightless], [t0].[FoundOn], [t0].[Discriminator]
 FROM (
-    SELECT TOP(@__p_0) [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
-        WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
-        WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
-    END AS [Discriminator]
-    FROM [Animals] AS [a]
-    INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
-    LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
-    LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
-    ORDER BY [a].[Species]
-) AS [t]
-WHERE [t].[Discriminator] = N'Kiwi'");
+    SELECT TOP(@__p_0) [t].[Species], [t].[CountryId], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn], [t].[Discriminator]
+    FROM (
+        SELECT DISTINCT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
+            WHEN [k].[Species] IS NOT NULL THEN N'Kiwi'
+            WHEN [e].[Species] IS NOT NULL THEN N'Eagle'
+        END AS [Discriminator]
+        FROM [Animals] AS [a]
+        INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+        LEFT JOIN [Eagle] AS [e] ON [a].[Species] = [e].[Species]
+        LEFT JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]
+    ) AS [t]
+    ORDER BY [t].[Species]
+) AS [t0]
+WHERE [t0].[Discriminator] = N'Kiwi'
+ORDER BY [t0].[Species]");
         }
 
         public override async Task Union_entity_equality(bool async)

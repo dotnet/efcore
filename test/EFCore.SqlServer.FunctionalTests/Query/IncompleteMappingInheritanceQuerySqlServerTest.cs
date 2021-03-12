@@ -487,14 +487,18 @@ WHERE ([t].[FoundOn] = CAST(0 AS tinyint)) AND [t].[FoundOn] IS NOT NULL");
             AssertSql(
                 @"@__p_0='5'
 
-SELECT DISTINCT [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn]
+SELECT [t0].[Species], [t0].[CountryId], [t0].[Discriminator], [t0].[Name], [t0].[EagleId], [t0].[IsFlightless], [t0].[FoundOn]
 FROM (
-    SELECT TOP(@__p_0) [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
-    FROM [Animals] AS [a]
-    WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
-    ORDER BY [a].[Species]
-) AS [t]
-WHERE [t].[Discriminator] = N'Kiwi'");
+    SELECT TOP(@__p_0) [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn]
+    FROM (
+        SELECT DISTINCT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+        FROM [Animals] AS [a]
+        WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
+    ) AS [t]
+    ORDER BY [t].[Species]
+) AS [t0]
+WHERE [t0].[Discriminator] = N'Kiwi'
+ORDER BY [t0].[Species]");
         }
 
         public override async Task Union_entity_equality(bool async)

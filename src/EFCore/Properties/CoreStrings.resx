@@ -766,6 +766,10 @@
     <value>The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.</value>
     <comment>Warning CoreEventId.FirstWithoutOrderByAndFilterWarning</comment>
   </data>
+  <data name="LogDistinctAfterOrderBy" xml:space="preserve">
+    <value>The query uses the 'Distinct' operator after a 'OrderBy' operator. This may lead to unpredictable results.</value>
+    <comment>Warning CoreEventId.DistinctAfterOrderByWarning</comment>
+  </data>
   <data name="LogForeignKeyAttributesOnBothNavigations" xml:space="preserve">
     <value>Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships since the [ForeignKey] attribute was specified on navigations on both sides.</value>
     <comment>Warning CoreEventId.ForeignKeyAttributesOnBothNavigationsWarning string string string string</comment>
