@@ -19,7 +19,7 @@ namespace Microsoft.Data.Sqlite
         private byte[][]? _blobCache;
         private int?[]? _typeCache;
         private Dictionary<string, int>? _columnNameOrdinalCache;
-        private string?[]? _columnNameCache;
+        private string[]? _columnNameCache;
         private bool _stepped;
         private int? _rowidOrdinal;
 
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             _columnNameCache ??= new string[FieldCount];
-            _columnNameCache[ordinal] = name;
+            _columnNameCache[ordinal] = name!;
 
             return name!;
         }

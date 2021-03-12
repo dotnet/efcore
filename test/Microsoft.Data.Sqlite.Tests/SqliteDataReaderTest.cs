@@ -1227,7 +1227,8 @@ namespace Microsoft.Data.Sqlite
                 using (var reader = connection.ExecuteReader("SELECT 1 AS Id;"))
                 {
                     Assert.Equal("Id", reader.GetName(0));
-                    // Repeated access might use caching.
+
+                    // NB: Repeated to use caching
                     Assert.Equal("Id", reader.GetName(0));
                 }
             }
@@ -1265,12 +1266,12 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT 1 as Id, 'ÆØÅ' AS Value"))
+                using (var reader = connection.ExecuteReader("SELECT 1 AS Id;"))
                 {
                     Assert.Equal(0, reader.GetOrdinal("Id"));
-                    Assert.Equal(1, reader.GetOrdinal("Value"));
-                    // Repeated access may use caching
-                    Assert.Equal(1, reader.GetOrdinal("Value"));
+
+                    // NB: Repeated to use caching
+                    Assert.Equal(0, reader.GetOrdinal("Id"));
                 }
             }
         }
@@ -1301,7 +1302,6 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetOrdinal_throws_when_non_query()
             => X_throws_when_non_query(r => r.GetOrdinal("dummy"));
-
 
         [Fact]
         public void GetString_works_utf8()
