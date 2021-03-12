@@ -60,15 +60,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         public ShapedQueryCompilingExpressionVisitorDependencies(
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IMemoryCache memoryCache)
+            [NotNull] IMemoryCache memoryCache,
+            [NotNull] ICoreSingletonOptions coreSingletonOptions)
         {
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(memoryCache, nameof(memoryCache));
+            Check.NotNull(coreSingletonOptions, nameof(coreSingletonOptions));
 
             EntityMaterializerSource = entityMaterializerSource;
             TypeMappingSource = typeMappingSource;
             MemoryCache = memoryCache;
+            CoreSingletonOptions = coreSingletonOptions;
         }
 
         /// <summary>
@@ -85,5 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The memory cache.
         /// </summary>
         public IMemoryCache MemoryCache { get; [param: NotNull] init; }
+
+        /// <summary>
+        ///     Core singleton options.
+        /// </summary>
+        public ICoreSingletonOptions CoreSingletonOptions { get; [param: NotNull] init; }
     }
 }

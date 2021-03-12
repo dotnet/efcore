@@ -18,6 +18,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -51,7 +53,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<LoggingDefinitions, InMemoryLoggingDefinitions>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<InMemoryOptionsExtension>>()
                 .TryAdd<IValueGeneratorSelector, InMemoryValueGeneratorSelector>()
-                .TryAdd<IDatabase>(p => p.GetService<IInMemoryDatabase>())
+                .TryAdd<IDatabase>(p => p.GetRequiredService<IInMemoryDatabase>())
                 .TryAdd<IDbContextTransactionManager, InMemoryTransactionManager>()
                 .TryAdd<IDatabaseCreator, InMemoryDatabaseCreator>()
                 .TryAdd<IQueryContextFactory, InMemoryQueryContextFactory>()
@@ -60,7 +62,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<ITypeMappingSource, InMemoryTypeMappingSource>()
                 .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, InMemoryShapedQueryCompilingExpressionVisitorFactory>()
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, InMemoryQueryableMethodTranslatingExpressionVisitorFactory>()
-                .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetService<IInMemorySingletonOptions>())
+                .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetRequiredService<IInMemorySingletonOptions>())
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<IInMemorySingletonOptions, InMemorySingletonOptions>()

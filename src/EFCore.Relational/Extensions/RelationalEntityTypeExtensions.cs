@@ -21,6 +21,12 @@ namespace Microsoft.EntityFrameworkCore
     public static class RelationalEntityTypeExtensions
     {
         /// <summary>
+        ///     Gets the name used for the <see cref="ISqlQuery" /> mapped using
+        ///     <see cref="M:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
+        /// </summary>
+        public static readonly string DefaultQueryNameBase = "MappedSqlQuery";
+
+        /// <summary>
         ///     Returns the name of the table to which the entity type is mapped
         ///     or <see langword="null" /> if not mapped to a table.
         /// </summary>
@@ -432,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Gets the default SQL query name. </returns>
         public static string GetDefaultSqlQueryName([NotNull] this IReadOnlyEntityType entityType)
-            => entityType.Name + "." + SqlQueryExtensions.DefaultQueryNameBase;
+            => entityType.Name + "." + DefaultQueryNameBase;
 
         /// <summary>
         ///     Returns the SQL string used to provide data for the entity type or <see langword="null" /> if not mapped to a SQL string.
@@ -830,7 +836,7 @@ namespace Microsoft.EntityFrameworkCore
                 [NotNull] this IMutableEntityType entityType,
                 in StoreObjectIdentifier storeObject)
             // ReSharper disable once RedundantCast
-            => ((IEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IMutableForeignKey>();
+            => ((IReadOnlyEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IMutableForeignKey>();
 
         /// <summary>
         ///     Gets the foreign keys for the given entity type that point to other entity types
@@ -842,7 +848,19 @@ namespace Microsoft.EntityFrameworkCore
                 [NotNull] this IConventionEntityType entityType,
                 in StoreObjectIdentifier storeObject)
             // ReSharper disable once RedundantCast
-            => ((IEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IConventionForeignKey>();
+            => ((IReadOnlyEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IConventionForeignKey>();
+
+        /// <summary>
+        ///     Gets the foreign keys for the given entity type that point to other entity types
+        ///     sharing the same table-like store object.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        public static IEnumerable<IForeignKey> FindRowInternalForeignKeys(
+                [NotNull] this IEntityType entityType,
+                in StoreObjectIdentifier storeObject)
+            // ReSharper disable once RedundantCast
+            => ((IReadOnlyEntityType)entityType).FindRowInternalForeignKeys(storeObject).Cast<IForeignKey>();
 
         /// <summary>
         ///     Gets a value indicating whether the associated table is ignored by Migrations.

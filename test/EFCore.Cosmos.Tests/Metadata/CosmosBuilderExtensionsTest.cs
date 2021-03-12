@@ -91,22 +91,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
-            Assert.Equal("Discriminator", entityType.GetDiscriminatorProperty().Name);
+            Assert.Equal("Discriminator", entityType.FindDiscriminatorProperty().Name);
             Assert.Equal(nameof(Customer), entityType.GetDiscriminatorValue());
 
             modelBuilder.Entity<Customer>().HasNoDiscriminator();
 
-            Assert.Null(entityType.GetDiscriminatorProperty());
+            Assert.Null(entityType.FindDiscriminatorProperty());
             Assert.Null(entityType.GetDiscriminatorValue());
 
             modelBuilder.Entity<Customer>().HasBaseType<object>();
 
-            Assert.Equal("Discriminator", entityType.GetDiscriminatorProperty().Name);
+            Assert.Equal("Discriminator", entityType.FindDiscriminatorProperty().Name);
             Assert.Equal(nameof(Customer), entityType.GetDiscriminatorValue());
 
             modelBuilder.Entity<Customer>().HasBaseType((string)null);
 
-            Assert.Null(entityType.GetDiscriminatorProperty());
+            Assert.Null(entityType.FindDiscriminatorProperty());
         }
 
         [ConditionalFact]

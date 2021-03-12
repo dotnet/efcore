@@ -37,23 +37,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         bool IsEagerLoaded
             => (bool?)this[CoreAnnotationNames.EagerLoaded] ?? false;
-
-        /// <summary>
-        ///     Gets the <see cref="IClrCollectionAccessor" /> for this navigation property, if it's a collection
-        ///     navigation.
-        /// </summary>
-        /// <returns> The accessor. </returns>
-        IClrCollectionAccessor? GetCollectionAccessor();
-
-        /// <summary>
-        ///     <para>
-        ///         Gets the <see cref="PropertyAccessMode" /> being used for this property.
-        ///         <see langword="null" /> indicates that the default property access mode is being used.
-        ///     </para>
-        /// </summary>
-        /// <returns> The access mode being used. </returns>
-        PropertyAccessMode IReadOnlyPropertyBase.GetPropertyAccessMode()
-            => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
-                ?? DeclaringType.GetNavigationAccessMode());
     }
 }

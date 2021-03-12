@@ -44,6 +44,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
+        ///     Gets the <see cref="IClrCollectionAccessor" /> for this navigation property, if it's a collection
+        ///     navigation.
+        /// </summary>
+        /// <returns> The accessor. </returns>
+        IClrCollectionAccessor? GetCollectionAccessor();
+
+        /// <summary>
         ///     Calls <see cref="ILazyLoader.SetLoaded" /> for a <see cref="INavigationBase" /> to mark it as loaded
         ///     when a no-tracking query has eagerly loaded this relationship.
         /// </summary>

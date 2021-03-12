@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string accountEndpoint,
             [NotNull] string accountKey,
             [NotNull] string databaseName,
-            [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
+            [CanBeNull] Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseCosmos(
                 (DbContextOptionsBuilder)optionsBuilder,
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string accountEndpoint,
             [NotNull] string accountKey,
             [NotNull] string databaseName,
-            [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
+            [CanBeNull] Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(accountEndpoint, nameof(accountEndpoint));
@@ -88,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
             [NotNull] string connectionString,
             [NotNull] string databaseName,
-            [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
+            [CanBeNull] Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseCosmos(
                 (DbContextOptionsBuilder)optionsBuilder,
@@ -108,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
             [NotNull] string connectionString,
             [NotNull] string databaseName,
-            [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
+            [CanBeNull] Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connectionString, nameof(connectionString));

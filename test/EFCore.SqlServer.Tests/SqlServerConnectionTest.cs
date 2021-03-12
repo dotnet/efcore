@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -85,7 +86,12 @@ namespace Microsoft.EntityFrameworkCore
                     new RelationalTransactionFactoryDependencies(
                         new RelationalSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()))),
-                new CurrentDbContext(new FakeDbContext()));
+                new CurrentDbContext(new FakeDbContext()),
+                new RelationalCommandBuilderFactory(
+                    new RelationalCommandBuilderDependencies(
+                        new TestRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
         }
 
         private class FakeDbContext : DbContext

@@ -980,7 +980,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 if (discriminatorValueAnnotation?.Value != null)
                 {
                     var value = discriminatorValueAnnotation.Value;
-                    var discriminatorProperty = entityType.GetDiscriminatorProperty();
+                    var discriminatorProperty = entityType.FindDiscriminatorProperty();
                     if (discriminatorProperty != null)
                     {
                         var valueConverter = FindValueConverter(discriminatorProperty);

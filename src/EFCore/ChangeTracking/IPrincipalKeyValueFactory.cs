@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
@@ -26,21 +28,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="keyValues"> The key values. </param>
         /// <returns> The key object, or null if any of the key values were null. </returns>
-        object CreateFromKeyValues([NotNull] object[] keyValues);
+        object? CreateFromKeyValues([NotNull] object?[] keyValues);
 
         /// <summary>
         ///     Creates a key object from key values obtained from their indexed position in the given <see cref="ValueBuffer" />.
         /// </summary>
         /// <param name="valueBuffer"> The buffer containing key values. </param>
         /// <returns> The key object, or null if any of the key values were null. </returns>
-        object CreateFromBuffer(ValueBuffer valueBuffer);
+        object? CreateFromBuffer(ValueBuffer valueBuffer);
 
         /// <summary>
         ///     Finds the first null in the given in-order array of key values and returns the associated <see cref="IProperty" />.
         /// </summary>
         /// <param name="keyValues"> The key values. </param>
         /// <returns> The associated property. </returns>
-        IProperty FindNullPropertyInKeyValues([NotNull] object[] keyValues);
+        IProperty? FindNullPropertyInKeyValues([NotNull] object?[] keyValues);
 
         /// <summary>
         ///     Creates a key object from the key values in the given entry.
@@ -54,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="entry"> The entry tracking an entity instance. </param>
         /// <returns> The associated property. </returns>
-        IProperty FindNullPropertyInCurrentValues([NotNull] IUpdateEntry entry);
+        IProperty? FindNullPropertyInCurrentValues([NotNull] IUpdateEntry entry);
 
         /// <summary>
         ///     Creates a key object from the original key values in the given entry.

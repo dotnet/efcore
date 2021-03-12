@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
     /// </summary>
     public class SqlServerNetTopologySuiteOptionsExtension : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

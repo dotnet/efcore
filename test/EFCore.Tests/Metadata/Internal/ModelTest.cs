@@ -16,28 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class ModelTest
     {
         [ConditionalFact]
-        public void Use_of_custom_IModel_throws()
-        {
-            var model = new FakeModel();
-
-            Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IModel_throws), nameof(IReadOnlyModel), nameof(FakeModel)),
-                Assert.Throws<NotSupportedException>(() => model.AsModel()).Message);
-        }
-
-        private class FakeModel : Annotatable, IReadOnlyModel
-        {
-            public IEnumerable<IReadOnlyEntityType> GetEntityTypes()
-                => throw new NotImplementedException();
-
-            public IReadOnlyEntityType FindEntityType(string name)
-                => throw new NotImplementedException();
-
-            public IReadOnlyEntityType FindEntityType(string name, string definingNavigationName, IReadOnlyEntityType definingEntityType)
-                => throw new NotImplementedException();
-        }
-
-        [ConditionalFact]
         public void Model_throws_when_readonly()
         {
             var model = CreateModel();

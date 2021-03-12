@@ -196,23 +196,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 || binaryExpression.NodeType == ExpressionType.NotEqual)
             {
                 var property = FindProperty(newLeft) ?? FindProperty(newRight);
-                if (property != null)
+                var comparer = property?.GetValueComparer();
+
+                if (comparer != null
+                    && comparer.Type.IsAssignableFrom(newLeft.Type)
+                    && comparer.Type.IsAssignableFrom(newRight.Type))
                 {
-                    var comparer = property.GetValueComparer();
-
-                    if (comparer != null
-                        && comparer.Type.IsAssignableFrom(newLeft.Type)
-                        && comparer.Type.IsAssignableFrom(newRight.Type))
+                    if (binaryExpression.NodeType == ExpressionType.Equal)
                     {
-                        if (binaryExpression.NodeType == ExpressionType.Equal)
-                        {
-                            return comparer.ExtractEqualsBody(newLeft, newRight);
-                        }
+                        return comparer.ExtractEqualsBody(newLeft, newRight);
+                    }
 
-                        if (binaryExpression.NodeType == ExpressionType.NotEqual)
-                        {
-                            return Expression.IsFalse(comparer.ExtractEqualsBody(newLeft, newRight));
-                        }
+                    if (binaryExpression.NodeType == ExpressionType.NotEqual)
+                    {
+                        return Expression.IsFalse(comparer.ExtractEqualsBody(newLeft, newRight));
                     }
                 }
             }
@@ -336,6 +333,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(memberExpression, nameof(memberExpression));
 
             var innerExpression = Visit(memberExpression.Expression);
+
+            // when visiting unary we remove converts from nullable to non-nullable
+            // however if this happens for memberExpression.Expression we are unable to bind
+            if (innerExpression != null
+                && memberExpression.Expression != null
+                && innerExpression.Type != memberExpression.Expression.Type
+                && innerExpression.Type.IsNullableType()
+                && innerExpression.Type.UnwrapNullableType() == memberExpression.Expression.Type)
+            {
+                innerExpression = Expression.Convert(innerExpression, memberExpression.Expression.Type);
+            }
+
             if (memberExpression.Expression != null
                 && innerExpression == QueryCompilationContext.NotTranslatedExpression)
             {
@@ -638,13 +647,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     {
                         var predicate = TranslateInternal(RemapLambda(groupingElement, lambdaExpression));
 
-                        return predicate == null
-                            ? null
-                            : groupingElement.UpdateSource(
-                                Expression.Call(
-                                    EnumerableMethods.Where.MakeGenericMethod(typeof(ValueBuffer)),
-                                    groupingElement.Source,
-                                    Expression.Lambda(predicate, groupingElement.ValueBufferParameter)));
+                        if (predicate == null)
+                        {
+                            return null;
+                        }
+
+                        if (predicate.Type != typeof(bool))
+                        {
+                            predicate = Expression.Equal(predicate, Expression.Constant(true, typeof(bool?)));
+                        }
+
+                        return groupingElement.UpdateSource(
+                            Expression.Call(
+                                EnumerableMethods.Where.MakeGenericMethod(typeof(ValueBuffer)),
+                                groupingElement.Source,
+                                Expression.Lambda(predicate, groupingElement.ValueBufferParameter)));
                     }
 
                     Expression? ApplySelect(GroupingElementExpression groupingElement)
@@ -1050,13 +1067,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 if (derivedType != null)
                 {
                     // All hierarchies have discriminator property
-                    var discriminatorProperty = entityType.GetDiscriminatorProperty()!;
+                    var discriminatorProperty = entityType.FindDiscriminatorProperty()!;
                     var boundProperty = BindProperty(entityReferenceExpression, discriminatorProperty, discriminatorProperty.ClrType);
                     // KeyValueComparer is not null at runtime
-                    var valueComparer = discriminatorProperty.GetKeyValueComparer()!;
+                    var valueComparer = discriminatorProperty.GetKeyValueComparer();
 
                     var equals = valueComparer.ExtractEqualsBody(
-                        boundProperty,
+                        boundProperty!,
                         Expression.Constant(derivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType));
 
                     foreach (var derivedDerivedType in derivedType.GetDerivedTypes())
@@ -1064,7 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         equals = Expression.OrElse(
                             equals,
                             valueComparer.ExtractEqualsBody(
-                                boundProperty,
+                                boundProperty!,
                                 Expression.Constant(derivedDerivedType.GetDiscriminatorValue(), discriminatorProperty.ClrType)));
                     }
 
@@ -1176,15 +1193,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 // if the result type change was just nullability change e.g from int to int?
                 // we want to preserve the new type for null propagation
-                if (result.Type != type
+                return result.Type != type
                     && !(result.Type.IsNullableType()
                         && !type.IsNullableType()
-                        && result.Type.UnwrapNullableType() == type))
-                {
-                    result = Expression.Convert(result, type);
-                }
-
-                return result;
+                        && result.Type.UnwrapNullableType() == type)
+                    ? Expression.Convert(result, type)
+                    : (Expression)result;
             }
 
             if (entityReferenceExpression.SubqueryEntity != null)

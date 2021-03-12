@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public partial class CosmosShapedQueryCompilingExpressionVisitor

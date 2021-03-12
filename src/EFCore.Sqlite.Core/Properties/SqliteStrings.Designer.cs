@@ -6,6 +6,7 @@ using System.Resources;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
 #nullable enable
@@ -102,217 +103,226 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.
         /// </summary>
-        public static EventDefinition<string, string, string> LogForeignKeyScaffoldErrorPrincipalTableNotFound([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?, string?> LogForeignKeyScaffoldErrorPrincipalTableNotFound([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogForeignKeyScaffoldErrorPrincipalTableNotFound;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogForeignKeyScaffoldErrorPrincipalTableNotFound,
-                    () => new EventDefinition<string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string?, string?, string?>(
                         logger.Options,
                         SqliteEventId.ForeignKeyReferencesMissingTableWarning,
                         LogLevel.Warning,
                         "SqliteEventId.ForeignKeyReferencesMissingTableWarning",
-                        level => LoggerMessage.Define<string, string, string>(
+                        level => LoggerMessage.Define<string?, string?, string?>(
                             level,
                             SqliteEventId.ForeignKeyReferencesMissingTableWarning,
                             _resourceManager.GetString("LogForeignKeyScaffoldErrorPrincipalTableNotFound")!)));
             }
 
-            return (EventDefinition<string, string, string>)definition;
+            return (EventDefinition<string?, string?, string?>)definition;
         }
 
         /// <summary>
         ///     Found column on table '{tableName}' with name: '{columnName}', data type: {dataType}, not nullable: {notNullable}, default value: {defaultValue}.
         /// </summary>
-        public static EventDefinition<string, string, string, bool, string> LogFoundColumn([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?, string?, bool, string?> LogFoundColumn([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundColumn;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundColumn,
-                    () => new EventDefinition<string, string, string, bool, string>(
+                    logger,
+                    static logger => new EventDefinition<string?, string?, string?, bool, string?>(
                         logger.Options,
                         SqliteEventId.ColumnFound,
                         LogLevel.Debug,
                         "SqliteEventId.ColumnFound",
-                        level => LoggerMessage.Define<string, string, string, bool, string>(
+                        level => LoggerMessage.Define<string?, string?, string?, bool, string?>(
                             level,
                             SqliteEventId.ColumnFound,
                             _resourceManager.GetString("LogFoundColumn")!)));
             }
 
-            return (EventDefinition<string, string, string, bool, string>)definition;
+            return (EventDefinition<string?, string?, string?, bool, string?>)definition;
         }
 
         /// <summary>
         ///     Found foreign key on table '{tableName}', id: {id}, principal table: {principalTableName}, delete action: {deleteAction}.
         /// </summary>
-        public static EventDefinition<string, long, string, string> LogFoundForeignKey([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, long, string?, string?> LogFoundForeignKey([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundForeignKey;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundForeignKey,
-                    () => new EventDefinition<string, long, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string?, long, string?, string?>(
                         logger.Options,
                         SqliteEventId.ForeignKeyFound,
                         LogLevel.Debug,
                         "SqliteEventId.ForeignKeyFound",
-                        level => LoggerMessage.Define<string, long, string, string>(
+                        level => LoggerMessage.Define<string?, long, string?, string?>(
                             level,
                             SqliteEventId.ForeignKeyFound,
                             _resourceManager.GetString("LogFoundForeignKey")!)));
             }
 
-            return (EventDefinition<string, long, string, string>)definition;
+            return (EventDefinition<string?, long, string?, string?>)definition;
         }
 
         /// <summary>
         ///     Found index on table '{tableName}' with name '{indexName}', is unique: {isUnique}.
         /// </summary>
-        public static EventDefinition<string, string, bool?> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?, bool?> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundIndex;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundIndex,
-                    () => new EventDefinition<string, string, bool?>(
+                    logger,
+                    static logger => new EventDefinition<string?, string?, bool?>(
                         logger.Options,
                         SqliteEventId.IndexFound,
                         LogLevel.Debug,
                         "SqliteEventId.IndexFound",
-                        level => LoggerMessage.Define<string, string, bool?>(
+                        level => LoggerMessage.Define<string?, string?, bool?>(
                             level,
                             SqliteEventId.IndexFound,
                             _resourceManager.GetString("LogFoundIndex")!)));
             }
 
-            return (EventDefinition<string, string, bool?>)definition;
+            return (EventDefinition<string?, string?, bool?>)definition;
         }
 
         /// <summary>
         ///     Found primary key on table '{tableName}' with name {primaryKeyName}.
         /// </summary>
-        public static EventDefinition<string, string> LogFoundPrimaryKey([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?> LogFoundPrimaryKey([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string?, string?>(
                         logger.Options,
                         SqliteEventId.PrimaryKeyFound,
                         LogLevel.Debug,
                         "SqliteEventId.PrimaryKeyFound",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string?, string?>(
                             level,
                             SqliteEventId.PrimaryKeyFound,
                             _resourceManager.GetString("LogFoundPrimaryKey")!)));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string?, string?>)definition;
         }
 
         /// <summary>
         ///     Found table with name: '{name}'.
         /// </summary>
-        public static EventDefinition<string> LogFoundTable([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?> LogFoundTable([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundTable;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundTable,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string?>(
                         logger.Options,
                         SqliteEventId.TableFound,
                         LogLevel.Debug,
                         "SqliteEventId.TableFound",
-                        level => LoggerMessage.Define<string>(
+                        level => LoggerMessage.Define<string?>(
                             level,
                             SqliteEventId.TableFound,
                             _resourceManager.GetString("LogFoundTable")!)));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string?>)definition;
         }
 
         /// <summary>
         ///     Found unique constraint on table '{tableName}' with name: {uniqueConstraintName}.
         /// </summary>
-        public static EventDefinition<string, string> LogFoundUniqueConstraint([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?> LogFoundUniqueConstraint([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string?, string?>(
                         logger.Options,
                         SqliteEventId.UniqueConstraintFound,
                         LogLevel.Debug,
                         "SqliteEventId.UniqueConstraintFound",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string?, string?>(
                             level,
                             SqliteEventId.UniqueConstraintFound,
                             _resourceManager.GetString("LogFoundUniqueConstraint")!)));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string?, string?>)definition;
         }
 
         /// <summary>
         ///     Unable to find a table in the database matching the selected table '{table}'.
         /// </summary>
-        public static EventDefinition<string> LogMissingTable([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?> LogMissingTable([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogMissingTable;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogMissingTable,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string?>(
                         logger.Options,
                         SqliteEventId.MissingTableWarning,
                         LogLevel.Warning,
                         "SqliteEventId.MissingTableWarning",
-                        level => LoggerMessage.Define<string>(
+                        level => LoggerMessage.Define<string?>(
                             level,
                             SqliteEventId.MissingTableWarning,
                             _resourceManager.GetString("LogMissingTable")!)));
             }
 
-            return (EventDefinition<string>)definition;
+            return (EventDefinition<string?>)definition;
         }
 
         /// <summary>
         ///     Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.
         /// </summary>
-        public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?, string?, string?> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound,
-                    () => new EventDefinition<string, string, string, string>(
+                    logger,
+                    static logger => new EventDefinition<string?, string?, string?, string?>(
                         logger.Options,
                         SqliteEventId.ForeignKeyPrincipalColumnMissingWarning,
                         LogLevel.Warning,
                         "SqliteEventId.ForeignKeyPrincipalColumnMissingWarning",
-                        level => LoggerMessage.Define<string, string, string, string>(
+                        level => LoggerMessage.Define<string?, string?, string?, string?>(
                             level,
                             SqliteEventId.ForeignKeyPrincipalColumnMissingWarning,
                             _resourceManager.GetString("LogPrincipalColumnNotFound")!)));
             }
 
-            return (EventDefinition<string, string, string, string>)definition;
+            return (EventDefinition<string?, string?, string?, string?>)definition;
         }
 
         /// <summary>
@@ -323,9 +333,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSchemaConfigured;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSchemaConfigured,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqliteEventId.SchemaConfiguredWarning,
                         LogLevel.Warning,
@@ -347,9 +358,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSequenceConfigured;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSequenceConfigured,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         SqliteEventId.SequenceConfiguredWarning,
                         LogLevel.Warning,
@@ -371,9 +383,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogTableRebuildPendingWarning;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogTableRebuildPendingWarning,
-                    () => new EventDefinition<string, string>(
+                    logger,
+                    static logger => new EventDefinition<string, string>(
                         logger.Options,
                         SqliteEventId.TableRebuildPendingWarning,
                         LogLevel.Warning,
@@ -395,9 +408,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUnexpectedConnectionType;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUnexpectedConnectionType,
-                    () => new EventDefinition<string>(
+                    logger,
+                    static logger => new EventDefinition<string>(
                         logger.Options,
                         SqliteEventId.UnexpectedConnectionTypeWarning,
                         LogLevel.Warning,
@@ -419,9 +433,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUsingSchemaSelectionsWarning;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUsingSchemaSelectionsWarning,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         SqliteEventId.SchemasNotSupportedWarning,
                         LogLevel.Warning,

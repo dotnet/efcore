@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(entityType, nameof(EntityType));
 
             LambdaExpression baseCondition;
-            if (entityType.GetDiscriminatorProperty() == null
+            if (entityType.FindDiscriminatorProperty() == null
                 && entityType.GetDirectlyDerivedTypes().Any())
             {
                 // TPT

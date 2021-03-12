@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -26,7 +27,41 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        private static IServiceProvider BuildServiceProvider<TContextService, TContext>(int poolSize = 32)
+        private static IServiceProvider BuildServiceProvider<TContextService, TContext>()
+            where TContextService : class
+            where TContext : DbContext, TContextService
+            => new ServiceCollection()
+                .AddDbContextPool<TContextService, TContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).AddDbContextPool<ISecondContext, SecondContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).BuildServiceProvider();
+
+        private static IServiceProvider BuildServiceProvider<TContext>()
+            where TContext : DbContext
+            => new ServiceCollection()
+                .AddDbContextPool<TContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).AddDbContextPool<SecondContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).BuildServiceProvider();
+
+        private static IServiceProvider BuildServiceProviderWithFactory<TContext>()
+            where TContext : DbContext
+            => new ServiceCollection()
+                .AddPooledDbContextFactory<TContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).AddDbContextPool<SecondContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).BuildServiceProvider();
+
+        private static IServiceProvider BuildServiceProvider<TContextService, TContext>(int poolSize)
             where TContextService : class
             where TContext : DbContext, TContextService
             => new ServiceCollection()
@@ -41,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
                             .EnableServiceProviderCaching(false),
                     poolSize).BuildServiceProvider();
 
-        private static IServiceProvider BuildServiceProvider<TContext>(int poolSize = 32)
+        private static IServiceProvider BuildServiceProvider<TContext>(int poolSize)
             where TContext : DbContext
             => new ServiceCollection()
                 .AddDbContextPool<TContext>(
@@ -56,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
                     poolSize)
                 .BuildServiceProvider();
 
-        private static IServiceProvider BuildServiceProviderWithFactory<TContext>(int poolSize = 32)
+        private static IServiceProvider BuildServiceProviderWithFactory<TContext>(int poolSize)
             where TContext : DbContext
             => new ServiceCollection()
                 .AddPooledDbContextFactory<TContext>(
@@ -152,10 +187,102 @@ namespace Microsoft.EntityFrameworkCore
                 () => BuildServiceProvider<PooledContext>(poolSize: -1));
 
             Assert.Throws<ArgumentOutOfRangeException>(
+                () => BuildServiceProvider<IPooledContext, PooledContext>(poolSize: 0));
+
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => BuildServiceProvider<IPooledContext, PooledContext>(poolSize: -1));
+
+            Assert.Throws<ArgumentOutOfRangeException>(
                 () => BuildServiceProviderWithFactory<PooledContext>(poolSize: 0));
 
             Assert.Throws<ArgumentOutOfRangeException>(
                 () => BuildServiceProviderWithFactory<PooledContext>(poolSize: -1));
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size()
+        {
+            var serviceProvider = BuildServiceProvider<PooledContext>(poolSize: 64);
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                64,
+                scope.ServiceProvider
+                    .GetRequiredService<PooledContext>()
+                    .GetService<IDbContextOptions>()
+                    .FindExtension<CoreOptionsExtension>().MaxPoolSize);
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size_with_service_interface()
+        {
+            var serviceProvider = BuildServiceProvider<IPooledContext, PooledContext>(poolSize: 64);
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                64,
+                ((DbContext)scope.ServiceProvider
+                    .GetRequiredService<IPooledContext>())
+                .GetService<IDbContextOptions>()
+                .FindExtension<CoreOptionsExtension>().MaxPoolSize);
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size_with_factory()
+        {
+            var serviceProvider = BuildServiceProviderWithFactory<PooledContext>(poolSize: 64);
+
+            using var context = serviceProvider.GetRequiredService<IDbContextFactory<PooledContext>>().CreateDbContext();
+
+            Assert.Equal(
+                64,
+                context.GetService<IDbContextOptions>()
+                    .FindExtension<CoreOptionsExtension>().MaxPoolSize);
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size_default()
+        {
+            var serviceProvider = BuildServiceProvider<PooledContext>();
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                128,
+                scope.ServiceProvider
+                    .GetRequiredService<PooledContext>()
+                    .GetService<IDbContextOptions>()
+                    .FindExtension<CoreOptionsExtension>().MaxPoolSize);
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size_with_service_interface_default()
+        {
+            var serviceProvider = BuildServiceProvider<IPooledContext, PooledContext>();
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                128,
+                ((DbContext)scope.ServiceProvider
+                    .GetRequiredService<IPooledContext>())
+                .GetService<IDbContextOptions>()
+                .FindExtension<CoreOptionsExtension>().MaxPoolSize);
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size_with_factory_default()
+        {
+            var serviceProvider = BuildServiceProviderWithFactory<PooledContext>();
+
+            using var context = serviceProvider.GetRequiredService<IDbContextFactory<PooledContext>>().CreateDbContext();
+
+            Assert.Equal(
+                128,
+                context.GetService<IDbContextOptions>()
+                    .FindExtension<CoreOptionsExtension>().MaxPoolSize);
         }
 
         [ConditionalTheory]
@@ -668,6 +795,7 @@ namespace Microsoft.EntityFrameworkCore
             => typeof(DbContext)
                 .GetField(eventName, BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance)
                 .GetValue(context);
+
         private bool _changeTracker_OnTracked;
 
         private void ChangeTracker_OnTracked(object sender, EntityTrackedEventArgs e)

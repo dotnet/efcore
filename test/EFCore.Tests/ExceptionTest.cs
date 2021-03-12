@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -151,6 +152,28 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("But somehow the vital connection is made", transportedException.Message);
             Assert.Equal("Bang!", transportedException.InnerException.Message);
             Assert.Empty(transportedException.Entries); // Because the entries cannot be serialized
+        }
+
+        [ConditionalFact]
+        public void DbUpdateException_exposes_public_string_and_entries_constructor()
+        {
+            var entries = new List<EntityEntry>{ new EntityEntry(new FakeInternalEntityEntry()), new EntityEntry(new FakeInternalEntityEntry()) };
+            var exception = new DbUpdateException("Foo", entries);
+
+            Assert.Equal("Foo", exception.Message);
+            Assert.Same(entries, exception.Entries);
+        }
+
+        [ConditionalFact]
+        public void DbUpdateException_exposes_public_string_and_inner_exception_and_entries_constructor()
+        {
+            var inner = new Exception();
+            var entries = new List<EntityEntry>{ new EntityEntry(new FakeInternalEntityEntry()), new EntityEntry(new FakeInternalEntityEntry()) };
+            var exception = new DbUpdateException("Foo", inner, entries);
+
+            Assert.Equal("Foo", exception.Message);
+            Assert.Same(inner, exception.InnerException);
+            Assert.Same(entries, exception.Entries);
         }
 
         private class FakeUpdateEntry : IUpdateEntry

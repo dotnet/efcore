@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping? FindMapping(IProperty property)
         {
-            var principals = property.FindPrincipals();
+            var principals = property.GetPrincipals();
             return FindMappingWithConversion(new TypeMappingInfo(principals), principals);
         }
 

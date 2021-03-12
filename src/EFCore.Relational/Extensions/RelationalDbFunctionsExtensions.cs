@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {

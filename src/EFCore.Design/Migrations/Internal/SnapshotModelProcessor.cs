@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 if (!oldPrincipalKey.IsPrimaryKey())
                 {
                     ownership.SetProperties(
-                        (IReadOnlyList<Property>)ownership.Properties,
+                        ownership.Properties,
                         ownership.PrincipalEntityType.FindPrimaryKey());
 
                     if (oldPrincipalKey is IConventionKey conventionKey

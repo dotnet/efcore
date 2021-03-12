@@ -4222,6 +4222,24 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
                 CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
         }
 
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Select_nested_collection_with_distinct(bool async)
+        {
+            return base.Select_nested_collection_with_distinct(async);
+        }
+        
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
+        {
+            return base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(bool async)
+        {
+            return base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

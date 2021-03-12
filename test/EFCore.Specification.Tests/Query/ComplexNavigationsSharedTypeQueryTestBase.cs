@@ -163,5 +163,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Project_shadow_properties(bool async)
             => Task.CompletedTask;
+
+        public override Task SelectMany_DefaultIfEmpty_multiple_times_with_joins_projecting_a_collection(bool async)
+        {
+            // Navigations used are not mapped in shared type.
+            return Task.CompletedTask;
+        }
     }
 }

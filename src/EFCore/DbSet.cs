@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -39,28 +41,20 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
-    public abstract class DbSet<TEntity>
-        : IQueryable<TEntity>, IAsyncEnumerable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
+    public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
         where TEntity : class
     {
         /// <summary>
         ///     The <see cref="IEntityType" /> metadata associated with this set.
         /// </summary>
-        public virtual IEntityType EntityType
-            => null;
+        public abstract IEntityType EntityType { get; }
 
         /// <summary>
-        ///     <para>
-        ///         Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
-        ///     </para>
-        ///     <para>
-        ///         This is a convenience method to help with disambiguation of extension methods in the same
-        ///         namespace that extend both interfaces.
-        ///     </para>
+        ///     Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
         /// </summary>
         /// <returns> This object. </returns>
         public virtual IAsyncEnumerable<TEntity> AsAsyncEnumerable()
-            => this;
+            => (IAsyncEnumerable<TEntity>)this;
 
         /// <summary>
         ///     <para>
@@ -109,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual TEntity Find([CanBeNull] params object[] keyValues)
+        public virtual TEntity? Find([CanBeNull] params object[]? keyValues)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -121,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual ValueTask<TEntity> FindAsync([CanBeNull] params object[] keyValues)
+        public virtual ValueTask<TEntity?> FindAsync([CanBeNull] params object[]? keyValues)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -135,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual ValueTask<TEntity> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<TEntity?> FindAsync([CanBeNull] object[]? keyValues, CancellationToken cancellationToken)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -530,14 +524,6 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
-        ///     Returns an <see cref="IAsyncEnumerator{T}" /> which when enumerated will asynchronously execute a query against
-        ///     the database.
-        /// </summary>
-        /// <returns> The query results. </returns>
-        IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
-            => throw new NotSupportedException();
-
-        /// <summary>
         ///     Gets the IQueryable element type.
         /// </summary>
         Type IQueryable.ElementType
@@ -604,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -613,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

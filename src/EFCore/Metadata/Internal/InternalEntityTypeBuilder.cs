@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityTypeBuilder = keyToDetach.DeclaringEntityType.Builder;
             var keyBuilder = keyToDetach.Builder;
 
-            var primaryKeyConfigurationSource = keyToDetach.IsPrimaryKey()
+            var primaryKeyConfigurationSource = ((IReadOnlyKey)keyToDetach).IsPrimaryKey()
                 ? keyToDetach.DeclaringEntityType.GetPrimaryKeyConfigurationSource()
                 : null;
 
@@ -854,7 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                if (existingProperty.GetIdentifyingMemberInfo().IsOverridenBy(memberInfo))
+                if (existingProperty.GetIdentifyingMemberInfo()?.IsOverridenBy(memberInfo) == true)
                 {
                     if (configurationSource.HasValue)
                     {
@@ -1003,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var conflictingProperty in Metadata.FindMembersInHierarchy(propertyName))
             {
                 if (!configurationSource.Overrides(conflictingProperty.GetConfigurationSource())
-                    && (!(conflictingProperty is ServiceProperty derivedServiceProperty)
+                    && (conflictingProperty is not ServiceProperty derivedServiceProperty
                         || !memberInfo.IsOverridenBy(derivedServiceProperty.GetIdentifyingMemberInfo())))
                 {
                     return false;
@@ -1499,14 +1499,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 && configurationSource == ConfigurationSource.Explicit
                                 && navigationToDependent.GetConfigurationSource() == ConfigurationSource.Explicit)
                             {
-                                var baseProperty = baseEntityType.FindMembersInHierarchy(navigationToDependent.Name).Single();
-                                if (!(baseProperty is IReadOnlyNavigation))
+                                IReadOnlyPropertyBase baseProperty = baseEntityType.FindMembersInHierarchy(navigationToDependent.Name).Single();
+                                if (baseProperty is not IReadOnlyNavigation)
                                 {
                                     throw new InvalidOperationException(
                                         CoreStrings.DuplicatePropertiesOnBase(
                                             Metadata.DisplayName(),
                                             baseEntityType.DisplayName(),
-                                            navigationToDependent.DeclaringType.DisplayName(),
+                                            navigationToDependent.DeclaringEntityType.DisplayName(),
                                             navigationToDependent.Name,
                                             baseProperty.DeclaringType.DisplayName(),
                                             baseProperty.Name));
@@ -2917,7 +2917,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (setTargetAsPrincipal == true
                         || (setTargetAsPrincipal == null
-                            && !targetEntityType.IsInOwnershipPath(Metadata)))
+                            && !((IReadOnlyEntityType)targetEntityType).IsInOwnershipPath(Metadata)))
                     {
                         newRelationship = CreateForeignKey(
                             targetEntityType.Builder,
@@ -3329,7 +3329,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         || existingTargetType.ClrType == targetEntityType.Type))
                 {
                     Check.DebugAssert(existingNavigation.ForeignKey.IsOwnership
-                        || !existingNavigation.TargetEntityType.IsOwned(),
+                        || !((IReadOnlyNavigation)existingNavigation).TargetEntityType.IsOwned(),
                         $"Found '{existingNavigation.DeclaringEntityType.ShortName()}.{existingNavigation.Name}'. " +
                         "Owned types should only have ownership navigations point at it");
 
@@ -4259,8 +4259,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-            => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
-                || Metadata.GetPropertyAccessMode() == propertyAccessMode;
+            => configurationSource.Overrides(((IConventionEntityType)Metadata).GetPropertyAccessModeConfigurationSource())
+                || ((IConventionEntityType)Metadata).GetPropertyAccessMode() == propertyAccessMode;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalEntityTypeBuilder? HasData([NotNull] IEnumerable<object> data, ConfigurationSource configurationSource)
+        {
+            Metadata.AddData(data);
+
+            return this;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4372,7 +4385,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private InternalPropertyBuilder? GetOrCreateDiscriminatorProperty(Type? type, string? name, ConfigurationSource configurationSource)
         {
-            var discriminatorProperty = ((IReadOnlyEntityType)Metadata).GetDiscriminatorProperty();
+            var discriminatorProperty = ((IReadOnlyEntityType)Metadata).FindDiscriminatorProperty();
             if ((name != null && discriminatorProperty?.Name != name)
                 || (type != null && discriminatorProperty?.ClrType != type))
             {
@@ -4434,11 +4447,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (configurationSource == ConfigurationSource.Explicit)
             {
-                Metadata.SetDiscriminatorMappingComplete(null);
+                ((IMutableEntityType)Metadata).SetDiscriminatorMappingComplete(null);
             }
             else if (CanSetAnnotation(CoreAnnotationNames.DiscriminatorMappingComplete, null, configurationSource))
             {
-                Metadata.SetDiscriminatorMappingComplete(null, configurationSource == ConfigurationSource.DataAnnotation);
+                ((IConventionEntityType)Metadata).SetDiscriminatorMappingComplete(null,
+                    configurationSource == ConfigurationSource.DataAnnotation);
             }
 
             return this;
@@ -4446,7 +4460,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void RemoveUnusedDiscriminatorProperty(Property? newDiscriminatorProperty, ConfigurationSource configurationSource)
         {
-            var oldDiscriminatorProperty = ((IReadOnlyEntityType)Metadata).GetDiscriminatorProperty() as Property;
+            var oldDiscriminatorProperty = ((IReadOnlyEntityType)Metadata).FindDiscriminatorProperty() as Property;
             if (oldDiscriminatorProperty?.IsInModel == true
                 && oldDiscriminatorProperty != newDiscriminatorProperty)
             {
@@ -4470,7 +4484,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetDiscriminator([CanBeNull] string? name, [CanBeNull] Type? type, ConfigurationSource configurationSource)
             => name == null && type == null
                 ? CanRemoveDiscriminator(configurationSource)
-                : CanSetDiscriminator(((IReadOnlyEntityType)Metadata).GetDiscriminatorProperty(), name, type, configurationSource);
+                : CanSetDiscriminator(((IReadOnlyEntityType)Metadata).FindDiscriminatorProperty(), name, type, configurationSource);
 
         private bool CanSetDiscriminator(
             IReadOnlyProperty? discriminatorProperty,

@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 var clrProperties = new HashSet<string>(StringComparer.Ordinal);
 
-                var runtimeProperties = entityType.AsEntityType().GetRuntimeProperties();
+                var runtimeProperties = entityType.GetRuntimeProperties();
 
                 clrProperties.UnionWith(
                     runtimeProperties.Values
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             var entityTypeWithNullPk
                 = model.GetEntityTypes()
-                    .FirstOrDefault(et => !((EntityType)et).IsKeyless && et.BaseType == null && et.FindPrimaryKey() == null);
+                    .FirstOrDefault(et => !((IConventionEntityType)et).IsKeyless && et.BaseType == null && et.FindPrimaryKey() == null);
 
             if (entityTypeWithNullPk != null)
             {
@@ -621,7 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return;
             }
 
-            var discriminatorProperty = rootEntityType.GetDiscriminatorProperty();
+            var discriminatorProperty = rootEntityType.FindDiscriminatorProperty();
             if (discriminatorProperty == null)
             {
                 throw new InvalidOperationException(
@@ -669,8 +669,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var requireFullNotifications = (string?)model[CoreAnnotationNames.FullChangeTrackingNotificationsRequiredAnnotation] == "true";
             foreach (var entityType in model.GetEntityTypes())
             {
-                var errorMessage = entityType.AsEntityType().CheckChangeTrackingStrategy(
-                    entityType.GetChangeTrackingStrategy(), requireFullNotifications);
+                var errorMessage = EntityType.CheckChangeTrackingStrategy(
+                    entityType, entityType.GetChangeTrackingStrategy(), requireFullNotifications);
 
                 if (errorMessage != null)
                 {
@@ -1040,10 +1040,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         }
                     }
 
-                    var keyValues = new object?[key.Properties.Count];
+                    var keyValues = new object[key.Properties.Count];
                     for (var i = 0; i < key.Properties.Count; i++)
                     {
-                        keyValues[i] = seedDatum[key.Properties[i].Name];
+                        keyValues[i] = seedDatum[key.Properties[i].Name]!;
                     }
 
                     foreach (var navigation in entityType.GetNavigations().Concat<INavigationBase>(entityType.GetSkipNavigations()))
@@ -1079,7 +1079,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         if (!identityMaps.TryGetValue(key, out identityMap))
                         {
-                            identityMap = key.GetIdentityMapFactory()(sensitiveDataLogged);
+                            identityMap = ((IRuntimeKey)key).GetIdentityMapFactory()(sensitiveDataLogged);
                             identityMaps[key] = identityMap;
                         }
                     }

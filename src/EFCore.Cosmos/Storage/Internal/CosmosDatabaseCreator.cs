@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     /// <summary>
@@ -189,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var name = entityType.GetPartitionKeyPropertyName();
             if (name != null)
             {
-                return entityType.FindProperty(name).GetJsonPropertyName();
+                return entityType.FindProperty(name)!.GetJsonPropertyName();
             }
 
             return CosmosClientWrapper.DefaultPartitionKey;

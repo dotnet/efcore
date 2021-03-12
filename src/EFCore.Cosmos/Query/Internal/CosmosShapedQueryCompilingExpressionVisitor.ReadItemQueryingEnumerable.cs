@@ -17,6 +17,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Query;
 using Newtonsoft.Json.Linq;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -35,13 +37,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
+            private readonly bool _concurrencyDetectionEnabled;
 
             public ReadItemQueryingEnumerable(
                 CosmosQueryContext cosmosQueryContext,
                 ReadItemExpression readItemExpression,
                 Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
-                bool standAloneStateManager)
+                bool standAloneStateManager,
+                bool concurrencyDetectionEnabled)
             {
                 _cosmosQueryContext = cosmosQueryContext;
                 _readItemExpression = readItemExpression;
@@ -49,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _contextType = contextType;
                 _queryLogger = _cosmosQueryContext.QueryLogger;
                 _standAloneStateManager = standAloneStateManager;
+                _concurrencyDetectionEnabled = concurrencyDetectionEnabled;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -173,6 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 private readonly Type _contextType;
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
                 private readonly bool _standAloneStateManager;
+                private readonly IConcurrencyDetector _concurrencyDetector;
                 private readonly ReadItemQueryingEnumerable<T> _readItemEnumerable;
                 private readonly CancellationToken _cancellationToken;
 
@@ -189,6 +195,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _standAloneStateManager = readItemEnumerable._standAloneStateManager;
                     _readItemEnumerable = readItemEnumerable;
                     _cancellationToken = cancellationToken;
+
+                    _concurrencyDetector = readItemEnumerable._concurrencyDetectionEnabled
+                        ? _cosmosQueryContext.ConcurrencyDetector
+                        : null;
                 }
 
                 object IEnumerator.Current
@@ -200,7 +210,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     try
                     {
-                        using (_cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
+                        _concurrencyDetector?.EnterCriticalSection();
+
+                        try
                         {
                             if (!_hasExecuted)
                             {
@@ -226,6 +238,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                             return false;
                         }
+                        finally
+                        {
+                            _concurrencyDetector?.ExitCriticalSection();
+                        }
                     }
                     catch (Exception exception)
                     {
@@ -239,7 +255,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     try
                     {
-                        using (_cosmosQueryContext.ConcurrencyDetector.EnterCriticalSection())
+                        _concurrencyDetector?.EnterCriticalSection();
+
+                        try
                         {
                             if (!_hasExecuted)
                             {
@@ -266,6 +284,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             }
 
                             return false;
+                        }
+                        finally
+                        {
+                            _concurrencyDetector?.ExitCriticalSection();
                         }
                     }
                     catch (Exception exception)

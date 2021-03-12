@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
     internal abstract class Graph<TVertex>

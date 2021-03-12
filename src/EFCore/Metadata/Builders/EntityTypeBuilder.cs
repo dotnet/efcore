@@ -1068,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(data, nameof(data));
 
-            Metadata.AddData(data);
+            Builder.HasData(data, ConfigurationSource.Explicit);
 
             return new DataBuilder();
         }

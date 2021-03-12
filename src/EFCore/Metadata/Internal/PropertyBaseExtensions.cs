@@ -3,7 +3,6 @@
 
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -26,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int GetShadowIndex([NotNull] this IPropertyBase property)
-            => property.GetPropertyIndexes().ShadowIndex;
+        public static int GetShadowIndex([NotNull] this IPropertyBase propertyBase)
+            => ((IRuntimePropertyBase)propertyBase).GetShadowIndex();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static int GetStoreGeneratedIndex([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.GetPropertyIndexes().StoreGenerationIndex;
+            => ((IRuntimePropertyBase)propertyBase).GetStoreGeneratedIndex();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static int GetRelationshipIndex([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.GetPropertyIndexes().RelationshipIndex;
+            => ((IRuntimePropertyBase)propertyBase).GetRelationshipIndex();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static int GetOriginalValueIndex([NotNull] this IPropertyBase propertyBase)
-            => propertyBase.GetPropertyIndexes().OriginalValueIndex;
+            => ((IRuntimePropertyBase)propertyBase).GetOriginalValueIndex();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static PropertyIndexes GetPropertyIndexes([NotNull] this IPropertyBase propertyBase)
-            => ((PropertyBase)propertyBase).PropertyIndexes;
+            => ((IRuntimePropertyBase)propertyBase).PropertyIndexes;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,7 +71,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static PropertyAccessors GetPropertyAccessors([NotNull] this IPropertyBase propertyBase)
-            => ((PropertyBase)propertyBase).Accessors;
+            => ((IRuntimePropertyBase)propertyBase).Accessors;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static bool IsShadowProperty([NotNull] this PropertyBase propertyBase)
+            => ((IReadOnlyPropertyBase)propertyBase).IsShadowProperty();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static bool IsIndexerProperty([NotNull] this PropertyBase propertyBase)
+            => ((IReadOnlyPropertyBase)propertyBase).IsIndexerProperty();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -350,16 +367,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : CoreStrings.NoBackingField(
                         propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static PropertyBase AsPropertyBase(
-            [NotNull] this IReadOnlyPropertyBase propertyBase,
-            [NotNull] [CallerMemberName] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IReadOnlyPropertyBase, PropertyBase>(propertyBase, methodName);
     }
 }

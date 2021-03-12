@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The model to be used. </returns>
         public virtual IModel GetModel(
             DbContext context,
-            IModelCreationDependencies modelCreationDependencies)
+            ModelCreationDependencies modelCreationDependencies)
         {
             var cache = Dependencies.MemoryCache;
             var cacheKey = Dependencies.ModelCacheKeyFactory.Create(context);

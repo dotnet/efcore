@@ -8,6 +8,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore.InMemory</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);In-Memory</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -6,6 +6,8 @@ using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
     /// <summary>
@@ -28,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public InMemoryStoreCache(
             [NotNull] IInMemoryTableFactory tableFactory,
-            [CanBeNull] IInMemorySingletonOptions options)
+            [CanBeNull] IInMemorySingletonOptions? options)
         {
             _tableFactory = tableFactory;
 

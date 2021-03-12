@@ -379,17 +379,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            Assert.Null(entityType.GetDiscriminatorProperty());
+            Assert.Null(entityType.FindDiscriminatorProperty());
 
             var property = entityType.AddProperty("D", typeof(string));
 
             entityType.SetDiscriminatorProperty(property);
 
-            Assert.Same(property, entityType.GetDiscriminatorProperty());
+            Assert.Same(property, entityType.FindDiscriminatorProperty());
 
             entityType.SetDiscriminatorProperty(null);
 
-            Assert.Null(entityType.GetDiscriminatorProperty());
+            Assert.Null(entityType.FindDiscriminatorProperty());
         }
 
         [ConditionalFact]

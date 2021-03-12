@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IMutableIndex? FindSharedObjectRootIndex(
             [NotNull] this IMutableIndex index,
             in StoreObjectIdentifier storeObject)
-            => (IMutableIndex?)((IIndex)index).FindSharedObjectRootIndex(storeObject);
+            => (IMutableIndex?)((IReadOnlyIndex)index).FindSharedObjectRootIndex(storeObject);
 
         /// <summary>
         ///     <para>
@@ -352,6 +352,23 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionIndex? FindSharedObjectRootIndex(
             [NotNull] this IConventionIndex index,
             in StoreObjectIdentifier storeObject)
-            => (IConventionIndex?)((IIndex)index).FindSharedObjectRootIndex(storeObject);
+            => (IConventionIndex?)((IReadOnlyIndex)index).FindSharedObjectRootIndex(storeObject);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the first <see cref="IConventionIndex" /> that is mapped to the same index in a shared table-like object.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
+        /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
+        public static IIndex? FindSharedObjectRootIndex(
+            [NotNull] this IIndex index,
+            in StoreObjectIdentifier storeObject)
+            => (IIndex?)((IReadOnlyIndex)index).FindSharedObjectRootIndex(storeObject);
     }
 }

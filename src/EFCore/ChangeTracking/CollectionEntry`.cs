@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
@@ -62,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
         ///     for the context to detect the change.
         /// </summary>
-        public new virtual IEnumerable<TRelatedEntity> CurrentValue
+        public new virtual IEnumerable<TRelatedEntity>? CurrentValue
         {
             get => this.GetInfrastructure().GetCurrentValue<IEnumerable<TRelatedEntity>>(Metadata);
             [param: CanBeNull] set => base.CurrentValue = value;
@@ -90,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <value> An entry for an entity that this navigation targets. </value>
-        public new virtual EntityEntry<TRelatedEntity> FindEntry([NotNull] object entity)
+        public new virtual EntityEntry<TRelatedEntity>? FindEntry([NotNull] object entity)
         {
             var entry = GetInternalTargetEntry(entity);
             return entry == null

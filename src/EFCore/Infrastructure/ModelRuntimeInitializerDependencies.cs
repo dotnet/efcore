@@ -55,20 +55,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public ModelRuntimeInitializerDependencies(
-            [NotNull] SingletonModelDependencies singletonModelDependencies,
+            [NotNull] RuntimeModelDependencies runtimeModelDependencies,
             [NotNull] IModelValidator modelValidator)
         {
-            Check.NotNull(singletonModelDependencies, nameof(singletonModelDependencies));
+            Check.NotNull(runtimeModelDependencies, nameof(runtimeModelDependencies));
             Check.NotNull(modelValidator, nameof(modelValidator));
 
-            ModelDependencies = singletonModelDependencies;
+            ModelDependencies = runtimeModelDependencies;
             ModelValidator = modelValidator;
         }
 
         /// <summary>
         ///     The model runtime dependencies.
         /// </summary>
-        public SingletonModelDependencies ModelDependencies { get; [param: NotNull] init; }
+        public RuntimeModelDependencies ModelDependencies { get; [param: NotNull] init; }
 
         /// <summary>
         ///     The model validator.

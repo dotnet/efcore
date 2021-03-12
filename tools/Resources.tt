@@ -25,6 +25,7 @@ using System.Resources;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 <#
     }
@@ -172,9 +173,10 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
             var definition = ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>,
-                    () => new FallbackEventDefinition(
+                    logger,
+                    static logger => new FallbackEventDefinition(
                         logger.Options,
                         <#= resource.EventId #>,
                         LogLevel.<#= resource.Level #>,
@@ -201,9 +203,10 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
             var definition = ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((<#= model.LoggingDefinitionsClass #>)logger.Definitions).<#= resource.Name #>,
-                    () => new EventDefinition<#= genericTypes #>(
+                    logger,
+                    static logger => new EventDefinition<#= genericTypes #>(
                         logger.Options,
                         <#= resource.EventId #>,
                         LogLevel.<#= resource.Level #>,

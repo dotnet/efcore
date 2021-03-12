@@ -594,10 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 => ShouldValidateSql;
 
             protected override void UpdateCachedCommandText(int commandIndex)
-            {
-                CachedCommandText ??= new StringBuilder();
-                CachedCommandText.Append(".");
-            }
+                => CachedCommandText.Append(".");
 
             public void UpdateCachedCommandTextBase(int commandIndex)
                 => base.UpdateCachedCommandText(commandIndex);

@@ -81,6 +81,35 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Initializes a new instance of the <see cref="DbUpdateException" /> class.
+        /// </summary>
+        /// <param name="message"> The error message that explains the reason for the exception. </param>
+        /// <param name="entries"> The entries that were involved in the error. </param>
+        public DbUpdateException(
+            [NotNull] string message,
+            [NotNull] IReadOnlyList<EntityEntry> entries)
+            : this(message, null, entries)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DbUpdateException" /> class.
+        /// </summary>
+        /// <param name="message"> The error message that explains the reason for the exception. </param>
+        /// <param name="innerException"> The exception that is the cause of the current exception. </param>
+        /// <param name="entries"> The entries that were involved in the error. </param>
+        public DbUpdateException(
+            [NotNull] string message,
+            [CanBeNull] Exception? innerException,
+            [NotNull] IReadOnlyList<EntityEntry> entries)
+            : base(message, innerException)
+        {
+            Check.NotEmpty(entries, nameof(entries));
+
+            _entries = entries;
+        }
+
+        /// <summary>
         ///     Initializes a new instance of the <see cref="DbUpdateException" /> class from a serialized form.
         /// </summary>
         /// <param name="info"> The serialization info. </param>

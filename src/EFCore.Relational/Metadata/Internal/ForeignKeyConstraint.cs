@@ -94,6 +94,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         public virtual ReferentialAction OnDeleteAction { get; set; }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override string ToString()
+            => ((IForeignKeyConstraint)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+
         /// <inheritdoc />
         IEnumerable<IForeignKey> IForeignKeyConstraint.MappedForeignKeys
             => MappedForeignKeys;
@@ -113,14 +122,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <inheritdoc />
         IReadOnlyList<IColumn> IForeignKeyConstraint.PrincipalColumns
             => PrincipalColumns;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override string ToString()
-            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
     }
 }

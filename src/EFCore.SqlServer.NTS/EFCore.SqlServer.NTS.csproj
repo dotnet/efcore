@@ -8,6 +8,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQL Server;GIS;NTS;OGC;Spatial</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -4,6 +4,8 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
+using CA = System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -14,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public struct DbContextLease
     {
-        private IDbContextPool _contextPool;
+        private IDbContextPool? _contextPool;
         private readonly bool _standalone;
 
         /// <summary>
@@ -98,14 +100,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ValueTask ReleaseAsync()
-            => Release(out var pool, out var context) ? pool.ReturnAsync(context) : new ValueTask();
+            => Release(out var pool, out var context) ? pool.ReturnAsync(context) : default;
 
-        private bool Release(out IDbContextPool pool, out IDbContextPoolable context)
+        private bool Release([CA.NotNullWhen(true)] out IDbContextPool? pool, [CA.NotNullWhen(true)] out IDbContextPoolable? context)
         {
             pool = _contextPool;
             context = Context;
             _contextPool = null;
-            Context = null;
+            Context = null!;
 
             return pool != null;
         }

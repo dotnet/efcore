@@ -500,6 +500,29 @@ END;
         }
 
         [ConditionalFact]
+        public virtual void AlterDatabaseOperation_collation_to_default()
+        {
+            Generate(
+                new AlterDatabaseOperation
+                {
+                    Collation = null,
+                    OldDatabase =
+                    {
+                        Collation = "SQL_Latin1_General_CP1_CI_AS"
+                    }
+                });
+
+            AssertSql(
+                @"BEGIN
+DECLARE @db_name nvarchar(max) = DB_NAME();
+DECLARE @defaultCollation nvarchar(max) = CAST(SERVERPROPERTY('Collation') AS nvarchar(max));
+EXEC(N'ALTER DATABASE [' + @db_name + '] COLLATE ' + @defaultCollation + N';');
+END
+
+");
+        }
+
+        [ConditionalFact]
         public virtual void AlterDatabaseOperation_memory_optimized()
         {
             Generate(
@@ -525,6 +548,20 @@ GO
 
 DROP DATABASE [Northwind];
 ");
+        }
+
+        [ConditionalFact]
+        public virtual void DropIndexOperations_throws_when_no_table()
+        {
+            var migrationBuilder = new MigrationBuilder("SqlServer");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Name");
+
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => Generate(migrationBuilder.Operations.ToArray()));
+
+            Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
         }
 
         [ConditionalFact]

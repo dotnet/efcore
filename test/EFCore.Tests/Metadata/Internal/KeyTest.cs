@@ -2,33 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class KeyTest
     {
-        [ConditionalFact]
-        public void Use_of_custom_IKey_throws()
-        {
-            var key = new FakeKey();
-
-            Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IReadOnlyKey), nameof(FakeKey)),
-                Assert.Throws<NotSupportedException>(() => key.AsKey()).Message);
-        }
-
-        private class FakeKey : Annotatable, IReadOnlyKey
-        {
-            public IReadOnlyList<IReadOnlyProperty> Properties { get; }
-            public IReadOnlyEntityType DeclaringEntityType { get; }
-        }
-
         [ConditionalFact]
         public void Throws_when_model_is_readonly()
         {

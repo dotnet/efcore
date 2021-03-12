@@ -8,10 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class MigrationsAddCommand : ContextCommandBase
     {
-        private CommandArgument _name;
-        private CommandOption _outputDir;
-        private CommandOption _json;
-        private CommandOption _namespace;
+        private CommandArgument? _name;
+        private CommandOption? _outputDir;
+        private CommandOption? _json;
+        private CommandOption? _namespace;
 
         public override void Configure(CommandLineApplication command)
         {

@@ -12,11 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Tools
     internal class Project
     {
         private readonly string _file;
-        private readonly string _framework;
-        private readonly string _configuration;
-        private readonly string _runtime;
+        private readonly string? _framework;
+        private readonly string? _configuration;
+        private readonly string? _runtime;
 
-        public Project(string file, string framework, string configuration, string runtime)
+        public Project(string file, string? framework, string? configuration, string? runtime)
         {
             Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
@@ -29,29 +29,29 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         public string ProjectName { get; }
 
-        public string AssemblyName { get; set; }
-        public string Language { get; set; }
-        public string OutputPath { get; set; }
-        public string PlatformTarget { get; set; }
-        public string ProjectAssetsFile { get; set; }
-        public string ProjectDir { get; set; }
-        public string RootNamespace { get; set; }
-        public string RuntimeFrameworkVersion { get; set; }
-        public string TargetFileName { get; set; }
-        public string TargetFrameworkMoniker { get; set; }
+        public string? AssemblyName { get; set; }
+        public string? Language { get; set; }
+        public string? OutputPath { get; set; }
+        public string? PlatformTarget { get; set; }
+        public string? ProjectAssetsFile { get; set; }
+        public string? ProjectDir { get; set; }
+        public string? RootNamespace { get; set; }
+        public string? RuntimeFrameworkVersion { get; set; }
+        public string? TargetFileName { get; set; }
+        public string? TargetFrameworkMoniker { get; set; }
 
         public static Project FromFile(
             string file,
-            string buildExtensionsDir,
-            string framework = null,
-            string configuration = null,
-            string runtime = null)
+            string? buildExtensionsDir,
+            string? framework = null,
+            string? configuration = null,
+            string? runtime = null)
         {
             Debug.Assert(!string.IsNullOrEmpty(file), "file is null or empty.");
 
             if (buildExtensionsDir == null)
             {
-                buildExtensionsDir = Path.Combine(Path.GetDirectoryName(file), "obj");
+                buildExtensionsDir = Path.Combine(Path.GetDirectoryName(file)!, "obj");
             }
 
             Directory.CreateDirectory(buildExtensionsDir);
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 buildExtensionsDir,
                 Path.GetFileName(file) + ".EntityFrameworkCore.targets");
             using (var input = typeof(Resources).Assembly.GetManifestResourceStream(
-                "Microsoft.EntityFrameworkCore.Tools.Resources.EntityFrameworkCore.targets"))
+                "Microsoft.EntityFrameworkCore.Tools.Resources.EntityFrameworkCore.targets")!)
             using (var output = File.OpenWrite(efTargetsPath))
             {
                 // NB: Copy always in case it changes

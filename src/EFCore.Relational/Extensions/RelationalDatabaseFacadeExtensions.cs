@@ -259,10 +259,14 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
-            var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
+            var concurrencyDetector = facadeDependencies.CoreOptions.IsConcurrencyDetectionEnabled
+                ? facadeDependencies.ConcurrencyDetector
+                : null;
             var logger = facadeDependencies.CommandLogger;
 
-            using (concurrencyDetector.EnterCriticalSection())
+            concurrencyDetector?.EnterCriticalSection();
+
+            try
             {
                 var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
                     .Build(sql, parameters);
@@ -276,6 +280,10 @@ namespace Microsoft.EntityFrameworkCore
                             null,
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
                             logger));
+            }
+            finally
+            {
+                concurrencyDetector?.ExitCriticalSection();
             }
         }
 
@@ -431,10 +439,14 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
-            var concurrencyDetector = facadeDependencies.ConcurrencyDetector;
+            var concurrencyDetector = facadeDependencies.CoreOptions.IsConcurrencyDetectionEnabled
+                ? facadeDependencies.ConcurrencyDetector
+                : null;
             var logger = facadeDependencies.CommandLogger;
 
-            using (concurrencyDetector.EnterCriticalSection())
+            concurrencyDetector?.EnterCriticalSection();
+
+            try
             {
                 var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
                     .Build(sql, parameters);
@@ -450,6 +462,10 @@ namespace Microsoft.EntityFrameworkCore
                             logger),
                         cancellationToken)
                     .ConfigureAwait(false);
+            }
+            finally
+            {
+                concurrencyDetector?.ExitCriticalSection();
             }
         }
 

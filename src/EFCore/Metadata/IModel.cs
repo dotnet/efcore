@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -81,13 +83,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     The runtime service dependencies.
         /// </summary>
-        SingletonModelDependencies? ModelDependencies
-            => (SingletonModelDependencies?)FindRuntimeAnnotationValue(CoreAnnotationNames.ModelDependencies);
+        [CA.DisallowNull]
+        RuntimeModelDependencies? ModelDependencies
+        {
+            get => (RuntimeModelDependencies?)FindRuntimeAnnotationValue(CoreAnnotationNames.ModelDependencies);
+            [param: NotNull]
+            set => SetRuntimeAnnotation(CoreAnnotationNames.ModelDependencies, Check.NotNull(value, nameof(value)));
+        }
 
         /// <summary>
         ///     Gets the runtime service dependencies.
         /// </summary>
-        SingletonModelDependencies GetModelDependencies()
+        RuntimeModelDependencies GetModelDependencies()
         {
             var dependencies = ModelDependencies;
             if (dependencies == null)
@@ -99,30 +106,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Set the runtime service dependencies.
-        /// </summary>
-        /// <param name="modelDependencies"> The runtime service dependencies. </param>
-        /// <returns><see langword="true"/> if the runtime service dependencies were set; <see langword="false"/> otherwise. </returns>
-        bool SetModelDependencies([NotNull] SingletonModelDependencies modelDependencies)
-        {
-            if (FindRuntimeAnnotation(CoreAnnotationNames.ModelDependencies) != null)
-            {
-                return false;
-            }
-
-            AddRuntimeAnnotation(CoreAnnotationNames.ModelDependencies, modelDependencies);
-
-            return true;
-        }
-
-        /// <summary>
         ///     Gets the entity that maps the given entity class. Returns <see langword="null" /> if no entity type with
         ///     the given CLR type is found or the given CLR type is being used by shared type entity type
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
-        IEntityType? FindEntityType([NotNull] Type type);
+        new IEntityType? FindEntityType([NotNull] Type type);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
@@ -144,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
-        IEnumerable<IEntityType> GetEntityTypes([NotNull] Type type);
+        new IEnumerable<IEntityType> FindEntityTypes([NotNull] Type type);
 
         /// <summary>
         ///     Returns the entity types corresponding to the least derived types from the given.
@@ -152,10 +142,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The base type. </param>
         /// <param name="condition"> An optional condition for filtering entity types. </param>
         /// <returns> List of entity types corresponding to the least derived types from the given. </returns>
-        IEnumerable<IEntityType> FindLeastDerivedEntityTypes(
+        new IEnumerable<IEntityType> FindLeastDerivedEntityTypes(
             [NotNull] Type type,
-            [CanBeNull] Func<IEntityType, bool>? condition = null)
-            => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition == null ? null : t => condition((IEntityType)t))
+            [CanBeNull] Func<IReadOnlyEntityType, bool>? condition = null)
+            => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition == null ? null : t => condition(t))
                 .Cast<IEntityType>();
+
+        /// <summary>
+        ///     Gets a value indicating whether the given <see cref="MethodInfo"/> reprensents an indexer access.
+        /// </summary>
+        /// <param name="methodInfo"> The <see cref="MethodInfo"/> to check. </param>
+        bool IsIndexerMethod([NotNull] MethodInfo methodInfo);
     }
 }

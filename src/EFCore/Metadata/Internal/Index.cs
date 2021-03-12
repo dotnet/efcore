@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString()
-            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+            => ((IIndex)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -252,8 +252,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView DebugView
             => new(
-                () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
-                () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
+                () => ((IIndex)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IIndex)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 #nullable enable
 
@@ -32,5 +34,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the columns that are participating in the unique constraint.
         /// </summary>
         IReadOnlyList<IColumn> Columns { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether this constraint is the primary key.
+        /// </summary>
+        /// <returns> <see langword="true" /> if the constraint is the primary key </returns>
+         bool GetIsPrimaryKey()
+            => Table.PrimaryKey == this;
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a human-readable representation of the given metadata.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the returned string.
+        ///         It is designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        /// <param name="options"> Options for generating the string. </param>
+        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
+        /// <returns> A human-readable representation. </returns>
+        string ToDebugString(MetadataDebugStringOptions options, int indent = 0)
+        {
+            var builder = new StringBuilder();
+            var indentString = new string(' ', indent);
+
+            builder.Append(indentString);
+            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
+            if (singleLine)
+            {
+                builder.Append("Key: ");
+            }
+
+            builder
+                .Append(Name)
+                .Append(" ")
+                .Append(ColumnBase.Format(Columns));
+
+            if (GetIsPrimaryKey())
+            {
+                builder.Append(" PrimaryKey");
+            }
+
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(AnnotationsToDebugString(indent + 2));
+            }
+
+            return builder.ToString();
+        }
     }
 }

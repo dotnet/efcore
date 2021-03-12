@@ -40,7 +40,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                         new RelationalTransactionFactoryDependencies(
                             new RelationalSqlGenerationHelper(
                                 new RelationalSqlGenerationHelperDependencies()))),
-                    new CurrentDbContext(new FakeDbContext())))
+                    new CurrentDbContext(new FakeDbContext()),
+                    new RelationalCommandBuilderFactory(
+                        new RelationalCommandBuilderDependencies(
+                            new TestRelationalTypeMappingSource(
+                                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())))))
         {
         }
 

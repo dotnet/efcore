@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IMutableForeignKey? FindSharedObjectRootForeignKey(
             [NotNull] this IMutableForeignKey foreignKey,
             in StoreObjectIdentifier storeObject)
-            => (IMutableForeignKey?)((IForeignKey)foreignKey).FindSharedObjectRootForeignKey(storeObject);
+            => (IMutableForeignKey?)((IReadOnlyForeignKey)foreignKey).FindSharedObjectRootForeignKey(storeObject);
 
         /// <summary>
         ///     <para>
@@ -281,6 +281,23 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionForeignKey? FindSharedObjectRootForeignKey(
             [NotNull] this IConventionForeignKey foreignKey,
             in StoreObjectIdentifier storeObject)
-            => (IConventionForeignKey?)((IForeignKey)foreignKey).FindSharedObjectRootForeignKey(storeObject);
+            => (IConventionForeignKey?)((IReadOnlyForeignKey)foreignKey).FindSharedObjectRootForeignKey(storeObject);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the first <see cref="IConventionForeignKey" /> that is mapped to the same constraint in a shared table-like object.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="foreignKey"> The foreign key. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
+        /// <returns> The foreign key if found, or <see langword="null" /> if none was found.</returns>
+        public static IForeignKey? FindSharedObjectRootForeignKey(
+            [NotNull] this IForeignKey foreignKey,
+            in StoreObjectIdentifier storeObject)
+            => (IForeignKey?)((IReadOnlyForeignKey)foreignKey).FindSharedObjectRootForeignKey(storeObject);
     }
 }

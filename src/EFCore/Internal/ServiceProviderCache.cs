@@ -132,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         // Because IDbContextOptions cannot yet be resolved from the internal provider
                         var logger = new DiagnosticsLogger<DbLoggerCategory.Infrastructure>(
                             ScopedLoggerFactory.Create(scopedProvider, options),
-                            scopedProvider.GetService<ILoggingOptions>(),
-                            scopedProvider.GetService<DiagnosticSource>(),
+                            scopedProvider.GetRequiredService<ILoggingOptions>(),
+                            scopedProvider.GetRequiredService<DiagnosticSource>(),
                             loggingDefinitions,
                             new NullDbContextLogger());
 

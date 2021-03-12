@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -1035,6 +1036,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        #endregion
+
         #region Issue19253
 
         [ConditionalFact]
@@ -1213,7 +1216,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public class MyContext19253 : DbContext
+        private class MyContext19253 : DbContext
         {
             public DbSet<A19253> A { get; set; }
             public DbSet<B19253> B { get; set; }
@@ -1226,14 +1229,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public class JoinResult19253<TLeft, TRight>
+        private class JoinResult19253<TLeft, TRight>
         {
             public TLeft Left { get; set; }
 
             public TRight Right { get; set; }
         }
 
-        public class A19253
+        private class A19253
         {
             public int Id { get; set; }
             public string a { get; set; }
@@ -1242,7 +1245,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         }
 
-        public class B19253
+        private class B19253
         {
             public int Id { get; set; }
             public string b { get; set; }
@@ -1270,8 +1273,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
-        #endregion
-
         #region Issue23285
 
         [ConditionalFact]
@@ -1296,24 +1297,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Owned]
-        public class OwnedClass23285
+        private class OwnedClass23285
         {
             public string A { get; set; }
             public string B { get; set; }
         }
 
-        public class Root23285
+        private class Root23285
         {
             public int Id { get; set; }
             public OwnedClass23285 OwnedProp { get; set; }
         }
 
-        public class ChildA23285 : Root23285
+        private class ChildA23285 : Root23285
         {
             public bool Prop { get; set; }
         }
 
-        public class ChildB23285 : Root23285
+        private class ChildB23285 : Root23285
         {
             public double Prop { get; set; }
         }
@@ -1363,13 +1364,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Owned]
-        public class OwnedClass23687
+        private class OwnedClass23687
         {
             public string A { get; set; }
             public string B { get; set; }
         }
 
-        public class Root23687
+        private class Root23687
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
@@ -1482,6 +1483,642 @@ namespace Microsoft.EntityFrameworkCore.Query
                 optionsBuilder
                     .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                     .UseInMemoryDatabase("23593");
+            }
+        }
+
+        #endregion
+
+        #region Issue23926
+
+        [ConditionalFact]
+        public virtual void Left_join_with_entity_with_enum_discriminator()
+        {
+            using (CreateScratch<MyContext23926>(Seed23926, "23926"))
+            {
+                using var context = new MyContext23926();
+
+                var query = context.History.Select(e => e.User.Name).ToList();
+
+                Assert.Equal(query, new string[] { "UserA", "DerivedUserB", null });
+            }
+        }
+
+        private static void Seed23926(MyContext23926 context)
+        {
+            context.Add(new History23926 { User = new User23926 { Name = "UserA" } });
+            context.Add(new History23926 { User = new DerivedUser23926 { Name = "DerivedUserB" } });
+            context.Add(new History23926 { User = null });
+
+            context.SaveChanges();
+        }
+
+        private class History23926
+        {
+            public int Id { get; set; }
+            public int? UserId { get; set; }
+            public User23926 User { get; set; }
+        }
+
+        private class User23926
+        {
+            public int Id { get; set; }
+            public UserTypes23926 Type { get; set; }
+            public string Name { get; set; }
+        }
+        private enum UserTypes23926
+        {
+            User,
+            DerivedUser
+        }
+
+        private class DerivedUser23926 : User23926
+        {
+            public string Value { get; set; }
+        }
+
+        private class MyContext23926 : DbContext
+        {
+            public DbSet<History23926> History { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("23926");
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<User23926>().HasDiscriminator(e => e.Type)
+                    .HasValue<User23926>(UserTypes23926.User)
+                    .HasValue<DerivedUser23926>(UserTypes23926.DerivedUser);
+            }
+        }
+
+        #endregion
+
+        #region Issue18435
+
+        [ConditionalFact]
+        public virtual void Shared_owned_property_on_multiple_level_in_Select()
+        {
+            using (CreateScratch<MyContext18435>(Seed18435, "18435"))
+            {
+                using var context = new MyContext18435();
+
+                var result = context.TestEntities
+                    .Select(x => new
+                    {
+                        x.Value,
+                        A = x.Owned.First,
+                        B = x.Owned.Second,
+                        C = x.Child.Owned.First,
+                        D = x.Child.Owned.Second
+                    }).FirstOrDefault();
+
+                Assert.Equal("test", result.Value);
+                Assert.Equal(2, result.A);
+                Assert.Equal(4, result.B);
+                Assert.Equal(1, result.C);
+                Assert.Equal(3, result.D);
+            }
+        }
+
+        private static void Seed18435(MyContext18435 context)
+        {
+            context.Add(new RootEntity18435
+            {
+                Value = "test",
+                Owned = new TestOwned18435
+                {
+                    First = 2,
+                    Second = 4,
+                    AnotherValueType = "yay"
+                },
+                Child = new ChildEntity18435
+                {
+                    Owned = new TestOwned18435
+                    {
+                        First = 1,
+                        Second = 3,
+                        AnotherValueType = "nay"
+                    }
+                }
+            });
+
+            context.SaveChanges();
+        }
+
+        private class RootEntity18435
+        {
+            public int Id { get; set; }
+            public string Value { get; set; }
+            public TestOwned18435 Owned { get; set; }
+            public ChildEntity18435 Child { get; set; }
+
+        }
+
+        private class ChildEntity18435
+        {
+            public int Id { get; set; }
+            public string Value { get; set; }
+            public TestOwned18435 Owned { get; set; }
+        }
+
+        [Owned]
+        private class TestOwned18435
+        {
+            public int First { get; set; }
+            public int Second { get; set; }
+            public string AnotherValueType { get; set; }
+        }
+
+        private class MyContext18435 : DbContext
+        {
+            public DbSet<RootEntity18435> TestEntities { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("18435");
+            }
+        }
+
+        #endregion
+
+        #region Issue19425
+
+        [ConditionalFact(Skip = "Issue#19425")]
+        public virtual void Non_nullable_cast_in_null_check()
+        {
+            using (CreateScratch<MyContext19425>(Seed19425, "19425"))
+            {
+                using var context = new MyContext19425();
+
+                var query = (from foo in context.FooTable
+                             select new
+                             {
+                                 Bar = foo.Bar != null ? (Bar19425)foo.Bar : (Bar19425?)null
+                             }).ToList();
+
+                Assert.Single(query);
+            }
+        }
+
+        private static void Seed19425(MyContext19425 context)
+        {
+            context.FooTable.Add(new FooTable19425 { Id = 1, Bar = null });
+
+            context.SaveChanges();
+        }
+
+        private enum Bar19425
+        {
+            value1,
+            value2
+        };
+
+        private class FooTable19425
+        {
+            public int Id { get; set; }
+            public byte? Bar { get; set; }
+        }
+
+        private class MyContext19425 : DbContext
+        {
+            public DbSet<FooTable19425> FooTable { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("19425");
+            }
+        }
+
+        #endregion
+
+        #region Issue19667
+
+        [ConditionalFact]
+        public virtual void Property_access_on_nullable_converted_scalar_type()
+        {
+            using (CreateScratch<MyContext19667>(Seed19667, "19667"))
+            {
+                using var context = new MyContext19667();
+
+                var query = context.Entities.OrderByDescending(e => e.Id).FirstOrDefault(p => p.Type.Date.Year == 2020);
+
+                Assert.Equal(2, query.Id);
+            }
+        }
+
+        private static void Seed19667(MyContext19667 context)
+        {
+            context.Entities.Add(new MyEntity19667 { Id = 1, Type = new MyType19667 { Date = new DateTime(2020, 1, 1) } });
+            context.Entities.Add(new MyEntity19667 { Id = 2, Type = new MyType19667 { Date = new DateTime(2020, 1, 1).AddDays(1) } });
+
+            context.SaveChanges();
+        }
+
+        private class MyEntity19667
+        {
+            public int Id { get; set; }
+
+            public MyType19667 Type { get; set; }
+        }
+
+        [Owned]
+        private class MyType19667
+        {
+            public DateTime Date { get; set; }
+        }
+
+        private class MyContext19667 : DbContext
+        {
+            public DbSet<MyEntity19667> Entities { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("19667");
+            }
+        }
+
+        #endregion
+
+        #region Issue20359
+
+        [ConditionalFact]
+        public virtual void Changing_order_of_projection_in_anonymous_type_works()
+        {
+            using (CreateScratch<MyContext20359>(Seed20359, "20359"))
+            {
+                using var context = new MyContext20359();
+
+                var result1 = (from r in context.Root
+                               select new
+                               {
+                                   r.B.BValue,
+                                   r.A.Sub.AValue
+                               }).FirstOrDefault();
+
+                var result2 = (from r in context.Root
+                               select new
+                               {
+                                   r.A.Sub.AValue,
+                                   r.B.BValue,
+                               }).FirstOrDefault();
+
+                Assert.Equal(result1.BValue, result2.BValue);
+            }
+        }
+
+        private static void Seed20359(MyContext20359 context)
+        {
+            var root = new Root20359()
+            {
+                A = new A20359() { Sub = new ASubClass20359() { AValue = "A Value" } },
+                B = new B20359() { BValue = "B Value" }
+            };
+
+            context.Add(root);
+
+            context.SaveChanges();
+        }
+
+        private class A20359
+        {
+            public int Id { get; set; }
+
+            public ASubClass20359 Sub { get; set; }
+        }
+
+        private class ASubClass20359
+        {
+            public string AValue { get; set; }
+        }
+
+        private class B20359
+        {
+            public string BValue { get; set; }
+        }
+
+        private class Root20359
+        {
+            public int Id { get; set; }
+
+            public A20359 A { get; set; }
+            public B20359 B { get; set; }
+        }
+
+        private class MyContext20359 : DbContext
+        {
+            public DbSet<Root20359> Root { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("20359");
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<A20359>(builder =>
+                {
+                    builder.OwnsOne(x => x.Sub);
+                });
+
+                modelBuilder.Entity<Root20359>(builder =>
+                {
+                    builder.OwnsOne(x => x.B);
+                });
+            }
+        }
+
+        #endregion
+
+        #region Issue23360
+
+        [ConditionalFact]
+        public virtual void Union_with_different_property_name_using_same_anonymous_type()
+        {
+            using (CreateScratch<MyContext23360>(Seed23360, "23360"))
+            {
+                using var context = new MyContext23360();
+
+                var userQuery = context.User
+                   .Select(u => new CommonSelectType23360()
+                   {
+                       // 1. FirstName, 2. LastName
+                       FirstName = u.Forename,
+                       LastName = u.Surname,
+                   });
+
+                var customerQuery = context.Customer
+                    .Select(c => new CommonSelectType23360()
+                    {
+                        // 1. LastName, 2. FirstName
+                        LastName = c.FamilyName,
+                        FirstName = c.GivenName,
+                    });
+
+                var result = userQuery.Union(customerQuery).ToList();
+
+                Assert.Equal("Peter", result[0].FirstName);
+                Assert.Equal("Smith", result[0].LastName);
+                Assert.Equal("John", result[1].FirstName);
+                Assert.Equal("Doe", result[1].LastName);
+            }
+        }
+
+        private static void Seed23360(MyContext23360 context)
+        {
+            context.User.Add(new User23360()
+            {
+                Forename = "Peter",
+                Surname = "Smith",
+            });
+
+            context.Customer.Add(new Customer23360()
+            {
+                GivenName = "John",
+                FamilyName = "Doe",
+            });
+
+            context.SaveChanges();
+        }
+
+        private class User23360
+        {
+            [Key]
+            public int Key { get; set; }
+
+            public string Forename { get; set; }
+            public string Surname { get; set; }
+        }
+
+        private class Customer23360
+        {
+            [Key]
+            public int Key { get; set; }
+
+            public string GivenName { get; set; }
+            public string FamilyName { get; set; }
+        }
+
+        private class CommonSelectType23360
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+        }
+
+        private class MyContext23360 : DbContext
+        {
+            public virtual DbSet<User23360> User { get; set; }
+            public virtual DbSet<Customer23360> Customer { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("23360");
+            }
+        }
+
+        #endregion
+
+        #region Issue18394
+
+        [ConditionalFact]
+        public virtual void Ordering_of_collection_result_is_correct()
+        {
+            using (CreateScratch<MyContext18394>(Seed18394, "18394"))
+            {
+                using var context = new MyContext18394();
+
+                var myA = context.As
+                    .Where(x => x.Id == 1)
+                    .Select(x => new ADto18394
+                    {
+                        Id = x.Id,
+                        PropertyB = (x.PropertyB == null)
+                            ? null
+                            : new BDto18394
+                            {
+                                Id = x.PropertyB.Id,
+                                PropertyCList = x.PropertyB.PropertyCList.Select(
+                                    y => new CDto18394
+                                    {
+                                        Id = y.Id,
+                                        SomeText = y.SomeText
+                                    }).ToList()
+                            }
+                    })
+                    .FirstOrDefault();
+
+                Assert.Equal("TestText", myA.PropertyB.PropertyCList.First().SomeText);
+            }
+        }
+
+        private static void Seed18394(MyContext18394 context)
+        {
+            var a = new A18394
+            {
+                PropertyB = new B18394
+                {
+                    PropertyCList = new List<C18394>
+                    {
+                        new C18394 { SomeText = "TestText" }
+                    }
+                }
+            };
+            context.As.Add(a);
+
+            context.SaveChanges();
+        }
+
+        private class ADto18394
+        {
+            public int Id { get; set; }
+
+            public BDto18394 PropertyB { get; set; }
+
+            public int PropertyBId { get; set; }
+        }
+
+        private class BDto18394
+        {
+            public int Id { get; set; }
+
+            public List<CDto18394> PropertyCList { get; set; }
+        }
+
+        private class CDto18394
+        {
+            public int Id { get; set; }
+
+            public int CId { get; set; }
+
+            public string SomeText { get; set; }
+        }
+
+        private class A18394
+        {
+            public int Id { get; set; }
+
+            public B18394 PropertyB { get; set; }
+
+            public int PropertyBId { get; set; }
+        }
+
+        private class B18394
+        {
+            public int Id { get; set; }
+
+            public List<C18394> PropertyCList { get; set; }
+        }
+
+        private class C18394
+        {
+            public int Id { get; set; }
+
+            public int BId { get; set; }
+
+            public string SomeText { get; set; }
+
+
+            public B18394 B { get; set; }
+        }
+
+        private class MyContext18394 : DbContext
+        {
+            public DbSet<A18394> As { get; set; }
+            public DbSet<B18394> Bs { get; set; }
+            public DbSet<C18394> Cs { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("18394");
+            }
+        }
+
+        #endregion
+
+        #region Issue23934
+
+        [ConditionalFact]
+        public virtual void Owned_entity_indexes_are_maintained_properly()
+        {
+            using (CreateScratch<MyContext23934>(Seed23934, "23934"))
+            {
+                using var context = new MyContext23934();
+
+                var criteria = new DateTime(2020, 1, 1);
+
+                var data = context.Outers.Where(x => x.OwnedProp.At >= criteria || x.Inner.OwnedProp.At >= criteria).ToList();
+
+                Assert.Single(data);
+            }
+        }
+
+        private static void Seed23934(MyContext23934 context)
+        {
+            var inner = new Inner23934
+            {
+                Id = Guid.NewGuid(),
+                OwnedProp = new OwnedClass23934 { At = new DateTime(2020, 1, 1) }
+            };
+
+            var outer = new Outer23934
+            {
+                Id = Guid.NewGuid(),
+                OwnedProp = new OwnedClass23934 { At = new DateTime(2020, 1, 1) },
+                InnerId = inner.Id
+            };
+
+            context.Inners.Add(inner);
+            context.Outers.Add(outer);
+
+            context.SaveChanges();
+        }
+
+        private class Outer23934
+        {
+            public Guid Id { get; set; }
+            public OwnedClass23934 OwnedProp { get; set; }
+            public Guid InnerId { get; set; }
+            public Inner23934 Inner { get; set; }
+        }
+
+        private class Inner23934
+        {
+            public Guid Id { get; set; }
+            public OwnedClass23934 OwnedProp { get; set; }
+        }
+
+        [Owned]
+        private class OwnedClass23934
+        {
+            public DateTime At { get; set; }
+        }
+
+        private class MyContext23934 : DbContext
+        {
+            public DbSet<Outer23934> Outers { get; set; }
+
+            public DbSet<Inner23934> Inners { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase("23934");
             }
         }
 

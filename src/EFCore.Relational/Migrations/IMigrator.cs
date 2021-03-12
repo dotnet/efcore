@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="targetMigration">
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
         /// </param>
-        void Migrate([CanBeNull] string targetMigration = null);
+        void Migrate([CanBeNull] string? targetMigration = null);
         /// <summary>
         ///     Migrates the database to either a specified target migration or up to the latest
         ///     migration that exists in the <see cref="IMigrationsAssembly" />.
@@ -39,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
         /// </param>
         /// <param name="throwWhenHasError">If you set this true, this will check and throw exception when you change models and forgot to add-migration</param>
-        void Migrate(bool throwWhenHasError, [CanBeNull] string targetMigration = null);
+        void Migrate(bool throwWhenHasError, [CanBeNull] string? targetMigration = null);
 
         /// <summary>
         ///     Migrates the database to either a specified target migration or up to the latest
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> A task that represents the asynchronous operation </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task MigrateAsync(
-            [CanBeNull] string targetMigration = null,
+            [CanBeNull] string? targetMigration = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task MigrateAsync(
             bool throwWhenHasError,
-            [CanBeNull] string targetMigration = null,
+            [CanBeNull] string? targetMigration = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -86,8 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </param>
         /// <returns> The generated script. </returns>
         string GenerateScript(
-            [CanBeNull] string fromMigration = null,
-            [CanBeNull] string toMigration = null,
+            [CanBeNull] string? fromMigration = null,
+            [CanBeNull] string? toMigration = null,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default);
     }
 }

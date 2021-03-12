@@ -3042,32 +3042,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
 
             Assert.NotNull(typeBuilder.HasDiscriminator());
-            Assert.Equal("Discriminator", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Discriminator", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
 
             Assert.NotNull(typeBuilder.HasNoDiscriminator());
-            Assert.Null(typeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Null(typeBuilder.Metadata.FindDiscriminatorProperty());
             Assert.Empty(typeBuilder.Metadata.GetProperties());
 
             Assert.NotNull(typeBuilder.HasDiscriminator("Splod", typeof(int?)));
-            Assert.Equal("Splod", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(int?), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Splod", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(int?), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
             Assert.Equal("Splod", typeBuilder.Metadata.GetProperties().Single().Name);
 
             Assert.NotNull(typeBuilder.HasDiscriminator(Order.CustomerUniqueProperty, fromDataAnnotation: true));
-            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(Guid?), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(Guid?), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
             Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetProperties().Single().Name);
 
             Assert.Null(typeBuilder.HasDiscriminator("Splew", typeof(int?)));
-            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(Guid?), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(Guid?), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
             Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetProperties().Single().Name);
 
             Assert.NotNull(typeBuilder.HasDiscriminator(typeof(int), fromDataAnnotation: true));
             Assert.Null(typeBuilder.HasDiscriminator(typeof(long)));
-            Assert.Equal("Discriminator", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(int), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Discriminator", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(int), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
 
             Assert.Null(typeBuilder.HasNoDiscriminator());
         }
@@ -3079,12 +3079,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             typeBuilder.Ignore("Splod", true);
 
             Assert.NotNull(typeBuilder.HasDiscriminator("Splew", typeof(string)));
-            Assert.Equal("Splew", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Splew", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
 
             Assert.Null(typeBuilder.HasDiscriminator("Splod", typeof(int?)));
-            Assert.Equal("Splew", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Splew", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
         }
 
         [ConditionalFact]
@@ -3149,7 +3149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Metadata.GetDiscriminatorValue());
 
             Assert.NotNull(typeBuilder.HasNoDiscriminator(fromDataAnnotation: true));
-            Assert.Null(typeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Null(typeBuilder.Metadata.FindDiscriminatorProperty());
             Assert.Null(typeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Empty(typeBuilder.Metadata.GetProperties());
         }

@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString()
-            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+            => ((ISqlQuery)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
         IEnumerable<ISqlQueryMapping> ISqlQuery.EntityTypeMappings

@@ -111,18 +111,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new SqlServerDoubleTypeMapping("float");
 
         private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffset
+#pragma warning disable CS8620 // TODO: Follow up. Possibly dotnet/roslyn#50311
             = new("datetimeoffset");
+#pragma warning restore CS8620
 
         private readonly GuidTypeMapping _uniqueidentifier
             = new("uniqueidentifier", DbType.Guid);
 
         private readonly DecimalTypeMapping _decimal
-            = new SqlServerDecimalTypeMapping(
-                "decimal");
+            = new SqlServerDecimalTypeMapping("decimal");
 
         private readonly DecimalTypeMapping _decimal182
-            = new SqlServerDecimalTypeMapping(
-                "decimal(18, 2)", precision: 18, scale: 2);
+            = new SqlServerDecimalTypeMapping("decimal(18, 2)", precision: 18, scale: 2);
 
         private readonly DecimalTypeMapping _money
             = new SqlServerDecimalTypeMapping("money", storeTypePostfix: StoreTypePostfix.None);

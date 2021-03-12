@@ -182,17 +182,47 @@ FROM ""Orders"" AS ""o""");
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.SelectMany_whose_selector_references_outer_source(async))).Message);
 
-        public override async Task Projecting_after_navigation_and_distinct_throws(bool async)
+        public override async Task Projecting_after_navigation_and_distinct(bool async)
             => Assert.Equal(
-                RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin,
+                SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Projecting_after_navigation_and_distinct_throws(async))).Message);
+                    () => base.Projecting_after_navigation_and_distinct(async))).Message);
 
         public override async Task Select_nested_collection_deep(bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Select_nested_collection_deep(async))).Message);
+
+        public override async Task Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(async))).Message);
+
+        public override async Task Correlated_collection_after_distinct_not_containing_original_identifier(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_after_distinct_not_containing_original_identifier(async))).Message);
+
+        public override async Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(async))).Message);
+
+        public override async Task Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(async))).Message);
+
+        public override async Task Select_nested_collection_deep_distinct_no_identifiers(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Select_nested_collection_deep_distinct_no_identifiers(async))).Message);
 
         [ConditionalTheory(Skip = "Issue#17324")]
         public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool async)

@@ -57,10 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TEntity Find(object[] keyValues)
+        public virtual TEntity? Find(object?[]? keyValues)
             => keyValues == null || keyValues.Any(v => v == null)
                 ? null
-                : (FindTracked(keyValues, out var keyProperties)
+                : (FindTracked(keyValues!, out var keyProperties)
                     ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues))));
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        object IEntityFinder.Find(object[] keyValues)
+        object? IEntityFinder.Find(object?[]? keyValues)
             => Find(keyValues);
 
         /// <summary>
@@ -78,18 +78,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ValueTask<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
+        public virtual ValueTask<TEntity?> FindAsync(object?[]? keyValues, CancellationToken cancellationToken = default)
         {
             if (keyValues == null
                 || keyValues.Any(v => v == null))
             {
-                return new ValueTask<TEntity>((TEntity)null);
+                return default;
             }
 
-            var tracked = FindTracked(keyValues, out var keyProperties);
+            var tracked = FindTracked(keyValues!, out var keyProperties);
             return tracked != null
-                ? new ValueTask<TEntity>(tracked)
-                : new ValueTask<TEntity>(
+                ? new ValueTask<TEntity?>(tracked)
+                : new ValueTask<TEntity?>(
                     _queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
         }
 
@@ -99,18 +99,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        ValueTask<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
+        ValueTask<object?> IEntityFinder.FindAsync(object?[]? keyValues, CancellationToken cancellationToken)
         {
             if (keyValues == null
                 || keyValues.Any(v => v == null))
             {
-                return new ValueTask<object>((object)null);
+                return default;
             }
 
-            var tracked = FindTracked(keyValues, out var keyProperties);
+            var tracked = FindTracked(keyValues!, out var keyProperties);
             return tracked != null
-                ? new ValueTask<object>(tracked)
-                : new ValueTask<object>(
+                ? new ValueTask<object?>(tracked)
+                : new ValueTask<object?>(
                     _queryRoot.FirstOrDefaultAsync(
                         BuildObjectLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken));
         }
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object[] GetDatabaseValues(InternalEntityEntry entry)
+        public virtual object[]? GetDatabaseValues(InternalEntityEntry entry)
             => GetDatabaseValuesQuery(entry)?.FirstOrDefault();
 
         /// <summary>
@@ -205,15 +205,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Task<object[]> GetDatabaseValuesAsync(
+        public virtual Task<object[]?> GetDatabaseValuesAsync(
             InternalEntityEntry entry,
             CancellationToken cancellationToken = default)
-            => GetDatabaseValuesQuery(entry)?.FirstOrDefaultAsync(cancellationToken);
+            => GetDatabaseValuesQuery(entry)?.FirstOrDefaultAsync(cancellationToken) ?? Task.FromResult((object[]?)null);
 
-        private IQueryable<object[]> GetDatabaseValuesQuery(InternalEntityEntry entry)
+        private IQueryable<object[]>? GetDatabaseValuesQuery(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
-            var properties = entityType.FindPrimaryKey().Properties;
+            var properties = entityType.FindPrimaryKey()!.Properties;
 
             var keyValues = new object[properties.Count];
             for (var i = 0; i < keyValues.Length; i++)
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         IQueryable IEntityFinder.Query(INavigation navigation, InternalEntityEntry entry)
             => Query(navigation, entry);
 
-        private static object[] GetLoadValues(INavigation navigation, InternalEntityEntry entry)
+        private static object[]? GetLoadValues(INavigation navigation, InternalEntityEntry entry)
         {
             var properties = navigation.IsOnDependent
                 ? navigation.ForeignKey.Properties
@@ -271,9 +271,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ? navigation.ForeignKey.PrincipalKey.Properties
                 : navigation.ForeignKey.Properties;
 
-        private TEntity FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
+        private TEntity? FindTracked(object[] keyValues, out IReadOnlyList<IProperty> keyProperties)
         {
-            var key = _entityType.FindPrimaryKey();
+            var key = _entityType.FindPrimaryKey()!;
             keyProperties = key.Properties;
 
             if (keyProperties.Count != keyValues.Length)
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private IQueryable BuildQueryRoot(IEntityType entityType)
             => entityType.FindOwnership() is IForeignKey ownership
-                    ? BuildQueryRoot(ownership.PrincipalEntityType, entityType, ownership.PrincipalToDependent.Name)
+                    ? BuildQueryRoot(ownership.PrincipalEntityType, entityType, ownership.PrincipalToDependent!.Name)
                     : entityType.HasSharedClrType
                         ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.Name, entityType.ClrType)
                         : (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
@@ -329,11 +329,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private IQueryable BuildQueryRoot(IEntityType ownerEntityType, IEntityType entityType, string navigationName)
         {
             var queryRoot = BuildQueryRoot(ownerEntityType);
-            var collectionNavigation = ownerEntityType.FindNavigation(navigationName).IsCollection;
+            var collectionNavigation = ownerEntityType.FindNavigation(navigationName)!.IsCollection;
 
             return (IQueryable)(collectionNavigation ? _selectManyMethod : _selectMethod)
                 .MakeGenericMethod(ownerEntityType.ClrType, entityType.ClrType)
-                .Invoke(null, new object[] { queryRoot, navigationName });
+                .Invoke(null, new object[] { queryRoot, navigationName })!;
         }
 
         private static readonly MethodInfo _selectMethod
@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var parameter = Expression.Parameter(typeof(TSource), "e");
             return source.Select(
                 Expression.Lambda<Func<TSource, TResult>>(
-                    Expression.MakeMemberAccess(parameter, typeof(TSource).GetAnyProperty(propertyName)),
+                    Expression.MakeMemberAccess(parameter, typeof(TSource).GetAnyProperty(propertyName)!),
                     parameter));
         }
 
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var parameter = Expression.Parameter(typeof(TSource), "e");
             return source.SelectMany(
                 Expression.Lambda<Func<TSource, IEnumerable<TResult>>>(
-                    Expression.MakeMemberAccess(parameter, typeof(TSource).GetAnyProperty(propertyName)),
+                    Expression.MakeMemberAccess(parameter, typeof(TSource).GetAnyProperty(propertyName)!),
                     parameter));
         }
 

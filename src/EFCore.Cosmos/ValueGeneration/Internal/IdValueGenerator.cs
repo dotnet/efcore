@@ -7,6 +7,8 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
 {
     /// <summary>
@@ -37,10 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
             var builder = new StringBuilder();
             var entityType = entry.Metadata;
 
-            var primaryKey = entityType.FindPrimaryKey();
+            var primaryKey = entityType.FindPrimaryKey()!;
             var discriminator = entityType.GetDiscriminatorValue();
             if (discriminator != null
-                && !primaryKey.Properties.Contains(entityType.GetDiscriminatorProperty()))
+                && !primaryKey.Properties.Contains(entityType.FindDiscriminatorProperty()))
             {
                 AppendString(builder, discriminator);
                 builder.Append("|");
@@ -73,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
             return builder.ToString();
         }
 
-        private void AppendString(StringBuilder builder, object propertyValue)
+        private void AppendString(StringBuilder builder, object? propertyValue)
         {
             switch (propertyValue)
             {
@@ -83,13 +85,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                 case IEnumerable enumerable:
                     foreach (var item in enumerable)
                     {
-                        builder.Append(item.ToString().Replace("|", "^|"));
+                        builder.Append(item.ToString()!.Replace("|", "^|"));
                         builder.Append("|");
                     }
 
                     return;
                 default:
-                    builder.Append(propertyValue == null ? "null" : propertyValue.ToString().Replace("|", "^|"));
+                    builder.Append(propertyValue == null ? "null" : propertyValue.ToString()!.Replace("|", "^|"));
                     return;
             }
         }

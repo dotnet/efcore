@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = entityType.AddProperty("Property", typeof(int));
 
             Assert.Equal(
-                CoreStrings.ModelNotFinalized(nameof(PropertyExtensions.GetTypeMapping)),
+                CoreStrings.ModelNotFinalized(nameof(IReadOnlyProperty.GetTypeMapping)),
                 Assert.Throws<InvalidOperationException>(
                     () => property.GetTypeMapping()).Message);
         }

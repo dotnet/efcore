@@ -17,6 +17,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -633,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (derivedType != null
                     && TryBindMember(
                         entityReferenceExpression,
-                        MemberIdentity.Create(entityType.GetDiscriminatorProperty().Name)) is SqlExpression discriminatorColumn)
+                        MemberIdentity.Create(entityType.GetDiscriminatorPropertyName())) is SqlExpression discriminatorColumn)
                 {
                     var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
 

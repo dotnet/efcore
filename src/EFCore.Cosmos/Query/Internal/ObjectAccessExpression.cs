@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>

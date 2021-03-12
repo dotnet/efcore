@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Type ownedType,
             [NotNull] string navigationName)
             => OwnsOneBuilder(
-                new TypeIdentity(Check.NotNull(ownedType, nameof(ownedType)), (Model)OwnedEntityType.Model),
+                new TypeIdentity(Check.NotNull(ownedType, nameof(ownedType)), DependentEntityType.Model),
                 Check.NotEmpty(navigationName, nameof(navigationName)));
 
         /// <summary>
@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             using (DependentEntityType.Model.DelayConventions())
             {
-                buildAction(OwnsOneBuilder(new TypeIdentity(ownedType, (Model)OwnedEntityType.Model), navigationName));
+                buildAction(OwnsOneBuilder(new TypeIdentity(ownedType, DependentEntityType.Model), navigationName));
                 return this;
             }
         }
@@ -827,9 +827,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotEmpty(navigationName, nameof(navigationName));
 
-            return OwnedEntityType.ClrType == Model.DefaultPropertyBagType
+            return DependentEntityType.ClrType == Model.DefaultPropertyBagType
                 ? HasOne(navigationName, null) // Path only used by pre 3.0 snapshots
-                : HasOne(OwnedEntityType.GetNavigationMemberInfo(navigationName).GetMemberType(), navigationName);
+                : HasOne(DependentEntityType.GetNavigationMemberInfo(navigationName).GetMemberType(), navigationName);
         }
 
         /// <summary>
@@ -892,7 +892,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             if (relatedEntityType == null
-                && model.GetProductVersion()?.StartsWith("2.", StringComparison.Ordinal) == true)
+                && ((IReadOnlyModel)model).GetProductVersion()?.StartsWith("2.", StringComparison.Ordinal) == true)
             {
                 var owner = DependentEntityType.FindOwnership()!.PrincipalEntityType;
                 if (owner.Name == relatedTypeName
@@ -975,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        ///     Adds seed data to this entity type. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
         ///     An array of seed data represented by anonymous types.
@@ -985,13 +985,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(data, nameof(data));
 
-            OwnedEntityType.AddData(data);
+            DependentEntityType.Builder.HasData(data, ConfigurationSource.Explicit);
 
             return new DataBuilder();
         }
 
         /// <summary>
-        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        ///     Adds seed data to this entity type. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
         ///     A collection of seed data represented by anonymous types.
@@ -1001,7 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(data, nameof(data));
 
-            OwnedEntityType.AddData(data);
+            DependentEntityType.Builder.HasData(data, ConfigurationSource.Explicit);
 
             return new DataBuilder();
         }

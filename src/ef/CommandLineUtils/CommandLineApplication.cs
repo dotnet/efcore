@@ -38,26 +38,26 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Invoke = (args) => 0;
         }
 
-        public CommandLineApplication Parent { get; set; }
-        public string Name { get; set; }
-        public string FullName { get; set; }
-        public string Syntax { get; set; }
-        public string Description { get; set; }
+        public CommandLineApplication? Parent { get; set; }
+        public string? Name { get; set; }
+        public string? FullName { get; set; }
+        public string? Syntax { get; set; }
+        public string? Description { get; set; }
         public List<CommandOption> Options { get; }
-        public CommandOption OptionHelp { get; private set; }
-        public CommandOption OptionVersion { get; private set; }
+        public CommandOption? OptionHelp { get; private set; }
+        public CommandOption? OptionVersion { get; private set; }
         public List<CommandArgument> Arguments { get; }
         public List<string> RemainingArguments { get; }
         public List<string> ApplicationArguments { get; }
         public bool IsShowingInformation { get; protected set; } // Is showing help or version?
-        public Func<string[],  int> Invoke { get; set; }
-        public Func<string> LongVersionGetter { get; set; }
-        public Func<string> ShortVersionGetter { get; set; }
+        public Func<string[], int> Invoke { get; set; }
+        public Func<string>? LongVersionGetter { get; set; }
+        public Func<string>? ShortVersionGetter { get; set; }
         public List<CommandLineApplication> Commands { get; }
         public bool HandleResponseFiles { get; set; }
         public bool AllowArgumentSeparator { get; set; }
         public bool HandleRemainingArguments { get; set; }
-        public string ArgumentSeparatorHelpText { get; set; }
+        public string? ArgumentSeparatorHelpText { get; set; }
 
         public CommandLineApplication Command(string name, bool throwOnUnexpectedArg = true)
             => Command(name, _ => { }, throwOnUnexpectedArg);
@@ -72,10 +72,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return command;
         }
 
-        public CommandOption Option(string template, string description, CommandOptionType optionType)
+        public CommandOption Option(string template, string? description, CommandOptionType optionType)
             => Option(template, description, optionType, _ => { });
 
-        public CommandOption Option(string template, string description, CommandOptionType optionType, Action<CommandOption> configuration)
+        public CommandOption Option(string template, string? description, CommandOptionType optionType, Action<CommandOption> configuration)
         {
             var option = new CommandOption(template, optionType) { Description = description };
             Options.Add(option);
@@ -107,53 +107,61 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public int Execute(params string[] args)
         {
             var command = this;
+            IEnumerator<CommandArgument>? arguments = null;
 
             if (HandleResponseFiles)
             {
                 args = ExpandResponseFiles(args).ToArray();
             }
 
-            for (var index = 0; index < args.Length; index++)
+            try
             {
-                var arg = args[index];
-
-                var isLongOption = arg.StartsWith("--", StringComparison.Ordinal);
-                if (isLongOption || arg.StartsWith("-", StringComparison.Ordinal))
+                for (var index = 0; index < args.Length; index++)
                 {
-                    var result = ParseOption(isLongOption, command, args, ref index, out var option);
-                    if (result == ParseOptionResult.ShowHelp)
-                    {
-                        command.ShowHelp();
-                        return 0;
-                    }
+                    var arg = args[index];
 
-                    if (result == ParseOptionResult.ShowVersion)
+                    var isLongOption = arg.StartsWith("--", StringComparison.Ordinal);
+                    if (isLongOption || arg.StartsWith("-", StringComparison.Ordinal))
                     {
-                        command.ShowVersion();
-                        return 0;
-                    }
-                }
-                else
-                {
-                    var subcommand = ParseSubCommand(arg, command);
-                    if (subcommand != null)
-                    {
-                        command = subcommand;
+                        var result = ParseOption(isLongOption, command, args, ref index, out var option);
+                        if (result == ParseOptionResult.ShowHelp)
+                        {
+                            command.ShowHelp();
+                            return 0;
+                        }
+
+                        if (result == ParseOptionResult.ShowVersion)
+                        {
+                            command.ShowVersion();
+                            return 0;
+                        }
                     }
                     else
                     {
-                        using var arguments = new CommandArgumentEnumerator(command.Arguments.GetEnumerator());
-
-                        if (arguments.MoveNext())
+                        var subcommand = ParseSubCommand(arg, command);
+                        if (subcommand != null)
                         {
-                            arguments.Current.Values.Add(arg);
+                            command = subcommand;
                         }
                         else
                         {
-                            HandleUnexpectedArg(command, args, index, argTypeName: "command or argument");
+                            arguments ??= new CommandArgumentEnumerator(command.Arguments.GetEnumerator());
+
+                            if (arguments.MoveNext())
+                            {
+                                arguments.Current.Values.Add(arg);
+                            }
+                            else
+                            {
+                                HandleUnexpectedArg(command, args, index, argTypeName: "command or argument");
+                            }
                         }
                     }
                 }
+            }
+            finally
+            {
+                arguments?.Dispose();
             }
 
             return command.Invoke(command.ApplicationArguments.ToArray());
@@ -164,7 +172,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             CommandLineApplication command,
             string[] args,
             ref int index,
-            out CommandOption option)
+            out CommandOption? option)
         {
             option = null;
             var result = ParseOptionResult.Succeeded;
@@ -253,7 +261,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return result;
         }
 
-        private static CommandLineApplication ParseSubCommand(string arg, CommandLineApplication command)
+        private static CommandLineApplication? ParseSubCommand(string arg, CommandLineApplication command)
         {
             foreach (var subcommand in command.Commands)
             {
@@ -279,7 +287,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public CommandOption VersionOption(
             string template,
             string shortFormVersion,
-            string longFormVersion = null)
+            string? longFormVersion = null)
         {
             if (longFormVersion == null)
             {
@@ -293,7 +301,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public CommandOption VersionOption(
             string template,
             Func<string> shortFormVersionGetter,
-            Func<string> longFormVersionGetter = null)
+            Func<string>? longFormVersionGetter = null)
         {
             // Version option is special because we stop parsing once we see it
             // So we store it separately for further use
@@ -314,7 +322,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         // Show full help
-        public void ShowHelp(string commandName = null)
+        public void ShowHelp(string? commandName = null)
         {
             var headerBuilder = new StringBuilder("Usage:");
             var usagePrefixLength = headerBuilder.Length;
@@ -333,7 +341,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 }
             }
 
-            CommandLineApplication target;
+            CommandLineApplication? target;
 
             if (commandName == null
                 || string.Equals(Name, commandName, StringComparison.OrdinalIgnoreCase))
@@ -389,7 +397,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     {
                         argumentsBuilder.AppendFormat(
                             outputFormat,
-                            arg.Name.PadRight(maxArgLen + 2),
+                            arg.Name!.PadRight(maxArgLen + 2),
                             arg.Description);
                         argumentsBuilder.AppendLine();
                     }
@@ -473,10 +481,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
 
             Console.WriteLine(FullName);
-            Console.WriteLine(LongVersionGetter());
+            Console.WriteLine(LongVersionGetter!());
         }
 
-        public string GetFullNameAndVersion()
+        public string? GetFullNameAndVersion()
             => ShortVersionGetter == null ? FullName : string.Format("{0} {1}", FullName, ShortVersionGetter());
 
         public void ShowRootCommandFullNameAndVersion()
@@ -507,7 +515,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var maxLen = 0;
             foreach (var cmd in commands)
             {
-                maxLen = cmd.Name.Length > maxLen ? cmd.Name.Length : maxLen;
+                maxLen = cmd.Name!.Length > maxLen ? cmd.Name.Length : maxLen;
             }
 
             return maxLen;
@@ -518,7 +526,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var maxLen = 0;
             foreach (var arg in arguments)
             {
-                maxLen = arg.Name.Length > maxLen ? arg.Name.Length : maxLen;
+                maxLen = arg.Name!.Length > maxLen ? arg.Name.Length : maxLen;
             }
 
             return maxLen;
@@ -568,7 +576,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             }
         }
 
-        private IEnumerable<string> ParseResponseFile(string fileName)
+        private IEnumerable<string>? ParseResponseFile(string fileName)
         {
             if (!HandleResponseFiles)
             {

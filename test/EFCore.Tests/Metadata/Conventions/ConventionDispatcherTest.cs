@@ -2458,7 +2458,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 var property = entityBuilder.Property(keyPropertyName, ConfigurationSource.Convention).Metadata;
                 property.IsNullable = false;
-                var result = entityBuilder.Metadata.AddKey(property);
+                var result = ((IMutableEntityType)entityBuilder.Metadata).AddKey(property);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -2697,7 +2697,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             else
             {
                 var property = entityBuilder.Property("OrderId", ConfigurationSource.Convention).Metadata;
-                var result = entityBuilder.Metadata.AddIndex(property);
+                var result = ((IMutableEntityType)entityBuilder.Metadata).AddIndex(property);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -3064,7 +3064,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                var result = entityBuilder.Metadata.AddProperty(Order.OrderIdProperty);
+                var result = ((IMutableEntityType)entityBuilder.Metadata).AddProperty(Order.OrderIdProperty);
 
                 Assert.Equal(!useScope, result == null);
             }

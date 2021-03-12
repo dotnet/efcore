@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable enable
@@ -117,6 +117,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public static bool IsKey([NotNull] this Property property)
+            => property.Keys != null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static bool MayBeStoreGenerated([NotNull] this IProperty property)
         {
             if (property.ValueGenerated != ValueGenerated.Never)
@@ -154,7 +163,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Property AsProperty([NotNull] this IReadOnlyProperty property, [NotNull] [CallerMemberName] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IReadOnlyProperty, Property>(property, methodName);
+        public static string ToDebugString(
+            [NotNull] this Property property,
+            MetadataDebugStringOptions options,
+            int indent = 0)
+            => ((IReadOnlyProperty)property).ToDebugString(options, indent);
     }
 }

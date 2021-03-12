@@ -20,6 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public interface ITransactionEnlistmentManager
     {
         /// <summary>
+        ///     The current ambient transaction. Defaults to <see cref="Transaction.Current" />.
+        /// </summary>
+        Transaction? CurrentAmbientTransaction => Transaction.Current;
+
+        /// <summary>
         ///     The currently enlisted transaction.
         /// </summary>
         Transaction? EnlistedTransaction { get; }

@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
@@ -77,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
         ///     for the context to detect the change.
         /// </summary>
-        public virtual object CurrentValue
+        public virtual object? CurrentValue
         {
             get => InternalEntry[Metadata];
             [param: CanBeNull] set => InternalEntry[Metadata] = value;
@@ -107,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -116,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

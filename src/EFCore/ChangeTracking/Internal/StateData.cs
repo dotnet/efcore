@@ -3,6 +3,8 @@
 
 using System;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public abstract partial class InternalEntityEntry

@@ -281,10 +281,14 @@ namespace Microsoft.EntityFrameworkCore
             => RelationalPropertyOverrides.Find(property, storeObject)?.GetColumnNameConfigurationSource();
 
         /// <summary>
-        ///     Returns the database type of the column to which the property is mapped.
+        ///     Returns the database type of the column to which the property is mapped, or <see langword="null" /> if the database type
+        ///     could not be found.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The database type of the column to which the property is mapped. </returns>
+        /// <returns>
+        ///     The database type of the column to which the property is mapped, or <see langword="null" /> if the database type could not
+        ///     be found.
+        /// </returns>
         public static string? GetColumnType([NotNull] this IReadOnlyProperty property)
         {
             Check.NotNull(property, nameof(property));
@@ -297,8 +301,20 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the database type of the column to which the property is mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> The database type of the column to which the property is mapped. </returns>
+        public static string GetColumnType([NotNull] this IProperty property)
+            => ((IReadOnlyProperty)property).GetColumnType()!;
+
+        /// <summary>
+        ///     Returns the database type of the column to which the property is mapped, or <see langword="null" /> if the database type
+        ///     could not be found.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns>
+        ///     The database type of the column to which the property is mapped, or <see langword="null" /> if the database type could not
+        ///     be found.
+        /// </returns>
         public static string? GetColumnType([NotNull] this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnType);
@@ -309,6 +325,15 @@ namespace Microsoft.EntityFrameworkCore
 
             return GetDefaultColumnType(property, storeObject);
         }
+
+        /// <summary>
+        ///     Returns the database type of the column to which the property is mapped.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The database type of the column to which the property is mapped. </returns>
+        public static string GetColumnType([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+            => ((IReadOnlyProperty)property).GetColumnType(storeObject)!;
 
         private static string? GetDefaultColumnType(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
@@ -926,7 +951,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise. </returns>
         public static bool IsColumnNullable([NotNull] this IReadOnlyProperty property)
             => property.IsNullable
-                || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.GetDiscriminatorProperty() != null);
+                || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.FindDiscriminatorProperty() != null);
 
         /// <summary>
         ///     <para>
@@ -956,7 +981,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return property.IsNullable
-                || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.GetDiscriminatorProperty() != null)
+                || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.FindDiscriminatorProperty() != null)
                 || IsOptionalSharingDependent(property.DeclaringEntityType, storeObject, 0);
         }
 
@@ -975,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore
                         || IsOptionalSharingDependent(linkingForeignKey.PrincipalEntityType, storeObject, recursionDepth));
             }
 
-            return optional ?? (entityType.BaseType != null && entityType.GetDiscriminatorProperty() != null);
+            return optional ?? (entityType.BaseType != null && entityType.FindDiscriminatorProperty() != null);
         }
 
         /// <summary>
@@ -1196,6 +1221,23 @@ namespace Microsoft.EntityFrameworkCore
             in StoreObjectIdentifier storeObject)
             => (IConventionProperty?)FindSharedObjectRootProperty(property, storeObject);
 
+        /// <summary>
+        ///     <para>
+        ///         Finds the first <see cref="IProperty" /> that is mapped to the same column in a shared table-like object.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The property found, or <see langword="null" /> if none was found.</returns>
+        public static IProperty? FindSharedStoreObjectRootProperty(
+            [NotNull] this IProperty property,
+            in StoreObjectIdentifier storeObject)
+            => (IProperty?)FindSharedObjectRootProperty(property, storeObject);
+
         private static IReadOnlyProperty? FindSharedObjectRootProperty([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             Check.NotNull(property, nameof(property));
@@ -1310,6 +1352,36 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> An object that stores property facet overrides. </returns>
         public static IReadOnlyAnnotatable? FindOverrides([NotNull] this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+            => RelationalPropertyOverrides.Find(property, storeObject);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns the property facet overrides for a particular table-like store object.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> An object that stores property facet overrides. </returns>
+        public static IMutableAnnotatable? FindOverrides([NotNull] this IMutableProperty property, in StoreObjectIdentifier storeObject)
+            => RelationalPropertyOverrides.Find(property, storeObject);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns the property facet overrides for a particular table-like store object.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> An object that stores property facet overrides. </returns>
+        public static IConventionAnnotatable? FindOverrides([NotNull] this IConventionProperty property, in StoreObjectIdentifier storeObject)
             => RelationalPropertyOverrides.Find(property, storeObject);
 
         /// <summary>
