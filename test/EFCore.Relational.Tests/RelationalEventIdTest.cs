@@ -150,6 +150,16 @@ namespace Microsoft.EntityFrameworkCore
                 string toMigration = null,
                 MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
                 => throw new NotImplementedException();
+
+            public void Migrate([NotNull] bool throwWhenHasError, [CanBeNull] string targetMigration = null)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task MigrateAsync([NotNull] bool throwWhenHasError, [CanBeNull] string targetMigration = null, CancellationToken cancellationToken = default)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private class FakeMigrationsAssembly : IMigrationsAssembly

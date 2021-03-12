@@ -139,6 +139,58 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual void Migrate([NotNull] bool throwWhenHasError, string targetMigration = null)
+        {
+            Migrate(targetMigration);
+            if (throwWhenHasError)
+            {
+                //find firstOrDefaultMethod from Queryable
+                var firstOrDefaultMethod = typeof(Queryable).GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
+                     .Where(x => x.Name == nameof(Queryable.FirstOrDefault) && x.GetParameters().Length == 1).FirstOrDefault();
+                CheckMigrationWhenHasError<object>(firstOrDefaultMethod, false).ToList();
+            }
+        }
+
+        /// <summary>
+        /// Check the migraiton errors when developer forgot to use Add-Migration
+        /// </summary>
+        private IEnumerable<T> CheckMigrationWhenHasError<T>(MethodInfo firstOrDefaultMethod, bool isAsync)
+        {
+            foreach (var entityType in _currentContext.Context.Model.GetEntityTypes())
+            {
+                Type entityClrType = entityType.ClrType;
+                //Get the generic type definition of Set method in context
+                var setMethod = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                                                 .Where(method => method.Name == nameof(DbContext.Set) && method.GetParameters().Length == 0)
+                                                 .FirstOrDefault();
+
+                //Create a method with the genetic
+                setMethod = setMethod.MakeGenericMethod(entityClrType);
+                var queryable = (IQueryable)setMethod.Invoke(_currentContext.Context, new object[] { });
+
+                //Call Set<T> of context to make queryable
+                var query = setMethod.Invoke(_currentContext.Context, new object[] { });
+                object[] parameters;
+                if (isAsync)
+                {
+                    parameters = new object[] { query, null };
+                }
+                else
+                {
+                    parameters = new object[] { query };
+                }
+                //Call FirstOrDefault method of queryable to check errors of table
+                var result = firstOrDefaultMethod.MakeGenericMethod(entityClrType).Invoke(null, parameters);
+                yield return (T)result;
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual async Task MigrateAsync(
             string targetMigration = null,
             CancellationToken cancellationToken = default)
@@ -174,6 +226,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 await _migrationCommandExecutor.ExecuteNonQueryAsync(commandList(), _connection, cancellationToken)
                     .ConfigureAwait(false);
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual async Task MigrateAsync(bool throwWhenHasError,
+            string targetMigration = null,
+            CancellationToken cancellationToken = default)
+        {
+            await MigrateAsync(targetMigration, cancellationToken).ConfigureAwait(false);
+            if (throwWhenHasError)
+            {
+                //find firstOrDefaultMethod from Queryable
+                var firstOrDefaultMethod = typeof(EntityFrameworkQueryableExtensions).GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
+                     .Where(x => x.Name == nameof(EntityFrameworkQueryableExtensions.FirstOrDefaultAsync) && x.GetParameters().Length == 2).FirstOrDefault();
+                foreach (var item in CheckMigrationWhenHasError<Task>(firstOrDefaultMethod, true))
+                {
+                    await item.ConfigureAwait(false);
+                }
             }
         }
 
