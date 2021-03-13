@@ -3352,24 +3352,24 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The query uses the 'Distinct' operator after a 'OrderBy' operator. This may lead to unpredictable results.
+        ///     The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.
         /// </summary>
-        public static EventDefinition LogDistinctAfterOrderBy([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning([NotNull] IDiagnosticsLogger logger)
         {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderBy;
+            var definition = ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning;
             if (definition == null)
             {
                 definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderBy,
+                    ref ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning,
                     () => new EventDefinition(
                         logger.Options,
-                        CoreEventId.DistinctAfterOrderByWarning,
+                        CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
                         LogLevel.Warning,
-                        "CoreEventId.DistinctAfterOrderByWarning",
+                        "CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning",
                         level => LoggerMessage.Define(
                             level,
-                            CoreEventId.DistinctAfterOrderByWarning,
-                            _resourceManager.GetString("LogDistinctAfterOrderBy")!)));
+                            CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+                            _resourceManager.GetString("LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning")!)));
             }
 
             return (EventDefinition)definition;

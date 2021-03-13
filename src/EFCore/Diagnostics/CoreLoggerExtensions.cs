@@ -387,13 +387,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Logs for the <see cref="CoreEventId.DistinctAfterOrderByWarning" /> event.
+        ///     Logs for the <see cref="CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        public static void DistinctAfterOrderByWarning(
+        public static void DistinctAfterOrderByWithoutRowLimitingOperatorWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
-            var definition = CoreResources.LogDistinctAfterOrderBy(diagnostics);
+            var definition = CoreResources.LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {
@@ -404,13 +404,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             {
                 var eventData = new EventData(
                     definition,
-                    DistinctAfterOrderBy);
+                    DistinctAfterOrderByWithoutRowLimitingOperatorWarning);
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
-        private static string DistinctAfterOrderBy(EventDefinitionBase definition, EventData payload)
+        private static string DistinctAfterOrderByWithoutRowLimitingOperatorWarning(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition)definition;
             return d.GenerateMessage();

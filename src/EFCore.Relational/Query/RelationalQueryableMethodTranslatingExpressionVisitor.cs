@@ -392,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && selectExpression.Limit == null
                 && selectExpression.Offset == null)
             {
-                _queryCompilationContext.Logger.DistinctAfterOrderByWarning();
+                _queryCompilationContext.Logger.DistinctAfterOrderByWithoutRowLimitingOperatorWarning();
             }
 
             selectExpression.ApplyDistinct();

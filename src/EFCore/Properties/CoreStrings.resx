@@ -766,9 +766,9 @@
     <value>The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.</value>
     <comment>Warning CoreEventId.FirstWithoutOrderByAndFilterWarning</comment>
   </data>
-  <data name="LogDistinctAfterOrderBy" xml:space="preserve">
-    <value>The query uses the 'Distinct' operator after a 'OrderBy' operator. This may lead to unpredictable results.</value>
-    <comment>Warning CoreEventId.DistinctAfterOrderByWarning</comment>
+  <data name="LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning" xml:space="preserve">
+    <value>The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.</value>
+    <comment>Warning CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning</comment>
   </data>
   <data name="LogForeignKeyAttributesOnBothNavigations" xml:space="preserve">
     <value>Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships since the [ForeignKey] attribute was specified on navigations on both sides.</value>
@@ -915,7 +915,7 @@
     <comment>Debug CoreEventId.RequiredAttributeOnSkipNavigation string string</comment>
   </data>
   <data name="LogRowLimitingOperationWithoutOrderBy" xml:space="preserve">
-    <value>The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used, then make sure to use the 'OrderBy' operator after 'Distinct' as the order would otherwise get erased.</value>
+    <value>The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.</value>
     <comment>Warning CoreEventId.RowLimitingOperationWithoutOrderByWarning</comment>
   </data>
   <data name="LogSaveChangesCompleted" xml:space="preserve">

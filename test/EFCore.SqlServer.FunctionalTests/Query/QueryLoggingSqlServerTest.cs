@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.NotEmpty(customers);
 
             Assert.Equal(
-                CoreResources.LogDistinctAfterOrderBy(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                CoreResources.LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
                 Fixture.TestSqlLoggerFactory.Log[1].Message);
         }
 
