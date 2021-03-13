@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> A new instance with the option changed. </returns>
         public virtual RelationalOptionsExtension WithConnectionString([CanBeNull] string? connectionString)
         {
-            Check.NotEmpty(connectionString, nameof(connectionString));
+            Check.NullButNotEmpty(connectionString, nameof(connectionString));
 
             var clone = Clone();
 
@@ -118,10 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="connection"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual RelationalOptionsExtension WithConnection([NotNull] DbConnection connection)
+        public virtual RelationalOptionsExtension WithConnection([CanBeNull] DbConnection? connection)
         {
-            Check.NotNull(connection, nameof(connection));
-
             var clone = Clone();
 
             clone._connection = connection;
