@@ -1,5 +1,5 @@
 name: Markdown links verifier
-on: push
+on: [push, pull_request]
 
 jobs:
   validate_links:
