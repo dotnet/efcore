@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly List<TableExpressionBase> _tables = new();
         private readonly List<SqlExpression> _groupBy = new();
         private readonly List<OrderingExpression> _orderings = new();
-        private OrderingExpression? _pendingOrdering;
+        private IReadOnlyList<OrderingExpression>? _pendingOrderings;
 
         private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier
             = new();
@@ -628,29 +628,38 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="orderingExpression"> An ordering expression to use for ordering. </param>
         public void AppendOrdering([NotNull] OrderingExpression orderingExpression)
-            => AppendOrdering(orderingExpression, isPending: false);
-
-        private void AppendOrdering([NotNull] OrderingExpression orderingExpression, bool isPending)
         {
             Check.NotNull(orderingExpression, nameof(orderingExpression));
 
             if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
             {
-                if (_pendingOrdering is not null)
-                {
-                    _orderings.Add(_pendingOrdering);
-                }
+                ApplyPendingOrderings();
 
-                if (isPending)
+                _orderings.Add(orderingExpression);
+            }
+        }
+
+        private void AppendPendingOrderings([NotNull] IReadOnlyList<OrderingExpression> orderingExpressions)
+        {
+            Check.NotNull(orderingExpressions, nameof(orderingExpressions));
+
+            ApplyPendingOrderings();
+
+            _pendingOrderings = orderingExpressions;
+        }
+
+        private void ApplyPendingOrderings()
+        {
+            if (_pendingOrderings != null)
+            {
+                var pendingOrderings = _pendingOrderings;
+                _pendingOrderings = null;
+                foreach (var ordering in pendingOrderings)
                 {
-                    _pendingOrdering = orderingExpression;
-                }
-                else
-                {
-                    _pendingOrdering = null;
-                    _orderings.Add(orderingExpression);
+                    AppendOrdering(ordering);
                 }
             }
+
         }
 
         /// <summary>
@@ -1658,12 +1667,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         .Except(innerSelectExpression._childIdentifiers)
                         .Select(e => (e.Column.MakeNullable(), e.Comparer)));
 
+                var innerIdentifierOrderings = new List<OrderingExpression>();
                 foreach (var identifier in innerSelectExpression._identifier)
                 {
                     var updatedColumn = identifier.Column.MakeNullable();
                     _childIdentifiers.Add((updatedColumn, identifier.Comparer));
-                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true), isPending: true);
+                    innerIdentifierOrderings.Add(new OrderingExpression(updatedColumn, ascending: true));
                 }
+                AppendPendingOrderings(innerIdentifierOrderings);
 
                 var result = new RelationalCollectionShaperExpression(
                     collectionId, parentIdentifier, outerIdentifier, selfIdentifier,
