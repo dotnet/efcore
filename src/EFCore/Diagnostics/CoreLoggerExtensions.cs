@@ -387,6 +387,36 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        public static void DistinctAfterOrderByWithoutRowLimitingOperatorWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
+        {
+            var definition = CoreResources.LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new EventData(
+                    definition,
+                    DistinctAfterOrderByWithoutRowLimitingOperatorWarning);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string DistinctAfterOrderByWithoutRowLimitingOperatorWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition)definition;
+            return d.GenerateMessage();
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.NavigationBaseIncluded" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

@@ -3352,6 +3352,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.
+        /// </summary>
+        public static EventDefinition LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+                    () => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+                            _resourceManager.GetString("LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships since the [ForeignKey] attribute was specified on navigations on both sides.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogForeignKeyAttributesOnBothNavigations([NotNull] IDiagnosticsLogger logger)
@@ -4259,7 +4283,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results.
+        ///     The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used, then make sure to use the 'OrderBy' operator after 'Distinct' as the order would otherwise get erased.
         /// </summary>
         public static EventDefinition LogRowLimitingOperationWithoutOrderBy([NotNull] IDiagnosticsLogger logger)
         {

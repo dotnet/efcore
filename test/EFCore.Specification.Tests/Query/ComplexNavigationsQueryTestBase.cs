@@ -3337,7 +3337,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l1 in ss.Set<Level1>()
                     where l1.Id < 3
                     select (from l3 in ss.Set<Level3>()
-                            orderby l3.Id
                             select l3).Distinct().OrderBy(l => l.Id).Skip(1).FirstOrDefault().Name);
         }
 
@@ -5697,7 +5696,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from l1 in ss.Set<Level1>()
                       where l1.Id < 3
                       select (from l3 in ss.Set<Level3>()
-                              orderby l3.Id
                               select l3).Distinct().Skip(1).OrderBy(e => e.Id).FirstOrDefault().Name);
         }
 
@@ -5710,7 +5708,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from l1 in ss.Set<Level1>()
                       where l1.Id < 3
                       select (from l3 in ss.Set<Level3>()
-                              orderby l3.Id
                               select l3).Distinct().Take(1).OrderBy(e => e.Id).FirstOrDefault().Name);
         }
 

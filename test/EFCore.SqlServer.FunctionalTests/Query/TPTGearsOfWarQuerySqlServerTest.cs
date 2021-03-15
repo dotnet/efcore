@@ -5038,16 +5038,22 @@ ORDER BY [g].[Nickname]");
             await base.Correlated_collections_with_Distinct(async);
 
             AssertSql(
-                @"SELECT [s].[Id], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+                @"SELECT [s].[Id], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOfBirthName], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank], [t0].[Discriminator]
 FROM [Squads] AS [s]
-LEFT JOIN (
-    SELECT DISTINCT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
-        WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
-    END AS [Discriminator]
-    FROM [Gears] AS [g]
-    LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
-) AS [t] ON [s].[Id] = [t].[SquadId]
-ORDER BY [s].[Name], [s].[Id], [t].[Nickname], [t].[SquadId]");
+OUTER APPLY (
+    SELECT DISTINCT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
+    FROM (
+        SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
+            WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
+        END AS [Discriminator]
+        FROM [Gears] AS [g]
+        LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
+        WHERE [s].[Id] = [g].[SquadId]
+        ORDER BY [g].[Nickname]
+        OFFSET 0 ROWS
+    ) AS [t]
+) AS [t0]
+ORDER BY [s].[Name], [s].[Id], [t0].[Nickname], [t0].[SquadId]");
         }
 
         public override async Task Correlated_collections_with_FirstOrDefault(bool async)

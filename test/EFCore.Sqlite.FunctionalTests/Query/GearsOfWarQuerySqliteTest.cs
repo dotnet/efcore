@@ -184,6 +184,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Correlated_collection_after_distinct_3_levels(async))).Message);
 
+        public override async Task Correlated_collections_with_Distinct(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collections_with_Distinct(async))).Message);
+
         public override async Task Negate_on_binary_expression(bool async)
         {
             await base.Negate_on_binary_expression(async);
