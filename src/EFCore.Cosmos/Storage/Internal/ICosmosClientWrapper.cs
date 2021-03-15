@@ -9,8 +9,6 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json.Linq;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     /// <summary>

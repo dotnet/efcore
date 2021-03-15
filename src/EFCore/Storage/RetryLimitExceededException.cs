@@ -5,8 +5,6 @@ using System;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>

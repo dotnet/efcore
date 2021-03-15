@@ -21,8 +21,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using static SQLitePCL.raw;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 {
     /// <summary>

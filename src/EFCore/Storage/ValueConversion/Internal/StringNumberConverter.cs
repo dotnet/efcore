@@ -6,8 +6,6 @@ using System.Globalization;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 {
     /// <summary>

@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
 {
     /// <summary>

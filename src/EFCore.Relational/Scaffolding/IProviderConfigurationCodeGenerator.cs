@@ -4,8 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>

@@ -6,8 +6,6 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
 {
     /// <summary>

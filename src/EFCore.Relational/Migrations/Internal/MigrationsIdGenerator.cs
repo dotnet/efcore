@@ -6,8 +6,6 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     /// <summary>

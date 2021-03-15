@@ -9,8 +9,6 @@ using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>

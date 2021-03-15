@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>

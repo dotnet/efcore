@@ -5,8 +5,6 @@ using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
     /// <summary>

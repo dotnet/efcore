@@ -6,8 +6,6 @@ using System.Linq.Expressions;
 using System.Net.NetworkInformation;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>

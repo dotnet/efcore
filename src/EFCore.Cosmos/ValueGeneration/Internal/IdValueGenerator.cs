@@ -7,8 +7,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
 {
     /// <summary>

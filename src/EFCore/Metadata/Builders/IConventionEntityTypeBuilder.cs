@@ -7,8 +7,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>

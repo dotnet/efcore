@@ -7,8 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>

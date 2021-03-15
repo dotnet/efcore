@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using NotNullWhenAttribute = System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
 
-#nullable enable
 #pragma warning disable EF1001 // Accessing annotation names (internal)
 
 namespace Microsoft.EntityFrameworkCore.Design

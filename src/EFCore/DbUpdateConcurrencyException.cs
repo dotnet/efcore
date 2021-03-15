@@ -7,8 +7,6 @@ using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>

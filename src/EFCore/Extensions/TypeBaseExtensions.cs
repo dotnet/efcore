@@ -4,8 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {

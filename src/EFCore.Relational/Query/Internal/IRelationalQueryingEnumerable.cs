@@ -3,8 +3,6 @@
 
 using System.Data.Common;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>

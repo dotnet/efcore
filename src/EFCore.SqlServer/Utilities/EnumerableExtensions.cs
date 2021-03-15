@@ -4,8 +4,6 @@
 using System.Diagnostics;
 using System.Linq;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace System.Collections.Generic
 {

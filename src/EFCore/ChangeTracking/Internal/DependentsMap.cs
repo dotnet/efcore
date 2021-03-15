@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Update;
 
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
