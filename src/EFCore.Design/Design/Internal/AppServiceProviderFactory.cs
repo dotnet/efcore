@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 ?? CreateEmptyServiceProvider();
         }
 
-        private IServiceProvider CreateFromHosting(string[] args)
+        private IServiceProvider? CreateFromHosting(string[] args)
         {
             _reporter.WriteVerbose(DesignStrings.FindingHostingServices);
 
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 if (ex is TargetInvocationException)
                 {
-                    ex = ex.InnerException;
+                    ex = ex.InnerException!;
                 }
 
                 _reporter.WriteVerbose(ex.ToString());

@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 typeof(RelationalAnnotationNames)
                     .GetRuntimeFields()
                     .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
-                    .Select(p => ((string)p.GetValue(null)).Substring(RelationalAnnotationNames.Prefix.Length - 1)));
+                    .Select(p => ((string)p.GetValue(null)!).Substring(RelationalAnnotationNames.Prefix.Length - 1)));
             _modelRuntimeInitializer = modelRuntimeInitializer;
         }
 
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Process(IReadOnlyModel model)
+        public virtual IModel? Process(IReadOnlyModel? model)
         {
             if (model == null)
             {
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private void ProcessElement(IReadOnlyAnnotatable metadata, string version)
+        private void ProcessElement(IReadOnlyAnnotatable? metadata, string version)
         {
             if (version.StartsWith("1.", StringComparison.Ordinal)
                 && metadata is IMutableAnnotatable mutableMetadata)
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Select(a => new Sequence(model, a.Name));
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            var sequencesDictionary = new SortedDictionary<(string, string), Sequence>();
+            var sequencesDictionary = new SortedDictionary<(string, string?), Sequence>();
             foreach (var sequence in sequences)
             {
                 sequencesDictionary[(sequence.Name, sequence.Schema)] = sequence;
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     ownership.SetProperties(
                         ownership.Properties,
-                        ownership.PrincipalEntityType.FindPrimaryKey());
+                        ownership.PrincipalEntityType.FindPrimaryKey()!);
 
                     if (oldPrincipalKey is IConventionKey conventionKey
                         && conventionKey.GetConfigurationSource() == ConfigurationSource.Convention)

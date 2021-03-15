@@ -54,6 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     builder.Append(" ");
                 }
 
+                if (args[i].Length == 0)
+                {
+                    builder.Append("\"\"");
+
+                    continue;
+                }
                 if (args[i].IndexOf(' ') == -1)
                 {
                     builder.Append(args[i]);

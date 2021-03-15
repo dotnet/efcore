@@ -1,11 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
 
 #nullable enable
 
@@ -19,14 +17,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The table that contains this column.
         /// </summary>
-        [DisallowNull]
-        public virtual DatabaseTable? Table { get; [param: NotNull] set; }
+        public virtual DatabaseTable Table { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The column name.
         /// </summary>
-        [DisallowNull]
-        public virtual string? Name { get; [param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     Indicates whether or not this column can contain <see langword="null" /> values.

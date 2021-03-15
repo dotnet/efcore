@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Pluralize(string name)
+        public virtual string? Pluralize(string? name)
         {
             return name?.Pluralize(inputIsKnownToBeSingular: false);
         }
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Singularize(string name)
+        public virtual string? Singularize(string? name)
         {
             return name?.Singularize(inputIsKnownToBePlural: false);
         }

@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             entityTypeGraph.AddVertices(entityTypes);
             foreach (var entityType in entityTypes.Where(et => et.BaseType != null))
             {
-                entityTypeGraph.AddEdge(entityType.BaseType, entityType, 0);
+                entityTypeGraph.AddEdge(entityType.BaseType!, entityType, 0);
             }
 
             return entityTypeGraph.TopologicalSort();
@@ -175,12 +175,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             var ownership = entityType.FindOwnership();
-            var ownerNavigation = ownership?.PrincipalToDependent.Name;
+            var ownerNavigation = ownership?.PrincipalToDependent!.Name;
 
             var entityTypeName = entityType.Name;
             if (ownerNavigation != null
                 && entityType.HasSharedClrType
-                && entityTypeName == ownership.PrincipalEntityType.GetOwnedName(entityType.ClrType.ShortDisplayName(), ownerNavigation))
+                && entityTypeName == ownership!.PrincipalEntityType.GetOwnedName(entityType.ClrType.ShortDisplayName(), ownerNavigation))
             {
                 entityTypeName = entityType.ClrType.DisplayName();
             }
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(builderName)
                 .Append(
                     ownerNavigation != null
-                        ? ownership.IsUnique ? ".OwnsOne(" : ".OwnsMany("
+                        ? ownership!.IsUnique ? ".OwnsOne(" : ".OwnsMany("
                         : ".Entity(")
                 .Append(Code.Literal(entityTypeName));
 
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateBaseType(
             [NotNull] string builderName,
-            [CanBeNull] IEntityType baseType,
+            [CanBeNull] IEntityType? baseType,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
@@ -610,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateAnnotations(annotations.Values.Concat(ambiguousAnnotations), stringBuilder);
         }
 
-        private ValueConverter FindValueConverter(IProperty property)
+        private ValueConverter? FindValueConverter(IProperty property)
             => property.GetValueConverter()
                 ?? (property.FindTypeMapping()
                     ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
@@ -625,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual void GenerateKeys(
             [NotNull] string builderName,
             [NotNull] IEnumerable<IKey> keys,
-            [CanBeNull] IKey primaryKey,
+            [CanBeNull] IKey? primaryKey,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
@@ -837,7 +837,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             if (tableNameAnnotation?.Value != null
                 || entityType.BaseType == null)
             {
-                var tableName = (string)tableNameAnnotation?.Value ?? entityType.GetTableName();
+                var tableName = (string?)tableNameAnnotation?.Value ?? entityType.GetTableName();
                 if (tableName != null)
                 {
                     stringBuilder
@@ -888,7 +888,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             if (viewNameAnnotation?.Value != null
                 || entityType.BaseType == null)
             {
-                var viewName = (string)viewNameAnnotation?.Value ?? entityType.GetViewName();
+                var viewName = (string?)viewNameAnnotation?.Value ?? entityType.GetViewName();
                 if (viewName != null)
                 {
                     stringBuilder
@@ -918,7 +918,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             if (functionNameAnnotation?.Value != null
                 || entityType.BaseType == null)
             {
-                var functionName = (string)functionNameAnnotation?.Value ?? entityType.GetFunctionName();
+                var functionName = (string?)functionNameAnnotation?.Value ?? entityType.GetFunctionName();
                 if (functionName != null)
                 {
                     stringBuilder
@@ -948,7 +948,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 if (discriminatorPropertyAnnotation?.Value != null)
                 {
-                    var discriminatorProperty = entityType.FindProperty((string)discriminatorPropertyAnnotation.Value);
+                    var discriminatorProperty = entityType.FindProperty((string)discriminatorPropertyAnnotation.Value)!;
                     var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
                             .MakeNullable(discriminatorProperty.IsNullable)
                         ?? discriminatorProperty.ClrType;
@@ -1433,7 +1433,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         protected virtual void GenerateData(
             [NotNull] string builderName,
             [NotNull] IEnumerable<IProperty> properties,
-            [NotNull] IEnumerable<IDictionary<string, object>> data,
+            [NotNull] IEnumerable<IDictionary<string, object?>> data,
             [NotNull] IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(properties, nameof(properties));
@@ -1601,7 +1601,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Dictionary<string, IAnnotation> annotations,
             Func<string, bool> annotationNameMatcher)
         {
-            List<IAnnotation> ambiguousAnnotations = null;
+            List<IAnnotation>? ambiguousAnnotations = null;
 
             foreach (var (name, annotation) in annotations)
             {
@@ -1613,7 +1613,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
             }
 
-            return (IReadOnlyList<IAnnotation>)ambiguousAnnotations ?? ImmutableList<IAnnotation>.Empty;
+            return (IReadOnlyList<IAnnotation>?)ambiguousAnnotations ?? ImmutableList<IAnnotation>.Empty;
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class CSharpUniqueNamer<T> : CSharpNamer<T>
+        where T : notnull
     {
         private readonly HashSet<string> _usedNames = new(StringComparer.OrdinalIgnoreCase);
 
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public CSharpUniqueNamer(
             [NotNull] Func<T, string> nameGetter,
             [NotNull] ICSharpUtilities cSharpUtilities,
-            [CanBeNull] Func<string, string> singularizePluralizer)
+            [CanBeNull] Func<string, string>? singularizePluralizer)
             : this(nameGetter, null, cSharpUtilities, singularizePluralizer)
         {
         }
@@ -39,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public CSharpUniqueNamer(
             [NotNull] Func<T, string> nameGetter,
-            [CanBeNull] IEnumerable<string> usedNames,
+            [CanBeNull] IEnumerable<string>? usedNames,
             [NotNull] ICSharpUtilities cSharpUtilities,
-            [CanBeNull] Func<string, string> singularizePluralizer)
+            [CanBeNull] Func<string, string>? singularizePluralizer)
             : base(nameGetter, cSharpUtilities, singularizePluralizer)
         {
             if (usedNames != null)

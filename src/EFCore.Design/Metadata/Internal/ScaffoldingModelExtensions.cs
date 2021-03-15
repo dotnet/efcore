@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IReadOnlyDictionary<string, string> GetEntityTypeErrors([NotNull] this IReadOnlyModel model)
-            => (IReadOnlyDictionary<string, string>)model[ScaffoldingAnnotationNames.EntityTypeErrors] ?? new Dictionary<string, string>();
+            => (IReadOnlyDictionary<string, string>?)model[ScaffoldingAnnotationNames.EntityTypeErrors] ?? new Dictionary<string, string>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IDictionary<string, string> GetOrCreateEntityTypeErrors([NotNull] this IReadOnlyModel model)
         {
-            var errors = (IDictionary<string, string>)model[ScaffoldingAnnotationNames.EntityTypeErrors];
+            var errors = (IDictionary<string, string>?)model[ScaffoldingAnnotationNames.EntityTypeErrors];
             if (errors == null)
             {
                 errors = new Dictionary<string, string>();
@@ -59,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string GetDatabaseName([NotNull] this IReadOnlyModel model)
-            => (string)model[ScaffoldingAnnotationNames.DatabaseName];
+        public static string? GetDatabaseName([NotNull] this IReadOnlyModel model)
+            => (string?)model[ScaffoldingAnnotationNames.DatabaseName];
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static void SetDatabaseName([NotNull] this IMutableModel model, [CanBeNull] string value)
+        public static void SetDatabaseName([NotNull] this IMutableModel model, [CanBeNull] string? value)
             => model.SetAnnotation(
                 ScaffoldingAnnotationNames.DatabaseName,
                 Check.NullButNotEmpty(value, nameof(value)));
