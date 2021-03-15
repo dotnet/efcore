@@ -18,8 +18,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>

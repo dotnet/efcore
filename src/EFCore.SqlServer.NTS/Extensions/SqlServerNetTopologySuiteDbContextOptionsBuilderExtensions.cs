@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>

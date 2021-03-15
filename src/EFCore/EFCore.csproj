@@ -12,7 +12,6 @@ Microsoft.EntityFrameworkCore.DbSet
     <AssemblyName>Microsoft.EntityFrameworkCore</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

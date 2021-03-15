@@ -15,8 +15,6 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyModel;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>

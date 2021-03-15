@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json.Linq;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 {
     /// <summary>

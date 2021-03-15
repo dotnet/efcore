@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>

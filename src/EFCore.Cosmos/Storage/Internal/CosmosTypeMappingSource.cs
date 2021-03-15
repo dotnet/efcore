@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     /// <summary>

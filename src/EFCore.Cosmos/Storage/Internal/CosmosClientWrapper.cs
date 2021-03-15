@@ -27,8 +27,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     /// <summary>

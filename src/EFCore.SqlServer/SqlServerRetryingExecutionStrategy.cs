@@ -8,8 +8,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {

@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>

@@ -5,8 +5,6 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>

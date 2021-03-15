@@ -4,8 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>

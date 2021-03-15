@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 #pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {

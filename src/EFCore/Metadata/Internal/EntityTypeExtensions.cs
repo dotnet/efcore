@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable ArgumentsStyleOther
 // ReSharper disable ArgumentsStyleNamedExpression
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal

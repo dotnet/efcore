@@ -5,8 +5,6 @@ using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>

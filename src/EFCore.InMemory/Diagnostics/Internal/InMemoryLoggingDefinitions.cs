@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal
 {
     /// <summary>

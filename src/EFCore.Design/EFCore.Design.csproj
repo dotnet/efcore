@@ -7,7 +7,6 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DevelopmentDependency>True</DevelopmentDependency>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <!-- NB: Source from dotnet/runtime has a different header -->

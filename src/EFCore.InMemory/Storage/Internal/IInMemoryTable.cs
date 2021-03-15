@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
     /// <summary>

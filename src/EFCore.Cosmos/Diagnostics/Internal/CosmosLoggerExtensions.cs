@@ -13,8 +13,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
 {

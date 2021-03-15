@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>

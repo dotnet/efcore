@@ -7,8 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
     /// <summary>

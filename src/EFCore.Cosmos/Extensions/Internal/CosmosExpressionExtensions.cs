@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {

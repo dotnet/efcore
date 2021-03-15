@@ -22,8 +22,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     /// <summary>

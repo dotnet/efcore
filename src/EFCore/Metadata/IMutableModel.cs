@@ -7,8 +7,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>

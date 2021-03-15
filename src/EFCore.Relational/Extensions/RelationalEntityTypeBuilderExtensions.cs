@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {

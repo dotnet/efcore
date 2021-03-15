@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>

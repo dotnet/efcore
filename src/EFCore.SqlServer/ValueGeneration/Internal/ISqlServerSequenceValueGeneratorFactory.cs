@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
 {
     /// <summary>

@@ -18,8 +18,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>

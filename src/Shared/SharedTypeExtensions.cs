@@ -258,8 +258,6 @@ namespace System
             return sequenceType;
         }
 
-#nullable enable
-
         public static Type? TryGetSequenceType(this Type type)
             => type.TryGetElementType(typeof(IEnumerable<>))
                 ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));

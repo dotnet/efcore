@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {

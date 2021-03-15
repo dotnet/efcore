@@ -5,8 +5,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>

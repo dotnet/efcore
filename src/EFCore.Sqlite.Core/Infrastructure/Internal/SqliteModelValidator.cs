@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
 {
     /// <summary>

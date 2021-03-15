@@ -13,8 +13,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>

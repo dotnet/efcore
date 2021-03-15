@@ -10,8 +10,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>

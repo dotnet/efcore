@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>

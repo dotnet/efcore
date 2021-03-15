@@ -7,8 +7,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 {
     /// <summary>

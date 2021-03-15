@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>

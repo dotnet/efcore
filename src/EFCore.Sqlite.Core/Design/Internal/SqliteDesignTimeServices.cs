@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 [assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.Sqlite.Design.Internal.SqliteDesignTimeServices")]
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal

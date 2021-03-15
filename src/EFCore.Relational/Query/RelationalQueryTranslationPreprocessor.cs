@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <inheritdoc />

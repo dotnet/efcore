@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
     /// <summary>

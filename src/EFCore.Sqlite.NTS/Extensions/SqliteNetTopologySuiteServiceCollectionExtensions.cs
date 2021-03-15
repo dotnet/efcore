@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NetTopologySuite;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
 {

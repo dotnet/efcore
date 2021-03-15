@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>

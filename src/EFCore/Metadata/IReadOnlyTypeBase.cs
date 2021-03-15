@@ -7,8 +7,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>

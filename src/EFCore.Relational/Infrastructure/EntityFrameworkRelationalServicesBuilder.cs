@@ -20,8 +20,6 @@ using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>

@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
     /// <summary>

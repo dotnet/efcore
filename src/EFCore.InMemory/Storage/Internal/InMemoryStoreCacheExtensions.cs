@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
     /// <summary>

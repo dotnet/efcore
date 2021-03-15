@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
