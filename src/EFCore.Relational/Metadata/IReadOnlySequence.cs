@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string? Schema { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IReadOnlyModel" /> in which this sequence is defined.
+        ///     Gets the model in which this sequence is defined.
         /// </summary>
         IReadOnlyModel Model { get; }
 

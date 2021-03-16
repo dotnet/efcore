@@ -530,11 +530,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return index;
         }
 
-        private SlimIndex? FindIndex([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
-            => FindDeclaredIndex(properties) ?? _baseType?.FindIndex(properties);
+        /// <summary>
+        ///     <para>
+        ///         Gets the unnamed index defined on the given properties. Returns <see langword="null" /> if no such index is defined.
+        ///     </para>
+        ///     <para>
+        ///         Named indexes will not be returned even if the list of properties matches.
+        ///     </para>
+        /// </summary>
+        /// <param name="properties"> The properties to find the index on. </param>
+        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        public virtual SlimIndex? FindIndex([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
+            => _unnamedIndexes.TryGetValue(properties, out var index)
+                ? index
+                : _baseType?.FindIndex(properties);
 
-        private SlimIndex? FindIndex([NotNull] string name)
-            => FindDeclaredIndex(name) ?? _baseType?.FindIndex(name);
+        /// <summary>
+        ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
+        /// </summary>
+        /// <param name="name"> The name of the index. </param>
+        /// <returns> The index, or <see langword="null" /> if none is found. </returns>
+        public virtual SlimIndex? FindIndex([NotNull] string name)
+            => _namedIndexes.TryGetValue(name, out var index)
+                ? index
+                : _baseType?.FindIndex(name);
 
         private IEnumerable<SlimIndex> GetDeclaredIndexes()
             => _namedIndexes.Count == 0
@@ -545,16 +564,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => _directlyDerivedTypes.Count == 0
                 ? Enumerable.Empty<SlimIndex>()
                 : GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes());
-
-        private SlimIndex? FindDeclaredIndex([NotNull] IReadOnlyList<IReadOnlyProperty> properties)
-            => _unnamedIndexes.TryGetValue(properties, out var index)
-                ? index
-                : null;
-
-        private SlimIndex? FindDeclaredIndex([NotNull] string name)
-            => _namedIndexes.TryGetValue(name, out var index)
-                ? index
-                : null;
 
         private IEnumerable<SlimIndex> GetIndexes()
             => _baseType != null
@@ -1354,11 +1363,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         IEnumerable<IDictionary<string, object?>> IReadOnlyEntityType.GetSeedData(bool providerValues)
             => throw new InvalidOperationException(CoreStrings.SlimModelMissingData);
-
-        private static IEnumerable<T> ToEnumerable<T>(T? element)
-            where T : class
-            => element == null
-                ? Enumerable.Empty<T>()
-                : new[] { element };
     }
 }

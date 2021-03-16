@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string Name { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IReadOnlyEntityType" /> in which this check constraint is defined.
+        ///     Gets the entity type on which this check constraint is defined.
         /// </summary>
         IReadOnlyEntityType EntityType { get; }
 

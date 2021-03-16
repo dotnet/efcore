@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreignKey.UpdatePrincipalEndConfigurationSource(ConfigurationSource.Explicit);
 
             foreignKey.SetDependentToPrincipal(Order.CustomerProperty, ConfigurationSource.Explicit);
-            foreignKey.HasPrincipalToDependent(Customer.OrdersProperty, ConfigurationSource.Explicit);
+            foreignKey.SetPrincipalToDependent(Customer.OrdersProperty, ConfigurationSource.Explicit);
             foreignKey.IsUnique = false;
             foreignKey.IsRequired = false;
             foreignKey.IsRequiredDependent = false;
@@ -775,7 +775,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 principalEntityBuilder.Metadata,
                 ConfigurationSource.Explicit,
                 ConfigurationSource.Explicit);
-            existingForeignKey.HasPrincipalToDependent(Customer.OrdersProperty, ConfigurationSource.Explicit);
+            existingForeignKey.SetPrincipalToDependent(Customer.OrdersProperty, ConfigurationSource.Explicit);
             existingForeignKey.SetDependentToPrincipal(Order.CustomerProperty, ConfigurationSource.Explicit);
             Assert.Equal(ConfigurationSource.Explicit, existingForeignKey.GetDependentToPrincipalConfigurationSource());
             Assert.Equal(ConfigurationSource.Explicit, existingForeignKey.GetPrincipalToDependentConfigurationSource());

@@ -59,8 +59,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private EntityType? _baseType;
         private ChangeTrackingStrategy? _changeTrackingStrategy;
         private InternalEntityTypeBuilder? _builder;
-        private InstantiationBinding? _constructorBinding;
-        private InstantiationBinding? _serviceOnlyConstructorBinding;
 
         private ConfigurationSource? _primaryKeyConfigurationSource;
         private ConfigurationSource? _isKeylessConfigurationSource;
@@ -71,6 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private PropertyCounts? _counts;
+
+        // _serviceOnlyConstructorBinding needs to be set as well whenever _constructorBinding is set
+        private InstantiationBinding? _constructorBinding;
+        private InstantiationBinding? _serviceOnlyConstructorBinding;
 
         private Func<InternalEntityEntry, ISnapshot>? _relationshipSnapshotFactory;
         private Func<InternalEntityEntry, ISnapshot>? _originalValuesFactory;
@@ -639,16 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Key? FindPrimaryKey()
-            => _baseType?.FindPrimaryKey() ?? FindDeclaredPrimaryKey();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual Key? FindDeclaredPrimaryKey()
-            => _primaryKey;
+            => _baseType?.FindPrimaryKey() ?? _primaryKey;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1376,7 +1369,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
             => _baseType != null
-                ? DeclaredReferencingForeignKeys?.Count == 0
+                ? (DeclaredReferencingForeignKeys?.Count ?? 0) == 0
                     ? _baseType.GetReferencingForeignKeys()
                     : _baseType.GetReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
                 : GetDeclaredReferencingForeignKeys();
@@ -1389,17 +1382,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetDeclaredReferencingForeignKeys()
             => DeclaredReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IEnumerable<ForeignKey> GetDerivedReferencingForeignKeys()
-            => _directlyDerivedTypes.Count == 0
-                ? Enumerable.Empty<ForeignKey>()
-                : GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingForeignKeys());
 
         private SortedSet<ForeignKey>? DeclaredReferencingForeignKeys { get; set; }
 
@@ -1889,7 +1871,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<SkipNavigation> GetReferencingSkipNavigations()
             => _baseType != null
-                ? DeclaredReferencingSkipNavigations?.Count == 0
+                ? (DeclaredReferencingSkipNavigations?.Count ?? 0) == 0
                     ? _baseType.GetReferencingSkipNavigations()
                     : _baseType.GetReferencingSkipNavigations().Concat(GetDeclaredReferencingSkipNavigations())
                 : GetDeclaredReferencingSkipNavigations();
@@ -3321,6 +3303,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         CoreStrings.DiscriminatorPropertyNotFound(property.Name, DisplayName()));
                 }
             }
+        }
+
+        /// <summary>
+        ///     Returns the name of the property that will be used for storing a discriminator value.
+        /// </summary>
+        /// <returns> The name of the property that will be used for storing a discriminator value. </returns>
+        public virtual string? GetDiscriminatorPropertyName()
+        {
+            if (BaseType != null)
+            {
+                return ((IReadOnlyEntityType)this).GetRootType().GetDiscriminatorPropertyName();
+            }
+
+            return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
         }
 
         /// <summary>

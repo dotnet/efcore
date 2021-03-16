@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a <see cref="IReadOnlyDbFunction" /> parameter.
+    ///     Represents a function parameter.
     /// </summary>
     public interface IReadOnlyDbFunctionParameter : IReadOnlyAnnotatable
     {
@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string? StoreType { get; }
 
         /// <summary>
-        ///     Gets the value which indicates whether parameter propagates nullability, meaning if it's value is null the database function itself
-        ///     returns null.
+        ///     Gets the value which indicates whether the parameter propagates nullability,
+        ///     meaning if it's value is <see langword="null"/> the database function itself returns <see langword="null"/>.
         /// </summary>
         bool PropagatesNullability { get; }
 

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -532,14 +531,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Gets the <see cref="IServiceProperty" /> with a given name.
+        ///         Gets the service property with a given name.
         ///         Returns <see langword="null" /> if no property with the given name is defined.
         ///     </para>
         ///     <para>
         ///         This API only finds service properties and does not find scalar or navigation properties.
         ///     </para>
         /// </summary>
-        /// <param name="name"> The name of the property. </param>
+        /// <param name="name"> The name of the service property. </param>
         /// <returns> The service property, or <see langword="null" /> if none is found. </returns>
         new IServiceProperty? FindServiceProperty([NotNull] string name);
 

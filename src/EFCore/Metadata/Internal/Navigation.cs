@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             ForeignKey = foreignKey;
+            ClrType = this.GetIdentifyingMemberInfo()?.GetMemberType() ?? typeof(object);
 
             _builder = new InternalNavigationBuilder(this, foreignKey.DeclaringEntityType.Model.Builder);
         }
@@ -53,8 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type ClrType
-            => this.GetIdentifyingMemberInfo()?.GetMemberType() ?? typeof(object);
+        public override Type ClrType { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Navigation? SetInverse([CanBeNull] string? inverseName, ConfigurationSource configurationSource)
             => IsOnDependent
-                ? ForeignKey.HasPrincipalToDependent(inverseName, configurationSource)
+                ? ForeignKey.SetPrincipalToDependent(inverseName, configurationSource)
                 : ForeignKey.SetDependentToPrincipal(inverseName, configurationSource);
 
         /// <summary>
@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Navigation? SetInverse([CanBeNull] MemberInfo? inverse, ConfigurationSource configurationSource)
             => IsOnDependent
-                ? ForeignKey.HasPrincipalToDependent(inverse, configurationSource)
+                ? ForeignKey.SetPrincipalToDependent(inverse, configurationSource)
                 : ForeignKey.SetDependentToPrincipal(inverse, configurationSource);
 
         /// <summary>

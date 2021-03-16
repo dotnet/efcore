@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var model = modelBuilder.Metadata;
             var modelSequences =
-                (SortedDictionary<(string Name, string Schema), Sequence>?)model[RelationalAnnotationNames.Sequences];
+                (SortedDictionary<(string Name, string? Schema), ISequence>?)model[RelationalAnnotationNames.Sequences];
 
             if (modelSequences != null)
             {
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var newSequenceName = Uniquifier.Uniquify(
                         sequence.Key.Name, modelSequences,
                         sequenceName => (sequenceName, schemaName), maxLength);
-                    Sequence.SetName((IMutableModel)model, sequence.Value, newSequenceName);
+                    Sequence.SetName((IMutableModel)model, (Sequence)sequence.Value, newSequenceName);
                 }
             }
         }

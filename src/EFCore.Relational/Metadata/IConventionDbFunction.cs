@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a relational database function in an <see cref="IConventionModel" /> in
-    ///     the a form that can be mutated while the model is being built.
+    ///     Represents a relational database function in a model in
+    ///     the form that can be mutated while the model is being built.
     /// </summary>
     public interface IConventionDbFunction : IReadOnlyDbFunction, IConventionAnnotatable
     {

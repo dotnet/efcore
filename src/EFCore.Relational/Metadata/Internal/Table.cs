@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public Table([NotNull] string name, [CanBeNull] string? schema, [NotNull] RelationalModel model)
             : base(name, schema, model)
         {
-            Columns = new SortedDictionary<string, IColumnBase>(new ColumnNameComparer(this));
+            Columns = new SortedDictionary<string, ColumnBase>(new ColumnNameComparer(this));
         }
 
         /// <summary>

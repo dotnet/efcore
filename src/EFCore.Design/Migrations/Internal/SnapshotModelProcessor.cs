@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Select(a => new Sequence(model, a.Name));
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            var sequencesDictionary = new SortedDictionary<(string, string?), Sequence>();
+            var sequencesDictionary = new SortedDictionary<(string, string?), ISequence>();
             foreach (var sequence in sequences)
             {
                 sequencesDictionary[(sequence.Name, sequence.Schema)] = sequence;

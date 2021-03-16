@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsRequiredDependent { get; }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether this relationship defines an ownership.
+        ///     Gets a value indicating whether this relationship defines an ownership.
         ///     If <see langword="true" />, the dependent entity must always be accessed via the navigation from the principal entity.
         /// </summary>
         bool IsOwnership { get; }

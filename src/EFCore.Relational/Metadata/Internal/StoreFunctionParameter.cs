@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public StoreFunctionParameter(
             [NotNull] StoreFunction function,
-            [NotNull] DbFunctionParameter parameter)
+            [NotNull] IRuntimeDbFunctionParameter parameter)
         {
             Function = function;
             Name = parameter.Name;

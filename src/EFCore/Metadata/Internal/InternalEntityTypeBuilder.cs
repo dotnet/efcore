@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var foreignKey in Metadata.GetForeignKeys())
                 {
-                    foreignKey.HasPrincipalToDependent((string?)null, configurationSource);
+                    foreignKey.SetPrincipalToDependent((string?)null, configurationSource);
                 }
 
                 foreach (var key in Metadata.GetKeys().ToList())

@@ -470,6 +470,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public IEnumerable<IEntityType> GetDirectlyDerivedTypes()
                 => throw new NotImplementedException();
 
+            public string GetDiscriminatorPropertyName()
+                => throw new NotImplementedException();
+
             public IEnumerable<IProperty> GetForeignKeyProperties()
                 => throw new NotImplementedException();
 

@@ -14,7 +14,7 @@ using CA = System.Diagnostics.CodeAnalysis;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a relational database function in an <see cref="IReadOnlyModel" />.
+    ///     Represents a relational database function in a model.
     /// </summary>
     public interface IReadOnlyDbFunction : IReadOnlyAnnotatable
     {
