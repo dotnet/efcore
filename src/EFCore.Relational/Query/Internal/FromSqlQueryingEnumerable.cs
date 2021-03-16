@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         null,
                         _detailedErrorsEnabled),
                     Guid.Empty,
-                    (DbCommandMethod)(-1));
+                    (DbCommandMethod)(-1), CommandSource.FromSqlQuery);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         enumerator._relationalCommandCache.ReaderColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
-                        enumerator._detailedErrorsEnabled));
+                        enumerator._detailedErrorsEnabled), CommandSource.FromSqlQuery);
 
                 enumerator._indexMap = BuildIndexMap(enumerator._columnNames, enumerator._dataReader.DbDataReader);
 
@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         enumerator._relationalCommandCache.ReaderColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
-                        enumerator._detailedErrorsEnabled),
+                        enumerator._detailedErrorsEnabled), CommandSource.FromSqlQuery,
                     cancellationToken)
                     .ConfigureAwait(false);
 

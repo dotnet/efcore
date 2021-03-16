@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         null,
                         null,
                         null,
-                        Dependencies.CommandLogger));
+                        Dependencies.CommandLogger), CommandSource.Migration);
 
             Dependencies.Connection.Close();
         }
@@ -118,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         null,
                         null,
                         null,
-                        Dependencies.CommandLogger))!;
+                        Dependencies.CommandLogger), CommandSource.Migration)!;
 
             return count != 0;
         }

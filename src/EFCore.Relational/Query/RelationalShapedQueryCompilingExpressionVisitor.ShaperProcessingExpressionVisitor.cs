@@ -1409,7 +1409,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 relationalCommandCache.ReaderColumns,
                                 queryContext.Context,
                                 queryContext.CommandLogger,
-                                detailedErrorsEnabled));
+                                detailedErrorsEnabled), CommandSource.LinqQuery);
                     }
 
                     resultCoordinator.SetDataReader(collectionId, dataReader);
@@ -1498,7 +1498,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     relationalCommandCache.ReaderColumns,
                                     queryContext.Context,
                                     queryContext.CommandLogger,
-                                    detailedErrorsEnabled),
+                                    detailedErrorsEnabled), CommandSource.LinqQuery,
                                 cancellationToken)
                             .ConfigureAwait(false);
                     }
@@ -1738,7 +1738,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 relationalCommandCache.ReaderColumns,
                                 queryContext.Context,
                                 queryContext.CommandLogger,
-                                detailedErrorsEnabled));
+                                detailedErrorsEnabled), CommandSource.LinqQuery);
                     }
 
                     resultCoordinator.SetDataReader(collectionId, dataReader);
@@ -1817,7 +1817,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 relationalCommandCache.ReaderColumns,
                                 queryContext.Context,
                                 queryContext.CommandLogger,
-                                detailedErrorsEnabled),
+                                detailedErrorsEnabled), CommandSource.LinqQuery,
                             cancellationToken)
                             .ConfigureAwait(false);
                     }

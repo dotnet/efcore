@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
 
                 sqlBuilder.Build(batches[i])
-                    .ExecuteNonQuery(new RelationalCommandParameterObject(connection, null, null, null, null));
+                    .ExecuteNonQuery(new RelationalCommandParameterObject(connection, null, null, null, null), TODO);
             }
         }
 

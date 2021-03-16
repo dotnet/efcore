@@ -266,30 +266,37 @@ namespace Microsoft.EntityFrameworkCore
             public IReadOnlyDictionary<string, object> ParameterValues
                 => throw new NotImplementedException();
 
-            public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
+            public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject, CommandSource source)
                 => 0;
 
             public Task<int> ExecuteNonQueryAsync(
                 RelationalCommandParameterObject parameterObject,
+                CommandSource source,
                 CancellationToken cancellationToken = default)
                 => Task.FromResult(0);
 
-            public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
+            public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject, CommandSource source)
                 => throw new NotImplementedException();
 
             public Task<RelationalDataReader> ExecuteReaderAsync(
                 RelationalCommandParameterObject parameterObject,
+                CommandSource source,
                 CancellationToken cancellationToken = default)
                 => throw new NotImplementedException();
 
-            public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
-                => throw new NotImplementedException();
-
-            public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
-                => throw new NotImplementedException();
-
-            public Task<object> ExecuteScalarAsync(
+            public DbCommand CreateDbCommand(
                 RelationalCommandParameterObject parameterObject,
+                Guid commandId,
+                DbCommandMethod commandMethod,
+                CommandSource commandSource)
+                => throw new NotImplementedException();
+
+            public object? ExecuteScalar(RelationalCommandParameterObject parameterObject, CommandSource source)
+                => throw new NotImplementedException();
+
+            public Task<object?> ExecuteScalarAsync(
+                RelationalCommandParameterObject parameterObject,
+                CommandSource source,
                 CancellationToken cancellationToken = default)
                 => throw new NotImplementedException();
 

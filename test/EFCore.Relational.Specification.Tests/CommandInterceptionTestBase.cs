@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                 var result = async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject);
+                    ? await command.ExecuteScalarAsync(commandParameterObject, TODO)
+                    : command.ExecuteScalar(commandParameterObject, TODO);
 
                 Assert.Equal(1, Convert.ToInt32(result));
 
@@ -290,8 +290,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                 var result = async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject);
+                    ? await command.ExecuteScalarAsync(commandParameterObject, TODO)
+                    : command.ExecuteScalar(commandParameterObject, TODO);
 
                 Assert.Equal(SuppressingScalarCommandInterceptor.InterceptedResult, result);
 
@@ -475,8 +475,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                 var result = async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject);
+                    ? await command.ExecuteScalarAsync(commandParameterObject, TODO)
+                    : command.ExecuteScalar(commandParameterObject, TODO);
 
                 Assert.Equal(2, Convert.ToInt32(result));
 
@@ -673,8 +673,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                 var result = async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject);
+                    ? await command.ExecuteScalarAsync(commandParameterObject, TODO)
+                    : command.ExecuteScalar(commandParameterObject, TODO);
 
                 Assert.Equal(2, Convert.ToInt32(result));
 
@@ -967,8 +967,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
                 var result = async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject);
+                    ? await command.ExecuteScalarAsync(commandParameterObject, TODO)
+                    : command.ExecuteScalar(commandParameterObject, TODO);
 
                 Assert.Equal(ResultReplacingScalarCommandInterceptor.InterceptedResult, result);
 
@@ -1121,8 +1121,8 @@ namespace Microsoft.EntityFrameworkCore
                 try
                 {
                     _ = async
-                        ? await command.ExecuteScalarAsync(commandParameterObject)
-                        : command.ExecuteScalar(commandParameterObject);
+                        ? await command.ExecuteScalarAsync(commandParameterObject, TODO)
+                        : command.ExecuteScalar(commandParameterObject, TODO);
 
                     Assert.False(true);
                 }
@@ -1203,8 +1203,8 @@ namespace Microsoft.EntityFrameworkCore
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 var exception = async
-                    ? await Assert.ThrowsAsync<Exception>(() => command.ExecuteScalarAsync(commandParameterObject))
-                    : Assert.Throws<Exception>(() => command.ExecuteScalar(commandParameterObject));
+                    ? await Assert.ThrowsAsync<Exception>(() => command.ExecuteScalarAsync(commandParameterObject, TODO))
+                    : Assert.Throws<Exception>(() => command.ExecuteScalar(commandParameterObject, TODO));
 
                 Assert.Equal("Bang!", exception.Message);
             }
@@ -1337,8 +1337,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 ResultReplacingScalarCommandInterceptor.InterceptedResult,
                 async
-                    ? await command.ExecuteScalarAsync(commandParameterObject)
-                    : command.ExecuteScalar(commandParameterObject));
+                    ? await command.ExecuteScalarAsync(commandParameterObject, TODO)
+                    : command.ExecuteScalar(commandParameterObject, TODO));
         }
 
         [ConditionalTheory]

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -128,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                     null,
                                     null,
                                     Dependencies.CurrentContext.Context,
-                                    Dependencies.CommandLogger))!
+                                    Dependencies.CommandLogger), CommandSource.Migration)!
                         != 0);
 
         /// <summary>
@@ -147,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 null,
                                 null,
                                 Dependencies.CurrentContext.Context,
-                                Dependencies.CommandLogger),
+                                Dependencies.CommandLogger), CommandSource.Migration,
                             cancellationToken: ct)
                         .ConfigureAwait(false))!
                     != 0, cancellationToken);
@@ -217,7 +218,7 @@ SELECT 1 ELSE SELECT 0");
                                         null,
                                         null,
                                         Dependencies.CurrentContext.Context,
-                                        Dependencies.CommandLogger));
+                                        Dependencies.CommandLogger), CommandSource.Migration);
 
                             return true;
                         }
@@ -278,7 +279,7 @@ SELECT 1 ELSE SELECT 0");
                                         null,
                                         null,
                                         Dependencies.CurrentContext.Context,
-                                        Dependencies.CommandLogger),
+                                        Dependencies.CommandLogger), CommandSource.Migration,
                                     ct)
                                 .ConfigureAwait(false);
 

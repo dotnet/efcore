@@ -246,39 +246,46 @@ namespace Microsoft.EntityFrameworkCore
                 public IReadOnlyDictionary<string, object> ParameterValues
                     => throw new NotImplementedException();
 
-                public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
+                public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject, CommandSource source)
                 {
                     throw new NotImplementedException();
                 }
 
                 public Task<int> ExecuteNonQueryAsync(
                     RelationalCommandParameterObject parameterObject,
+                    CommandSource source,
                     CancellationToken cancellationToken = default)
                 {
                     throw new NotImplementedException();
                 }
 
-                public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
+                public object? ExecuteScalar(RelationalCommandParameterObject parameterObject, CommandSource source)
                     => Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize);
 
-                public Task<object> ExecuteScalarAsync(
+                public Task<object?> ExecuteScalarAsync(
                     RelationalCommandParameterObject parameterObject,
+                    CommandSource source,
                     CancellationToken cancellationToken = default)
                     => Task.FromResult<object>(Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize));
 
-                public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
+                public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject, CommandSource source)
                 {
                     throw new NotImplementedException();
                 }
 
                 public Task<RelationalDataReader> ExecuteReaderAsync(
                     RelationalCommandParameterObject parameterObject,
+                    CommandSource source,
                     CancellationToken cancellationToken = default)
                 {
                     throw new NotImplementedException();
                 }
 
-                public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
+                public DbCommand CreateDbCommand(
+                    RelationalCommandParameterObject parameterObject,
+                    Guid commandId,
+                    DbCommandMethod commandMethod,
+                    CommandSource commandSource)
                     => throw new NotImplementedException();
 
                 public void PopulateFromTemplate(IRelationalCommand templateCommand)

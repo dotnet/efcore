@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore
                             rawSqlCommand.ParameterValues,
                             null,
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
-                            logger));
+                            logger), CommandSource.ExecuteSqlRaw);
             }
             finally
             {
@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore
                             rawSqlCommand.ParameterValues,
                             null,
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
-                            logger),
+                            logger), CommandSource.ExecuteSqlRaw,
                         cancellationToken)
                     .ConfigureAwait(false);
             }

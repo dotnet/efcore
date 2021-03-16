@@ -169,7 +169,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _values = values;
                     }
 
-                    public override RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
+                    public override RelationalDataReader ExecuteReader(
+                        RelationalCommandParameterObject parameterObject,
+                        CommandSource source)
                     {
                         var command = parameterObject.Connection.DbConnection.CreateCommand();
                         command.CommandText = CommandText;

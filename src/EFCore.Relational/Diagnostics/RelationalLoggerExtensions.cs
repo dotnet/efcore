@@ -151,6 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <param name="duration"> The duration of the command creation. </param>
         /// <returns> An intercepted result. </returns>
         public static DbCommand CommandCreated(
@@ -162,6 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration)
         {
             var definition = RelationalResources.LogCommandCreated(diagnostics);
@@ -181,6 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     connectionId,
                     false,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -205,6 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             bool async,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             EventDefinition<string, int> definition,
             bool diagnosticSourceEnabled,
@@ -222,6 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 async,
                 false,
                 startTime,
+                commandSource,
                 duration);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -258,6 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">CommandSource source</param>
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<DbDataReader> CommandReaderExecuting(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
@@ -266,7 +272,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
-            DateTimeOffset startTime)
+            DateTimeOffset startTime,
+            CommandSource commandSource)
         {
             var definition = RelationalResources.LogExecutingCommand(diagnostics);
 
@@ -285,6 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     connectionId,
                     false,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -308,6 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<object> CommandScalarExecuting(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
@@ -316,7 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
-            DateTimeOffset startTime)
+            DateTimeOffset startTime,
+            CommandSource commandSource)
         {
             var definition = RelationalResources.LogExecutingCommand(diagnostics);
 
@@ -335,6 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     connectionId,
                     false,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -358,6 +369,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<int> CommandNonQueryExecuting(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
@@ -366,7 +378,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
-            DateTimeOffset startTime)
+            DateTimeOffset startTime,
+            CommandSource commandSource)
         {
             var definition = RelationalResources.LogExecutingCommand(diagnostics);
 
@@ -385,6 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     connectionId,
                     false,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -408,6 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">CommandSource source</param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
@@ -419,6 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             CancellationToken cancellationToken = default)
         {
             var definition = RelationalResources.LogExecutingCommand(diagnostics);
@@ -438,6 +454,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     connectionId,
                     true,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -461,6 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
@@ -472,6 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             CancellationToken cancellationToken = default)
         {
             var definition = RelationalResources.LogExecutingCommand(diagnostics);
@@ -491,6 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     connectionId,
                     true,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -514,6 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
@@ -525,6 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             CancellationToken cancellationToken = default)
         {
             var definition = RelationalResources.LogExecutingCommand(diagnostics);
@@ -544,6 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     connectionId,
                     true,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -567,6 +590,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             bool async,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             EventDefinition<string, CommandType, int, string, string> definition,
             bool diagnosticSourceEnabled,
             bool simpleLogEnabled)
@@ -582,7 +606,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 connectionId,
                 async,
                 ShouldLogParameterValues(diagnostics, command),
-                startTime);
+                startTime,
+                commandSource);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
@@ -635,6 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">CommandSource source</param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static DbDataReader CommandReaderExecuted(
@@ -646,6 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             [NotNull] DbDataReader methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration)
         {
             var definition = RelationalResources.LogExecutedCommand(diagnostics);
@@ -666,6 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     methodResult,
                     false,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -691,6 +719,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static object? CommandScalarExecuted(
@@ -702,6 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             [CanBeNull] object? methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration)
         {
             var definition = RelationalResources.LogExecutedCommand(diagnostics);
@@ -722,6 +752,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     methodResult,
                     false,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -747,6 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static int CommandNonQueryExecuted(
@@ -758,6 +790,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             int methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration)
         {
             var definition = RelationalResources.LogExecutedCommand(diagnostics);
@@ -778,6 +811,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     methodResult,
                     false,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -803,6 +837,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">CommandSource source</param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
@@ -816,6 +851,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             [NotNull] DbDataReader methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
         {
@@ -837,6 +873,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     methodResult,
                     true,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -862,6 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
@@ -875,6 +913,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             [CanBeNull] object? methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
         {
@@ -896,6 +935,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     methodResult,
                     true,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -921,6 +961,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
@@ -934,6 +975,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             int methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
         {
@@ -955,6 +997,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     methodResult,
                     true,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -980,6 +1023,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             object? methodResult,
             bool async,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             EventDefinition<string, string, CommandType, int, string, string> definition,
             bool diagnosticSourceEnabled,
@@ -998,6 +1042,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 async,
                 ShouldLogParameterValues(diagnostics, command),
                 startTime,
+                commandSource,
                 duration);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -1049,6 +1094,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="exception"> The exception that caused this failure. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <param name="duration"> The amount of time that passed until the exception was raised. </param>
         public static void CommandError(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
@@ -1060,6 +1106,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             [NotNull] Exception exception,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration)
         {
             var definition = RelationalResources.LogCommandFailed(diagnostics);
@@ -1080,6 +1127,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     exception,
                     false,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -1120,6 +1168,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="exception"> The exception that caused this failure. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <param name="duration"> The amount of time that passed until the exception was raised. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
@@ -1134,6 +1183,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             [NotNull] Exception exception,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
         {
@@ -1155,6 +1205,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     exception,
                     true,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -1180,6 +1231,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Exception exception,
             bool async,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             EventDefinition<string, string, CommandType, int, string, string> definition,
             bool diagnosticSourceEnabled,
@@ -1198,6 +1250,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 async,
                 ShouldLogParameterValues(diagnostics, command),
                 startTime,
+                commandSource,
                 duration);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);

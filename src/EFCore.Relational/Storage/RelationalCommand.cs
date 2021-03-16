@@ -77,13 +77,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the command with no results.
         /// </summary>
         /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <param name="source">Source of the command.</param>
         /// <returns> The number of rows affected. </returns>
-        public virtual int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
+        public virtual int ExecuteNonQuery(RelationalCommandParameterObject parameterObject, CommandSource source)
         {
             var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
             var commandId = Guid.NewGuid();
-            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteNonQuery);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteNonQuery, source);
 
             connection.Open();
 
@@ -97,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         context,
                         commandId,
                         connection.ConnectionId,
-                        startTime)
+                        startTime,
+                        source)
                     ?? default;
 
                 var nonQueryResult = interceptionResult.HasResult
@@ -112,6 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         connection.ConnectionId,
                         nonQueryResult,
                         startTime,
+                        source,
                         _stopwatch.Elapsed)
                     ?? nonQueryResult;
             }
@@ -126,6 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     connection.ConnectionId,
                     exception,
                     startTime,
+                    source,
                     _stopwatch.Elapsed);
 
                 throw;
@@ -158,6 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Asynchronously executes the command with no results.
         /// </summary>
         /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <param name="source">Source of the command.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the number of rows affected.
@@ -165,12 +170,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<int> ExecuteNonQueryAsync(
             RelationalCommandParameterObject parameterObject,
+            CommandSource source,
             CancellationToken cancellationToken = default)
         {
             var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
             var commandId = Guid.NewGuid();
-            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteNonQuery);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteNonQuery, source);
 
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
@@ -187,6 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             commandId,
                             connection.ConnectionId,
                             startTime,
+                            source,
                             cancellationToken)
                         .ConfigureAwait(false);
 
@@ -204,6 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             result,
                             startTime,
+                            source,
                             _stopwatch.Elapsed,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -224,6 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             exception,
                             startTime,
+                            source,
                             _stopwatch.Elapsed,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -241,13 +250,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the command with a single scalar result.
         /// </summary>
         /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <param name="source">Source of the command.</param>
         /// <returns> The result of the command. </returns>
-        public virtual object? ExecuteScalar(RelationalCommandParameterObject parameterObject)
+        public virtual object? ExecuteScalar(RelationalCommandParameterObject parameterObject, CommandSource source)
         {
             var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
             var commandId = Guid.NewGuid();
-            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteScalar);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteScalar, source);
 
             connection.Open();
 
@@ -261,7 +271,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         context,
                         commandId,
                         connection.ConnectionId,
-                        startTime)
+                        startTime,
+                        source)
                     ?? default;
 
                 var result = interceptionResult.HasResult
@@ -276,6 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         connection.ConnectionId,
                         result,
                         startTime,
+                        source,
                         _stopwatch.Elapsed)
                     ?? result;
             }
@@ -290,6 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     connection.ConnectionId,
                     exception,
                     startTime,
+                    source,
                     _stopwatch.Elapsed);
 
                 throw;
@@ -304,6 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Asynchronously executes the command with a single scalar result.
         /// </summary>
         /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <param name="source">Source of the command.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the result of the command.
@@ -311,12 +325,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<object?> ExecuteScalarAsync(
             RelationalCommandParameterObject parameterObject,
+            CommandSource source,
             CancellationToken cancellationToken = default)
         {
             var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
 
             var commandId = Guid.NewGuid();
-            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteScalar);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteScalar, source);
 
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
@@ -334,6 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             commandId,
                             connection.ConnectionId,
                             startTime,
+                            source,
                             cancellationToken)
                         .ConfigureAwait(false);
 
@@ -351,6 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         connection.ConnectionId,
                         result,
                         startTime,
+                        source,
                         _stopwatch.Elapsed,
                         cancellationToken).ConfigureAwait(false);
                 }
@@ -370,6 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             exception,
                             startTime,
+                            source,
                             _stopwatch.Elapsed,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -387,8 +405,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>
         /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <param name="source">Source of the command.</param>
         /// <returns> The result of the command. </returns>
-        public virtual RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
+        public virtual RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject, CommandSource source)
         {
             var connection = parameterObject.Connection;
             var context = parameterObject.Context;
@@ -397,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var detailedErrorsEnabled = parameterObject.DetailedErrorsEnabled;
 
             var commandId = Guid.NewGuid();
-            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader, source);
 
             connection.Open();
 
@@ -414,7 +433,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         context,
                         commandId,
                         connection.ConnectionId,
-                        startTime)
+                        startTime,
+                        source)
                     ?? default;
 
                 reader = interceptionResult.HasResult
@@ -431,6 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         connection.ConnectionId,
                         reader,
                         startTime,
+                        source,
                         _stopwatch.Elapsed);
                 }
             }
@@ -445,6 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     connection.ConnectionId,
                     exception,
                     startTime,
+                    source,
                     _stopwatch.Elapsed);
 
                 CleanupCommand(command, connection);
@@ -478,6 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Asynchronously executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>
         /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <param name="source">Source of the command.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the result of the command.
@@ -485,6 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<RelationalDataReader> ExecuteReaderAsync(
             RelationalCommandParameterObject parameterObject,
+            CommandSource source,
             CancellationToken cancellationToken = default)
         {
             var connection = parameterObject.Connection;
@@ -494,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var detailedErrorsEnabled = parameterObject.DetailedErrorsEnabled;
 
             var commandId = Guid.NewGuid();
-            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
+            var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader, source);
 
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
@@ -514,6 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             commandId,
                             connection.ConnectionId,
                             startTime,
+                            source,
                             cancellationToken)
                         .ConfigureAwait(false);
 
@@ -531,6 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             reader,
                             startTime,
+                            source,
                             _stopwatch.Elapsed,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -549,6 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             exception,
                             startTime,
+                            source,
                             _stopwatch.Elapsed,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -596,11 +623,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="parameterObject"> Parameters for this method. </param>
         /// <param name="commandId"> The command correlation ID. </param>
         /// <param name="commandMethod"> The method that will be called on the created command. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <returns> The created command. </returns>
         public virtual DbCommand CreateDbCommand(
             RelationalCommandParameterObject parameterObject,
             Guid commandId,
-            DbCommandMethod commandMethod)
+            DbCommandMethod commandMethod,
+            CommandSource commandSource)
         {
             var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
             var connectionId = connection.ConnectionId;
@@ -618,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (logger != null)
             {
                 command = logger.CommandCreated(
-                    connection, command, commandMethod, context, commandId, connectionId, startTime, _stopwatch.Elapsed);
+                    connection, command, commandMethod, context, commandId, connectionId, startTime, commandSource, _stopwatch.Elapsed);
             }
 
             command.CommandText = CommandText;
