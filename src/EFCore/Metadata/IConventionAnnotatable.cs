@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly added annotation. </returns>
-        IConventionAnnotation AddAnnotation([NotNull] string name, [CanBeNull] object? value, bool fromDataAnnotation = false);
+        IConventionAnnotation AddAnnotation(string name, object? value, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
@@ -54,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new annotation. </returns>
-        IConventionAnnotation? SetAnnotation([NotNull] string name, [CanBeNull] object? value, bool fromDataAnnotation = false);
+        IConventionAnnotation? SetAnnotation(string name, object? value, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
@@ -63,21 +62,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        new IConventionAnnotation? FindAnnotation([NotNull] string name);
+        new IConventionAnnotation? FindAnnotation(string name);
 
         /// <summary>
         ///     Removes the annotation with the given name from this object.
         /// </summary>
         /// <param name="name"> The name of the annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        IConventionAnnotation? RemoveAnnotation([NotNull] string name);
+        IConventionAnnotation? RemoveAnnotation(string name);
 
         /// <summary>
         ///     Gets the annotation with the given name, throwing if it does not exist.
         /// </summary>
         /// <param name="annotationName"> The key of the annotation to find. </param>
         /// <returns> The annotation with the specified name. </returns>
-        new IConventionAnnotation GetAnnotation([NotNull] string annotationName)
+        new IConventionAnnotation GetAnnotation(string annotationName)
             => (IConventionAnnotation)((IReadOnlyAnnotatable)this).GetAnnotation(annotationName);
 
         /// <summary>
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="annotations"> The annotations to be added. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         void AddAnnotations(
-            [NotNull] IEnumerable<IConventionAnnotation> annotations,
+            IEnumerable<IConventionAnnotation> annotations,
             bool fromDataAnnotation = false)
         {
             foreach (var annotation in annotations)
@@ -104,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new annotation or <see langword="null" /> if it was removed. </returns>
         IConventionAnnotation? SetOrRemoveAnnotation(
-            [NotNull] string name,
-            [CanBeNull] object? value,
+            string name,
+            object? value,
             bool fromDataAnnotation = false);
     }
 }

@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -24,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatible(
-            [NotNull] this IReadOnlyKey key,
-            [NotNull] IReadOnlyKey duplicateKey,
+            this IReadOnlyKey key,
+            IReadOnlyKey duplicateKey,
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {

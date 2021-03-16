@@ -5,7 +5,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosExecutionStrategy(
-            [NotNull] DbContext context)
+            DbContext context)
             : this(context, DefaultMaxRetryCount)
         {
         }
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosExecutionStrategy(
-            [NotNull] ExecutionStrategyDependencies dependencies)
+            ExecutionStrategyDependencies dependencies)
             : this(dependencies, DefaultMaxRetryCount)
         {
         }
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosExecutionStrategy(
-            [NotNull] DbContext context,
+            DbContext context,
             int maxRetryCount)
             : this(context, maxRetryCount, DefaultMaxDelay)
         {
@@ -63,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosExecutionStrategy(
-            [NotNull] ExecutionStrategyDependencies dependencies,
+            ExecutionStrategyDependencies dependencies,
             int maxRetryCount)
             : this(dependencies, maxRetryCount, DefaultMaxDelay)
         {
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CosmosExecutionStrategy([NotNull] DbContext context, int maxRetryCount, TimeSpan maxRetryDelay)
+        public CosmosExecutionStrategy(DbContext context, int maxRetryCount, TimeSpan maxRetryDelay)
             : base(context, maxRetryCount, maxRetryDelay)
         {
         }
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CosmosExecutionStrategy([NotNull] ExecutionStrategyDependencies dependencies, int maxRetryCount, TimeSpan maxRetryDelay)
+        public CosmosExecutionStrategy(ExecutionStrategyDependencies dependencies, int maxRetryCount, TimeSpan maxRetryDelay)
             : base(dependencies, maxRetryCount, maxRetryDelay)
         {
         }

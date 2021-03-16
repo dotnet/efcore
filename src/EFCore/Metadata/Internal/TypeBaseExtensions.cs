@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties([NotNull] this IConventionTypeBase type)
+        public static IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties(this IConventionTypeBase type)
             => ((TypeBase)type).GetRuntimeProperties();
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields([NotNull] this IConventionTypeBase type)
+        public static IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields(this IConventionTypeBase type)
             => ((TypeBase)type).GetRuntimeFields();
     }
 }

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The member name. </param>
         [DebuggerStepThrough]
-        public MemberIdentity([NotNull] string name)
+        public MemberIdentity(string name)
             : this((object)name)
         {
         }
@@ -32,13 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="memberInfo"> The member. </param>
         [DebuggerStepThrough]
-        public MemberIdentity([NotNull] MemberInfo memberInfo)
+        public MemberIdentity(MemberInfo memberInfo)
             : this((object)memberInfo)
         {
         }
 
         [DebuggerStepThrough]
-        private MemberIdentity([CanBeNull] object? nameOrMember)
+        private MemberIdentity(object? nameOrMember)
         {
             _nameOrMember = nameOrMember;
         }
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The member name. </param>
         /// <returns> The newly created identity, or <see cref="None" /> if the given name is <see langword="null" />. </returns>
         [DebuggerStepThrough]
-        public static MemberIdentity Create([CanBeNull] string? name)
+        public static MemberIdentity Create(string? name)
             => name == null ? None : new MemberIdentity(name);
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="memberInfo"> The member. </param>
         /// <returns> The newly created identity, or <see cref="None" /> if the given name is <see langword="null" />. </returns>
         [DebuggerStepThrough]
-        public static MemberIdentity Create([CanBeNull] MemberInfo? memberInfo)
+        public static MemberIdentity Create(MemberInfo? memberInfo)
             => memberInfo == null ? None : new MemberIdentity(memberInfo);
 
         /// <summary>

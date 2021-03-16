@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -27,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InternalMixedEntityEntry(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IEntityType entityType,
-            [NotNull] object entity)
+            IStateManager stateManager,
+            IEntityType entityType,
+            object entity)
             : base(stateManager, entityType)
         {
             Entity = entity;
@@ -46,9 +45,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InternalMixedEntityEntry(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IEntityType entityType,
-            [NotNull] object entity,
+            IStateManager stateManager,
+            IEntityType entityType,
+            object entity,
             in ValueBuffer valueBuffer)
             : base(stateManager, entityType)
         {

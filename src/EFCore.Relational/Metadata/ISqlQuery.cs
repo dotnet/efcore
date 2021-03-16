@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -27,12 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the column with the given name. Returns <see langword="null" /> if no column with the given name is defined.
         /// </summary>
-        new ISqlQueryColumn? FindColumn([NotNull] string name);
+        new ISqlQueryColumn? FindColumn(string name);
 
         /// <summary>
         ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
         /// </summary>
-        new ISqlQueryColumn? FindColumn([NotNull] IProperty property);
+        new ISqlQueryColumn? FindColumn(IProperty property);
 
         /// <summary>
         ///     Gets the SQL query string.

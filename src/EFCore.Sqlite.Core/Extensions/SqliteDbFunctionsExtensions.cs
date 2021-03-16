@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 // ReSharper disable once CheckNamespace
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="matchExpression">The string that is to be matched.</param>
         /// <param name="pattern">The pattern which may involve wildcards <c>*,?,[,^,-,]</c>.</param>
         /// <returns><see langword="true" /> if there is a match.</returns>
-        public static bool Glob([NotNull] this DbFunctions _, [NotNull] string matchExpression, [NotNull] string pattern)
+        public static bool Glob(this DbFunctions _, string matchExpression, string pattern)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Glob)));
 
         /// <summary>
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="bytes">The binary value.</param>
         /// <returns>A hexadecimal string.</returns>
-        public static string Hex([NotNull] this DbFunctions _, [NotNull] byte[] bytes)
+        public static string Hex(this DbFunctions _, byte[] bytes)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Hex)));
 
         /// <summary>
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     Use <see cref="string.Substring(int)"/> for string values.
         /// </remarks>
-        public static byte[] Substr([NotNull] this DbFunctions _, [NotNull] byte[] bytes, int startIndex)
+        public static byte[] Substr(this DbFunctions _, byte[] bytes, int startIndex)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Substr)));
 
         /// <summary>
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     Use <see cref="string.Substring(int, int)"/> for string values.
         /// </remarks>
-        public static byte[] Substr([NotNull] this DbFunctions _, [NotNull] byte[] bytes, int startIndex, int length)
+        public static byte[] Substr(this DbFunctions _, byte[] bytes, int startIndex, int length)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Substr)));
     }
 }

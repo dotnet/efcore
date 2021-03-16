@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private readonly ConventionContext<FieldInfo> _fieldInfoConventionContext;
             private readonly ConventionContext<bool?> _boolConventionContext;
 
-            public ImmediateConventionScope([NotNull] ConventionSet conventionSet, ConventionDispatcher dispatcher)
+            public ImmediateConventionScope(ConventionSet conventionSet, ConventionDispatcher dispatcher)
             {
                 _conventionSet = conventionSet;
                 _dispatcher = dispatcher;
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override void Run(ConventionDispatcher dispatcher)
                 => Check.DebugAssert(false, "Immediate convention scope cannot be run again.");
 
-            public IConventionModelBuilder OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
+            public IConventionModelBuilder OnModelFinalizing(IConventionModelBuilder modelBuilder)
             {
                 _modelBuilderConventionContext.ResetState(modelBuilder);
                 foreach (var modelConvention in _conventionSet.ModelFinalizingConventions)
@@ -83,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return modelBuilder;
             }
 
-            public IConventionModelBuilder OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
+            public IConventionModelBuilder OnModelInitialized(IConventionModelBuilder modelBuilder)
             {
                 using (_dispatcher.DelayConventions())
                 {

@@ -19,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="codeOptions"> The options to use when generating code for the model. </param>
         /// <returns> The scaffolded model. </returns>
         ScaffoldedModel ScaffoldModel(
-            [NotNull] string connectionString,
-            [NotNull] DatabaseModelFactoryOptions databaseOptions,
-            [NotNull] ModelReverseEngineerOptions modelOptions,
-            [NotNull] ModelCodeGenerationOptions codeOptions);
+            string connectionString,
+            DatabaseModelFactoryOptions databaseOptions,
+            ModelReverseEngineerOptions modelOptions,
+            ModelCodeGenerationOptions codeOptions);
 
         /// <summary>
         ///     Saves a scaffolded model to disk.
@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="overwriteFiles"> True to overwrite any existing files. </param>
         /// <returns> The model files. </returns>
         SavedModelFiles Save(
-            [NotNull] ScaffoldedModel scaffoldedModel,
-            [NotNull] string outputDir,
+            ScaffoldedModel scaffoldedModel,
+            string outputDir,
             bool overwriteFiles);
     }
 }

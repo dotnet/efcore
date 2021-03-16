@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsSelfReferencing([NotNull] this IReadOnlyForeignKey foreignKey)
+        public static bool IsSelfReferencing(this IReadOnlyForeignKey foreignKey)
             => foreignKey.DeclaringEntityType == foreignKey.PrincipalEntityType;
 
         /// <summary>
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<IReadOnlyNavigation> GetNavigations([NotNull] this IReadOnlyForeignKey foreignKey)
+        public static IEnumerable<IReadOnlyNavigation> GetNavigations(this IReadOnlyForeignKey foreignKey)
         {
             if (foreignKey.PrincipalToDependent != null)
             {
@@ -51,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IReadOnlyNavigation> FindNavigationsFrom(
-            [NotNull] this IReadOnlyForeignKey foreignKey,
-            [NotNull] IReadOnlyEntityType entityType)
+            this IReadOnlyForeignKey foreignKey,
+            IReadOnlyEntityType entityType)
         {
             if (foreignKey.DeclaringEntityType != entityType
                 && foreignKey.PrincipalEntityType != entityType)
@@ -76,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IReadOnlyNavigation> FindNavigationsFromInHierarchy(
-            [NotNull] this IReadOnlyForeignKey foreignKey,
-            [NotNull] IReadOnlyEntityType entityType)
+            this IReadOnlyForeignKey foreignKey,
+            IReadOnlyEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
@@ -102,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IReadOnlyNavigation> FindNavigationsTo(
-            [NotNull] this IReadOnlyForeignKey foreignKey, [NotNull] IReadOnlyEntityType entityType)
+            this IReadOnlyForeignKey foreignKey, IReadOnlyEntityType entityType)
         {
             if (foreignKey.DeclaringEntityType != entityType
                 && foreignKey.PrincipalEntityType != entityType)
@@ -126,8 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IReadOnlyNavigation> FindNavigationsToInHierarchy(
-            [NotNull] this IReadOnlyForeignKey foreignKey,
-            [NotNull] IReadOnlyEntityType entityType)
+            this IReadOnlyForeignKey foreignKey,
+            IReadOnlyEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
@@ -172,8 +171,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [Obsolete]
         public static IReadOnlyEntityType ResolveOtherEntityTypeInHierarchy(
-            [NotNull] this IReadOnlyForeignKey foreignKey,
-            [NotNull] IReadOnlyEntityType entityType)
+            this IReadOnlyForeignKey foreignKey,
+            IReadOnlyEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
@@ -209,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [Obsolete]
         public static IReadOnlyEntityType ResolveEntityTypeInHierarchy(
-            [NotNull] this IReadOnlyForeignKey foreignKey, [NotNull] IReadOnlyEntityType entityType)
+            this IReadOnlyForeignKey foreignKey, IReadOnlyEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))

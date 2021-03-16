@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="successful"><see langword="true" /> if the operation succeeded.</param>
         /// <param name="result">The result of the operation if successful.</param>
-        public ExecutionResult(bool successful, [CanBeNull] TResult result)
+        public ExecutionResult(bool successful, TResult result)
         {
             IsSuccessful = successful;
             Result = result;

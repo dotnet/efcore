@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> One of the entity types related by the foreign key. </param>
         /// <returns> The entity type related to the given one. </returns>
-        IReadOnlyEntityType GetRelatedEntityType([NotNull] IReadOnlyEntityType entityType)
+        IReadOnlyEntityType GetRelatedEntityType(IReadOnlyEntityType entityType)
         {
             if (DeclaringEntityType != entityType
                 && PrincipalEntityType != entityType)

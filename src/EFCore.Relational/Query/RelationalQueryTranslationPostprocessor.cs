@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -22,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
         /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         public RelationalQueryTranslationPostprocessor(
-            [NotNull] QueryTranslationPostprocessorDependencies dependencies,
-            [NotNull] RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext)
+            QueryTranslationPostprocessorDependencies dependencies,
+            RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
+            QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -66,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             "Use 'Optimize' method on "
             + nameof(RelationalParameterBasedSqlProcessor)
             + " instead. If you have a case for optimizations to be performed here, please file an issue on github.com/dotnet/efcore.")]
-        protected virtual Expression OptimizeSqlExpression([NotNull] Expression query)
+        protected virtual Expression OptimizeSqlExpression(Expression query)
             => query;
     }
 }

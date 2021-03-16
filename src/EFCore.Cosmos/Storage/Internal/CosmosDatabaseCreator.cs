@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -32,10 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosDatabaseCreator(
-            [NotNull] ICosmosClientWrapper cosmosClient,
-            [NotNull] IModel model,
-            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
-            [NotNull] IDatabase database)
+            ICosmosClientWrapper cosmosClient,
+            IModel model,
+            IUpdateAdapterFactory updateAdapterFactory,
+            IDatabase database)
         {
             _cosmosClient = cosmosClient;
             _model = model;
@@ -184,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         /// <param name="entityType"> The entity type to get the partition key property name for. </param>
         /// <returns> The name of the partition key property. </returns>
-        private static string GetPartitionKeyStoreName([NotNull] IEntityType entityType)
+        private static string GetPartitionKeyStoreName(IEntityType entityType)
         {
             var name = entityType.GetPartitionKeyPropertyName();
             if (name != null)

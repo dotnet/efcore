@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -23,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="entries"> Entries for the entities being saved. </param>
         /// <param name="rowsAffected"> The rows affected. </param>
         public SaveChangesEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IEnumerable<IUpdateEntry> entries,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IEnumerable<IUpdateEntry> entries,
             int rowsAffected)
             : base(eventDefinition, messageGenerator)
         {

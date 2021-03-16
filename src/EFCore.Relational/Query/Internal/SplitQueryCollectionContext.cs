@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SplitQueryCollectionContext(
-            [CanBeNull] object? parent,
-            [CanBeNull] object? collection,
-            [NotNull] object[] parentIdentifier)
+            object? parent,
+            object? collection,
+            object[] parentIdentifier)
         {
             Parent = parent;
             Collection = collection;

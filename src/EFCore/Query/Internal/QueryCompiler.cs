@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -47,14 +46,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public QueryCompiler(
-            [NotNull] IQueryContextFactory queryContextFactory,
-            [NotNull] ICompiledQueryCache compiledQueryCache,
-            [NotNull] ICompiledQueryCacheKeyGenerator compiledQueryCacheKeyGenerator,
-            [NotNull] IDatabase database,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
-            [NotNull] IModel model)
+            IQueryContextFactory queryContextFactory,
+            ICompiledQueryCache compiledQueryCache,
+            ICompiledQueryCacheKeyGenerator compiledQueryCacheKeyGenerator,
+            IDatabase database,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            ICurrentDbContext currentContext,
+            IEvaluatableExpressionFilter evaluatableExpressionFilter,
+            IModel model)
         {
             Check.NotNull(queryContextFactory, nameof(queryContextFactory));
             Check.NotNull(compiledQueryCache, nameof(compiledQueryCache));
@@ -105,9 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Func<QueryContext, TResult> CompileQueryCore<TResult>(
-            [NotNull] IDatabase database,
-            [NotNull] Expression query,
-            [NotNull] IModel model,
+            IDatabase database,
+            Expression query,
+            IModel model,
             bool async)
             => database.CompileQuery<TResult>(query, async);
 
@@ -173,9 +172,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression ExtractParameters(
-            [NotNull] Expression query,
-            [NotNull] IParameterValues parameterValues,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            Expression query,
+            IParameterValues parameterValues,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             bool parameterize = true,
             bool generateContextAccessors = false)
         {

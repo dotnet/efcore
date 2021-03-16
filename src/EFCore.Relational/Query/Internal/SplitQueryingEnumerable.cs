@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -40,12 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SplitQueryingEnumerable(
-            [NotNull] RelationalQueryContext relationalQueryContext,
-            [NotNull] RelationalCommandCache relationalCommandCache,
-            [NotNull] Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> shaper,
-            [NotNull] Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator> relatedDataLoaders,
-            [NotNull] Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task> relatedDataLoadersAsync,
-            [NotNull] Type contextType,
+            RelationalQueryContext relationalQueryContext,
+            RelationalCommandCache relationalCommandCache,
+            Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, T> shaper,
+            Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator> relatedDataLoaders,
+            Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task> relatedDataLoadersAsync,
+            Type contextType,
             bool standAloneStateManager,
             bool detailedErrorsEnabled,
             bool concurrencyDetectionEnabled)

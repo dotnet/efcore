@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="methodInfo"> The method. </param>
         /// <returns> <see langword="true" /> if the method is <see cref="EF.Property{TProperty}" />; <see langword="false" /> otherwise. </returns>
-        public static bool IsEFPropertyMethod([CanBeNull] this MethodInfo? methodInfo)
+        public static bool IsEFPropertyMethod(this MethodInfo? methodInfo)
             => Equals(methodInfo, EF.PropertyMethod)
                 // fallback to string comparison because MethodInfo.Equals is not
                 // always true in .NET Native even if methods are the same

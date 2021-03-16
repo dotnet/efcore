@@ -4,7 +4,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerDateTimeOffsetTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = System.Data.DbType.DateTimeOffset)
             : base(
                 new RelationalTypeMappingParameters(

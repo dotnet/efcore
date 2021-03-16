@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         ///     Constructs a builder for the given <see cref="CreateTableOperation" />.
         /// </summary>
         /// <param name="createTableOperation"> The operation. </param>
-        public ColumnsBuilder([NotNull] CreateTableOperation createTableOperation)
+        public ColumnsBuilder(CreateTableOperation createTableOperation)
         {
             Check.NotNull(createTableOperation, nameof(createTableOperation));
 
@@ -51,18 +50,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="stored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<AddColumnOperation> Column<T>(
-            [CanBeNull] string? type = null,
+            string? type = null,
             bool? unicode = null,
             int? maxLength = null,
             bool rowVersion = false,
-            [CanBeNull] string? name = null,
+            string? name = null,
             bool nullable = false,
-            [CanBeNull] object? defaultValue = null,
-            [CanBeNull] string? defaultValueSql = null,
-            [CanBeNull] string? computedColumnSql = null,
+            object? defaultValue = null,
+            string? defaultValueSql = null,
+            string? computedColumnSql = null,
             bool? fixedLength = null,
-            [CanBeNull] string? comment = null,
-            [CanBeNull] string? collation = null,
+            string? comment = null,
+            string? collation = null,
             int? precision = null,
             int? scale = null,
             bool? stored = null)

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -248,8 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="newConvention"> The new convention. </param>
         /// <returns> <see langword="true" /> if the convention was replaced. </returns>
         public static bool Replace<TConvention, TImplementation>(
-            [NotNull] IList<TConvention> conventionsList,
-            [NotNull] TImplementation newConvention)
+            IList<TConvention> conventionsList,
+            TImplementation newConvention)
             where TImplementation : TConvention
         {
             Check.NotNull(conventionsList, nameof(conventionsList));
@@ -277,9 +276,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="existingConventionType"> The type of the existing convention. </param>
         /// <returns> <see langword="true" /> if the convention was added. </returns>
         public static bool AddBefore<TConvention>(
-            [NotNull] IList<TConvention> conventionsList,
-            [NotNull] TConvention newConvention,
-            [NotNull] Type existingConventionType)
+            IList<TConvention> conventionsList,
+            TConvention newConvention,
+            Type existingConventionType)
         {
             Check.NotNull(conventionsList, nameof(conventionsList));
             Check.NotNull(newConvention, nameof(newConvention));
@@ -305,9 +304,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="existingConventionType"> The type of the existing convention. </param>
         /// <returns> <see langword="true" /> if the convention was added. </returns>
         public static bool AddAfter<TConvention>(
-            [NotNull] IList<TConvention> conventionsList,
-            [NotNull] TConvention newConvention,
-            [NotNull] Type existingConventionType)
+            IList<TConvention> conventionsList,
+            TConvention newConvention,
+            Type existingConventionType)
         {
             Check.NotNull(conventionsList, nameof(conventionsList));
             Check.NotNull(newConvention, nameof(newConvention));
@@ -332,8 +331,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="existingConventionType"> The type of the existing convention. </param>
         /// <returns> <see langword="true" /> if the convention was removed. </returns>
         public static bool Remove<TConvention>(
-            [NotNull] IList<TConvention> conventionsList,
-            [NotNull] Type existingConventionType)
+            IList<TConvention> conventionsList,
+            Type existingConventionType)
         {
             Check.NotNull(conventionsList, nameof(conventionsList));
 
@@ -360,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     </para>
         /// </summary>
         /// <returns> The convention set. </returns>
-        public static ConventionSet CreateConventionSet([NotNull] DbContext context)
+        public static ConventionSet CreateConventionSet(DbContext context)
             => context.GetService<IConventionSetBuilder>().CreateConventionSet();
     }
 }

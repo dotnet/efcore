@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public abstract TAccessor Create([NotNull] IPropertyBase property);
+        public abstract TAccessor Create(IPropertyBase property);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TAccessor Create([NotNull] MemberInfo memberInfo)
+        public virtual TAccessor Create(MemberInfo memberInfo)
             => Create(memberInfo, null);
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual TAccessor Create([NotNull] MemberInfo memberInfo, [CanBeNull] IPropertyBase? propertyBase)
+        protected virtual TAccessor Create(MemberInfo memberInfo, IPropertyBase? propertyBase)
         {
             var boundMethod = propertyBase != null
                 ? _genericCreate.MakeGenericMethod(
@@ -73,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected abstract TAccessor CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
-            [NotNull] MemberInfo memberInfo,
-            [CanBeNull] IPropertyBase? propertyBase)
+            MemberInfo memberInfo,
+            IPropertyBase? propertyBase)
             where TEntity : class;
     }
 }

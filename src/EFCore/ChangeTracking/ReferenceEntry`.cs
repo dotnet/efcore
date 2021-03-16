@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public ReferenceEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
+        public ReferenceEntry(InternalEntityEntry internalEntry, string name)
             : base(internalEntry, name)
         {
         }
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public ReferenceEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
+        public ReferenceEntry(InternalEntityEntry internalEntry, INavigation navigation)
             : base(internalEntry, navigation)
         {
         }
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual TProperty CurrentValue
         {
             get => this.GetInfrastructure().GetCurrentValue<TProperty>(Metadata);
-            [param: CanBeNull] set => base.CurrentValue = value;
+            set => base.CurrentValue = value;
         }
 
         /// <summary>

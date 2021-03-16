@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="true" /> if the property is a shadow property, otherwise <see langword="false" />.
         /// </returns>
         [Obsolete("Use IReadOnlyPropertyBase.IsShadowProperty")]
-        public static bool IsShadowProperty([NotNull] this IPropertyBase property)
+        public static bool IsShadowProperty(this IPropertyBase property)
             => property.IsShadowProperty();
 
         /// <summary>
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="properties"> The properties to format. </param>
         /// <param name="includeTypes"> If true, then type names are included in the string. The default is <see langword="false" />.</param>
         /// <returns> The string representation. </returns>
-        public static string Format([NotNull] this IEnumerable<IReadOnlyPropertyBase> properties, bool includeTypes = false)
+        public static string Format(this IEnumerable<IReadOnlyPropertyBase> properties, bool includeTypes = false)
             => "{"
                 + string.Join(
                     ", ",

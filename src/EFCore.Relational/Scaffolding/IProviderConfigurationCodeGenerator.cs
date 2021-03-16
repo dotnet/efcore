@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
@@ -26,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="providerOptions"> The method chain used to configure provider options. </param>
         /// <returns> The code fragment. </returns>
         MethodCallCodeFragment GenerateUseProvider(
-            [NotNull] string connectionString,
-            [CanBeNull] MethodCallCodeFragment? providerOptions);
+            string connectionString,
+            MethodCallCodeFragment? providerOptions);
 
         /// <summary>
         ///     Generates a method chain to configure additional context options.
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <param name="connectionString"> The connection string to include in the code fragment. </param>
         /// <returns> The code fragment. </returns>
-        MethodCallCodeFragment GenerateUseProvider([NotNull] string connectionString)
+        MethodCallCodeFragment GenerateUseProvider(string connectionString)
         {
             var useProviderCall = GenerateUseProvider(
                 connectionString,

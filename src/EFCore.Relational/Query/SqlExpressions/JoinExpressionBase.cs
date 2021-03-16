@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new instance of the <see cref="JoinExpressionBase" /> class.
         /// </summary>
         /// <param name="table"> A table source to join with. </param>
-        protected JoinExpressionBase([NotNull] TableExpressionBase table)
+        protected JoinExpressionBase(TableExpressionBase table)
             : base(null)
         {
             Check.NotNull(table, nameof(table));

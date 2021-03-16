@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -47,9 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         [EntityFrameworkInternal]
         public CSharpMigrationsGeneratorDependencies(
-            [NotNull] ICSharpHelper csharpHelper,
-            [NotNull] ICSharpMigrationOperationGenerator csharpMigrationOperationGenerator,
-            [NotNull] ICSharpSnapshotGenerator csharpSnapshotGenerator)
+            ICSharpHelper csharpHelper,
+            ICSharpMigrationOperationGenerator csharpMigrationOperationGenerator,
+            ICSharpSnapshotGenerator csharpSnapshotGenerator)
         {
             CSharpHelper = csharpHelper;
             CSharpMigrationOperationGenerator = csharpMigrationOperationGenerator;
@@ -59,16 +58,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The C# helper.
         /// </summary>
-        public ICSharpHelper CSharpHelper { get; [param: NotNull] init; }
+        public ICSharpHelper CSharpHelper { get; init; }
 
         /// <summary>
         ///     The C# migration operation generator.
         /// </summary>
-        public ICSharpMigrationOperationGenerator CSharpMigrationOperationGenerator { get; [param: NotNull] init; }
+        public ICSharpMigrationOperationGenerator CSharpMigrationOperationGenerator { get; init; }
 
         /// <summary>
         ///     The C# model snapshot generator.
         /// </summary>
-        public ICSharpSnapshotGenerator CSharpSnapshotGenerator { get; [param: NotNull] init; }
+        public ICSharpSnapshotGenerator CSharpSnapshotGenerator { get; init; }
     }
 }

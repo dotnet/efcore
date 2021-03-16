@@ -20,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SingleQueryCollectionContext(
-            [CanBeNull] object? parent,
-            [CanBeNull] object? collection,
-            [NotNull] object[] parentIdentifier,
-            [NotNull] object[] outerIdentifier)
+            object? parent,
+            object? collection,
+            object[] parentIdentifier,
+            object[] outerIdentifier)
         {
             Parent = parent;
             Collection = collection;
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void UpdateSelfIdentifier([CanBeNull] object[]? selfIdentifier)
+        public virtual void UpdateSelfIdentifier(object[]? selfIdentifier)
         {
             SelfIdentifier = selfIdentifier;
         }

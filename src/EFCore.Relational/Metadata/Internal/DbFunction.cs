@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -54,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DbFunction(
-            [NotNull] MethodInfo methodInfo,
-            [NotNull] IMutableModel model,
+            MethodInfo methodInfo,
+            IMutableModel model,
             ConfigurationSource configurationSource)
             : this(
                 methodInfo.Name,
@@ -90,10 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DbFunction(
-            [NotNull] string name,
-            [NotNull] Type returnType,
-            [CanBeNull] IEnumerable<(string Name, Type Type)>? parameters,
-            [NotNull] IMutableModel model,
+            string name,
+            Type returnType,
+            IEnumerable<(string Name, Type Type)>? parameters,
+            IMutableModel model,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
@@ -189,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<IDbFunction> GetDbFunctions([NotNull] IReadOnlyModel model)
+        public static IEnumerable<IDbFunction> GetDbFunctions(IReadOnlyModel model)
             => ((SortedDictionary<string, IDbFunction>?)model[RelationalAnnotationNames.DbFunctions])
                 ?.Values
                 ?? Enumerable.Empty<IDbFunction>();
@@ -200,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyDbFunction? FindDbFunction([NotNull] IReadOnlyModel model, [NotNull] MethodInfo methodInfo)
+        public static IReadOnlyDbFunction? FindDbFunction(IReadOnlyModel model, MethodInfo methodInfo)
             => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions
                 && functions.TryGetValue(GetFunctionName(methodInfo, methodInfo.GetParameters()), out var dbFunction)
                     ? dbFunction
@@ -212,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyDbFunction? FindDbFunction([NotNull] IReadOnlyModel model, [NotNull] string name)
+        public static IReadOnlyDbFunction? FindDbFunction(IReadOnlyModel model, string name)
             => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions
                 && functions.TryGetValue(name, out var dbFunction)
                     ? dbFunction
@@ -225,8 +224,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static DbFunction AddDbFunction(
-            [NotNull] IMutableModel model,
-            [NotNull] MethodInfo methodInfo,
+            IMutableModel model,
+            MethodInfo methodInfo,
             ConfigurationSource configurationSource)
         {
             var function = new DbFunction(methodInfo, model, configurationSource);
@@ -242,9 +241,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static DbFunction AddDbFunction(
-            [NotNull] IMutableModel model,
-            [NotNull] string name,
-            [NotNull] Type returnType,
+            IMutableModel model,
+            string name,
+            Type returnType,
             ConfigurationSource configurationSource)
         {
             var function = new DbFunction(name, returnType, null, model, configurationSource);
@@ -264,8 +263,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static DbFunction? RemoveDbFunction(
-            [NotNull] IMutableModel model,
-            [NotNull] MethodInfo methodInfo)
+            IMutableModel model,
+            MethodInfo methodInfo)
         {
             if (model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions)
             {
@@ -290,8 +289,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static DbFunction? RemoveDbFunction(
-            [NotNull] IMutableModel model,
-            [NotNull] string name)
+            IMutableModel model,
+            string name)
         {
             if (model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions
                 && functions.TryGetValue(name, out var function))
@@ -351,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string? SetSchema([CanBeNull] string? schema, ConfigurationSource configurationSource)
+        public virtual string? SetSchema(string? schema, ConfigurationSource configurationSource)
         {
             EnsureMutable();
 
@@ -391,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string? SetName([CanBeNull] string? name, ConfigurationSource configurationSource)
+        public virtual string? SetName(string? name, ConfigurationSource configurationSource)
         {
             Check.NullButNotEmpty(name, nameof(name));
 
@@ -512,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string? SetStoreType([CanBeNull] string? storeType, ConfigurationSource configurationSource)
+        public virtual string? SetStoreType(string? storeType, ConfigurationSource configurationSource)
         {
             EnsureMutable();
 
@@ -562,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual RelationalTypeMapping? SetTypeMapping(
-            [CanBeNull] RelationalTypeMapping? typeMapping,
+            RelationalTypeMapping? typeMapping,
             ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;
@@ -602,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Func<IReadOnlyList<SqlExpression>, SqlExpression>? SetTranslation(
-            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
+            Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             ConfigurationSource configurationSource)
         {
             EnsureMutable();
@@ -649,8 +648,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [CA.DisallowNull]
-        public virtual IStoreFunction? StoreFunction { get; [param: NotNull] set; }
+        [DisallowNull]
+        public virtual IStoreFunction? StoreFunction { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -723,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DbFunctionParameter? FindParameter([NotNull] string name)
+        public virtual DbFunctionParameter? FindParameter(string name)
             => Parameters.SingleOrDefault(p => p.Name == name);
 
         /// <inheritdoc />

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates a new <see cref="EntityTypeParameterBinding" /> instance for the given service type.
         /// </summary>
         /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
-        public EntityTypeParameterBinding([CanBeNull] IPropertyBase? serviceProperty = null)
+        public EntityTypeParameterBinding(IPropertyBase? serviceProperty = null)
             : base(typeof(IEntityType), typeof(IEntityType), serviceProperty)
         {
         }

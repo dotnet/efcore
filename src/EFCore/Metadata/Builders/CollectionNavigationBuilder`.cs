@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -36,11 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public CollectionNavigationBuilder(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
+            IMutableEntityType declaringEntityType,
+            IMutableEntityType relatedEntityType,
             MemberIdentity navigation,
-            [CanBeNull] IMutableForeignKey? foreignKey,
-            [CanBeNull] IMutableSkipNavigation? skipNavigation)
+            IMutableForeignKey? foreignKey,
+            IMutableSkipNavigation? skipNavigation)
             : base(declaringEntityType, relatedEntityType, navigation, foreignKey, skipNavigation)
         {
         }
@@ -54,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] string? navigationName = null)
+            string? navigationName = null)
         {
             return new(
                 DeclaringEntityType,
@@ -80,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>>? navigationExpression)
+            Expression<Func<TRelatedEntity, TEntity>>? navigationExpression)
             => new(
                 DeclaringEntityType,
                 RelatedEntityType,
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the collection navigation property on the other end of this relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public new virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany([NotNull] string navigationName)
+        public new virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(string navigationName)
         {
             var leftName = Builder?.Metadata.PrincipalToDependent!.Name;
             var collectionCollectionBuilder =
@@ -120,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-            [NotNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)
+            Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)
         {
             if (Builder != null
                 && Builder.Metadata.PrincipalToDependent == null)

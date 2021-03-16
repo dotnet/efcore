@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="oldReferencedEntity"> The old referenced entity. </param>
         /// <param name="newReferencedEntity"> The new referenced entity. </param>
         public ReferenceChangedEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] EntityEntry entityEntry,
-            [NotNull] INavigation navigation,
-            [CanBeNull] object? oldReferencedEntity,
-            [CanBeNull] object? newReferencedEntity)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            EntityEntry entityEntry,
+            INavigation navigation,
+            object? oldReferencedEntity,
+            object? newReferencedEntity)
             : base(eventDefinition, messageGenerator, navigation)
         {
             Check.NotNull(entityEntry, nameof(entityEntry));

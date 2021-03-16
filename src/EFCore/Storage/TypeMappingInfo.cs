@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="property"> The property for which mapping is needed. </param>
-        public TypeMappingInfo([NotNull] IProperty property)
+        public TypeMappingInfo(IProperty property)
             : this(property.GetPrincipals())
         {
         }
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     default.
         /// </param>
         public TypeMappingInfo(
-            [NotNull] IReadOnlyList<IProperty> principals,
+            IReadOnlyList<IProperty> principals,
             bool? fallbackUnicode = null,
             int? fallbackSize = null,
             int? fallbackPrecision = null,
@@ -129,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         public TypeMappingInfo(
-            [NotNull] MemberInfo member,
+            MemberInfo member,
             bool? unicode = null,
             int? size = null,
             int? precision = null,
@@ -153,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         public TypeMappingInfo(
-            [CanBeNull] Type? type = null,
+            Type? type = null,
             bool keyOrIndex = false,
             bool? unicode = null,
             int? size = null,

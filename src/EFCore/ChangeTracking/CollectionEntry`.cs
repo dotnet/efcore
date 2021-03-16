@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
+        public CollectionEntry(InternalEntityEntry internalEntry, string name)
             : base(internalEntry, name)
         {
         }
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
+        public CollectionEntry(InternalEntityEntry internalEntry, INavigation navigation)
             : base(internalEntry, navigation)
         {
         }
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual IEnumerable<TRelatedEntity>? CurrentValue
         {
             get => this.GetInfrastructure().GetCurrentValue<IEnumerable<TRelatedEntity>>(Metadata);
-            [param: CanBeNull] set => base.CurrentValue = value;
+            set => base.CurrentValue = value;
         }
 
         /// <summary>
@@ -90,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <value> An entry for an entity that this navigation targets. </value>
-        public new virtual EntityEntry<TRelatedEntity>? FindEntry([NotNull] object entity)
+        public new virtual EntityEntry<TRelatedEntity>? FindEntry(object entity)
         {
             var entry = GetInternalTargetEntry(entity);
             return entry == null

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -21,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterType"> The parameter CLR type. </param>
         /// <param name="consumedProperties"> The properties that are handled by this binding and so do not need to be set in some other way. </param>
         protected ParameterBinding(
-            [NotNull] Type parameterType,
-            [NotNull] params IPropertyBase[] consumedProperties)
+            Type parameterType,
+            params IPropertyBase[] consumedProperties)
         {
             Check.NotNull(parameterType, nameof(parameterType));
             Check.NotNull(consumedProperties, nameof(consumedProperties));

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> <see langword="true" /> if the in-memory database is being used. </returns>
-        public static bool IsInMemory([NotNull] this DatabaseFacade database)
+        public static bool IsInMemory(this DatabaseFacade database)
             => database.ProviderName == typeof(InMemoryOptionsExtension).Assembly.GetName().Name;
     }
 }

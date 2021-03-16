@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new <see cref="ModelRuntimeInitializer" /> instance.
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
-        public ModelRuntimeInitializer([NotNull] ModelRuntimeInitializerDependencies dependencies)
+        public ModelRuntimeInitializer(ModelRuntimeInitializerDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -96,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <see langword="true"/> indicates that only pre-validation initialization should be performed;
         ///     <see langword="false"/> indicates that only post-validation initialization should be performed.
         /// </param>
-        protected virtual void InitializeModel([NotNull] IModel model, bool preValidation)
+        protected virtual void InitializeModel(IModel model, bool preValidation)
         {
         }
     }

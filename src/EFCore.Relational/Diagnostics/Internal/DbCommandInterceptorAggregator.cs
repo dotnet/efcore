@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         {
             private readonly IDbCommandInterceptor[] _interceptors;
 
-            public CompositeDbCommandInterceptor([NotNull] IEnumerable<IDbCommandInterceptor> interceptors)
+            public CompositeDbCommandInterceptor(IEnumerable<IDbCommandInterceptor> interceptors)
             {
                 _interceptors = interceptors.ToArray();
             }

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string BuildOptionsFragment([NotNull] this IDbContextOptions contextOptions)
+        public static string BuildOptionsFragment(this IDbContextOptions contextOptions)
         {
             var builder = new StringBuilder();
             foreach (var extension in contextOptions.Extensions)

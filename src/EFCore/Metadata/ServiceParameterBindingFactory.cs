@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates a new <see cref="ServiceParameterBindingFactory" /> instance for the given service type.
         /// </summary>
         /// <param name="serviceType"> The service type. </param>
-        public ServiceParameterBindingFactory([NotNull] Type serviceType)
+        public ServiceParameterBindingFactory(Type serviceType)
         {
             Check.NotNull(serviceType, nameof(serviceType));
 

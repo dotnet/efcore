@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public StringToBytesConverter(
-            [NotNull] Encoding encoding,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            Encoding encoding,
+            ConverterMappingHints? mappingHints = null)
             : base(
                 // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
                 v => v == null ? null! : encoding.GetBytes(v),

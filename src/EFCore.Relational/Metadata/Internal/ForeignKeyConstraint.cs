@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -23,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ForeignKeyConstraint(
-            [NotNull] string name,
-            [NotNull] Table table,
-            [NotNull] Table principalTable,
-            [NotNull] IReadOnlyList<Column> columns,
-            [NotNull] IReadOnlyList<Column> principalColumns,
+            string name,
+            Table table,
+            Table principalTable,
+            IReadOnlyList<Column> columns,
+            IReadOnlyList<Column> principalColumns,
             ReferentialAction onDeleteAction)
         {
             Name = name;

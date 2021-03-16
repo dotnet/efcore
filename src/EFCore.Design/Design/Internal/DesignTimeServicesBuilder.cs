@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -33,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DesignTimeServicesBuilder(
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [NotNull] IOperationReporter reporter,
-            [NotNull] string[] args)
+            Assembly assembly,
+            Assembly startupAssembly,
+            IOperationReporter reporter,
+            string[] args)
         {
             _startupAssembly = startupAssembly;
             _reporter = reporter;
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IServiceProvider Build([NotNull] DbContext context)
+        public virtual IServiceProvider Build(DbContext context)
             => CreateServiceCollection(Check.NotNull(context, nameof(context))).BuildServiceProvider();
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IServiceCollection CreateServiceCollection([NotNull] DbContext context)
+        public virtual IServiceCollection CreateServiceCollection(DbContext context)
         {
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter)
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IServiceProvider Build([NotNull] string provider)
+        public virtual IServiceProvider Build(string provider)
             => CreateServiceCollection(Check.NotEmpty(provider, nameof(provider))).BuildServiceProvider();
 
         /// <summary>
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IServiceCollection CreateServiceCollection([NotNull] string provider)
+        public virtual IServiceCollection CreateServiceCollection(string provider)
         {
             var services = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices(_reporter, GetApplicationServices);

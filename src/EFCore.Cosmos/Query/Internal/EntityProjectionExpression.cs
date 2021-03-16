@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityProjectionExpression([NotNull] IEntityType entityType, [NotNull] Expression accessExpression)
+        public EntityProjectionExpression(IEntityType entityType, Expression accessExpression)
         {
             EntityType = entityType;
             AccessExpression = accessExpression;
@@ -105,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Update([NotNull] Expression accessExpression)
+        public virtual Expression Update(Expression accessExpression)
             => accessExpression != AccessExpression
                 ? new EntityProjectionExpression(EntityType, accessExpression)
                 : this;
@@ -116,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression BindProperty([NotNull] IProperty property, bool clientEval)
+        public virtual Expression BindProperty(IProperty property, bool clientEval)
         {
             if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -150,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression BindNavigation([NotNull] INavigation navigation, bool clientEval)
+        public virtual Expression BindNavigation(INavigation navigation, bool clientEval)
         {
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -187,10 +186,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression BindMember(
-            [NotNull] string name,
-            [NotNull] Type entityType,
+            string name,
+            Type entityType,
             bool clientEval,
-            [NotNull] out IPropertyBase propertyBase)
+            out IPropertyBase propertyBase)
             => BindMember(MemberIdentity.Create(name), entityType, clientEval, out propertyBase);
 
         /// <summary>
@@ -200,10 +199,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression BindMember(
-            [NotNull] MemberInfo memberInfo,
-            [NotNull] Type entityType,
+            MemberInfo memberInfo,
+            Type entityType,
             bool clientEval,
-            [NotNull] out IPropertyBase propertyBase)
+            out IPropertyBase propertyBase)
             => BindMember(MemberIdentity.Create(memberInfo), entityType, clientEval, out propertyBase);
 
         private Expression BindMember(MemberIdentity member, Type entityClrType, bool clientEval, out IPropertyBase propertyBase)
@@ -244,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityProjectionExpression UpdateEntityType([NotNull] IEntityType derivedType)
+        public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
         {
             Check.NotNull(derivedType, nameof(derivedType));
 

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Update
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="updateAdapter"> The model data. </param>
         /// <returns> The list of batches to execute. </returns>
         IEnumerable<ModificationCommandBatch> BatchCommands(
-            [NotNull] IList<IUpdateEntry> entries,
-            [NotNull] IUpdateAdapter updateAdapter);
+            IList<IUpdateEntry> entries,
+            IUpdateAdapter updateAdapter);
     }
 }

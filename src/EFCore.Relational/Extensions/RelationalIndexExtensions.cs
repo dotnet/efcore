@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The name of the index in the database. </returns>
-        public static string GetDatabaseName([NotNull] this IReadOnlyIndex index)
+        public static string GetDatabaseName(this IReadOnlyIndex index)
             => (string?)index[RelationalAnnotationNames.Name]
                 ?? index.Name
                 ?? index.GetDefaultDatabaseName();
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The name of the index in the database. </returns>
         [Obsolete("Use GetDatabaseName() instead")]
-        public static string GetName([NotNull] this IIndex index)
+        public static string GetName(this IIndex index)
             => GetDatabaseName(index);
 
         /// <summary>
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The name of the index in the database. </returns>
-        public static string? GetDatabaseName([NotNull] this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+        public static string? GetDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
             => (string?)index[RelationalAnnotationNames.Name]
                 ?? index.Name
                 ?? index.GetDefaultDatabaseName(storeObject);
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The default name that would be used for this index. </returns>
-        public static string GetDefaultDatabaseName([NotNull] this IReadOnlyIndex index)
+        public static string GetDefaultDatabaseName(this IReadOnlyIndex index)
         {
             var tableName = index.DeclaringEntityType.GetTableName();
             var schema = index.DeclaringEntityType.GetSchema();
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The default name that would be used for this index. </returns>
         [Obsolete("Use GetDefaultDatabaseName() instead")]
-        public static string GetDefaultName([NotNull] this IIndex index)
+        public static string GetDefaultName(this IIndex index)
             => GetDefaultDatabaseName(index);
 
         /// <summary>
@@ -82,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The default name that would be used for this index. </returns>
-        public static string? GetDefaultDatabaseName([NotNull] this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+        public static string? GetDefaultDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
             var columnNames = index.Properties.GetColumnNames(storeObject);
             if (columnNames == null)
@@ -138,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="name"> The value to set. </param>
-        public static void SetDatabaseName([NotNull] this IMutableIndex index, [CanBeNull] string? name)
+        public static void SetDatabaseName(this IMutableIndex index, string? name)
         {
             index.SetOrRemoveAnnotation(
                 RelationalAnnotationNames.Name,
@@ -151,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="name"> The value to set. </param>
         [Obsolete("Use SetDatabaseName() instead.")]
-        public static void SetName([NotNull] this IMutableIndex index, [CanBeNull] string? name)
+        public static void SetName(this IMutableIndex index, string? name)
             => SetDatabaseName(index, name);
 
         /// <summary>
@@ -162,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static string? SetDatabaseName(
-            [NotNull] this IConventionIndex index,
-            [CanBeNull] string? name,
+            this IConventionIndex index,
+            string? name,
             bool fromDataAnnotation = false)
         {
             index.SetOrRemoveAnnotation(
@@ -181,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [Obsolete("Use SetDatabaseName() instead.")]
-        public static void SetName([NotNull] this IConventionIndex index, [CanBeNull] string? name, bool fromDataAnnotation = false)
+        public static void SetName(this IConventionIndex index, string? name, bool fromDataAnnotation = false)
             => SetDatabaseName(index, name, fromDataAnnotation);
 
         /// <summary>
@@ -189,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the name of the index in the database. </returns>
-        public static ConfigurationSource? GetDatabaseNameConfigurationSource([NotNull] this IConventionIndex index)
+        public static ConfigurationSource? GetDatabaseNameConfigurationSource(this IConventionIndex index)
             => index.FindAnnotation(RelationalAnnotationNames.Name)?.GetConfigurationSource();
 
         /// <summary>
@@ -198,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the name of the index in the database. </returns>
         [Obsolete("Use GetDatabaseNameConfigurationSource() instead.")]
-        public static ConfigurationSource? GetNameConfigurationSource([NotNull] this IConventionIndex index)
+        public static ConfigurationSource? GetNameConfigurationSource(this IConventionIndex index)
             => GetDatabaseNameConfigurationSource(index);
 
         /// <summary>
@@ -206,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The index filter expression. </returns>
-        public static string? GetFilter([NotNull] this IReadOnlyIndex index)
+        public static string? GetFilter(this IReadOnlyIndex index)
             => (string?)index.FindAnnotation(RelationalAnnotationNames.Filter)?.Value;
 
         /// <summary>
@@ -215,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index filter expression. </returns>
-        public static string? GetFilter([NotNull] this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+        public static string? GetFilter(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
             var annotation = index.FindAnnotation(RelationalAnnotationNames.Filter);
             if (annotation != null)
@@ -232,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="value"> The value to set. </param>
-        public static void SetFilter([NotNull] this IMutableIndex index, [CanBeNull] string? value)
+        public static void SetFilter(this IMutableIndex index, string? value)
             => index.SetAnnotation(
                 RelationalAnnotationNames.Filter,
                 Check.NullButNotEmpty(value, nameof(value)));
@@ -244,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string? SetFilter([NotNull] this IConventionIndex index, [CanBeNull] string? value, bool fromDataAnnotation = false)
+        public static string? SetFilter(this IConventionIndex index, string? value, bool fromDataAnnotation = false)
         {
             index.SetAnnotation(
                 RelationalAnnotationNames.Filter,
@@ -259,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the index filter expression. </returns>
-        public static ConfigurationSource? GetFilterConfigurationSource([NotNull] this IConventionIndex index)
+        public static ConfigurationSource? GetFilterConfigurationSource(this IConventionIndex index)
             => index.FindAnnotation(RelationalAnnotationNames.Filter)?.GetConfigurationSource();
 
         /// <summary>
@@ -267,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The table indexes to which the index is mapped. </returns>
-        public static IEnumerable<ITableIndex> GetMappedTableIndexes([NotNull] this IIndex index)
+        public static IEnumerable<ITableIndex> GetMappedTableIndexes(this IIndex index)
             => (IEnumerable<ITableIndex>?)index.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.TableIndexMappings)
                 ?? Enumerable.Empty<ITableIndex>();
@@ -284,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
-        public static IReadOnlyIndex? FindSharedObjectRootIndex([NotNull] this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+        public static IReadOnlyIndex? FindSharedObjectRootIndex(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
             Check.NotNull(index, nameof(index));
 
@@ -331,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
         public static IMutableIndex? FindSharedObjectRootIndex(
-            [NotNull] this IMutableIndex index,
+            this IMutableIndex index,
             in StoreObjectIdentifier storeObject)
             => (IMutableIndex?)((IReadOnlyIndex)index).FindSharedObjectRootIndex(storeObject);
 
@@ -348,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
         public static IConventionIndex? FindSharedObjectRootIndex(
-            [NotNull] this IConventionIndex index,
+            this IConventionIndex index,
             in StoreObjectIdentifier storeObject)
             => (IConventionIndex?)((IReadOnlyIndex)index).FindSharedObjectRootIndex(storeObject);
 
@@ -365,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The index found, or <see langword="null" /> if none was found.</returns>
         public static IIndex? FindSharedObjectRootIndex(
-            [NotNull] this IIndex index,
+            this IIndex index,
             in StoreObjectIdentifier storeObject)
             => (IIndex?)((IReadOnlyIndex)index).FindSharedObjectRootIndex(storeObject);
     }

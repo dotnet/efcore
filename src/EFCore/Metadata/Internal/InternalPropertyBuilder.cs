@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalPropertyBuilder(Property property, InternalModelBuilder modelBuilder)
             : base(property, modelBuilder)
         {
         }
@@ -153,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalPropertyBuilder? HasField([CanBeNull] string? fieldName, ConfigurationSource configurationSource)
+        public new virtual InternalPropertyBuilder? HasField(string? fieldName, ConfigurationSource configurationSource)
             => (InternalPropertyBuilder?)base.HasField(fieldName, configurationSource);
 
         /// <summary>
@@ -162,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalPropertyBuilder? HasField([CanBeNull] FieldInfo? fieldInfo, ConfigurationSource configurationSource)
+        public new virtual InternalPropertyBuilder? HasField(FieldInfo? fieldInfo, ConfigurationSource configurationSource)
             => (InternalPropertyBuilder?)base.HasField(fieldInfo, configurationSource);
 
         /// <summary>
@@ -353,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder? HasValueGenerator(
-            [CanBeNull] Type? valueGeneratorType,
+            Type? valueGeneratorType,
             ConfigurationSource configurationSource)
         {
             if (valueGeneratorType == null)
@@ -390,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder? HasValueGenerator(
-            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator>? factory,
+            Func<IProperty, IEntityType, ValueGenerator>? factory,
             ConfigurationSource configurationSource)
         {
             if (CanSetValueGenerator(factory, configurationSource))
@@ -410,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetValueGenerator(
-            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator>? factory,
+            Func<IProperty, IEntityType, ValueGenerator>? factory,
             ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetValueGeneratorFactoryConfigurationSource())
                 || Metadata.GetValueGeneratorFactory() == factory;
@@ -421,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder? HasConversion([CanBeNull] ValueConverter? converter, ConfigurationSource configurationSource)
+        public virtual InternalPropertyBuilder? HasConversion(ValueConverter? converter, ConfigurationSource configurationSource)
         {
             if (CanSetConversion(converter, configurationSource))
             {
@@ -440,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetConversion(
-            [CanBeNull] ValueConverter? converter,
+            ValueConverter? converter,
             ConfigurationSource? configurationSource)
             => configurationSource == ConfigurationSource.Explicit
                 || (configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
@@ -453,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder? HasConversion([CanBeNull] Type? providerClrType, ConfigurationSource configurationSource)
+        public virtual InternalPropertyBuilder? HasConversion(Type? providerClrType, ConfigurationSource configurationSource)
         {
             if (CanSetConversion(providerClrType, configurationSource))
             {
@@ -471,7 +470,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetConversion([CanBeNull] Type? providerClrType, ConfigurationSource? configurationSource)
+        public virtual bool CanSetConversion(Type? providerClrType, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource())
                 || Metadata.GetProviderClrType() == providerClrType;
 
@@ -482,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder? HasTypeMapping(
-            [CanBeNull] CoreTypeMapping? typeMapping,
+            CoreTypeMapping? typeMapping,
             ConfigurationSource configurationSource)
         {
             if (CanSetTypeMapping(typeMapping, configurationSource))
@@ -501,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetTypeMapping([CanBeNull] CoreTypeMapping? typeMapping, ConfigurationSource? configurationSource)
+        public virtual bool CanSetTypeMapping(CoreTypeMapping? typeMapping, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetTypeMappingConfigurationSource())
                 || Metadata.TypeMapping == typeMapping;
 
@@ -512,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder? HasValueComparer(
-            [CanBeNull] ValueComparer? comparer,
+            ValueComparer? comparer,
             ConfigurationSource configurationSource)
         {
             if (CanSetValueComparer(comparer, configurationSource))
@@ -531,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetValueComparer([CanBeNull] ValueComparer? comparer, ConfigurationSource? configurationSource)
+        public virtual bool CanSetValueComparer(ValueComparer? comparer, ConfigurationSource? configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetValueComparerConfigurationSource()))
             {
@@ -559,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalPropertyBuilder? HasKeyValueComparer(
-            [CanBeNull] ValueComparer? comparer,
+            ValueComparer? comparer,
             ConfigurationSource configurationSource)
             => HasValueComparer(comparer, configurationSource);
 
@@ -569,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetKeyValueComparer([CanBeNull] ValueComparer? comparer, ConfigurationSource? configurationSource)
+        public virtual bool CanSetKeyValueComparer(ValueComparer? comparer, ConfigurationSource? configurationSource)
             => CanSetValueComparer(comparer, configurationSource);
 
         /// <summary>
@@ -578,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder? Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
+        public virtual InternalPropertyBuilder? Attach(InternalEntityTypeBuilder entityTypeBuilder)
         {
             var newProperty = entityTypeBuilder.Metadata.FindProperty(Metadata.Name);
             InternalPropertyBuilder? newPropertyBuilder;

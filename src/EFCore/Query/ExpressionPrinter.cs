@@ -4,15 +4,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -81,8 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="items"> A collection of items to print. </param>
         /// <param name="joinAction"> A join action to use when joining printout of individual item in the collection. </param>
         public virtual void VisitCollection<T>(
-            [NotNull] IReadOnlyCollection<T> items,
-            [CanBeNull] Action<ExpressionPrinter>? joinAction = null)
+            IReadOnlyCollection<T> items,
+            Action<ExpressionPrinter>? joinAction = null)
             where T : Expression
         {
             Check.NotNull(items, nameof(items));
@@ -120,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This printer so additional calls can be chained. </returns>
-        public virtual ExpressionVisitor AppendLine([NotNull] string value)
+        public virtual ExpressionVisitor AppendLine(string value)
         {
             _stringBuilder.AppendLine(value);
             return this;
@@ -132,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="value"> The string to append. </param>
         /// <param name="skipFinalNewline"> If true, then a terminating new line is not added. </param>
         /// <returns> This printer so additional calls can be chained. </returns>
-        public virtual ExpressionPrinter AppendLines([NotNull] string value, bool skipFinalNewline = false)
+        public virtual ExpressionPrinter AppendLines(string value, bool skipFinalNewline = false)
         {
             _stringBuilder.AppendLines(value, skipFinalNewline);
             return this;
@@ -150,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This printer so additional calls can be chained. </returns>
-        public virtual ExpressionPrinter Append([NotNull] string value)
+        public virtual ExpressionPrinter Append(string value)
         {
             _stringBuilder.Append(value);
             return this;
@@ -163,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="characterLimit"> An optional limit to the number of characters included. Additional output will be truncated. </param>
         /// <returns> The printable representation. </returns>
         public virtual string Print(
-            [NotNull] Expression expression,
+            Expression expression,
             int? characterLimit = null)
             => PrintCore(expression, characterLimit, verbose: false);
 
@@ -173,11 +172,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="expression"> The expression to print. </param>
         /// <returns> The printable representation. </returns>
         public virtual string PrintDebug(
-            [NotNull] Expression expression)
+            Expression expression)
             => PrintCore(expression, characterLimit: null, verbose: true);
 
         private string PrintCore(
-            [NotNull] Expression expression,
+            Expression expression,
             int? characterLimit,
             bool verbose)
         {
@@ -217,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        [return: CA.NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
         {
             if (expression == null)
@@ -1092,7 +1091,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private string PostProcess([NotNull] string printedExpression)
+        private string PostProcess(string printedExpression)
         {
             var processedPrintedExpression = printedExpression
                 .Replace("Microsoft.EntityFrameworkCore.Query.", "")

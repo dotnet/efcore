@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -30,14 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="memberName"> The name of the member to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The ignored member name. </returns>
-        string? AddIgnored([NotNull] string memberName, bool fromDataAnnotation = false);
+        string? AddIgnored(string memberName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the ignored member name.
         /// </summary>
         /// <param name="memberName"> The name of the member to be removed. </param>
         /// <returns> The removed ignored member name. </returns>
-        string? RemoveIgnored([NotNull] string memberName);
+        string? RemoveIgnored(string memberName);
 
         /// <summary>
         ///     Indicates whether the given member name is ignored.
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The configuration source if the given member name is ignored,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        ConfigurationSource? FindIgnoredConfigurationSource([NotNull] string memberName);
+        ConfigurationSource? FindIgnoredConfigurationSource(string memberName);
 
         /// <summary>
         ///     Gets all the ignored members.
@@ -60,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="memberName"> The name of the member that might be ignored. </param>
         /// <returns> <see langword="true" /> if the given member name is ignored. </returns>
-        bool IsIgnored([NotNull] string memberName)
+        bool IsIgnored(string memberName)
             => FindIgnoredConfigurationSource(memberName) != null;
 
         /// <summary>

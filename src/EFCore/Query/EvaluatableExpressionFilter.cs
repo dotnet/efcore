@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
         public EvaluatableExpressionFilter(
-            [NotNull] EvaluatableExpressionFilterDependencies dependencies)
+            EvaluatableExpressionFilterDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

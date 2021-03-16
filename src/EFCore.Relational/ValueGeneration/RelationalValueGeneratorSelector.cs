@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     Initializes a new instance of the <see cref="RelationalValueGeneratorSelector" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public RelationalValueGeneratorSelector([NotNull] ValueGeneratorSelectorDependencies dependencies)
+        public RelationalValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
             : base(dependencies)
         {
         }

@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        public static IConventionNavigation? FindDefiningNavigation([NotNull] this IConventionEntityType entityType)
+        public static IConventionNavigation? FindDefiningNavigation(this IConventionEntityType entityType)
             => (IConventionNavigation?)((IEntityType)entityType).FindDefiningNavigation();
 
         /// <summary>
@@ -33,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [Obsolete("Use InMemoryEntityTypeExtensions.SetInMemoryQuery")]
         public static void SetDefiningQuery(
-            [NotNull] this IConventionEntityType entityType,
-            [CanBeNull] LambdaExpression? definingQuery,
+            this IConventionEntityType entityType,
+            LambdaExpression? definingQuery,
             bool fromDataAnnotation = false)
             => ((EntityType)entityType).SetDefiningQuery(
                     definingQuery,
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for <see cref="EntityTypeExtensions.GetDefiningQuery" />. </returns>
         [Obsolete("Use InMemoryEntityTypeExtensions.GetInMemoryQueryConfigurationSource")]
-        public static ConfigurationSource? GetDefiningQueryConfigurationSource([NotNull] this IConventionEntityType entityType)
+        public static ConfigurationSource? GetDefiningQueryConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DefiningQuery)?.GetConfigurationSource();
     }
 }

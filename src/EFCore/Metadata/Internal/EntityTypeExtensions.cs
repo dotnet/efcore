@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string DisplayName([NotNull] this TypeBase entityType)
+        public static string DisplayName(this TypeBase entityType)
             => ((IReadOnlyTypeBase)entityType).DisplayName();
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string ShortName([NotNull] this TypeBase entityType)
+        public static string ShortName(this TypeBase entityType)
             => ((IReadOnlyTypeBase)entityType).ShortName();
 
         /// <summary>
@@ -49,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static MemberInfo GetNavigationMemberInfo(
-            [NotNull] this IReadOnlyEntityType entityType,
-            [NotNull] string navigationName)
+            this IReadOnlyEntityType entityType,
+            string navigationName)
         {
             var memberInfo = entityType.ClrType.GetMembersInHierarchy(navigationName).FirstOrDefault();
 
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsOwned([NotNull] this IReadOnlyEntityType entityType)
+        public static bool IsOwned(this IReadOnlyEntityType entityType)
             => entityType.IsOwned();
 
         /// <summary>
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyForeignKey? FindDeclaredOwnership([NotNull] this IReadOnlyEntityType entityType)
+        public static IReadOnlyForeignKey? FindDeclaredOwnership(this IReadOnlyEntityType entityType)
             => entityType.GetDeclaredForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
 
         /// <summary>
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyEntityType? FindInOwnershipPath([NotNull] this IReadOnlyEntityType entityType, [NotNull] Type targetType)
+        public static IReadOnlyEntityType? FindInOwnershipPath(this IReadOnlyEntityType entityType, Type targetType)
         {
             if (entityType.ClrType == targetType)
             {
@@ -116,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsInOwnershipPath([NotNull] this IReadOnlyEntityType entityType, [NotNull] Type targetType)
+        public static bool IsInOwnershipPath(this IReadOnlyEntityType entityType, Type targetType)
             => entityType.FindInOwnershipPath(targetType) != null;
 
         /// <summary>
@@ -126,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public static string GetOwnedName([NotNull] this IReadOnlyTypeBase type, [NotNull] string simpleName, [NotNull] string ownershipNavigation)
+        public static string GetOwnedName(this IReadOnlyTypeBase type, string simpleName, string ownershipNavigation)
             => type.Name + "." + ownershipNavigation + "#" + simpleName;
 
         /// <summary>
@@ -135,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool UseEagerSnapshots([NotNull] this IReadOnlyEntityType entityType)
+        public static bool UseEagerSnapshots(this IReadOnlyEntityType entityType)
         {
             var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
 
@@ -149,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int StoreGeneratedCount([NotNull] this IEntityType entityType)
+        public static int StoreGeneratedCount(this IEntityType entityType)
             => GetCounts(entityType).StoreGeneratedCount;
 
         /// <summary>
@@ -158,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int RelationshipPropertyCount([NotNull] this IEntityType entityType)
+        public static int RelationshipPropertyCount(this IEntityType entityType)
             => GetCounts(entityType).RelationshipCount;
 
         /// <summary>
@@ -167,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int OriginalValueCount([NotNull] this IEntityType entityType)
+        public static int OriginalValueCount(this IEntityType entityType)
             => GetCounts(entityType).OriginalValueCount;
 
         /// <summary>
@@ -176,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int ShadowPropertyCount([NotNull] this IEntityType entityType)
+        public static int ShadowPropertyCount(this IEntityType entityType)
             => GetCounts(entityType).ShadowCount;
 
         /// <summary>
@@ -185,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int NavigationCount([NotNull] this IEntityType entityType)
+        public static int NavigationCount(this IEntityType entityType)
             => GetCounts(entityType).NavigationCount;
 
         /// <summary>
@@ -194,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int PropertyCount([NotNull] this IEntityType entityType)
+        public static int PropertyCount(this IEntityType entityType)
             => GetCounts(entityType).PropertyCount;
 
         /// <summary>
@@ -203,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyCounts GetCounts([NotNull] this IEntityType entityType)
+        public static PropertyCounts GetCounts(this IEntityType entityType)
             => ((IRuntimeEntityType)entityType).Counts;
 
         /// <summary>
@@ -212,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyCounts CalculateCounts([NotNull] this IRuntimeEntityType entityType)
+        public static PropertyCounts CalculateCounts(this IRuntimeEntityType entityType)
         {
             var index = 0;
             var navigationIndex = 0;
@@ -286,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Func<MaterializationContext, object> GetInstanceFactory([NotNull] this IEntityType entityType)
+        public static Func<MaterializationContext, object> GetInstanceFactory(this IEntityType entityType)
             => ((IRuntimeEntityType)entityType).InstanceFactory;
 
         /// <summary>
@@ -295,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Func<ISnapshot> GetEmptyShadowValuesFactory([NotNull] this IEntityType entityType)
+        public static Func<ISnapshot> GetEmptyShadowValuesFactory(this IEntityType entityType)
             => ((IRuntimeEntityType)entityType).EmptyShadowValuesFactory;
 
         /// <summary>
@@ -304,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static EntityType? LeastDerivedType([NotNull] this EntityType entityType, [NotNull] EntityType otherEntityType)
+        public static EntityType? LeastDerivedType(this EntityType entityType, EntityType otherEntityType)
             => (EntityType?)((IReadOnlyEntityType)entityType).LeastDerivedType(otherEntityType);
 
         /// <summary>
@@ -313,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsAssignableFrom([NotNull] this EntityType entityType, [NotNull] IReadOnlyEntityType otherEntityType)
+        public static bool IsAssignableFrom(this EntityType entityType, IReadOnlyEntityType otherEntityType)
             => ((IReadOnlyEntityType)entityType).IsAssignableFrom(otherEntityType);
 
         /// <summary>
@@ -322,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsStrictlyDerivedFrom([NotNull] this EntityType entityType, [NotNull] IReadOnlyEntityType otherEntityType)
+        public static bool IsStrictlyDerivedFrom(this EntityType entityType, IReadOnlyEntityType otherEntityType)
             => ((IReadOnlyEntityType)entityType).IsStrictlyDerivedFrom(otherEntityType);
 
         /// <summary>
@@ -331,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static object? GetDiscriminatorValue([NotNull] this EntityType entityType)
+        public static object? GetDiscriminatorValue(this EntityType entityType)
             => ((IReadOnlyEntityType)entityType).GetDiscriminatorValue();
 
         /// <summary>
@@ -340,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyKey? FindDeclaredPrimaryKey([NotNull] this IReadOnlyEntityType entityType)
+        public static IReadOnlyKey? FindDeclaredPrimaryKey(this IReadOnlyEntityType entityType)
             => entityType.BaseType == null ? entityType.FindPrimaryKey() : null;
 
         /// <summary>
@@ -350,8 +349,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IReadOnlyNavigation> FindDerivedNavigations(
-            [NotNull] this IReadOnlyEntityType entityType,
-            [NotNull] string navigationName)
+            this IReadOnlyEntityType entityType,
+            string navigationName)
             => entityType.GetDerivedNavigations().Where(navigation => navigationName == navigation.Name);
 
         /// <summary>
@@ -361,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IPropertyBase> GetPropertiesAndNavigations(
-            [NotNull] this IEntityType entityType)
+            this IEntityType entityType)
             => entityType.GetProperties().Concat<IPropertyBase>(entityType.GetNavigations());
 
         /// <summary>
@@ -371,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IProperty CheckPropertyBelongsToType(
-            [NotNull] this IEntityType entityType, [NotNull] IProperty property)
+            this IEntityType entityType, IProperty property)
         {
             Check.NotNull(property, nameof(property));
 

@@ -19,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="language"> The project's language. </param>
         /// <returns> The scaffolded migration. </returns>
         ScaffoldedMigration ScaffoldMigration(
-            [NotNull] string migrationName,
-            [CanBeNull] string? rootNamespace,
-            [CanBeNull] string? subNamespace = null,
-            [CanBeNull] string? language = null);
+            string migrationName,
+            string? rootNamespace,
+            string? subNamespace = null,
+            string? language = null);
 
         /// <summary>
         ///     Removes the previous migration.
@@ -33,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="language"> The project's language. </param>
         /// <returns> The removed migration files. </returns>
         MigrationFiles RemoveMigration(
-            [NotNull] string projectDir,
-            [CanBeNull] string? rootNamespace,
+            string projectDir,
+            string? rootNamespace,
             bool force,
-            [CanBeNull] string? language);
+            string? language);
 
         /// <summary>
         ///     Saves a scaffolded migration to files.
@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="outputDir"> The directory to put files in. Paths are relative to the project directory. </param>
         /// <returns> The saved migrations files. </returns>
         MigrationFiles Save(
-            [NotNull] string projectDir,
-            [NotNull] ScaffoldedMigration migration,
-            [CanBeNull] string? outputDir);
+            string projectDir,
+            ScaffoldedMigration migration,
+            string? outputDir);
     }
 }

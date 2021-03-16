@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value"> The discriminator value. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        IConventionDiscriminatorBuilder? HasValue([CanBeNull] object? value, bool fromDataAnnotation = false);
+        IConventionDiscriminatorBuilder? HasValue(object? value, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given type.
@@ -48,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         IConventionDiscriminatorBuilder? HasValue(
-            [NotNull] IConventionEntityType entityType,
-            [CanBeNull] object? value,
+            IConventionEntityType entityType,
+            object? value,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value"> The discriminator value. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the discriminator value can be set from this configuration source. </returns>
-        bool CanSetValue([CanBeNull] object? value, bool fromDataAnnotation = false);
+        bool CanSetValue(object? value, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the discriminator value can be set from this configuration source.
@@ -67,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value"> The discriminator value. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the discriminator value can be set from this configuration source. </returns>
-        bool CanSetValue([NotNull] IConventionEntityType entityType, [CanBeNull] object? value, bool fromDataAnnotation = false)
+        bool CanSetValue(IConventionEntityType entityType, object? value, bool fromDataAnnotation = false)
         {
             if (!EntityType.IsAssignableFrom(entityType)
                 && !entityType.Builder.CanSetBaseType(EntityType, fromDataAnnotation))

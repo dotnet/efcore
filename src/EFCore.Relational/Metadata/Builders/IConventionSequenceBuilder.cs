@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionSequenceBuilder? HasType([CanBeNull] Type? type, bool fromDataAnnotation = false);
+        IConventionSequenceBuilder? HasType(Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given type can be set for the sequence.
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="type"> The type of values returned by the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given type can be set for the sequence. </returns>
-        bool CanSetType([CanBeNull] Type? type, bool fromDataAnnotation = false);
+        bool CanSetType(Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the sequence to increment by the given amount when generating each next value.

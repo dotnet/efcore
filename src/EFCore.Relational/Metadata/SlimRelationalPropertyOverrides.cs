@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public SlimRelationalPropertyOverrides(
-            [NotNull] SlimProperty property,
-            [CanBeNull] string? columnName,
+            SlimProperty property,
+            string? columnName,
             bool columnNameOverriden)
         {
             Property = property;

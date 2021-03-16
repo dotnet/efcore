@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -67,14 +66,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the entity to be added. </param>
         /// <returns> The new entity type. </returns>
-        IMutableEntityType AddEntityType([NotNull] string name);
+        IMutableEntityType AddEntityType(string name);
 
         /// <summary>
         ///     Adds an entity type to the model.
         /// </summary>
         /// <param name="type"> The CLR class that is used to represent instances of the entity type. </param>
         /// <returns> The new entity type. </returns>
-        IMutableEntityType AddEntityType([NotNull] Type type);
+        IMutableEntityType AddEntityType(Type type);
 
         /// <summary>
         ///     <para>
@@ -88,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the entity to be added. </param>
         /// <param name="type"> The CLR class that is used to represent instances of the entity type. </param>
         /// <returns> The new entity type. </returns>
-        IMutableEntityType AddEntityType([NotNull] string name, [NotNull] Type type);
+        IMutableEntityType AddEntityType(string name, Type type);
 
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
@@ -98,9 +97,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The new entity type. </returns>
         IMutableEntityType AddEntityType(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] IMutableEntityType definingEntityType);
+            string name,
+            string definingNavigationName,
+            IMutableEntityType definingEntityType);
 
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
@@ -110,9 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The new entity type. </returns>
         IMutableEntityType AddEntityType(
-            [NotNull] Type type,
-            [NotNull] string definingNavigationName,
-            [NotNull] IMutableEntityType definingEntityType);
+            Type type,
+            string definingNavigationName,
+            IMutableEntityType definingEntityType);
 
         /// <summary>
         ///     Gets the entity with the given name. Returns <see langword="null" /> if no entity type with the given name is found
@@ -121,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
-        new IMutableEntityType? FindEntityType([NotNull] string name);
+        new IMutableEntityType? FindEntityType(string name);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
@@ -132,9 +131,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         IMutableEntityType? FindEntityType(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] IMutableEntityType definingEntityType);
+            string name,
+            string definingNavigationName,
+            IMutableEntityType definingEntityType);
 
         /// <summary>
         ///     Gets the entity that maps the given entity class. Returns <see langword="null" /> if no entity type with
@@ -143,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
-        new IMutableEntityType? FindEntityType([NotNull] Type type)
+        new IMutableEntityType? FindEntityType(Type type)
             => (IMutableEntityType?)((IReadOnlyModel)this).FindEntityType(type);
 
         /// <summary>
@@ -155,9 +154,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         IMutableEntityType? FindEntityType(
-            [NotNull] Type type,
-            [NotNull] string definingNavigationName,
-            [NotNull] IMutableEntityType definingEntityType)
+            Type type,
+            string definingNavigationName,
+            IMutableEntityType definingEntityType)
             => (IMutableEntityType?)((IReadOnlyModel)this).FindEntityType(type, definingNavigationName, definingEntityType);
 
         /// <summary>
@@ -165,14 +164,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> The entity type to be removed. </param>
         /// <returns> The removed entity type, or <see langword="null" /> if the entity type was not found. </returns>
-        IMutableEntityType? RemoveEntityType([NotNull] IMutableEntityType entityType);
+        IMutableEntityType? RemoveEntityType(IMutableEntityType entityType);
 
         /// <summary>
         ///     Removes an entity type from the model.
         /// </summary>
         /// <param name="type"> The entity type to be removed. </param>
         /// <returns> The entity type that was removed. </returns>
-        IMutableEntityType? RemoveEntityType([NotNull] Type type);
+        IMutableEntityType? RemoveEntityType(Type type);
 
         /// <summary>
         ///     Removes an entity type with the given type, defining navigation name
@@ -183,16 +182,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
         IMutableEntityType? RemoveEntityType(
-            [NotNull] Type type,
-            [NotNull] string definingNavigationName,
-            [NotNull] IMutableEntityType definingEntityType);
+            Type type,
+            string definingNavigationName,
+            IMutableEntityType definingEntityType);
 
         /// <summary>
         ///     Removes an entity type without a defining navigation from the model.
         /// </summary>
         /// <param name="name"> The name of the entity type to be removed. </param>
         /// <returns> The entity type that was removed. </returns>
-        IMutableEntityType? RemoveEntityType([NotNull] string name);
+        IMutableEntityType? RemoveEntityType(string name);
 
         /// <summary>
         ///     Removes an entity type with the given type, defining navigation name
@@ -203,9 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
         IMutableEntityType? RemoveEntityType(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] IMutableEntityType definingEntityType);
+            string name,
+            string definingNavigationName,
+            IMutableEntityType definingEntityType);
 
         /// <summary>
         ///     Gets all entity types defined in the model.
@@ -218,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
-        new IEnumerable<IMutableEntityType> FindEntityTypes([NotNull] Type type)
+        new IEnumerable<IMutableEntityType> FindEntityTypes(Type type)
             => ((IReadOnlyModel)this).FindEntityTypes(type).Cast<IMutableEntityType>();
 
         /// <summary>
@@ -228,8 +227,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="condition"> An optional condition for filtering entity types. </param>
         /// <returns> List of entity types corresponding to the least derived types from the given one. </returns>
         new IEnumerable<IMutableEntityType> FindLeastDerivedEntityTypes(
-            [NotNull] Type type,
-            [CanBeNull] Func<IReadOnlyEntityType, bool>? condition = null)
+            Type type,
+            Func<IReadOnlyEntityType, bool>? condition = null)
             => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition == null ? null : t => condition(t))
                 .Cast<IMutableEntityType>();
 
@@ -238,14 +237,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     should be configured as shared type entity type.
         /// </summary>
         /// <param name="type"> The type of the entity type that should be shared. </param>
-        void AddShared([NotNull] Type type);
+        void AddShared(Type type);
 
         /// <summary>
         ///     Marks the given entity type as owned, indicating that when discovered matching entity types
         ///     should be configured as owned.
         /// </summary>
         /// <param name="type"> The type of the entity type that should be owned. </param>
-        void AddOwned([NotNull] Type type);
+        void AddOwned(Type type);
 
         /// <summary>
         ///     Removes the given owned type, indicating that when discovered matching entity types
@@ -253,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type of the entity type that should not be owned. </param>
         /// <returns> The name of the removed owned type. </returns>
-        string? RemoveOwned([NotNull] Type type);
+        string? RemoveOwned(Type type);
 
         /// <summary>
         ///     Returns a value indicating whether the entity types using the given type should be configured
@@ -264,49 +263,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <see langword="true" /> if a matching entity type should be configured as owned when discovered,
         ///     <see langword="false" /> otherwise.
         /// </returns>
-        bool IsOwned([NotNull] Type type);
+        bool IsOwned(Type type);
 
         /// <summary>
         ///     Marks the given entity type name as ignored, preventing conventions from adding a matching entity type to the model.
         /// </summary>
         /// <param name="typeName"> The name of the entity type to be ignored. </param>
         /// <returns> The name of the ignored type. </returns>
-        string AddIgnored([NotNull] string typeName);
+        string AddIgnored(string typeName);
 
         /// <summary>
         ///     Marks the given entity type as ignored, preventing conventions from adding a matching entity type to the model.
         /// </summary>
         /// <param name="type"> The entity type to be ignored. </param>
         /// <returns> The name of the ignored type. </returns>
-        string AddIgnored([NotNull] Type type);
+        string AddIgnored(Type type);
 
         /// <summary>
         ///     Removes the ignored entity type name.
         /// </summary>
         /// <param name="typeName"> The name of the ignored entity type to be removed. </param>
         /// <returns> The removed ignored type name. </returns>
-        string? RemoveIgnored([NotNull] string typeName);
+        string? RemoveIgnored(string typeName);
 
         /// <summary>
         ///     Removes the ignored entity type.
         /// </summary>
         /// <param name="type"> The ignored entity type to be removed. </param>
         /// <returns> The name of the removed ignored type. </returns>
-        string? RemoveIgnored([NotNull] Type type);
+        string? RemoveIgnored(Type type);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.
         /// </summary>
         /// <param name="typeName"> The name of the entity type that might be ignored. </param>
         /// <returns> <see langword="true" /> if the given entity type name is ignored. </returns>
-        bool IsIgnored([NotNull] string typeName);
+        bool IsIgnored(string typeName);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.
         /// </summary>
         /// <param name="type"> The entity type that might be ignored. </param>
         /// <returns> <see langword="true" /> if the given entity type name is ignored. </returns>
-        bool IsIgnored([NotNull] Type type);
+        bool IsIgnored(Type type);
 
         /// <summary>
         ///     Forces post-processing on the model such that it is ready for use by the runtime. This post-

@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <typeparam name="TExtension"> The type of extension to be added. </typeparam>
         /// <param name="extension"> The extension to be added. </param>
-        void AddOrUpdateExtension<TExtension>([NotNull] TExtension extension)
+        void AddOrUpdateExtension<TExtension>(TExtension extension)
             where TExtension : class, IDbContextOptionsExtension;
     }
 }

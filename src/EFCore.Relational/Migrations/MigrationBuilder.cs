@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Creates a new instance of the builder.
         /// </summary>
         /// <param name="activeProvider"> The name of the database provider being used. </param>
-        public MigrationBuilder([CanBeNull] string? activeProvider)
+        public MigrationBuilder(string? activeProvider)
         {
             ActiveProvider = activeProvider;
         }
@@ -71,20 +70,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="stored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddColumnOperation> AddColumn<T>(
-            [NotNull] string name,
-            [NotNull] string table,
-            [CanBeNull] string? type = null,
+            string name,
+            string table,
+            string? type = null,
             bool? unicode = null,
             int? maxLength = null,
             bool rowVersion = false,
-            [CanBeNull] string? schema = null,
+            string? schema = null,
             bool nullable = false,
-            [CanBeNull] object? defaultValue = null,
-            [CanBeNull] string? defaultValueSql = null,
-            [CanBeNull] string? computedColumnSql = null,
+            object? defaultValue = null,
+            string? defaultValueSql = null,
+            string? computedColumnSql = null,
             bool? fixedLength = null,
-            [CanBeNull] string? comment = null,
-            [CanBeNull] string? collation = null,
+            string? comment = null,
+            string? collation = null,
             int? precision = null,
             int? scale = null,
             bool? stored = null)
@@ -137,13 +136,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="onDelete"> The action to take on deletes. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddForeignKeyOperation> AddForeignKey(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string column,
-            [NotNull] string principalTable,
-            [CanBeNull] string? schema = null,
-            [CanBeNull] string? principalSchema = null,
-            [CanBeNull] string? principalColumn = null,
+            string name,
+            string table,
+            string column,
+            string principalTable,
+            string? schema = null,
+            string? principalSchema = null,
+            string? principalColumn = null,
             ReferentialAction onUpdate = ReferentialAction.NoAction,
             ReferentialAction onDelete = ReferentialAction.NoAction)
             => AddForeignKey(
@@ -176,13 +175,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="onDelete"> The action to take on deletes. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddForeignKeyOperation> AddForeignKey(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string[] columns,
-            [NotNull] string principalTable,
-            [CanBeNull] string? schema = null,
-            [CanBeNull] string? principalSchema = null,
-            [CanBeNull] string[]? principalColumns = null,
+            string name,
+            string table,
+            string[] columns,
+            string principalTable,
+            string? schema = null,
+            string? principalSchema = null,
+            string[]? principalColumns = null,
             ReferentialAction onUpdate = ReferentialAction.NoAction,
             ReferentialAction onDelete = ReferentialAction.NoAction)
         {
@@ -217,10 +216,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddPrimaryKeyOperation> AddPrimaryKey(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string column,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string column,
+            string? schema = null)
             => AddPrimaryKey(
                 name,
                 table,
@@ -236,10 +235,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddPrimaryKeyOperation> AddPrimaryKey(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string[] columns,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string[] columns,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -266,10 +265,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddUniqueConstraintOperation> AddUniqueConstraint(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string column,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string column,
+            string? schema = null)
             => AddUniqueConstraint(
                 name,
                 table,
@@ -285,10 +284,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddUniqueConstraintOperation> AddUniqueConstraint(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string[] columns,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string[] columns,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -386,32 +385,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldStored"> Whether the value of the previous computed column was stored in the database or not. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual AlterOperationBuilder<AlterColumnOperation> AlterColumn<T>(
-            [NotNull] string name,
-            [NotNull] string table,
-            [CanBeNull] string? type = null,
+            string name,
+            string table,
+            string? type = null,
             bool? unicode = null,
             int? maxLength = null,
             bool rowVersion = false,
-            [CanBeNull] string? schema = null,
+            string? schema = null,
             bool nullable = false,
-            [CanBeNull] object? defaultValue = null,
-            [CanBeNull] string? defaultValueSql = null,
-            [CanBeNull] string? computedColumnSql = null,
-            [CanBeNull] Type? oldClrType = null,
-            [CanBeNull] string? oldType = null,
+            object? defaultValue = null,
+            string? defaultValueSql = null,
+            string? computedColumnSql = null,
+            Type? oldClrType = null,
+            string? oldType = null,
             bool? oldUnicode = null,
             int? oldMaxLength = null,
             bool oldRowVersion = false,
             bool oldNullable = false,
-            [CanBeNull] object? oldDefaultValue = null,
-            [CanBeNull] string? oldDefaultValueSql = null,
-            [CanBeNull] string? oldComputedColumnSql = null,
+            object? oldDefaultValue = null,
+            string? oldDefaultValueSql = null,
+            string? oldComputedColumnSql = null,
             bool? fixedLength = null,
             bool? oldFixedLength = null,
-            [CanBeNull] string? comment = null,
-            [CanBeNull] string? oldComment = null,
-            [CanBeNull] string? collation = null,
-            [CanBeNull] string? oldCollation = null,
+            string? comment = null,
+            string? oldComment = null,
+            string? collation = null,
+            string? oldCollation = null,
             int? precision = null,
             int? oldPrecision = null,
             int? scale = null,
@@ -474,8 +473,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldCollation"> The previous collation to apply to the column. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual AlterOperationBuilder<AlterDatabaseOperation> AlterDatabase(
-            [CanBeNull] string? collation = null,
-            [CanBeNull] string? oldCollation = null)
+            string? collation = null,
+            string? oldCollation = null)
         {
             var operation = new AlterDatabaseOperation
             {
@@ -505,8 +504,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldCyclic"> Indicates whether or not the sequence would previously re-start when the maximum value is reached. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual AlterOperationBuilder<AlterSequenceOperation> AlterSequence(
-            [NotNull] string name,
-            [CanBeNull] string? schema = null,
+            string name,
+            string? schema = null,
             int incrementBy = 1,
             long? minValue = null,
             long? maxValue = null,
@@ -548,10 +547,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="oldComment"> The previous comment to associate with the table. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual AlterOperationBuilder<AlterTableOperation> AlterTable(
-            [NotNull] string name,
-            [CanBeNull] string? schema = null,
-            [CanBeNull] string? comment = null,
-            [CanBeNull] string? oldComment = null)
+            string name,
+            string? schema = null,
+            string? comment = null,
+            string? oldComment = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -578,12 +577,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="filter"> The filter to apply to the index, or <see langword="null" /> for no filter. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<CreateIndexOperation> CreateIndex(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string column,
-            [CanBeNull] string? schema = null,
+            string name,
+            string table,
+            string column,
+            string? schema = null,
             bool unique = false,
-            [CanBeNull] string? filter = null)
+            string? filter = null)
             => CreateIndex(
                 name,
                 table,
@@ -603,12 +602,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="filter"> The filter to apply to the index, or <see langword="null" /> for no filter. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<CreateIndexOperation> CreateIndex(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string[] columns,
-            [CanBeNull] string? schema = null,
+            string name,
+            string table,
+            string[] columns,
+            string? schema = null,
             bool unique = false,
-            [CanBeNull] string? filter = null)
+            string? filter = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -634,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="name"> The name of the schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<EnsureSchemaOperation> EnsureSchema(
-            [NotNull] string name)
+            string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -656,8 +655,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="cyclic"> Indicates whether or not the sequence will re-start when the maximum value is reached. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<CreateSequenceOperation> CreateSequence(
-            [NotNull] string name,
-            [CanBeNull] string? schema = null,
+            string name,
+            string? schema = null,
             long startValue = 1L,
             int incrementBy = 1,
             long? minValue = null,
@@ -678,8 +677,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="cyclic"> Indicates whether or not the sequence will re-start when the maximum value is reached. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<CreateSequenceOperation> CreateSequence<T>(
-            [NotNull] string name,
-            [CanBeNull] string? schema = null,
+            string name,
+            string? schema = null,
             long startValue = 1L,
             int incrementBy = 1,
             long? minValue = null,
@@ -719,10 +718,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual OperationBuilder<AddCheckConstraintOperation> CreateCheckConstraint(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string sql,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string sql,
+            string? schema = null)
             => AddCheckConstraint(name, table, sql, schema);
 
         /// <summary>
@@ -734,10 +733,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the check constraint, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<AddCheckConstraintOperation> AddCheckConstraint(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string sql,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string sql,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -768,11 +767,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="comment"> A comment to be applied to the table. </param>
         /// <returns> A <see cref="CreateTableBuilder{TColumns}" /> to allow further configuration to be chained. </returns>
         public virtual CreateTableBuilder<TColumns> CreateTable<TColumns>(
-            [NotNull] string name,
-            [NotNull] Func<ColumnsBuilder, TColumns> columns,
-            [CanBeNull] string? schema = null,
-            [CanBeNull] Action<CreateTableBuilder<TColumns>>? constraints = null,
-            [CanBeNull] string? comment = null)
+            string name,
+            Func<ColumnsBuilder, TColumns> columns,
+            string? schema = null,
+            Action<CreateTableBuilder<TColumns>>? constraints = null,
+            string? comment = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(columns, nameof(columns));
@@ -816,9 +815,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropColumnOperation> DropColumn(
-            [NotNull] string name,
-            [NotNull] string table,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -842,9 +841,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropForeignKeyOperation> DropForeignKey(
-            [NotNull] string name,
-            [NotNull] string table,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -868,9 +867,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropIndexOperation> DropIndex(
-            [NotNull] string name,
-            [CanBeNull] string? table = null,
-            [CanBeNull] string? schema = null)
+            string name,
+            string? table = null,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -893,9 +892,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropPrimaryKeyOperation> DropPrimaryKey(
-            [NotNull] string name,
-            [NotNull] string table,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -917,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="name"> The name of the schema to drop. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropSchemaOperation> DropSchema(
-            [NotNull] string name)
+            string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -934,8 +933,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropSequenceOperation> DropSequence(
-            [NotNull] string name,
-            [CanBeNull] string? schema = null)
+            string name,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -953,9 +952,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the check constraint, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropCheckConstraintOperation> DropCheckConstraint(
-            [NotNull] string name,
-            [NotNull] string table,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -977,8 +976,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropTableOperation> DropTable(
-            [NotNull] string name,
-            [CanBeNull] string? schema = null)
+            string name,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -996,9 +995,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropUniqueConstraintOperation> DropUniqueConstraint(
-            [NotNull] string name,
-            [NotNull] string table,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -1023,10 +1022,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<RenameColumnOperation> RenameColumn(
-            [NotNull] string name,
-            [NotNull] string table,
-            [NotNull] string newName,
-            [CanBeNull] string? schema = null)
+            string name,
+            string table,
+            string newName,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -1053,10 +1052,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<RenameIndexOperation> RenameIndex(
-            [NotNull] string name,
-            [NotNull] string newName,
-            [CanBeNull] string? table = null,
-            [CanBeNull] string? schema = null)
+            string name,
+            string newName,
+            string? table = null,
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(newName, nameof(newName));
@@ -1082,10 +1081,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="newSchema"> The new schema name or <see langword="null" /> if only the name has changed. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<RenameSequenceOperation> RenameSequence(
-            [NotNull] string name,
-            [CanBeNull] string? schema = null,
-            [CanBeNull] string? newName = null,
-            [CanBeNull] string? newSchema = null)
+            string name,
+            string? schema = null,
+            string? newName = null,
+            string? newSchema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -1110,10 +1109,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="newSchema"> The new schema name, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<RenameTableOperation> RenameTable(
-            [NotNull] string name,
-            [CanBeNull] string? schema = null,
-            [CanBeNull] string? newName = null,
-            [CanBeNull] string? newSchema = null)
+            string name,
+            string? schema = null,
+            string? newName = null,
+            string? newSchema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -1137,9 +1136,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<RestartSequenceOperation> RestartSequence(
-            [NotNull] string name,
+            string name,
             long startValue = 1L,
-            [CanBeNull] string? schema = null)
+            string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -1163,7 +1162,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<SqlOperation> Sql(
-            [NotNull] string sql,
+            string sql,
             bool suppressTransaction = false)
         {
             Check.NotEmpty(sql, nameof(sql));
@@ -1183,10 +1182,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<InsertDataOperation> InsertData(
-            [NotNull] string table,
-            [NotNull] string column,
-            [CanBeNull] object? value,
-            [CanBeNull] string? schema = null)
+            string table,
+            string column,
+            object? value,
+            string? schema = null)
             => InsertData(table, new[] { Check.NotEmpty(column, nameof(column)) }, new[] { value }, schema);
 
         /// <summary>
@@ -1199,11 +1198,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<InsertDataOperation> InsertData(
-            [NotNull] string table,
-            [NotNull] string column,
-            [NotNull] string columnType,
-            [CanBeNull] object? value,
-            [CanBeNull] string? schema = null)
+            string table,
+            string column,
+            string columnType,
+            object? value,
+            string? schema = null)
             => InsertData(
                 table,
                 new[] { Check.NotEmpty(column, nameof(column)) },
@@ -1219,10 +1218,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<InsertDataOperation> InsertData(
-            [NotNull] string table,
-            [NotNull] string[] columns,
-            [NotNull] object?[] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] columns,
+            object?[] values,
+            string? schema = null)
             => InsertData(table, columns, ToMultidimensionalArray(Check.NotNull(values, nameof(values))), schema);
 
         /// <summary>
@@ -1235,11 +1234,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<InsertDataOperation> InsertData(
-            [NotNull] string table,
-            [NotNull] string[] columns,
-            [NotNull] string[] columnTypes,
-            [NotNull] object?[] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] columns,
+            string[] columnTypes,
+            object?[] values,
+            string? schema = null)
             => InsertData(table, columns, columnTypes, ToMultidimensionalArray(Check.NotNull(values, nameof(values))), schema);
 
         /// <summary>
@@ -1251,10 +1250,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<InsertDataOperation> InsertData(
-            [NotNull] string table,
-            [NotNull] string column,
-            [NotNull] object[] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string column,
+            object[] values,
+            string? schema = null)
             => InsertDataInternal(
                 table,
                 new[] { Check.NotEmpty(column, nameof(column)) },
@@ -1272,11 +1271,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<InsertDataOperation> InsertData(
-            [NotNull] string table,
-            [NotNull] string column,
-            [NotNull] string columnType,
-            [NotNull] object[] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string column,
+            string columnType,
+            object[] values,
+            string? schema = null)
             => InsertDataInternal(
                 table,
                 new[] { Check.NotEmpty(column, nameof(column)) },
@@ -1296,10 +1295,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<InsertDataOperation> InsertData(
-            [NotNull] string table,
-            [NotNull] string[] columns,
-            [NotNull] object?[,] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] columns,
+            object?[,] values,
+            string? schema = null)
             => InsertDataInternal(table, columns, null, values, schema);
 
         /// <summary>
@@ -1315,11 +1314,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<InsertDataOperation> InsertData(
-            [NotNull] string table,
-            [NotNull] string[] columns,
-            [NotNull] string[] columnTypes,
-            [NotNull] object?[,] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] columns,
+            string[] columnTypes,
+            object?[,] values,
+            string? schema = null)
         {
             Check.NotEmpty(columnTypes, nameof(columnTypes));
 
@@ -1359,10 +1358,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DeleteDataOperation> DeleteData(
-            [NotNull] string table,
-            [NotNull] string keyColumn,
-            [CanBeNull] object? keyValue,
-            [CanBeNull] string? schema = null)
+            string table,
+            string keyColumn,
+            object? keyValue,
+            string? schema = null)
             => DeleteData(table, new[] { Check.NotNull(keyColumn, nameof(keyValue)) }, new[] { keyValue }, schema);
 
         /// <summary>
@@ -1377,11 +1376,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DeleteDataOperation> DeleteData(
-            [NotNull] string table,
-            [NotNull] string keyColumn,
-            [NotNull] string keyColumnType,
-            [CanBeNull] object? keyValue,
-            [CanBeNull] string? schema = null)
+            string table,
+            string keyColumn,
+            string keyColumnType,
+            object? keyValue,
+            string? schema = null)
             => DeleteData(
                 table,
                 new[] { Check.NotNull(keyColumn, nameof(keyValue)) },
@@ -1399,10 +1398,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DeleteDataOperation> DeleteData(
-            [NotNull] string table,
-            [NotNull] string[] keyColumns,
-            [NotNull] object?[] keyValues,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] keyColumns,
+            object?[] keyValues,
+            string? schema = null)
             => DeleteData(
                 table,
                 keyColumns,
@@ -1422,11 +1421,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DeleteDataOperation> DeleteData(
-            [NotNull] string table,
-            [NotNull] string[] keyColumns,
-            [NotNull] string[] keyColumnTypes,
-            [NotNull] object?[] keyValues,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] keyColumns,
+            string[] keyColumnTypes,
+            object?[] keyValues,
+            string? schema = null)
             => DeleteDataInternal(
                 table,
                 keyColumns,
@@ -1443,10 +1442,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DeleteDataOperation> DeleteData(
-            [NotNull] string table,
-            [NotNull] string keyColumn,
-            [NotNull] object[] keyValues,
-            [CanBeNull] string? schema = null)
+            string table,
+            string keyColumn,
+            object[] keyValues,
+            string? schema = null)
             => DeleteData(
                 table,
                 new[] { Check.NotEmpty(keyColumn, nameof(keyColumn)) },
@@ -1465,11 +1464,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DeleteDataOperation> DeleteData(
-            [NotNull] string table,
-            [NotNull] string keyColumn,
-            [NotNull] string keyColumnType,
-            [NotNull] object[] keyValues,
-            [CanBeNull] string? schema = null)
+            string table,
+            string keyColumn,
+            string keyColumnType,
+            object[] keyValues,
+            string? schema = null)
             => DeleteData(
                 table,
                 new[] { Check.NotEmpty(keyColumn, nameof(keyColumn)) },
@@ -1490,10 +1489,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DeleteDataOperation> DeleteData(
-            [NotNull] string table,
-            [NotNull] string[] keyColumns,
-            [NotNull] object?[,] keyValues,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] keyColumns,
+            object?[,] keyValues,
+            string? schema = null)
             => DeleteDataInternal(table, keyColumns, null, keyValues, schema);
 
         /// <summary>
@@ -1512,11 +1511,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DeleteDataOperation> DeleteData(
-            [NotNull] string table,
-            [NotNull] string[] keyColumns,
-            [NotNull] string[] keyColumnTypes,
-            [NotNull] object?[,] keyValues,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] keyColumns,
+            string[] keyColumnTypes,
+            object?[,] keyValues,
+            string? schema = null)
         {
             Check.NotEmpty(keyColumnTypes, nameof(keyColumnTypes));
 
@@ -1558,12 +1557,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
-            [NotNull] string table,
-            [NotNull] string keyColumn,
-            [CanBeNull] object? keyValue,
-            [NotNull] string column,
-            [CanBeNull] object? value,
-            [CanBeNull] string? schema = null)
+            string table,
+            string keyColumn,
+            object? keyValue,
+            string column,
+            object? value,
+            string? schema = null)
             => UpdateData(
                 table,
                 keyColumn,
@@ -1583,12 +1582,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
-            [NotNull] string table,
-            [NotNull] string keyColumn,
-            [CanBeNull] object? keyValue,
-            [NotNull] string[] columns,
-            [NotNull] object?[] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string keyColumn,
+            object? keyValue,
+            string[] columns,
+            object?[] values,
+            string? schema = null)
             => UpdateData(
                 table,
                 new[] { Check.NotEmpty(keyColumn, nameof(keyColumn)) },
@@ -1609,12 +1608,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
-            [NotNull] string table,
-            [NotNull] string[] keyColumns,
-            [NotNull] object[] keyValues,
-            [NotNull] string column,
-            [CanBeNull] object? value,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] keyColumns,
+            object[] keyValues,
+            string column,
+            object? value,
+            string? schema = null)
             => UpdateData(
                 table,
                 keyColumns,
@@ -1635,12 +1634,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
-            [NotNull] string table,
-            [NotNull] string[] keyColumns,
-            [NotNull] object?[] keyValues,
-            [NotNull] string[] columns,
-            [NotNull] object?[] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] keyColumns,
+            object?[] keyValues,
+            string[] columns,
+            object?[] values,
+            string? schema = null)
             => UpdateData(
                 table,
                 keyColumns,
@@ -1665,14 +1664,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
-            [NotNull] string table,
-            [NotNull] string[] keyColumns,
-            [NotNull] string[] keyColumnTypes,
-            [NotNull] object[] keyValues,
-            [NotNull] string[] columns,
-            [NotNull] string[] columnTypes,
-            [NotNull] object[] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] keyColumns,
+            string[] keyColumnTypes,
+            object[] keyValues,
+            string[] columns,
+            string[] columnTypes,
+            object[] values,
+            string? schema = null)
             => UpdateData(
                 table,
                 keyColumns,
@@ -1694,12 +1693,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
-            [NotNull] string table,
-            [NotNull] string keyColumn,
-            [NotNull] object[] keyValues,
-            [NotNull] string column,
-            [NotNull] object[] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string keyColumn,
+            object[] keyValues,
+            string column,
+            object[] values,
+            string? schema = null)
             => UpdateData(
                 table,
                 keyColumn,
@@ -1722,12 +1721,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
-            [NotNull] string table,
-            [NotNull] string keyColumn,
-            [NotNull] object[] keyValues,
-            [NotNull] string[] columns,
-            [NotNull] object?[,] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string keyColumn,
+            object[] keyValues,
+            string[] columns,
+            object?[,] values,
+            string? schema = null)
             => UpdateData(
                 table,
                 new[] { Check.NotEmpty(keyColumn, nameof(keyColumn)) },
@@ -1751,12 +1750,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
-            [NotNull] string table,
-            [NotNull] string[] keyColumns,
-            [NotNull] object[,] keyValues,
-            [NotNull] string column,
-            [NotNull] object[] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] keyColumns,
+            object[,] keyValues,
+            string column,
+            object[] values,
+            string? schema = null)
             => UpdateData(
                 table,
                 keyColumns,
@@ -1783,12 +1782,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
-            [NotNull] string table,
-            [NotNull] string[] keyColumns,
-            [NotNull] object?[,] keyValues,
-            [NotNull] string[] columns,
-            [NotNull] object?[,] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] keyColumns,
+            object?[,] keyValues,
+            string[] columns,
+            object?[,] values,
+            string? schema = null)
             => UpdateDataInternal(table, keyColumns, null, keyValues, columns, null, values, schema);
 
         /// <summary>
@@ -1813,14 +1812,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<UpdateDataOperation> UpdateData(
-            [NotNull] string table,
-            [NotNull] string[] keyColumns,
-            [NotNull] string[] keyColumnTypes,
-            [NotNull] object?[,] keyValues,
-            [NotNull] string[] columns,
-            [NotNull] string[] columnTypes,
-            [NotNull] object?[,] values,
-            [CanBeNull] string? schema = null)
+            string table,
+            string[] keyColumns,
+            string[] keyColumnTypes,
+            object?[,] keyValues,
+            string[] columns,
+            string[] columnTypes,
+            object?[,] values,
+            string? schema = null)
         {
             Check.NotEmpty(keyColumnTypes, nameof(keyColumnTypes));
             Check.NotEmpty(columnTypes, nameof(columnTypes));

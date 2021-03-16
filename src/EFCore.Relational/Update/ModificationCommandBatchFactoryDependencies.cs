@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -56,12 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         [EntityFrameworkInternal]
         public ModificationCommandBatchFactoryDependencies(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            IRelationalCommandBuilderFactory commandBuilderFactory,
+            ISqlGenerationHelper sqlGenerationHelper,
+            IUpdateSqlGenerator updateSqlGenerator,
+            IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            ICurrentDbContext currentContext,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
@@ -80,31 +79,31 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     A logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; init; }
 
         /// <summary>
         ///     The command builder factory.
         /// </summary>
-        public IRelationalCommandBuilderFactory CommandBuilderFactory { get; [param: NotNull] init; }
+        public IRelationalCommandBuilderFactory CommandBuilderFactory { get; init; }
 
         /// <summary>
         ///     The SQL generator helper.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; init; }
 
         /// <summary>
         ///     The update SQL generator.
         /// </summary>
-        public IUpdateSqlGenerator UpdateSqlGenerator { get; [param: NotNull] init; }
+        public IUpdateSqlGenerator UpdateSqlGenerator { get; init; }
 
         /// <summary>
         ///     The value buffer factory.
         /// </summary>
-        public IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; [param: NotNull] init; }
+        public IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
+        public ICurrentDbContext CurrentContext { get; init; }
     }
 }

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is clustered. </returns>
-        public static bool? IsClustered([NotNull] this IReadOnlyIndex index)
+        public static bool? IsClustered(this IReadOnlyIndex index)
             => (bool?)index[SqlServerAnnotationNames.Clustered];
 
         /// <summary>
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if the index is clustered. </returns>
-        public static bool? IsClustered([NotNull] this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+        public static bool? IsClustered(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
             if (annotation != null)
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
             return GetDefaultIsClustered(index, storeObject);
         }
 
-        private static bool? GetDefaultIsClustered([NotNull] IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+        private static bool? GetDefaultIsClustered(IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
             var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
             return sharedTableRootIndex?.IsClustered(storeObject);
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="value"> The value to set. </param>
         /// <param name="index"> The index. </param>
-        public static void SetIsClustered([NotNull] this IMutableIndex index, bool? value)
+        public static void SetIsClustered(this IMutableIndex index, bool? value)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Clustered,
                 value);
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static bool? SetIsClustered(
-            [NotNull] this IConventionIndex index,
+            this IConventionIndex index,
             bool? value,
             bool fromDataAnnotation = false)
         {
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for whether the index is clustered. </returns>
-        public static ConfigurationSource? GetIsClusteredConfigurationSource([NotNull] this IConventionIndex property)
+        public static ConfigurationSource? GetIsClusteredConfigurationSource(this IConventionIndex property)
             => property.FindAnnotation(SqlServerAnnotationNames.Clustered)?.GetConfigurationSource();
 
         /// <summary>
@@ -89,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The included property names, or <see langword="null" /> if they have not been specified. </returns>
-        public static IReadOnlyList<string>? GetIncludeProperties([NotNull] this IReadOnlyIndex index)
+        public static IReadOnlyList<string>? GetIncludeProperties(this IReadOnlyIndex index)
             => (string[]?)index[SqlServerAnnotationNames.Include];
 
         /// <summary>
@@ -97,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="properties"> The value to set. </param>
-        public static void SetIncludeProperties([NotNull] this IMutableIndex index, [NotNull] IReadOnlyList<string> properties)
+        public static void SetIncludeProperties(this IMutableIndex index, IReadOnlyList<string> properties)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.Include,
                 properties);
@@ -110,8 +109,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="properties"> The value to set. </param>
         /// <returns> The configured property names. </returns>
         public static IReadOnlyList<string>? SetIncludeProperties(
-            [NotNull] this IConventionIndex index,
-            [CanBeNull] IReadOnlyList<string>? properties,
+            this IConventionIndex index,
+            IReadOnlyList<string>? properties,
             bool fromDataAnnotation = false)
         {
             index.SetOrRemoveAnnotation(
@@ -127,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the included property names. </returns>
-        public static ConfigurationSource? GetIncludePropertiesConfigurationSource([NotNull] this IConventionIndex index)
+        public static ConfigurationSource? GetIncludePropertiesConfigurationSource(this IConventionIndex index)
             => index.FindAnnotation(SqlServerAnnotationNames.Include)?.GetConfigurationSource();
 
         /// <summary>
@@ -135,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is online. </returns>
-        public static bool? IsCreatedOnline([NotNull] this IReadOnlyIndex index)
+        public static bool? IsCreatedOnline(this IReadOnlyIndex index)
             => (bool?)index[SqlServerAnnotationNames.CreatedOnline];
 
         /// <summary>
@@ -143,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="createdOnline"> The value to set. </param>
-        public static void SetIsCreatedOnline([NotNull] this IMutableIndex index, bool? createdOnline)
+        public static void SetIsCreatedOnline(this IMutableIndex index, bool? createdOnline)
             => index.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.CreatedOnline,
                 createdOnline);
@@ -156,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static bool? SetIsCreatedOnline(
-            [NotNull] this IConventionIndex index,
+            this IConventionIndex index,
             bool? createdOnline,
             bool fromDataAnnotation = false)
         {
@@ -173,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for whether the index is online. </returns>
-        public static ConfigurationSource? GetIsCreatedOnlineConfigurationSource([NotNull] this IConventionIndex index)
+        public static ConfigurationSource? GetIsCreatedOnlineConfigurationSource(this IConventionIndex index)
             => index.FindAnnotation(SqlServerAnnotationNames.CreatedOnline)?.GetConfigurationSource();
 
         /// <summary>
@@ -181,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is online. </returns>
-        public static int? GetFillFactor([NotNull] this IReadOnlyIndex index)
+        public static int? GetFillFactor(this IReadOnlyIndex index)
             => (int?)index[SqlServerAnnotationNames.FillFactor];
 
         /// <summary>
@@ -189,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <param name="fillFactor"> The value to set. </param>
-        public static void SetFillFactor([NotNull] this IMutableIndex index, int? fillFactor)
+        public static void SetFillFactor(this IMutableIndex index, int? fillFactor)
         {
             if (fillFactor != null && (fillFactor <= 0 || fillFactor > 100))
             {
@@ -209,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static int? SetFillFactor(
-            [NotNull] this IConventionIndex index,
+            this IConventionIndex index,
             int? fillFactor,
             bool fromDataAnnotation = false)
         {
@@ -231,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for whether the index uses the fill factor. </returns>
-        public static ConfigurationSource? GetFillFactorConfigurationSource([NotNull] this IConventionIndex index)
+        public static ConfigurationSource? GetFillFactorConfigurationSource(this IConventionIndex index)
             => index.FindAnnotation(SqlServerAnnotationNames.FillFactor)?.GetConfigurationSource();
     }
 }

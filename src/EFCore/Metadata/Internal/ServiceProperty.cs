@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -33,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ServiceProperty(
-            [NotNull] string name,
-            [CanBeNull] PropertyInfo? propertyInfo,
-            [CanBeNull] FieldInfo? fieldInfo,
-            [NotNull] EntityType declaringEntityType,
+            string name,
+            PropertyInfo? propertyInfo,
+            FieldInfo? fieldInfo,
+            EntityType declaringEntityType,
             ConfigurationSource configurationSource)
             : base(name, propertyInfo, fieldInfo, configurationSource)
         {
@@ -133,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ServiceParameterBinding? SetParameterBinding(
-            [CanBeNull] ServiceParameterBinding? parameterBinding,
+            ServiceParameterBinding? parameterBinding,
             ConfigurationSource configurationSource)
         {
             EnsureMutable();

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="InversePropertyAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public InversePropertyAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public InversePropertyAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -475,9 +474,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     <see langword="true" /> if the given navigation has ambiguous inverse navigations with <see cref="InversePropertyAttribute" />.
         /// </returns>
         public static bool IsAmbiguous(
-            [NotNull] IConventionEntityType entityType,
-            [NotNull] MemberInfo navigation,
-            [NotNull] IConventionEntityType targetEntityType)
+            IConventionEntityType entityType,
+            MemberInfo navigation,
+            IConventionEntityType targetEntityType)
         {
             if (!Attribute.IsDefined(navigation, typeof(InversePropertyAttribute)))
             {

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -42,11 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosQueryableMethodTranslatingExpressionVisitor(
-            [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IMemberTranslatorProvider memberTranslatorProvider,
-            [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
+            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            QueryCompilationContext queryCompilationContext,
+            ISqlExpressionFactory sqlExpressionFactory,
+            IMemberTranslatorProvider memberTranslatorProvider,
+            IMethodCallTranslatorProvider methodCallTranslatorProvider)
             : base(dependencies, queryCompilationContext, subquery: false)
         {
             _queryCompilationContext = queryCompilationContext;
@@ -69,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected CosmosQueryableMethodTranslatingExpressionVisitor(
-            [NotNull] CosmosQueryableMethodTranslatingExpressionVisitor parentVisitor)
+            CosmosQueryableMethodTranslatingExpressionVisitor parentVisitor)
             : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
         {
             _queryCompilationContext = parentVisitor._queryCompilationContext;

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Creates a new <see cref="AffectedCountModificationCommandBatch" /> instance.
         /// </summary>
         /// <param name="dependencies"> Service dependencies. </param>
-        protected AffectedCountModificationCommandBatch([NotNull] ModificationCommandBatchFactoryDependencies dependencies)
+        protected AffectedCountModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -167,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandIndex"> The ordinal of the command being consumed. </param>
         /// <param name="reader"> The data reader. </param>
         /// <returns> The ordinal of the next command that must be consumed. </returns>
-        protected virtual int ConsumeResultSetWithPropagation(int commandIndex, [NotNull] RelationalDataReader reader)
+        protected virtual int ConsumeResultSetWithPropagation(int commandIndex, RelationalDataReader reader)
         {
             var rowsAffected = 0;
             do
@@ -212,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         protected virtual async Task<int> ConsumeResultSetWithPropagationAsync(
             int commandIndex,
-            [NotNull] RelationalDataReader reader,
+            RelationalDataReader reader,
             CancellationToken cancellationToken)
         {
             var rowsAffected = 0;
@@ -251,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandIndex"> The ordinal of the command being consumed. </param>
         /// <param name="reader"> The data reader. </param>
         /// <returns> The ordinal of the next command that must be consumed. </returns>
-        protected virtual int ConsumeResultSetWithoutPropagation(int commandIndex, [NotNull] RelationalDataReader reader)
+        protected virtual int ConsumeResultSetWithoutPropagation(int commandIndex, RelationalDataReader reader)
         {
             var expectedRowsAffected = 1;
             while (++commandIndex < CommandResultSet.Count
@@ -292,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         protected virtual async Task<int> ConsumeResultSetWithoutPropagationAsync(
             int commandIndex,
-            [NotNull] RelationalDataReader reader,
+            RelationalDataReader reader,
             CancellationToken cancellationToken)
         {
             var expectedRowsAffected = 1;

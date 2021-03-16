@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -24,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandCount"> The command count. </param>
         /// <param name="minBatchSize"> The minimum batch size. </param>
         public MinBatchSizeEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IEnumerable<IUpdateEntry> entries,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IEnumerable<IUpdateEntry> entries,
             int commandCount,
             int minBatchSize)
             : base(eventDefinition, messageGenerator, entries, commandCount)

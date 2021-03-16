@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -38,10 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SingleQueryingEnumerable(
-            [NotNull] RelationalQueryContext relationalQueryContext,
-            [NotNull] RelationalCommandCache relationalCommandCache,
-            [NotNull] Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
-            [NotNull] Type contextType,
+            RelationalQueryContext relationalQueryContext,
+            RelationalCommandCache relationalCommandCache,
+            Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, T> shaper,
+            Type contextType,
             bool standAloneStateManager,
             bool detailedErrorsEnabled,
             bool concurrencyDetectionEnabled)

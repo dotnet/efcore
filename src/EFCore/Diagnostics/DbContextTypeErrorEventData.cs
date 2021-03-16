@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="contextType"> The type of the current <see cref="DbContext" />. </param>
         /// <param name="exception"> The exception that triggered this event. </param>
         public DbContextTypeErrorEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] Type contextType,
-            [NotNull] Exception exception)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            Type contextType,
+            Exception exception)
             : base(eventDefinition, messageGenerator, contextType)
         {
             Exception = exception;

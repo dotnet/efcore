@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </summary>
         /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <returns> The generated value. </returns>
-        public new abstract TValue Next([NotNull] EntityEntry entry);
+        public new abstract TValue Next(EntityEntry entry);
 
         /// <summary>
         ///     Template method to be overridden by implementations to perform value generation.
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns> The generated value. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public new virtual ValueTask<TValue> NextAsync(
-            [NotNull] EntityEntry entry,
+            EntityEntry entry,
             CancellationToken cancellationToken = default)
             => new(Next(entry));
 

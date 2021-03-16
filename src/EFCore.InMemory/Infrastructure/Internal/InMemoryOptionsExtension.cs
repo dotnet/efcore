@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected InMemoryOptionsExtension([NotNull] InMemoryOptionsExtension copyFrom)
+        protected InMemoryOptionsExtension(InMemoryOptionsExtension copyFrom)
         {
             _storeName = copyFrom._storeName;
             _databaseRoot = copyFrom._databaseRoot;
@@ -88,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InMemoryOptionsExtension WithStoreName([NotNull] string storeName)
+        public virtual InMemoryOptionsExtension WithStoreName(string storeName)
         {
             var clone = Clone();
 
@@ -127,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InMemoryOptionsExtension WithDatabaseRoot([NotNull] InMemoryDatabaseRoot databaseRoot)
+        public virtual InMemoryOptionsExtension WithDatabaseRoot(InMemoryDatabaseRoot databaseRoot)
         {
             var clone = Clone();
 

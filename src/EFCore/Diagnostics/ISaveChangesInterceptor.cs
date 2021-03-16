@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult<int> SavingChanges(
-            [NotNull] DbContextEventData eventData,
+            DbContextEventData eventData,
             InterceptionResult<int> result);
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         int SavedChanges(
-            [NotNull] SaveChangesCompletedEventData eventData,
+            SaveChangesCompletedEventData eventData,
             int result);
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventData"> Contextual information about the failure. </param>
         void SaveChangesFailed(
-            [NotNull] DbContextErrorEventData eventData);
+            DbContextErrorEventData eventData);
 
         /// <summary>
         ///     Called at the start of <see cref="M:DbContext.SaveChangesAsync" />.
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult<int>> SavingChangesAsync(
-            [NotNull] DbContextEventData eventData,
+            DbContextEventData eventData,
             InterceptionResult<int> result,
             CancellationToken cancellationToken = default);
 
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<int> SavedChangesAsync(
-            [NotNull] SaveChangesCompletedEventData eventData,
+            SaveChangesCompletedEventData eventData,
             int result,
             CancellationToken cancellationToken = default);
 
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task SaveChangesFailedAsync(
-            [NotNull] DbContextErrorEventData eventData,
+            DbContextErrorEventData eventData,
             CancellationToken cancellationToken = default);
     }
 }

@@ -476,7 +476,7 @@ namespace System
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string DisplayName([NotNull] this Type type, bool fullName = true)
+        public static string DisplayName(this Type type, bool fullName = true)
         {
             var stringBuilder = new StringBuilder();
             ProcessType(stringBuilder, type, fullName);
@@ -569,7 +569,7 @@ namespace System
             builder.Append('>');
         }
 
-        public static IEnumerable<string> GetNamespaces([NotNull] this Type type)
+        public static IEnumerable<string> GetNamespaces(this Type type)
         {
             if (_builtInTypeNames.ContainsKey(type))
             {

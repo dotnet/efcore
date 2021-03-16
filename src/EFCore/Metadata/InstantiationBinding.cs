@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="parameterBindings"> The parameter bindings to use. </param>
         protected InstantiationBinding(
-            [NotNull] IReadOnlyList<ParameterBinding> parameterBindings)
+            IReadOnlyList<ParameterBinding> parameterBindings)
         {
             Check.NotNull(parameterBindings, nameof(parameterBindings));
 

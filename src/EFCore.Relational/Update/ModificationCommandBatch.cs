@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Update
@@ -34,13 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     <see langword="true" /> if the command was successfully added; <see langword="false" /> if there was no
         ///     room in the current batch to add the command and it must instead be added to a new batch.
         /// </returns>
-        public abstract bool AddCommand([NotNull] ModificationCommand modificationCommand);
+        public abstract bool AddCommand(ModificationCommand modificationCommand);
 
         /// <summary>
         ///     Sends insert/update/delete commands to the database.
         /// </summary>
         /// <param name="connection"> The database connection to use. </param>
-        public abstract void Execute([NotNull] IRelationalConnection connection);
+        public abstract void Execute(IRelationalConnection connection);
 
         /// <summary>
         ///     Sends insert/update/delete commands to the database.
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> A task that represents the asynchronous save operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public abstract Task ExecuteAsync(
-            [NotNull] IRelationalConnection connection,
+            IRelationalConnection connection,
             CancellationToken cancellationToken = default);
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public RelationalModel([NotNull] IModel model)
+        public RelationalModel(IModel model)
         {
             Model = model;
         }
@@ -120,8 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IModel Add(
-            [NotNull] IModel model,
-            [CanBeNull] IRelationalAnnotationProvider? relationalAnnotationProvider)
+            IModel model,
+            IRelationalAnnotationProvider? relationalAnnotationProvider)
         {
             model.AddRuntimeAnnotation(RelationalAnnotationNames.RelationalModel, Create(model, relationalAnnotationProvider));
             return model;
@@ -134,8 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IRelationalModel Create(
-            [NotNull] IModel model,
-            [CanBeNull] IRelationalAnnotationProvider? relationalAnnotationProvider)
+            IModel model,
+            IRelationalAnnotationProvider? relationalAnnotationProvider)
         {
             var databaseModel = new RelationalModel(model);
 

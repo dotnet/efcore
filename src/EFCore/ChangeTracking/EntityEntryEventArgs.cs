@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         [EntityFrameworkInternal]
         public EntityEntryEventArgs(
-            [NotNull] InternalEntityEntry internalEntityEntry)
+            InternalEntityEntry internalEntityEntry)
         {
             _internalEntityEntry = internalEntityEntry;
         }

@@ -7,7 +7,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -41,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="commandText"> The text of the command to be executed. </param>
         /// <param name="parameters"> Parameters for the command. </param>
         public RelationalCommand(
-            [NotNull] RelationalCommandBuilderDependencies dependencies,
-            [NotNull] string commandText,
-            [NotNull] IReadOnlyList<IRelationalParameter> parameters)
+            RelationalCommandBuilderDependencies dependencies,
+            string commandText,
+            IReadOnlyList<IRelationalParameter> parameters)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(commandText, nameof(commandText));

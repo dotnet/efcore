@@ -4,12 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -36,13 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public SlimSkipNavigation(
-            [NotNull] string name,
-            [NotNull] Type clrType,
-            [CanBeNull] PropertyInfo? propertyInfo,
-            [CanBeNull] FieldInfo? fieldInfo,
-            [NotNull] SlimEntityType declaringEntityType,
-            [NotNull] SlimEntityType targetEntityType,
-            [NotNull] SlimForeignKey foreignKey,
+            string name,
+            Type clrType,
+            PropertyInfo? propertyInfo,
+            FieldInfo? fieldInfo,
+            SlimEntityType declaringEntityType,
+            SlimEntityType targetEntityType,
+            SlimForeignKey foreignKey,
             bool collection,
             bool onDependent,
             PropertyAccessMode propertyAccessMode,
@@ -88,8 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the inverse navigation.
         /// </summary>
-        [CA.DisallowNull]
-        public virtual SlimSkipNavigation? Inverse { get; [param: NotNull] set; }
+        [DisallowNull]
+        public virtual SlimSkipNavigation? Inverse { get; set; }
 
         /// <summary>
         ///     Returns a string that represents the current object.

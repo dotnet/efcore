@@ -4,13 +4,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SimplePrincipalKeyValueFactory([NotNull] IProperty property)
+        public SimplePrincipalKeyValueFactory(IProperty property)
         {
             _property = property;
             _propertyAccessors = _property.GetPropertyAccessors();
@@ -125,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public bool Equals(TKey? x, TKey? y)
                 => _comparer.Equals(x, y);
 
-            public int GetHashCode([CA.DisallowNull] TKey obj)
+            public int GetHashCode([DisallowNull] TKey obj)
                 => _comparer.GetHashCode(obj);
         }
 

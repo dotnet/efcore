@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The list of all associated principal properties including the given property. </returns>
         [Obsolete("Use IReadOnlyProperty.GetPrincipals")]
-        public static IReadOnlyList<IProperty> FindPrincipals([NotNull] this IProperty property)
+        public static IReadOnlyList<IProperty> FindPrincipals(this IProperty property)
             => property.GetPrincipals();
 
         /// <summary>
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true" /> if the property is used as a foreign key, otherwise <see langword="false" />. </returns>
         [Obsolete("Use IReadOnlyProperty.IsForeignKey")]
-        public static bool IsForeignKey([NotNull] this IProperty property)
+        public static bool IsForeignKey(this IProperty property)
             => property.IsForeignKey();
 
         /// <summary>
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true" /> if the property is used as an index, otherwise <see langword="false" />. </returns>
         [Obsolete("Use IReadOnlyProperty.IsIndex")]
-        public static bool IsIndex([NotNull] this IProperty property)
+        public static bool IsIndex(this IProperty property)
             => property.IsIndex();
 
         /// <summary>
@@ -52,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true" /> if the property is used as an unique index, otherwise <see langword="false" />. </returns>
         [Obsolete("Use IReadOnlyProperty.IsUniqueIndex")]
-        public static bool IsUniqueIndex([NotNull] this IProperty property)
+        public static bool IsUniqueIndex(this IProperty property)
             => property.IsUniqueIndex();
 
         /// <summary>
@@ -61,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true" /> if the property is used as the primary key, otherwise <see langword="false" />. </returns>
         [Obsolete("Use IReadOnlyProperty.IsPrimaryKey")]
-        public static bool IsPrimaryKey([NotNull] this IProperty property)
+        public static bool IsPrimaryKey(this IProperty property)
             => property.IsPrimaryKey();
 
         /// <summary>
@@ -71,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to check. </param>
         /// <returns> <see langword="true" /> if the property is used as a key, otherwise <see langword="false" />. </returns>
         [Obsolete("Use IReadOnlyProperty.IsKey")]
-        public static bool IsKey([NotNull] this IProperty property)
+        public static bool IsKey(this IProperty property)
             => property.IsKey();
 
         /// <summary>
@@ -91,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         [Obsolete("Use IReadOnlyProperty.GetBeforeSaveBehavior")]
-        public static PropertySaveBehavior GetBeforeSaveBehavior([NotNull] this IProperty property)
+        public static PropertySaveBehavior GetBeforeSaveBehavior(this IProperty property)
             => property.GetBeforeSaveBehavior();
 
         /// <summary>
@@ -110,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         [Obsolete("Use IReadOnlyProperty.GetAfterSaveBehavior")]
-        public static PropertySaveBehavior GetAfterSaveBehavior([NotNull] this IProperty property)
+        public static PropertySaveBehavior GetAfterSaveBehavior(this IProperty property)
             => property.GetAfterSaveBehavior();
 
         /// <summary>
@@ -119,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to get the value generator factory for. </param>
         /// <returns> The factory, or <see langword="null" /> if no factory has been set. </returns>
         [Obsolete("Use IReadOnlyProperty.GetValueGeneratorFactory")]
-        public static Func<IProperty, IEntityType, ValueGenerator>? GetValueGeneratorFactory([NotNull] this IProperty property)
+        public static Func<IProperty, IEntityType, ValueGenerator>? GetValueGeneratorFactory(this IProperty property)
             => property.GetValueGeneratorFactory();
 
         /// <summary>
@@ -128,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The converter, or <see langword="null" /> if none has been set. </returns>
         [Obsolete("Use IReadOnlyProperty.GetValueConverter")]
-        public static ValueConverter? GetValueConverter([NotNull] this IProperty property)
+        public static ValueConverter? GetValueConverter(this IProperty property)
             => property.GetValueConverter();
 
         /// <summary>
@@ -137,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <see langword="null" /> if none has been set. </returns>
         [Obsolete("Use GetKeyValueComparer. A separate structural comparer is no longer supported.")]
-        public static ValueComparer? GetStructuralValueComparer([NotNull] this IProperty property)
+        public static ValueComparer? GetStructuralValueComparer(this IProperty property)
             => property.GetKeyValueComparer();
     }
 }

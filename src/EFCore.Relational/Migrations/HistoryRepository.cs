@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Initializes a new instance of this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected HistoryRepository([NotNull] HistoryRepositoryDependencies dependencies)
+        protected HistoryRepository(HistoryRepositoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -169,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Interprets the result of executing <see cref="ExistsSql" />.
         /// </summary>
         /// <returns><see langword="true" /> if the table already exists, <see langword="false" /> otherwise.</returns>
-        protected abstract bool InterpretExistsResult([CanBeNull] object? value);
+        protected abstract bool InterpretExistsResult(object? value);
 
         /// <summary>
         ///     Overridden by a database provider to generate a SQL script that will create the history table
@@ -201,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     </para>
         /// </summary>
         /// <param name="history"> A builder for the <see cref="HistoryRow" /> entity type. </param>
-        protected virtual void ConfigureTable([NotNull] EntityTypeBuilder<HistoryRow> history)
+        protected virtual void ConfigureTable(EntityTypeBuilder<HistoryRow> history)
         {
             history.ToTable(DefaultTableName);
             history.HasKey(h => h.MigrationId);

@@ -22,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public SlimCheckConstraint(
-            [NotNull] string name,
-            [NotNull] SlimEntityType entityType,
-            [NotNull] string sql)
+            string name,
+            SlimEntityType entityType,
+            string sql)
         {
             EntityType = entityType;
             Name = name;

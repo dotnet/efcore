@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Invalid geometry type: {storeType}.
         /// </summary>
-        public static string InvalidGeometryType([CanBeNull] object? storeType)
+        public static string InvalidGeometryType(object? storeType)
             => string.Format(
                 GetString("InvalidGeometryType", nameof(storeType)),
                 storeType);

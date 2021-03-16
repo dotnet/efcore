@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Creates a new <see cref="SingularModificationCommandBatch" /> instance.
         /// </summary>
         /// <param name="dependencies"> Service dependencies. </param>
-        public SingularModificationCommandBatch([NotNull] ModificationCommandBatchFactoryDependencies dependencies)
+        public SingularModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
             : base(dependencies)
         {
         }

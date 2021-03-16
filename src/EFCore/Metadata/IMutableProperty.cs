@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -188,30 +187,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     A factory that will be used to create the value generator, or <see langword="null" /> to
         ///     clear any previously set factory.
         /// </param>
-        void SetValueGeneratorFactory([NotNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory);
+        void SetValueGeneratorFactory(Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory);
 
         /// <summary>
         ///     Sets the custom <see cref="ValueConverter" /> for this property.
         /// </summary>
         /// <param name="converter"> The converter, or <see langword="null" /> to remove any previously set converter. </param>
-        void SetValueConverter([CanBeNull] ValueConverter? converter);
+        void SetValueConverter(ValueConverter? converter);
 
         /// <summary>
         ///     Sets the type that the property value will be converted to before being sent to the database provider.
         /// </summary>
         /// <param name="providerClrType"> The type to use, or <see langword="null" /> to remove any previously set type. </param>
-        void SetProviderClrType([CanBeNull] Type? providerClrType);
+        void SetProviderClrType(Type? providerClrType);
 
         /// <summary>
         ///     Sets the <see cref="CoreTypeMapping" /> for the given property
         /// </summary>
         /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
-        void SetTypeMapping([NotNull] CoreTypeMapping typeMapping);
+        void SetTypeMapping(CoreTypeMapping typeMapping);
 
         /// <summary>
         ///     Sets the custom <see cref="ValueComparer" /> for this property.
         /// </summary>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
-        void SetValueComparer([CanBeNull] ValueComparer? comparer);
+        void SetValueComparer(ValueComparer? comparer);
     }
 }

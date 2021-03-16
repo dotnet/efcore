@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        public static IMutableNavigation? FindDefiningNavigation([NotNull] this IMutableEntityType entityType)
+        public static IMutableNavigation? FindDefiningNavigation(this IMutableEntityType entityType)
             => (IMutableNavigation?)((IEntityType)entityType).FindDefiningNavigation();
 
         /// <summary>
@@ -32,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="definingQuery"> The LINQ query used as the default source. </param>
         [Obsolete("Use InMemoryEntityTypeExtensions.SetInMemoryQuery")]
         public static void SetDefiningQuery(
-            [NotNull] this IMutableEntityType entityType,
-            [CanBeNull] LambdaExpression? definingQuery)
+            this IMutableEntityType entityType,
+            LambdaExpression? definingQuery)
             => ((EntityType)entityType).SetDefiningQuery(definingQuery, ConfigurationSource.Explicit);
     }
 }

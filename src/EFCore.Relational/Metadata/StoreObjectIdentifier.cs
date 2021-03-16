@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="entityType"> The entity type. </param>
         /// <param name="type"> The store object type. </param>
         /// <returns> The store object id. </returns>
-        public static StoreObjectIdentifier? Create([NotNull] IReadOnlyEntityType entityType, StoreObjectType type)
+        public static StoreObjectIdentifier? Create(IReadOnlyEntityType entityType, StoreObjectType type)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -54,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The table name. </param>
         /// <param name="schema"> The table schema. </param>
         /// <returns> The table id. </returns>
-        public static StoreObjectIdentifier Table([NotNull] string name, [CanBeNull] string? schema)
+        public static StoreObjectIdentifier Table(string name, string? schema)
         {
             Check.NotNull(name, nameof(name));
 
@@ -67,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The view name. </param>
         /// <param name="schema"> The view schema. </param>
         /// <returns> The view id. </returns>
-        public static StoreObjectIdentifier View([NotNull] string name, [CanBeNull] string? schema)
+        public static StoreObjectIdentifier View(string name, string? schema)
         {
             Check.NotNull(name, nameof(name));
 
@@ -79,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The SQL query id. </returns>
-        public static StoreObjectIdentifier SqlQuery([NotNull] IReadOnlyEntityType entityType)
+        public static StoreObjectIdentifier SqlQuery(IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -91,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The SQL query name. </param>
         /// <returns> The SQL query id. </returns>
-        public static StoreObjectIdentifier SqlQuery([NotNull] string name)
+        public static StoreObjectIdentifier SqlQuery(string name)
         {
             Check.NotNull(name, nameof(name));
 
@@ -103,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="modelName"> The function model name. </param>
         /// <returns> The function id. </returns>
-        public static StoreObjectIdentifier DbFunction([NotNull] string modelName)
+        public static StoreObjectIdentifier DbFunction(string modelName)
         {
             Check.NotNull(modelName, nameof(modelName));
 

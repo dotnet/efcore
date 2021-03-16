@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Type CreateSnapshotType([NotNull] Type[] types)
+        public static Type CreateSnapshotType(Type[] types)
             => types.Length switch
         {
             1 => typeof(Snapshot<>).MakeGenericType(types),
@@ -147,36 +147,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19,
-            [CanBeNull] T20 value20,
-            [CanBeNull] T21 value21,
-            [CanBeNull] T22 value22,
-            [CanBeNull] T23 value23,
-            [CanBeNull] T24 value24,
-            [CanBeNull] T25 value25,
-            [CanBeNull] T26 value26,
-            [CanBeNull] T27 value27,
-            [CanBeNull] T28 value28,
-            [CanBeNull] T29 value29)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19,
+            T20 value20,
+            T21 value21,
+            T22 value22,
+            T23 value23,
+            T24 value24,
+            T25 value25,
+            T26 value26,
+            T27 value27,
+            T28 value28,
+            T29 value29)
         {
             _value0 = value0;
             _value1 = value1;
@@ -416,35 +416,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19,
-            [CanBeNull] T20 value20,
-            [CanBeNull] T21 value21,
-            [CanBeNull] T22 value22,
-            [CanBeNull] T23 value23,
-            [CanBeNull] T24 value24,
-            [CanBeNull] T25 value25,
-            [CanBeNull] T26 value26,
-            [CanBeNull] T27 value27,
-            [CanBeNull] T28 value28)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19,
+            T20 value20,
+            T21 value21,
+            T22 value22,
+            T23 value23,
+            T24 value24,
+            T25 value25,
+            T26 value26,
+            T27 value27,
+            T28 value28)
         {
             _value0 = value0;
             _value1 = value1;
@@ -678,34 +678,34 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19,
-            [CanBeNull] T20 value20,
-            [CanBeNull] T21 value21,
-            [CanBeNull] T22 value22,
-            [CanBeNull] T23 value23,
-            [CanBeNull] T24 value24,
-            [CanBeNull] T25 value25,
-            [CanBeNull] T26 value26,
-            [CanBeNull] T27 value27)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19,
+            T20 value20,
+            T21 value21,
+            T22 value22,
+            T23 value23,
+            T24 value24,
+            T25 value25,
+            T26 value26,
+            T27 value27)
         {
             _value0 = value0;
             _value1 = value1;
@@ -933,33 +933,33 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19,
-            [CanBeNull] T20 value20,
-            [CanBeNull] T21 value21,
-            [CanBeNull] T22 value22,
-            [CanBeNull] T23 value23,
-            [CanBeNull] T24 value24,
-            [CanBeNull] T25 value25,
-            [CanBeNull] T26 value26)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19,
+            T20 value20,
+            T21 value21,
+            T22 value22,
+            T23 value23,
+            T24 value24,
+            T25 value25,
+            T26 value26)
         {
             _value0 = value0;
             _value1 = value1;
@@ -1181,32 +1181,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19,
-            [CanBeNull] T20 value20,
-            [CanBeNull] T21 value21,
-            [CanBeNull] T22 value22,
-            [CanBeNull] T23 value23,
-            [CanBeNull] T24 value24,
-            [CanBeNull] T25 value25)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19,
+            T20 value20,
+            T21 value21,
+            T22 value22,
+            T23 value23,
+            T24 value24,
+            T25 value25)
         {
             _value0 = value0;
             _value1 = value1;
@@ -1422,31 +1422,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19,
-            [CanBeNull] T20 value20,
-            [CanBeNull] T21 value21,
-            [CanBeNull] T22 value22,
-            [CanBeNull] T23 value23,
-            [CanBeNull] T24 value24)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19,
+            T20 value20,
+            T21 value21,
+            T22 value22,
+            T23 value23,
+            T24 value24)
         {
             _value0 = value0;
             _value1 = value1;
@@ -1656,30 +1656,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19,
-            [CanBeNull] T20 value20,
-            [CanBeNull] T21 value21,
-            [CanBeNull] T22 value22,
-            [CanBeNull] T23 value23)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19,
+            T20 value20,
+            T21 value21,
+            T22 value22,
+            T23 value23)
         {
             _value0 = value0;
             _value1 = value1;
@@ -1882,29 +1882,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19,
-            [CanBeNull] T20 value20,
-            [CanBeNull] T21 value21,
-            [CanBeNull] T22 value22)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19,
+            T20 value20,
+            T21 value21,
+            T22 value22)
         {
             _value0 = value0;
             _value1 = value1;
@@ -2101,28 +2101,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19,
-            [CanBeNull] T20 value20,
-            [CanBeNull] T21 value21)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19,
+            T20 value20,
+            T21 value21)
         {
             _value0 = value0;
             _value1 = value1;
@@ -2312,27 +2312,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19,
-            [CanBeNull] T20 value20)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19,
+            T20 value20)
         {
             _value0 = value0;
             _value1 = value1;
@@ -2515,26 +2515,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18,
-            [CanBeNull] T19 value19)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18,
+            T19 value19)
         {
             _value0 = value0;
             _value1 = value1;
@@ -2711,25 +2711,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17,
-            [CanBeNull] T18 value18)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17,
+            T18 value18)
         {
             _value0 = value0;
             _value1 = value1;
@@ -2900,24 +2900,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16,
-            [CanBeNull] T17 value17)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16,
+            T17 value17)
         {
             _value0 = value0;
             _value1 = value1;
@@ -3082,23 +3082,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15,
-            [CanBeNull] T16 value16)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15,
+            T16 value16)
         {
             _value0 = value0;
             _value1 = value1;
@@ -3256,22 +3256,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14,
-            [CanBeNull] T15 value15)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14,
+            T15 value15)
         {
             _value0 = value0;
             _value1 = value1;
@@ -3423,21 +3423,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13,
-            [CanBeNull] T14 value14)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13,
+            T14 value14)
         {
             _value0 = value0;
             _value1 = value1;
@@ -3583,20 +3583,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12,
-            [CanBeNull] T13 value13)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12,
+            T13 value13)
         {
             _value0 = value0;
             _value1 = value1;
@@ -3736,19 +3736,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11,
-            [CanBeNull] T12 value12)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11,
+            T12 value12)
         {
             _value0 = value0;
             _value1 = value1;
@@ -3882,18 +3882,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10,
-            [CanBeNull] T11 value11)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10,
+            T11 value11)
         {
             _value0 = value0;
             _value1 = value1;
@@ -4021,17 +4021,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9,
-            [CanBeNull] T10 value10)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9,
+            T10 value10)
         {
             _value0 = value0;
             _value1 = value1;
@@ -4153,16 +4153,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8,
-            [CanBeNull] T9 value9)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8,
+            T9 value9)
         {
             _value0 = value0;
             _value1 = value1;
@@ -4278,15 +4278,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7,
-            [CanBeNull] T8 value8)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7,
+            T8 value8)
         {
             _value0 = value0;
             _value1 = value1;
@@ -4396,14 +4396,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6,
-            [CanBeNull] T7 value7)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6,
+            T7 value7)
         {
             _value0 = value0;
             _value1 = value1;
@@ -4507,13 +4507,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5,
-            [CanBeNull] T6 value6)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5,
+            T6 value6)
         {
             _value0 = value0;
             _value1 = value1;
@@ -4611,12 +4611,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4,
-            [CanBeNull] T5 value5)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4,
+            T5 value5)
         {
             _value0 = value0;
             _value1 = value1;
@@ -4708,11 +4708,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3,
-            [CanBeNull] T4 value4)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3,
+            T4 value4)
         {
             _value0 = value0;
             _value1 = value1;
@@ -4798,10 +4798,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2,
-            [CanBeNull] T3 value3)
+            T0 value0,
+            T1 value1,
+            T2 value2,
+            T3 value3)
         {
             _value0 = value0;
             _value1 = value1;
@@ -4881,9 +4881,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1,
-            [CanBeNull] T2 value2)
+            T0 value0,
+            T1 value1,
+            T2 value2)
         {
             _value0 = value0;
             _value1 = value1;
@@ -4957,8 +4957,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0,
-            [CanBeNull] T1 value1)
+            T0 value0,
+            T1 value1)
         {
             _value0 = value0;
             _value1 = value1;
@@ -5026,7 +5026,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Snapshot(
-            [CanBeNull] T0 value0)
+            T0 value0)
         {
             _value0 = value0;
         }

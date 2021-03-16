@@ -52,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
         InterceptionResult<DbTransaction> TransactionStarting(
-            [NotNull] DbConnection connection,
-            [NotNull] TransactionStartingEventData eventData,
+            DbConnection connection,
+            TransactionStartingEventData eventData,
             InterceptionResult<DbTransaction> result);
 
         /// <summary>
@@ -77,9 +77,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         DbTransaction TransactionStarted(
-            [NotNull] DbConnection connection,
-            [NotNull] TransactionEndEventData eventData,
-            [NotNull] DbTransaction result);
+            DbConnection connection,
+            TransactionEndEventData eventData,
+            DbTransaction result);
 
         /// <summary>
         ///     Called just before EF intends to call
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
-            [NotNull] DbConnection connection,
-            [NotNull] TransactionStartingEventData eventData,
+            DbConnection connection,
+            TransactionStartingEventData eventData,
             InterceptionResult<DbTransaction> result,
             CancellationToken cancellationToken = default);
 
@@ -134,9 +134,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<DbTransaction> TransactionStartedAsync(
-            [NotNull] DbConnection connection,
-            [NotNull] TransactionEndEventData eventData,
-            [NotNull] DbTransaction result,
+            DbConnection connection,
+            TransactionEndEventData eventData,
+            DbTransaction result,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -156,9 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         DbTransaction TransactionUsed(
-            [NotNull] DbConnection connection,
-            [NotNull] TransactionEventData eventData,
-            [NotNull] DbTransaction result);
+            DbConnection connection,
+            TransactionEventData eventData,
+            DbTransaction result);
 
         /// <summary>
         ///     <para>
@@ -180,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<DbTransaction> TransactionUsedAsync(
-            [NotNull] DbConnection connection,
-            [NotNull] TransactionEventData eventData,
-            [NotNull] DbTransaction result,
+            DbConnection connection,
+            TransactionEventData eventData,
+            DbTransaction result,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -204,8 +204,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult TransactionCommitting(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             InterceptionResult result);
 
         /// <summary>
@@ -214,8 +214,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         void TransactionCommitted(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEndEventData eventData);
+            DbTransaction transaction,
+            TransactionEndEventData eventData);
 
         /// <summary>
         ///     Called just before EF intends to call
@@ -239,8 +239,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult> TransactionCommittingAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default);
 
@@ -253,8 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task TransactionCommittedAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEndEventData eventData,
+            DbTransaction transaction,
+            TransactionEndEventData eventData,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -276,8 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult TransactionRollingBack(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             InterceptionResult result);
 
         /// <summary>
@@ -286,8 +286,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         void TransactionRolledBack(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEndEventData eventData);
+            DbTransaction transaction,
+            TransactionEndEventData eventData);
 
         /// <summary>
         ///     Called just before EF intends to call
@@ -311,8 +311,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult> TransactionRollingBackAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default);
 
@@ -325,8 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task TransactionRolledBackAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEndEventData eventData,
+            DbTransaction transaction,
+            TransactionEndEventData eventData,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -348,8 +348,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult CreatingSavepoint(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             InterceptionResult result);
 
         /// <summary>
@@ -358,8 +358,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         void CreatedSavepoint(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData);
+            DbTransaction transaction,
+            TransactionEventData eventData);
 
         /// <summary>
         ///     Called just before EF intends to create a transaction savepoint.
@@ -382,8 +382,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult> CreatingSavepointAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default);
 
@@ -396,8 +396,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task CreatedSavepointAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -419,8 +419,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult RollingBackToSavepoint(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             InterceptionResult result);
 
         /// <summary>
@@ -429,8 +429,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         void RolledBackToSavepoint(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData);
+            DbTransaction transaction,
+            TransactionEventData eventData);
 
         /// <summary>
         ///     Called just before EF intends to roll back to a transaction savepoint.
@@ -453,8 +453,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult> RollingBackToSavepointAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default);
 
@@ -467,8 +467,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task RolledBackToSavepointAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -490,8 +490,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult ReleasingSavepoint(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             InterceptionResult result);
 
         /// <summary>
@@ -500,8 +500,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         void ReleasedSavepoint(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData);
+            DbTransaction transaction,
+            TransactionEventData eventData);
 
         /// <summary>
         ///     Called just before EF intends to release a transaction savepoint.
@@ -524,8 +524,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult> ReleasingSavepointAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default);
 
@@ -538,8 +538,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task ReleasedSavepointAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionEventData eventData,
+            DbTransaction transaction,
+            TransactionEventData eventData,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -548,8 +548,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         void TransactionFailed(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionErrorEventData eventData);
+            DbTransaction transaction,
+            TransactionErrorEventData eventData);
 
         /// <summary>
         ///     Called when use of a <see cref="DbTransaction" /> has failed with an exception.
@@ -560,8 +560,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task TransactionFailedAsync(
-            [NotNull] DbTransaction transaction,
-            [NotNull] TransactionErrorEventData eventData,
+            DbTransaction transaction,
+            TransactionErrorEventData eventData,
             CancellationToken cancellationToken = default);
     }
 }

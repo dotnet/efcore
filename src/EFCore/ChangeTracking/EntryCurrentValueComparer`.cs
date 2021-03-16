@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Creates a new <see cref="EntryCurrentValueComparer" /> instance using a the default comparer for the property type.
         /// </summary>
         /// <param name="property"> The property to use for comparisons. </param>
-        public EntryCurrentValueComparer([NotNull] IPropertyBase property)
+        public EntryCurrentValueComparer(IPropertyBase property)
         {
             _property = property;
             _underlyingComparer = Comparer<TProperty>.Default;

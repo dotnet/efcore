@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -92,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The <see cref="Type" /> of values returned by the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        Type? SetType([CanBeNull] Type? type, bool fromDataAnnotation = false);
+        Type? SetType(Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the configuration source for <see cref="IReadOnlySequence.ClrType" />.
@@ -107,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         [Obsolete("Use SetType")]
-        Type? SetClrType([CanBeNull] Type? type, bool fromDataAnnotation = false);
+        Type? SetClrType(Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the configuration source for <see cref="IReadOnlySequence.ClrType" />.

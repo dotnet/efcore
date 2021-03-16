@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -25,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="property"> The property. </param>
         /// <param name="value"> The old value. </param>
         public PropertyValueEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] EntityEntry entityEntry,
-            [NotNull] IProperty property,
-            [CanBeNull] object? value)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            EntityEntry entityEntry,
+            IProperty property,
+            object? value)
             : base(eventDefinition, messageGenerator, property)
         {
             Check.NotNull(entityEntry, nameof(entityEntry));

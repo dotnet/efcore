@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="migrationCommands"> The commands to execute. </param>
         /// <param name="connection"> The connection to use. </param>
         void ExecuteNonQuery(
-            [NotNull] IEnumerable<MigrationCommand> migrationCommands,
-            [NotNull] IRelationalConnection connection);
+            IEnumerable<MigrationCommand> migrationCommands,
+            IRelationalConnection connection);
 
         /// <summary>
         ///     Executes the given commands using the given database connection.
@@ -41,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task ExecuteNonQueryAsync(
-            [NotNull] IEnumerable<MigrationCommand> migrationCommands,
-            [NotNull] IRelationalConnection connection,
+            IEnumerable<MigrationCommand> migrationCommands,
+            IRelationalConnection connection,
             CancellationToken cancellationToken = default);
     }
 }

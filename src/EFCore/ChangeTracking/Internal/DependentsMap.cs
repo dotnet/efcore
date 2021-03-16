@@ -2,12 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -32,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DependentsMap(
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
-            [NotNull] IDependentKeyValueFactory<TKey> dependentKeyValueFactory)
+            IForeignKey foreignKey,
+            IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
+            IDependentKeyValueFactory<TKey> dependentKeyValueFactory)
         {
             _foreignKey = foreignKey;
             _principalKeyValueFactory = principalKeyValueFactory;
@@ -110,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private bool TryCreateFromCurrentValues(IUpdateEntry entry, [CA.NotNullWhen(true)] out TKey? key)
+        private bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
         {
             // TODO: Move into delegate
             foreach (var property in _foreignKey.Properties)

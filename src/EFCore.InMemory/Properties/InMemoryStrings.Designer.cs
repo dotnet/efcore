@@ -4,7 +4,6 @@ using System;
 using System.Reflection;
 using System.Resources;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         /// <summary>
         ///     The specified entity type '{derivedType}' is not derived from '{entityType}'.
         /// </summary>
-        public static string InvalidDerivedTypeInEntityProjection([CanBeNull] object? derivedType, [CanBeNull] object? entityType)
+        public static string InvalidDerivedTypeInEntityProjection(object? derivedType, object? entityType)
             => string.Format(
                 GetString("InvalidDerivedTypeInEntityProjection", nameof(derivedType), nameof(entityType)),
                 derivedType, entityType);
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         /// <summary>
         ///     Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the entity key value.
         /// </summary>
-        public static string NullabilityErrorException([CanBeNull] object? requiredProperties, [CanBeNull] object? entityType)
+        public static string NullabilityErrorException(object? requiredProperties, object? entityType)
             => string.Format(
                 GetString("NullabilityErrorException", nameof(requiredProperties), nameof(entityType)),
                 requiredProperties, entityType);
@@ -55,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         /// <summary>
         ///     Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}' with the key value '{keyValue}'.
         /// </summary>
-        public static string NullabilityErrorExceptionSensitive([CanBeNull] object? requiredProperties, [CanBeNull] object? entityType, [CanBeNull] object? keyValue)
+        public static string NullabilityErrorExceptionSensitive(object? requiredProperties, object? entityType, object? keyValue)
             => string.Format(
                 GetString("NullabilityErrorExceptionSensitive", nameof(requiredProperties), nameof(entityType), nameof(keyValue)),
                 requiredProperties, entityType, keyValue);
@@ -63,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         /// <summary>
         ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.
         /// </summary>
-        public static string UnableToBindMemberToEntityProjection([CanBeNull] object? memberType, [CanBeNull] object? member, [CanBeNull] object? entityType)
+        public static string UnableToBindMemberToEntityProjection(object? memberType, object? member, object? entityType)
             => string.Format(
                 GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
                 memberType, member, entityType);
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         /// <summary>
         ///     Conflicts were detected for instance of entity type '{entityType}' on the concurrency token properties {properties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
         /// </summary>
-        public static string UpdateConcurrencyTokenException([CanBeNull] object? entityType, [CanBeNull] object? properties)
+        public static string UpdateConcurrencyTokenException(object? entityType, object? properties)
             => string.Format(
                 GetString("UpdateConcurrencyTokenException", nameof(entityType), nameof(properties)),
                 entityType, properties);
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         /// <summary>
         ///     Conflicts were detected for instance of entity type '{entityType}' with the key value '{keyValue}' on the concurrency token property values {conflictingValues}, with corresponding database values {databaseValues}.
         /// </summary>
-        public static string UpdateConcurrencyTokenExceptionSensitive([CanBeNull] object? entityType, [CanBeNull] object? keyValue, [CanBeNull] object? conflictingValues, [CanBeNull] object? databaseValues)
+        public static string UpdateConcurrencyTokenExceptionSensitive(object? entityType, object? keyValue, object? conflictingValues, object? databaseValues)
             => string.Format(
                 GetString("UpdateConcurrencyTokenExceptionSensitive", nameof(entityType), nameof(keyValue), nameof(conflictingValues), nameof(databaseValues)),
                 entityType, keyValue, conflictingValues, databaseValues);
@@ -119,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         /// <summary>
         ///     Saved {count} entities to in-memory store.
         /// </summary>
-        public static EventDefinition<int> LogSavedChanges([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<int> LogSavedChanges(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogSavedChanges;
             if (definition == null)
@@ -144,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         /// <summary>
         ///     Transactions are not supported by the in-memory store. See http://go.microsoft.com/fwlink/?LinkId=800142
         /// </summary>
-        public static EventDefinition LogTransactionsNotSupported([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition LogTransactionsNotSupported(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogTransactionsNotSupported;
             if (definition == null)

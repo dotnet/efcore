@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ParameterBindingFactories(
-            [CanBeNull] IEnumerable<IParameterBindingFactory>? registeredFactories,
-            [NotNull] IRegisteredServices registeredServices)
+            IEnumerable<IParameterBindingFactory>? registeredFactories,
+            IRegisteredServices registeredServices)
         {
             _registeredServices = registeredServices;
 

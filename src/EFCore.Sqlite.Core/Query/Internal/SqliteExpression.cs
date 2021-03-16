@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -26,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static SqlFunctionExpression Strftime(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] Type returnType,
-            [NotNull] string format,
-            [NotNull] SqlExpression timestring,
-            [CanBeNull] IEnumerable<SqlExpression>? modifiers = null,
-            [CanBeNull] RelationalTypeMapping? typeMapping = null)
+            ISqlExpressionFactory sqlExpressionFactory,
+            Type returnType,
+            string format,
+            SqlExpression timestring,
+            IEnumerable<SqlExpression>? modifiers = null,
+            RelationalTypeMapping? typeMapping = null)
         {
             modifiers ??= Enumerable.Empty<SqlExpression>();
 

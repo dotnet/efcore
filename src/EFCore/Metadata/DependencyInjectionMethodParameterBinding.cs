@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -27,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="method"> The method of the service to bind to. </param>
         /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
         public DependencyInjectionMethodParameterBinding(
-            [NotNull] Type parameterType,
-            [NotNull] Type serviceType,
-            [NotNull] MethodInfo method,
-            [CanBeNull] IPropertyBase? serviceProperty = null)
+            Type parameterType,
+            Type serviceType,
+            MethodInfo method,
+            IPropertyBase? serviceProperty = null)
             : base(parameterType, serviceType, serviceProperty)
         {
             Check.NotNull(method, nameof(method));

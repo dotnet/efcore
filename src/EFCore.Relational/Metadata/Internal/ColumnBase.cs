@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ColumnBase([NotNull] string name, [NotNull] string type, [NotNull] TableBase table)
+        public ColumnBase(string name, string type, TableBase table)
         {
             Name = name;
             StoreType = type;
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string Format([NotNull] IEnumerable<IColumnBase> columns)
+        public static string Format(IEnumerable<IColumnBase> columns)
             => "{"
                 + string.Join(
                     ", ",

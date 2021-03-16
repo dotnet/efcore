@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -37,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpEntityTypeGenerator(
-            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
-            [NotNull] ICSharpHelper cSharpHelper)
+            IAnnotationCodeGenerator annotationCodeGenerator,
+            ICSharpHelper cSharpHelper)
         {
             Check.NotNull(cSharpHelper, nameof(cSharpHelper));
 
@@ -107,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateClass([NotNull] IEntityType entityType)
+        protected virtual void GenerateClass(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -138,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateEntityTypeDataAnnotations([NotNull] IEntityType entityType)
+        protected virtual void GenerateEntityTypeDataAnnotations(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -235,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateConstructor([NotNull] IEntityType entityType)
+        protected virtual void GenerateConstructor(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -265,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateProperties([NotNull] IEntityType entityType)
+        protected virtual void GenerateProperties(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -288,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GeneratePropertyDataAnnotations([NotNull] IProperty property)
+        protected virtual void GeneratePropertyDataAnnotations(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -419,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateNavigationProperties([NotNull] IEntityType entityType)
+        protected virtual void GenerateNavigationProperties(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -517,14 +516,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             private readonly string _attributeName;
             private readonly List<string> _parameters = new();
 
-            public AttributeWriter([NotNull] string attributeName)
+            public AttributeWriter(string attributeName)
             {
                 Check.NotEmpty(attributeName, nameof(attributeName));
 
                 _attributeName = attributeName;
             }
 
-            public void AddParameter([NotNull] string parameter)
+            public void AddParameter(string parameter)
             {
                 Check.NotEmpty(parameter, nameof(parameter));
 
@@ -538,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         : StripAttribute(_attributeName) + "(" + string.Join(", ", _parameters) + ")")
                     + "]";
 
-            private static string StripAttribute([NotNull] string attributeName)
+            private static string StripAttribute(string attributeName)
                 => attributeName.EndsWith("Attribute", StringComparison.Ordinal)
                     ? attributeName[..^9]
                     : attributeName;

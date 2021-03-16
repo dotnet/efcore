@@ -3,11 +3,10 @@
 
 using System;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets or sets the connection string for the database.
         /// </summary>
-        string? ConnectionString { get; [param: CanBeNull] set; }
+        string? ConnectionString { get; set; }
 
         /// <summary>
         ///     <para>
@@ -44,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note that the connection must be disposed by application code since it was not created by Entity Framework.
         ///     </para>
         /// </summary>
-        [CA.AllowNull]
-        DbConnection DbConnection { get; [param: CanBeNull] set; }
+        [AllowNull]
+        DbConnection DbConnection { get; set; }
 
         /// <summary>
         ///     The <see cref="DbContext" /> currently in use, or null if not known.
@@ -107,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Returns a relational command to this connection, so that it can be reused in the future.
         /// </summary>
-        void ReturnCommand([NotNull] IRelationalCommand command);
+        void ReturnCommand(IRelationalCommand command);
 
         /// <summary>
         ///     Gets the current transaction.

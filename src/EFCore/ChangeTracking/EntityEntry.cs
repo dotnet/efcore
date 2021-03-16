@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EntityEntry([NotNull] InternalEntityEntry internalEntry)
+        public EntityEntry(InternalEntityEntry internalEntry)
         {
             Check.NotNull(internalEntry, nameof(internalEntry));
 
@@ -136,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="propertyName"> The property to access information and operations for. </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
-        public virtual MemberEntry Member([NotNull] string propertyName)
+        public virtual MemberEntry Member(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -172,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="propertyName"> The property to access information and operations for. </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
-        public virtual NavigationEntry Navigation([NotNull] string propertyName)
+        public virtual NavigationEntry Navigation(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -222,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="propertyName"> The property to access information and operations for. </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
-        public virtual PropertyEntry Property([NotNull] string propertyName)
+        public virtual PropertyEntry Property(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -245,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual ReferenceEntry Reference([NotNull] string propertyName)
+        public virtual ReferenceEntry Reference(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -269,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual CollectionEntry Collection([NotNull] string propertyName)
+        public virtual CollectionEntry Collection(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 

@@ -22,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="left"> The left <see cref="Expression" />. </param>
         /// <param name="right"> The right <see cref="Expression" />. </param>
         public BinaryExpressionEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] Expression left,
-            [NotNull] Expression right)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            Expression left,
+            Expression right)
             : base(eventDefinition, messageGenerator)
         {
             Left = left;

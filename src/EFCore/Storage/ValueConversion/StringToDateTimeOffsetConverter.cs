@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public StringToDateTimeOffsetConverter(
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            ConverterMappingHints? mappingHints = null)
             : base(
                 ToDateTimeOffset(),
                 ToString(),

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates a new <see cref="LazyLoaderParameterBindingFactory" /> instance.
         /// </summary>
         /// <param name="dependencies"> The service dependencies to use. </param>
-        public LazyLoaderParameterBindingFactory([NotNull] LazyLoaderParameterBindingFactoryDependencies dependencies)
+        public LazyLoaderParameterBindingFactory(LazyLoaderParameterBindingFactoryDependencies dependencies)
             : base(typeof(ILazyLoader))
         {
             Check.NotNull(dependencies, nameof(dependencies));

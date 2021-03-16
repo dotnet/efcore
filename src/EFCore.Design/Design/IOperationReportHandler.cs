@@ -20,24 +20,24 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Invoked when an error is reported.
         /// </summary>
         /// <param name="message"> The message. </param>
-        void OnError([NotNull] string message);
+        void OnError(string message);
 
         /// <summary>
         ///     Invoked when a warning is reported.
         /// </summary>
         /// <param name="message"> The message. </param>
-        void OnWarning([NotNull] string message);
+        void OnWarning(string message);
 
         /// <summary>
         ///     Invoked when information is reported.
         /// </summary>
         /// <param name="message"> The message. </param>
-        void OnInformation([NotNull] string message);
+        void OnInformation(string message);
 
         /// <summary>
         ///     Invoked when verbose information is reported.
         /// </summary>
         /// <param name="message"> The message. </param>
-        void OnVerbose([NotNull] string message);
+        void OnVerbose(string message);
     }
 }

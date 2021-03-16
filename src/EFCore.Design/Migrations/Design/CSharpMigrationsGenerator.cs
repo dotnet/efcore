@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -25,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="dependencies"> The base dependencies. </param>
         /// <param name="csharpDependencies"> The dependencies. </param>
         public CSharpMigrationsGenerator(
-            [NotNull] MigrationsCodeGeneratorDependencies dependencies,
-            [NotNull] CSharpMigrationsGeneratorDependencies csharpDependencies)
+            MigrationsCodeGeneratorDependencies dependencies,
+            CSharpMigrationsGeneratorDependencies csharpDependencies)
             : base(dependencies)
         {
             Check.NotNull(csharpDependencies, nameof(csharpDependencies));

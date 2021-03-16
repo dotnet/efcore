@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="concurrencyDetector">
         ///     The <see cref="IConcurrencyDetector" /> on which the critical section will be exited.
         /// </param>
-        public ConcurrencyDetectorCriticalSectionDisposer([NotNull] IConcurrencyDetector concurrencyDetector)
+        public ConcurrencyDetectorCriticalSectionDisposer(IConcurrencyDetector concurrencyDetector)
             => _concurrencyDetector = concurrencyDetector;
 
         /// <inheritdoc />

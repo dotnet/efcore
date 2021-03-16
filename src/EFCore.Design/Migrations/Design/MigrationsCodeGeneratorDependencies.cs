@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -48,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         [EntityFrameworkInternal]
         public MigrationsCodeGeneratorDependencies(
-            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource,
-            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator)
+            IRelationalTypeMappingSource relationalTypeMappingSource,
+            IAnnotationCodeGenerator annotationCodeGenerator)
         {
             RelationalTypeMappingSource = relationalTypeMappingSource;
             AnnotationCodeGenerator = annotationCodeGenerator;
@@ -58,11 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; [param: NotNull] init; }
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; init; }
 
         /// <summary>
         ///     The annotation code generator.
         /// </summary>
-        public IAnnotationCodeGenerator AnnotationCodeGenerator { get; [param: NotNull] init; }
+        public IAnnotationCodeGenerator AnnotationCodeGenerator { get; init; }
     }
 }

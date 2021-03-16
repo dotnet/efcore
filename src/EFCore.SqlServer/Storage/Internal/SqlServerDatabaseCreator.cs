@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -43,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerDatabaseCreator(
-            [NotNull] RelationalDatabaseCreatorDependencies dependencies,
-            [NotNull] ISqlServerConnection connection,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+            RelationalDatabaseCreatorDependencies dependencies,
+            ISqlServerConnection connection,
+            IRawSqlCommandBuilder rawSqlCommandBuilder)
             : base(dependencies)
         {
             _connection = connection;

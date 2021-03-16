@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     </para>
         /// </summary>
         /// <param name="result"> The new metadata object or <see langword="null" />. </param>
-        void StopProcessing([CanBeNull] TMetadata? result);
+        void StopProcessing(TMetadata? result);
 
         /// <summary>
         ///     <para>
@@ -32,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     </para>
         /// </summary>
         /// <param name="result"> The new metadata object or <see langword="null" />. </param>
-        void StopProcessingIfChanged([CanBeNull] TMetadata? result);
+        void StopProcessingIfChanged(TMetadata? result);
     }
 }

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> The precision of data the property is configured to store, or null if the default precision is required. </param>
         /// <param name="scale"> The scale of data the property is configured to store, or null if the default scale is required. </param>
         public DecimalTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null,
             int? precision = null,
             int? scale = null)

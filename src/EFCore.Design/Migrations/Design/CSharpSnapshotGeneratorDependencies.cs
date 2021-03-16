@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -49,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         [EntityFrameworkInternal]
         public CSharpSnapshotGeneratorDependencies(
-            [NotNull] ICSharpHelper csharpHelper,
-            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource,
-            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator)
+            ICSharpHelper csharpHelper,
+            IRelationalTypeMappingSource relationalTypeMappingSource,
+            IAnnotationCodeGenerator annotationCodeGenerator)
         {
             Check.NotNull(csharpHelper, nameof(csharpHelper));
 
@@ -63,16 +62,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The C# helper.
         /// </summary>
-        public ICSharpHelper CSharpHelper { get; [param: NotNull] init; }
+        public ICSharpHelper CSharpHelper { get; init; }
 
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; [param: NotNull] init; }
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; init; }
 
         /// <summary>
         ///     The annotation code generator.
         /// </summary>
-        public IAnnotationCodeGenerator AnnotationCodeGenerator { get; [param: NotNull] init; }
+        public IAnnotationCodeGenerator AnnotationCodeGenerator { get; init; }
     }
 }

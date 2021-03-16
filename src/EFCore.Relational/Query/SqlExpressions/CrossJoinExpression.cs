@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new instance of the <see cref="CrossJoinExpression" /> class.
         /// </summary>
         /// <param name="table"> A table source to CROSS JOIN with. </param>
-        public CrossJoinExpression([NotNull] TableExpressionBase table)
+        public CrossJoinExpression(TableExpressionBase table)
             : base(table)
         {
         }
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="table"> The <see cref="P:Table" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual CrossJoinExpression Update([NotNull] TableExpressionBase table)
+        public virtual CrossJoinExpression Update(TableExpressionBase table)
         {
             Check.NotNull(table, nameof(table));
 

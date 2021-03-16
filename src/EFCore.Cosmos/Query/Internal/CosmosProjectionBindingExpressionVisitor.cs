@@ -55,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosProjectionBindingExpressionVisitor(
-            [NotNull] IModel model,
-            [NotNull] CosmosSqlTranslatingExpressionVisitor sqlTranslator)
+            IModel model,
+            CosmosSqlTranslatingExpressionVisitor sqlTranslator)
         {
             _model = model;
             _sqlTranslator = sqlTranslator;
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Translate([NotNull] SelectExpression selectExpression, [NotNull] Expression expression)
+        public virtual Expression Translate(SelectExpression selectExpression, Expression expression)
         {
             _selectExpression = selectExpression;
             _clientEval = false;

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -31,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="dependencies"> The dependencies to use. </param>
         /// <param name="relationalDependencies"> The relational dependencies to use. </param>
         public RelationalModelRuntimeInitializer(
-            [NotNull] ModelRuntimeInitializerDependencies dependencies,
-            [NotNull] RelationalModelRuntimeInitializerDependencies relationalDependencies)
+            ModelRuntimeInitializerDependencies dependencies,
+            RelationalModelRuntimeInitializerDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));

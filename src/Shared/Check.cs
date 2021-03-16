@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     internal static class Check
     {
         [ContractAnnotation("value:null => halt")]
-        [return: CA.NotNull]
-        public static T NotNull<T>([NoEnumeration, CA.AllowNull, CA.NotNull] T value, [InvokerParameterName] [NotNull] string parameterName)
+        [return: NotNull]
+        public static T NotNull<T>([NoEnumeration, AllowNull, NotNull] T value, [InvokerParameterName] string parameterName)
         {
             if (value is null)
             {
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         [ContractAnnotation("value:null => halt")]
         public static IReadOnlyList<T> NotEmpty<T>(
-            [CA.NotNull] IReadOnlyList<T>? value, [InvokerParameterName] [NotNull] string parameterName)
+            [NotNull] IReadOnlyList<T>? value, [InvokerParameterName] string parameterName)
         {
             NotNull(value, parameterName);
 
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ContractAnnotation("value:null => halt")]
-        public static string NotEmpty([CA.NotNull] string? value, [InvokerParameterName] [NotNull] string parameterName)
+        public static string NotEmpty([NotNull] string? value, [InvokerParameterName] string parameterName)
         {
             if (value is null)
             {
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return value;
         }
 
-        public static string? NullButNotEmpty(string? value, [InvokerParameterName] [NotNull] string parameterName)
+        public static string? NullButNotEmpty(string? value, [InvokerParameterName] string parameterName)
         {
             if (value is not null && value.Length == 0)
             {
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public static IReadOnlyList<T> HasNoNulls<T>(
-            [CA.NotNull] IReadOnlyList<T>? value, [InvokerParameterName] [NotNull] string parameterName)
+            [NotNull] IReadOnlyList<T>? value, [InvokerParameterName] string parameterName)
             where T : class
         {
             NotNull(value, parameterName);
@@ -93,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public static IReadOnlyList<string> HasNoEmptyElements(
-            [CA.NotNull] IReadOnlyList<string>? value,
-            [InvokerParameterName] [NotNull] string parameterName)
+            [NotNull] IReadOnlyList<string>? value,
+            [InvokerParameterName] string parameterName)
         {
             NotNull(value, parameterName);
 
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [Conditional("DEBUG")]
-        public static void DebugAssert([CA.DoesNotReturnIf(false)] bool condition, string message)
+        public static void DebugAssert([DoesNotReturnIf(false)] bool condition, string message)
         {
             if (!condition)
             {

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public GuidTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null)
             : base(storeType, typeof(Guid), dbType)
         {

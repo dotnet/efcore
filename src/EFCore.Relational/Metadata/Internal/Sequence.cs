@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -96,9 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Sequence(
-            [NotNull] string name,
-            [CanBeNull] string? schema,
-            [NotNull] IReadOnlyModel model,
+            string name,
+            string? schema,
+            IReadOnlyModel model,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
@@ -118,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [Obsolete("Use the other constructor")]
-        public Sequence([NotNull] IReadOnlyModel model, [NotNull] string annotationName)
+        public Sequence(IReadOnlyModel model, string annotationName)
         {
             Check.NotNull(model, nameof(model));
             Check.NotEmpty(annotationName, nameof(annotationName));
@@ -144,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<ISequence> GetSequences([NotNull] IReadOnlyModel model)
+        public static IEnumerable<ISequence> GetSequences(IReadOnlyModel model)
             => ((SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences])
                 ?.Values
                 ?? Enumerable.Empty<ISequence>();
@@ -155,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static ISequence? FindSequence([NotNull] IReadOnlyModel model, [NotNull] string name, [CanBeNull] string? schema)
+        public static ISequence? FindSequence(IReadOnlyModel model, string name, string? schema)
         {
             var sequences = (SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
             if (sequences == null
@@ -174,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Sequence AddSequence(
-            [NotNull] IMutableModel model,
-            [NotNull] string name,
-            [CanBeNull] string? schema,
+            IMutableModel model,
+            string name,
+            string? schema,
             ConfigurationSource configurationSource)
         {
             var sequence = new Sequence(name, schema, model, configurationSource);
@@ -198,9 +197,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Sequence? SetName(
-            [NotNull] IMutableModel model,
-            [NotNull] Sequence sequence,
-            [NotNull] string name)
+            IMutableModel model,
+            Sequence sequence,
+            string name)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(sequence, nameof(sequence));
@@ -231,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Sequence? RemoveSequence([NotNull] IMutableModel model, [NotNull] string name, [CanBeNull] string? schema)
+        public static Sequence? RemoveSequence(IMutableModel model, string name, string? schema)
         {
             var sequences = (SortedDictionary<(string, string?), ISequence>?)model[RelationalAnnotationNames.Sequences];
             if (sequences == null
@@ -295,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -511,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type? SetType([CanBeNull] Type? type, ConfigurationSource configurationSource)
+        public virtual Type? SetType(Type? type, ConfigurationSource configurationSource)
         {
             EnsureMutable();
 
@@ -559,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [Obsolete("Use SetType")]
-        public virtual Type? SetClrType([CanBeNull] Type? type, ConfigurationSource configurationSource)
+        public virtual Type? SetClrType(Type? type, ConfigurationSource configurationSource)
             => SetType(type, configurationSource);
 
         /// <summary>
@@ -758,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public bool IsCyclic { get; set; }
 
-            public static SequenceData Deserialize([NotNull] string value)
+            public static SequenceData Deserialize(string value)
             {
                 Check.NotEmpty(value, nameof(value));
 

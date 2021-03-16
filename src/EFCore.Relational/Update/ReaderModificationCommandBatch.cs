@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
         /// </summary>
         /// <param name="dependencies"> Service dependencies. </param>
-        protected ReaderModificationCommandBatch([NotNull] ModificationCommandBatchFactoryDependencies dependencies)
+        protected ReaderModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Gets or sets the cached command text for the commands in the batch.
         /// </summary>
-        protected virtual StringBuilder CachedCommandText { get; [param: NotNull] set; }
+        protected virtual StringBuilder CachedCommandText { get; set; }
 
         /// <summary>
         ///     The ordinal of the last command for which command text was built.
@@ -126,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="modificationCommand"> The command to potentially add. </param>
         /// <returns> <see langword="true" /> if the command can be added; <see langword="false" /> otherwise. </returns>
-        protected abstract bool CanAddCommand([NotNull] ModificationCommand modificationCommand);
+        protected abstract bool CanAddCommand(ModificationCommand modificationCommand);
 
         /// <summary>
         ///     Checks whether or not the command text is valid.
@@ -311,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Consumes the data reader created by <see cref="Execute" />.
         /// </summary>
         /// <param name="reader"> The data reader. </param>
-        protected abstract void Consume([NotNull] RelationalDataReader reader);
+        protected abstract void Consume(RelationalDataReader reader);
 
         /// <summary>
         ///     Consumes the data reader created by <see cref="ExecuteAsync" />.
@@ -321,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         protected abstract Task ConsumeAsync(
-            [NotNull] RelationalDataReader reader,
+            RelationalDataReader reader,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -334,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </param>
         /// <returns> The factory. </returns>
         protected virtual IRelationalValueBufferFactory CreateValueBufferFactory(
-            [NotNull] IReadOnlyList<ColumnModification> columnModifications)
+            IReadOnlyList<ColumnModification> columnModifications)
             => Dependencies.ValueBufferFactoryFactory
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))

@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="expression"> An expression used for ordering. </param>
         /// <param name="ascending"> A value indicating if the ordering is ascending. </param>
-        public OrderingExpression([NotNull] SqlExpression expression, bool ascending)
+        public OrderingExpression(SqlExpression expression, bool ascending)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="expression"> The <see cref="Expression" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual OrderingExpression Update([NotNull] SqlExpression expression)
+        public virtual OrderingExpression Update(SqlExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
 

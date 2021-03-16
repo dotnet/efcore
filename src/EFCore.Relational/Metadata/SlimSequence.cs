@@ -31,10 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public SlimSequence(
-            [NotNull] string name,
-            [CanBeNull] string? schema,
-            [NotNull] SlimModel model,
-            [NotNull] Type type,
+            string name,
+            string? schema,
+            SlimModel model,
+            Type type,
             long startValue,
             int incrementBy,
             bool cyclic,

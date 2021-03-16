@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -43,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected PropertyBase(
-            [NotNull] string name,
-            [CanBeNull] PropertyInfo? propertyInfo,
-            [CanBeNull] FieldInfo? fieldInfo,
+            string name,
+            PropertyInfo? propertyInfo,
+            FieldInfo? fieldInfo,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
@@ -134,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual FieldInfo? SetField([CanBeNull] string? fieldName, ConfigurationSource configurationSource)
+        public virtual FieldInfo? SetField(string? fieldName, ConfigurationSource configurationSource)
         {
             if (fieldName == null)
             {
@@ -157,9 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static FieldInfo? GetFieldInfo(
-            [NotNull] string fieldName,
-            [NotNull] TypeBase type,
-            [NotNull] string propertyName,
+            string fieldName,
+            TypeBase type,
+            string propertyName,
             bool shouldThrow)
         {
             if (!type.GetRuntimeFields().TryGetValue(fieldName, out var fieldInfo)
@@ -178,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual FieldInfo? SetFieldInfo([CanBeNull] FieldInfo? fieldInfo, ConfigurationSource configurationSource)
+        public virtual FieldInfo? SetFieldInfo(FieldInfo? fieldInfo, ConfigurationSource configurationSource)
         {
             EnsureMutable();
 
@@ -261,10 +260,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsCompatible(
-            [NotNull] FieldInfo fieldInfo,
-            [CanBeNull] Type? propertyType,
-            [CanBeNull] Type? entityType,
-            [CanBeNull] string? propertyName,
+            FieldInfo fieldInfo,
+            Type? propertyType,
+            Type? entityType,
+            string? propertyName,
             bool shouldThrow)
         {
             Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
@@ -329,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual FieldInfo? OnFieldInfoSet([CanBeNull] FieldInfo? newFieldInfo, [CanBeNull] FieldInfo? oldFieldInfo)
+        protected virtual FieldInfo? OnFieldInfoSet(FieldInfo? newFieldInfo, FieldInfo? oldFieldInfo)
             => newFieldInfo;
 
         /// <summary>
@@ -431,9 +430,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression CreateMemberAccess(
-            [CanBeNull] IPropertyBase? property,
-            [NotNull] Expression instanceExpression,
-            [NotNull] MemberInfo memberInfo)
+            IPropertyBase? property,
+            Expression instanceExpression,
+            MemberInfo memberInfo)
         {
             if (property?.IsIndexerProperty() == true)
             {

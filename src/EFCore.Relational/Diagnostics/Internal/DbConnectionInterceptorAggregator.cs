@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         {
             private readonly IDbConnectionInterceptor[] _interceptors;
 
-            public CompositeDbConnectionInterceptor([NotNull] IEnumerable<IDbConnectionInterceptor> interceptors)
+            public CompositeDbConnectionInterceptor(IEnumerable<IDbConnectionInterceptor> interceptors)
             {
                 _interceptors = interceptors.ToArray();
             }

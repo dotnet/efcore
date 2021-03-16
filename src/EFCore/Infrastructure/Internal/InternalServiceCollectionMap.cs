@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalServiceCollectionMap([NotNull] IServiceCollection serviceCollection)
+        public InternalServiceCollectionMap(IServiceCollection serviceCollection)
         {
             ServiceCollection = serviceCollection;
 
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IList<int> GetOrCreateDescriptorIndexes([NotNull] Type serviceType)
+        public virtual IList<int> GetOrCreateDescriptorIndexes(Type serviceType)
         {
             if (!_serviceMap.TryGetValue(serviceType, out var indexes))
             {
@@ -70,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AddNewDescriptor([NotNull] IList<int> indexes, [NotNull] ServiceDescriptor newDescriptor)
+        public virtual void AddNewDescriptor(IList<int> indexes, ServiceDescriptor newDescriptor)
         {
             indexes.Add(ServiceCollection.Count);
             ServiceCollection.Add(newDescriptor);
@@ -100,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IInternalServiceCollectionMap AddDependency([NotNull] Type serviceType, ServiceLifetime lifetime)
+        public virtual IInternalServiceCollectionMap AddDependency(Type serviceType, ServiceLifetime lifetime)
         {
             var indexes = GetOrCreateDescriptorIndexes(serviceType);
             if (!indexes.Any())

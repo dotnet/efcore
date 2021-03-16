@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -29,21 +28,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="memberName"> The name of the member to be ignored. </param>
         /// <returns> The name of the ignored member. </returns>
-        string? AddIgnored([NotNull] string memberName);
+        string? AddIgnored(string memberName);
 
         /// <summary>
         ///     Removes the ignored member name.
         /// </summary>
         /// <param name="memberName"> The name of the member to be removed. </param>
         /// <returns> The removed ignored member name, or <see langword="null" /> if the member name was not found. </returns>
-        string? RemoveIgnored([NotNull] string memberName);
+        string? RemoveIgnored(string memberName);
 
         /// <summary>
         ///     Indicates whether the given member name is ignored.
         /// </summary>
         /// <param name="memberName"> The name of the member that might be ignored. </param>
         /// <returns> <see langword="true" /> if the given member name is ignored. </returns>
-        bool IsIgnored([NotNull] string memberName);
+        bool IsIgnored(string memberName);
 
         /// <summary>
         ///     Gets all the ignored members.

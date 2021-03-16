@@ -5,7 +5,6 @@ using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -36,11 +35,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerSequenceHiLoValueGenerator(
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
-            [NotNull] SqlServerSequenceValueGeneratorState generatorState,
-            [NotNull] ISqlServerConnection connection,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            IRawSqlCommandBuilder rawSqlCommandBuilder,
+            ISqlServerUpdateSqlGenerator sqlGenerator,
+            SqlServerSequenceValueGeneratorState generatorState,
+            ISqlServerConnection connection,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
             : base(generatorState)
         {
             _sequence = generatorState.Sequence;

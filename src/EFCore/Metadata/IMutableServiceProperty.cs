@@ -25,6 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets <see cref="ServiceParameterBinding" /> for this property.
         /// </summary>
-        new ServiceParameterBinding? ParameterBinding { get; [param: CanBeNull] set; }
+        new ServiceParameterBinding? ParameterBinding { get; set; }
     }
 }

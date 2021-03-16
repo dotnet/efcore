@@ -21,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="navigationChain"> Navigation chain included to this point. </param>
         /// <param name="navigationName"> The name of the invalid navigation. </param>
         public InvalidIncludePathEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] string navigationChain,
-            [NotNull] string navigationName)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            string navigationChain,
+            string navigationName)
             : base(eventDefinition, messageGenerator)
         {
             NavigationChain = navigationChain;

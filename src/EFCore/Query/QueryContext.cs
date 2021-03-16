@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
         protected QueryContext(
-            [NotNull] QueryContextDependencies dependencies)
+            QueryContextDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
         /// <param name="navigation"> The navigation property. </param>
-        public virtual void SetNavigationIsLoaded([NotNull] object entity, [NotNull] INavigationBase navigation)
+        public virtual void SetNavigationIsLoaded(object entity, INavigationBase navigation)
         {
             Check.NotNull(entity, nameof(entity));
             Check.NotNull(navigation, nameof(navigation));
@@ -150,8 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public virtual InternalEntityEntry? TryGetEntry(
-            [NotNull] IKey key,
-            [NotNull] object[] keyValues,
+            IKey key,
+            object[] keyValues,
             bool throwOnNullKey,
             out bool hasNullKey)
             // InitializeStateManager will populate the field before calling here
@@ -165,8 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public virtual InternalEntityEntry StartTracking(
-            [NotNull] IEntityType entityType,
-            [NotNull] object entity,
+            IEntityType entityType,
+            object entity,
             ValueBuffer valueBuffer)
             // InitializeStateManager will populate the field before calling here
             => _stateManager!.StartTrackingFromQuery(entityType, entity, valueBuffer);

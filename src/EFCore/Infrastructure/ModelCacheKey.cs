@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context">
         ///     The context instance that this key is for.
         /// </param>
-        public ModelCacheKey([NotNull] DbContext context)
+        public ModelCacheKey(DbContext context)
         {
             _dbContextType = context.GetType();
         }
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     <see langword="true" /> if the key is for the same context type, otherwise <see langword="false" />.
         /// </returns>
-        protected virtual bool Equals([NotNull] ModelCacheKey other)
+        protected virtual bool Equals(ModelCacheKey other)
             => _dbContextType == other._dbContextType;
 
         /// <summary>

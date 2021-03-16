@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new instance of the <see cref="DistinctExpression" /> class.
         /// </summary>
         /// <param name="operand"> An expression on which DISTINCT is applied. </param>
-        public DistinctExpression([NotNull] SqlExpression operand)
+        public DistinctExpression(SqlExpression operand)
             : base(operand.Type, operand.TypeMapping)
         {
             Check.NotNull(operand, nameof(operand));
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="operand"> The <see cref="Operand" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual DistinctExpression Update([NotNull] SqlExpression operand)
+        public virtual DistinctExpression Update(SqlExpression operand)
         {
             Check.NotNull(operand, nameof(operand));
 

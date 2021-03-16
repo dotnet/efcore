@@ -4,13 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -37,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public SlimForeignKey(
-            [NotNull] IReadOnlyList<SlimProperty> dependentProperties,
-            [NotNull] SlimKey principalKey,
-            [NotNull] SlimEntityType dependentEntityType,
-            [NotNull] SlimEntityType principalEntityType,
+            IReadOnlyList<SlimProperty> dependentProperties,
+            SlimKey principalKey,
+            SlimEntityType dependentEntityType,
+            SlimEntityType principalEntityType,
             DeleteBehavior deleteBehavior,
             bool unique,
             bool required,
@@ -82,11 +81,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual SlimEntityType PrincipalEntityType { get; }
 
-        [CA.DisallowNull]
-        private SlimNavigation? DependentToPrincipal { get; [param: NotNull] set; }
+        [DisallowNull]
+        private SlimNavigation? DependentToPrincipal { get; set; }
 
-        [CA.DisallowNull]
-        private SlimNavigation? PrincipalToDependent { get; [param: NotNull] set; }
+        [DisallowNull]
+        private SlimNavigation? PrincipalToDependent { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -96,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public virtual void AddNavigation(
-            [NotNull] SlimNavigation navigation,
+            SlimNavigation navigation,
             bool onDependent)
         {
             if (onDependent)
@@ -116,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual SortedSet<SlimSkipNavigation>? ReferencingSkipNavigations { get; [param: CanBeNull] set; }
+        public virtual SortedSet<SlimSkipNavigation>? ReferencingSkipNavigations { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

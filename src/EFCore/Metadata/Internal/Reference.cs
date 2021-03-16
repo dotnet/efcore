@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Reference([NotNull] T @object)
+        public Reference(T @object)
             : this(@object, null)
         {
         }
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Reference([NotNull] T @object, [CanBeNull] IReferenceRoot<T>? root)
+        public Reference(T @object, IReferenceRoot<T>? root)
         {
             _object = @object;
             _root = root;
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual T Object
         {
             get => _object;
-            [param: NotNull] set => _object = value;
+            set => _object = value;
         }
 
         /// <summary>

@@ -3,7 +3,6 @@
 
 using System;
 using System.Data;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteGuidTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null)
             : base(storeType, dbType)
         {

@@ -20,6 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
         /// </summary>
         /// <param name="expressionPrinter"> The expression printer to use. </param>
-        void Print([NotNull] ExpressionPrinter expressionPrinter);
+        void Print(ExpressionPrinter expressionPrinter);
     }
 }

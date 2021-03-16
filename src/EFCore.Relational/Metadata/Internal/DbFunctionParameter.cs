@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -42,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DbFunctionParameter(
-            [NotNull] DbFunction function,
-            [NotNull] string name,
-            [NotNull] Type clrType)
+            DbFunction function,
+            string name,
+            Type clrType)
         {
             Check.NotNull(function, nameof(function));
             Check.NotEmpty(name, nameof(name));
@@ -131,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string? SetStoreType([CanBeNull] string? storeType, ConfigurationSource configurationSource)
+        public virtual string? SetStoreType(string? storeType, ConfigurationSource configurationSource)
         {
             _storeType = storeType;
 
@@ -177,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual RelationalTypeMapping? SetTypeMapping(
-            [CanBeNull] RelationalTypeMapping? typeMapping,
+            RelationalTypeMapping? typeMapping,
             ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;

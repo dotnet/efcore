@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -52,10 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ForeignKey(
-            [NotNull] IReadOnlyList<Property> dependentProperties,
-            [NotNull] Key principalKey,
-            [NotNull] EntityType dependentEntityType,
-            [NotNull] EntityType principalEntityType,
+            IReadOnlyList<Property> dependentProperties,
+            Key principalKey,
+            EntityType dependentEntityType,
+            EntityType principalEntityType,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(dependentProperties, nameof(dependentProperties));
@@ -158,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<SkipNavigation>? ReferencingSkipNavigations { get; [param: CanBeNull] set; }
+        public virtual SortedSet<SkipNavigation>? ReferencingSkipNavigations { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -213,8 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IReadOnlyList<Property> SetProperties(
-            [NotNull] IReadOnlyList<Property> properties,
-            [NotNull] Key principalKey,
+            IReadOnlyList<Property> properties,
+            Key principalKey,
             ConfigurationSource? configurationSource)
         {
             EnsureMutable();
@@ -331,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Navigation? SetDependentToPrincipal(
-            [CanBeNull] string? name,
+            string? name,
             ConfigurationSource configurationSource)
             => Navigation(MemberIdentity.Create(name), configurationSource, pointsToPrincipal: true);
 
@@ -342,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Navigation? SetDependentToPrincipal(
-            [CanBeNull] MemberInfo? property,
+            MemberInfo? property,
             ConfigurationSource configurationSource)
             => Navigation(MemberIdentity.Create(property), configurationSource, pointsToPrincipal: true);
 
@@ -379,9 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation? SetPrincipalToDependent(
-            [CanBeNull] string? name,
-            ConfigurationSource configurationSource)
+        public virtual Navigation? SetPrincipalToDependent(string? name, ConfigurationSource configurationSource)
             => Navigation(MemberIdentity.Create(name), configurationSource, pointsToPrincipal: false);
 
         /// <summary>
@@ -390,9 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation? SetPrincipalToDependent(
-            [CanBeNull] MemberInfo? property,
-            ConfigurationSource configurationSource)
+        public virtual Navigation? SetPrincipalToDependent(MemberInfo? property, ConfigurationSource configurationSource)
             => Navigation(MemberIdentity.Create(property), configurationSource, pointsToPrincipal: false);
 
         /// <summary>
@@ -855,7 +850,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Navigation> FindNavigationsFromInHierarchy([NotNull] EntityType entityType)
+        public virtual IEnumerable<Navigation> FindNavigationsFromInHierarchy(EntityType entityType)
             => ((IReadOnlyForeignKey)this).FindNavigationsFromInHierarchy(entityType).Cast<Navigation>();
 
         /// <summary>
@@ -864,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Navigation> FindNavigationsTo([NotNull] EntityType entityType)
+        public virtual IEnumerable<Navigation> FindNavigationsTo(EntityType entityType)
             => ((IReadOnlyForeignKey)this).FindNavigationsTo(entityType).Cast<Navigation>();
 
         /// <summary>
@@ -873,7 +868,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityType ResolveOtherEntityType([NotNull] EntityType entityType)
+        public virtual EntityType ResolveOtherEntityType(EntityType entityType)
             => (EntityType)((IReadOnlyForeignKey)this).GetRelatedEntityType(entityType);
 
         // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
@@ -1015,12 +1010,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatible(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
-            [CanBeNull] MemberInfo? navigationToPrincipal,
-            [CanBeNull] MemberInfo? navigationToDependent,
-            [CanBeNull] IReadOnlyList<IReadOnlyProperty>? dependentProperties,
-            [CanBeNull] IReadOnlyList<IReadOnlyProperty>? principalProperties,
+            EntityType principalEntityType,
+            EntityType dependentEntityType,
+            MemberInfo? navigationToPrincipal,
+            MemberInfo? navigationToDependent,
+            IReadOnlyList<IReadOnlyProperty>? dependentProperties,
+            IReadOnlyList<IReadOnlyProperty>? principalProperties,
             bool? unique,
             bool shouldThrow)
         {
@@ -1068,10 +1063,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatible(
-            [NotNull] IReadOnlyList<IReadOnlyProperty> principalProperties,
-            [NotNull] IReadOnlyList<IReadOnlyProperty> dependentProperties,
-            [NotNull] IReadOnlyEntityType principalEntityType,
-            [NotNull] IReadOnlyEntityType dependentEntityType,
+            IReadOnlyList<IReadOnlyProperty> principalProperties,
+            IReadOnlyList<IReadOnlyProperty> dependentProperties,
+            IReadOnlyEntityType principalEntityType,
+            IReadOnlyEntityType dependentEntityType,
             bool shouldThrow)
         {
             Check.NotNull(principalProperties, nameof(principalProperties));

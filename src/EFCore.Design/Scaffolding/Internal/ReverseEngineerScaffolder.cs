@@ -7,7 +7,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -42,13 +41,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ReverseEngineerScaffolder(
-            [NotNull] IDatabaseModelFactory databaseModelFactory,
-            [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
-            [NotNull] IModelCodeGeneratorSelector modelCodeGeneratorSelector,
-            [NotNull] ICSharpUtilities cSharpUtilities,
-            [NotNull] ICSharpHelper cSharpHelper,
-            [NotNull] INamedConnectionStringResolver connectionStringResolver,
-            [NotNull] IOperationReporter reporter)
+            IDatabaseModelFactory databaseModelFactory,
+            IScaffoldingModelFactory scaffoldingModelFactory,
+            IModelCodeGeneratorSelector modelCodeGeneratorSelector,
+            ICSharpUtilities cSharpUtilities,
+            ICSharpHelper cSharpHelper,
+            INamedConnectionStringResolver connectionStringResolver,
+            IOperationReporter reporter)
         {
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));

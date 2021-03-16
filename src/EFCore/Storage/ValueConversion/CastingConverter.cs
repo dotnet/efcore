@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
-        public CastingConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
+        public CastingConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 Convert<TModel, TProvider>(),
                 Convert<TProvider, TModel>(),

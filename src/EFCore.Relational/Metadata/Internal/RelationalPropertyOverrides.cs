@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public RelationalPropertyOverrides([NotNull] IReadOnlyProperty property)
+        public RelationalPropertyOverrides(IReadOnlyProperty property)
         {
             Property = property;
         }
@@ -56,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string? ColumnName
         {
             get => _columnName;
-            [param: CanBeNull]
             set => SetColumnName(value, ConfigurationSource.Explicit);
         }
 
@@ -66,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string? SetColumnName([CanBeNull] string? columnName, ConfigurationSource configurationSource)
+        public virtual string? SetColumnName(string? columnName, ConfigurationSource configurationSource)
         {
             EnsureMutable();
 
@@ -100,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IRelationalPropertyOverrides? Find([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+        public static IRelationalPropertyOverrides? Find(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var tableOverrides = (SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>?)
                 property[RelationalAnnotationNames.RelationalOverrides];
@@ -117,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyOverrides GetOrCreate(
-            [NotNull] IMutableProperty property,
+            IMutableProperty property,
             in StoreObjectIdentifier storeObject)
         {
             var tableOverrides = (SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>?)
@@ -144,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyOverrides GetOrCreate(
-            [NotNull] IConventionProperty property,
+            IConventionProperty property,
             in StoreObjectIdentifier storeObject)
             => GetOrCreate((IMutableProperty)property, storeObject);
 

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -622,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private bool ReconstructAnonymousType(
                 Expression currentRoot,
                 NewExpression newExpression,
-                [CA.NotNullWhen(true)] out Expression? replacement)
+                [NotNullWhen(true)] out Expression? replacement)
             {
                 replacement = null;
                 var changed = false;
@@ -908,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _applyIncludes = applyIncludes;
             }
 
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is NavigationExpansionExpression navigationExpansionExpression)
@@ -934,7 +934,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class ReducingExpressionVisitor : ExpressionVisitor
         {
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 switch (expression)
@@ -1002,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class EntityReferenceOptionalMarkingExpressionVisitor : ExpressionVisitor
         {
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is EntityReference entityReference)
@@ -1088,7 +1088,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ExpressionType nodeType,
                 Expression left,
                 Expression right,
-                [CA.NotNullWhen(true)] out Expression? result)
+                [NotNullWhen(true)] out Expression? result)
             {
                 result = null;
                 var leftNavigationData = ProcessNavigationPath(left) as NavigationDataExpression;

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public RelationalTransactionFactoryDependencies([NotNull] ISqlGenerationHelper sqlGenerationHelper)
+        public RelationalTransactionFactoryDependencies(ISqlGenerationHelper sqlGenerationHelper)
         {
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
 
@@ -63,6 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Helpers for SQL generation.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; init; }
     }
 }

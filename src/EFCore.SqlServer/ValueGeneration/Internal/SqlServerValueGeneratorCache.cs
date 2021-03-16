@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Concurrent;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public SqlServerValueGeneratorCache([NotNull] ValueGeneratorCacheDependencies dependencies)
+        public SqlServerValueGeneratorCache(ValueGeneratorCacheDependencies dependencies)
             : base(dependencies)
         {
         }

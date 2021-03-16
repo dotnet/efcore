@@ -43,19 +43,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public SlimDbFunction(
-            [NotNull] string modelName,
-            [NotNull] SlimModel model,
-            [CanBeNull] MethodInfo? methodInfo,
-            [NotNull] Type returnType,
+            string modelName,
+            SlimModel model,
+            MethodInfo? methodInfo,
+            Type returnType,
             bool scalar,
             bool aggregate,
             bool nullable,
             bool builtIn,
-            [NotNull] string storeName,
-            [CanBeNull] string? schema,
-            [CanBeNull] string? storeType,
-            [CanBeNull] RelationalTypeMapping? typeMapping = null,
-            [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation = null)
+            string storeName,
+            string? schema,
+            string? storeType,
+            RelationalTypeMapping? typeMapping = null,
+            Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation = null)
         {
             ModelName = modelName;
             Model = model;
@@ -92,11 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> for this parameter. </param>
         /// <returns> The new parameter. </returns>
         public virtual SlimDbFunctionParameter AddParameter(
-            [NotNull] string name,
-            [NotNull] Type clrType,
+            string name,
+            Type clrType,
             bool propagatesNullability,
-            [NotNull] string storeType,
-            [CanBeNull] RelationalTypeMapping? typeMapping = null)
+            string storeType,
+            RelationalTypeMapping? typeMapping = null)
         {
             var slimFunctionParameter = new SlimDbFunctionParameter(this,
                 name,

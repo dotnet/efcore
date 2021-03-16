@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DocumentSource([NotNull] IEntityType entityType, [NotNull] CosmosDatabaseWrapper database)
+        public DocumentSource(IEntityType entityType, CosmosDatabaseWrapper database)
         {
             _containerId = entityType.GetContainer()!;
             _database = database;
@@ -60,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string GetId([NotNull] IUpdateEntry entry)
+        public virtual string GetId(IUpdateEntry entry)
             => _idProperty is null
                 ? throw new InvalidOperationException(CosmosStrings.NoIdProperty(_entityType.DisplayName()))
                 : (string)entry.GetCurrentProviderValue(_idProperty)!;
@@ -71,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject CreateDocument([NotNull] IUpdateEntry entry)
+        public virtual JObject CreateDocument(IUpdateEntry entry)
             => CreateDocument(entry, null);
 
         /// <summary>
@@ -80,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject CreateDocument([NotNull] IUpdateEntry entry, int? ordinal)
+        public virtual JObject CreateDocument(IUpdateEntry entry, int? ordinal)
         {
             var document = new JObject();
             foreach (var property in entry.EntityType.GetProperties())
@@ -151,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject? UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry)
+        public virtual JObject? UpdateDocument(JObject document, IUpdateEntry entry)
             => UpdateDocument(document, entry, null);
 
         /// <summary>
@@ -160,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject? UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry, int? ordinal)
+        public virtual JObject? UpdateDocument(JObject document, IUpdateEntry entry, int? ordinal)
         {
             var anyPropertyUpdated = false;
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -320,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject? GetCurrentDocument([NotNull] IUpdateEntry entry)
+        public virtual JObject? GetCurrentDocument(IUpdateEntry entry)
             => _jObjectProperty != null
                 ? (JObject?)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(_jObjectProperty)
                 : null;

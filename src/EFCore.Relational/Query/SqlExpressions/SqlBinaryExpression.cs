@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -60,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public SqlBinaryExpression(
             ExpressionType operatorType,
-            [NotNull] SqlExpression left,
-            [NotNull] SqlExpression right,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping? typeMapping)
+            SqlExpression left,
+            SqlExpression right,
+            Type type,
+            RelationalTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
             Check.NotNull(left, nameof(left));
@@ -114,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="left"> The <see cref="Left" /> property of the result. </param>
         /// <param name="right"> The <see cref="Right" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual SqlBinaryExpression Update([NotNull] SqlExpression left, [NotNull] SqlExpression right)
+        public virtual SqlBinaryExpression Update(SqlExpression left, SqlExpression right)
         {
             Check.NotNull(left, nameof(left));
             Check.NotNull(right, nameof(right));

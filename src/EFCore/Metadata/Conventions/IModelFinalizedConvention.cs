@@ -14,6 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Called after a model is finalized and can no longer be mutated.
         /// </summary>
         /// <param name="model"> The model. </param>
-        IModel ProcessModelFinalized([NotNull] IModel model);
+        IModel ProcessModelFinalized(IModel model);
     }
 }

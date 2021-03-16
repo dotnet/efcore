@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -134,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override void Print([NotNull] ExpressionPrinter expressionPrinter)
+            protected override void Print(ExpressionPrinter expressionPrinter)
                 => expressionPrinter.Append("FakeSqlExpression");
         }
 

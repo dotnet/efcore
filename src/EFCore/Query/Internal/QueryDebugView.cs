@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public QueryDebugView(
-            [NotNull] Func<string> toExpressionString,
-            [NotNull] Func<string> toQueryString)
+            Func<string> toExpressionString,
+            Func<string> toQueryString)
         {
             _toExpressionString = toExpressionString;
             _toQueryString = toQueryString;

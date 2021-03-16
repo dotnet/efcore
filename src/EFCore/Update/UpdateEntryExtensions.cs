@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="updateEntry"> The entry. </param>
         /// <param name="property"> The property to get the value for. </param>
         /// <returns> The value for the property. </returns>
-        public static object? GetCurrentProviderValue([NotNull] this IUpdateEntry updateEntry, [NotNull] IProperty property)
+        public static object? GetCurrentProviderValue(this IUpdateEntry updateEntry, IProperty property)
         {
             var value = updateEntry.GetCurrentValue(property);
             var typeMapping = property.GetTypeMapping();
@@ -57,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this IUpdateEntry updateEntry,
+            this IUpdateEntry updateEntry,
             ChangeTrackerDebugStringOptions options,
             int indent = 0)
         {
@@ -246,8 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="properties"> The properties to format. </param>
         /// <returns> The string representation. </returns>
         public static string BuildCurrentValuesString(
-            [NotNull] this IUpdateEntry entry,
-            [NotNull] IEnumerable<IPropertyBase> properties)
+            this IUpdateEntry entry,
+            IEnumerable<IPropertyBase> properties)
             => "{"
                 + string.Join(
                     ", ", properties.Select(
@@ -271,8 +270,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="properties"> The properties to format. </param>
         /// <returns> The string representation. </returns>
         public static string BuildOriginalValuesString(
-            [NotNull] this IUpdateEntry entry,
-            [NotNull] IEnumerable<IPropertyBase> properties)
+            this IUpdateEntry entry,
+            IEnumerable<IPropertyBase> properties)
             => "{"
                 + string.Join(
                     ", ", properties.Select(

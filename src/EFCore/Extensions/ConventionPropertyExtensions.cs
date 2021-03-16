@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The list of all associated principal properties including the given property. </returns>
         [Obsolete("Use IConventionProperty.GetPrincipals")]
-        public static IReadOnlyList<IConventionProperty> FindPrincipals([NotNull] this IConventionProperty property)
+        public static IReadOnlyList<IConventionProperty> FindPrincipals(this IConventionProperty property)
             => property.GetPrincipals();
 
         /// <summary>
@@ -35,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static void SetKeyValueComparer(
-            [NotNull] this IConventionProperty property,
-            [CanBeNull] ValueComparer? comparer,
+            this IConventionProperty property,
+            ValueComparer? comparer,
             bool fromDataAnnotation = false)
             => property.SetValueComparer(comparer);
 
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to find configuration source for. </param>
         /// <returns> The configuration source for <see cref="IReadOnlyProperty.GetKeyValueComparer" />. </returns>
         [Obsolete("Use GetValueComparerConfigurationSource. Only a single value comparer is allowed for a given property.")]
-        public static ConfigurationSource? GetKeyValueComparerConfigurationSource([NotNull] this IConventionProperty property)
+        public static ConfigurationSource? GetKeyValueComparerConfigurationSource(this IConventionProperty property)
             => property.FindAnnotation(CoreAnnotationNames.KeyValueComparer)?.GetConfigurationSource();
 
         /// <summary>
@@ -57,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
         public static void SetStructuralValueComparer(
-            [NotNull] this IConventionProperty property,
-            [CanBeNull] ValueComparer? comparer,
+            this IConventionProperty property,
+            ValueComparer? comparer,
             bool fromDataAnnotation = false)
             => property.SetKeyValueComparer(comparer, fromDataAnnotation);
 
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to find configuration source for. </param>
         /// <returns> The configuration source for <see cref="PropertyExtensions.GetStructuralValueComparer" />. </returns>
         [Obsolete("Use GetValueComparerConfigurationSource. Only a single value comparer is allowed for a given property.")]
-        public static ConfigurationSource? GetStructuralValueComparerConfigurationSource([NotNull] this IConventionProperty property)
+        public static ConfigurationSource? GetStructuralValueComparerConfigurationSource(this IConventionProperty property)
             => property.GetKeyValueComparerConfigurationSource();
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -29,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="serviceType"> The service CLR types, as resolved from dependency injection </param>
         /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
         public DependencyInjectionParameterBinding(
-            [NotNull] Type parameterType,
-            [NotNull] Type serviceType,
-            [CanBeNull] IPropertyBase? serviceProperty = null)
+            Type parameterType,
+            Type serviceType,
+            IPropertyBase? serviceProperty = null)
             : base(parameterType, serviceType, serviceProperty)
         {
         }

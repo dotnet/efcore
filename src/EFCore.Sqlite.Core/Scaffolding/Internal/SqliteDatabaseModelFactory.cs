@@ -8,7 +8,6 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -41,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteDatabaseModelFactory(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
+            IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));

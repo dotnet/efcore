@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -24,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema">The schema of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder UseHiLo(
-            [NotNull] this ModelBuilder modelBuilder,
-            [CanBeNull] string? name = null,
-            [CanBeNull] string? schema = null)
+            this ModelBuilder modelBuilder,
+            string? name = null,
+            string? schema = null)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -60,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> A builder to further configure the sequence. </returns>
         public static IConventionSequenceBuilder? HasHiLoSequence(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? name,
-            [CanBeNull] string? schema,
+            this IConventionModelBuilder modelBuilder,
+            string? name,
+            string? schema,
             bool fromDataAnnotation = false)
         {
             if (!modelBuilder.CanSetHiLoSequence(name, schema))
@@ -85,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given name and schema can be set for the hi-lo sequence. </returns>
         public static bool CanSetHiLoSequence(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? name,
-            [CanBeNull] string? schema,
+            this IConventionModelBuilder modelBuilder,
+            string? name,
+            string? schema,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -108,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder UseIdentityColumns(
-            [NotNull] this ModelBuilder modelBuilder,
+            this ModelBuilder modelBuilder,
             int seed = 1,
             int increment = 1)
         {
@@ -136,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder? HasIdentityColumnSeed(
-            [NotNull] this IConventionModelBuilder modelBuilder,
+            this IConventionModelBuilder modelBuilder,
             int? seed,
             bool fromDataAnnotation = false)
         {
@@ -157,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given value can be set as the seed for SQL Server IDENTITY. </returns>
         public static bool CanSetIdentityColumnSeed(
-            [NotNull] this IConventionModelBuilder modelBuilder,
+            this IConventionModelBuilder modelBuilder,
             int? seed,
             bool fromDataAnnotation = false)
         {
@@ -177,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder? HasIdentityColumnIncrement(
-            [NotNull] this IConventionModelBuilder modelBuilder,
+            this IConventionModelBuilder modelBuilder,
             int? increment,
             bool fromDataAnnotation = false)
         {
@@ -198,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given value can be set as the default increment for SQL Server IDENTITY. </returns>
         public static bool CanSetIdentityColumnIncrement(
-            [NotNull] this IConventionModelBuilder modelBuilder,
+            this IConventionModelBuilder modelBuilder,
             int? increment,
             bool fromDataAnnotation = false)
         {
@@ -219,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder? HasValueGenerationStrategy(
-            [NotNull] this IConventionModelBuilder modelBuilder,
+            this IConventionModelBuilder modelBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
             bool fromDataAnnotation = false)
         {
@@ -251,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given value can be set as the default value generation strategy. </returns>
         public static bool CanSetValueGenerationStrategy(
-            [NotNull] this IConventionModelBuilder modelBuilder,
+            this IConventionModelBuilder modelBuilder,
             SqlServerValueGenerationStrategy? valueGenerationStrategy,
             bool fromDataAnnotation = false)
         {
@@ -272,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="maxSize"> The maximum size of the database. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static ModelBuilder HasDatabaseMaxSize([NotNull] this ModelBuilder modelBuilder, [NotNull] string maxSize)
+        public static ModelBuilder HasDatabaseMaxSize(this ModelBuilder modelBuilder, string maxSize)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(maxSize, nameof(maxSize));
@@ -298,8 +297,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder? HasDatabaseMaxSize(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? maxSize,
+            this IConventionModelBuilder modelBuilder,
+            string? maxSize,
             bool fromDataAnnotation = false)
         {
             if (modelBuilder.CanSetDatabaseMaxSize(maxSize, fromDataAnnotation))
@@ -319,8 +318,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given value can be set as the maximum size of the database. </returns>
         public static bool CanSetDatabaseMaxSize(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? maxSize,
+            this IConventionModelBuilder modelBuilder,
+            string? maxSize,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -339,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="serviceTier"> The service tier of the database as a string literal. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static ModelBuilder HasServiceTier([NotNull] this ModelBuilder modelBuilder, [NotNull] string serviceTier)
+        public static ModelBuilder HasServiceTier(this ModelBuilder modelBuilder, string serviceTier)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(serviceTier, nameof(serviceTier));
@@ -360,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="serviceTier"> The expression for the service tier of the database. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static ModelBuilder HasServiceTierSql([NotNull] this ModelBuilder modelBuilder, [NotNull] string serviceTier)
+        public static ModelBuilder HasServiceTierSql(this ModelBuilder modelBuilder, string serviceTier)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(serviceTier, nameof(serviceTier));
@@ -386,8 +385,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder? HasServiceTierSql(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? serviceTier,
+            this IConventionModelBuilder modelBuilder,
+            string? serviceTier,
             bool fromDataAnnotation = false)
         {
             if (modelBuilder.CanSetServiceTierSql(serviceTier, fromDataAnnotation))
@@ -407,8 +406,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given value can be set as the service tier of the database. </returns>
         public static bool CanSetServiceTierSql(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? serviceTier,
+            this IConventionModelBuilder modelBuilder,
+            string? serviceTier,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -427,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="performanceLevel"> The performance level of the database as a string literal. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static ModelBuilder HasPerformanceLevel([NotNull] this ModelBuilder modelBuilder, [NotNull] string performanceLevel)
+        public static ModelBuilder HasPerformanceLevel(this ModelBuilder modelBuilder, string performanceLevel)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(performanceLevel, nameof(performanceLevel));
@@ -448,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="performanceLevel"> The expression for the performance level of the database. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static ModelBuilder HasPerformanceLevelSql([NotNull] this ModelBuilder modelBuilder, [NotNull] string performanceLevel)
+        public static ModelBuilder HasPerformanceLevelSql(this ModelBuilder modelBuilder, string performanceLevel)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(performanceLevel, nameof(performanceLevel));
@@ -474,8 +473,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder? HasPerformanceLevelSql(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? performanceLevel,
+            this IConventionModelBuilder modelBuilder,
+            string? performanceLevel,
             bool fromDataAnnotation = false)
         {
             if (modelBuilder.CanSetPerformanceLevelSql(performanceLevel, fromDataAnnotation))
@@ -495,8 +494,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given value can be set as the performance level of the database. </returns>
         public static bool CanSetPerformanceLevelSql(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? performanceLevel,
+            this IConventionModelBuilder modelBuilder,
+            string? performanceLevel,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));

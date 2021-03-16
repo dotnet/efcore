@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ModelCodeGeneratorSelector([NotNull] IEnumerable<IModelCodeGenerator> services)
+        public ModelCodeGeneratorSelector(IEnumerable<IModelCodeGenerator> services)
             : base(services)
         {
         }

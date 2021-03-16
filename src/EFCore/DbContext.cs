@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -92,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="options">The options for this context.</param>
-        public DbContext([NotNull] DbContextOptions options)
+        public DbContext(DbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
 
@@ -298,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>
-        public virtual DbSet<TEntity> Set<TEntity>([NotNull] string name)
+        public virtual DbSet<TEntity> Set<TEntity>(string name)
             where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, name, typeof(TEntity));
 
@@ -879,7 +878,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <returns> The entry for the given entity. </returns>
-        public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Entry<TEntity>(TEntity entity)
             where TEntity : class
         {
             Check.NotNull(entity, nameof(entity));
@@ -909,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <returns> The entry for the given entity. </returns>
-        public virtual EntityEntry Entry([NotNull] object entity)
+        public virtual EntityEntry Entry(object entity)
         {
             Check.NotNull(entity, nameof(entity));
             CheckDisposed();
@@ -978,7 +977,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Add<TEntity>(TEntity entity)
             where TEntity : class
         {
             CheckDisposed();
@@ -1008,7 +1007,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async ValueTask<EntityEntry<TEntity>> AddAsync<TEntity>(
-            [NotNull] TEntity entity,
+            TEntity entity,
             CancellationToken cancellationToken = default)
             where TEntity : class
         {
@@ -1057,7 +1056,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Attach<TEntity>(TEntity entity)
             where TEntity : class
         {
             CheckDisposed();
@@ -1100,7 +1099,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Update<TEntity>(TEntity entity)
             where TEntity : class
         {
             CheckDisposed();
@@ -1133,7 +1132,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Remove<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Remove<TEntity>(TEntity entity)
             where TEntity : class
         {
             Check.NotNull(entity, nameof(entity));
@@ -1184,7 +1183,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Add([NotNull] object entity)
+        public virtual EntityEntry Add(object entity)
         {
             CheckDisposed();
 
@@ -1215,7 +1214,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async ValueTask<EntityEntry> AddAsync(
-            [NotNull] object entity,
+            object entity,
             CancellationToken cancellationToken = default)
         {
             CheckDisposed();
@@ -1262,7 +1261,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Attach([NotNull] object entity)
+        public virtual EntityEntry Attach(object entity)
         {
             CheckDisposed();
 
@@ -1303,7 +1302,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Update([NotNull] object entity)
+        public virtual EntityEntry Update(object entity)
         {
             CheckDisposed();
 
@@ -1334,7 +1333,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Remove([NotNull] object entity)
+        public virtual EntityEntry Remove(object entity)
         {
             Check.NotNull(entity, nameof(entity));
             CheckDisposed();
@@ -1372,7 +1371,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        public virtual void AddRange([NotNull] params object[] entities)
+        public virtual void AddRange(params object[] entities)
         {
             CheckDisposed();
 
@@ -1393,7 +1392,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        public virtual Task AddRangeAsync([NotNull] params object[] entities)
+        public virtual Task AddRangeAsync(params object[] entities)
         {
             CheckDisposed();
 
@@ -1430,7 +1429,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        public virtual void AttachRange([NotNull] params object[] entities)
+        public virtual void AttachRange(params object[] entities)
         {
             CheckDisposed();
 
@@ -1467,7 +1466,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        public virtual void UpdateRange([NotNull] params object[] entities)
+        public virtual void UpdateRange(params object[] entities)
         {
             CheckDisposed();
 
@@ -1491,7 +1490,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
-        public virtual void RemoveRange([NotNull] params object[] entities)
+        public virtual void RemoveRange(params object[] entities)
         {
             CheckDisposed();
 
@@ -1514,7 +1513,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        public virtual void AddRange([NotNull] IEnumerable<object> entities)
+        public virtual void AddRange(IEnumerable<object> entities)
         {
             CheckDisposed();
 
@@ -1540,7 +1539,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task AddRangeAsync(
-            [NotNull] IEnumerable<object> entities,
+            IEnumerable<object> entities,
             CancellationToken cancellationToken = default)
         {
             CheckDisposed();
@@ -1587,7 +1586,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        public virtual void AttachRange([NotNull] IEnumerable<object> entities)
+        public virtual void AttachRange(IEnumerable<object> entities)
         {
             CheckDisposed();
 
@@ -1624,7 +1623,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        public virtual void UpdateRange([NotNull] IEnumerable<object> entities)
+        public virtual void UpdateRange(IEnumerable<object> entities)
         {
             CheckDisposed();
 
@@ -1648,7 +1647,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
-        public virtual void RemoveRange([NotNull] IEnumerable<object> entities)
+        public virtual void RemoveRange(IEnumerable<object> entities)
         {
             Check.NotNull(entities, nameof(entities));
             CheckDisposed();
@@ -1684,7 +1683,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual object? Find([NotNull] Type entityType, [CanBeNull] params object?[]? keyValues)
+        public virtual object? Find(Type entityType, params object?[]? keyValues)
         {
             CheckDisposed();
 
@@ -1701,7 +1700,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual ValueTask<object?> FindAsync([NotNull] Type entityType, [CanBeNull] params object?[]? keyValues)
+        public virtual ValueTask<object?> FindAsync(Type entityType, params object?[]? keyValues)
         {
             CheckDisposed();
 
@@ -1721,8 +1720,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The entity found, or <see langword="null" />.</returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<object?> FindAsync(
-            [NotNull] Type entityType,
-            [CanBeNull] object?[]? keyValues,
+            Type entityType,
+            object?[]? keyValues,
             CancellationToken cancellationToken)
         {
             CheckDisposed();
@@ -1740,7 +1739,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual TEntity? Find<TEntity>([CanBeNull] params object?[]? keyValues)
+        public virtual TEntity? Find<TEntity>(params object?[]? keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1758,7 +1757,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual ValueTask<TEntity?> FindAsync<TEntity>([CanBeNull] params object?[]? keyValues)
+        public virtual ValueTask<TEntity?> FindAsync<TEntity>(params object?[]? keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1778,7 +1777,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual ValueTask<TEntity?> FindAsync<TEntity>([CanBeNull] object?[]? keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<TEntity?> FindAsync<TEntity>(object?[]? keyValues, CancellationToken cancellationToken)
             where TEntity : class
         {
             CheckDisposed();
@@ -1804,7 +1803,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult"> The result type of the query expression. </typeparam>
         /// <param name="expression"> The query expression to create. </param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the query. </returns>
-        public virtual IQueryable<TResult> FromExpression<TResult>([NotNull] Expression<Func<IQueryable<TResult>>> expression)
+        public virtual IQueryable<TResult> FromExpression<TResult>(Expression<Func<IQueryable<TResult>>> expression)
         {
             Check.NotNull(expression, nameof(expression));
 

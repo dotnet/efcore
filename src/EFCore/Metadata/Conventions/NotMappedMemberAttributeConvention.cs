@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="NotMappedMemberAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public NotMappedMemberAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public NotMappedMemberAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="memberInfo"> The member. </param>
         /// <returns> <see langword="true"/> if the member should be ignored. </returns>
-        protected virtual bool ShouldIgnore([NotNull] MemberInfo memberInfo)
+        protected virtual bool ShouldIgnore(MemberInfo memberInfo)
             => true;
     }
 }

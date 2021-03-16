@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -181,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <see langword="true" /> if <paramref name="derivedType" /> derives from (or is the same as) this entity type,
         ///     otherwise <see langword="false" />.
         /// </returns>
-        bool IsAssignableFrom([NotNull] IReadOnlyEntityType derivedType)
+        bool IsAssignableFrom(IReadOnlyEntityType derivedType)
         {
             Check.NotNull(derivedType, nameof(derivedType));
 
@@ -207,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <see langword="true" /> if this entity type derives from (but is not the same as) <paramref name="baseType" />,
         ///     otherwise <see langword="false" />.
         /// </returns>
-        bool IsStrictlyDerivedFrom([NotNull] IReadOnlyEntityType baseType)
+        bool IsStrictlyDerivedFrom(IReadOnlyEntityType baseType)
             => this != Check.NotNull(baseType, nameof(baseType)) && baseType.IsAssignableFrom(this);
 
         /// <summary>
@@ -220,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The closest common parent of this entity type and <paramref name="otherEntityType" />,
         ///     or <see langword="null" /> if they have not common parent.
         /// </returns>
-        IReadOnlyEntityType? FindClosestCommonParent([NotNull] IReadOnlyEntityType otherEntityType)
+        IReadOnlyEntityType? FindClosestCommonParent(IReadOnlyEntityType otherEntityType)
         {
             Check.NotNull(otherEntityType, nameof(otherEntityType));
 
@@ -236,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The least derived type between the specified two.
         ///     If the given entity types are not related, then <see langword="null" /> is returned.
         /// </returns>
-        IReadOnlyEntityType? LeastDerivedType([NotNull] IReadOnlyEntityType otherEntityType)
+        IReadOnlyEntityType? LeastDerivedType(IReadOnlyEntityType otherEntityType)
             => IsAssignableFrom(Check.NotNull(otherEntityType, nameof(otherEntityType)))
                 ? this
                 : otherEntityType.IsAssignableFrom(this)
@@ -255,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties that make up the key. </param>
         /// <returns> The key, or <see langword="null" /> if none is defined. </returns>
-        IReadOnlyKey? FindKey([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
+        IReadOnlyKey? FindKey(IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns <see langword="null" /> if no key is defined
@@ -263,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="property"> The property that the key is defined on. </param>
         /// <returns> The key, or null if none is defined. </returns>
-        IReadOnlyKey? FindKey([NotNull] IReadOnlyProperty property)
+        IReadOnlyKey? FindKey(IReadOnlyProperty property)
             => FindKey(new[] { property });
 
         /// <summary>
@@ -298,9 +297,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
         IReadOnlyForeignKey? FindForeignKey(
-            [NotNull] IReadOnlyList<IReadOnlyProperty> properties,
-            [NotNull] IReadOnlyKey principalKey,
-            [NotNull] IReadOnlyEntityType principalEntityType);
+            IReadOnlyList<IReadOnlyProperty> properties,
+            IReadOnlyKey principalKey,
+            IReadOnlyEntityType principalEntityType);
 
         /// <summary>
         ///     Gets the foreign keys defined on the given property. Only foreign keys that are defined on exactly the specified
@@ -308,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
-        IEnumerable<IReadOnlyForeignKey> FindForeignKeys([NotNull] IReadOnlyProperty property)
+        IEnumerable<IReadOnlyForeignKey> FindForeignKeys(IReadOnlyProperty property)
             => FindForeignKeys(new[] { property });
 
         /// <summary>
@@ -317,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
-        IEnumerable<IReadOnlyForeignKey> FindForeignKeys([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
+        IEnumerable<IReadOnlyForeignKey> FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
         ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns <see langword="null" />
@@ -332,9 +331,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
         IReadOnlyForeignKey? FindForeignKey(
-            [NotNull] IReadOnlyProperty property,
-            [NotNull] IReadOnlyKey principalKey,
-            [NotNull] IReadOnlyEntityType principalEntityType)
+            IReadOnlyProperty property,
+            IReadOnlyKey principalKey,
+            IReadOnlyEntityType principalEntityType)
             => FindForeignKey(new[] { property }, principalKey, principalEntityType);
 
         /// <summary>
@@ -342,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties to find the foreign keys on. </param>
         /// <returns> Declared foreign keys. </returns>
-        IEnumerable<IReadOnlyForeignKey> FindDeclaredForeignKeys([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
+        IEnumerable<IReadOnlyForeignKey> FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
         ///     <para>
@@ -422,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <see langword="true" /> if <paramref name="targetType" /> is in ownership path of this entity type,
         ///     otherwise <see langword="false" />.
         /// </returns>
-        bool IsInOwnershipPath([NotNull] IReadOnlyEntityType targetType)
+        bool IsInOwnershipPath(IReadOnlyEntityType targetType)
         {
             var owner = this;
             while (true)
@@ -446,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyNavigation? FindNavigation([NotNull] MemberInfo memberInfo)
+        IReadOnlyNavigation? FindNavigation(MemberInfo memberInfo)
             => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
 
         /// <summary>
@@ -454,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyNavigation? FindNavigation([NotNull] string name)
+        IReadOnlyNavigation? FindNavigation(string name)
             => FindDeclaredNavigation(Check.NotEmpty(name, nameof(name))) ?? BaseType?.FindNavigation(name);
 
         /// <summary>
@@ -463,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyNavigation? FindDeclaredNavigation([NotNull] string name);
+        IReadOnlyNavigation? FindDeclaredNavigation(string name);
 
         /// <summary>
         ///     <para>
@@ -502,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlySkipNavigation? FindSkipNavigation([NotNull] MemberInfo memberInfo)
+        IReadOnlySkipNavigation? FindSkipNavigation(MemberInfo memberInfo)
             => FindSkipNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
 
         /// <summary>
@@ -510,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlySkipNavigation? FindSkipNavigation([NotNull] string name);
+        IReadOnlySkipNavigation? FindSkipNavigation(string name);
 
         /// <summary>
         ///     <para>
@@ -523,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlySkipNavigation? FindDeclaredSkipNavigation([NotNull] string name)
+        IReadOnlySkipNavigation? FindDeclaredSkipNavigation(string name)
         {
             var navigation = FindSkipNavigation(name);
             return navigation?.DeclaringEntityType == this ? navigation : null;
@@ -571,14 +570,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyIndex? FindIndex([NotNull] IReadOnlyList<IReadOnlyProperty> properties);
+        IReadOnlyIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties);
 
         /// <summary>
         ///     Gets the index with the given name. Returns <see langword="null" /> if no such index exists.
         /// </summary>
         /// <param name="name"> The name of the index to find. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyIndex? FindIndex([NotNull] string name);
+        IReadOnlyIndex? FindIndex(string name);
 
         /// <summary>
         ///     <para>
@@ -590,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="property"> The property to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyIndex? FindIndex([NotNull] IReadOnlyProperty property) => FindIndex(new[] { property });
+        IReadOnlyIndex? FindIndex(IReadOnlyProperty property) => FindIndex(new[] { property });
 
         /// <summary>
         ///     <para>
@@ -630,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the property. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyProperty? FindProperty([NotNull] string name);
+        IReadOnlyProperty? FindProperty(string name);
 
         /// <summary>
         ///     <para>
@@ -643,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="memberInfo"> The member on the entity class. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyProperty? FindProperty([NotNull] MemberInfo memberInfo)
+        IReadOnlyProperty? FindProperty(MemberInfo memberInfo)
             => (Check.NotNull(memberInfo, nameof(memberInfo)) as PropertyInfo)?.IsIndexerProperty() == true
                 ? null
                 : FindProperty(memberInfo.GetSimpleMemberName());
@@ -658,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="propertyNames"> The property names. </param>
         /// <returns> The properties, or <see langword="null" /> if any property is not found. </returns>
-        IReadOnlyList<IReadOnlyProperty>? FindProperties([NotNull] IReadOnlyList<string> propertyNames);
+        IReadOnlyList<IReadOnlyProperty>? FindProperties(IReadOnlyList<string> propertyNames);
 
         /// <summary>
         ///     Finds a property declared on the type with the given name.
@@ -666,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The property name. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyProperty? FindDeclaredProperty([NotNull] string name);
+        IReadOnlyProperty? FindDeclaredProperty(string name);
 
         /// <summary>
         ///     <para>
@@ -679,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The property name. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyProperty GetProperty([NotNull] string name)
+        IReadOnlyProperty GetProperty(string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -750,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the service property. </param>
         /// <returns> The service property, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyServiceProperty? FindServiceProperty([NotNull] string name);
+        IReadOnlyServiceProperty? FindServiceProperty(string name);
 
         /// <summary>
         ///     <para>

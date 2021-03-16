@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IComparer<IUpdateEntry> Create([NotNull] IPropertyBase propertyBase)
+        public virtual IComparer<IUpdateEntry> Create(IPropertyBase propertyBase)
         {
             var modelType = propertyBase.ClrType;
             var nonNullableModelType = modelType.UnwrapNullableType();

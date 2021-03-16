@@ -16,6 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The name of the schema.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; } = null!;
+        public virtual string Name { get; set; } = null!;
     }
 }

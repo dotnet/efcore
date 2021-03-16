@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="migrationType"> The migration type. </param>
         public MigrationTypeEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] TypeInfo migrationType)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            TypeInfo migrationType)
             : base(eventDefinition, messageGenerator)
         {
             MigrationType = migrationType;

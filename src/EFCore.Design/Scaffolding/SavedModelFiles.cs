@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <param name="contextFile">The path of the file containing the <see cref="DbContext" />.</param>
         /// <param name="additionalFiles">The paths of additional files used by the model.</param>
-        public SavedModelFiles([NotNull] string contextFile, [NotNull] IEnumerable<string> additionalFiles)
+        public SavedModelFiles(string contextFile, IEnumerable<string> additionalFiles)
         {
             Check.NotNull(contextFile, nameof(contextFile));
             Check.NotNull(additionalFiles, nameof(additionalFiles));

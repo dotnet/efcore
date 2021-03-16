@@ -28,6 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void AddParameter([NotNull] string name, [CanBeNull] object? value);
+        void AddParameter(string name, object? value);
     }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,11 +36,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ChangeTrackerFactory(
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IStateManager stateManager,
-            [NotNull] IChangeDetector changeDetector,
-            [NotNull] IModel model,
-            [NotNull] IEntityEntryGraphIterator graphIterator)
+            ICurrentDbContext currentContext,
+            IStateManager stateManager,
+            IChangeDetector changeDetector,
+            IModel model,
+            IEntityEntryGraphIterator graphIterator)
         {
             _context = currentContext.Context;
             _stateManager = stateManager;

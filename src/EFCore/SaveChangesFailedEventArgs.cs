@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess"> The value passed to SaveChanges. </param>
         /// <param name="exception"> The exception thrown. </param>
-        public SaveChangesFailedEventArgs(bool acceptAllChangesOnSuccess, [NotNull] Exception exception)
+        public SaveChangesFailedEventArgs(bool acceptAllChangesOnSuccess, Exception exception)
             : base(acceptAllChangesOnSuccess)
         {
             Exception = exception;

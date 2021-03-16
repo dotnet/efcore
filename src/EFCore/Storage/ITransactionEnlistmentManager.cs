@@ -31,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Specifies an existing <see cref="Transaction" /> to be used for database operations.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
-        void EnlistTransaction([CanBeNull] Transaction? transaction);
+        void EnlistTransaction(Transaction? transaction);
     }
 }

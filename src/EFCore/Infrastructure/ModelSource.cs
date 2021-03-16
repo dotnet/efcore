@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new <see cref="ModelSource" /> instance.
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
-        public ModelSource([NotNull] ModelSourceDependencies dependencies)
+        public ModelSource(ModelSourceDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -146,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The model to be used. </returns>
         [Obsolete("Use the overload with IModelCreationDependencies")]
         protected virtual IModel CreateModel(
-            [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder)
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder)
         {
             Check.NotNull(context, nameof(context));
 
@@ -166,9 +165,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="modelDependencies"> The dependencies object for the model. </param>
         /// <returns> The model to be used. </returns>
         protected virtual IModel CreateModel(
-            [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
-            [NotNull] ModelDependencies modelDependencies)
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder,
+            ModelDependencies modelDependencies)
         {
             Check.NotNull(context, nameof(context));
 

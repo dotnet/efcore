@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -41,10 +40,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ValueGenerationManager(
-            [NotNull] IValueGeneratorSelector valueGeneratorSelector,
-            [NotNull] IKeyPropagator keyPropagator,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
-            [NotNull] ILoggingOptions loggingOptions)
+            IValueGeneratorSelector valueGeneratorSelector,
+            IKeyPropagator keyPropagator,
+            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+            ILoggingOptions loggingOptions)
         {
             _valueGeneratorSelector = valueGeneratorSelector;
             _keyPropagator = keyPropagator;

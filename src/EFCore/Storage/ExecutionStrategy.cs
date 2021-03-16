@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         protected ExecutionStrategy(
-            [NotNull] DbContext context,
+            DbContext context,
             int maxRetryCount,
             TimeSpan maxRetryDelay)
             : this(
@@ -67,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         protected ExecutionStrategy(
-            [NotNull] ExecutionStrategyDependencies dependencies,
+            ExecutionStrategyDependencies dependencies,
             int maxRetryCount,
             TimeSpan maxRetryDelay)
         {
@@ -360,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Returns the delay indicating how long to wait for before the next execution attempt if the operation should be retried;
         ///     <see langword="null" /> otherwise
         /// </returns>
-        protected virtual TimeSpan? GetNextDelay([NotNull] Exception lastException)
+        protected virtual TimeSpan? GetNextDelay(Exception lastException)
         {
             var currentRetryCount = ExceptionsEncountered.Count - 1;
             if (currentRetryCount < MaxRetryCount)
@@ -385,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     <see langword="true" /> if the specified exception could be thrown after a successful execution, otherwise <see langword="false" />.
         /// </returns>
-        protected internal virtual bool ShouldVerifySuccessOn([CanBeNull] Exception? exception)
+        protected internal virtual bool ShouldVerifySuccessOn(Exception? exception)
             => ShouldRetryOn(exception);
 
         /// <summary>
@@ -395,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
         /// </returns>
-        protected internal abstract bool ShouldRetryOn([CanBeNull] Exception? exception);
+        protected internal abstract bool ShouldRetryOn(Exception? exception);
 
         /// <summary>
         ///     Recursively gets InnerException from <paramref name="exception" /> as long as it is an
@@ -408,8 +407,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The result from <paramref name="exceptionHandler" />.
         /// </returns>
         public static TResult CallOnWrappedException<TResult>(
-            [CanBeNull] Exception? exception,
-            [NotNull] Func<Exception?, TResult> exceptionHandler)
+            Exception? exception,
+            Func<Exception?, TResult> exceptionHandler)
             => exception is DbUpdateException dbUpdateException
                 ? CallOnWrappedException(dbUpdateException.InnerException, exceptionHandler)
                 : exceptionHandler(exception);

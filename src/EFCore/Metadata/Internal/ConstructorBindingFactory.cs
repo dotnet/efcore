@@ -3,13 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -38,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ConstructorBindingFactory(
-            [NotNull] IPropertyParameterBindingFactory propertyFactory,
-            [NotNull] IParameterBindingFactories factories)
+            IPropertyParameterBindingFactory propertyFactory,
+            IParameterBindingFactories factories)
         {
             _propertyFactory = propertyFactory;
             _factories = factories;
@@ -212,8 +211,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool TryBindConstructor(
             IMutableEntityType entityType,
             ConstructorInfo constructor,
-            [CA.NotNullWhen(true)] out InstantiationBinding? binding,
-            [CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters)
+            [NotNullWhen(true)] out InstantiationBinding? binding,
+            [NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters)
             => TryBindConstructor(
                 entityType,
                 constructor,
@@ -230,8 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool TryBindConstructor(
             IConventionEntityType entityType,
             ConstructorInfo constructor,
-            [CA.NotNullWhen(true)] out InstantiationBinding? binding,
-            [CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters)
+            [NotNullWhen(true)] out InstantiationBinding? binding,
+            [NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters)
             => TryBindConstructor(
                 entityType,
                 constructor,
@@ -243,8 +242,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyEntityType entityType,
             ConstructorInfo constructor,
             Func<IParameterBindingFactory?, IReadOnlyEntityType, Type, string, ParameterBinding?> bind,
-            [CA.NotNullWhen(true)] out InstantiationBinding? binding,
-            [CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters)
+            [NotNullWhen(true)] out InstantiationBinding? binding,
+            [NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters)
         {
             IEnumerable<(ParameterInfo Parameter, ParameterBinding? Binding)> bindings
                 = constructor.GetParameters().Select(

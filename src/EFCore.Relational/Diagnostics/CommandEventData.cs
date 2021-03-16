@@ -29,11 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="logParameterValues"> Indicates whether or not the application allows logging of parameter values. </param>
         /// <param name="startTime"> The start time of this event. </param>
         public CommandEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] DbConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext? context,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbConnection connection,
+            DbCommand command,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,

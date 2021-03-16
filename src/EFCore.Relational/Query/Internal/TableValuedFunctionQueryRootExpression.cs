@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -27,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         //Since this is always generated while compiling there is no query provider associated
         public TableValuedFunctionQueryRootExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] IStoreFunction function,
-            [NotNull] IReadOnlyCollection<Expression> arguments)
+            IEntityType entityType,
+            IStoreFunction function,
+            IReadOnlyCollection<Expression> arguments)
             : base(entityType)
         {
             Check.NotNull(function, nameof(function));

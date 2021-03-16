@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -29,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CheckConstraint(
-            [NotNull] IMutableEntityType entityType,
-            [NotNull] string name,
-            [NotNull] string sql,
+            IMutableEntityType entityType,
+            string name,
+            string sql,
             ConfigurationSource configurationSource)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -66,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<ICheckConstraint> GetCheckConstraints([NotNull] IReadOnlyEntityType entityType)
+        public static IEnumerable<ICheckConstraint> GetCheckConstraints(IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -80,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static ICheckConstraint? FindCheckConstraint(
-            [NotNull] IReadOnlyEntityType entityType,
-            [NotNull] string name)
+            IReadOnlyEntityType entityType,
+            string name)
         {
             var dataDictionary = GetConstraintsDictionary(entityType);
 
@@ -99,8 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static CheckConstraint? RemoveCheckConstraint(
-            [NotNull] IMutableEntityType entityType,
-            [NotNull] string name)
+            IMutableEntityType entityType,
+            string name)
         {
             var dataDictionary = GetConstraintsDictionary(entityType);
 

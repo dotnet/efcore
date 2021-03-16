@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
@@ -42,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryTable(
-            [NotNull] IEntityType entityType,
-            [CanBeNull] IInMemoryTable? baseTable,
+            IEntityType entityType,
+            IInMemoryTable? baseTable,
             bool sensitiveLoggingEnabled,
             bool nullabilityCheckEnabled)
         {
@@ -382,8 +381,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         private void ThrowNullabilityErrorException(
-            [NotNull] IUpdateEntry entry,
-            [NotNull] IList<IProperty> nullabilityErrors)
+            IUpdateEntry entry,
+            IList<IProperty> nullabilityErrors)
         {
             Check.NotNull(entry, nameof(entry));
             Check.NotNull(nullabilityErrors, nameof(nullabilityErrors));
@@ -411,8 +410,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// <param name="entry"> The update entry which resulted in the conflict(s). </param>
         /// <param name="concurrencyConflicts"> The conflicting properties with their associated database values. </param>
         protected virtual void ThrowUpdateConcurrencyException(
-            [NotNull] IUpdateEntry entry,
-            [NotNull] Dictionary<IProperty, object?> concurrencyConflicts)
+            IUpdateEntry entry,
+            Dictionary<IProperty, object?> concurrencyConflicts)
         {
             Check.NotNull(entry, nameof(entry));
             Check.NotNull(concurrencyConflicts, nameof(concurrencyConflicts));

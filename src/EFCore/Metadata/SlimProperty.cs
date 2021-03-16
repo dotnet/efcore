@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -40,11 +39,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public SlimProperty(
-            [NotNull] string name,
-            [NotNull] Type clrType,
-            [CanBeNull] PropertyInfo? propertyInfo,
-            [CanBeNull] FieldInfo? fieldInfo,
-            [NotNull] SlimEntityType declaringEntityType,
+            string name,
+            Type clrType,
+            PropertyInfo? propertyInfo,
+            FieldInfo? fieldInfo,
+            SlimEntityType declaringEntityType,
             PropertyAccessMode propertyAccessMode,
             bool nullable,
             bool concurrencyToken,
@@ -55,11 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool? unicode,
             int? precision,
             int? scale,
-            [CanBeNull] Type? providerClrType,
-            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory,
-            [CanBeNull] ValueConverter? valueConverter,
-            [CanBeNull] ValueComparer? valueComparer,
-            [CanBeNull] CoreTypeMapping? typeMapping)
+            Type? providerClrType,
+            Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory,
+            ValueConverter? valueConverter,
+            ValueComparer? valueComparer,
+            CoreTypeMapping? typeMapping)
             : base(name, propertyInfo, fieldInfo, propertyAccessMode)
         {
             DeclaringEntityType = declaringEntityType;
@@ -114,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual SlimKey? PrimaryKey { get; [param: CanBeNull] set; }
+        public virtual SlimKey? PrimaryKey { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -123,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual List<SlimKey>? Keys { get; [param: CanBeNull] set; }
+        public virtual List<SlimKey>? Keys { get; set; }
 
         private IEnumerable<SlimKey> GetContainingKeys()
             => Keys ?? Enumerable.Empty<SlimKey>();
@@ -135,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual List<SlimForeignKey>? ForeignKeys { get; [param: CanBeNull] set; }
+        public virtual List<SlimForeignKey>? ForeignKeys { get; set; }
 
         private IEnumerable<SlimForeignKey> GetContainingForeignKeys()
             => ForeignKeys ?? Enumerable.Empty<SlimForeignKey>();
@@ -147,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual List<SlimIndex>? Indexes { get; [param: CanBeNull] set; }
+        public virtual List<SlimIndex>? Indexes { get; set; }
 
         private IEnumerable<SlimIndex> GetContainingIndexes()
             => Indexes ?? Enumerable.Empty<SlimIndex>();

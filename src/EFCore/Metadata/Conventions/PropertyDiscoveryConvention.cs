@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="PropertyDiscoveryConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public PropertyDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public PropertyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="propertyInfo"> The property. </param>
         /// <returns> <see langword="true"/> if the property should be mapped. </returns>
-        protected virtual bool IsCandidatePrimitiveProperty([NotNull] PropertyInfo propertyInfo)
+        protected virtual bool IsCandidatePrimitiveProperty(PropertyInfo propertyInfo)
             => propertyInfo.IsCandidateProperty()
                 && Dependencies.TypeMappingSource.FindMapping(propertyInfo) != null;
     }

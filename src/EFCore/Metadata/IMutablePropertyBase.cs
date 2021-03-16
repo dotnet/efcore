@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets or sets the underlying CLR field for this property.
         ///     This may be <see langword="null" /> for shadow properties or if the backing field for the property is not known.
         /// </summary>
-        new FieldInfo? FieldInfo { get; [param: CanBeNull] set; }
+        new FieldInfo? FieldInfo { get; set; }
 
         /// <summary>
         ///     <para>
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </summary>
         /// <param name="fieldName"> The name of the field to use. </param>
-        void SetField([CanBeNull] string? fieldName);
+        void SetField(string? fieldName);
 
         /// <summary>
         ///     Sets the <see cref="PropertyAccessMode" /> to use for this property.
