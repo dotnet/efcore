@@ -219,9 +219,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         [Obsolete("Use the constructor with columnType")]
         public ColumnModification(
             [NotNull] string columnName,
-            [CanBeNull] object originalValue,
-            [CanBeNull] object value,
-            [CanBeNull] IProperty property,
+            [CanBeNull] object? originalValue,
+            [CanBeNull] object? value,
+            [CanBeNull] IProperty? property,
             bool isRead,
             bool isWrite,
             bool isKey,

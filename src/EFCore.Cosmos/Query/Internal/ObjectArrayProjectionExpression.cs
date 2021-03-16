@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable disable
+#nullable disable warnings
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public ObjectArrayProjectionExpression(
             [NotNull] INavigation navigation,
             [NotNull] Expression accessExpression,
-            [CanBeNull] EntityProjectionExpression innerProjection = null)
+            [CanBeNull] EntityProjectionExpression? innerProjection = null)
         {
             var targetType = navigation.TargetEntityType;
             Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);

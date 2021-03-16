@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ExpressionType operatorType,
             SqlExpression operand,
             Type type,
-            RelationalTypeMapping typeMapping)
+            RelationalTypeMapping? typeMapping)
         {
             switch (operatorType)
             {
@@ -428,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] SqlExpression right,
             bool leftNull,
             bool rightNull,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping? typeMapping)
         {
             if ((operatorType == ExpressionType.Equal || operatorType == ExpressionType.NotEqual)
                 && (leftNull || rightNull))
@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ExpressionType operatorType,
             SqlExpression left,
             SqlExpression right,
-            RelationalTypeMapping typeMapping)
+            RelationalTypeMapping? typeMapping)
         {
             // true && a -> a
             // true || a -> true

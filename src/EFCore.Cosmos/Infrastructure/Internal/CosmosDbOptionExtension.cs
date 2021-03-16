@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         /// <param name="executionStrategyFactory"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual CosmosOptionsExtension WithExecutionStrategyFactory(
-            [CanBeNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> executionStrategyFactory)
+            [CanBeNull] Func<ExecutionStrategyDependencies, IExecutionStrategy>? executionStrategyFactory)
         {
             var clone = Clone();
 

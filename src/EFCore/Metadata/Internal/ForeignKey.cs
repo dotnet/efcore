@@ -1286,7 +1286,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IMutableNavigation? IMutableForeignKey.SetDependentToPrincipal(string name)
+        IMutableNavigation? IMutableForeignKey.SetDependentToPrincipal(string? name)
             => SetDependentToPrincipal(name, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1296,7 +1296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableNavigation? IMutableForeignKey.SetDependentToPrincipal(MemberInfo property)
+        IMutableNavigation? IMutableForeignKey.SetDependentToPrincipal(MemberInfo? property)
             => SetDependentToPrincipal(property, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1306,7 +1306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableNavigation? IMutableForeignKey.SetPrincipalToDependent(string name)
+        IMutableNavigation? IMutableForeignKey.SetPrincipalToDependent(string? name)
             => SetPrincipalToDependent(name, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1316,7 +1316,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IMutableNavigation? IMutableForeignKey.SetPrincipalToDependent(MemberInfo property)
+        IMutableNavigation? IMutableForeignKey.SetPrincipalToDependent(MemberInfo? property)
             => SetPrincipalToDependent(property, ConfigurationSource.Explicit);
 
         /// <summary>

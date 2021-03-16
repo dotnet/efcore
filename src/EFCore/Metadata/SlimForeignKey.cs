@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -81,7 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual SlimEntityType PrincipalEntityType { get; }
 
+        [CA.DisallowNull]
         private SlimNavigation? DependentToPrincipal { get; [param: NotNull] set; }
+
+        [CA.DisallowNull]
         private SlimNavigation? PrincipalToDependent { get; [param: NotNull] set; }
 
         /// <summary>

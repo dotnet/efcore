@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         [Obsolete("Use new SqlFunctionExpression(...) with appropriate arguments.")]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static SqlFunctionExpression Create(
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] string name,
             [NotNull] IEnumerable<SqlExpression> arguments,
             [NotNull] Type type,

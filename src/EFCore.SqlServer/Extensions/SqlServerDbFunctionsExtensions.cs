@@ -990,7 +990,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The number of bytes in the input value.</returns>
         public static int? DataLength(
             [NotNull] this DbFunctions _,
-            [CanBeNull] string arg)
+            [CanBeNull] string? arg)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>
@@ -1067,7 +1067,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>The number of bytes in the input value.</returns>
         public static int? DataLength(
             [NotNull] this DbFunctions _,
-            [CanBeNull] byte[] arg)
+            [CanBeNull] byte[]? arg)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DataLength)));
 
         /// <summary>

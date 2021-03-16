@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the name of the function in the database.
         /// </summary>
-        new string Name { get; [param: CanBeNull] set; }
+        new string Name { get; [param: NotNull] set; }
 
         /// <summary>
         ///     Gets or sets the schema of the function in the database.

@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="loggerFactory"> The logger factory to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
+        public virtual DbContextOptionsBuilder UseLoggerFactory([CanBeNull] ILoggerFactory? loggerFactory)
             => WithOption(e => e.WithLoggerFactory(loggerFactory));
 
         /// <summary>
@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="memoryCache"> The memory cache to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
+        public virtual DbContextOptionsBuilder UseMemoryCache([CanBeNull] IMemoryCache? memoryCache)
             => WithOption(e => e.WithMemoryCache(memoryCache));
 
         /// <summary>
@@ -419,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+        public virtual DbContextOptionsBuilder UseInternalServiceProvider([CanBeNull] IServiceProvider? serviceProvider)
             => WithOption(e => e.WithInternalServiceProvider(serviceProvider));
 
         /// <summary>
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseApplicationServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+        public virtual DbContextOptionsBuilder UseApplicationServiceProvider([CanBeNull] IServiceProvider? serviceProvider)
             => WithOption(e => e.WithApplicationServiceProvider(serviceProvider));
 
         /// <summary>

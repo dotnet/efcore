@@ -34,6 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The initialized model. </returns>
         IModel Initialize(
             [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger);
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger);
     }
 }

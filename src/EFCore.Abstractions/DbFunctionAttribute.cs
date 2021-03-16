@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -45,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
+        [CA.DisallowNull]
         public virtual string? Name
         {
             get => _name;

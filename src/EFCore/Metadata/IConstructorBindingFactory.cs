@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         void GetBindings(
             [NotNull] IConventionEntityType entityType,
             [NotNull] out InstantiationBinding constructorBinding,
-            [NotNull] out InstantiationBinding? serviceOnlyBinding);
+            [CanBeNull] out InstantiationBinding? serviceOnlyBinding);
 
         /// <summary>
         ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         void GetBindings(
             [NotNull] IMutableEntityType entityType,
             [NotNull] out InstantiationBinding constructorBinding,
-            [NotNull] out InstantiationBinding? serviceOnlyBinding);
+            [CanBeNull] out InstantiationBinding? serviceOnlyBinding);
 
         /// <summary>
         ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         void GetBindings(
             [NotNull] IReadOnlyEntityType entityType,
             [NotNull] out InstantiationBinding constructorBinding,
-            [NotNull] out InstantiationBinding? serviceOnlyBinding);
+            [CanBeNull] out InstantiationBinding? serviceOnlyBinding);
 
         /// <summary>
         ///     Attempts to create a <see cref="InstantiationBinding" /> for the given entity type and

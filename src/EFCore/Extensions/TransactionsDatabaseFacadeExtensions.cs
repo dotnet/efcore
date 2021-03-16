@@ -22,7 +22,7 @@ namespace System.Transactions
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="transaction"> The transaction to be used. </param>
-        public static void EnlistTransaction([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] Transaction transaction)
+        public static void EnlistTransaction([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] Transaction? transaction)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
             if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager

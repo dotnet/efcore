@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="loggerFactory"> The logger factory to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
+        public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory([CanBeNull] ILoggerFactory? loggerFactory)
             => (DbContextOptionsBuilder<TContext>)base.UseLoggerFactory(loggerFactory);
 
         /// <summary>
@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="memoryCache"> The memory cache to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
+        public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache([CanBeNull] IMemoryCache? memoryCache)
             => (DbContextOptionsBuilder<TContext>)base.UseMemoryCache(memoryCache);
 
         /// <summary>
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+        public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider([CanBeNull] IServiceProvider? serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseInternalServiceProvider(serviceProvider);
 
         /// <summary>
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseApplicationServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+        public new virtual DbContextOptionsBuilder<TContext> UseApplicationServiceProvider([CanBeNull] IServiceProvider? serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseApplicationServiceProvider(serviceProvider);
 
         /// <summary>

@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <typeparam name="TService"> The contract for the service. </typeparam>
         /// <param name="implementation"> The implementation of the service. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>
-        public virtual EntityFrameworkServicesBuilder TryAdd<TService>([CanBeNull] TService implementation)
+        public virtual EntityFrameworkServicesBuilder TryAdd<TService>([NotNull] TService implementation)
             where TService : class
             => TryAdd(typeof(TService), implementation);
 
@@ -440,9 +440,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> This builder, such that further calls can be chained. </returns>
         public virtual EntityFrameworkServicesBuilder TryAdd(
             [NotNull] Type serviceType,
-            [CanBeNull] object implementation)
+            [NotNull] object implementation)
         {
             Check.NotNull(serviceType, nameof(serviceType));
+            Check.NotNull(implementation, nameof(implementation));
 
             var characteristics = GetServiceCharacteristics(serviceType);
 
@@ -453,11 +454,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (characteristics.MultipleRegistrations)
             {
-                if (implementation == null)
-                {
-                    throw new InvalidOperationException(CoreStrings.ImplementationTypeRequired(serviceType.Name));
-                }
-
                 ServiceCollectionMap.TryAddSingletonEnumerable(serviceType, implementation);
             }
             else

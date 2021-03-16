@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// </summary>
         /// <returns> The commands that correspond to this operation. </returns>
         [Obsolete]
-        public virtual IEnumerable<ModificationCommand> GenerateModificationCommands([CanBeNull] IModel model)
+        public virtual IEnumerable<ModificationCommand> GenerateModificationCommands([CanBeNull] IModel? model)
         {
             Check.DebugAssert(
                 KeyColumns.Length == KeyValues.GetLength(1),

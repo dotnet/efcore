@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable disable
+#nullable disable warnings
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -518,10 +518,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public virtual SelectExpression Update(
             [NotNull] List<ProjectionExpression> projections,
             [NotNull] RootReferenceExpression fromExpression,
-            [CanBeNull] SqlExpression predicate,
-            [CanBeNull] List<OrderingExpression> orderings,
-            [CanBeNull] SqlExpression limit,
-            [CanBeNull] SqlExpression offset)
+            [CanBeNull] SqlExpression? predicate,
+            [CanBeNull] List<OrderingExpression>? orderings,
+            [CanBeNull] SqlExpression? limit,
+            [CanBeNull] SqlExpression? offset)
         {
             Check.NotNull(projections, nameof(projections));
             Check.NotNull(fromExpression, nameof(fromExpression));

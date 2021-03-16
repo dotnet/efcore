@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> An instance of <see cref="ReaderColumn{T}" />.</returns>
         [Obsolete("Use method which also takes IPropertyBase.")]
-        public static ReaderColumn Create([NotNull] Type type, bool nullable, [CanBeNull] string? columnName, [NotNull] object? readFunc)
+        public static ReaderColumn Create([NotNull] Type type, bool nullable, [CanBeNull] string? columnName, [NotNull] object readFunc)
             => (ReaderColumn)GetConstructor(type).Invoke(new[] { nullable, columnName, readFunc });
 
         /// <summary>

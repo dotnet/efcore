@@ -1617,7 +1617,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void HandleINotifyPropertyChanging(
-            [NotNull] object? sender,
+            [CanBeNull] object? sender,
             [NotNull] PropertyChangingEventArgs eventArgs)
         {
             foreach (var propertyBase in GetNotificationProperties(EntityType, eventArgs.PropertyName))
@@ -1633,7 +1633,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void HandleINotifyPropertyChanged(
-            [NotNull] object? sender,
+            [CanBeNull] object? sender,
             [NotNull] PropertyChangedEventArgs eventArgs)
         {
             foreach (var propertyBase in GetNotificationProperties(EntityType, eventArgs.PropertyName))
@@ -1685,7 +1685,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void HandleINotifyCollectionChanged(
-            [NotNull] object? sender,
+            [CanBeNull] object? sender,
             [NotNull] NotifyCollectionChangedEventArgs eventArgs)
         {
             var navigation = EntityType.GetNavigations()
