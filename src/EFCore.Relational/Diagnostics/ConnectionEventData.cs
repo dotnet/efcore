@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbConnection connection,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid connectionId,
             bool async,
             DateTimeOffset startTime)

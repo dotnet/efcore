@@ -6,14 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable ArgumentsStyleOther
 // ReSharper disable ArgumentsStyleNamedExpression
@@ -33,8 +30,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public static string DisplayName([NotNull] this TypeBase entityType)
+            => ((IReadOnlyTypeBase)entityType).DisplayName();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static string ShortName([NotNull] this TypeBase entityType)
+            => ((IReadOnlyTypeBase)entityType).ShortName();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static MemberInfo GetNavigationMemberInfo(
-            [NotNull] this IEntityType entityType,
+            [NotNull] this IReadOnlyEntityType entityType,
             [NotNull] string navigationName)
         {
             var memberInfo = entityType.ClrType.GetMembersInHierarchy(navigationName).FirstOrDefault();
@@ -47,6 +62,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return memberInfo;
         }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static bool IsOwned([NotNull] this IReadOnlyEntityType entityType)
+            => entityType.IsOwned();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IForeignKey? FindDeclaredOwnership([NotNull] this IEntityType entityType)
-            => ((EntityType)entityType).FindDeclaredOwnership();
+        public static IReadOnlyForeignKey? FindDeclaredOwnership([NotNull] this IReadOnlyEntityType entityType)
+            => entityType.GetDeclaredForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEntityType? FindInOwnershipPath([NotNull] this IEntityType entityType, [NotNull] Type targetType)
+        public static IReadOnlyEntityType? FindInOwnershipPath([NotNull] this IReadOnlyEntityType entityType, [NotNull] Type targetType)
         {
             if (entityType.ClrType == targetType)
             {
@@ -93,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsInOwnershipPath([NotNull] this IEntityType entityType, [NotNull] Type targetType)
+        public static bool IsInOwnershipPath([NotNull] this IReadOnlyEntityType entityType, [NotNull] Type targetType)
             => entityType.FindInOwnershipPath(targetType) != null;
 
         /// <summary>
@@ -103,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public static string GetOwnedName([NotNull] this ITypeBase type, [NotNull] string simpleName, [NotNull] string ownershipNavigation)
+        public static string GetOwnedName([NotNull] this IReadOnlyTypeBase type, [NotNull] string simpleName, [NotNull] string ownershipNavigation)
             => type.Name + "." + ownershipNavigation + "#" + simpleName;
 
         /// <summary>
@@ -112,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool UseEagerSnapshots([NotNull] this IEntityType entityType)
+        public static bool UseEagerSnapshots([NotNull] this IReadOnlyEntityType entityType)
         {
             var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
 
@@ -181,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static PropertyCounts GetCounts([NotNull] this IEntityType entityType)
-            => ((EntityType)entityType).Counts;
+            => ((IRuntimeEntityType)entityType).Counts;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -189,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyCounts CalculateCounts([NotNull] this EntityType entityType)
+        public static PropertyCounts CalculateCounts([NotNull] this IRuntimeEntityType entityType)
         {
             var index = 0;
             var navigationIndex = 0;
@@ -218,22 +241,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationshipIndex: property.IsKey() || property.IsForeignKey() ? relationshipIndex++ : -1,
                     storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
 
-                property.PropertyIndexes = indexes;
+                ((IRuntimePropertyBase)property).PropertyIndexes = indexes;
             }
 
             var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;
 
             foreach (var navigation in entityType.GetDeclaredNavigations()
-                .Union<PropertyBase>(entityType.GetDeclaredSkipNavigations()))
+                .Union<IPropertyBase>(entityType.GetDeclaredSkipNavigations()))
             {
                 var indexes = new PropertyIndexes(
                     index: navigationIndex++,
                     originalValueIndex: -1,
                     shadowIndex: navigation.IsShadowProperty() ? shadowIndex++ : -1,
-                    relationshipIndex: ((INavigationBase)navigation).IsCollection && isNotifying ? -1 : relationshipIndex++,
+                    relationshipIndex: ((IReadOnlyNavigationBase)navigation).IsCollection && isNotifying ? -1 : relationshipIndex++,
                     storeGenerationIndex: -1);
 
-                navigation.PropertyIndexes = indexes;
+                ((IRuntimePropertyBase)navigation).PropertyIndexes = indexes;
             }
 
             foreach (var serviceProperty in entityType.GetDeclaredServiceProperties())
@@ -245,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
 
-                serviceProperty.PropertyIndexes = indexes;
+                ((IRuntimePropertyBase)serviceProperty).PropertyIndexes = indexes;
             }
 
             return new PropertyCounts(
@@ -264,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Func<MaterializationContext, object> GetInstanceFactory([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().InstanceFactory;
+            => ((IRuntimeEntityType)entityType).InstanceFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -273,25 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Func<ISnapshot> GetEmptyShadowValuesFactory([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().EmptyShadowValuesFactory;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IReadOnlyList<IProperty> GetPropagatingProperties([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().PropagatingProperties;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IReadOnlyList<IProperty> GetGeneratingProperties([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().GeneratingProperties;
+            => ((IRuntimeEntityType)entityType).EmptyShadowValuesFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -300,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static EntityType? LeastDerivedType([NotNull] this EntityType entityType, [NotNull] EntityType otherEntityType)
-            => (EntityType?)((IEntityType)entityType).LeastDerivedType(otherEntityType);
+            => (EntityType?)((IReadOnlyEntityType)entityType).LeastDerivedType(otherEntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -308,7 +313,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IKey? FindDeclaredPrimaryKey([NotNull] this IEntityType entityType)
+        public static bool IsAssignableFrom([NotNull] this EntityType entityType, [NotNull] IReadOnlyEntityType otherEntityType)
+            => ((IReadOnlyEntityType)entityType).IsAssignableFrom(otherEntityType);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static bool IsStrictlyDerivedFrom([NotNull] this EntityType entityType, [NotNull] IReadOnlyEntityType otherEntityType)
+            => ((IReadOnlyEntityType)entityType).IsStrictlyDerivedFrom(otherEntityType);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static object? GetDiscriminatorValue([NotNull] this EntityType entityType)
+            => ((IReadOnlyEntityType)entityType).GetDiscriminatorValue();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static IReadOnlyKey? FindDeclaredPrimaryKey([NotNull] this IReadOnlyEntityType entityType)
             => entityType.BaseType == null ? entityType.FindPrimaryKey() : null;
 
         /// <summary>
@@ -317,29 +349,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<INavigation> FindDerivedNavigations(
-            [NotNull] this IEntityType entityType,
+        public static IEnumerable<IReadOnlyNavigation> FindDerivedNavigations(
+            [NotNull] this IReadOnlyEntityType entityType,
             [NotNull] string navigationName)
-            => entityType.GetDerivedTypes().SelectMany(
-                et => et.GetDeclaredNavigations().Where(navigation => navigationName == navigation.Name));
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IEnumerable<Navigation> GetDerivedNavigations([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().GetDerivedNavigations();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IEnumerable<SkipNavigation> GetDerivedSkipNavigations([NotNull] this IEntityType entityType)
-            => entityType.AsEntityType().GetDerivedSkipNavigations();
+            => entityType.GetDerivedNavigations().Where(navigation => navigationName == navigation.Name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -357,49 +370,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<IPropertyBase> GetNotificationProperties(
-            [NotNull] this IEntityType entityType,
-            [CanBeNull] string? propertyName)
-        {
-            if (string.IsNullOrEmpty(propertyName))
-            {
-                foreach (var property in entityType.GetProperties()
-                    .Where(p => p.GetAfterSaveBehavior() == PropertySaveBehavior.Save))
-                {
-                    yield return property;
-                }
-
-                foreach (var navigation in entityType.GetNavigations())
-                {
-                    yield return navigation;
-                }
-
-                foreach (var navigation in entityType.GetSkipNavigations())
-                {
-                    yield return navigation;
-                }
-            }
-            else
-            {
-                // ReSharper disable once AssignNullToNotNullAttribute
-                var property = entityType.FindProperty(propertyName)
-                    ?? entityType.FindNavigation(propertyName)
-                    ?? (IPropertyBase?)entityType.FindSkipNavigation(propertyName);
-
-                if (property != null)
-                {
-                    yield return property;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IProperty CheckPropertyBelongsToType([NotNull] this IEntityType entityType, [NotNull] IProperty property)
+        public static IProperty CheckPropertyBelongsToType(
+            [NotNull] this IEntityType entityType, [NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -411,14 +383,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return property;
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static EntityType AsEntityType([NotNull] this IEntityType entityType, [NotNull] [CallerMemberName] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IEntityType, EntityType>(entityType, methodName);
     }
 }

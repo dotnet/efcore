@@ -521,11 +521,11 @@
   </data>
   <data name="LogNamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.</value>
-    <comment>Information RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string string string</comment>
+    <comment>Information RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string? string string</comment>
   </data>
   <data name="LogNamedIndexPropertiesBothMappedAndNotMappedToTable" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. All of the properties must be mapped for the index to be created in the database.</value>
-    <comment>Error RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable string string string string</comment>
+    <comment>Error RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable string? string string string</comment>
   </data>
   <data name="LogNamedIndexPropertiesMappedToNonOverlappingTables" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}. The property '{propertyName1}' is mapped to table(s) {tables1}, whereas the property '{propertyName2}' is mapped to table(s) {tables2}. All index properties must map to at least one common table.</value>
@@ -621,8 +621,14 @@
   <data name="MissingConcurrencyColumn" xml:space="preserve">
     <value>Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' which is used by another entity type sharing the table '{table}'. Add a store-generated property to '{entityType}' which is mapped to the same column; it may be in shadow state.</value>
   </data>
-  <data name="MissingIdentifyingProjectionInDistinctGroupBySubquery" xml:space="preserve">
-    <value>Unable to translate a collection subquery in a projection since it uses 'Distinct' or 'Group By' operations and doesn't project key columns of all tables required to generate results on the client side. Missing column: {column}. Either add column(s) to the projection or rewrite the query to not use the 'GroupBy'/'Distinct' operation.</value>
+  <data name="UnableToTranslateSubqueryWithDistinct" xml:space="preserve">
+    <value>Subquery with 'Distinct' can only be translated if projection consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the projection, remove complex elements of the projection, or rewrite the query to not use the 'Distinct' operation.</value>
+  </data>
+  <data name="UnableToTranslateSubqueryWithGroupBy" xml:space="preserve">
+    <value>Subquery with 'GroupBy' can only be translated if grouping key consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the grouping key, remove complex elements of the grouping key, or rewrite the query to not use the 'GroupBy' operation.</value>
+  </data>
+  <data name="DistinctOnCollectionNotSupported" xml:space="preserve">
+    <value>Using 'Distinct' operation on a projection containing a collection is not supported.</value>
   </data>
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>

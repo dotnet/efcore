@@ -15,11 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The name of the database.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The filename to use for the database, or <see langword="null" /> to let SQL Server choose.
         /// </summary>
-        public virtual string FileName { get; [param: CanBeNull] set; }
+        public virtual string? FileName { get; [param: CanBeNull] set; }
     }
 }

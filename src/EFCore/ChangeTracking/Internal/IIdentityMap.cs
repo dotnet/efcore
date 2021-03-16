@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        InternalEntityEntry TryGetEntry([NotNull] object[] keyValues);
+        InternalEntityEntry? TryGetEntry([NotNull] object?[] keyValues);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        InternalEntityEntry TryGetEntry([NotNull] object[] keyValues, bool throwOnNullKey, out bool hasNullKey);
+        InternalEntityEntry? TryGetEntry([NotNull] object?[] keyValues, bool throwOnNullKey, out bool hasNullKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        InternalEntityEntry TryGetEntry([NotNull] IForeignKey foreignKey, [NotNull] InternalEntityEntry dependentEntry);
+        InternalEntityEntry? TryGetEntry([NotNull] IForeignKey foreignKey, [NotNull] InternalEntityEntry dependentEntry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        InternalEntityEntry TryGetEntryUsingPreStoreGeneratedValues(
+        InternalEntityEntry? TryGetEntryUsingPreStoreGeneratedValues(
             [NotNull] IForeignKey foreignKey,
             [NotNull] InternalEntityEntry dependentEntry);
 
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        InternalEntityEntry TryGetEntryUsingRelationshipSnapshot(
+        InternalEntityEntry? TryGetEntryUsingRelationshipSnapshot(
             [NotNull] IForeignKey foreignKey,
             [NotNull] InternalEntityEntry dependentEntry);
 
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IDependentsMap FindDependentsMap([NotNull] IForeignKey foreignKey);
+        IDependentsMap? FindDependentsMap([NotNull] IForeignKey foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

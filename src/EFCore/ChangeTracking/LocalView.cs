@@ -56,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         IListSource
         where TEntity : class
     {
-        private ObservableBackedBindingList<TEntity> _bindingList;
-        private ObservableCollection<TEntity> _observable;
+        private ObservableBackedBindingList<TEntity>? _bindingList;
+        private ObservableCollection<TEntity>? _observable;
         private readonly DbContext _context;
         private int _countChanges;
         private int? _count;
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return _observable;
         }
 
-        private void LocalViewCollectionChanged(object _, NotifyCollectionChangedEventArgs args)
+        private void LocalViewCollectionChanged(object? _, NotifyCollectionChangedEventArgs args)
         {
             Check.DebugAssert(
                 args.Action == NotifyCollectionChangedAction.Add || args.Action == NotifyCollectionChangedAction.Remove,
@@ -113,13 +113,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 if (args.Action == NotifyCollectionChangedAction.Remove)
                 {
-                    Check.DebugAssert(args.OldItems.Count == 1, $"OldItems.Count is {args.OldItems.Count}");
-                    _observable.Remove((TEntity)args.OldItems[0]);
+                    Check.DebugAssert(args.OldItems!.Count == 1, $"OldItems.Count is {args.OldItems.Count}");
+                    _observable!.Remove((TEntity)args.OldItems[0]!);
                 }
                 else
                 {
-                    Check.DebugAssert(args.NewItems.Count == 1, $"NewItems.Count is {args.NewItems.Count}");
-                    _observable.Add((TEntity)args.NewItems[0]);
+                    Check.DebugAssert(args.NewItems!.Count == 1, $"NewItems.Count is {args.NewItems.Count}");
+                    _observable!.Add((TEntity)args.NewItems[0]!);
                 }
             }
             finally
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        private void ObservableCollectionChanged(object _, NotifyCollectionChangedEventArgs args)
+        private void ObservableCollectionChanged(object? _, NotifyCollectionChangedEventArgs args)
         {
             if (_triggeringObservableChange)
             {
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     if (args.Action == NotifyCollectionChangedAction.Remove
                         || args.Action == NotifyCollectionChangedAction.Replace)
                     {
-                        foreach (TEntity entity in args.OldItems)
+                        foreach (TEntity entity in args.OldItems!)
                         {
                             Remove(entity);
                         }
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     if (args.Action == NotifyCollectionChangedAction.Add
                         || args.Action == NotifyCollectionChangedAction.Replace)
                     {
-                        foreach (TEntity entity in args.NewItems)
+                        foreach (TEntity entity in args.NewItems!)
                         {
                             Add(entity);
                         }
@@ -391,19 +391,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Occurs when a property of this collection (such as <see cref="Count" />) changes.
         /// </summary>
-        public virtual event PropertyChangedEventHandler PropertyChanged;
+        public virtual event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         ///     Occurs when a property of this collection (such as <see cref="Count" />) is changing.
         /// </summary>
-        public virtual event PropertyChangingEventHandler PropertyChanging;
+        public virtual event PropertyChangingEventHandler? PropertyChanging;
 
         /// <summary>
         ///     Occurs when the contents of the collection changes, either because an entity
         ///     has been directly added or removed from the collection, or because an entity
         ///     starts being tracked, or because an entity is marked as Deleted.
         /// </summary>
-        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+        public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
 
         /// <summary>
         ///     Raises the <see cref="PropertyChanged" /> event.
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> The binding list. </returns>
         public virtual BindingList<TEntity> ToBindingList()
-            => _bindingList ?? (_bindingList = new ObservableBackedBindingList<TEntity>(ToObservableCollection()));
+            => _bindingList ??= new ObservableBackedBindingList<TEntity>(ToObservableCollection());
 
         /// <summary>
         ///     <para>

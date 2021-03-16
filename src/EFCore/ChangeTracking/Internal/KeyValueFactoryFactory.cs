@@ -24,11 +24,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IPrincipalKeyValueFactory<TKey> Create<TKey>([NotNull] IKey key)
+            where TKey : notnull
             => key.Properties.Count == 1
                 ? CreateSimpleFactory<TKey>(key)
                 : (IPrincipalKeyValueFactory<TKey>)CreateCompositeFactory(key);
 
         private static SimplePrincipalKeyValueFactory<TKey> CreateSimpleFactory<TKey>(IKey key)
+            where TKey : notnull
         {
             var dependentFactory = new DependentKeyValueFactoryFactory();
             var principalKeyValueFactory = new SimplePrincipalKeyValueFactory<TKey>(key.Properties.Single());
@@ -69,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             object dependentKeyValueFactory,
             Func<IDependentsMap> dependentsMapFactory)
         {
-            var concreteForeignKey = foreignKey.AsForeignKey();
+            var concreteForeignKey = (IRuntimeForeignKey)foreignKey;
 
             concreteForeignKey.DependentKeyValueFactory = dependentKeyValueFactory;
             concreteForeignKey.DependentsMapFactory = dependentsMapFactory;

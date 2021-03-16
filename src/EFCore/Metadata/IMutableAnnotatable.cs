@@ -1,10 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface IMutableAnnotatable : IAnnotatable
+    public interface IMutableAnnotatable : IReadOnlyAnnotatable
     {
         /// <summary>
         ///     Gets or sets the value of the annotation with the given name.
@@ -51,5 +50,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
         IAnnotation? RemoveAnnotation([NotNull] string name);
+
+        /// <summary>
+        ///     Adds annotations to an object.
+        /// </summary>
+        /// <param name="annotations"> The annotations to be added. </param>
+        void AddAnnotations([NotNull] IEnumerable<IAnnotation> annotations)
+            => AnnotatableBase.AddAnnotations((AnnotatableBase)this, annotations);
+
+        /// <summary>
+        ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
+        ///     annotation with the specified name already exists. Removes the existing annotation if <see langword="null" /> is supplied.
+        /// </summary>
+        /// <param name="name"> The name of the annotation to be added. </param>
+        /// <param name="value"> The value to be stored in the annotation. </param>
+        void SetOrRemoveAnnotation([NotNull] string name, [CanBeNull] object? value);
     }
 }

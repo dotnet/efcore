@@ -5,13 +5,11 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IEntityType" /> for SQL Server-specific metadata.
+    ///     Entity type extension methods for SQL Server-specific metadata.
     /// </summary>
     public static class SqlServerEntityTypeExtensions
     {
@@ -20,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> <see langword="true" /> if the entity type is mapped to a memory-optimized table. </returns>
-        public static bool IsMemoryOptimized([NotNull] this IEntityType entityType)
+        public static bool IsMemoryOptimized([NotNull] this IReadOnlyEntityType entityType)
             => entityType[SqlServerAnnotationNames.MemoryOptimized] as bool? ?? false;
 
         /// <summary>

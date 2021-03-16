@@ -34,10 +34,6 @@ namespace Microsoft.EntityFrameworkCore
         public new TestBadRequestObjectResult BadRequest(ModelStateDictionary modelState)
             => new(base.BadRequest(modelState));
 
-        [NonAction]
-        public TestBadRequestObjectResult BadRequest(string message)
-            => new(base.BadRequest(message));
-
         public new TestBadRequestObjectResult BadRequest(object obj)
             => new(base.BadRequest(obj));
 

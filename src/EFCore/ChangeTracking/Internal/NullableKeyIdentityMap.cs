@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class NullableKeyIdentityMap<TKey> : IdentityMap<TKey>
+        where TKey : notnull
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,13 +48,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(
                         CoreStrings.InvalidKeyValue(
                             entry.EntityType.DisplayName(),
-                            PrincipalKeyValueFactory.FindNullPropertyInCurrentValues(entry).Name));
+                            PrincipalKeyValueFactory.FindNullPropertyInCurrentValues(entry)!.Name));
                 }
 
                 throw new InvalidOperationException(
                     CoreStrings.InvalidAlternateKeyValue(
                         entry.EntityType.DisplayName(),
-                        PrincipalKeyValueFactory.FindNullPropertyInCurrentValues(entry).Name));
+                        PrincipalKeyValueFactory.FindNullPropertyInCurrentValues(entry)!.Name));
             }
 
             Add(key, entry);

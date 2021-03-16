@@ -15,16 +15,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The name of the primary key constraint.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The table that contains the primary key.
         /// </summary>
-        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Table { get; [param: NotNull] set; } = null!;
     }
 }

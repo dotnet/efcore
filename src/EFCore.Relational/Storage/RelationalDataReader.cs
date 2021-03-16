@@ -10,8 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -25,13 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class RelationalDataReader : IDisposable, IAsyncDisposable
     {
-        private readonly IRelationalConnection _connection;
-        private readonly DbCommand _command;
-        private readonly DbDataReader _reader;
-        private readonly Guid _commandId;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command>? _logger;
-        private readonly DateTimeOffset _startTime;
-        private readonly Stopwatch _stopwatch;
+        private readonly IRelationalCommand _relationalCommand;
+
+        private IRelationalConnection _relationalConnection = default!;
+        private DbCommand _command = default!;
+        private DbDataReader _reader = default!;
+        private Guid _commandId;
+        private IDiagnosticsLogger<DbLoggerCategory.Database.Command>? _logger;
+        private DateTimeOffset _startTime;
+        private readonly Stopwatch _stopwatch = new();
 
         private int _readCount;
 
@@ -40,29 +40,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalDataReader" /> class.
         /// </summary>
-        /// <param name="connection"> The connection. </param>
+        /// <param name="relationalCommand"> The relational command which owns this relational reader. </param>
+        public RelationalDataReader([NotNull] IRelationalCommand relationalCommand)
+        {
+            Check.NotNull(relationalCommand, nameof(relationalCommand));
+
+            _relationalCommand = relationalCommand;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalDataReader" /> class.
+        /// </summary>
+        /// <param name="relationalConnection"> The relational connection. </param>
         /// <param name="command"> The command that was executed. </param>
         /// <param name="reader"> The underlying reader for the result set. </param>
         /// <param name="commandId"> A correlation ID that identifies the <see cref="DbCommand" /> instance being used. </param>
         /// <param name="logger"> The diagnostic source. </param>
-        public RelationalDataReader(
-            [NotNull] IRelationalConnection connection,
+        public virtual void Initialize(
+            [NotNull] IRelationalConnection relationalConnection,
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
             Guid commandId,
             [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger)
         {
-            Check.NotNull(connection, nameof(connection));
             Check.NotNull(command, nameof(command));
             Check.NotNull(reader, nameof(reader));
 
-            _connection = connection;
+            _relationalConnection = relationalConnection;
             _command = command;
             _reader = reader;
             _commandId = commandId;
             _logger = logger;
             _startTime = DateTimeOffset.UtcNow;
-            _stopwatch = Stopwatch.StartNew();
+            _disposed = false;
+            _stopwatch.Restart();
         }
 
         /// <summary>
@@ -115,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (_logger != null)
                     {
                         interceptionResult = _logger.DataReaderDisposing(
-                            _connection,
+                            _relationalConnection,
                             _command,
                             _reader,
                             _commandId,
@@ -134,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         _reader.Dispose();
                         _command.Parameters.Clear();
                         _command.Dispose();
-                        _connection.Close();
+                        _relationalConnection.Close();
                     }
                 }
             }
@@ -150,12 +161,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 var interceptionResult = default(InterceptionResult);
                 try
                 {
-                    _reader.Close(); // can throw
+                    await _reader.CloseAsync().ConfigureAwait(false); // can throw
 
                     if (_logger != null)
                     {
                         interceptionResult = _logger.DataReaderDisposing(
-                            _connection,
+                            _relationalConnection,
                             _command,
                             _reader,
                             _commandId,
@@ -174,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         await _reader.DisposeAsync().ConfigureAwait(false);
                         _command.Parameters.Clear();
                         await _command.DisposeAsync().ConfigureAwait(false);
-                        await _connection.CloseAsync().ConfigureAwait(false);
+                        await _relationalConnection.CloseAsync().ConfigureAwait(false);
                     }
                 }
             }

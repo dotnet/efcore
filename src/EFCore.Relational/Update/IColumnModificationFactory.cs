@@ -62,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> A new instance of ColumnModification. </returns>
         ColumnModification CreateColumnModification(
             [NotNull] string columnName,
-            [CanBeNull] object originalValue,
-            [CanBeNull] object value,
-            [CanBeNull] IProperty property,
-            [CanBeNull] string columnType,
-            [CanBeNull] RelationalTypeMapping typeMapping,
+            [CanBeNull] object? originalValue,
+            [CanBeNull] object? value,
+            [CanBeNull] IProperty? property,
+            [CanBeNull] string? columnType,
+            [CanBeNull] RelationalTypeMapping? typeMapping,
             bool valueIsRead,
             bool valueIsWrite,
             bool columnIsKey,

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     /// </summary>
     public class ProxyChangeTrackingConvention : IModelInitializedConvention
     {
-        private readonly ProxiesOptionsExtension _options;
+        private readonly ProxiesOptionsExtension? _options;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ProxyChangeTrackingConvention(
-            [CanBeNull] ProxiesOptionsExtension options)
+            [CanBeNull] ProxiesOptionsExtension? options)
         {
             _options = options;
         }

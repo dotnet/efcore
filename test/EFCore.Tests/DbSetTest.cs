@@ -212,6 +212,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Using_ignored_entity_that_has_DbSet_on_context_throws_appropriately()
         {
             using var context = new IgnoredCntext();
+
             Assert.Equal(
                 CoreStrings.InvalidSetType(nameof(IgnoredEntity)),
                 Assert.Throws<InvalidOperationException>(() => context.Ignored.ToList()).Message);

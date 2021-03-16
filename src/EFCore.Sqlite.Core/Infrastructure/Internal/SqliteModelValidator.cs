@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         {
             foreach (var entityType in model.GetEntityTypes().Where(e => e.GetSchema() != null))
             {
-                logger.SchemaConfiguredWarning(entityType, entityType.GetSchema());
+                logger.SchemaConfiguredWarning(entityType, entityType.GetSchema()!);
             }
         }
 

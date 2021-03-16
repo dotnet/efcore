@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyName);
         }
 
-        private static void ValidateType<TProperty>(IProperty property)
+        private static void ValidateType<TProperty>(IProperty? property)
         {
             if (property != null
                 && property.ClrType != typeof(TProperty))

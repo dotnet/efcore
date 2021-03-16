@@ -7,13 +7,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IEntityType" /> for the in-memory provider.
+    ///     Extension methods for <see cref="IReadOnlyEntityType" /> for the in-memory provider.
     /// </summary>
     public static class InMemoryEntityTypeExtensions
     {
@@ -22,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the in-memory query for. </param>
         /// <returns> The LINQ query used as the default source. </returns>
-        public static LambdaExpression? GetInMemoryQuery([NotNull] this IEntityType entityType)
+        public static LambdaExpression? GetInMemoryQuery([NotNull] this IReadOnlyEntityType entityType)
 #pragma warning disable EF1001 // Internal EF Core API usage.
 #pragma warning disable CS0612 // Type or member is obsolete
             => (LambdaExpression?)Check.NotNull(entityType, nameof(entityType))[CoreAnnotationNames.DefiningQuery];

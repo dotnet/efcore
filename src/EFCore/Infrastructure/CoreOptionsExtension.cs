@@ -28,20 +28,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class CoreOptionsExtension : IDbContextOptionsExtension
     {
-        private IServiceProvider _internalServiceProvider;
-        private IServiceProvider _applicationServiceProvider;
-        private IModel _model;
-        private ILoggerFactory _loggerFactory;
-        private IDbContextLogger _contextLogger;
-        private IMemoryCache _memoryCache;
+        private IServiceProvider? _internalServiceProvider;
+        private IServiceProvider? _applicationServiceProvider;
+        private IModel? _model;
+        private ILoggerFactory? _loggerFactory;
+        private IDbContextLogger? _contextLogger;
+        private IMemoryCache? _memoryCache;
         private bool _sensitiveDataLoggingEnabled;
         private bool _detailedErrorsEnabled;
+        private bool _concurrencyDetectionEnabled = true;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-        private IDictionary<(Type, Type), Type> _replacedServices;
+        private IDictionary<(Type, Type?), Type>? _replacedServices;
         private int? _maxPoolSize;
         private bool _serviceProviderCachingEnabled = true;
-        private DbContextOptionsExtensionInfo _info;
-        private IEnumerable<IInterceptor> _interceptors;
+        private DbContextOptionsExtensionInfo? _info;
+        private IEnumerable<IInterceptor>? _interceptors;
 
         private WarningsConfiguration _warningsConfiguration
             = new WarningsConfiguration()
@@ -71,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _memoryCache = copyFrom.MemoryCache;
             _sensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
             _detailedErrorsEnabled = copyFrom.DetailedErrorsEnabled;
+            _concurrencyDetectionEnabled = copyFrom.ConcurrencyDetectionEnabled;
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
             _maxPoolSize = copyFrom.MaxPoolSize;
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (copyFrom._replacedServices != null)
             {
-                _replacedServices = new Dictionary<(Type, Type), Type>(copyFrom._replacedServices);
+                _replacedServices = new Dictionary<(Type, Type?), Type>(copyFrom._replacedServices);
             }
         }
 
@@ -102,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="internalServiceProvider"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithInternalServiceProvider([CanBeNull] IServiceProvider internalServiceProvider)
+        public virtual CoreOptionsExtension WithInternalServiceProvider([CanBeNull] IServiceProvider? internalServiceProvider)
         {
             var clone = Clone();
 
@@ -117,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="applicationServiceProvider"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithApplicationServiceProvider([CanBeNull] IServiceProvider applicationServiceProvider)
+        public virtual CoreOptionsExtension WithApplicationServiceProvider([CanBeNull] IServiceProvider? applicationServiceProvider)
         {
             var clone = Clone();
 
@@ -132,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="model"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithModel([CanBeNull] IModel model)
+        public virtual CoreOptionsExtension WithModel([CanBeNull] IModel? model)
         {
             var clone = Clone();
 
@@ -147,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="memoryCache"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithMemoryCache([CanBeNull] IMemoryCache memoryCache)
+        public virtual CoreOptionsExtension WithMemoryCache([CanBeNull] IMemoryCache? memoryCache)
         {
             var clone = Clone();
 
@@ -162,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="loggerFactory"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
+        public virtual CoreOptionsExtension WithLoggerFactory([CanBeNull] ILoggerFactory? loggerFactory)
         {
             var clone = Clone();
 
@@ -177,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="contextLogger"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithDbContextLogger([CanBeNull] IDbContextLogger contextLogger)
+        public virtual CoreOptionsExtension WithDbContextLogger([CanBeNull] IDbContextLogger? contextLogger)
         {
             var clone = Clone();
 
@@ -220,6 +222,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
+        /// <param name="concurrencyDetectionEnabled"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual CoreOptionsExtension WithConcurrencyDetectionEnabled(bool concurrencyDetectionEnabled)
+        {
+            var clone = Clone();
+
+            clone._concurrencyDetectionEnabled = concurrencyDetectionEnabled;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
         /// <param name="queryTrackingBehavior"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual CoreOptionsExtension WithQueryTrackingBehavior(QueryTrackingBehavior queryTrackingBehavior)
@@ -242,13 +259,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual CoreOptionsExtension WithReplacedService(
             [NotNull] Type serviceType,
             [NotNull] Type newImplementationType,
-            [CanBeNull] Type currentImplementationType = null)
+            [CanBeNull] Type? currentImplementationType = null)
         {
             var clone = Clone();
 
             if (clone._replacedServices == null)
             {
-                clone._replacedServices = new Dictionary<(Type, Type), Type>();
+                clone._replacedServices = new Dictionary<(Type, Type?), Type>();
             }
 
             clone._replacedServices[(serviceType, currentImplementationType)] = newImplementationType;
@@ -277,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="warningsConfiguration"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithWarningsConfiguration([CanBeNull] WarningsConfiguration warningsConfiguration)
+        public virtual CoreOptionsExtension WithWarningsConfiguration([NotNull] WarningsConfiguration warningsConfiguration)
         {
             var clone = Clone();
 
@@ -333,39 +350,45 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => _detailedErrorsEnabled;
 
         /// <summary>
+        ///     The option set from the <see cref="DbContextOptionsBuilder.DisableConcurrencyDetection" /> method.
+        /// </summary>
+        public virtual bool ConcurrencyDetectionEnabled
+            => _concurrencyDetectionEnabled;
+
+        /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseModel" /> method.
         /// </summary>
-        public virtual IModel Model
+        public virtual IModel? Model
             => _model;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseLoggerFactory" /> method.
         /// </summary>
-        public virtual ILoggerFactory LoggerFactory
+        public virtual ILoggerFactory? LoggerFactory
             => _loggerFactory;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> method.
         /// </summary>
-        public virtual IDbContextLogger DbContextLogger
+        public virtual IDbContextLogger? DbContextLogger
             => _contextLogger;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseMemoryCache" /> method.
         /// </summary>
-        public virtual IMemoryCache MemoryCache
+        public virtual IMemoryCache? MemoryCache
             => _memoryCache;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider" /> method.
         /// </summary>
-        public virtual IServiceProvider InternalServiceProvider
+        public virtual IServiceProvider? InternalServiceProvider
             => _internalServiceProvider;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseApplicationServiceProvider" /> method.
         /// </summary>
-        public virtual IServiceProvider ApplicationServiceProvider
+        public virtual IServiceProvider? ApplicationServiceProvider
             => _applicationServiceProvider;
 
         /// <summary>
@@ -389,8 +412,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The options set from the <see cref="DbContextOptionsBuilder.ReplaceService{TService,TImplementation}" /> method.
         /// </summary>
-        public virtual IReadOnlyDictionary<(Type, Type), Type> ReplacedServices
-            => (IReadOnlyDictionary<(Type, Type), Type>)_replacedServices;
+        public virtual IReadOnlyDictionary<(Type, Type?), Type>? ReplacedServices
+            => (IReadOnlyDictionary<(Type, Type?), Type>?)_replacedServices;
 
         /// <summary>
         ///     The option set from the
@@ -404,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The options set from the <see cref="DbContextOptionsBuilder.AddInterceptors(IEnumerable{IInterceptor})" /> method.
         /// </summary>
-        public virtual IEnumerable<IInterceptor> Interceptors
+        public virtual IEnumerable<IInterceptor>? Interceptors
             => _interceptors;
 
         /// <summary>
@@ -423,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        private IMemoryCache GetMemoryCache()
+        private IMemoryCache? GetMemoryCache()
             => MemoryCache;
 
         /// <summary>
@@ -466,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
             private long? _serviceProviderHash;
-            private string _logFragment;
+            private string? _logFragment;
 
             public ExtensionInfo(CoreOptionsExtension extension)
                 : base(extension)
@@ -502,6 +525,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             builder.Append("DetailedErrorsEnabled ");
                         }
 
+                        if (!Extension._concurrencyDetectionEnabled)
+                        {
+                            builder.Append("ConcurrencyDetectionDisabled ");
+                        }
+
                         if (Extension._maxPoolSize != null)
                         {
                             builder.Append("MaxPoolSize=").Append(Extension._maxPoolSize).Append(' ');
@@ -524,6 +552,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     Extension._sensitiveDataLoggingEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
                 debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableDetailedErrors)] =
                     Extension._detailedErrorsEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                debugInfo["Core:" + nameof(DbContextOptionsBuilder.DisableConcurrencyDetection)] =
+                    (!Extension._concurrencyDetectionEnabled).GetHashCode().ToString(CultureInfo.InvariantCulture);
                 debugInfo["Core:" + nameof(DbContextOptionsBuilder.ConfigureWarnings)] =
                     Extension._warningsConfiguration.GetServiceProviderHashCode().ToString(CultureInfo.InvariantCulture);
 
@@ -550,6 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     var hashCode = Extension.GetMemoryCache()?.GetHashCode() ?? 0L;
                     hashCode = (hashCode * 3) ^ Extension._sensitiveDataLoggingEnabled.GetHashCode();
                     hashCode = (hashCode * 3) ^ Extension._detailedErrorsEnabled.GetHashCode();
+                    hashCode = (hashCode * 3) ^ Extension._concurrencyDetectionEnabled.GetHashCode();
                     hashCode = (hashCode * 1073742113) ^ Extension._warningsConfiguration.GetServiceProviderHashCode();
 
                     if (Extension._replacedServices != null)

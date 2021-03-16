@@ -14,6 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The collation for the database, or <see langword="null" /> to use the default collation of the instance of SQL Server.
         /// </summary>
-        public virtual string Collation { get; [param: CanBeNull] set; }
+        public virtual string? Collation { get; [param: CanBeNull] set; }
     }
 }

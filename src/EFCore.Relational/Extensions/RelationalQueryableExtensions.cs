@@ -15,8 +15,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -158,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var entityType = queryRootExpression.EntityType;
             if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
-                && entityType.GetDiscriminatorProperty() == null)
+                && entityType.FindDiscriminatorProperty() == null)
             {
                 throw new InvalidOperationException(RelationalStrings.MethodOnNonTPHRootNotSupported(memberName, entityType.DisplayName()));
             }

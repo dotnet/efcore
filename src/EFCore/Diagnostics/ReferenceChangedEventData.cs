@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] EntityEntry entityEntry,
             [NotNull] INavigation navigation,
-            [CanBeNull] object oldReferencedEntity,
-            [CanBeNull] object newReferencedEntity)
+            [CanBeNull] object? oldReferencedEntity,
+            [CanBeNull] object? newReferencedEntity)
             : base(eventDefinition, messageGenerator, navigation)
         {
             Check.NotNull(entityEntry, nameof(entityEntry));
@@ -47,13 +47,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual EntityEntry EntityEntry { get; }
 
         /// <summary>
+        ///     The navigation.
+        /// </summary>
+        public new virtual INavigation Navigation => (INavigation)base.Navigation;
+
+        /// <summary>
         ///     The old referenced entity.
         /// </summary>
-        public virtual object OldReferencedEntity { get; }
+        public virtual object? OldReferencedEntity { get; }
 
         /// <summary>
         ///     The new referenced entity.
         /// </summary>
-        public virtual object NewReferencedEntity { get; }
+        public virtual object? NewReferencedEntity { get; }
     }
 }

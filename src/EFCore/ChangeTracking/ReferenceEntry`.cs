@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="EntityEntry{TEntity}" /> of the entity this navigation targets.
         /// </summary>
         /// <value> An entry for the entity that owns this navigation targets. </value>
-        public new virtual EntityEntry<TProperty> TargetEntry
+        public new virtual EntityEntry<TProperty>? TargetEntry
         {
             get
             {

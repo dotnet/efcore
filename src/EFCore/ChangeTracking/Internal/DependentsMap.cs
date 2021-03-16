@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 
+using CA = System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -16,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class DependentsMap<TKey> : IDependentsMap
+        where TKey : notnull
     {
         private readonly IForeignKey _foreignKey;
         private readonly IPrincipalKeyValueFactory<TKey> _principalKeyValueFactory;
@@ -107,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private bool TryCreateFromCurrentValues(IUpdateEntry entry, out TKey key)
+        private bool TryCreateFromCurrentValues(IUpdateEntry entry, [CA.NotNullWhen(true)] out TKey? key)
         {
             // TODO: Move into delegate
             foreach (var property in _foreignKey.Properties)

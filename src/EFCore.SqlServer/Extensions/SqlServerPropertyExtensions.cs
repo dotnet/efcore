@@ -6,19 +6,16 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IProperty" /> for SQL Server-specific metadata.
+    ///     Property extension methods for SQL Server-specific metadata.
     /// </summary>
     public static class SqlServerPropertyExtensions
     {
@@ -27,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The name to use for the hi-lo sequence. </returns>
-        public static string? GetHiLoSequenceName([NotNull] this IProperty property)
+        public static string? GetHiLoSequenceName([NotNull] this IReadOnlyProperty property)
             => (string?)property[SqlServerAnnotationNames.HiLoSequenceName];
 
         /// <summary>
@@ -36,12 +33,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The name to use for the hi-lo sequence. </returns>
-        public static string? GetHiLoSequenceName([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static string? GetHiLoSequenceName([NotNull] this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceName);
             if (annotation != null)
             {
-                return (string)annotation.Value;
+                return (string?)annotation.Value;
             }
 
             var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
@@ -93,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The schema to use for the hi-lo sequence. </returns>
-        public static string? GetHiLoSequenceSchema([NotNull] this IProperty property)
+        public static string? GetHiLoSequenceSchema([NotNull] this IReadOnlyProperty property)
             => (string?)property[SqlServerAnnotationNames.HiLoSequenceSchema];
 
         /// <summary>
@@ -102,12 +99,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The schema to use for the hi-lo sequence. </returns>
-        public static string? GetHiLoSequenceSchema([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static string? GetHiLoSequenceSchema([NotNull] this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema);
             if (annotation != null)
             {
-                return (string)annotation.Value;
+                return (string?)annotation.Value;
             }
 
             var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
@@ -159,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
-        public static ISequence? FindHiLoSequence([NotNull] this IProperty property)
+        public static IReadOnlySequence? FindHiLoSequence([NotNull] this IReadOnlyProperty property)
         {
             var model = property.DeclaringEntityType.Model;
 
@@ -178,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
-        public static ISequence? FindHiLoSequence([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static IReadOnlySequence? FindHiLoSequence([NotNull] this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var model = property.DeclaringEntityType.Model;
 
@@ -192,11 +189,28 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Finds the <see cref="ISequence" /> in the model to use for the hi-lo pattern.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
+        public static ISequence? FindHiLoSequence([NotNull] this IProperty property)
+            => (ISequence?)((IReadOnlyProperty)property).FindHiLoSequence();
+
+        /// <summary>
+        ///     Finds the <see cref="ISequence" /> in the model to use for the hi-lo pattern.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <returns> The sequence to use, or <see langword="null" /> if no sequence exists in the model. </returns>
+        public static ISequence? FindHiLoSequence([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+            => (ISequence?)((IReadOnlyProperty)property).FindHiLoSequence(storeObject);
+
+        /// <summary>
         ///     Returns the identity seed.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The identity seed. </returns>
-        public static int? GetIdentitySeed([NotNull] this IProperty property)
+        public static int? GetIdentitySeed([NotNull] this IReadOnlyProperty property)
             => (int?)property[SqlServerAnnotationNames.IdentitySeed];
 
         /// <summary>
@@ -205,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The identity seed. </returns>
-        public static int? GetIdentitySeed([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static int? GetIdentitySeed([NotNull] this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
             if (annotation != null)
@@ -262,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The identity increment. </returns>
-        public static int? GetIdentityIncrement([NotNull] this IProperty property)
+        public static int? GetIdentityIncrement([NotNull] this IReadOnlyProperty property)
             => (int?)property[SqlServerAnnotationNames.IdentityIncrement];
 
         /// <summary>
@@ -271,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The identity increment. </returns>
-        public static int? GetIdentityIncrement([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
+        public static int? GetIdentityIncrement([NotNull] this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement);
             if (annotation != null)
@@ -333,12 +347,12 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set. </returns>
-        public static SqlServerValueGenerationStrategy GetValueGenerationStrategy([NotNull] this IProperty property)
+        public static SqlServerValueGenerationStrategy GetValueGenerationStrategy([NotNull] this IReadOnlyProperty property)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
             if (annotation != null)
             {
-                return (SqlServerValueGenerationStrategy)annotation.Value;
+                return (SqlServerValueGenerationStrategy?)annotation.Value ?? SqlServerValueGenerationStrategy.None;
             }
 
             if (property.ValueGenerated != ValueGenerated.OnAdd
@@ -365,19 +379,19 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set. </returns>
         public static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
-            [NotNull] this IProperty property,
+            [NotNull] this IReadOnlyProperty property,
             in StoreObjectIdentifier storeObject)
             => GetValueGenerationStrategy(property, storeObject, null);
 
         internal static SqlServerValueGenerationStrategy GetValueGenerationStrategy(
-            [NotNull] this IProperty property,
+            [NotNull] this IReadOnlyProperty property,
             in StoreObjectIdentifier storeObject,
             ITypeMappingSource? typeMappingSource)
         {
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
             if (annotation != null)
             {
-                return (SqlServerValueGenerationStrategy)annotation.Value;
+                return (SqlServerValueGenerationStrategy?)annotation.Value ?? SqlServerValueGenerationStrategy.None;
             }
 
             var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
@@ -402,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore
             return GetDefaultValueGenerationStrategy(property, storeObject, typeMappingSource);
         }
 
-        private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IProperty property)
+        private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
         {
             var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
 
@@ -419,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(
-            IProperty property,
+            IReadOnlyProperty property,
             in StoreObjectIdentifier storeObject,
             ITypeMappingSource? typeMappingSource)
         {
@@ -470,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore
             return value;
         }
 
-        private static void CheckValueGenerationStrategy(IProperty property, SqlServerValueGenerationStrategy? value)
+        private static void CheckValueGenerationStrategy(IReadOnlyProperty property, SqlServerValueGenerationStrategy? value)
         {
             if (value != null)
             {
@@ -508,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> <see langword="true" /> if compatible. </returns>
-        public static bool IsCompatibleWithValueGeneration([NotNull] IProperty property)
+        public static bool IsCompatibleWithValueGeneration([NotNull] IReadOnlyProperty property)
         {
             var type = property.ClrType;
 
@@ -520,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static bool IsCompatibleWithValueGeneration(
-            [NotNull] IProperty property,
+            [NotNull] IReadOnlyProperty property,
             in StoreObjectIdentifier storeObject,
             ITypeMappingSource? typeMappingSource)
         {
@@ -530,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore
                     || type == typeof(decimal))
                 && (property.GetValueConverter()
                     ?? (property.FindRelationalTypeMapping(storeObject)
-                        ?? typeMappingSource?.FindMapping(property))?.Converter)
+                        ?? typeMappingSource?.FindMapping((IProperty)property))?.Converter)
                 == null;
         }
 
@@ -539,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> <see langword="true" /> if the property's column is sparse. </returns>
-        public static bool? IsSparse([NotNull] this IProperty property)
+        public static bool? IsSparse([NotNull] this IReadOnlyProperty property)
             => (bool?)property[SqlServerAnnotationNames.Sparse];
 
         /// <summary>

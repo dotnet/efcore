@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy,
             [NotNull] string otherValueGenerationStrategy,
-            [NotNull] IProperty property)
+            [NotNull] IReadOnlyProperty property)
         {
             var definition = SqlServerResources.LogConflictingValueGenerationStrategies(diagnostics);
 
@@ -190,8 +190,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
             int scale,
             bool nullable,
             bool identity,
-            [CanBeNull] string defaultValue,
-            [CanBeNull] string computedValue,
+            [CanBeNull] string? defaultValue,
+            [CanBeNull] string? computedValue,
             bool? stored)
         {
             var definition = SqlServerResources.LogFoundColumn(diagnostics);
@@ -357,9 +357,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         /// </summary>
         public static void ForeignKeyReferencesMissingPrincipalTableWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string foreignKeyName,
-            [CanBeNull] string tableName,
-            [CanBeNull] string principalTableName)
+            [CanBeNull] string? foreignKeyName,
+            [CanBeNull] string? tableName,
+            [CanBeNull] string? principalTableName)
         {
             var definition = SqlServerResources.LogPrincipalTableNotInSelectionSet(diagnostics);
 
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         /// </summary>
         public static void MissingSchemaWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string schemaName)
+            [CanBeNull] string? schemaName)
         {
             var definition = SqlServerResources.LogMissingSchema(diagnostics);
 
@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         /// </summary>
         public static void MissingTableWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string tableName)
+            [CanBeNull] string? tableName)
         {
             var definition = SqlServerResources.LogMissingTable(diagnostics);
 

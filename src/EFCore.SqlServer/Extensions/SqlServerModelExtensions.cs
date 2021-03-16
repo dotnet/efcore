@@ -6,13 +6,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IModel" /> for SQL Server-specific metadata.
+    ///     Model extension methods for SQL Server-specific metadata.
     /// </summary>
     public static class SqlServerModelExtensions
     {
@@ -26,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The name to use for the default hi-lo sequence. </returns>
-        public static string GetHiLoSequenceName([NotNull] this IModel model)
+        public static string GetHiLoSequenceName([NotNull] this IReadOnlyModel model)
             => (string?)model[SqlServerAnnotationNames.HiLoSequenceName]
                 ?? DefaultHiLoSequenceName;
 
@@ -75,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The schema to use for the default hi-lo sequence. </returns>
-        public static string? GetHiLoSequenceSchema([NotNull] this IModel model)
+        public static string? GetHiLoSequenceSchema([NotNull] this IReadOnlyModel model)
             => (string?)model[SqlServerAnnotationNames.HiLoSequenceSchema];
 
         /// <summary>
@@ -122,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The default identity seed. </returns>
-        public static int GetIdentitySeed([NotNull] this IModel model)
+        public static int GetIdentitySeed([NotNull] this IReadOnlyModel model)
             => (int?)model[SqlServerAnnotationNames.IdentitySeed] ?? 1;
 
         /// <summary>
@@ -165,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The default identity increment. </returns>
-        public static int GetIdentityIncrement([NotNull] this IModel model)
+        public static int GetIdentityIncrement([NotNull] this IReadOnlyModel model)
             => (int?)model[SqlServerAnnotationNames.IdentityIncrement] ?? 1;
 
         /// <summary>
@@ -212,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The default <see cref="SqlServerValueGenerationStrategy" />. </returns>
-        public static SqlServerValueGenerationStrategy? GetValueGenerationStrategy([NotNull] this IModel model)
+        public static SqlServerValueGenerationStrategy? GetValueGenerationStrategy([NotNull] this IReadOnlyModel model)
             => (SqlServerValueGenerationStrategy?)model[SqlServerAnnotationNames.ValueGenerationStrategy];
 
         /// <summary>
@@ -257,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The maximum size of the database. </returns>
-        public static string? GetDatabaseMaxSize([NotNull] this IModel model)
+        public static string? GetDatabaseMaxSize([NotNull] this IReadOnlyModel model)
             => (string?)model[SqlServerAnnotationNames.MaxDatabaseSize];
 
         /// <summary>
@@ -298,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The service tier of the database. </returns>
-        public static string? GetServiceTierSql([NotNull] this IModel model)
+        public static string? GetServiceTierSql([NotNull] this IReadOnlyModel model)
             => (string?)model[SqlServerAnnotationNames.ServiceTierSql];
 
         /// <summary>
@@ -339,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The performance level of the database. </returns>
-        public static string? GetPerformanceLevelSql([NotNull] this IModel model)
+        public static string? GetPerformanceLevelSql([NotNull] this IReadOnlyModel model)
             => (string?)model[SqlServerAnnotationNames.PerformanceLevelSql];
 
         /// <summary>

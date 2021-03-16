@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
             get => throw new IndexOutOfRangeException();
             set => throw new IndexOutOfRangeException();
@@ -89,73 +89,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Type CreateSnapshotType([NotNull] Type[] types)
+            => types.Length switch
         {
-            switch (types.Length)
-            {
-                case 1:
-                    return typeof(Snapshot<>).MakeGenericType(types);
-                case 2:
-                    return typeof(Snapshot<,>).MakeGenericType(types);
-                case 3:
-                    return typeof(Snapshot<,,>).MakeGenericType(types);
-                case 4:
-                    return typeof(Snapshot<,,,>).MakeGenericType(types);
-                case 5:
-                    return typeof(Snapshot<,,,,>).MakeGenericType(types);
-                case 6:
-                    return typeof(Snapshot<,,,,,>).MakeGenericType(types);
-                case 7:
-                    return typeof(Snapshot<,,,,,,>).MakeGenericType(types);
-                case 8:
-                    return typeof(Snapshot<,,,,,,,>).MakeGenericType(types);
-                case 9:
-                    return typeof(Snapshot<,,,,,,,,>).MakeGenericType(types);
-                case 10:
-                    return typeof(Snapshot<,,,,,,,,,>).MakeGenericType(types);
-                case 11:
-                    return typeof(Snapshot<,,,,,,,,,,>).MakeGenericType(types);
-                case 12:
-                    return typeof(Snapshot<,,,,,,,,,,,>).MakeGenericType(types);
-                case 13:
-                    return typeof(Snapshot<,,,,,,,,,,,,>).MakeGenericType(types);
-                case 14:
-                    return typeof(Snapshot<,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 15:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 16:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 17:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 18:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 19:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 20:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 21:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 22:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 23:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 24:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 25:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 26:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 27:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 28:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 29:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-                case 30:
-                    return typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types);
-            }
-
-            throw new IndexOutOfRangeException();
-        }
+            1 => typeof(Snapshot<>).MakeGenericType(types),
+            2 => typeof(Snapshot<,>).MakeGenericType(types),
+            3 => typeof(Snapshot<,,>).MakeGenericType(types),
+            4 => typeof(Snapshot<,,,>).MakeGenericType(types),
+            5 => typeof(Snapshot<,,,,>).MakeGenericType(types),
+            6 => typeof(Snapshot<,,,,,>).MakeGenericType(types),
+            7 => typeof(Snapshot<,,,,,,>).MakeGenericType(types),
+            8 => typeof(Snapshot<,,,,,,,>).MakeGenericType(types),
+            9 => typeof(Snapshot<,,,,,,,,>).MakeGenericType(types),
+            10 => typeof(Snapshot<,,,,,,,,,>).MakeGenericType(types),
+            11 => typeof(Snapshot<,,,,,,,,,,>).MakeGenericType(types),
+            12 => typeof(Snapshot<,,,,,,,,,,,>).MakeGenericType(types),
+            13 => typeof(Snapshot<,,,,,,,,,,,,>).MakeGenericType(types),
+            14 => typeof(Snapshot<,,,,,,,,,,,,,>).MakeGenericType(types),
+            15 => typeof(Snapshot<,,,,,,,,,,,,,,>).MakeGenericType(types),
+            16 => typeof(Snapshot<,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            17 => typeof(Snapshot<,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            18 => typeof(Snapshot<,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            19 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            20 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            21 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            22 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            23 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            24 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            25 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            26 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            27 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            28 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            29 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            30 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+            _ => throw new IndexOutOfRangeException(),
+        };
     }
 
     /// <summary>
@@ -172,16 +139,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = Snapshot
                 .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                     T22, T23, T24, T25, T26, T27, T28, T29>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -300,169 +257,135 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    case 20:
-                        return _value20;
-                    case 21:
-                        return _value21;
-                    case 22:
-                        return _value22;
-                    case 23:
-                        return _value23;
-                    case 24:
-                        return _value24;
-                    case 25:
-                        return _value25;
-                    case 26:
-                        return _value26;
-                    case 27:
-                        return _value27;
-                    case 28:
-                        return _value28;
-                    case 29:
-                        return _value29;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                20 => _value20,
+                21 => _value21,
+                22 => _value22,
+                23 => _value23,
+                24 => _value24,
+                25 => _value25,
+                26 => _value26,
+                27 => _value27,
+                28 => _value28,
+                29 => _value29,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     case 20:
-                        _value20 = (T20)value;
+                        _value20 = (T20)value!;
                         break;
                     case 21:
-                        _value21 = (T21)value;
+                        _value21 = (T21)value!;
                         break;
                     case 22:
-                        _value22 = (T22)value;
+                        _value22 = (T22)value!;
                         break;
                     case 23:
-                        _value23 = (T23)value;
+                        _value23 = (T23)value!;
                         break;
                     case 24:
-                        _value24 = (T24)value;
+                        _value24 = (T24)value!;
                         break;
                     case 25:
-                        _value25 = (T25)value;
+                        _value25 = (T25)value!;
                         break;
                     case 26:
-                        _value26 = (T26)value;
+                        _value26 = (T26)value!;
                         break;
                     case 27:
-                        _value27 = (T27)value;
+                        _value27 = (T27)value!;
                         break;
                     case 28:
-                        _value28 = (T28)value;
+                        _value28 = (T28)value!;
                         break;
                     case 29:
-                        _value29 = (T29)value;
+                        _value29 = (T29)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -485,16 +408,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = Snapshot
                 .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                     T22, T23, T24, T25, T26, T27, T28>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -610,164 +523,131 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    case 20:
-                        return _value20;
-                    case 21:
-                        return _value21;
-                    case 22:
-                        return _value22;
-                    case 23:
-                        return _value23;
-                    case 24:
-                        return _value24;
-                    case 25:
-                        return _value25;
-                    case 26:
-                        return _value26;
-                    case 27:
-                        return _value27;
-                    case 28:
-                        return _value28;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                20 => _value20,
+                21 => _value21,
+                22 => _value22,
+                23 => _value23,
+                24 => _value24,
+                25 => _value25,
+                26 => _value26,
+                27 => _value27,
+                28 => _value28,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     case 20:
-                        _value20 = (T20)value;
+                        _value20 = (T20)value!;
                         break;
                     case 21:
-                        _value21 = (T21)value;
+                        _value21 = (T21)value!;
                         break;
                     case 22:
-                        _value22 = (T22)value;
+                        _value22 = (T22)value!;
                         break;
                     case 23:
-                        _value23 = (T23)value;
+                        _value23 = (T23)value!;
                         break;
                     case 24:
-                        _value24 = (T24)value;
+                        _value24 = (T24)value!;
                         break;
                     case 25:
-                        _value25 = (T25)value;
+                        _value25 = (T25)value!;
                         break;
                     case 26:
-                        _value26 = (T26)value;
+                        _value26 = (T26)value!;
                         break;
                     case 27:
-                        _value27 = (T27)value;
+                        _value27 = (T27)value!;
                         break;
                     case 28:
-                        _value28 = (T28)value;
+                        _value28 = (T28)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -790,16 +670,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = Snapshot
                 .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                     T22, T23, T24, T25, T26, T27>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -912,159 +782,127 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    case 20:
-                        return _value20;
-                    case 21:
-                        return _value21;
-                    case 22:
-                        return _value22;
-                    case 23:
-                        return _value23;
-                    case 24:
-                        return _value24;
-                    case 25:
-                        return _value25;
-                    case 26:
-                        return _value26;
-                    case 27:
-                        return _value27;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                20 => _value20,
+                21 => _value21,
+                22 => _value22,
+                23 => _value23,
+                24 => _value24,
+                25 => _value25,
+                26 => _value26,
+                27 => _value27,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     case 20:
-                        _value20 = (T20)value;
+                        _value20 = (T20)value!;
                         break;
                     case 21:
-                        _value21 = (T21)value;
+                        _value21 = (T21)value!;
                         break;
                     case 22:
-                        _value22 = (T22)value;
+                        _value22 = (T22)value!;
                         break;
                     case 23:
-                        _value23 = (T23)value;
+                        _value23 = (T23)value!;
                         break;
                     case 24:
-                        _value24 = (T24)value;
+                        _value24 = (T24)value!;
                         break;
                     case 25:
-                        _value25 = (T25)value;
+                        _value25 = (T25)value!;
                         break;
                     case 26:
-                        _value26 = (T26)value;
+                        _value26 = (T26)value!;
                         break;
                     case 27:
-                        _value27 = (T27)value;
+                        _value27 = (T27)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -1087,16 +925,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = Snapshot
                 .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                     T22, T23, T24, T25, T26>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1206,154 +1034,123 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    case 20:
-                        return _value20;
-                    case 21:
-                        return _value21;
-                    case 22:
-                        return _value22;
-                    case 23:
-                        return _value23;
-                    case 24:
-                        return _value24;
-                    case 25:
-                        return _value25;
-                    case 26:
-                        return _value26;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                20 => _value20,
+                21 => _value21,
+                22 => _value22,
+                23 => _value23,
+                24 => _value24,
+                25 => _value25,
+                26 => _value26,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     case 20:
-                        _value20 = (T20)value;
+                        _value20 = (T20)value!;
                         break;
                     case 21:
-                        _value21 = (T21)value;
+                        _value21 = (T21)value!;
                         break;
                     case 22:
-                        _value22 = (T22)value;
+                        _value22 = (T22)value!;
                         break;
                     case 23:
-                        _value23 = (T23)value;
+                        _value23 = (T23)value!;
                         break;
                     case 24:
-                        _value24 = (T24)value;
+                        _value24 = (T24)value!;
                         break;
                     case 25:
-                        _value25 = (T25)value;
+                        _value25 = (T25)value!;
                         break;
                     case 26:
-                        _value26 = (T26)value;
+                        _value26 = (T26)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -1376,16 +1173,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = Snapshot
                 .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                     T22, T23, T24, T25>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1492,149 +1279,119 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    case 20:
-                        return _value20;
-                    case 21:
-                        return _value21;
-                    case 22:
-                        return _value22;
-                    case 23:
-                        return _value23;
-                    case 24:
-                        return _value24;
-                    case 25:
-                        return _value25;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                20 => _value20,
+                21 => _value21,
+                22 => _value22,
+                23 => _value23,
+                24 => _value24,
+                25 => _value25,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     case 20:
-                        _value20 = (T20)value;
+                        _value20 = (T20)value!;
                         break;
                     case 21:
-                        _value21 = (T21)value;
+                        _value21 = (T21)value!;
                         break;
                     case 22:
-                        _value22 = (T22)value;
+                        _value22 = (T22)value!;
                         break;
                     case 23:
-                        _value23 = (T23)value;
+                        _value23 = (T23)value!;
                         break;
                     case 24:
-                        _value24 = (T24)value;
+                        _value24 = (T24)value!;
                         break;
                     case 25:
-                        _value25 = (T25)value;
+                        _value25 = (T25)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -1657,16 +1414,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = Snapshot
                 .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                     T22, T23, T24>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1770,144 +1517,115 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    case 20:
-                        return _value20;
-                    case 21:
-                        return _value21;
-                    case 22:
-                        return _value22;
-                    case 23:
-                        return _value23;
-                    case 24:
-                        return _value24;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                20 => _value20,
+                21 => _value21,
+                22 => _value22,
+                23 => _value23,
+                24 => _value24,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     case 20:
-                        _value20 = (T20)value;
+                        _value20 = (T20)value!;
                         break;
                     case 21:
-                        _value21 = (T21)value;
+                        _value21 = (T21)value!;
                         break;
                     case 22:
-                        _value22 = (T22)value;
+                        _value22 = (T22)value!;
                         break;
                     case 23:
-                        _value23 = (T23)value;
+                        _value23 = (T23)value!;
                         break;
                     case 24:
-                        _value24 = (T24)value;
+                        _value24 = (T24)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -1930,16 +1648,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = Snapshot
                 .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                     T22, T23>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2040,139 +1748,111 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    case 20:
-                        return _value20;
-                    case 21:
-                        return _value21;
-                    case 22:
-                        return _value22;
-                    case 23:
-                        return _value23;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                20 => _value20,
+                21 => _value21,
+                22 => _value22,
+                23 => _value23,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     case 20:
-                        _value20 = (T20)value;
+                        _value20 = (T20)value!;
                         break;
                     case 21:
-                        _value21 = (T21)value;
+                        _value21 = (T21)value!;
                         break;
                     case 22:
-                        _value22 = (T22)value;
+                        _value22 = (T22)value!;
                         break;
                     case 23:
-                        _value23 = (T23)value;
+                        _value23 = (T23)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -2194,16 +1874,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = Snapshot
                 .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21,
                     T22>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2301,134 +1971,107 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    case 20:
-                        return _value20;
-                    case 21:
-                        return _value21;
-                    case 22:
-                        return _value22;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                20 => _value20,
+                21 => _value21,
+                22 => _value22,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     case 20:
-                        _value20 = (T20)value;
+                        _value20 = (T20)value!;
                         break;
                     case 21:
-                        _value21 = (T21)value;
+                        _value21 = (T21)value!;
                         break;
                     case 22:
-                        _value22 = (T22)value;
+                        _value22 = (T22)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -2450,16 +2093,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             = Snapshot
                 .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21>
                 >();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2554,129 +2187,103 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    case 20:
-                        return _value20;
-                    case 21:
-                        return _value21;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                20 => _value20,
+                21 => _value21,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     case 20:
-                        _value20 = (T20)value;
+                        _value20 = (T20)value!;
                         break;
                     case 21:
-                        _value21 = (T21)value;
+                        _value21 = (T21)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -2697,16 +2304,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static readonly Delegate[] _valueReaders
             = Snapshot
                 .CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2798,124 +2395,99 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    case 20:
-                        return _value20;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                20 => _value20,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     case 20:
-                        _value20 = (T20)value;
+                        _value20 = (T20)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -2935,16 +2507,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3033,119 +2595,95 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    case 19:
-                        return _value19;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                19 => _value19,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     case 19:
-                        _value19 = (T19)value;
+                        _value19 = (T19)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -3165,16 +2703,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3260,114 +2788,91 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    case 18:
-                        return _value18;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                18 => _value18,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     case 18:
-                        _value18 = (T18)value;
+                        _value18 = (T18)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -3387,16 +2892,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3479,109 +2974,87 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    case 17:
-                        return _value17;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                17 => _value17,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     case 17:
-                        _value17 = (T17)value;
+                        _value17 = (T17)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -3601,16 +3074,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3689,104 +3152,83 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    case 16:
-                        return _value16;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                16 => _value16,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     case 16:
-                        _value16 = (T16)value;
+                        _value16 = (T16)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -3806,16 +3248,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3891,99 +3323,79 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    case 15:
-                        return _value15;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                15 => _value15,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     case 15:
-                        _value15 = (T15)value;
+                        _value15 = (T15)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -4003,16 +3415,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4085,94 +3487,75 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    case 14:
-                        return _value14;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                14 => _value14,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     case 14:
-                        _value14 = (T14)value;
+                        _value14 = (T14)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -4192,16 +3575,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4271,89 +3644,71 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    case 13:
-                        return _value13;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                13 => _value13,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     case 13:
-                        _value13 = (T13)value;
+                        _value13 = (T13)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -4373,16 +3728,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4449,84 +3794,67 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    case 12:
-                        return _value12;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                12 => _value12,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     case 12:
-                        _value12 = (T12)value;
+                        _value12 = (T12)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -4546,16 +3874,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4619,79 +3937,63 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    case 11:
-                        return _value11;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                11 => _value11,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     case 11:
-                        _value11 = (T11)value;
+                        _value11 = (T11)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -4711,16 +4013,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4781,74 +4073,59 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    case 10:
-                        return _value10;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                10 => _value10,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     case 10:
-                        _value10 = (T10)value;
+                        _value10 = (T10)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -4868,16 +4145,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -4935,69 +4202,55 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    case 9:
-                        return _value9;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                9 => _value9,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     case 9:
-                        _value9 = (T9)value;
+                        _value9 = (T9)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -5017,16 +4270,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7, T8>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5081,64 +4324,51 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    case 8:
-                        return _value8;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                8 => _value8,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     case 8:
-                        _value8 = (T8)value;
+                        _value8 = (T8)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -5158,16 +4388,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6, T7>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5219,59 +4439,47 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    case 7:
-                        return _value7;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                7 => _value7,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     case 7:
-                        _value7 = (T7)value;
+                        _value7 = (T7)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -5291,16 +4499,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5, T6>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5349,54 +4547,43 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    case 6:
-                        return _value6;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                6 => _value6,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     case 6:
-                        _value6 = (T6)value;
+                        _value6 = (T6)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -5416,16 +4603,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4, T5>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5471,49 +4648,39 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    case 5:
-                        return _value5;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                5 => _value5,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     case 5:
-                        _value5 = (T5)value;
+                        _value5 = (T5)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -5533,16 +4700,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3, T4>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5585,44 +4742,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    case 4:
-                        return _value4;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                4 => _value4,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     case 4:
-                        _value4 = (T4)value;
+                        _value4 = (T4)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -5642,16 +4790,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2, T3>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5691,39 +4829,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    case 3:
-                        return _value3;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                3 => _value3,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     case 3:
-                        _value3 = (T3)value;
+                        _value3 = (T3)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -5743,16 +4873,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1, T2>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5789,34 +4909,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    case 2:
-                        return _value2;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                2 => _value2,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     case 2:
-                        _value2 = (T2)value;
+                        _value2 = (T2)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -5836,16 +4949,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0, T1>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5879,29 +4982,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
+            get => index switch
             {
-                switch (index)
-                {
-                    case 0:
-                        return _value0;
-                    case 1:
-                        return _value1;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                0 => _value0,
+                1 => _value1,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set
             {
                 switch (index)
                 {
                     case 0:
-                        _value0 = (T0)value;
+                        _value0 = (T0)value!;
                         break;
                     case 1:
-                        _value1 = (T1)value;
+                        _value1 = (T1)value!;
                         break;
                     default:
                         throw new IndexOutOfRangeException();
@@ -5921,16 +5018,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private static readonly Delegate[] _valueReaders
             = Snapshot.CreateReaders<Snapshot<T0>>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public Snapshot()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5961,29 +5048,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[int index]
+        public object? this[int index]
         {
-            get
-            {
-                switch (index)
+            get => index switch
                 {
-                    case 0:
-                        return _value0;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
-            set
-            {
-                switch (index)
+                    0 => _value0,
+                    _ => throw new IndexOutOfRangeException(),
+                };
+            set => _value0 = index switch
                 {
-                    case 0:
-                        _value0 = (T0)value;
-                        break;
-                    default:
-                        throw new IndexOutOfRangeException();
-                }
-            }
+                    0 => (T0)value!,
+                    _ => throw new IndexOutOfRangeException(),
+                };
         }
     }
 }

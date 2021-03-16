@@ -21,28 +21,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The name of the table into which data will be inserted.
         /// </summary>
-        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Table { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     A list of column names that represent the columns into which data will be inserted.
         /// </summary>
-        public virtual string[] Columns { get; [param: NotNull] set; }
+        public virtual string[] Columns { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     A list of store types for the columns into which data will be inserted.
         /// </summary>
-        public virtual string[] ColumnTypes { get; [param: NotNull] set; }
+        public virtual string[]? ColumnTypes { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The data to be inserted, represented as a list of value arrays where each
         ///     value in the array corresponds to a column in the <see cref="Columns" /> property.
         /// </summary>
-        public virtual object[,] Values { get; [param: NotNull] set; }
+        public virtual object?[,] Values { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     Generates the commands that correspond to this operation.

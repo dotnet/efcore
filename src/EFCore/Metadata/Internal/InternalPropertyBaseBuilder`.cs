@@ -5,8 +5,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -141,6 +139,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             PropertyAccessMode? propertyAccessMode,
             ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
-                || ((IPropertyBase)Metadata).GetPropertyAccessMode() == propertyAccessMode;
+                || ((IReadOnlyPropertyBase)Metadata).GetPropertyAccessMode() == propertyAccessMode;
     }
 }

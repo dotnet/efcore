@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -60,6 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The model to be used. </returns>
         IModel GetModel(
             [NotNull] DbContext context,
-            [NotNull] IModelCreationDependencies modelCreationDependencies);
+            [NotNull] ModelCreationDependencies modelCreationDependencies);
     }
 }

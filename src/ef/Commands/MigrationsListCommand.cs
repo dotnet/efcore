@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         protected override int Execute(string[] args)
         {
             using var executor = CreateExecutor(args);
-            var migrations = executor.GetMigrations(Context.Value(), _connection.Value(), _noConnect.HasValue()).ToList();
+            var migrations = executor.GetMigrations(Context!.Value(), _connection!.Value(), _noConnect!.HasValue()).ToList();
 
-            if (_json.HasValue())
+            if (_json!.HasValue())
             {
                 ReportJsonResults(migrations);
             }

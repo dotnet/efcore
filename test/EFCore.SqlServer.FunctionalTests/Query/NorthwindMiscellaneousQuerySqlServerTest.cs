@@ -5392,6 +5392,58 @@ ORDER BY [c].[CustomerID]");
             }
         }
 
+        public override async Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
+        {
+            await base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [t].[First], [t].[Second]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT DISTINCT [o].[OrderID] AS [First], [o].[OrderDate] AS [Second]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]
+ORDER BY [c].[CustomerID], [t].[First]");
+        }
+
+        public override async Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(bool async)
+        {
+            await base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [t].[First], [t].[Second], [t].[Third]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT DISTINCT [o].[OrderID] AS [First], [o].[OrderDate] AS [Second], [c0].[City] AS [Third]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]
+ORDER BY [c].[CustomerID], [t].[First], [t].[Second], [t].[Third]");
+        }
+
+        public override async Task Select_nested_collection_with_distinct(bool async)
+        {
+            await base.Select_nested_collection_with_distinct(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [c].[CustomerID], [t].[CustomerID]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT DISTINCT [o0].[CustomerID]
+    FROM [Orders] AS [o0]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID], [t].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

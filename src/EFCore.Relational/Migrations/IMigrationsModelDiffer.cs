@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>
         ///     <see langword="true" /> if there are any differences and <see langword="false" /> otherwise.
         /// </returns>
-        bool HasDifferences([CanBeNull] IRelationalModel source, [CanBeNull] IRelationalModel target);
+        bool HasDifferences([CanBeNull] IRelationalModel? source, [CanBeNull] IRelationalModel? target);
 
         /// <summary>
         ///     Finds the differences between two models.
@@ -43,6 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A list of the operations that need to applied to the database to migrate it
         ///     from mapping to the source model so that is now mapping to the target model.
         /// </returns>
-        IReadOnlyList<MigrationOperation> GetDifferences([CanBeNull] IRelationalModel source, [CanBeNull] IRelationalModel target);
+        IReadOnlyList<MigrationOperation> GetDifferences([CanBeNull] IRelationalModel? source, [CanBeNull] IRelationalModel? target);
     }
 }

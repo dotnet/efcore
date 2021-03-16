@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 }
                             }
 
-                            endpoints.MaxTop(2).Expand().Select().OrderBy().Filter();
+                            endpoints.MaxTop(null).Expand().Select().OrderBy().Filter().Count();
                             endpoints.MapODataRoute("odata", "odata",
                                 edmModel,
                                 new DefaultODataPathHandler(),

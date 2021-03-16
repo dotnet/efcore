@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 
                 if ((_options & DbContextLoggerOptions.Category) != 0)
                 {
-                    var lastDot = eventId.Name.LastIndexOf('.');
+                    var lastDot = eventId.Name!.LastIndexOf('.');
                     if (lastDot > 0)
                     {
                         messageBuilder.Append('(').Append(eventId.Name.Substring(0, lastDot)).Append(") ");

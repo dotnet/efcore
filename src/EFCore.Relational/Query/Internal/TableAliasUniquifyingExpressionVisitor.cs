@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>

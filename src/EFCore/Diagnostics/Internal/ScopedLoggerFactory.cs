@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// </summary>
         public static ScopedLoggerFactory Create(
             [NotNull] IServiceProvider internalServiceProvider,
-            [CanBeNull] IDbContextOptions contextOptions)
+            [CanBeNull] IDbContextOptions? contextOptions)
         {
             var coreOptions
                 = (contextOptions ?? internalServiceProvider.GetService<IDbContextOptions>())

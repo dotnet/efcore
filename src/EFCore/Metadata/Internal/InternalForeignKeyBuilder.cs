@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -1835,7 +1833,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetForeignKey([CanBeNull] IReadOnlyList<string>? propertyNames, ConfigurationSource? configurationSource)
         {
             if (propertyNames is not null
-                && Metadata.DeclaringEntityType.FindProperties(propertyNames) is IReadOnlyList<Property> properties)
+                && ((IReadOnlyEntityType)Metadata.DeclaringEntityType).FindProperties(propertyNames) is IReadOnlyList<IReadOnlyProperty> properties)
             {
                 return CanSetForeignKey(
                     properties,
@@ -1861,7 +1859,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 out _);
 
         private bool CanSetForeignKey(
-            IReadOnlyList<Property>? properties,
+            IReadOnlyList<IReadOnlyProperty>? properties,
             EntityType? dependentEntityType,
             ConfigurationSource? configurationSource,
             bool overrideSameSource = true)
@@ -1873,7 +1871,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 overrideSameSource);
 
         private bool CanSetForeignKey(
-            IReadOnlyList<Property>? properties,
+            IReadOnlyList<IReadOnlyProperty>? properties,
             EntityType? dependentEntityType,
             ConfigurationSource? configurationSource,
             out bool resetPrincipalKey,
@@ -1893,7 +1891,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private bool CanSetForeignKey(
-            IReadOnlyList<Property>? properties,
+            IReadOnlyList<IReadOnlyProperty>? properties,
             EntityType? dependentEntityType,
             IReadOnlyList<Property> principalKeyProperties,
             EntityType principalEntityType,
@@ -2062,7 +2060,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetPrincipalKey([CanBeNull] IReadOnlyList<string>? propertyNames, ConfigurationSource? configurationSource)
         {
             if (propertyNames is not null
-                && Metadata.PrincipalEntityType.FindProperties(propertyNames) is IReadOnlyList<Property> properties)
+                && ((IReadOnlyEntityType)Metadata.PrincipalEntityType).FindProperties(propertyNames) is IReadOnlyList<IReadOnlyProperty> properties)
             {
                 return CanSetPrincipalKey(
                     properties,
@@ -2088,7 +2086,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 out _);
 
         private bool CanSetPrincipalKey(
-            IReadOnlyList<Property>? properties,
+            IReadOnlyList<IReadOnlyProperty>? properties,
             ConfigurationSource? configurationSource,
             out bool resetDependent,
             out IReadOnlyList<Property>? oldNameDependentProperties)
@@ -2842,9 +2840,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var oldIsEagerLoadedConfigurationSource = ((IConventionNavigation)oldNavigation).GetIsEagerLoadedConfigurationSource();
             if (oldIsEagerLoadedConfigurationSource.HasValue
-                && builder.CanSetAutoInclude(((INavigation)oldNavigation).IsEagerLoaded, oldIsEagerLoadedConfigurationSource.Value))
+                && builder.CanSetAutoInclude(((IReadOnlyNavigation)oldNavigation).IsEagerLoaded, oldIsEagerLoadedConfigurationSource.Value))
             {
-                builder = builder.AutoInclude(((INavigation)oldNavigation).IsEagerLoaded, oldIsEagerLoadedConfigurationSource.Value)!;
+                builder = builder.AutoInclude(((IReadOnlyNavigation)oldNavigation).IsEagerLoaded, oldIsEagerLoadedConfigurationSource.Value)!;
             }
 
             return builder.Metadata.ForeignKey.Builder;
@@ -3361,7 +3359,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ThrowForConflictingNavigation(
-            [NotNull] IForeignKey foreignKey,
+            [NotNull] IReadOnlyForeignKey foreignKey,
             [NotNull] string newInverseName,
             bool newToPrincipal)
             => ThrowForConflictingNavigation(
@@ -3377,9 +3375,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ThrowForConflictingNavigation(
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] IEntityType principalEntityType,
-            [NotNull] IEntityType dependentEntityType,
+            [NotNull] IReadOnlyForeignKey foreignKey,
+            [NotNull] IReadOnlyEntityType principalEntityType,
+            [NotNull] IReadOnlyEntityType dependentEntityType,
             [CanBeNull] string? navigationToDependent,
             [CanBeNull] string? navigationToPrincipal)
             => throw new InvalidOperationException(

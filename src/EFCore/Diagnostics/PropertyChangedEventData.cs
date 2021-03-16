@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] EntityEntry entityEntry,
             [NotNull] IProperty property,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue)
+            [CanBeNull] object? oldValue,
+            [CanBeNull] object? newValue)
             : base(eventDefinition, messageGenerator, property)
         {
             Check.NotNull(entityEntry, nameof(entityEntry));
@@ -47,13 +47,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual EntityEntry EntityEntry { get; }
 
         /// <summary>
+        ///     The property.
+        /// </summary>
+        public new virtual IProperty Property => (IProperty)base.Property;
+
+        /// <summary>
         ///     The old value.
         /// </summary>
-        public virtual object OldValue { get; }
+        public virtual object? OldValue { get; }
 
         /// <summary>
         ///     The new value.
         /// </summary>
-        public virtual object NewValue { get; }
+        public virtual object? NewValue { get; }
     }
 }

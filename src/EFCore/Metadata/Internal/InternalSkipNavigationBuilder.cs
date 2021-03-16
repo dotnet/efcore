@@ -7,8 +7,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -298,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (propertyAccessModeConfigurationSource.HasValue)
             {
                 newSkipNavigationBuilder.UsePropertyAccessMode(
-                    ((ISkipNavigation)Metadata).GetPropertyAccessMode(), propertyAccessModeConfigurationSource.Value);
+                    ((IReadOnlySkipNavigation)Metadata).GetPropertyAccessMode(), propertyAccessModeConfigurationSource.Value);
             }
 
             var oldFieldInfoConfigurationSource = Metadata.GetFieldInfoConfigurationSource();
@@ -335,7 +333,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (CanSetAutoInclude(autoInclude, configurationSource))
             {
-                Metadata.SetIsEagerLoaded(autoInclude, configurationSource);
+                if (configurationSource == ConfigurationSource.Explicit)
+                {
+                    ((IMutableSkipNavigation)Metadata).SetIsEagerLoaded(autoInclude);
+                }
+                else
+                {
+                    ((IConventionSkipNavigation)Metadata).SetIsEagerLoaded(
+                        autoInclude, configurationSource == ConfigurationSource.DataAnnotation);
+                }
 
                 return this;
             }

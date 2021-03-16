@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -29,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use when converting to and from database types. </param>
         /// <param name="storeType"> The store type name. </param>
         protected RelationalGeometryTypeMapping(
-            [NotNull] ValueConverter<TGeometry, TProvider> converter,
+            [CanBeNull] ValueConverter<TGeometry, TProvider>? converter,
             [NotNull] string storeType)
             : base(CreateRelationalTypeMappingParameters(storeType))
         {

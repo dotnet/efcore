@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var navigation = new FakeNavigation();
 
-            var fk = new ForeignKeyTest.FakeForeignKey { PrincipalToDependent = navigation };
+            var fk = new FakeForeignKey { PrincipalToDependent = navigation };
             navigation.ForeignKey = fk;
             navigation.PropertyInfo = MyEntity.AsICollectionProperty;
 
@@ -44,12 +45,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class FakeNavigation : Annotatable, INavigation, IClrCollectionAccessor
         {
             public string Name { get; }
-            public ITypeBase DeclaringType { get; }
+            public IReadOnlyTypeBase DeclaringType { get; }
             public Type ClrType { get; }
             public PropertyInfo PropertyInfo { get; set; }
             public FieldInfo FieldInfo { get; }
             public IEntityType DeclaringEntityType { get; }
-            public IForeignKey ForeignKey { get; set; }
+            public IReadOnlyForeignKey ForeignKey { get; set; }
 
             public bool Add(object entity, object value, bool forMaterialization)
                 => throw new NotImplementedException();
@@ -66,7 +67,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public object GetOrCreate(object entity, bool forMaterialization)
                 => throw new NotImplementedException();
 
+            public IClrPropertyGetter GetGetter() => throw new NotImplementedException();
+
+            public IComparer<IUpdateEntry> GetCurrentValueComparer()
+                => throw new NotImplementedException();
+
+            public IClrCollectionAccessor GetCollectionAccessor()
+                => throw new NotImplementedException();
+
             public Type CollectionType { get; }
+        }
+
+        public class FakeForeignKey : Annotatable, IReadOnlyForeignKey
+        {
+            public IReadOnlyEntityType DeclaringEntityType { get; }
+            public IReadOnlyList<IReadOnlyProperty> Properties { get; }
+            public IReadOnlyEntityType PrincipalEntityType { get; }
+            public IReadOnlyKey PrincipalKey { get; }
+            public IReadOnlyNavigation DependentToPrincipal { get; set; }
+            public IReadOnlyNavigation PrincipalToDependent { get; set; }
+            public bool IsUnique { get; }
+            public bool IsRequired { get; }
+            public bool IsRequiredDependent { get; }
+            public bool IsOwnership { get; }
+            public DeleteBehavior DeleteBehavior { get; }
         }
 
         [ConditionalFact]
@@ -268,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             RunConvention(navigation);
 
-            var accessor = new ClrCollectionAccessorFactory().Create(navigation);
+            var accessor = new ClrCollectionAccessorFactory().Create((INavigation)navigation);
 
             var entity = new MyEntity(initialize: false);
             var value = new MyEntityWithCustomComparer { Id = 1 };
@@ -409,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     () => accessor.Add(new MyEntity(false), new MyOtherEntity(), forMaterialization: false)).Message);
         }
 
-        private IMutableNavigation CreateNavigation(string navigationName)
+        private INavigation CreateNavigation(string navigationName)
         {
             IMutableModel model = new Model();
             var entityType = model.AddEntityType(typeof(MyEntity));
@@ -424,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             RunConvention(navigation);
 
-            return navigation;
+            return (INavigation)navigation;
         }
 
         private void RunConvention(IMutableNavigation navigation)

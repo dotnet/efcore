@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -6546,7 +6548,7 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
             var contextFactory = await InitializeAsync<IssueContext20609>(
                 onConfiguring: o => o.ConfigureWarnings(x => x.Ignore(CoreEventId.InvalidIncludePathError)));
 
-            using var context = contextFactory.CreateContext(); 
+            using var context = contextFactory.CreateContext();
             var result = context.Set<IssueContext20609.ClassA>().Include("SubB").ToList();
         }
 
@@ -9120,6 +9122,173 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'" });
 
                     return null;
                 }
+            }
+        }
+
+        #endregion
+
+        #region Issue22841
+
+        [ConditionalFact]
+        public async Task SaveChangesAsync_accepts_changes_with_ConfigureAwait_true_22841()
+        {
+            var contextFactory = await InitializeAsync<MyContext22841>();
+
+            using var context = contextFactory.CreateContext();
+            var observableThing = new ObservableThing22841();
+
+            var origSynchronizationContext = SynchronizationContext.Current;
+            var trackingSynchronizationContext = new SingleThreadSynchronizationContext22841();
+            SynchronizationContext.SetSynchronizationContext(trackingSynchronizationContext);
+
+            bool? isMySyncContext = null;
+            Action callback = () => isMySyncContext = Thread.CurrentThread == trackingSynchronizationContext.Thread;
+            observableThing.Event += callback;
+
+            try
+            {
+                context.Add(observableThing);
+                await context.SaveChangesAsync();
+            }
+            finally
+            {
+                observableThing.Event -= callback;
+                SynchronizationContext.SetSynchronizationContext(origSynchronizationContext);
+                trackingSynchronizationContext.Dispose();
+            }
+
+            Assert.True(isMySyncContext);
+        }
+
+        protected class MyContext22841 : DbContext
+        {
+            public MyContext22841(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder
+                    .Entity<ObservableThing22841>()
+                    .Property(o => o.Id)
+                    .UsePropertyAccessMode(PropertyAccessMode.Property);
+
+            public DbSet<ObservableThing22841> ObservableThings { get; set; }
+        }
+
+        public class ObservableThing22841
+        {
+            public int Id
+            {
+                get => _id;
+                set
+                {
+                    _id = value;
+                    Event?.Invoke();
+                }
+            }
+
+            private int _id;
+
+            public event Action Event;
+        }
+
+        class SingleThreadSynchronizationContext22841 : SynchronizationContext, IDisposable
+        {
+            private CancellationTokenSource _cancellationTokenSource;
+            readonly BlockingCollection<(SendOrPostCallback callback, object state)> _tasks = new();
+            internal Thread Thread { get; }
+
+            internal SingleThreadSynchronizationContext22841()
+            {
+                _cancellationTokenSource = new CancellationTokenSource();
+                Thread = new Thread(WorkLoop);
+                Thread.Start();
+            }
+
+            public override void Post(SendOrPostCallback callback, object state) => _tasks.Add((callback, state));
+            public void Dispose() => _tasks.CompleteAdding();
+
+            void WorkLoop()
+            {
+                try
+                {
+                    while (true)
+                    {
+                        var (callback, state) = _tasks.Take();
+                        callback(state);
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    _tasks.Dispose();
+                }
+            }
+        }
+
+        #endregion Issue22841
+
+        #region Issue12482
+
+        [ConditionalFact]
+        public virtual async Task Batch_insert_with_sqlvariant_different_types_12482()
+        {
+            var contextFactory = await InitializeAsync<MyContext12482>();
+
+            using (var context = contextFactory.CreateContext())
+            {
+                context.AddRange(
+                    new MyContext12482.BaseEntity12482 { Value = 10.0999 },
+                    new MyContext12482.BaseEntity12482 { Value = -12345 },
+                    new MyContext12482.BaseEntity12482 { Value = "String Value" },
+                    new MyContext12482.BaseEntity12482 { Value = new DateTime(2020, 1, 1) });
+
+                context.SaveChanges();
+
+                AssertSql(
+                    @"@p0='10.0999' (Nullable = true) (DbType = Object)
+@p1='-12345' (Nullable = true) (DbType = Object)
+@p2='String Value' (Size = 12) (DbType = Object)
+@p3='2020-01-01T00:00:00.0000000' (Nullable = true) (DbType = Object)
+
+SET NOCOUNT ON;
+DECLARE @inserted0 TABLE ([Id] int, [_Position] [int]);
+MERGE [BaseEntities] USING (
+VALUES (@p0, 0),
+(@p1, 1),
+(@p2, 2),
+(@p3, 3)) AS i ([Value], _Position) ON 1=0
+WHEN NOT MATCHED THEN
+INSERT ([Value])
+VALUES (i.[Value])
+OUTPUT INSERTED.[Id], i._Position
+INTO @inserted0;
+
+SELECT [t].[Id] FROM [BaseEntities] t
+INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id])
+ORDER BY [i].[_Position];");
+            }
+        }
+
+        protected class MyContext12482 : DbContext
+        {
+            public virtual DbSet<BaseEntity12482> BaseEntities { get; set; }
+
+            public MyContext12482(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<BaseEntity12482>();
+            }
+
+            public class BaseEntity12482
+            {
+                public int Id { get; set; }
+                [Column(TypeName = "sql_variant")]
+                public object Value { get; set; }
             }
         }
 

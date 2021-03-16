@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+using CA = System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
     {
         private readonly InternalEntityEntry _entry;
-        private readonly InternalEntityEntry _sourceEntry;
+        private readonly InternalEntityEntry? _sourceEntry;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [EntityFrameworkInternal]
         public EntityEntryGraphNode(
             [NotNull] InternalEntityEntry entry,
-            [CanBeNull] InternalEntityEntry sourceEntry,
-            [CanBeNull] INavigationBase inboundNavigation)
+            [CanBeNull] InternalEntityEntry? sourceEntry,
+            [CanBeNull] INavigationBase? inboundNavigation)
         {
             Check.NotNull(entry, nameof(entry));
 
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
         ///     </para>
         /// </summary>
-        public virtual EntityEntry SourceEntry
+        public virtual EntityEntry? SourceEntry
             => _sourceEntry == null ? null : new EntityEntry(_sourceEntry);
 
         /// <summary>
@@ -64,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
         ///     </para>
         /// </summary>
-        public virtual INavigationBase InboundNavigation { get; }
+        public virtual INavigationBase? InboundNavigation { get; }
 
         /// <summary>
         ///     <para>

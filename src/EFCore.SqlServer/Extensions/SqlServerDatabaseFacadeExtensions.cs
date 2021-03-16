@@ -28,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> <see langword="true" /> if SQL Server is being used; <see langword="false" /> otherwise. </returns>
         public static bool IsSqlServer([NotNull] this DatabaseFacade database)
-            => database.ProviderName.Equals(
-                typeof(SqlServerOptionsExtension).Assembly.GetName().Name,
-                StringComparison.Ordinal);
+            => database.ProviderName == typeof(SqlServerOptionsExtension).Assembly.GetName().Name;
     }
 }

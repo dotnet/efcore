@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 return (IComparer<IUpdateEntry>)Activator.CreateInstance(
                     typeof(EntryCurrentValueComparer<>).MakeGenericType(modelType),
-                    propertyBase);
+                    propertyBase)!;
             }
 
             if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableModelType))
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 : typeof(NullableStructCurrentProviderValueComparer<,>).MakeGenericType(
                                     nonNullableModelType, converter.ProviderClrType);
 
-                        return (IComparer<IUpdateEntry>)Activator.CreateInstance(comparerType, propertyBase, converter);
+                        return (IComparer<IUpdateEntry>)Activator.CreateInstance(comparerType, propertyBase, converter)!;
                     }
 
                     if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableProviderType))
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     propertyBase.Name,
                     modelType.ShortDisplayName()));
 
-            bool IsGenericComparable(Type type, Type nonNullableType)
+            static bool IsGenericComparable(Type type, Type nonNullableType)
                 => typeof(IComparable<>).MakeGenericType(type).IsAssignableFrom(type)
                     || typeof(IComparable<>).MakeGenericType(nonNullableType).IsAssignableFrom(nonNullableType)
                     || type.IsEnum

@@ -37,14 +37,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             };
 
             public override
-                List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
-                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
+                List<(Type Type,
+                    Type ReadonlyExtensions,
+                    Type MutableExtensions,
+                    Type ConventionExtensions,
+                    Type ConventionBuilderExtensions,
+                    Type RuntimeExtensions)> MetadataExtensionTypes { get; }
                 = new()
                 {
-                    (typeof(IModel), typeof(CosmosModelExtensions), typeof(CosmosModelExtensions), typeof(CosmosModelExtensions),
-                        typeof(CosmosModelBuilderExtensions)),
-                    (typeof(IProperty), typeof(CosmosPropertyExtensions), typeof(CosmosPropertyExtensions),
-                        typeof(CosmosPropertyExtensions), typeof(CosmosPropertyBuilderExtensions))
+                    (
+                        typeof(IReadOnlyModel),
+                        typeof(CosmosModelExtensions),
+                        typeof(CosmosModelExtensions),
+                        typeof(CosmosModelExtensions),
+                        typeof(CosmosModelBuilderExtensions),
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyProperty),
+                        typeof(CosmosPropertyExtensions),
+                        typeof(CosmosPropertyExtensions),
+                        typeof(CosmosPropertyExtensions),
+                        typeof(CosmosPropertyBuilderExtensions),
+                        null
+                    )
                 };
         }
     }

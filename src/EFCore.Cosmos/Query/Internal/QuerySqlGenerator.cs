@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>

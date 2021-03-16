@@ -35,7 +35,17 @@ namespace Microsoft.EntityFrameworkCore
 
             using var context = new DbContext(optionsBuilder.Options);
             var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>().Local);
+
             Assert.Equal(CoreStrings.InvalidSetType(nameof(Category)), ex.Message);
+        }
+
+        [ConditionalFact]
+        public void Set_throws_for_type_not_in_model_same_type_with_different_namespace()
+        {
+            using var context = new EarlyLearningCenter();
+            var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Microsoft.EntityFrameworkCore.DifferentNamespace.Category>().Local);
+
+            Assert.Equal(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(Microsoft.EntityFrameworkCore.DifferentNamespace.Category).DisplayName(), typeof(Category).DisplayName()), ex.Message);
         }
 
         [ConditionalFact]

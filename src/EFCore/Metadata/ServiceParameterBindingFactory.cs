@@ -7,8 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -55,17 +53,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterType"> The parameter type. </param>
         /// <param name="parameterName"> The parameter name. </param>
         /// <returns> The binding. </returns>
-        public virtual ParameterBinding Bind(IMutableEntityType entityType, Type parameterType, string parameterName)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(parameterType, nameof(parameterType));
-            Check.NotEmpty(parameterName, nameof(parameterName));
-
-            return new DependencyInjectionParameterBinding(
-                _serviceType,
-                _serviceType,
-                entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == _serviceType));
-        }
+        public virtual ParameterBinding Bind(
+            IMutableEntityType entityType,
+            Type parameterType,
+            string parameterName)
+            => Bind((IReadOnlyEntityType)entityType, parameterType, parameterName);
 
         /// <summary>
         ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
@@ -78,6 +70,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             IConventionEntityType entityType,
             Type parameterType,
             string parameterName)
+            => Bind((IReadOnlyEntityType)entityType, parameterType, parameterName);
+
+        /// <summary>
+        ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="parameterType"> The parameter type. </param>
+        /// <param name="parameterName"> The parameter name. </param>
+        /// <returns> The binding. </returns>
+        public virtual ParameterBinding Bind(
+            IReadOnlyEntityType entityType,
+            Type parameterType,
+            string parameterName)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(parameterType, nameof(parameterType));
@@ -86,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return new DependencyInjectionParameterBinding(
                 _serviceType,
                 _serviceType,
-                entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == _serviceType));
+                (IPropertyBase?)entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == _serviceType));
         }
     }
 }

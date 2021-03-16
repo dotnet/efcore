@@ -55,8 +55,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> <see langword="true" /> if the Cosmos provider is being used. </returns>
         public static bool IsCosmos([NotNull] this DatabaseFacade database)
-            => database.ProviderName.Equals(
-                typeof(CosmosOptionsExtension).Assembly.GetName().Name,
-                StringComparison.Ordinal);
+            => database.ProviderName == typeof(CosmosOptionsExtension).Assembly.GetName().Name;
     }
 }

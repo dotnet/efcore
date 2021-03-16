@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
     {
         private readonly IMigrationsIdGenerator _idGenerator;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Migrations> _logger;
-        private IReadOnlyDictionary<string, TypeInfo> _migrations;
-        private ModelSnapshot _modelSnapshot;
+        private IReadOnlyDictionary<string, TypeInfo>? _migrations;
+        private ModelSnapshot? _modelSnapshot;
         private readonly Type _contextType;
 
         /// <summary>
@@ -110,12 +110,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ModelSnapshot ModelSnapshot
+        public virtual ModelSnapshot? ModelSnapshot
             => _modelSnapshot
                 ??= (from t in Assembly.GetConstructibleTypes()
                      where t.IsSubclassOf(typeof(ModelSnapshot))
                          && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
-                     select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
+                     select (ModelSnapshot)Activator.CreateInstance(t.AsType())!)
                 .FirstOrDefault();
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string FindMigrationId(string nameOrId)
+        public virtual string? FindMigrationId(string nameOrId)
             => Migrations.Keys
                 .Where(
                     _idGenerator.IsValidId(nameOrId)
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Check.NotNull(activeProvider, nameof(activeProvider));
 
-            var migration = (Migration)Activator.CreateInstance(migrationClass.AsType());
+            var migration = (Migration)Activator.CreateInstance(migrationClass.AsType())!;
             migration.ActiveProvider = activeProvider;
 
             return migration;

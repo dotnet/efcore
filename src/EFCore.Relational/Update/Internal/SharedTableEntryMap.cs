@@ -133,12 +133,29 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 _table = table;
             }
 
-            public int Compare(IUpdateEntry x, IUpdateEntry y)
-                => !_table.GetRowInternalForeignKeys(x.EntityType).Any()
+            public int Compare(IUpdateEntry? x, IUpdateEntry? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return 0;
+                }
+
+                if (x == null)
+                {
+                    return -1;
+                }
+
+                if (y == null)
+                {
+                    return 1;
+                }
+
+                return !_table.GetRowInternalForeignKeys(x.EntityType).Any()
                     ? -1
                     : !_table.GetRowInternalForeignKeys(y.EntityType).Any()
                         ? 1
                         : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
+            }
         }
     }
 }

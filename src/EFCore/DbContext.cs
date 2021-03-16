@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,17 +54,18 @@ namespace Microsoft.EntityFrameworkCore
         IDbSetCache,
         IDbContextPoolable
     {
-        private IDictionary<(Type Type, string Name), object> _sets;
         private readonly DbContextOptions _options;
 
-        private IDbContextServices _contextServices;
-        private IDbContextDependencies _dbContextDependencies;
-        private DatabaseFacade _database;
-        private ChangeTracker _changeTracker;
+        private IDictionary<(Type Type, string? Name), object>? _sets;
+        private IDbContextServices? _contextServices;
+        private IDbContextDependencies? _dbContextDependencies;
+        private DatabaseFacade? _database;
+        private ChangeTracker? _changeTracker;
 
-        private IServiceScope _serviceScope;
+        private IServiceScope? _serviceScope;
         private DbContextLease _lease = DbContextLease.InactiveLease;
-        private DbContextPoolConfigurationSnapshot _configurationSnapshot;
+        private DbContextPoolConfigurationSnapshot? _configurationSnapshot;
+        private List<IResettableService>? _cachedResettableServices;
         private bool _initializing;
         private bool _disposed;
 
@@ -140,7 +142,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual IModel Model
         {
-            [DebuggerStepThrough] get => DbContextDependencies.Model;
+            [DebuggerStepThrough]
+            get => DbContextDependencies.Model;
         }
 
         /// <summary>
@@ -246,15 +249,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
-            if (_sets == null)
-            {
-                _sets = new Dictionary<(Type Type, string Name), object>();
-            }
+            _sets ??= new Dictionary<(Type Type, string? Name), object>();
 
             if (!_sets.TryGetValue((type, null), out var set))
             {
                 set = source.Create(this, type);
                 _sets[(type, null)] = set;
+                _cachedResettableServices = null;
             }
 
             return set;
@@ -271,15 +272,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
-            if (_sets == null)
-            {
-                _sets = new Dictionary<(Type Type, string Name), object>();
-            }
+            _sets ??= new Dictionary<(Type Type, string? Name), object>();
 
             if (!_sets.TryGetValue((type, entityTypeName), out var set))
             {
                 set = source.Create(this, entityTypeName, type);
                 _sets[(type, entityTypeName)] = set;
+                _cachedResettableServices = null;
             }
 
             return set;
@@ -313,7 +312,16 @@ namespace Microsoft.EntityFrameworkCore
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(type.ShortDisplayName()));
                 }
 
-                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
+                var findSameTypeName = Model.FindSameTypeNameWithDifferentNamespace(type);
+                //if the same name exists in your entity types we will show you the full namespace of the type
+                if (!string.IsNullOrEmpty(findSameTypeName))
+                {
+                    throw new InvalidOperationException(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(type.DisplayName(), findSameTypeName));
+                }
+                else
+                {
+                    throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
+                }
             }
 
             if (entityType.FindPrimaryKey() == null)
@@ -362,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var scopedServiceProvider = _serviceScope.ServiceProvider;
 
-                    var contextServices = scopedServiceProvider.GetService<IDbContextServices>();
+                    var contextServices = scopedServiceProvider.GetRequiredService<IDbContextServices>();
 
                     contextServices.Initialize(scopedServiceProvider, options, this);
 
@@ -617,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore
             SavingChanges?.Invoke(this, new SavingChangesEventArgs(acceptAllChangesOnSuccess));
 
             var interceptionResult = await DbContextDependencies.UpdateLogger
-                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(false);
+                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(acceptAllChangesOnSuccess);
 
             TryDetectChanges();
 
@@ -661,17 +669,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     An event fired at the beginning of a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" />
         /// </summary>
-        public event EventHandler<SavingChangesEventArgs> SavingChanges;
+        public event EventHandler<SavingChangesEventArgs>? SavingChanges;
 
         /// <summary>
         ///     An event fired at the end of a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" />
         /// </summary>
-        public event EventHandler<SavedChangesEventArgs> SavedChanges;
+        public event EventHandler<SavedChangesEventArgs>? SavedChanges;
 
         /// <summary>
         ///     An event fired if a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" /> fails with an exception.
         /// </summary>
-        public event EventHandler<SaveChangesFailedEventArgs> SaveChangesFailed;
+        public event EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -714,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             else
             {
-                ((IResettableService)_changeTracker)?.ResetState();
+                ((IResettableService?)_changeTracker)?.ResetState();
             }
 
             if (_database != null)
@@ -755,7 +763,7 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         void IResettableService.ResetState()
         {
-            foreach (var service in GetResettableServices())
+            foreach (var service in _cachedResettableServices ??= GetResettableServices())
             {
                 service.ResetState();
             }
@@ -774,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
-            foreach (var service in GetResettableServices())
+            foreach (var service in _cachedResettableServices ??= GetResettableServices())
             {
                 await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -784,30 +792,25 @@ namespace Microsoft.EntityFrameworkCore
             _disposed = true;
         }
 
-        private IEnumerable<IResettableService> GetResettableServices()
+        private List<IResettableService> GetResettableServices()
         {
-            var resettableServices
-                = _contextServices?.InternalServiceProvider?
-                    .GetService<IEnumerable<IResettableService>>()?.ToList();
+            var resettableServices = new List<IResettableService>();
 
-            if (resettableServices != null)
+            var services
+                = _contextServices?.InternalServiceProvider?
+                    .GetService<IEnumerable<IResettableService>>();
+
+            if (services != null)
             {
-                foreach (var service in resettableServices)
-                {
-                    yield return service;
-                }
+                resettableServices.AddRange(services);
             }
 
             if (_sets != null)
             {
-                foreach (var set in _sets.Values)
-                {
-                    if (set is IResettableService resettable)
-                    {
-                        yield return resettable;
-                    }
-                }
+                resettableServices.AddRange((_sets.Values.OfType<IResettableService>()));
             }
+
+            return resettableServices;
         }
 
         /// <summary>
@@ -1681,7 +1684,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual object Find([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
+        public virtual object? Find([NotNull] Type entityType, [CanBeNull] params object?[]? keyValues)
         {
             CheckDisposed();
 
@@ -1698,7 +1701,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual ValueTask<object> FindAsync([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
+        public virtual ValueTask<object?> FindAsync([NotNull] Type entityType, [CanBeNull] params object?[]? keyValues)
         {
             CheckDisposed();
 
@@ -1717,9 +1720,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual ValueTask<object> FindAsync(
+        public virtual ValueTask<object?> FindAsync(
             [NotNull] Type entityType,
-            [CanBeNull] object[] keyValues,
+            [CanBeNull] object?[]? keyValues,
             CancellationToken cancellationToken)
         {
             CheckDisposed();
@@ -1737,7 +1740,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual TEntity Find<TEntity>([CanBeNull] params object[] keyValues)
+        public virtual TEntity? Find<TEntity>([CanBeNull] params object?[]? keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1755,7 +1758,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual ValueTask<TEntity> FindAsync<TEntity>([CanBeNull] params object[] keyValues)
+        public virtual ValueTask<TEntity?> FindAsync<TEntity>([CanBeNull] params object?[]? keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1775,7 +1778,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual ValueTask<TEntity> FindAsync<TEntity>([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<TEntity?> FindAsync<TEntity>([CanBeNull] object?[]? keyValues, CancellationToken cancellationToken)
             where TEntity : class
         {
             CheckDisposed();
@@ -1815,7 +1818,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -1824,7 +1827,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

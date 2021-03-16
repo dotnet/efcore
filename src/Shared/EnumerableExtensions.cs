@@ -10,6 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
+#nullable enable
+
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
@@ -23,21 +25,21 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         public static IEnumerable<T> Distinct<T>(
             [NotNull] this IEnumerable<T> source,
-            [NotNull] Func<T, T, bool> comparer)
+            [NotNull] Func<T?, T?, bool> comparer)
             where T : class
             => source.Distinct(new DynamicEqualityComparer<T>(comparer));
 
         private sealed class DynamicEqualityComparer<T> : IEqualityComparer<T>
             where T : class
         {
-            private readonly Func<T, T, bool> _func;
+            private readonly Func<T?, T?, bool> _func;
 
-            public DynamicEqualityComparer(Func<T, T, bool> func)
+            public DynamicEqualityComparer(Func<T?, T?, bool> func)
             {
                 _func = func;
             }
 
-            public bool Equals(T x, T y)
+            public bool Equals(T? x, T? y)
                 => _func(x, y);
 
             public int GetHashCode(T obj)

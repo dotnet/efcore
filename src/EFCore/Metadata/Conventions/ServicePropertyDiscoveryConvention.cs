@@ -13,8 +13,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -118,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 entityTypeBuilder.ServiceProperty(propertyInfo)?.HasParameterBinding(
-                    (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()));
+                    (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, name));
             }
         }
 
@@ -140,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            var member = (MemberInfo)entityType.GetRuntimeProperties().Find(name)
-                ?? entityType.GetRuntimeFields().Find(name);
+            var member = (MemberInfo?)entityType.GetRuntimeProperties().Find(name)
+                ?? entityType.GetRuntimeFields().Find(name)!;
             var type = member.GetMemberType();
             if (duplicateMap.TryGetValue(type, out var duplicateServiceProperties)
                 && duplicateServiceProperties.Remove(member))

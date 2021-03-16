@@ -34,8 +34,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int Compare(IUpdateEntry x, IUpdateEntry y)
+        public override int Compare(IUpdateEntry? x, IUpdateEntry? y)
         {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
             var xValue = GetPropertyValue(x);
             var yValue = GetPropertyValue(y);
 

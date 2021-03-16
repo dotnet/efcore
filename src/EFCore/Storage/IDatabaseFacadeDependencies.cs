@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -56,5 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The concurrency detector.
         /// </summary>
         IConcurrencyDetector ConcurrencyDetector { get; }
+
+        /// <summary>
+        ///     The core options.
+        /// </summary>
+        public ICoreSingletonOptions CoreOptions { get; }
     }
 }

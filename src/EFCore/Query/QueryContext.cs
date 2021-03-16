@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -72,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(navigation, nameof(navigation));
 
             // InitializeStateManager will populate the field before calling here
-            _stateManager!.TryGetEntry(entity).SetIsLoaded(navigation);
+            _stateManager!.TryGetEntry(entity)!.SetIsLoaded(navigation);
         }
 
         /// <summary>
@@ -136,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void InitializeStateManager(bool standAlone = false)
         {
             Check.DebugAssert(
-                _stateManager == null, 
+                _stateManager == null,
                 "The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.");
 
             _stateManager = standAlone
@@ -151,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual InternalEntityEntry TryGetEntry(
+        public virtual InternalEntityEntry? TryGetEntry(
             [NotNull] IKey key,
             [NotNull] object[] keyValues,
             bool throwOnNullKey,

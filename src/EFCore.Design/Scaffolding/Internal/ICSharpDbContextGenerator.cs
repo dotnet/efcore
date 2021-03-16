@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IModel model,
             [NotNull] string contextName,
             [NotNull] string connectionString,
-            [CanBeNull] string contextNamespace,
-            [NotNull] string modelNamespace,
+            [CanBeNull] string? contextNamespace,
+            [CanBeNull] string? modelNamespace,
             bool useDataAnnotations,
             bool suppressConnectionStringWarning,
             bool suppressOnConfiguring);

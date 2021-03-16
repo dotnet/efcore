@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -20,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     public class SqliteGlobMethodTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _methodInfo = typeof(SqliteDbFunctionsExtensions)
-            .GetMethod(nameof(SqliteDbFunctionsExtensions.Glob), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+            .GetRequiredMethod(nameof(SqliteDbFunctionsExtensions.Glob), typeof(DbFunctions), typeof(string), typeof(string));
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -39,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)

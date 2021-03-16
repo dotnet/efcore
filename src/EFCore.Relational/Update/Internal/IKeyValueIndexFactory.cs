@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IKeyValueIndex CreatePrincipalKeyValue([NotNull] IUpdateEntry entry, [CanBeNull] IForeignKey foreignKey);
+        IKeyValueIndex CreatePrincipalKeyValue([NotNull] IUpdateEntry entry, [CanBeNull] IForeignKey? foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IKeyValueIndex CreatePrincipalKeyValueFromOriginalValues([NotNull] IUpdateEntry entry, [CanBeNull] IForeignKey foreignKey);
+        IKeyValueIndex CreatePrincipalKeyValueFromOriginalValues([NotNull] IUpdateEntry entry, [CanBeNull] IForeignKey? foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IKeyValueIndex CreateDependentKeyValue([NotNull] IUpdateEntry entry, [NotNull] IForeignKey foreignKey);
+        IKeyValueIndex? CreateDependentKeyValue([NotNull] IUpdateEntry entry, [NotNull] IForeignKey foreignKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,6 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IKeyValueIndex CreateDependentKeyValueFromOriginalValues([NotNull] IUpdateEntry entry, [NotNull] IForeignKey foreignKey);
+        IKeyValueIndex? CreateDependentKeyValueFromOriginalValues([NotNull] IUpdateEntry entry, [NotNull] IForeignKey foreignKey);
     }
 }

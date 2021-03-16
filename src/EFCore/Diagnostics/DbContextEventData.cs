@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public DbContextEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [CanBeNull] DbContext context)
+            [CanBeNull] DbContext? context)
             : base(eventDefinition, messageGenerator)
         {
             Context = context;
@@ -31,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The current <see cref="DbContext" />.
         /// </summary>
-        public virtual DbContext Context { get; }
+        public virtual DbContext? Context { get; }
     }
 }

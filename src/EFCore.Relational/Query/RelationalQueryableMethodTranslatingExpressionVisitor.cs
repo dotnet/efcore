@@ -16,8 +16,6 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <inheritdoc />
@@ -387,8 +385,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(source, nameof(source));
 
-            ((SelectExpression)source.QueryExpression).ApplyDistinct();
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.Orderings.Count > 0
+                && selectExpression.Limit == null
+                && selectExpression.Offset == null)
+            {
+                _queryCompilationContext.Logger.DistinctAfterOrderByWithoutRowLimitingOperatorWarning();
+            }
 
+            selectExpression.ApplyDistinct();
             return source;
         }
 
@@ -1419,7 +1424,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // If navigation is defined on derived type and entity type is part of TPT then we need to get ITableBase for derived type.
                     // TODO: The following code should also handle Function and SqlQuery mappings
                     var table = navigation.DeclaringEntityType.BaseType == null
-                        || entityType.GetDiscriminatorProperty() != null
+                        || entityType.FindDiscriminatorProperty() != null
                             ? navigation.DeclaringEntityType.GetViewOrTableMappings().Single().Table
                             : navigation.DeclaringEntityType.GetViewOrTableMappings().Select(tm => tm.Table)
                                 .Except(navigation.DeclaringEntityType.BaseType.GetViewOrTableMappings().Select(tm => tm.Table))
@@ -1434,7 +1439,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             // Since identifying PK would be non-nullable but principal can still be null
                             // Derived owned navigation does not de-dupe the PK column which for principal is from base table
                             // and for dependent on derived table
-                            || (entityType.GetDiscriminatorProperty() == null
+                            || (entityType.FindDiscriminatorProperty() == null
                                 && navigation.DeclaringEntityType.IsStrictlyDerivedFrom(entityShaperExpression.EntityType));
 
                         var propertyExpressions = GetPropertyExpressionFromSameTable(
@@ -1513,7 +1518,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
                     foreach (var property in entityType
                         .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                        .SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+                        .SelectMany(t => t.GetDeclaredProperties()))
                     {
                         propertyExpressions[property] = new ColumnExpression(
                             property, table.FindColumn(property)!, tableExpression, nullable || !property.IsPrimaryKey());
@@ -1556,7 +1561,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
                 foreach (var property in entityType
-                    .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive()).SelectMany(EntityTypeExtensions.GetDeclaredProperties))
+                    .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                    .SelectMany(t => t.GetDeclaredProperties()))
                 {
                     propertyExpressions[property] = new ColumnExpression(
                         property, table.FindColumn(property)!, tableExpression, nullable: true);

@@ -15,8 +15,6 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -550,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 return true;
             }
-            
+
             return Metadata[CoreAnnotationNames.ValueComparer] == comparer;
         }
 
@@ -663,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (oldPropertyAccessModeConfigurationSource.HasValue)
             {
                 newPropertyBuilder.UsePropertyAccessMode(
-                    ((IProperty)Metadata).GetPropertyAccessMode(), oldPropertyAccessModeConfigurationSource.Value);
+                    ((IReadOnlyProperty)Metadata).GetPropertyAccessMode(), oldPropertyAccessModeConfigurationSource.Value);
             }
 
             var oldFieldInfoConfigurationSource = Metadata.GetFieldInfoConfigurationSource();

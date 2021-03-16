@@ -17,17 +17,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The name of the check constraint.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The table of the check constraint.
         /// </summary>
-        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Table { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The table schema that contains the check constraint, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The logical sql expression used in a CHECK constraint and returns TRUE or FALSE.
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     but can reference other columns in the same table for the same row.
         ///     The expression cannot reference an alias data type.
         /// </summary>
-        public virtual string Sql { get; [param: NotNull] set; }
+        public virtual string Sql { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     Creates a new <see cref="AddCheckConstraintOperation" /> from the specified check constraint.
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 Name = checkConstraint.Name,
                 Sql = checkConstraint.Sql,
                 Schema = checkConstraint.EntityType.GetSchema(),
-                Table = checkConstraint.EntityType.GetTableName()
+                Table = checkConstraint.EntityType.GetTableName()!
             };
             operation.AddAnnotations(checkConstraint.GetAnnotations());
 

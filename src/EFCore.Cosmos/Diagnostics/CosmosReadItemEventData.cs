@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] string resourceId,
             [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
+            [CanBeNull] string? partitionKey,
             bool logSensitiveData)
             : base(eventDefinition, messageGenerator)
         {
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The key of the Cosmos partition that the query is using.
         /// </summary>
-        public virtual string PartitionKey { get; }
+        public virtual string? PartitionKey { get; }
 
         /// <summary>
         ///     Indicates whether or not the application allows logging of sensitive data.

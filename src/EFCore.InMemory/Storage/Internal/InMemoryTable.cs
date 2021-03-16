@@ -24,15 +24,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class InMemoryTable<TKey> : IInMemoryTable
+        where TKey : notnull
     {
         private readonly IPrincipalKeyValueFactory<TKey> _keyValueFactory;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly bool _nullabilityCheckEnabled;
-        private readonly Dictionary<TKey, object[]> _rows;
-        private readonly IList<(int, ValueConverter)> _valueConverters;
-        private readonly IList<(int, ValueComparer)> _valueComparers;
+        private readonly Dictionary<TKey, object?[]> _rows;
+        private readonly IList<(int, ValueConverter)>? _valueConverters;
+        private readonly IList<(int, ValueComparer)>? _valueComparers;
 
-        private Dictionary<int, IInMemoryIntegerValueGenerator> _integerGenerators;
+        private Dictionary<int, IInMemoryIntegerValueGenerator>? _integerGenerators;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,14 +41,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InMemoryTable([NotNull] IEntityType entityType, [CanBeNull] IInMemoryTable baseTable, bool sensitiveLoggingEnabled, bool nullabilityCheckEnabled)
+        public InMemoryTable(
+            [NotNull] IEntityType entityType,
+            [CanBeNull] IInMemoryTable? baseTable,
+            bool sensitiveLoggingEnabled,
+            bool nullabilityCheckEnabled)
         {
             EntityType = entityType;
             BaseTable = baseTable;
-            _keyValueFactory = entityType.FindPrimaryKey().GetPrincipalKeyValueFactory<TKey>();
+            _keyValueFactory = entityType.FindPrimaryKey()!.GetPrincipalKeyValueFactory<TKey>();
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
             _nullabilityCheckEnabled = nullabilityCheckEnabled;
-            _rows = new Dictionary<TKey, object[]>(_keyValueFactory.EqualityComparer);
+            _rows = new Dictionary<TKey, object?[]>(_keyValueFactory.EqualityComparer);
 
             foreach (var property in entityType.GetProperties())
             {
@@ -56,22 +61,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                 if (converter != null)
                 {
-                    if (_valueConverters == null)
-                    {
-                        _valueConverters = new List<(int, ValueConverter)>();
-                    }
-
+                    _valueConverters ??= new List<(int, ValueConverter)>();
                     _valueConverters.Add((property.GetIndex(), converter));
                 }
 
                 var comparer = property.GetKeyValueComparer();
                 if (!comparer.IsDefault())
                 {
-                    if (_valueComparers == null)
-                    {
-                        _valueComparers = new List<(int, ValueComparer)>();
-                    }
-
+                    _valueComparers ??= new List<(int, ValueComparer)>();
                     _valueComparers.Add((property.GetIndex(), comparer));
                 }
             }
@@ -83,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IInMemoryTable BaseTable { get; }
+        public virtual IInMemoryTable? BaseTable { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -103,10 +100,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             IProperty property,
             IReadOnlyList<IInMemoryTable> tables)
         {
-            if (_integerGenerators == null)
-            {
-                _integerGenerators = new Dictionary<int, IInMemoryIntegerValueGenerator>();
-            }
+            _integerGenerators ??= new Dictionary<int, IInMemoryIntegerValueGenerator>();
 
             var propertyIndex = property.GetIndex();
             if (!_integerGenerators.TryGetValue(propertyIndex, out var generator))
@@ -132,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<object[]> Rows
+        public virtual IEnumerable<object?[]> Rows
             => _rows.Values;
 
         /// <summary>
@@ -141,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<object[]> SnapshotRows()
+        public virtual IReadOnlyList<object?[]> SnapshotRows()
         {
             var rows = _rows.Values.ToList();
             var rowCount = rows.Count;
@@ -150,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
             for (var rowIndex = 0; rowIndex < rowCount; rowIndex++)
             {
-                var snapshotRow = new object[propertyCount];
+                var snapshotRow = new object?[propertyCount];
                 Array.Copy(rows[rowIndex], snapshotRow, propertyCount);
 
                 if (_valueConverters != null)
@@ -187,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public virtual void Create(IUpdateEntry entry)
         {
             var properties = entry.EntityType.GetProperties().ToList();
-            var row = new object[properties.Count];
+            var row = new object?[properties.Count];
             var nullabilityErrors = new List<IProperty>();
 
             for (var index = 0; index < properties.Count; index++)
@@ -221,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             if (_rows.TryGetValue(key, out var row))
             {
                 var properties = entry.EntityType.GetProperties().ToList();
-                var concurrencyConflicts = new Dictionary<IProperty, object>();
+                var concurrencyConflicts = new Dictionary<IProperty, object?>();
 
                 for (var index = 0; index < properties.Count; index++)
                 {
@@ -244,8 +238,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private static bool IsConcurrencyConflict(
             IUpdateEntry entry,
             IProperty property,
-            object rowValue,
-            Dictionary<IProperty, object> concurrencyConflicts)
+            object? rowValue,
+            Dictionary<IProperty, object?> concurrencyConflicts)
         {
             if (property.IsConcurrencyToken)
             {
@@ -286,8 +280,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             {
                 var properties = entry.EntityType.GetProperties().ToList();
                 var comparers = GetKeyComparers(properties);
-                var valueBuffer = new object[properties.Count];
-                var concurrencyConflicts = new Dictionary<IProperty, object>();
+                var valueBuffer = new object?[properties.Count];
+                var concurrencyConflicts = new Dictionary<IProperty, object?>();
                 var nullabilityErrors = new List<IProperty>();
 
                 for (var index = 0; index < valueBuffer.Length; index++)
@@ -333,12 +327,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void BumpValueGenerators(object[] row)
+        public virtual void BumpValueGenerators(object?[] row)
         {
-            if (BaseTable != null)
-            {
-                BaseTable.BumpValueGenerators(row);
-            }
+            BaseTable?.BumpValueGenerators(row);
 
             if (_integerGenerators != null)
             {
@@ -352,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private TKey CreateKey(IUpdateEntry entry)
             => _keyValueFactory.CreateFromCurrentValues(entry);
 
-        private static object SnapshotValue(IProperty property, ValueComparer comparer, IUpdateEntry entry)
+        private static object? SnapshotValue(IProperty property, ValueComparer? comparer, IUpdateEntry entry)
         {
             var value = SnapshotValue(comparer, entry.GetCurrentValue(property));
 
@@ -367,12 +358,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             return value;
         }
 
-        private static object SnapshotValue(ValueComparer comparer, object value)
+        private static object? SnapshotValue(ValueComparer? comparer, object? value)
             => comparer == null ? value : comparer.Snapshot(value);
 
         private bool HasNullabilityError(
             IProperty property,
-            object propertyValue,
+            object? propertyValue,
             IList<IProperty> nullabilityErrors)
         {
             if (!_nullabilityCheckEnabled)
@@ -403,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     InMemoryStrings.NullabilityErrorExceptionSensitive(
                         nullabilityErrors.Format(),
                         entry.EntityType.DisplayName(),
-                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties)),
+                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties)),
                     new[] { entry });
             }
 
@@ -421,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// <param name="concurrencyConflicts"> The conflicting properties with their associated database values. </param>
         protected virtual void ThrowUpdateConcurrencyException(
             [NotNull] IUpdateEntry entry,
-            [NotNull] Dictionary<IProperty, object> concurrencyConflicts)
+            [NotNull] Dictionary<IProperty, object?> concurrencyConflicts)
         {
             Check.NotNull(entry, nameof(entry));
             Check.NotNull(concurrencyConflicts, nameof(concurrencyConflicts));
@@ -431,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 throw new DbUpdateConcurrencyException(
                     InMemoryStrings.UpdateConcurrencyTokenExceptionSensitive(
                         entry.EntityType.DisplayName(),
-                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties),
                         entry.BuildOriginalValuesString(concurrencyConflicts.Keys),
                         "{"
                         + string.Join(

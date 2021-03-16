@@ -6,13 +6,11 @@ using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IModel" /> for Cosmos metadata.
+    ///     Model extension methods for Cosmos metadata.
     /// </summary>
     public static class CosmosModelExtensions
     {
@@ -21,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The default container name. </returns>
-        public static string? GetDefaultContainer([NotNull] this IModel model)
+        public static string? GetDefaultContainer([NotNull] this IReadOnlyModel model)
             => (string?)model[CosmosAnnotationNames.ContainerName];
 
         /// <summary>

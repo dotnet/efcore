@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>

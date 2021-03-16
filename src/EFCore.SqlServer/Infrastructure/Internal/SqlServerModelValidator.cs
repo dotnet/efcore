@@ -93,12 +93,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
                     && (ConfigurationSource.Convention.Overrides(property.GetPrecisionConfigurationSource())
                         || ConfigurationSource.Convention.Overrides(property.GetScaleConfigurationSource())))
                 {
-                    logger.DecimalTypeDefaultWarning(property);
+                    logger.DecimalTypeDefaultWarning((IProperty)property);
                 }
 
                 if (property.IsKey())
                 {
-                    logger.DecimalTypeKeyWarning(property);
+                    logger.DecimalTypeKeyWarning((IProperty)property);
                 }
             }
         }
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         protected override void ValidateSharedTableCompatibility(
             IReadOnlyList<IEntityType> mappedTypes,
             string tableName,
-            string schema,
+            string? schema,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var firstMappedType = mappedTypes[0];

@@ -6,6 +6,7 @@ using System.Resources;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
 #nullable enable
@@ -123,9 +124,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
             var definition = ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogSavedChanges;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogSavedChanges,
-                    () => new EventDefinition<int>(
+                    logger,
+                    static logger => new EventDefinition<int>(
                         logger.Options,
                         InMemoryEventId.ChangesSaved,
                         LogLevel.Information,
@@ -147,9 +149,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
             var definition = ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogTransactionsNotSupported;
             if (definition == null)
             {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((Diagnostics.Internal.InMemoryLoggingDefinitions)logger.Definitions).LogTransactionsNotSupported,
-                    () => new EventDefinition(
+                    logger,
+                    static logger => new EventDefinition(
                         logger.Options,
                         InMemoryEventId.TransactionIgnoredWarning,
                         LogLevel.Warning,

@@ -5,8 +5,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 {
     /// <summary>
@@ -107,7 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelFinalizingConventions.Add(new EntityTypeHierarchyMappingConvention(Dependencies, RelationalDependencies));
             conventionSet.ModelFinalizingConventions.Add(new SequenceUniquificationConvention(Dependencies, RelationalDependencies));
             conventionSet.ModelFinalizingConventions.Add(new SharedTableConvention(Dependencies, RelationalDependencies));
-            conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(Dependencies, RelationalDependencies));
             ReplaceConvention(
                 conventionSet.ModelFinalizingConventions,
                 (QueryFilterRewritingConvention)new RelationalQueryFilterRewritingConvention(

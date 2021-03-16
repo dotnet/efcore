@@ -3,6 +3,8 @@
 
 using System;
 
+#nullable enable
+
 namespace JetBrains.Annotations
 {
     [AttributeUsage(

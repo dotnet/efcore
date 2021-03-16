@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class NavigationComparer : IEqualityComparer<INavigation>, IComparer<INavigation>
+    public class NavigationComparer : IEqualityComparer<IReadOnlyNavigation>, IComparer<IReadOnlyNavigation>
     {
         private readonly bool _compareAnnotations;
 
@@ -17,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _compareAnnotations = compareAnnotations;
         }
 
-        public int Compare(INavigation x, INavigation y)
+        public int Compare(IReadOnlyNavigation x, IReadOnlyNavigation y)
             => StringComparer.Ordinal.Compare(x.Name, y.Name);
 
-        public bool Equals(INavigation x, INavigation y)
+        public bool Equals(IReadOnlyNavigation x, IReadOnlyNavigation y)
         {
             if (x == null)
             {
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
-        public int GetHashCode(INavigation obj)
+        public int GetHashCode(IReadOnlyNavigation obj)
             => obj.Name.GetHashCode();
     }
 }

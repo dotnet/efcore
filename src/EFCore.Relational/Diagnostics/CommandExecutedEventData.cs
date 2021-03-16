@@ -34,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
-            [CanBeNull] object result,
+            [CanBeNull] object? result,
             bool async,
             bool logParameterValues,
             DateTimeOffset startTime,
@@ -61,6 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The result of executing the command.
         /// </summary>
-        public virtual object Result { get; }
+        public virtual object? Result { get; }
     }
 }

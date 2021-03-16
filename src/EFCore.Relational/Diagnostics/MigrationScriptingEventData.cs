@@ -39,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration,
-            [CanBeNull] string fromMigration,
-            [CanBeNull] string toMigration,
+            [CanBeNull] string? fromMigration,
+            [CanBeNull] string? toMigration,
             bool idempotent)
             : base(eventDefinition, messageGenerator, migrator, migration)
         {
@@ -52,12 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The migration that scripting is starting from.
         /// </summary>
-        public virtual string FromMigration { get; }
+        public virtual string? FromMigration { get; }
 
         /// <summary>
         ///     The migration that scripting is going to.
         /// </summary>
-        public virtual string ToMigration { get; }
+        public virtual string? ToMigration { get; }
 
         /// <summary>
         ///     Indicates whether or not the script is idempotent.

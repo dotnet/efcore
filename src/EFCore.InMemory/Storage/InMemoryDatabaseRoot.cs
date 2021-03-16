@@ -27,6 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public object Instance;
+        public object? Instance;
     }
 }

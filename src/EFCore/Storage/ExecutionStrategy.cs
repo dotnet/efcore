@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -159,11 +157,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             OnFirstExecution();
 
-            return ExecuteImplementation(operation, verifySucceeded, state);
+            // In order to avoid infinite recursive generics, wrap operation with ExecutionResult
+            return ExecuteImplementation(
+                (context, state) => new ExecutionResult<TResult>(true, operation(context, state)), 
+                verifySucceeded, 
+                state).Result;
         }
 
-        private TResult ExecuteImplementation<TState, TResult>(
-            Func<DbContext, TState, TResult> operation,
+        private ExecutionResult<TResult> ExecuteImplementation<TState, TResult>(
+            Func<DbContext, TState, ExecutionResult<TResult>> operation,
             Func<DbContext, TState, ExecutionResult<TResult>>? verifySucceeded,
             TState state)
         {
@@ -188,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         var result = ExecuteImplementation(verifySucceeded, null, state);
                         if (result.IsSuccessful)
                         {
-                            return result.Result;
+                            return result;
                         }
                     }
 
@@ -238,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual Task<TResult> ExecuteAsync<TState, TResult>(
+        public virtual async Task<TResult> ExecuteAsync<TState, TResult>(
             TState state,
             Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
             Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
@@ -248,15 +250,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (Suspended)
             {
-                return operation(Dependencies.CurrentContext.Context, state, cancellationToken);
+                return await operation(Dependencies.CurrentContext.Context, state, cancellationToken).ConfigureAwait(false);
             }
 
             OnFirstExecution();
-            return ExecuteImplementationAsync(operation, verifySucceeded, state, cancellationToken);
+            
+            // In order to avoid infinite recursive generics, wrap operation with ExecutionResult
+            var result = await ExecuteImplementationAsync(
+                async (context, state, cancellationToken) => new ExecutionResult<TResult>(true, await operation(context, state, cancellationToken).ConfigureAwait(false)),
+                verifySucceeded,
+                state,
+                cancellationToken).ConfigureAwait(false);
+            return result.Result;
         }
 
-        private async Task<TResult> ExecuteImplementationAsync<TState, TResult>(
-            Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
+        private async Task<ExecutionResult<TResult>> ExecuteImplementationAsync<TState, TResult>(
+            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> operation,
             Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
             TState state,
             CancellationToken cancellationToken)
@@ -286,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             .ConfigureAwait(false);
                         if (result.IsSuccessful)
                         {
-                            return result.Result;
+                            return result;
                         }
                     }
 
@@ -317,9 +326,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual void OnFirstExecution()
         {
-            if (Dependencies.CurrentContext.Context.Database.CurrentTransaction != null
-                || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() != null
-                || Transaction.Current != null)
+            if (Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null
+                || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null
+                || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies.TransactionManager as
+                    ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ExecutionStrategyExistingTransaction(

@@ -1368,6 +1368,33 @@ FROM [Customers] AS [c]
 WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
+        public override async Task Where_string_concat_method_comparison_2(bool async)
+        {
+            await base.Where_string_concat_method_comparison_2(async);
+
+            AssertSql(
+                @"@__i_0='A' (Size = 5)
+@__j_1='B' (Size = 5)
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE (@__i_0 + (@__j_1 + [c].[CustomerID])) = [c].[CompanyName]");
+        }
+
+        public override async Task Where_string_concat_method_comparison_3(bool async)
+        {
+            await base.Where_string_concat_method_comparison_3(async);
+
+            AssertSql(
+                @"@__i_0='A' (Size = 5)
+@__j_1='B' (Size = 5)
+@__k_2='C' (Size = 5)
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE (@__i_0 + (@__j_1 + (@__k_2 + [c].[CustomerID]))) = [c].[CompanyName]");
+        }
+
         public override async Task Where_ternary_boolean_condition_true(bool async)
         {
             await base.Where_ternary_boolean_condition_true(async);

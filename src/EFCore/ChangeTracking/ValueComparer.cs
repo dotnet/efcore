@@ -4,13 +4,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
-using MethodInfoExtensions = Microsoft.EntityFrameworkCore.Internal.MethodInfoExtensions;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -30,32 +28,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<object>
     {
-        private protected static readonly MethodInfo _doubleEqualsMethodInfo
-            = typeof(double).GetRuntimeMethod(nameof(double.Equals), new[] { typeof(double) });
+        private static readonly MethodInfo _doubleEqualsMethodInfo
+            = typeof(double).GetRequiredRuntimeMethod(nameof(double.Equals), new[] { typeof(double) });
 
-        private protected static readonly MethodInfo _floatEqualsMethodInfo
-            = typeof(float).GetRuntimeMethod(nameof(float.Equals), new[] { typeof(float) });
+        private static readonly MethodInfo _floatEqualsMethodInfo
+            = typeof(float).GetRequiredRuntimeMethod(nameof(float.Equals), new[] { typeof(float) });
 
         internal static readonly MethodInfo ArrayCopyMethod
-            = typeof(Array).GetMethods()
-                .Single(
-                    t => t.Name == nameof(Array.Copy)
-                        && t.GetParameters().Length == 3
-                        && t.GetParameters()[0].ParameterType == typeof(Array)
-                        && t.GetParameters()[1].ParameterType == typeof(Array)
-                        && t.GetParameters()[2].ParameterType == typeof(int));
+            = typeof(Array).GetRequiredRuntimeMethod(nameof(Array.Copy), new[] { typeof(Array), typeof(Array), typeof(int) });
 
         internal static readonly MethodInfo EqualityComparerHashCodeMethod
-            = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.GetHashCode), new[] { typeof(object) });
+            = typeof(IEqualityComparer).GetRequiredRuntimeMethod(nameof(IEqualityComparer.GetHashCode), new[] { typeof(object) });
 
         internal static readonly MethodInfo EqualityComparerEqualsMethod
-            = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.Equals), new[] { typeof(object), typeof(object) });
+            = typeof(IEqualityComparer).GetRequiredRuntimeMethod(nameof(IEqualityComparer.Equals), new[] { typeof(object), typeof(object) });
 
         internal static readonly MethodInfo ObjectEqualsMethod
-            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
 
         internal static readonly MethodInfo ObjectGetHashCodeMethod
-            = typeof(object).GetRuntimeMethod(nameof(object.GetHashCode), Type.EmptyTypes);
+            = typeof(object).GetRequiredRuntimeMethod(nameof(object.GetHashCode), Type.EmptyTypes);
 
         /// <summary>
         ///     Creates a new <see cref="ValueComparer" /> with the given comparison and
@@ -89,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="left"> The first instance. </param>
         /// <param name="right"> The second instance. </param>
         /// <returns> <see langword="true" /> if they are equal; <see langword="false" /> otherwise. </returns>
-        public new abstract bool Equals(object left, object right);
+        public new abstract bool Equals(object? left, object? right);
 
         /// <summary>
         ///     Returns the hash code for the given instance.
@@ -111,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="instance"> The instance. </param>
         /// <returns> The snapshot. </returns>
-        public abstract object Snapshot([CanBeNull] object instance);
+        public abstract object? Snapshot([CanBeNull] object? instance);
 
         /// <summary>
         ///     The comparison expression.
@@ -164,8 +156,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="expression"> The new expression. </param>
         /// <returns> The body of the lambda with the parameter replaced.</returns>
-        public virtual Expression ExtractHashCodeBody(
-            [NotNull] Expression expression)
+        public virtual Expression ExtractHashCodeBody([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -181,8 +172,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="expression"> The new expression. </param>
         /// <returns> The body of the lambda with the parameter replaced.</returns>
-        public virtual Expression ExtractSnapshotBody(
-            [NotNull] Expression expression)
+        public virtual Expression ExtractSnapshotBody([NotNull] Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -229,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             return (ValueComparer)Activator.CreateInstance(
                 comparerType.MakeGenericType(type),
-                new object[] { favorStructuralComparisons });
+                new object[] { favorStructuralComparisons })!;
         }
 
         internal class DefaultValueComparer<T> : ValueComparer<T>
@@ -245,10 +235,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public override Expression ExtractSnapshotBody(Expression expression)
                 => expression;
 
-            public override object Snapshot(object instance)
+            public override object? Snapshot(object? instance)
                 => instance;
 
-            public override T Snapshot(T instance)
+            public override T? Snapshot(T? instance)
                 => instance;
         }
 

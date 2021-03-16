@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -1068,7 +1066,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(data, nameof(data));
 
-            Metadata.AddData(data);
+            Builder.HasData(data, ConfigurationSource.Explicit);
 
             return new DataBuilder();
         }

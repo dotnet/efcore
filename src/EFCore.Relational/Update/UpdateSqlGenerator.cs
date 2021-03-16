@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendInsertCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] IReadOnlyList<ColumnModification> writeOperations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendUpdateCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] IReadOnlyList<ColumnModification> writeOperations,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendDeleteCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual ResultSetMapping AppendSelectAffectedCountCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             int commandPosition)
             => ResultSetMapping.NoResultSet;
 
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual ResultSetMapping AppendSelectAffectedCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] IReadOnlyList<ColumnModification> readOperations,
             [NotNull] IReadOnlyList<ColumnModification> conditionOperations,
             int commandPosition)
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendInsertCommandHeader(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendDeleteCommandHeader(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema)
+            [CanBeNull] string? schema)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendUpdateCommandHeader(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendFromClause(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema)
+            [CanBeNull] string? schema)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual void AppendValues(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] IReadOnlyList<ColumnModification> operations)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -561,8 +561,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 {
                     SqlGenerationHelper.GenerateParameterNamePlaceholder(
                         commandStringBuilder, useOriginalValue
-                            ? columnModification.OriginalParameterName
-                            : columnModification.ParameterName);
+                            ? columnModification.OriginalParameterName!
+                            : columnModification.ParameterName!);
                 }
             }
         }
@@ -590,7 +590,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         /// <returns> The SQL. </returns>
-        public virtual string GenerateNextSequenceValueOperation(string name, string schema)
+        public virtual string GenerateNextSequenceValueOperation(string name, string? schema)
         {
             var commandStringBuilder = new StringBuilder();
             AppendNextSequenceValueOperation(commandStringBuilder, name, schema);
@@ -604,13 +604,13 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="commandStringBuilder"> The builder to which the SQL fragment should be appended. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
-        public virtual void AppendNextSequenceValueOperation(StringBuilder commandStringBuilder, string name, string schema)
+        public virtual void AppendNextSequenceValueOperation(StringBuilder commandStringBuilder, string name, string? schema)
         {
             commandStringBuilder.Append("SELECT NEXT VALUE FOR ");
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, Check.NotNull(name, nameof(name)), schema);
         }
 
-        private void AppendSqlLiteral(StringBuilder commandStringBuilder, ColumnModification modification, string tableName, string schema)
+        private void AppendSqlLiteral(StringBuilder commandStringBuilder, ColumnModification modification, string? tableName, string? schema)
         {
             if (modification.TypeMapping == null)
             {

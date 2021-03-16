@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -63,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
             else
             {
-                RelationalModel.Add((IConventionModel)model, RelationalDependencies.RelationalAnnotationProvider);
+                RelationalModel.Add(model, RelationalDependencies.RelationalAnnotationProvider);
             }
         }
     }

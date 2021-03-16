@@ -7,8 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -25,7 +23,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IConstructorBindingFactory
     {
         /// <summary>
-        ///     Attempts to create a <see cref="InstantiationBinding" /> for the given <see cref="IEntityType" /> and
+        ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
+        ///     the constructor with only service property parameters.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="constructorBinding"> The binding for the constructor with most parameters. </param>
+        /// <param name="serviceOnlyBinding"> The binding for the constructor with only service property parameters. </param>
+        void GetBindings(
+            [NotNull] IConventionEntityType entityType,
+            [NotNull] out InstantiationBinding constructorBinding,
+            [NotNull] out InstantiationBinding? serviceOnlyBinding);
+
+        /// <summary>
+        ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
+        ///     the constructor with only service property parameters.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="constructorBinding"> The binding for the constructor with most parameters. </param>
+        /// <param name="serviceOnlyBinding"> The binding for the constructor with only service property parameters. </param>
+        void GetBindings(
+            [NotNull] IMutableEntityType entityType,
+            [NotNull] out InstantiationBinding constructorBinding,
+            [NotNull] out InstantiationBinding? serviceOnlyBinding);
+
+        /// <summary>
+        ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
+        ///     the constructor with only service property parameters.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="constructorBinding"> The binding for the constructor with most parameters. </param>
+        /// <param name="serviceOnlyBinding"> The binding for the constructor with only service property parameters. </param>
+        void GetBindings(
+            [NotNull] IReadOnlyEntityType entityType,
+            [NotNull] out InstantiationBinding constructorBinding,
+            [NotNull] out InstantiationBinding? serviceOnlyBinding);
+
+        /// <summary>
+        ///     Attempts to create a <see cref="InstantiationBinding" /> for the given entity type and
         ///     <see cref="ConstructorInfo" />
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
@@ -40,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [CanBeNull, CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters);
 
         /// <summary>
-        ///     Attempts to create a <see cref="InstantiationBinding" /> for the given <see cref="IEntityType" /> and
+        ///     Attempts to create a <see cref="InstantiationBinding" /> for the given entity type and
         ///     <see cref="ConstructorInfo" />
         /// </summary>
         /// <param name="entityType"> The entity type. </param>

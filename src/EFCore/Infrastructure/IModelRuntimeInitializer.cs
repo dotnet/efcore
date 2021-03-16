@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -34,6 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to initialize. </param>
         /// <param name="validationLogger"> The validation logger. </param>
         /// <returns> The initialized model. </returns>
-        IModel Initialize([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger);
+        IModel Initialize(
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger);
     }
 }

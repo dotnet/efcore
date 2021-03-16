@@ -77,29 +77,6 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(EntityFrameworkServiceCollectionExtensions)
             };
 
-            public override
-                List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
-                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
-                = new()
-                {
-                    (typeof(IModel), typeof(ModelExtensions), typeof(MutableModelExtensions), typeof(ConventionModelExtensions), null),
-                    (typeof(IAnnotatable), typeof(AnnotatableExtensions), typeof(MutableAnnotatableExtensions),
-                        typeof(ConventionAnnotatableExtensions), null),
-                    (typeof(IEntityType), typeof(EntityTypeExtensions), typeof(MutableEntityTypeExtensions),
-                        typeof(ConventionEntityTypeExtensions), null),
-                    (typeof(ITypeBase), typeof(TypeBaseExtensions), typeof(MutableTypeBaseExtensions),
-                        typeof(ConventionTypeBaseExtensions), null),
-                    (typeof(IKey), typeof(KeyExtensions), typeof(MutableKeyExtensions), typeof(ConventionKeyExtensions), null),
-                    (typeof(IForeignKey), typeof(ForeignKeyExtensions), typeof(MutableForeignKeyExtensions),
-                        typeof(ConventionForeignKeyExtensions), null),
-                    (typeof(IProperty), typeof(PropertyExtensions), typeof(MutablePropertyExtensions),
-                        typeof(ConventionPropertyExtensions), null),
-                    (typeof(INavigation), typeof(NavigationExtensions), typeof(MutableNavigationExtensions),
-                        typeof(ConventionNavigationExtensions), null),
-                    (typeof(IPropertyBase), typeof(PropertyBaseExtensions), typeof(MutablePropertyBaseExtensions),
-                        typeof(ConventionPropertyBaseExtensions), null)
-                };
-
             public override HashSet<MethodInfo> NonVirtualMethods { get; } = new()
             {
                 typeof(CompiledQueryCacheKeyGenerator).GetMethod("GenerateCacheKeyCore", AnyInstance),
@@ -130,27 +107,20 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(OwnedNavigationBuilder<,>).GetMethod(
                     nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(Type), typeof(string) }),
                 typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new[] { typeof(string), typeof(bool) }),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.FindAnnotation)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.GetAnnotations)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.FindRuntimeAnnotation)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.GetRuntimeAnnotations)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.AddRuntimeAnnotation)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.SetRuntimeAnnotation)),
-                typeof(IAnnotatable).GetMethod(nameof(IAnnotatable.RemoveRuntimeAnnotation)),
+                typeof(IReadOnlyAnnotatable).GetMethod(nameof(IReadOnlyAnnotatable.FindAnnotation)),
+                typeof(IReadOnlyAnnotatable).GetMethod(nameof(IReadOnlyAnnotatable.GetAnnotations)),
+                typeof(IReadOnlyAnnotatable).GetMethod(nameof(IReadOnlyAnnotatable.GetAnnotation)),
                 typeof(IMutableAnnotatable).GetMethod("set_Item"),
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
-                typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.SetOrRemoveAnnotation)),
-                typeof(ModelExtensions).GetMethod(nameof(ModelExtensions.FindRuntimeEntityType)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetAllBaseTypesInclusive)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetAllBaseTypesInclusiveAscending)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetConcreteDerivedTypesInclusive)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetClosestCommonParent)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.GetProperty)),
-                typeof(EntityTypeExtensions).GetMethod(nameof(EntityTypeExtensions.LeastDerivedType)),
+                typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetOrRemoveAnnotation)),
                 typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.HasNoEntityType)),
-                typeof(INavigationBase).GetMethod("get_DeclaringEntityType"),
-                typeof(INavigationBase).GetMethod("get_TargetEntityType"),
-                typeof(INavigationBase).GetMethod("get_Inverse"),
+                typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.GetConcreteDerivedTypesInclusive)),
+                typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.FindClosestCommonParent)),
+                typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.LeastDerivedType)),
+                typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
+                typeof(IReadOnlyNavigationBase).GetMethod("get_DeclaringEntityType"),
+                typeof(IReadOnlyNavigationBase).GetMethod("get_TargetEntityType"),
+                typeof(IReadOnlyNavigationBase).GetMethod("get_Inverse"),
                 typeof(IConventionAnnotatableBuilder).GetMethod(nameof(IConventionAnnotatableBuilder.HasNonNullAnnotation)),
                 typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties)),
                 typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.Ignore)),
@@ -185,14 +155,16 @@ namespace Microsoft.EntityFrameworkCore
             public override HashSet<MethodInfo> MetadataMethodExceptions { get; } = new()
             {
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
-                typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.SetOrRemoveAnnotation)),
-                typeof(ConventionAnnotatableExtensions).GetMethod(nameof(ConventionAnnotatableExtensions.AddAnnotations)),
-                typeof(MutableAnnotatableExtensions).GetMethod(nameof(MutableAnnotatableExtensions.AddAnnotations)),
+                typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetOrRemoveAnnotation)),
+                typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.AddAnnotations)),
+                typeof(IMutableAnnotatable).GetMethod(nameof(IMutableAnnotatable.AddAnnotations)),
                 typeof(IConventionModel).GetMethod(nameof(IConventionModel.IsShared)),
-                typeof(ConventionModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddOwned)),
-                typeof(ConventionModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared)),
-                typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddOwned)),
-                typeof(MutableModelExtensions).GetMethod(nameof(ConventionModelExtensions.AddShared)),
+                typeof(IConventionModel).GetMethod(nameof(IConventionModel.AddOwned)),
+                typeof(IConventionModel).GetMethod(nameof(IConventionModel.AddShared)),
+                typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddOwned)),
+                typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddShared)),
+                typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
+                typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType))
             };
         }
     }

@@ -25,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
-            var _ = modelBuilder.Model.GetEntityTypeErrors();
 
             var model = modelBuilder.FinalizeModel();
 
@@ -61,7 +60,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             };
 
             var assembly = build.BuildInMemory();
-            var context = (DbContext)assembly.CreateInstance("TestNamespace.TestDbContext");
+            var contextNamespace = options.ContextNamespace ?? options.ModelNamespace;
+            var context = (DbContext)assembly.CreateInstance(
+                !string.IsNullOrEmpty(contextNamespace)
+                    ? contextNamespace + "." + options.ContextName
+                    : options.ContextName);
 
             if (assertModel != null)
             {

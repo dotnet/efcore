@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public InMemoryStoreCache(
             [NotNull] IInMemoryTableFactory tableFactory,
-            [CanBeNull] IInMemorySingletonOptions options)
+            [CanBeNull] IInMemorySingletonOptions? options)
         {
             _tableFactory = tableFactory;
 

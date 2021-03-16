@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -145,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => (NonNullabilityConventionState)(
                 modelBuilder.Metadata.FindAnnotation(StateAnnotationName)
                 ?? modelBuilder.Metadata.AddAnnotation(StateAnnotationName, new NonNullabilityConventionState())
-            ).Value;
+            ).Value!;
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(

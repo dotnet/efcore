@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="snapshotSubNamespace"> The model snapshot's sub-namespace. </param>
         public ScaffoldedMigration(
             [NotNull] string fileExtension,
-            [CanBeNull] string previousMigrationId,
+            [CanBeNull] string? previousMigrationId,
             [NotNull] string migrationCode,
             [NotNull] string migrationId,
             [NotNull] string metadataCode,
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Gets the previous migration's ID.
         /// </summary>
         /// <value> The previous migration's ID. </value>
-        public virtual string PreviousMigrationId { get; }
+        public virtual string? PreviousMigrationId { get; }
 
         /// <summary>
         ///     Gets the contents of the migration file.

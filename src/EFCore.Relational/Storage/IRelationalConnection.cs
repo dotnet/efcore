@@ -9,8 +9,6 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -99,6 +97,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     was actually closed.
         /// </returns>
         Task<bool> CloseAsync();
+
+        /// <summary>
+        ///     Rents a relational command that can be executed with this connection.
+        /// </summary>
+        /// <returns> A relational command that can be executed with this connection. </returns>
+        IRelationalCommand RentCommand();
+
+        /// <summary>
+        ///     Returns a relational command to this connection, so that it can be reused in the future.
+        /// </summary>
+        void ReturnCommand([NotNull] IRelationalCommand command);
 
         /// <summary>
         ///     Gets the current transaction.

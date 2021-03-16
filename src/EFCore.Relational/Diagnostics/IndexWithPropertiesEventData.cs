@@ -31,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IEntityType entityType,
-            [CanBeNull] string indexName,
+            [CanBeNull] string? indexName,
             [NotNull] List<string> indexPropertyNames,
             [NotNull] string property1Name,
-            [NotNull] List<(string Table, string Schema)> tablesMappedToProperty1,
+            [NotNull] List<(string Table, string? Schema)> tablesMappedToProperty1,
             [NotNull] string property2Name,
-            [NotNull] List<(string Table, string Schema)> tablesMappedToProperty2)
+            [NotNull] List<(string Table, string? Schema)> tablesMappedToProperty2)
             : base(eventDefinition, messageGenerator)
         {
             EntityType = entityType;
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The name of the index.
         /// </summary>
-        public virtual string Name { get; }
+        public virtual string? Name { get; }
 
         /// <summary>
         ///     The list of properties which define the index.
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The tables mapped to the first property.
         /// </summary>
-        public virtual List<(string Table, string Schema)> TablesMappedToProperty1 { get; }
+        public virtual List<(string Table, string? Schema)> TablesMappedToProperty1 { get; }
 
         /// <summary>
         ///     The name of the second property.
@@ -81,6 +81,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The tables mapped to the second property.
         /// </summary>
-        public virtual List<(string Table, string Schema)> TablesMappedToProperty2 { get; }
+        public virtual List<(string Table, string? Schema)> TablesMappedToProperty2 { get; }
     }
 }

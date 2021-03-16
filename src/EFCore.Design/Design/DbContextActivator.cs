@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <returns> The newly created object. </returns>
         public static DbContext CreateInstance(
             [NotNull] Type contextType,
-            [CanBeNull] Assembly startupAssembly = null,
-            [CanBeNull] IOperationReportHandler reportHandler = null)
+            [CanBeNull] Assembly? startupAssembly = null,
+            [CanBeNull] IOperationReportHandler? reportHandler = null)
             => CreateInstance(contextType, startupAssembly, reportHandler, null);
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <returns> The newly created object. </returns>
         public static DbContext CreateInstance(
             [NotNull] Type contextType,
-            [CanBeNull] Assembly startupAssembly,
-            [CanBeNull] IOperationReportHandler reportHandler,
-            [CanBeNull] string[] args)
+            [CanBeNull] Assembly? startupAssembly,
+            [CanBeNull] IOperationReportHandler? reportHandler,
+            [CanBeNull] string[]? args)
         {
             Check.NotNull(contextType, nameof(contextType));
 
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     contextType.Assembly,
                     startupAssembly ?? contextType.Assembly,
                     args: args ?? Array.Empty<string>())
-                .CreateContext(contextType.FullName);
+                .CreateContext(contextType.FullName!);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public class CollectionEntry : NavigationEntry
     {
-        private ICollectionLoader _loader;
+        private ICollectionLoader? _loader;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var context = InternalEntry.StateManager.Context;
 
                 var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
-                    && !((Model)context.Model).SkipDetectChanges
+                    && !((IRuntimeModel)context.Model).SkipDetectChanges
                         ? context.GetDependencies().ChangeDetector
                         : null;
 
@@ -81,9 +81,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
         ///     for the context to detect the change.
         /// </summary>
-        public new virtual IEnumerable CurrentValue
+        public new virtual IEnumerable? CurrentValue
         {
-            get => (IEnumerable)base.CurrentValue;
+            get => (IEnumerable?)base.CurrentValue;
             [param: CanBeNull] set => base.CurrentValue = value;
         }
 
@@ -254,14 +254,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private void EnsureInitialized()
-            => Metadata.GetCollectionAccessor().GetOrCreate(InternalEntry.Entity, forMaterialization: true);
+            => Metadata.GetCollectionAccessor()!.GetOrCreate(InternalEntry.Entity, forMaterialization: true);
 
         /// <summary>
         ///     The <see cref="EntityEntry" /> of an entity this navigation targets.
         /// </summary>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <value> An entry for an entity that this navigation targets. </value>
-        public virtual EntityEntry FindEntry([NotNull] object entity)
+        public virtual EntityEntry? FindEntry([NotNull] object entity)
         {
             var entry = GetInternalTargetEntry(entity);
             return entry == null
@@ -276,14 +276,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalEntityEntry GetInternalTargetEntry([NotNull] object entity)
+        protected virtual InternalEntityEntry? GetInternalTargetEntry([NotNull] object entity)
             => CurrentValue == null
-                || !Metadata.GetCollectionAccessor().Contains(InternalEntry.Entity, entity)
+                || !Metadata.GetCollectionAccessor()!.Contains(InternalEntry.Entity, entity)
                     ? null
                     : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
 
         private ICollectionLoader TargetLoader
-            => _loader ??= Metadata is ISkipNavigation skipNavigation
+            => _loader ??= Metadata is IRuntimeSkipNavigation skipNavigation
                 ? skipNavigation.GetManyToManyLoader()
                 : new EntityFinderCollectionLoaderAdapter(
                     InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType),

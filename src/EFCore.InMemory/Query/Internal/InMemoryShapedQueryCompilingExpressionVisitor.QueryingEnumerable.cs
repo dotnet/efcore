@@ -13,8 +13,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
@@ -33,13 +31,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
+            private readonly bool _concurrencyDetectionEnabled;
 
             public QueryingEnumerable(
                 QueryContext queryContext,
                 IEnumerable<ValueBuffer> innerEnumerable,
                 Func<QueryContext, ValueBuffer, T> shaper,
                 Type contextType,
-                bool standAloneStateManager)
+                bool standAloneStateManager,
+                bool concurrencyDetectionEnabled)
             {
                 _queryContext = queryContext;
                 _innerEnumerable = innerEnumerable;
@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _contextType = contextType;
                 _queryLogger = queryContext.QueryLogger;
                 _standAloneStateManager = standAloneStateManager;
+                _concurrencyDetectionEnabled = concurrencyDetectionEnabled;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -70,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
                 private readonly bool _standAloneStateManager;
                 private readonly CancellationToken _cancellationToken;
+                private readonly IConcurrencyDetector? _concurrencyDetector;
 
                 private IEnumerator<ValueBuffer>? _enumerator;
 
@@ -83,6 +85,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     _standAloneStateManager = queryingEnumerable._standAloneStateManager;
                     _cancellationToken = cancellationToken;
                     Current = default!;
+
+                    _concurrencyDetector = queryingEnumerable._concurrencyDetectionEnabled
+                        ? _queryContext.ConcurrencyDetector
+                        : null;
                 }
 
                 public T Current { get; private set; }
@@ -94,9 +100,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 {
                     try
                     {
-                        using (_queryContext.ConcurrencyDetector.EnterCriticalSection())
+                        _concurrencyDetector?.EnterCriticalSection();
+
+                        try
                         {
                             return MoveNextHelper();
+                        }
+                        finally
+                        {
+                            _concurrencyDetector?.ExitCriticalSection();
                         }
                     }
                     catch (Exception exception)
@@ -111,11 +123,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 {
                     try
                     {
-                        using (_queryContext.ConcurrencyDetector.EnterCriticalSection())
+                        _concurrencyDetector?.EnterCriticalSection();
+
+                        try
                         {
                             _cancellationToken.ThrowIfCancellationRequested();
 
                             return new ValueTask<bool>(MoveNextHelper());
+                        }
+                        finally
+                        {
+                            _concurrencyDetector?.ExitCriticalSection();
                         }
                     }
                     catch (Exception exception)

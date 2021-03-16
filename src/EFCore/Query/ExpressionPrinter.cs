@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -675,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (method.IsStatic)
                 {
-                    _stringBuilder.Append(method.DeclaringType.ShortDisplayName()).Append(".");
+                    _stringBuilder.Append(method.DeclaringType!.ShortDisplayName()).Append(".");
                 }
 
                 _stringBuilder.Append(method.Name);
@@ -825,7 +823,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var isComplex = newArrayExpression.Expressions.Count > 1;
             var appendAction = isComplex ? s => AppendLine(s) : (Action<string>)(s => Append(s));
 
-            appendAction("new " + newArrayExpression.Type.GetElementType().ShortDisplayName() + "[]");
+            appendAction("new " + newArrayExpression.Type.GetElementType()!.ShortDisplayName() + "[]");
             appendAction("{ ");
 
             IDisposable? indent = null;

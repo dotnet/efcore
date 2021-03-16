@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
@@ -54,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionModelBuilder? OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
+        public virtual IConventionModelBuilder OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
             => _immediateConventionScope.OnModelInitialized(modelBuilder);
 
         /// <summary>
@@ -63,17 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionModelBuilder? OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
+        public virtual IConventionModelBuilder OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
             => _immediateConventionScope.OnModelFinalizing(modelBuilder);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IModel? OnModelFinalized([NotNull] IModel model)
-            => _immediateConventionScope.OnModelFinalized(model);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

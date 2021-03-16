@@ -53,8 +53,23 @@ namespace Microsoft.EntityFrameworkCore
         {
             public static readonly EntityEntryComparer Instance = new();
 
-            public int Compare(InternalEntityEntry x, InternalEntityEntry y)
+            public int Compare(InternalEntityEntry? x, InternalEntityEntry? y)
             {
+                if (ReferenceEquals(x, y))
+                {
+                    return 0;
+                }
+
+                if (x is null)
+                {
+                    return -1;
+                }
+
+                if (y is null)
+                {
+                    return 1;
+                }
+
                 var result = StringComparer.InvariantCulture.Compare(x.EntityType.Name, y.EntityType.Name);
                 if (result != 0)
                 {

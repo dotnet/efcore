@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -13,10 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="INavigationBase" /> represents a read-only view of the same metadata.
+    ///         Once the model is built, <see cref="IReadOnlyNavigationBase" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionNavigationBase : INavigationBase, IConventionPropertyBase
+    public interface IConventionNavigationBase : IReadOnlyNavigationBase, IConventionPropertyBase
     {
         /// <summary>
         ///     Sets a value indicating whether this navigation should be eager loaded by default.
@@ -26,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The configured value. </returns>
         bool? SetIsEagerLoaded(bool? eagerLoaded, bool fromDataAnnotation = false)
         {
-            this.SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded, fromDataAnnotation);
+            SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded, fromDataAnnotation);
             return eagerLoaded;
         }
 

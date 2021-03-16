@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entity = new IndexedClass();
-            var entry = factory.Create(stateManager, entityTypeBuilder.Metadata, entity);
+            var entry = factory.Create(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
 
-            var propertyAccessors = new PropertyAccessorsFactory().Create(propertyA);
+            var propertyAccessors = new PropertyAccessorsFactory().Create((IProperty)propertyA);
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.CurrentValueGetter)(entry));
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.OriginalValueGetter)(entry));
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry));
@@ -56,9 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entity = new NonIndexedClass();
-            var entry = factory.Create(stateManager, entityTypeBuilder.Metadata, entity);
+            var entry = factory.Create(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
 
-            var propertyAccessors = new PropertyAccessorsFactory().Create(propA);
+            var propertyAccessors = new PropertyAccessorsFactory().Create((IProperty)propA);
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.CurrentValueGetter)(entry));
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.OriginalValueGetter)(entry));
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry));

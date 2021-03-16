@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool InterpretExistsResult(object value)
+        protected override bool InterpretExistsResult(object? value)
             => value != DBNull.Value;
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
             using (var reader = new StringReader(GetCreateScript()))
             {
                 var first = true;
-                string line;
+                string? line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (first)

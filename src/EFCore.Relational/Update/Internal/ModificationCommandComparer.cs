@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(ModificationCommand x, ModificationCommand y)
+        public virtual int Compare(ModificationCommand? x, ModificationCommand? y)
         {
             var result = 0;
             if (ReferenceEquals(x, y))
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 if (xState != EntityState.Added)
                 {
-                    var xKey = xEntry.EntityType.FindPrimaryKey();
+                    var xKey = xEntry.EntityType.FindPrimaryKey()!;
                     for (var i = 0; i < xKey.Properties.Count; i++)
                     {
                         var xKeyProperty = xKey.Properties[i];

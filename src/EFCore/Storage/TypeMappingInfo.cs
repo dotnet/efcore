@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -23,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="property"> The property for which mapping is needed. </param>
         public TypeMappingInfo([NotNull] IProperty property)
-            : this(property.FindPrincipals())
+            : this(property.GetPrincipals())
         {
         }
 

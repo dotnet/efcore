@@ -25,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     public class ModificationCommand
     {
-        private readonly Func<string> _generateParameterName;
+        private readonly Func<string>? _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
-        private readonly IComparer<IUpdateEntry> _comparer;
-        private readonly IColumnModificationFactory _columnModificationFactory;
+        private readonly IComparer<IUpdateEntry>? _comparer;
+        private readonly IColumnModificationFactory? _columnModificationFactory;
         private readonly List<IUpdateEntry> _entries = new();
-        private IReadOnlyList<ColumnModification> _columnModifications;
+        private IReadOnlyList<ColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
         private bool _mainEntryAdded;
 
@@ -45,10 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
         public ModificationCommand(
             [NotNull] string name,
-            [CanBeNull] string schema,
+            [CanBeNull] string? schema,
             [NotNull] Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            [CanBeNull] IComparer<IUpdateEntry> comparer,
+            [CanBeNull] IComparer<IUpdateEntry>? comparer,
             [NotNull] IColumnModificationFactory columnModificationFactory)
             : this(
                 Check.NotEmpty(name, nameof(name)),
@@ -73,8 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
         public ModificationCommand(
             [NotNull] string name,
-            [CanBeNull] string schema,
-            [CanBeNull] IReadOnlyList<ColumnModification> columnModifications,
+            [CanBeNull] string? schema,
+            [CanBeNull] IReadOnlyList<ColumnModification>? columnModifications,
             bool sensitiveLoggingEnabled,
             [NotNull] IColumnModificationFactory columnModificationFactory)
         {
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The schema containing the table, or <see langword="null" /> to use the default schema.
         /// </summary>
-        public virtual string Schema { get; }
+        public virtual string? Schema { get; }
 
         /// <summary>
         ///     The <see cref="IUpdateEntry" />s that represent the entities that are mapped to the row
@@ -152,9 +152,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         /// <summary>
         ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
-        ///     inserted (<see cref="EntityState.Added" />),
-        ///     updated (<see cref="EntityState.Modified" />),
-        ///     or deleted ((<see cref="EntityState.Deleted" />).
+        ///     inserted (<see cref="Microsoft.EntityFrameworkCore.EntityState.Added" />),
+        ///     updated (<see cref="Microsoft.EntityFrameworkCore.EntityState.Modified" />),
+        ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
         /// </summary>
         public virtual EntityState EntityState
         {
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         throw new InvalidOperationException(
                             RelationalStrings.ModificationCommandInvalidEntityStateSensitive(
                                 entry.EntityType.DisplayName(),
-                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties),
                                 entry.EntityState));
                     }
 
@@ -293,10 +293,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingRowUpdateTypesSensitive(
                             entry.EntityType.DisplayName(),
-                            entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                            entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties),
                             entryState,
                             mainEntry.EntityType.DisplayName(),
-                            mainEntry.BuildCurrentValuesString(mainEntry.EntityType.FindPrimaryKey().Properties),
+                            mainEntry.BuildCurrentValuesString(mainEntry.EntityType.FindPrimaryKey()!.Properties),
                             mainEntryState));
                 }
 
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var adding = state == EntityState.Added;
             var updating = state == EntityState.Modified;
             var columnModifications = new List<ColumnModification>();
-            Dictionary<string, ColumnValuePropagator> sharedTableColumnMap = null;
+            Dictionary<string, ColumnValuePropagator>? sharedTableColumnMap = null;
 
             if (_entries.Count > 1
                 || (_entries.Count == 1 && _entries[0].SharedIdentityEntry != null))
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
                     var readValue = state != EntityState.Deleted && entry.IsStoreGenerated(property);
 
-                    ColumnValuePropagator columnPropagator = null;
+                    ColumnValuePropagator? columnPropagator = null;
                     sharedTableColumnMap?.TryGetValue(column.Name, out columnPropagator);
 
                     var writeValue = false;
@@ -395,11 +395,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                             _requiresResultPropagation = true;
                         }
 
-                        var columnModification = _columnModificationFactory.CreateColumnModification(
+                        var columnModification = _columnModificationFactory!.CreateColumnModification(
                             entry,
                             property,
                             column,
-                            _generateParameterName,
+                            _generateParameterName!,
                             columnMapping.TypeMapping,
                             readValue,
                             writeValue,
@@ -428,9 +428,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             return columnModifications;
         }
 
-        private ITableMappingBase GetTableMapping(IEntityType entityType)
+        private ITableMappingBase? GetTableMapping(IEntityType entityType)
         {
-            ITableMappingBase tableMapping = null;
+            ITableMappingBase? tableMapping = null;
             foreach (var mapping in entityType.GetTableMappings())
             {
                 var table = ((ITableMappingBase)mapping).Table;
@@ -495,17 +495,17 @@ namespace Microsoft.EntityFrameworkCore.Update
                 return result;
             }
 
-            result += "(" + string.Join(", ", _columnModifications.Where(m => m.IsKey).Select(m => m.OriginalValue.ToString())) + ")";
+            result += "(" + string.Join(", ", _columnModifications.Where(m => m.IsKey).Select(m => m.OriginalValue?.ToString())) + ")";
             return result;
         }
 
         private sealed class ColumnValuePropagator
         {
             private bool _write;
-            private object _originalValue;
-            private object _currentValue;
+            private object? _originalValue;
+            private object? _currentValue;
 
-            public ColumnModification ColumnModification { get; set; }
+            public ColumnModification? ColumnModification { get; set; }
 
             public void RecordValue(IProperty property, IUpdateEntry entry)
             {

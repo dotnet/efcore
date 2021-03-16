@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Invoked when a result is available.
         /// </summary>
         /// <param name="value"> The result. </param>
-        void OnResult([CanBeNull] object value);
+        void OnResult([CanBeNull] object? value);
 
         /// <summary>
         ///     Invoked when an error occurs.

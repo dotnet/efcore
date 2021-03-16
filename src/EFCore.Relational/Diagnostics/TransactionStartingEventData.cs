@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public TransactionStartingEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             IsolationLevel isolationLevel,
             Guid transactionId,
             Guid connectionId,

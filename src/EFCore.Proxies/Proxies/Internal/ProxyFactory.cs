@@ -60,10 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public virtual Type CreateProxyType(
             ProxiesOptionsExtension options,
-            IEntityType entityType)
+            IReadOnlyEntityType entityType)
             => _generator.ProxyBuilder.CreateClassProxyType(
                 entityType.ClrType,
-                GetInterfacesToProxy(options, entityType),
+                GetInterfacesToProxy(options, entityType.ClrType),
                 ProxyGenerationOptions.Default);
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             object[] constructorArguments)
             => _generator.CreateClassProxy(
                 entityType.ClrType,
-                GetInterfacesToProxy(options, entityType),
+                GetInterfacesToProxy(options, entityType.ClrType),
                 ProxyGenerationOptions.Default,
                 constructorArguments,
                 GetNotifyChangeInterceptors(options, entityType, new LazyLoadingInterceptor(entityType, loader)));
@@ -141,14 +141,14 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             object[] constructorArguments)
             => _generator.CreateClassProxy(
                 entityType.ClrType,
-                GetInterfacesToProxy(options, entityType),
+                GetInterfacesToProxy(options, entityType.ClrType),
                 ProxyGenerationOptions.Default,
                 constructorArguments,
                 GetNotifyChangeInterceptors(options, entityType));
 
         private Type[] GetInterfacesToProxy(
             ProxiesOptionsExtension options,
-            IEntityType entityType)
+            Type type)
         {
             var interfacesToProxy = new List<Type>();
 
@@ -159,12 +159,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
             if (options.UseChangeTrackingProxies)
             {
-                if (!_notifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
+                if (!_notifyPropertyChangedInterface.IsAssignableFrom(type))
                 {
                     interfacesToProxy.Add(_notifyPropertyChangedInterface);
                 }
 
-                if (!_notifyPropertyChangingInterface.IsAssignableFrom(entityType.ClrType))
+                if (!_notifyPropertyChangingInterface.IsAssignableFrom(type))
                 {
                     interfacesToProxy.Add(_notifyPropertyChangingInterface);
                 }
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private IInterceptor[] GetNotifyChangeInterceptors(
             ProxiesOptionsExtension options,
             IEntityType entityType,
-            LazyLoadingInterceptor lazyLoadingInterceptor = null)
+            LazyLoadingInterceptor? lazyLoadingInterceptor = null)
         {
             var interceptors = new List<IInterceptor>();
 

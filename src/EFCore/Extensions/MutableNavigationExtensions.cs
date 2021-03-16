@@ -5,14 +5,13 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     Extension methods for <see cref="IMutableNavigation" />.
     /// </summary>
+    [Obsolete("Use IMutableNavigation")]
     public static class MutableNavigationExtensions
     {
         /// <summary>

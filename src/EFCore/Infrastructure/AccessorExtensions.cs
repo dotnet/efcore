@@ -43,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The requested service. </returns>
         [DebuggerStepThrough]
         public static TService GetService<TService>([NotNull] this IInfrastructure<IServiceProvider> accessor)
+            where TService : class
             => InfrastructureExtensions.GetService<TService>(Check.NotNull(accessor, nameof(accessor)));
 
         /// <summary>

@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             foreach (var setInfo in _setFinder.FindSets(context.GetType()).Where(p => p.Setter != null))
             {
-                setInfo.Setter.SetClrValue(
+                setInfo.Setter!.SetClrValue(
                     context,
                     ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.Type));
             }

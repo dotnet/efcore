@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -87,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            bool IsStrategyNoneNeeded(IProperty property, StoreObjectIdentifier storeObject)
+            bool IsStrategyNoneNeeded(IReadOnlyProperty property, StoreObjectIdentifier storeObject)
             {
                 if (property.ValueGenerated == ValueGenerated.OnAdd
                     && property.GetDefaultValue(storeObject) == null
@@ -97,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     var providerClrType = (property.GetValueConverter()
                         ?? (property.FindRelationalTypeMapping(storeObject)
-                            ?? Dependencies.TypeMappingSource.FindMapping(property))?.Converter)
+                            ?? Dependencies.TypeMappingSource.FindMapping((IProperty)property))?.Converter)
                         ?.ProviderClrType.UnwrapNullableType();
 
                     return providerClrType != null

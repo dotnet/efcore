@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbCommand command,
             [NotNull] DbDataReader dataReader,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             int recordsAffected,

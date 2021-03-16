@@ -16,12 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The schema that contains the sequence, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The name of the sequence.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     An operation representing the sequence as it was before being altered.

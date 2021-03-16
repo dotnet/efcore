@@ -7,8 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -21,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface IConventionAnnotatable : IAnnotatable
+    public interface IConventionAnnotatable : IReadOnlyAnnotatable
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this object.
@@ -73,5 +71,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
         IConventionAnnotation? RemoveAnnotation([NotNull] string name);
+
+        /// <summary>
+        ///     Gets the annotation with the given name, throwing if it does not exist.
+        /// </summary>
+        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <returns> The annotation with the specified name. </returns>
+        new IConventionAnnotation GetAnnotation([NotNull] string annotationName)
+            => (IConventionAnnotation)((IReadOnlyAnnotatable)this).GetAnnotation(annotationName);
+
+        /// <summary>
+        ///     Adds annotations to an object.
+        /// </summary>
+        /// <param name="annotations"> The annotations to be added. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        void AddAnnotations(
+            [NotNull] IEnumerable<IConventionAnnotation> annotations,
+            bool fromDataAnnotation = false)
+        {
+            foreach (var annotation in annotations)
+            {
+                AddAnnotation(annotation.Name, annotation.Value, fromDataAnnotation);
+            }
+        }
+
+        /// <summary>
+        ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
+        ///     annotation with the specified name already exists. Removes the existing annotation if <see langword="null" /> is supplied.
+        /// </summary>
+        /// <param name="name"> The name of the annotation to be added. </param>
+        /// <param name="value"> The value to be stored in the annotation. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The new annotation or <see langword="null" /> if it was removed. </returns>
+        IConventionAnnotation? SetOrRemoveAnnotation(
+            [NotNull] string name,
+            [CanBeNull] object? value,
+            bool fromDataAnnotation = false);
     }
 }

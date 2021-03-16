@@ -76,17 +76,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Occurs when a property of this hash set (such as <see cref="Count" />) changes.
         /// </summary>
-        public virtual event PropertyChangedEventHandler PropertyChanged;
+        public virtual event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         ///     Occurs when a property of this hash set (such as <see cref="Count" />) is changing.
         /// </summary>
-        public virtual event PropertyChangingEventHandler PropertyChanging;
+        public virtual event PropertyChangingEventHandler? PropertyChanging;
 
         /// <summary>
         ///     Occurs when the contents of the hash set changes.
         /// </summary>
-        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+        public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
 
         void ICollection<T>.Add(T item)
             => Add(item);
@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void OnCountPropertyChanging()
             => OnPropertyChanging(ObservableHashSetSingletons._countPropertyChanging);
 
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, object item)
+        private void OnCollectionChanged(NotifyCollectionChangedAction action, object? item)
             => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item));
 
         private void OnCollectionChanged(IList newItems, IList oldItems)

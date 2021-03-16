@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         /// <returns> The SQL. </returns>
-        string GenerateNextSequenceValueOperation([NotNull] string name, [CanBeNull] string schema);
+        string GenerateNextSequenceValueOperation([NotNull] string name, [CanBeNull] string? schema);
 
         /// <summary>
         ///     Generates a SQL fragment that will get the next value from the given sequence and appends it to
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         void AppendNextSequenceValueOperation(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema);
+            [CanBeNull] string? schema);
 
         /// <summary>
         ///     Appends a SQL fragment for the start of a batch to

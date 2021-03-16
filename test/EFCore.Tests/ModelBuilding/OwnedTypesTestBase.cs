@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_configure_owned_type_inverse()
             {
                 var modelBuilder = CreateModelBuilder();
-                IModel model = modelBuilder.Model;
+                IReadOnlyModel model = modelBuilder.Model;
 
                 modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
 
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_configure_owned_type_collection_from_an_owned_type()
             {
                 var modelBuilder = CreateModelBuilder();
-                IModel model = modelBuilder.Model;
+                IReadOnlyModel model = modelBuilder.Model;
 
                 modelBuilder.Ignore<OrderDetails>();
                 var entityBuilder = modelBuilder.Entity<CustomerDetails>().OwnsOne(o => o.Customer)
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(foreignKey.PrincipalToDependent);
                 Assert.NotEqual(ownership1.Properties.Single().Name, foreignKey.Properties.Single().Name);
                 Assert.Equal(5, model.GetEntityTypes().Count());
-                Assert.Equal(2, model.GetEntityTypes(typeof(Order)).Count());
+                Assert.Equal(2, model.FindEntityTypes(typeof(Order)).Count());
                 Assert.Equal(2, ownership1.DeclaringEntityType.GetForeignKeys().Count());
 
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(Order)));
@@ -786,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     nameof(SpecialOrder.SpecialOrderId), specialOwnership.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
 
                 Assert.Equal(9, modelBuilder.Model.GetEntityTypes().Count());
-                Assert.Equal(2, modelBuilder.Model.GetEntityTypes(typeof(Order)).Count());
+                Assert.Equal(2, modelBuilder.Model.FindEntityTypes(typeof(Order)).Count());
                 Assert.Equal(7, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasSharedClrType));
                 Assert.Equal(5, modelBuilder.Model.GetEntityTypes().Count(e => e.IsOwned()));
 
@@ -834,7 +834,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     nameof(SpecialOrder.SpecialOrderId), specialOwnership.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
 
                 Assert.Equal(9, modelBuilder.Model.GetEntityTypes().Count());
-                Assert.Equal(2, modelBuilder.Model.GetEntityTypes(typeof(Order)).Count());
+                Assert.Equal(2, modelBuilder.Model.FindEntityTypes(typeof(Order)).Count());
                 // SpecialOrder and Address are only used once, but once they are made shared they don't revert to non-shared
                 Assert.Equal(5, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasSharedClrType));
                 Assert.Equal(5, modelBuilder.Model.GetEntityTypes().Count(e => e.IsOwned()));
@@ -882,7 +882,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .WithOwner()
                     .HasForeignKey("BookLabelId");
 
-                IModel model = modelBuilder.Model;
+                IReadOnlyModel model = modelBuilder.Model;
 
                 var bookOwnership1 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.Label)).ForeignKey;
                 var bookOwnership2 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)).ForeignKey;
@@ -951,7 +951,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OrderCombination>().OwnsOne(c => c.Details);
                 modelBuilder.Entity<Customer>();
 
-                IModel model = modelBuilder.Model;
+                IReadOnlyModel model = modelBuilder.Model;
 
                 var owner = model.FindEntityType(typeof(OrderCombination));
                 var owned = owner.FindNavigation(nameof(OrderCombination.Details)).ForeignKey.DeclaringEntityType;
@@ -980,7 +980,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<OrderCombination>().OwnsOne(c => c.Details);
 
-                IModel model = modelBuilder.Model;
+                IReadOnlyModel model = modelBuilder.Model;
 
                 var owner = model.FindEntityType(typeof(OrderCombination));
                 var owned = owner.FindNavigation(nameof(OrderCombination.Details)).ForeignKey.DeclaringEntityType;
@@ -1218,7 +1218,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 VerifyOwnedBookLabelModel(model);
             }
 
-            protected virtual void VerifyOwnedBookLabelModel(IModel model)
+            protected virtual void VerifyOwnedBookLabelModel(IReadOnlyModel model)
             {
                 var bookOwnership1 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.Label)).ForeignKey;
                 var bookOwnership2 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)).ForeignKey;
@@ -1400,7 +1400,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var model = modelBuilder.FinalizeModel();
 
-                Assert.Single(model.GetEntityTypes(typeof(List<DependentEntity>)));
+                Assert.Single(model.FindEntityTypes(typeof(List<DependentEntity>)));
             }
 
             [ConditionalFact]
@@ -1454,8 +1454,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Navigation(e => e.OwnedDependent)
                     .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-                var principal = (IEntityType)model.FindEntityType(typeof(OneToOneNavPrincipalOwner));
-                var dependent = (IEntityType)model.FindEntityType(typeof(OwnedNavDependent));
+                var principal = (IReadOnlyEntityType)model.FindEntityType(typeof(OneToOneNavPrincipalOwner));
+                var dependent = (IReadOnlyEntityType)model.FindEntityType(typeof(OwnedNavDependent));
 
                 Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependent").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOneOwner").GetPropertyAccessMode());
@@ -1481,8 +1481,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Navigation(e => e.OwnedDependents)
                     .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-                var principal = (IEntityType)model.FindEntityType(typeof(OneToManyNavPrincipalOwner));
-                var dependent = (IEntityType)model.FindEntityType(typeof(OwnedOneToManyNavDependent));
+                var principal = (IReadOnlyEntityType)model.FindEntityType(typeof(OneToManyNavPrincipalOwner));
+                var dependent = (IReadOnlyEntityType)model.FindEntityType(typeof(OwnedOneToManyNavDependent));
 
                 Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("OwnedDependents").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToManyOwner").GetPropertyAccessMode());

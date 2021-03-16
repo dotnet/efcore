@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -78,6 +76,35 @@ namespace Microsoft.EntityFrameworkCore
             _entries = entries
                 .Where(e => e.EntityState != EntityState.Unchanged)
                 .Select(e => e.ToEntityEntry()).ToList();
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DbUpdateException" /> class.
+        /// </summary>
+        /// <param name="message"> The error message that explains the reason for the exception. </param>
+        /// <param name="entries"> The entries that were involved in the error. </param>
+        public DbUpdateException(
+            [NotNull] string message,
+            [NotNull] IReadOnlyList<EntityEntry> entries)
+            : this(message, null, entries)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DbUpdateException" /> class.
+        /// </summary>
+        /// <param name="message"> The error message that explains the reason for the exception. </param>
+        /// <param name="innerException"> The exception that is the cause of the current exception. </param>
+        /// <param name="entries"> The entries that were involved in the error. </param>
+        public DbUpdateException(
+            [NotNull] string message,
+            [CanBeNull] Exception? innerException,
+            [NotNull] IReadOnlyList<EntityEntry> entries)
+            : base(message, innerException)
+        {
+            Check.NotEmpty(entries, nameof(entries));
+
+            _entries = entries;
         }
 
         /// <summary>

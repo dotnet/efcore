@@ -3,8 +3,6 @@
 
 using System.Linq;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>

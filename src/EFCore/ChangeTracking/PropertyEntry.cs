@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     useful in disconnected scenarios where entities are retrieved with one context instance and
         ///     saved with a different context instance.
         /// </summary>
-        public virtual object OriginalValue
+        public virtual object? OriginalValue
         {
             get => InternalEntry.GetOriginalValue(Metadata);
             [param: CanBeNull] set => InternalEntry.SetOriginalValue(Metadata, value);

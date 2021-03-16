@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     /// </summary>
     public class KeyValueIndexFactorySource : IKeyValueIndexFactorySource
     {
-        private readonly ConcurrentDictionary<IKey, IKeyValueIndexFactory> _factories
-            = new();
+        private readonly ConcurrentDictionary<IKey, IKeyValueIndexFactory> _factories = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,12 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual IKeyValueIndexFactory Create([NotNull] IKey key)
             => (IKeyValueIndexFactory)typeof(KeyValueIndexFactorySource).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateFactory))
+                .GetDeclaredMethod(nameof(CreateFactory))!
                 .MakeGenericMethod(key.GetKeyType())
-                .Invoke(null, new object[] { key });
+                .Invoke(null, new object[] { key })!;
 
         [UsedImplicitly]
-        private static IKeyValueIndexFactory CreateFactory<TKey>(IKey key)
+        private static IKeyValueIndexFactory CreateFactory<TKey>(IKey key) where TKey : notnull
             => new KeyValueIndexFactory<TKey>(key.GetPrincipalKeyValueFactory<TKey>());
     }
 }

@@ -10,8 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore
 {
     public static partial class EF

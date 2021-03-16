@@ -7,8 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -38,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var property in modelBuilder.Metadata.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
             {
-                property.Builder.HasTypeMapping(Dependencies.TypeMappingSource.FindMapping(property));
+                property.Builder.HasTypeMapping(Dependencies.TypeMappingSource.FindMapping((IProperty)property));
             }
         }
     }

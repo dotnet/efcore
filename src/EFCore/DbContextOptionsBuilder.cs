@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             for (var i = 0; i < categoriesArray.Length; i++)
                             {
-                                if (eventId.Name.StartsWith(categoriesArray[i], StringComparison.OrdinalIgnoreCase))
+                                if (eventId.Name!.StartsWith(categoriesArray[i], StringComparison.OrdinalIgnoreCase))
                                 {
                                     return true;
                                 }
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore
             return LogTo(
                 action,
                 (eventId, level) => level >= minimumLevel
-                    && eventId.Name.StartsWith(singleCategory, StringComparison.OrdinalIgnoreCase),
+                    && eventId.Name!.StartsWith(singleCategory, StringComparison.OrdinalIgnoreCase),
                 options);
         }
 
@@ -335,6 +335,28 @@ namespace Microsoft.EntityFrameworkCore
 
         private DbContextOptionsBuilder LogTo([NotNull] IDbContextLogger logger)
             => WithOption(e => e.WithDbContextLogger(logger));
+
+        /// <summary>
+        ///     <para>
+        ///         Disables concurrency detection, which detects many cases of erroneous concurrent usage of a <see cref="DbContext" />
+        ///         instance and causes an informative exception to be thrown. This provides a minor performance improvement, but if a
+        ///         <see cref="DbContext" /> instance is used concurrently, the behavior will be undefined and the program may fail in
+        ///         unpredictable ways.
+        ///     </para>
+        ///     <para>
+        ///         Only disable concurrency detection after confirming that the performance gains are considerable, and the application has
+        ///         been thoroughly tested against concurrency bugs.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+        ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+        ///         so that EF will manage the service providers and can create new instances as required.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder DisableConcurrencyDetection(bool concurrencyDetectionDisabled = true)
+            => WithOption(e => e.WithConcurrencyDetectionEnabled(!concurrencyDetectionDisabled));
 
         /// <summary>
         ///     <para>
@@ -641,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -650,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

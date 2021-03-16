@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -1162,7 +1160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (OwnedNavigationBuilder<TEntity, TDependentEntity>)base.UsePropertyAccessMode(propertyAccessMode);
 
         /// <summary>
-        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        ///     Adds seed data to this entity type. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
         ///     An array of seed data.
@@ -1172,13 +1170,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(data, nameof(data));
 
-            OwnedEntityType.AddData(data);
+            DependentEntityType.Builder.HasData(data, ConfigurationSource.Explicit);
 
             return new DataBuilder<TDependentEntity>();
         }
 
         /// <summary>
-        ///     Configures this entity to have seed data. It is used to generate data motion migrations.
+        ///     Adds seed data to this entity type. It is used to generate data motion migrations.
         /// </summary>
         /// <param name="data">
         ///     A collection of seed data.
@@ -1188,7 +1186,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(data, nameof(data));
 
-            OwnedEntityType.AddData(data);
+            DependentEntityType.Builder.HasData(data, ConfigurationSource.Explicit);
 
             return new DataBuilder<TDependentEntity>();
         }

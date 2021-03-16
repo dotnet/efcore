@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Finds_existing_navigations_and_uses_associated_FK()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = (IModel)modelBuilder.Model;
+                var model = (IReadOnlyModel)modelBuilder.Model;
 
                 modelBuilder.Entity<Category>().Ignore(c => c.Products);
                 modelBuilder.Entity<Product>().Ignore(p => p.Categories);
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Finds_existing_navigations_and_uses_associated_FK_with_fields()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = (IModel)modelBuilder.Model;
+                var model = (IReadOnlyModel)modelBuilder.Model;
 
                 modelBuilder.Entity<ManyToManyPrincipalWithField>()
                     .HasMany(p => p.Dependents)

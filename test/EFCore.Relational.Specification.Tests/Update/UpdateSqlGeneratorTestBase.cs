@@ -671,11 +671,12 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected ModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
         {
-            var duckType = GetDuckType();
-            var stateManager = TestHelpers.CreateContextServices(duckType.Model.FinalizeModel()).GetRequiredService<IStateManager>();
+            var model = GetDuckType().Model.FinalizeModel();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
             var entry = stateManager.GetOrCreateEntry(new Duck());
             var generator = new ParameterNameGenerator();
 
+            var duckType = model.FindEntityType(typeof(Duck));
             var idProperty = duckType.FindProperty(nameof(Duck.Id));
             var nameProperty = duckType.FindProperty(nameof(Duck.Name));
             var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks));
@@ -713,11 +714,12 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected ModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
         {
-            var duckType = GetDuckType();
-            var stateManager = TestHelpers.CreateContextServices(duckType.Model.FinalizeModel()).GetRequiredService<IStateManager>();
+            var model = GetDuckType().Model.FinalizeModel();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
             var entry = stateManager.GetOrCreateEntry(new Duck());
             var generator = new ParameterNameGenerator();
 
+            var duckType = model.FindEntityType(typeof(Duck));
             var idProperty = duckType.FindProperty(nameof(Duck.Id));
             var nameProperty = duckType.FindProperty(nameof(Duck.Name));
             var quacksProperty = duckType.FindProperty(nameof(Duck.Quacks));
@@ -750,11 +752,12 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected ModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
         {
-            var duckType = GetDuckType();
-            var stateManager = TestHelpers.CreateContextServices(duckType.Model.FinalizeModel()).GetRequiredService<IStateManager>();
+            var model = GetDuckType().Model.FinalizeModel();
+            var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
             var entry = stateManager.GetOrCreateEntry(new Duck());
             var generator = new ParameterNameGenerator();
 
+            var duckType = model.FindEntityType(typeof(Duck));
             var idProperty = duckType.FindProperty(nameof(Duck.Id));
             var concurrencyProperty = duckType.FindProperty(nameof(Duck.ConcurrencyToken));
 

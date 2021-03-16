@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         private readonly IOperationReporter _reporter;
         private readonly string _projectDir;
-        private readonly string _rootNamespace;
-        private readonly string _language;
+        private readonly string? _rootNamespace;
+        private readonly string? _language;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
         private readonly string[] _args;
 
@@ -38,16 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [NotNull] string projectDir,
-            [NotNull] string rootNamespace,
-            [CanBeNull] string language,
-            [NotNull] string[] args)
+            [CanBeNull] string? rootNamespace,
+            [CanBeNull] string? language,
+            [CanBeNull] string[]? args)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
-            Check.NotNull(rootNamespace, nameof(rootNamespace));
-            // Note: cannot assert that args is not null - as old versions of
-            // tools can still pass null.
 
             _reporter = reporter;
             _projectDir = projectDir;
@@ -67,13 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public virtual SavedModelFiles ScaffoldContext(
             [NotNull] string provider,
             [NotNull] string connectionString,
-            [CanBeNull] string outputDir,
-            [CanBeNull] string outputContextDir,
-            [CanBeNull] string dbContextClassName,
+            [CanBeNull] string? outputDir,
+            [CanBeNull] string? outputContextDir,
+            [CanBeNull] string? dbContextClassName,
             [NotNull] IEnumerable<string> schemas,
             [NotNull] IEnumerable<string> tables,
-            [CanBeNull] string modelNamespace,
-            [CanBeNull] string contextNamespace,
+            [CanBeNull] string? modelNamespace,
+            [CanBeNull] string? contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
             bool useDatabaseNames,
@@ -123,18 +120,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 overwriteFiles);
         }
 
-        private string GetNamespaceFromOutputPath(string directoryPath)
+        private string? GetNamespaceFromOutputPath(string directoryPath)
         {
             var subNamespace = SubnamespaceFromOutputPath(_projectDir, directoryPath);
             return string.IsNullOrEmpty(subNamespace)
                 ? _rootNamespace
-                : _rootNamespace + "." + subNamespace;
+                : string.IsNullOrEmpty(_rootNamespace)
+                    ? subNamespace
+                    : _rootNamespace + "." + subNamespace;
         }
 
         // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
         // --output-dir $(projectFolder)/A/B/C
         // => "namespace $(rootnamespace).A.B.C"
-        private static string SubnamespaceFromOutputPath(string projectDir, string outputDir)
+        private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir)
         {
             if (!outputDir.StartsWith(projectDir, StringComparison.Ordinal))
             {

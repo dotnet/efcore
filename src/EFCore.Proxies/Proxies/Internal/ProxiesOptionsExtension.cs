@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     /// </summary>
     public class ProxiesOptionsExtension : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
         private bool _useLazyLoadingProxies;
         private bool _useChangeTrackingProxies;
         private bool _checkEquality;
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
-            private string _logFragment;
+            private string? _logFragment;
 
             public ExtensionInfo(IDbContextOptionsExtension extension)
                 : base(extension)

@@ -51,18 +51,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="stored"> Whether the value of the computed column is stored in the database or not. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<AddColumnOperation> Column<T>(
-            [CanBeNull] string type = null,
+            [CanBeNull] string? type = null,
             bool? unicode = null,
             int? maxLength = null,
             bool rowVersion = false,
-            [CanBeNull] string name = null,
+            [CanBeNull] string? name = null,
             bool nullable = false,
-            [CanBeNull] object defaultValue = null,
-            [CanBeNull] string defaultValueSql = null,
-            [CanBeNull] string computedColumnSql = null,
+            [CanBeNull] object? defaultValue = null,
+            [CanBeNull] string? defaultValueSql = null,
+            [CanBeNull] string? computedColumnSql = null,
             bool? fixedLength = null,
-            [CanBeNull] string comment = null,
-            [CanBeNull] string collation = null,
+            [CanBeNull] string? comment = null,
+            [CanBeNull] string? collation = null,
             int? precision = null,
             int? scale = null,
             bool? stored = null)
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             {
                 Schema = _createTableOperation.Schema,
                 Table = _createTableOperation.Name,
-                Name = name,
+                Name = name!,
                 ClrType = typeof(T),
                 ColumnType = type,
                 IsUnicode = unicode,
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString()
-            => base.ToString();
+            => base.ToString()!;
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

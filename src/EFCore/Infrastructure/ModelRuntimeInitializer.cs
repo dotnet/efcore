@@ -4,10 +4,9 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -49,17 +48,41 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to initialize. </param>
         /// <param name="validationLogger"> The validation logger. </param>
         /// <returns> The initialized model. </returns>
-        public virtual IModel Initialize(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger)
+        public virtual IModel Initialize(
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger)
         {
-            if (model.SetModelDependencies(Dependencies.ModelDependencies))
+            if (model.ModelDependencies == null)
             {
-                InitializeModel(model, preValidation: true);
-                if (validationLogger != null
-                    && model is IMutableModel)
-                {
-                    Dependencies.ModelValidator.Validate(model, validationLogger);
-                }
-                InitializeModel(model, preValidation: false);
+                model = model.GetOrAddRuntimeAnnotationValue(
+                    CoreAnnotationNames.ReadOnlyModel,
+                    static args =>
+                    {
+                        var (initializer, model, validationLogger) = args;
+                        model.ModelDependencies = initializer.Dependencies.ModelDependencies;
+
+                        initializer.InitializeModel(model, preValidation: true);
+
+                        if (validationLogger != null
+                            && model is IConventionModel)
+                        {
+                            initializer.Dependencies.ModelValidator.Validate(model, validationLogger);
+                        }
+
+                        initializer.InitializeModel(model, preValidation: false);
+
+                        if (model is Model mutableModel)
+                        {
+                            model = mutableModel.OnModelFinalized();
+                        }
+
+                        return model;
+                    },
+                    (this, model, validationLogger));
+            }
+            else
+            {
+                model = (IModel)model.FindRuntimeAnnotationValue(CoreAnnotationNames.ReadOnlyModel)!;
             }
 
             return model;

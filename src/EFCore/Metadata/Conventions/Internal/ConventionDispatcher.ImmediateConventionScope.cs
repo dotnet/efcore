@@ -8,8 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public partial class ConventionDispatcher
@@ -66,18 +64,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override void Run(ConventionDispatcher dispatcher)
                 => Check.DebugAssert(false, "Immediate convention scope cannot be run again.");
 
-            public IConventionModelBuilder? OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
+            public IConventionModelBuilder OnModelFinalizing([NotNull] IConventionModelBuilder modelBuilder)
             {
                 _modelBuilderConventionContext.ResetState(modelBuilder);
                 foreach (var modelConvention in _conventionSet.ModelFinalizingConventions)
                 {
-                    // Execute each convention in a separate batch so model validation will get an up-to-date model
+                    // Execute each convention in a separate batch so each will get an up-to-date model as they are meant to be only run once
                     using (_dispatcher.DelayConventions())
                     {
                         modelConvention.ProcessModelFinalizing(modelBuilder, _modelBuilderConventionContext);
                         if (_modelBuilderConventionContext.ShouldStopProcessing())
                         {
-                            return _modelBuilderConventionContext.Result;
+                            return _modelBuilderConventionContext.Result!;
                         }
                     }
                 }
@@ -85,17 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return modelBuilder;
             }
 
-            public IModel? OnModelFinalized([NotNull] IModel model)
-            {
-                foreach (var modelConvention in _conventionSet.ModelFinalizedConventions)
-                {
-                    model = modelConvention.ProcessModelFinalized(model);
-                }
-
-                return model;
-            }
-
-            public IConventionModelBuilder? OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
+            public IConventionModelBuilder OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
             {
                 using (_dispatcher.DelayConventions())
                 {
@@ -105,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         modelConvention.ProcessModelInitialized(modelBuilder, _modelBuilderConventionContext);
                         if (_modelBuilderConventionContext.ShouldStopProcessing())
                         {
-                            return _modelBuilderConventionContext.Result;
+                            return _modelBuilderConventionContext.Result!;
                         }
                     }
                 }

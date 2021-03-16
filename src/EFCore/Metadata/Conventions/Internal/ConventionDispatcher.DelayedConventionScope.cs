@@ -7,8 +7,6 @@ using System.Diagnostics;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public partial class ConventionDispatcher

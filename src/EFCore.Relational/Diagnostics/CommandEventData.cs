@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] DbConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,

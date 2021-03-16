@@ -3,8 +3,6 @@
 
 using System.Collections.Generic;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -16,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IIndex" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableIndex : IIndex, IMutableAnnotatable
+    public interface IMutableIndex : IReadOnlyIndex, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets or sets a value indicating whether the values assigned to the indexed properties are unique.

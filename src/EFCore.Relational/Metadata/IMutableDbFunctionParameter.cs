@@ -4,14 +4,12 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     Represents a <see cref="IMutableDbFunction" /> parameter.
     /// </summary>
-    public interface IMutableDbFunctionParameter : IMutableAnnotatable, IDbFunctionParameter
+    public interface IMutableDbFunctionParameter : IReadOnlyDbFunctionParameter, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets the <see cref="IMutableDbFunction" /> to which this parameter belongs.

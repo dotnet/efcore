@@ -16,9 +16,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -28,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConventionDbFunction
+    public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConventionDbFunction, IDbFunction
     {
         private readonly List<DbFunctionParameter> _parameters;
         private string? _schema;
@@ -77,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 // ReSharper disable once AssignNullToNotNullAttribute
                 throw new ArgumentException(
                     RelationalStrings.DbFunctionInvalidInstanceType(
-                        methodInfo.DisplayName(), methodInfo.DeclaringType.ShortDisplayName()));
+                        methodInfo.DisplayName(), methodInfo.DeclaringType!.ShortDisplayName()));
             }
 
             MethodInfo = methodInfo;
@@ -181,12 +178,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => _builder = null;
 
         /// <summary>
+        ///     Indicates whether the function is read-only.
+        /// </summary>
+        public override bool IsReadOnly => ((Annotatable)Model).IsReadOnly;
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<DbFunction> GetDbFunctions([NotNull] IModel model)
+        public static IEnumerable<DbFunction> GetDbFunctions([NotNull] IReadOnlyModel model)
             => ((SortedDictionary<string, DbFunction>?)model[RelationalAnnotationNames.DbFunctions])
                 ?.Values
                 ?? Enumerable.Empty<DbFunction>();
@@ -197,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction? FindDbFunction([NotNull] IModel model, [NotNull] MethodInfo methodInfo)
+        public static DbFunction? FindDbFunction([NotNull] IReadOnlyModel model, [NotNull] MethodInfo methodInfo)
             => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions
                 && functions.TryGetValue(GetFunctionName(methodInfo, methodInfo.GetParameters()), out var dbFunction)
                     ? dbFunction
@@ -209,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbFunction? FindDbFunction([NotNull] IModel model, [NotNull] string name)
+        public static DbFunction? FindDbFunction([NotNull] IReadOnlyModel model, [NotNull] string name)
             => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, DbFunction> functions
                 && functions.TryGetValue(name, out var dbFunction)
                     ? dbFunction
@@ -349,6 +351,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string? SetSchema([CanBeNull] string? schema, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _schema = schema;
 
             _schemaConfigurationSource = schema == null
@@ -389,6 +393,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NullButNotEmpty(name, nameof(name));
 
+            EnsureMutable();
+
             _name = name;
 
             _nameConfigurationSource = name == null
@@ -427,6 +433,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool SetIsBuiltIn(bool builtIn, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _builtIn = builtIn;
             _builtInConfigurationSource = configurationSource.Max(_builtInConfigurationSource);
 
@@ -462,6 +470,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool SetIsNullable(bool nullable, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             if (!IsScalar)
             {
                 throw new InvalidOperationException(RelationalStrings.NonScalarFunctionCannotBeNullable(Name));
@@ -502,6 +512,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string? SetStoreType([CanBeNull] string? storeType, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _storeType = storeType;
 
             _storeTypeConfigurationSource = storeType == null
@@ -528,7 +540,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual RelationalTypeMapping? TypeMapping
         {
-            get => _typeMapping;
+            get => IsReadOnly && IsScalar
+                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static dbFunction =>
+                        {
+                            var relationalTypeMappingSource =
+                                (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
+                            return !string.IsNullOrEmpty(dbFunction._storeType)
+                                        ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
+                                        : relationalTypeMappingSource.FindMapping(dbFunction.ReturnType)!;
+                        })
+                    : _typeMapping;
             set => SetTypeMapping(value, ConfigurationSource.Explicit);
         }
 
@@ -582,6 +603,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
             ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             if (translation != null
                 && (!IsScalar || IsAggregate))
             {
@@ -612,6 +635,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual IReadOnlyList<DbFunctionParameter> Parameters
+        {
+            [DebuggerStepThrough]
+            get => _parameters;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IStoreFunction? StoreFunction { get; [param: NotNull] set; }
 
         /// <summary>
@@ -621,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString()
-            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+            => ((IDbFunction)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
         IConventionDbFunctionBuilder IConventionDbFunction.Builder
@@ -631,7 +666,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc />
-        IModel IDbFunction.Model
+        IReadOnlyModel IReadOnlyDbFunction.Model
         {
             [DebuggerStepThrough]
             get => Model;
@@ -644,20 +679,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get => (IConventionModel)Model;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IReadOnlyList<DbFunctionParameter> Parameters
+        /// <inheritdoc />
+        IModel IDbFunction.Model
         {
             [DebuggerStepThrough]
-            get => _parameters;
+            get => (IModel)Model;
         }
 
         /// <inheritdoc />
-        IReadOnlyList<IDbFunctionParameter> IDbFunction.Parameters
+        IReadOnlyList<IReadOnlyDbFunctionParameter> IReadOnlyDbFunction.Parameters
         {
             [DebuggerStepThrough]
             get => _parameters;
@@ -672,6 +702,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         IReadOnlyList<IMutableDbFunctionParameter> IMutableDbFunction.Parameters
+        {
+            [DebuggerStepThrough]
+            get => _parameters;
+        }
+
+        /// <inheritdoc />
+        IReadOnlyList<IDbFunctionParameter> IDbFunction.Parameters
         {
             [DebuggerStepThrough]
             get => _parameters;

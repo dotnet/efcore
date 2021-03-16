@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -51,11 +49,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var member in members)
             {
-                if (Attribute.IsDefined(member, typeof(NotMappedAttribute), inherit: true))
+                if (Attribute.IsDefined(member, typeof(NotMappedAttribute), inherit: true)
+                    && ShouldIgnore(member))
                 {
                     entityTypeBuilder.Ignore(member.GetSimpleMemberName(), fromDataAnnotation: true);
                 }
             }
         }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given CLR member should be ignored.
+        /// </summary>
+        /// <param name="memberInfo"> The member. </param>
+        /// <returns> <see langword="true"/> if the member should be ignored. </returns>
+        protected virtual bool ShouldIgnore([NotNull] MemberInfo memberInfo)
+            => true;
     }
 }

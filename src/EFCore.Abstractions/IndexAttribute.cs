@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -16,13 +17,13 @@ namespace Microsoft.EntityFrameworkCore
     public sealed class IndexAttribute : Attribute
     {
         private bool? _isUnique;
-        private string _name;
+        private string? _name;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
         /// </summary>
         /// <param name="propertyNames"> The properties which constitute the index, in order (there must be at least one). </param>
-        public IndexAttribute([CanBeNull] params string[] propertyNames)
+        public IndexAttribute([NotNull] params string[] propertyNames)
         {
             Check.NotEmpty(propertyNames, nameof(propertyNames));
             Check.HasNoEmptyElements(propertyNames, nameof(propertyNames));
@@ -38,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The name of the index.
         /// </summary>
-        public string Name
+        [CA.DisallowNull]
+        public string? Name
         {
             get => _name;
             [param: NotNull] set => _name = Check.NotNull(value, nameof(value));

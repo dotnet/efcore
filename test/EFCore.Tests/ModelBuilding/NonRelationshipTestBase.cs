@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.False(nameProperty.RequiresValueGenerator());
                 Assert.Equal(ValueGenerated.Never, nameProperty.ValueGenerated);
 
-                var idProperty = (IProperty)entity.FindProperty(Customer.IdProperty);
+                var idProperty = (IReadOnlyProperty)entity.FindProperty(Customer.IdProperty);
                 Assert.Equal(ValueGenerated.Never, idProperty.ValueGenerated);
             }
 
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<string>("Bottom");
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.False(entityType.FindProperty("Up").IsNullable);
                 Assert.True(entityType.FindProperty("Down").IsNullable);
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                var entityType = (IEntityType)modelBuilder.Entity<Quarks>().Metadata;
+                var entityType = (IReadOnlyEntityType)modelBuilder.Entity<Quarks>().Metadata;
 
                 modelBuilder.Entity<Quarks>(
                     b =>
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<string>("Bottom").IsRequired();
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.False(entityType.FindProperty("Up").IsNullable);
                 Assert.False(entityType.FindProperty("Down").IsNullable);
@@ -514,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<string>("Bottom").IsRequired(false);
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.True(entityType.FindProperty("Down").IsNullable);
                 Assert.True(entityType.FindProperty("Strange").IsNullable);
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Top").IsRequired(false)).Message);
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.False(entityType.FindProperty("Up").IsNullable);
                 Assert.False(entityType.FindProperty("Charm").IsNullable);
@@ -581,9 +581,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<string>("Photon");
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
-
-                modelBuilder.FinalizeModel();
+                var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(Quarks));
 
                 Assert.False(entityType.FindProperty("Up").IsShadowProperty());
                 Assert.False(entityType.FindProperty("Down").IsShadowProperty());
@@ -614,9 +612,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
-
-                modelBuilder.FinalizeModel();
+                var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(Quarks));
 
                 Assert.False(entityType.FindProperty(Customer.IdProperty.Name).IsConcurrencyToken);
                 Assert.True(entityType.FindProperty("Up").IsConcurrencyToken);
@@ -652,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<string>("Strange").UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.Equal(PropertyAccessMode.PreferField, entityType.FindProperty("Up").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Field, entityType.FindProperty("Down").GetPropertyAccessMode());
@@ -679,11 +675,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(PropertyAccessMode.Field, model.GetPropertyAccessMode());
 
-                var hobsType = (IEntityType)model.FindEntityType(typeof(Hob));
+                var hobsType = (IReadOnlyEntityType)model.FindEntityType(typeof(Hob));
                 Assert.Equal(PropertyAccessMode.Field, hobsType.GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Field, hobsType.FindProperty("Id1").GetPropertyAccessMode());
 
-                var quarksType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var quarksType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
                 Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.FindProperty("Down").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, quarksType.FindProperty("Up").GetPropertyAccessMode());
@@ -705,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<string>("Strange").HasConversion((Type)null);
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.Null(entityType.FindProperty("Up").GetProviderClrType());
                 Assert.Same(typeof(byte[]), entityType.FindProperty("Down").GetProviderClrType());
@@ -732,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<string>("Strange").HasConversion((ValueConverter)null);
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.Null(entityType.FindProperty("Up").GetValueConverter());
                 Assert.Same(stringConverter, entityType.FindProperty("Down").GetValueConverter());
@@ -759,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<string>("Strange").HasConversion((ValueConverter)null);
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.Null(entityType.FindProperty("Up").GetValueConverter());
                 Assert.Same(stringConverter, entityType.FindProperty("Down").GetValueConverter());
@@ -781,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<int>("Charm").HasConversion(v => (long)v, v => (int)v);
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.Null(entityType.FindProperty("Up").GetValueConverter());
                 Assert.NotNull(entityType.FindProperty("Down").GetValueConverter());
@@ -809,7 +805,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
-                var entityType = (IEntityType)model.GetEntityTypes().Single();
+                var entityType = (IReadOnlyEntityType)model.GetEntityTypes().Single();
                 Assert.NotNull(entityType.FindProperty(nameof(DynamicProperty.ExpandoObject)).GetValueConverter());
             }
 
@@ -837,7 +833,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                     new StringToBytesConverter(Encoding.UTF8))).Message);
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
                 Assert.Null(entityType.FindProperty("Up").GetValueConverter());
             }
 
@@ -855,7 +851,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property<int?>("_forWierd").HasField("_forWierd");
                     });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.Equal("_forUp", entityType.FindProperty("Up").GetFieldName());
                 Assert.Equal("_forDown", entityType.FindProperty("Down").GetFieldName());
@@ -1275,11 +1271,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var firstIndexBuilder = entityBuilder.HasIndex(ix => ix.Id).IsUnique();
                 var secondIndexBuilder = entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Customer));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Customer));
 
                 Assert.Equal(2, entityType.GetIndexes().Count());
                 Assert.True(firstIndexBuilder.Metadata.IsUnique);
-                Assert.False(((IIndex)secondIndexBuilder.Metadata).IsUnique);
+                Assert.False(((IReadOnlyIndex)secondIndexBuilder.Metadata).IsUnique);
                 Assert.Equal("V1", secondIndexBuilder.Metadata["A1"]);
             }
 
@@ -1295,7 +1291,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var secondIndexBuilder = entityBuilder.HasIndex(
                     ix => new { ix.Id });
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(Customer));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Customer));
 
                 Assert.Equal(2, entityType.GetIndexes().Count());
                 Assert.True(firstIndexBuilder.Metadata.IsUnique);
@@ -1310,7 +1306,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entityBuilder = modelBuilder.Entity<EntityWithoutId>();
 
-                var entityType = (IEntityType)model.FindEntityType(typeof(EntityWithoutId));
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(EntityWithoutId));
 
                 Assert.Null(entityType.FindPrimaryKey());
 

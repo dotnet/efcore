@@ -482,12 +482,12 @@ function Scaffold-DbContext
         $params += '--context', $Context
     }
 
-    if ($Namespace)
+    if ($PSBoundParameters.ContainsKey('Namespace'))
     {
         $params += '--namespace', $Namespace
     }
 
-    if ($ContextNamespace)
+    if ($PSBoundParameters.ContainsKey('ContextNamespace'))
     {
         $params += '--context-namespace', $ContextNamespace
     }
@@ -1125,7 +1125,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         $params += '--data-dir', (Join-Path $startupProjectDir 'App_Data')
     }
 
-    if ($rootNamespace)
+    if ($rootNamespace -ne $null)
     {
         $params += '--root-namespace', $rootNamespace
     }
@@ -1382,6 +1382,12 @@ function ToArguments($params)
             $arguments += ' '
         }
 
+        if ($params[$i] -eq '')
+        {
+            $arguments += '""'
+
+            continue
+        }
         if (!$params[$i].Contains(' '))
         {
             $arguments += $params[$i]

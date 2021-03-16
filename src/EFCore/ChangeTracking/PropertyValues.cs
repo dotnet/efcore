@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <param name="values"> The dictionary to read values from. </param>
-        public virtual void SetValues([NotNull] IDictionary<string, object> values)
+        public virtual void SetValues([NotNull] IDictionary<string, object?> values)
         {
             Check.NotNull(values, nameof(values));
 
@@ -131,14 +131,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="propertyName"> The property name. </param>
         /// <returns> The value of the property. </returns>
-        public abstract object this[[NotNull] string propertyName] { get; [param: CanBeNull] set; }
+        public abstract object? this[[NotNull] string propertyName] { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Gets or sets the value of the property.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The value of the property. </returns>
-        public abstract object this[[NotNull] IProperty property] { get; [param: CanBeNull] set; }
+        public abstract object? this[[NotNull] IProperty property] { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Gets the value of the property just like using the indexed property getter but
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 return true;
             }
 
-            value = default;
+            value = default!;
             return false;
         }
 
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

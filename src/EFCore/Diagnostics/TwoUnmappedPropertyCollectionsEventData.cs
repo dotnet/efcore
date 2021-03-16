@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public TwoUnmappedPropertyCollectionsEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IEnumerable<Tuple<MemberInfo, Type>> firstPropertyCollection,
-            [NotNull] IEnumerable<Tuple<MemberInfo, Type>> secondPropertyCollection)
+            [NotNull] IEnumerable<Tuple<MemberInfo?, Type>> firstPropertyCollection,
+            [NotNull] IEnumerable<Tuple<MemberInfo?, Type>> secondPropertyCollection)
             : base(eventDefinition, messageGenerator)
         {
             FirstPropertyCollection = firstPropertyCollection;
@@ -36,11 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The first property collection.
         /// </summary>
-        public virtual IEnumerable<Tuple<MemberInfo, Type>> FirstPropertyCollection { get; }
+        public virtual IEnumerable<Tuple<MemberInfo?, Type>> FirstPropertyCollection { get; }
 
         /// <summary>
         ///     The second property collection.
         /// </summary>
-        public virtual IEnumerable<Tuple<MemberInfo, Type>> SecondPropertyCollection { get; }
+        public virtual IEnumerable<Tuple<MemberInfo?, Type>> SecondPropertyCollection { get; }
     }
 }

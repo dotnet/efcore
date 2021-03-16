@@ -15,8 +15,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -159,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             : base(null)
         {
             if ((entityType.BaseType == null && !entityType.GetDirectlyDerivedTypes().Any())
-                || entityType.GetDiscriminatorProperty() != null)
+                || entityType.FindDiscriminatorProperty() != null)
             {
                 ITableBase table;
                 TableExpressionBase tableExpression;
@@ -192,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     foreach (var property in primaryKey.Properties)
                     {
-                        _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()!));
+                        _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
                     }
                 }
             }
@@ -221,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         {
                             var columnExpression = columns[property];
                             joinColumns.Add(columnExpression);
-                            _identifier.Add((columnExpression, property.GetKeyValueComparer()!));
+                            _identifier.Add((columnExpression, property.GetKeyValueComparer()));
                         }
                     }
                     else
@@ -279,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             : base(null)
         {
             if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
-                && entityType.GetDiscriminatorProperty() == null)
+                && entityType.FindDiscriminatorProperty() == null)
             {
                 throw new InvalidOperationException(RelationalStrings.SelectExpressionNonTPHWithCustomTable(entityType.DisplayName()));
             }
@@ -307,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 foreach (var property in primaryKey.Properties)
                 {
-                    _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()!));
+                    _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
                 }
             }
         }
@@ -388,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
             => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(EntityTypeExtensions.GetDeclaredProperties);
+                .SelectMany(t => t.GetDeclaredProperties());
 
         /// <summary>
         ///     Replaces current projection mapping with a new one to change what is being projected out from this <see cref="SelectExpression" />.
@@ -429,6 +427,34 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return AddToProjection(sqlExpression, null);
         }
 
+        /// <summary>
+        ///     Adds given <see cref="EntityProjectionExpression" /> to the projection.
+        /// </summary>
+        /// <param name="entityProjection"> An entity projection to add. </param>
+        /// <returns> A dictionary of <see cref="IProperty" /> to int indicating properties and their corresponding indexes in the projection list. </returns>
+        public IDictionary<IProperty, int> AddToProjection([NotNull] EntityProjectionExpression entityProjection)
+        {
+            Check.NotNull(entityProjection, nameof(entityProjection));
+
+            if (!_entityProjectionCache.TryGetValue(entityProjection, out var dictionary))
+            {
+                dictionary = new Dictionary<IProperty, int>();
+                foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                {
+                    dictionary[property] = AddToProjection(entityProjection.BindProperty(property));
+                }
+
+                if (entityProjection.DiscriminatorExpression != null)
+                {
+                    AddToProjection(entityProjection.DiscriminatorExpression, DiscriminatorColumnAlias);
+                }
+
+                _entityProjectionCache[entityProjection] = dictionary;
+            }
+
+            return dictionary;
+        }
+
         private int AddToProjection(SqlExpression sqlExpression, string? alias)
         {
             var existingIndex = _projection.FindIndex(pe => pe.Expression.Equals(sqlExpression));
@@ -457,34 +483,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _projection.Add(new ProjectionExpression(sqlExpression, baseAlias ?? ""));
 
             return _projection.Count - 1;
-        }
-
-        /// <summary>
-        ///     Adds given <see cref="EntityProjectionExpression" /> to the projection.
-        /// </summary>
-        /// <param name="entityProjection"> An entity projection to add. </param>
-        /// <returns> A dictionary of <see cref="IProperty" /> to int indicating properties and their corresponding indexes in the projection list. </returns>
-        public IDictionary<IProperty, int> AddToProjection([NotNull] EntityProjectionExpression entityProjection)
-        {
-            Check.NotNull(entityProjection, nameof(entityProjection));
-
-            if (!_entityProjectionCache.TryGetValue(entityProjection, out var dictionary))
-            {
-                dictionary = new Dictionary<IProperty, int>();
-                foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                {
-                    dictionary[property] = AddToProjection(entityProjection.BindProperty(property));
-                }
-
-                if (entityProjection.DiscriminatorExpression != null)
-                {
-                    AddToProjection(entityProjection.DiscriminatorExpression, DiscriminatorColumnAlias);
-                }
-
-                _entityProjectionCache[entityProjection] = dictionary;
-            }
-
-            return dictionary;
         }
 
         /// <summary>
@@ -699,6 +697,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         public void ApplyDistinct()
         {
+            if (_pendingCollections.Count > 0)
+            {
+                throw new InvalidOperationException(RelationalStrings.DistinctOnCollectionNotSupported);
+            }
+
             if (Limit != null
                 || Offset != null)
             {
@@ -1040,6 +1043,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private ColumnExpression GenerateOuterColumn(SqlExpression projection, string? alias = null)
         {
             var index = AddToProjection(projection, alias);
+
             return new ColumnExpression(_projection[index], this);
         }
 
@@ -1101,6 +1105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             var identifiers = _identifier.ToList();
             _identifier.Clear();
 
+            var projectionMapValues = projectionMap.Select(p => p.Value);
             foreach (var identifier in identifiers)
             {
                 if (projectionMap.TryGetValue(identifier.Column, out var outerColumn))
@@ -1119,6 +1124,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     // if we can't propagate any identifier - clear them all instead
                     // when adding collection join we detect this and throw appropriate exception
                     _identifier.Clear();
+
+                    if (IsDistinct
+                        && projectionMapValues.All(x => x is ColumnExpression))
+                    {
+                        // for distinct try to use entire projection as identifiers
+                        _identifier.AddRange(projectionMapValues.Select(x => ((ColumnExpression)x, x.TypeMapping!.Comparer)));
+                    }
+                    else if (GroupBy.Count > 0
+                        && GroupBy.All(x => x is ColumnExpression))
+                    {
+                        // for group by try to use grouping key as identifiers
+                        _identifier.AddRange(GroupBy.Select(x => ((ColumnExpression)x, x.TypeMapping!.Comparer)));
+                    }
+
                     break;
                 }
             }
@@ -1210,7 +1229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 // Also lift nested entity projections
                 foreach (var navigation in entityProjection.EntityType
                     .GetAllBaseTypes().Concat(entityProjection.EntityType.GetDerivedTypesInclusive())
-                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                    .SelectMany(t => t.GetDeclaredNavigations()))
                 {
                     var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
                     if (boundEntityShaperExpression != null)
@@ -1409,7 +1428,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var parentIdentifier = GetIdentifierAccessor(identifierFromParent).Item1;
                 innerSelectExpression.ApplyProjection();
 
-                ValidateIdentifyingProjection(innerSelectExpression);
+                RemapIdentifiers(innerSelectExpression);
 
                 for (var i = 0; i < identifierFromParent.Count; i++)
                 {
@@ -1511,7 +1530,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var innerClientEval = innerSelectExpression.Projection.Count > 0;
                 innerSelectExpression.ApplyProjection();
 
-                ValidateIdentifyingProjection(innerSelectExpression);
+                RemapIdentifiers(innerSelectExpression);
 
                 if (collectionIndex == 0)
                 {
@@ -1635,23 +1654,76 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 return result;
             }
 
-            static void ValidateIdentifyingProjection(SelectExpression selectExpression)
+            static void RemapIdentifiers(SelectExpression innerSelectExpression)
             {
-                if (selectExpression.IsDistinct
-                    || selectExpression.GroupBy.Count > 0)
+                if (innerSelectExpression.IsDistinct
+                    || innerSelectExpression.GroupBy.Count > 0)
                 {
-                    var innerSelectProjectionExpressions = selectExpression._projection.Select(p => p.Expression).ToList();
-                    foreach (var innerSelectIdentifier in selectExpression._identifier)
+                    if (!IdentifiersInProjection(innerSelectExpression, out var missingIdentifier))
                     {
-                        if (!innerSelectProjectionExpressions.Contains(innerSelectIdentifier.Column)
-                            && (selectExpression.GroupBy.Count == 0
-                                || !selectExpression.GroupBy.Contains(innerSelectIdentifier.Column)))
+                        // we can safely clear identifiers here - child identifiers will always be empty at this point
+                        // - nested collection scenarios where distinct is applied after projection are blocked
+                        //   since we can't translate them in any meaningful way
+                        // - if distinct is applied before the projection, pushdown happens which guarantees child identifiers to be empty
+                        // - for groupby we only support aggregate scenarios so collection can never happen in the projection
+                        if (innerSelectExpression.IsDistinct)
                         {
-                            throw new InvalidOperationException(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery(
-                                innerSelectIdentifier.Column.Table.Alias + "." + innerSelectIdentifier.Column.Name));
+                            if (innerSelectExpression._projection.All(p => p.Expression is ColumnExpression))
+                            {
+                                innerSelectExpression._identifier.Clear();
+                                foreach (var projection in innerSelectExpression._projection)
+                                {
+                                    innerSelectExpression._identifier.Add(((ColumnExpression)projection.Expression, projection.Expression.TypeMapping!.Comparer));
+                                }
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException(
+                                    RelationalStrings.UnableToTranslateSubqueryWithDistinct(
+                                        missingIdentifier.Table.Alias + "." + missingIdentifier.Name));
+                            }
+                        }
+                        else
+                        {
+                            if (innerSelectExpression.GroupBy.All(g => g is ColumnExpression))
+                            {
+                                innerSelectExpression._identifier.Clear();
+                                foreach (var grouping in innerSelectExpression.GroupBy)
+                                {
+                                    innerSelectExpression._identifier.Add(((ColumnExpression)grouping, grouping.TypeMapping!.Comparer));
+                                }
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException(
+                                    RelationalStrings.UnableToTranslateSubqueryWithGroupBy(
+                                        missingIdentifier.Table.Alias + "." + missingIdentifier.Name));
+                            }
                         }
                     }
                 }
+            }
+
+            static bool IdentifiersInProjection(
+                SelectExpression selectExpression,
+                [CA.NotNullWhen(false)] out ColumnExpression? missingIdentifier)
+            {
+                var innerSelectProjectionExpressions = selectExpression._projection.Select(p => p.Expression).ToList();
+                foreach (var innerSelectIdentifier in selectExpression._identifier)
+                {
+                    if (!innerSelectProjectionExpressions.Contains(innerSelectIdentifier.Column)
+                        && (selectExpression.GroupBy.Count == 0
+                            || !selectExpression.GroupBy.Contains(innerSelectIdentifier.Column)))
+                    {
+                        missingIdentifier = innerSelectIdentifier.Column;
+
+                        return false;
+                    }
+                }
+
+                missingIdentifier = null;
+
+                return true;
             }
         }
 
@@ -1709,12 +1781,78 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     joinPredicate = RemoveRedundantNullChecks(joinPredicate, columnExpressions);
                 }
 
+                // we can't convert apply to join in case of distinct and groupby, if the projection doesn't already contain the join keys
+                // since we can't add the missing keys to the projection - only convert to join if all the keys are already there
+                if (joinPredicate != null
+                    && (selectExpression.IsDistinct
+                    || selectExpression.GroupBy.Count > 0))
+                {
+                    var innerKeyColumns = new List<ColumnExpression>();
+                    InnerKeyColumns(selectExpression.Tables, joinPredicate, innerKeyColumns);
+
+                    // if projection has already been applied we can use it directly
+                    // otherwise we extract future projection columns from projection mapping
+                    // and based on that we determine whether we can convert from APPLY to JOIN
+                    var projectionColumns = selectExpression.Projection.Count > 0
+                        ? selectExpression.Projection.Select(p => p.Expression)
+                        : ExtractColumnsFromProjectionMapping(selectExpression._projectionMapping);
+
+                    foreach (var innerColumn in innerKeyColumns)
+                    {
+                        if (!projectionColumns.Contains(innerColumn))
+                        {
+                            return null;
+                        }
+                    }
+                }
+
                 selectExpression.Predicate = predicate;
 
                 return joinPredicate;
             }
 
             return null;
+
+            static void InnerKeyColumns(IEnumerable<TableExpressionBase> tables, SqlExpression joinPredicate, List<ColumnExpression> resultColumns)
+            {
+                if (joinPredicate is SqlBinaryExpression sqlBinaryExpression)
+                {
+                    InnerKeyColumns(tables, sqlBinaryExpression.Left, resultColumns);
+                    InnerKeyColumns(tables, sqlBinaryExpression.Right, resultColumns);
+                }
+                else if (joinPredicate is ColumnExpression columnExpression
+                    && tables.Contains(columnExpression.Table))
+                {
+                    resultColumns.Add(columnExpression);
+                }
+            }
+
+            static List<ColumnExpression> ExtractColumnsFromProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
+            {
+                var result = new List<ColumnExpression>();
+                foreach (var mappingElement in projectionMapping)
+                {
+                    if (mappingElement.Value is EntityProjectionExpression entityProjection)
+                    {
+                        foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                        {
+                            result.Add(entityProjection.BindProperty(property));
+                        }
+
+                        if (entityProjection.DiscriminatorExpression != null
+                            && entityProjection.DiscriminatorExpression is ColumnExpression discriminatorColumn)
+                        {
+                            result.Add(discriminatorColumn);
+                        }
+                    }
+                    else if (mappingElement.Value is ColumnExpression column)
+                    {
+                        result.Add(column);
+                    }
+                }
+
+                return result;
+            }
         }
 
         private SqlExpression? TryExtractJoinKey(

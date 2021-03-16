@@ -17,8 +17,6 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -920,7 +918,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
                 if (derivedType != null)
                 {
-                    var discriminatorProperty = entityType.GetDiscriminatorProperty();
+                    var discriminatorProperty = entityType.FindDiscriminatorProperty();
                     if (discriminatorProperty == null)
                     {
                         // TPT

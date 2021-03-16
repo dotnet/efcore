@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void LogChangeDetected(InternalEntityEntry entry, IProperty property, object original, object current)
+        private void LogChangeDetected(InternalEntityEntry entry, IProperty property, object? original, object? current)
         {
             if (_loggingOptions.IsSensitiveDataLoggingEnabled)
             {
@@ -312,8 +312,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (navigationBase.IsCollection)
             {
-                var snapshotCollection = (IEnumerable)snapshotValue;
-                var currentCollection = (IEnumerable)currentValue;
+                var snapshotCollection = (IEnumerable?)snapshotValue;
+                var currentCollection = (IEnumerable?)currentValue;
 
                 var removed = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
                 if (snapshotCollection != null)
@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     _logger.ReferenceChangeDetected(entry, navigation, snapshotValue, currentValue);
                 }
-                
+
                 stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
             }
         }

@@ -6,8 +6,6 @@ using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
@@ -176,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (_indentPending && _indent > 0)
             {
-                _stringBuilder.Append(new string(' ', _indent * IndentSize));
+                _stringBuilder.Append(' ', _indent * IndentSize);
             }
 
             _indentPending = false;

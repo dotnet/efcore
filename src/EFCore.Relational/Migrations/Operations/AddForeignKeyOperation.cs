@@ -18,39 +18,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The name of the foreign key constraint.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The table to which the foreign key should be added.
         /// </summary>
-        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Table { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The ordered-list of column names for the columns that make up the foreign key.
         /// </summary>
-        public virtual string[] Columns { get; [param: NotNull] set; }
+        public virtual string[] Columns { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The schema that contains the table to which this foreign key is constrained,
         ///     or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string PrincipalSchema { get; [param: CanBeNull] set; }
+        public virtual string? PrincipalSchema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The table to which the foreign key is constrained.
         /// </summary>
-        public virtual string PrincipalTable { get; [param: NotNull] set; }
+        public virtual string PrincipalTable { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The ordered-list of column names for the columns to which the columns that make up this foreign key are constrained, or
         ///     <see langword="null" /> to constrain to the primary key columns.
         /// </summary>
-        public virtual string[] PrincipalColumns { get; [param: CanBeNull] set; }
+        public virtual string[]? PrincipalColumns { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The <see cref="ReferentialAction" /> to use for updates.

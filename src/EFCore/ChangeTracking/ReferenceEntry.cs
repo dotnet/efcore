@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public class ReferenceEntry : NavigationEntry
     {
-        private IEntityFinder _finder;
+        private IEntityFinder? _finder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 {
                     var context = InternalEntry.StateManager.Context;
                     if (context.ChangeTracker.AutoDetectChangesEnabled
-                        && !((Model)context.Model).SkipDetectChanges)
+                        && !((IRuntimeModel)context.Model).SkipDetectChanges)
                     {
                         context.GetDependencies().ChangeDetector.DetectChanges(target);
                     }
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        private bool AnyFkPropertiesModified(INavigation navigation, object relatedEntity)
+        private bool AnyFkPropertiesModified(INavigation navigation, object? relatedEntity)
         {
             if (relatedEntity == null)
             {
@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="EntityEntry" /> of the entity this navigation targets.
         /// </summary>
         /// <value> An entry for the entity that this navigation targets. </value>
-        public virtual EntityEntry TargetEntry
+        public virtual EntityEntry? TargetEntry
         {
             get
             {
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalEntityEntry GetTargetEntry()
+        protected virtual InternalEntityEntry? GetTargetEntry()
             => CurrentValue == null
                 ? null
                 : InternalEntry.StateManager.GetOrCreateEntry(CurrentValue, Metadata.TargetEntityType);

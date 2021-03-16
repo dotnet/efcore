@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IModel model,
             string contextName,
             string connectionString,
-            string contextNamespace,
-            string modelNamespace,
+            string? contextNamespace,
+            string? modelNamespace,
             bool useDataAnnotations,
             bool suppressConnectionStringWarning,
             bool suppressOnConfiguring)
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var finalContextNamespace = contextNamespace ?? modelNamespace;
 
-            if (finalContextNamespace != modelNamespace)
+            if (finalContextNamespace != modelNamespace && !string.IsNullOrEmpty(modelNamespace))
             {
                 _sb.AppendLine(string.Concat("using ", modelNamespace, ";"));
             }
@@ -88,21 +88,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("#nullable disable");
             _sb.AppendLine();
 
-            _sb.AppendLine($"namespace {finalContextNamespace}");
-            _sb.AppendLine("{");
-
-            using (_sb.Indent())
+            if (!string.IsNullOrEmpty(finalContextNamespace))
             {
-                GenerateClass(
-                    model,
-                    contextName,
-                    connectionString,
-                    useDataAnnotations,
-                    suppressConnectionStringWarning,
-                    suppressOnConfiguring);
+                _sb.AppendLine($"namespace {finalContextNamespace}");
+                _sb.AppendLine("{");
+                _sb.IncrementIndent();
             }
 
-            _sb.AppendLine("}");
+            GenerateClass(
+                model,
+                contextName,
+                connectionString,
+                useDataAnnotations,
+                suppressConnectionStringWarning,
+                suppressOnConfiguring);
+
+            if (!string.IsNullOrEmpty(finalContextNamespace))
+            {
+                _sb.DecrementIndent();
+                _sb.AppendLine("}");
+            }
 
             return _sb.ToString();
         }
@@ -183,12 +188,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateEntityTypeErrors(IModel model)
         {
-            foreach (var entityTypeError in model.GetEntityTypeErrors())
+            var errors = model.GetEntityTypeErrors();
+            foreach (var entityTypeError in errors)
             {
                 _sb.AppendLine($"// {entityTypeError.Value} Please see the warning messages.");
             }
 
-            if (model.GetEntityTypeErrors().Count > 0)
+            if (errors.Count > 0)
             {
                 _sb.AppendLine();
             }
@@ -429,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateKey(IKey key, IEntityType entityType, bool useDataAnnotations)
+        private void GenerateKey(IKey? key, IEntityType entityType, bool useDataAnnotations)
         {
             if (key == null)
             {
@@ -454,11 +460,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (key.Properties.Count == 1
                 && annotations.Count == 0)
             {
-                if (key is Key concreteKey
-                    && key.Properties.SequenceEqual(
+                if (key is IConventionKey conventionKey
+                    && conventionKey.Properties.SequenceEqual(
                         KeyDiscoveryConvention.DiscoverKeyProperties(
-                            concreteKey.DeclaringEntityType,
-                            concreteKey.DeclaringEntityType.GetProperties())))
+                            conventionKey.DeclaringEntityType,
+                            conventionKey.DeclaringEntityType.GetProperties())))
                 {
                     return;
                 }
@@ -475,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (explicitName)
             {
                 lines.Add(
-                    $".{nameof(RelationalKeyBuilderExtensions.HasName)}({_code.Literal(key.GetName())})");
+                    $".{nameof(RelationalKeyBuilderExtensions.HasName)}({_code.Literal(key.GetName()!)})");
             }
 
             lines.AddRange(
@@ -495,10 +501,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var explicitTable = explicitSchema || tableName != null && tableName != entityType.GetDbSetName();
             if (explicitTable)
             {
-                var parameterString = _code.Literal(tableName);
+                var parameterString = _code.Literal(tableName!);
                 if (explicitSchema)
                 {
-                    parameterString += ", " + _code.Literal(schema);
+                    parameterString += ", " + _code.Literal(schema!);
                 }
 
                 var lines = new List<string> { $".{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}({parameterString})" };
@@ -514,10 +520,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (explicitViewTable)
             {
-                var parameterString = _code.Literal(viewName);
+                var parameterString = _code.Literal(viewName!);
                 if (explicitViewSchema)
                 {
-                    parameterString += ", " + _code.Literal(viewSchema);
+                    parameterString += ", " + _code.Literal(viewSchema!);
                 }
 
                 var lines = new List<string> { $".{nameof(RelationalEntityTypeBuilderExtensions.ToView)}({parameterString})" };
@@ -716,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $".{nameof(ReferenceReferenceBuilder.OnDelete)}({_code.Literal(foreignKey.DeleteBehavior)})");
             }
 
-            if (!string.IsNullOrEmpty((string)foreignKey[RelationalAnnotationNames.Name]))
+            if (!string.IsNullOrEmpty((string?)foreignKey[RelationalAnnotationNames.Name]))
             {
                 canUseDataAnnotations = false;
             }

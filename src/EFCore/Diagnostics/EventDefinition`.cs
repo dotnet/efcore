@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class EventDefinition<TParam> : EventDefinitionBase
     {
-        private readonly Action<ILogger, TParam, Exception> _logAction;
+        private readonly Action<ILogger, TParam, Exception?> _logAction;
 
         /// <summary>
         ///     Creates an event definition instance.
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EventId eventId,
             LogLevel level,
             [NotNull] string eventIdCode,
-            [NotNull] Func<LogLevel, Action<ILogger, TParam, Exception>> logActionFunc)
+            [NotNull] Func<LogLevel, Action<ILogger, TParam, Exception?>> logActionFunc)
             : base(loggingOptions, eventId, level, eventIdCode)
         {
             Check.NotNull(logActionFunc, nameof(logActionFunc));

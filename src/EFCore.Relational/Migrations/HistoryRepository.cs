@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         public const string DefaultTableName = "__EFMigrationsHistory";
 
-        private IModel _model;
-        private string _migrationIdColumnName;
-        private string _productVersionColumnName;
+        private IModel? _model;
+        private string? _migrationIdColumnName;
+        private string? _productVersionColumnName;
 
         /// <summary>
         ///     Initializes a new instance of this class.
@@ -80,15 +80,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The schema that contains the history table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        protected virtual string TableSchema { get; }
+        protected virtual string? TableSchema { get; }
 
         /// <summary>
         ///     The name of the column that holds the Migration identifier.
         /// </summary>
         protected virtual string MigrationIdColumnName
             => _migrationIdColumnName ??= EnsureModel()
-                .FindEntityType(typeof(HistoryRow))
-                .FindProperty(nameof(HistoryRow.MigrationId))
+                .FindEntityType(typeof(HistoryRow))!
+                .FindProperty(nameof(HistoryRow.MigrationId))!
                 .GetColumnBaseName();
 
         private IModel EnsureModel()
@@ -120,8 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         protected virtual string ProductVersionColumnName
             => _productVersionColumnName ??= EnsureModel()
-                .FindEntityType(typeof(HistoryRow))
-                .FindProperty(nameof(HistoryRow.ProductVersion))
+                .FindEntityType(typeof(HistoryRow))!
+                .FindProperty(nameof(HistoryRow.ProductVersion))!
                 .GetColumnBaseName();
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Interprets the result of executing <see cref="ExistsSql" />.
         /// </summary>
         /// <returns><see langword="true" /> if the table already exists, <see langword="false" /> otherwise.</returns>
-        protected abstract bool InterpretExistsResult([NotNull] object value);
+        protected abstract bool InterpretExistsResult([CanBeNull] object? value);
 
         /// <summary>
         ///     Overridden by a database provider to generate a SQL script that will create the history table

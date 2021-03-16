@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     /// <summary>
@@ -108,7 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 expressionPrinter.Append("CAST(");
                 expressionPrinter.Visit(Operand);
-                expressionPrinter.Append(")");
                 expressionPrinter.Append(" AS ");
                 expressionPrinter.Append(TypeMapping.StoreType);
                 expressionPrinter.Append(")");

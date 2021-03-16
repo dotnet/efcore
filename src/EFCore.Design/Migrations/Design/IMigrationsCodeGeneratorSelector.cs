@@ -15,6 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="language"> The programming language. </param>
         /// <returns> The <see cref="IMigrationsCodeGenerator" />. </returns>
-        IMigrationsCodeGenerator Select([CanBeNull] string language);
+        IMigrationsCodeGenerator Select([CanBeNull] string? language);
     }
 }

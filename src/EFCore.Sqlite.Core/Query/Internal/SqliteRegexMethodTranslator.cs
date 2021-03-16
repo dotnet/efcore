@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     /// <summary>
@@ -23,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteRegexMethodTranslator : IMethodCallTranslator
     {
-        private readonly static MethodInfo _regexIsMatchMethodInfo
+        private static readonly MethodInfo _regexIsMatchMethodInfo
             = typeof(Regex).GetRequiredRuntimeMethod(nameof(Regex.IsMatch), new Type[] { typeof(string), typeof(string) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;

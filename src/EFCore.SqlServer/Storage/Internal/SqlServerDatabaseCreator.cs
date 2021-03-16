@@ -8,13 +8,12 @@ using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -182,7 +181,8 @@ SELECT 1 ELSE SELECT 0");
                         FileName = builder.AttachDBFilename,
                         Collation = Dependencies.Model.GetCollation()
                     }
-                });
+                },
+                null);
         }
 
         /// <summary>
@@ -389,7 +389,7 @@ SELECT 1 ELSE SELECT 0");
 
             var operations = new MigrationOperation[] { new SqlServerDropDatabaseOperation { Name = databaseName } };
 
-            return Dependencies.MigrationsSqlGenerator.Generate(operations);
+            return Dependencies.MigrationsSqlGenerator.Generate(operations, null);
         }
 
         // Clear connection pools in case there are active connections that are pooled

@@ -21,37 +21,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Correlated_collection_with_Distinct_missing_indentifying_columns_in_projection(bool async)
+        public override async Task Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                async,
-                ss => ss.Set<Gear>()
-                    .OrderBy(g => g.Nickname)
-                    .Select(g => g.Weapons.SelectMany(x => x.Owner.AssignedCity.BornGears)
-                    .Select(x => (bool?)x.HasSoulPatch).Distinct().ToList())))).Message;
+                  () => base.Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async))).Message;
 
-            Assert.Equal(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery("w.Id"), message);
+            Assert.Equal(RelationalStrings.UnableToTranslateSubqueryWithGroupBy("w.Id"), message);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Correlated_collection_with_GroupBy_missing_indentifying_columns_in_projection(bool async)
+        public override async Task Correlated_collection_with_distinct_not_projecting_identifier_column_also_projecting_complex_expressions(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                async,
-                ss => ss.Set<Mission>()
-                    .Select(m => new
-                    {
-                        m.Id,
-                        grouping = m.ParticipatingSquads
-                            .Select(ps => ps.SquadId)
-                            .GroupBy(s => s)
-                            .Select(g => new { g.Key, Count = g.Count() })
-                    })))).Message;
+                  () => base.Correlated_collection_with_distinct_not_projecting_identifier_column_also_projecting_complex_expressions(async))).Message;
 
-            Assert.Equal(RelationalStrings.MissingIdentifyingProjectionInDistinctGroupBySubquery("s.MissionId"), message);
+            Assert.Equal(RelationalStrings.UnableToTranslateSubqueryWithDistinct("w.Id"), message);
         }
 
         public override async Task Client_eval_followed_by_aggregate_operation(bool async)
@@ -138,6 +123,66 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<LocustLeader>().OfType<LocustCommander>().Select(ll => new { ll.Name, Discriminator = EF.Property<string>(ll, "Discriminator") }),
                 elementSorter: e => e.Name);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Projecting_correlated_collection_followed_by_Distinct(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_correlated_collection_followed_by_Distinct(async))).Message;
+
+            Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(async))).Message;
+
+            Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(async))).Message;
+
+            Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(async))).Message;
+
+            Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(async))).Message;
+
+            Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Correlated_collection_with_distinct_3_levels(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Correlated_collection_with_distinct_3_levels(async))).Message;
+
+            Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
         }
 
         protected virtual bool CanExecuteQueryString

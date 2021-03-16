@@ -662,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public IModel GetModel(
                 DbContext context,
-                IModelCreationDependencies modelCreationDependencies)
+                ModelCreationDependencies modelCreationDependencies)
                 => new Model();
         }
 
@@ -2709,6 +2709,9 @@ namespace Microsoft.EntityFrameworkCore
 
             public ParameterBinding Bind(IConventionEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
+
+            public ParameterBinding Bind([NotNull] IReadOnlyEntityType entityType, [NotNull] Type parameterType, [NotNull] string parameterName)
+                => throw new NotImplementedException();
         }
 
         private class CustomParameterBindingFactory2 : IParameterBindingFactory
@@ -2720,6 +2723,9 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
 
             public ParameterBinding Bind(IConventionEntityType entityType, Type parameterType, string parameterName)
+                => throw new NotImplementedException();
+
+            public ParameterBinding Bind([NotNull] IReadOnlyEntityType entityType, [NotNull] Type parameterType, [NotNull] string parameterName)
                 => throw new NotImplementedException();
         }
 
@@ -3676,5 +3682,26 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
         }
+    }
+}
+
+namespace Microsoft.EntityFrameworkCore.DifferentNamespace
+{
+    internal class Category
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public List<Product> Products { get; set; }
+    }
+
+    internal class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
     }
 }

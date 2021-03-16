@@ -9,13 +9,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IKey" /> for relational database metadata.
+    ///     Key extension methods for relational database metadata.
     /// </summary>
     public static class RelationalKeyExtensions
     {
@@ -24,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="key"> The key. </param>
         /// <returns> The key constraint name for this key. </returns>
-        public static string? GetName([NotNull] this IKey key)
+        public static string? GetName([NotNull] this IReadOnlyKey key)
             => key.GetName(StoreObjectIdentifier.Table(key.DeclaringEntityType.GetTableName()!, key.DeclaringEntityType.GetSchema()));
 
         /// <summary>
@@ -33,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The key constraint name for this key. </returns>
-        public static string? GetName([NotNull] this IKey key, in StoreObjectIdentifier storeObject)
+        public static string? GetName([NotNull] this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
             => (string?)key[RelationalAnnotationNames.Name]
                 ?? key.GetDefaultName(storeObject);
 
@@ -42,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="key"> The key. </param>
         /// <returns> The default key constraint name that would be used for this key. </returns>
-        public static string GetDefaultName([NotNull] this IKey key)
+        public static string GetDefaultName([NotNull] this IReadOnlyKey key)
         {
             var tableName = key.DeclaringEntityType.GetTableName();
             var name = key.IsPrimaryKey()
@@ -63,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The default key constraint name that would be used for this key. </returns>
-        public static string? GetDefaultName([NotNull] this IKey key, in StoreObjectIdentifier storeObject)
+        public static string? GetDefaultName([NotNull] this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
         {
             string? name;
             if (key.IsPrimaryKey())
@@ -105,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Using a hashset is detrimental to the perf when there are no cycles
                 for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
                 {
-                    IKey? linkedKey = null;
+                    IReadOnlyKey? linkedKey = null;
                     foreach (var otherKey in rootKey.DeclaringEntityType
                         .FindRowInternalForeignKeys(storeObject)
                         .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
@@ -184,7 +182,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <returns> The unique constraints to which the key is mapped. </returns>
         public static IEnumerable<IUniqueConstraint> GetMappedConstraints([NotNull] this IKey key)
-            => (IEnumerable<IUniqueConstraint>?)key.FindRuntimeAnnotationValue(RelationalAnnotationNames.UniqueConstraintMappings)
+            => (IEnumerable<IUniqueConstraint>?)key.FindRuntimeAnnotationValue(
+                RelationalAnnotationNames.UniqueConstraintMappings)
                 ?? Enumerable.Empty<IUniqueConstraint>();
 
         /// <summary>
@@ -199,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <param name="storeObject"> The identifier of the containing store object. </param>
         /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
-        public static IKey? FindSharedObjectRootKey([NotNull] this IKey key, in StoreObjectIdentifier storeObject)
+        public static IReadOnlyKey? FindSharedObjectRootKey([NotNull] this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
         {
             Check.NotNull(key, nameof(key));
 
@@ -210,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore
             // Using a hashset is detrimental to the perf when there are no cycles
             for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
             {
-                IKey? linkedKey = null;
+                IReadOnlyKey? linkedKey = null;
                 foreach (var otherKey in rootKey.DeclaringEntityType
                     .FindRowInternalForeignKeys(storeObject)
                     .SelectMany(fk => fk.PrincipalEntityType.GetKeys()))
@@ -248,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IMutableKey? FindSharedObjectRootKey(
             [NotNull] this IMutableKey key,
             in StoreObjectIdentifier storeObject)
-            => (IMutableKey?)((IKey)key).FindSharedObjectRootKey(storeObject);
+            => (IMutableKey?)((IReadOnlyKey)key).FindSharedObjectRootKey(storeObject);
 
         /// <summary>
         ///     <para>
@@ -265,6 +264,23 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionKey? FindSharedObjectRootKey(
             [NotNull] this IConventionKey key,
             in StoreObjectIdentifier storeObject)
-            => (IConventionKey?)((IKey)key).FindSharedObjectRootKey(storeObject);
+            => (IConventionKey?)((IReadOnlyKey)key).FindSharedObjectRootKey(storeObject);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the first <see cref="IConventionKey" /> that is mapped to the same constraint in a shared table-like object.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="key"> The key. </param>
+        /// <param name="storeObject"> The identifier of the containing store object. </param>
+        /// <returns> The key found, or <see langword="null" /> if none was found.</returns>
+        public static IKey? FindSharedObjectRootKey(
+            [NotNull] this IKey key,
+            in StoreObjectIdentifier storeObject)
+            => (IKey?)((IReadOnlyKey)key).FindSharedObjectRootKey(storeObject);
     }
 }

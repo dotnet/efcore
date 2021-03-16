@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         comparer.ExtractSnapshotBody(
                             Expression.Convert(newSnapshotParam, type)),
                         nullableType),
-                    newSnapshotParam));
+                    newSnapshotParam))!;
         }
 
         private sealed class NonNullNullableValueComparer<T> : ValueComparer<T>
@@ -59,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 LambdaExpression hashCodeExpression,
                 LambdaExpression snapshotExpression)
                 : base(
-                    (Expression<Func<T, T, bool>>)equalsExpression,
+                    (Expression<Func<T?, T?, bool>>)equalsExpression,
                     (Expression<Func<T, int>>)hashCodeExpression,
-                    (Expression<Func<T, T>>)snapshotExpression)
+                    (Expression<Func<T?, T?>>)snapshotExpression)
             {
             }
         }

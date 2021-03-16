@@ -172,7 +172,7 @@
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.</value>
   </data>
   <data name="IndexTableRequired" xml:space="preserve">
-    <value>SQL Server requires the table name to be specified for rename index operations. Specify table name in the call to 'MigrationBuilder.RenameIndex'.</value>
+    <value>SQL Server requires the table name to be specified for index operations. Specify table name in calls to 'MigrationBuilder.RenameIndex' and 'DropIndex'.</value>
   </data>
   <data name="InvalidColumnNameForFreeText" xml:space="preserve">
     <value>The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression must represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'</value>
@@ -234,11 +234,11 @@
   </data>
   <data name="LogMissingSchema" xml:space="preserve">
     <value>Unable to find a schema in the database matching the selected schema '{schema}'.</value>
-    <comment>Warning SqlServerEventId.MissingSchemaWarning string</comment>
+    <comment>Warning SqlServerEventId.MissingSchemaWarning string?</comment>
   </data>
   <data name="LogMissingTable" xml:space="preserve">
     <value>Unable to find a table in the database matching the selected table '{table}'.</value>
-    <comment>Warning SqlServerEventId.MissingTableWarning string</comment>
+    <comment>Warning SqlServerEventId.MissingTableWarning string?</comment>
   </data>
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.</value>
@@ -246,14 +246,14 @@
   </data>
   <data name="LogPrincipalTableNotInSelectionSet" xml:space="preserve">
     <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.</value>
-    <comment>Warning SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning string string string</comment>
+    <comment>Warning SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning string? string? string?</comment>
   </data>
   <data name="LogReflexiveConstraintIgnored" xml:space="preserve">
     <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.</value>
     <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
   </data>
   <data name="LogSavepointsDisabledBecauseOfMARS" xml:space="preserve">
-    <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(RelationalEventId.SavepointsDisabledBecauseOfMARS))'.</value>
+    <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.</value>
     <comment>Warning SqlServerEventId.SavepointsDisabledBecauseOfMARS</comment>
   </data>
   <data name="MultipleIdentityColumns" xml:space="preserve">

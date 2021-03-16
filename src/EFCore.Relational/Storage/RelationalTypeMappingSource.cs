@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 #pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -200,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping? FindMapping(IProperty property)
         {
-            var principals = property.FindPrincipals();
+            var principals = property.GetPrincipals();
 
             string? storeTypeName = null;
             bool? isFixedLength = null;

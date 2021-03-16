@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private static INavigationBase GetNavigation(InternalEntityEntry internalEntry, string name, bool collection)
         {
-            var navigation = (INavigationBase)internalEntry.EntityType.FindNavigation(name)
+            var navigation = (INavigationBase?)internalEntry.EntityType.FindNavigation(name)
                 ?? internalEntry.EntityType.FindSkipNavigation(name);
 
             if (navigation == null)

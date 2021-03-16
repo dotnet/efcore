@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
+using CA = System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -49,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, out TKey key)
+        public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [CA.NotNullWhen(true)] out TKey? key)
         {
-            var value = _propertyAccessors.ValueBufferGetter(valueBuffer);
+            var value = _propertyAccessors.ValueBufferGetter!(valueBuffer);
             if (value == null)
             {
                 key = default;
@@ -68,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, out TKey key)
+        public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, [CA.NotNullWhen(true)] out TKey? key)
         {
-            key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.CurrentValueGetter)(entry);
+            key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.CurrentValueGetter)(entry)!;
             return true;
         }
 
@@ -80,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, out TKey key)
+        public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [CA.NotNullWhen(true)] out TKey? key)
         {
-            key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry);
+            key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry)!;
             return true;
         }
 
@@ -92,9 +94,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, out TKey key)
+        public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, [CA.NotNullWhen(true)] out TKey? key)
         {
-            key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.OriginalValueGetter)(entry);
+            key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.OriginalValueGetter!)(entry)!;
             return true;
         }
 
@@ -104,9 +106,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, out TKey key)
+        public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [CA.NotNullWhen(true)] out TKey? key)
         {
-            key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.RelationshipSnapshotGetter)(entry);
+            key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.RelationshipSnapshotGetter)(entry)!;
             return true;
         }
     }

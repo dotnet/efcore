@@ -93,11 +93,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
 
             if (annotation.Name == RelationalAnnotationNames.DefaultSchema)
             {
-                return (string)annotation.Value == "dbo";
+                return (string?)annotation.Value == "dbo";
             }
 
             return annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy
-                && (SqlServerValueGenerationStrategy)annotation.Value == SqlServerValueGenerationStrategy.IdentityColumn;
+                && (SqlServerValueGenerationStrategy)annotation.Value! == SqlServerValueGenerationStrategy.IdentityColumn;
         }
 
         /// <summary>
@@ -106,9 +106,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override MethodCallCodeFragment GenerateFluentApi(IKey key, IAnnotation annotation)
+        protected override MethodCallCodeFragment? GenerateFluentApi(IKey key, IAnnotation annotation)
             => annotation.Name == SqlServerAnnotationNames.Clustered
-                ? (bool)annotation.Value == false
+                ? (bool)annotation.Value! == false
                     ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered), false)
                     : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered))
                 : null;
@@ -119,10 +119,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override MethodCallCodeFragment GenerateFluentApi(IIndex index, IAnnotation annotation)
+        protected override MethodCallCodeFragment? GenerateFluentApi(IIndex index, IAnnotation annotation)
             => annotation.Name switch
             {
-                SqlServerAnnotationNames.Clustered => (bool)annotation.Value == false
+                SqlServerAnnotationNames.Clustered => (bool)annotation.Value! == false
                     ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered), false)
                     : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered)),
 
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                 _ => null
             };
 
-        private MethodCallCodeFragment GenerateValueGenerationStrategy(
+        private MethodCallCodeFragment? GenerateValueGenerationStrategy(
             IDictionary<string, IAnnotation> annotations,
             bool onModel)
         {
@@ -175,8 +175,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                         (name, schema) switch
                         {
                             (null, null) => Array.Empty<object>(),
-                            (_, null) => new object[] { name },
-                            _ => new object[] { name, schema }
+                            (_, null) => new object[] { name! },
+                            _ => new object[] { name!, schema! }
                         });
 
                 case SqlServerValueGenerationStrategy.None:
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             }
         }
 
-        private static T GetAndRemove<T>(IDictionary<string, IAnnotation> annotations, string annotationName)
+        private static T? GetAndRemove<T>(IDictionary<string, IAnnotation> annotations, string annotationName)
         {
             if (annotations.TryGetValue(annotationName, out var annotation)
                 && annotation.Value != null)

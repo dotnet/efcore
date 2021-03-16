@@ -13,8 +13,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -99,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && fkPropertyOnPrincipal != null)
             {
                 Dependencies.Logger.ForeignKeyAttributesOnBothPropertiesWarning(
-                    foreignKey.PrincipalToDependent,
-                    foreignKey.DependentToPrincipal,
+                    foreignKey.PrincipalToDependent!,
+                    foreignKey.DependentToPrincipal!,
                     fkPropertyOnPrincipal,
                     fkPropertyOnDependent);
 
@@ -125,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && fkPropertiesOnPrincipalToDependent != null)
             {
                 Dependencies.Logger.ForeignKeyAttributesOnBothNavigationsWarning(
-                    relationshipBuilder.Metadata.DependentToPrincipal, relationshipBuilder.Metadata.PrincipalToDependent);
+                    relationshipBuilder.Metadata.DependentToPrincipal!, relationshipBuilder.Metadata.PrincipalToDependent!);
 
                 var newBuilder = SplitNavigationsToSeparateRelationships(relationshipBuilder);
                 if (newBuilder is null)
@@ -167,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
 
                     shouldInvert = true;
-                    fkPropertiesToSet = new List<string> { fkPropertyOnPrincipal.GetSimpleMemberName() };
+                    fkPropertiesToSet = new List<string> { fkPropertyOnPrincipal!.GetSimpleMemberName() };
                     upgradePrincipalToDependentNavigationSource = true;
                 }
             }
@@ -188,13 +186,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     var fkProperty = fkPropertyOnDependent ?? fkPropertyOnPrincipal;
                     if (fkPropertiesOnNavigation.Count != 1
-                        || !Equals(fkPropertiesOnNavigation.First(), fkProperty.GetSimpleMemberName()))
+                        || !Equals(fkPropertiesOnNavigation.First(), fkProperty!.GetSimpleMemberName()))
                     {
                         Dependencies.Logger.ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(
                             fkPropertiesOnDependentToPrincipal != null
-                                ? relationshipBuilder.Metadata.DependentToPrincipal
-                                : relationshipBuilder.Metadata.PrincipalToDependent,
-                            fkProperty);
+                                ? relationshipBuilder.Metadata.DependentToPrincipal!
+                                : relationshipBuilder.Metadata.PrincipalToDependent!,
+                            fkProperty!);
 
                         var newBuilder = SplitNavigationsToSeparateRelationships(relationshipBuilder);
                         if (newBuilder is null)
@@ -207,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         upgradePrincipalToDependentNavigationSource = false;
 
                         fkPropertiesToSet = fkPropertiesOnDependentToPrincipal
-                            ?? new List<string> { fkPropertyOnDependent.GetSimpleMemberName() };
+                            ?? new List<string> { fkPropertyOnDependent!.GetSimpleMemberName() };
                     }
 
                     if (fkPropertyOnDependent != null)

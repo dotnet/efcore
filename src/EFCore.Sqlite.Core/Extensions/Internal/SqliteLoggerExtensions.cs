@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void SequenceConfiguredWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] ISequence sequence)
+            [NotNull] IReadOnlySequence sequence)
         {
             var definition = SqliteResources.LogSequenceConfigured(diagnostics);
 
@@ -100,11 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void ColumnFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string tableName,
-            [CanBeNull] string columnName,
-            [CanBeNull] string dataTypeName,
+            [CanBeNull] string? tableName,
+            [CanBeNull] string? columnName,
+            [CanBeNull] string? dataTypeName,
             bool notNull,
-            [CanBeNull] string defaultValue)
+            [CanBeNull] string? defaultValue)
         {
             var definition = SqliteResources.LogFoundColumn(diagnostics);
 
@@ -143,9 +143,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void ForeignKeyReferencesMissingTableWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string id,
-            [CanBeNull] string tableName,
-            [CanBeNull] string principalTableName)
+            [CanBeNull] string? id,
+            [CanBeNull] string? tableName,
+            [CanBeNull] string? principalTableName)
         {
             var definition = SqliteResources.LogForeignKeyScaffoldErrorPrincipalTableNotFound(diagnostics);
 
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void TableFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string tableName)
+            [CanBeNull] string? tableName)
         {
             var definition = SqliteResources.LogFoundTable(diagnostics);
 
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void MissingTableWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string tableName)
+            [CanBeNull] string? tableName)
         {
             var definition = SqliteResources.LogMissingTable(diagnostics);
 
@@ -205,10 +205,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void ForeignKeyPrincipalColumnMissingWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string foreignKeyName,
-            [CanBeNull] string tableName,
-            [CanBeNull] string principalColumnName,
-            [CanBeNull] string principalTableName)
+            [CanBeNull] string? foreignKeyName,
+            [CanBeNull] string? tableName,
+            [CanBeNull] string? principalColumnName,
+            [CanBeNull] string? principalTableName)
         {
             var definition = SqliteResources.LogPrincipalColumnNotFound(diagnostics);
 
@@ -228,8 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void IndexFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string indexName,
-            [CanBeNull] string tableName,
+            [CanBeNull] string? indexName,
+            [CanBeNull] string? tableName,
             bool? unique)
         {
             var definition = SqliteResources.LogFoundIndex(diagnostics);
@@ -250,10 +250,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void ForeignKeyFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string tableName,
+            [CanBeNull] string? tableName,
             long id,
-            [CanBeNull] string principalTableName,
-            [CanBeNull] string deleteAction)
+            [CanBeNull] string? principalTableName,
+            [CanBeNull] string? deleteAction)
         {
             var definition = SqliteResources.LogFoundForeignKey(diagnostics);
 
@@ -273,8 +273,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void PrimaryKeyFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string primaryKeyName,
-            [CanBeNull] string tableName)
+            [CanBeNull] string? primaryKeyName,
+            [CanBeNull] string? tableName)
         {
             var definition = SqliteResources.LogFoundPrimaryKey(diagnostics);
 
@@ -294,8 +294,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// </summary>
         public static void UniqueConstraintFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string uniqueConstraintName,
-            [CanBeNull] string tableName)
+            [CanBeNull] string? uniqueConstraintName,
+            [CanBeNull] string? tableName)
         {
             var definition = SqliteResources.LogFoundUniqueConstraint(diagnostics);
 
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 
         private static string TableRebuildPendingWarning(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string>)definition;
+            var d = (EventDefinition<string, string?>)definition;
             var p = (TableRebuildEventData)payload;
             return d.GenerateMessage(p.OperationType.ShortDisplayName(), p.TableName);
         }

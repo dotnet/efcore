@@ -15,8 +15,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <inheritdoc />
@@ -910,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private bool AddDiscriminatorCondition(SelectExpression selectExpression, IEntityType entityType)
         {
-            var discriminatorProperty = entityType.GetDiscriminatorProperty();
+            var discriminatorProperty = entityType.FindDiscriminatorProperty();
             if (discriminatorProperty == null
                 || (entityType.GetRootType().GetIsDiscriminatorMappingComplete()
                     && entityType.GetAllBaseTypesInclusiveAscending()

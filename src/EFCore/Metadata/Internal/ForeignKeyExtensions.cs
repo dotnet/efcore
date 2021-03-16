@@ -3,12 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -26,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsSelfReferencing([NotNull] this IForeignKey foreignKey)
+        public static bool IsSelfReferencing([NotNull] this IReadOnlyForeignKey foreignKey)
             => foreignKey.DeclaringEntityType == foreignKey.PrincipalEntityType;
 
         /// <summary>
@@ -35,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<INavigation> GetNavigations([NotNull] this IForeignKey foreignKey)
+        public static IEnumerable<IReadOnlyNavigation> GetNavigations([NotNull] this IReadOnlyForeignKey foreignKey)
         {
             if (foreignKey.PrincipalToDependent != null)
             {
@@ -54,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<INavigation> FindNavigationsFrom(
-            [NotNull] this IForeignKey foreignKey,
-            [NotNull] IEntityType entityType)
+        public static IEnumerable<IReadOnlyNavigation> FindNavigationsFrom(
+            [NotNull] this IReadOnlyForeignKey foreignKey,
+            [NotNull] IReadOnlyEntityType entityType)
         {
             if (foreignKey.DeclaringEntityType != entityType
                 && foreignKey.PrincipalEntityType != entityType)
@@ -79,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<INavigation> FindNavigationsFromInHierarchy(
-            [NotNull] this IForeignKey foreignKey,
-            [NotNull] IEntityType entityType)
+        public static IEnumerable<IReadOnlyNavigation> FindNavigationsFromInHierarchy(
+            [NotNull] this IReadOnlyForeignKey foreignKey,
+            [NotNull] IReadOnlyEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
@@ -105,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<INavigation> FindNavigationsTo([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        public static IEnumerable<IReadOnlyNavigation> FindNavigationsTo(
+            [NotNull] this IReadOnlyForeignKey foreignKey, [NotNull] IReadOnlyEntityType entityType)
         {
             if (foreignKey.DeclaringEntityType != entityType
                 && foreignKey.PrincipalEntityType != entityType)
@@ -128,9 +125,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<INavigation> FindNavigationsToInHierarchy(
-            [NotNull] this IForeignKey foreignKey,
-            [NotNull] IEntityType entityType)
+        public static IEnumerable<IReadOnlyNavigation> FindNavigationsToInHierarchy(
+            [NotNull] this IReadOnlyForeignKey foreignKey,
+            [NotNull] IReadOnlyEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
@@ -147,8 +144,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : foreignKey.FindNavigations(foreignKey.PrincipalEntityType.IsAssignableFrom(entityType));
         }
 
-        private static IEnumerable<INavigation> FindNavigations(
-            this IForeignKey foreignKey,
+        private static IEnumerable<IReadOnlyNavigation> FindNavigations(
+            this IReadOnlyForeignKey foreignKey,
             bool toPrincipal)
         {
             if (toPrincipal)
@@ -174,9 +171,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [Obsolete]
-        public static IEntityType ResolveOtherEntityTypeInHierarchy(
-            [NotNull] this IForeignKey foreignKey,
-            [NotNull] IEntityType entityType)
+        public static IReadOnlyEntityType ResolveOtherEntityTypeInHierarchy(
+            [NotNull] this IReadOnlyForeignKey foreignKey,
+            [NotNull] IReadOnlyEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
@@ -211,7 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [Obsolete]
-        public static IEntityType ResolveEntityTypeInHierarchy([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        public static IReadOnlyEntityType ResolveEntityTypeInHierarchy(
+            [NotNull] this IReadOnlyForeignKey foreignKey, [NotNull] IReadOnlyEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
@@ -237,23 +235,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? foreignKey.DeclaringEntityType
                 : foreignKey.PrincipalEntityType;
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static IDependentsMap CreateDependentsMapFactory([NotNull] this IForeignKey foreignKey)
-            => foreignKey.AsForeignKey().DependentsMapFactory();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static ForeignKey AsForeignKey([NotNull] this IForeignKey foreignKey, [NotNull] [CallerMemberName] string methodName = "")
-            => MetadataExtensions.AsConcreteMetadataType<IForeignKey, ForeignKey>(foreignKey, methodName);
     }
 }

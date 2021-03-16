@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         internal sealed class MessageExtractingLogger : ILogger
         {
-            private string _message;
+            private string? _message;
 
             public string Message
             {
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 LogLevel logLevel,
                 EventId eventId,
                 [CanBeNull] TState state,
-                Exception exception,
-                Func<TState, Exception, string> formatter)
+                Exception? exception,
+                Func<TState, Exception?, string> formatter)
             {
                 Message = formatter(state, exception);
             }

@@ -579,8 +579,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasValue(typeof(SpecialCustomer), "2");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-            Assert.Equal("Name", entityType.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), entityType.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Name", entityType.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), entityType.FindDiscriminatorProperty().ClrType);
             Assert.Equal("1", entityType.GetDiscriminatorValue());
             Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
         }
@@ -602,8 +602,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasValue("2");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-            Assert.Equal("Name", entityType.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), entityType.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Name", entityType.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), entityType.FindDiscriminatorProperty().ClrType);
             Assert.Equal("1", entityType.GetDiscriminatorValue());
             Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
         }
@@ -620,8 +620,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasValue(typeof(SpecialCustomer), "2");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-            Assert.Equal("Name", entityType.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), entityType.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Name", entityType.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), entityType.FindDiscriminatorProperty().ClrType);
             Assert.Equal("1", entityType.GetDiscriminatorValue());
             Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
         }
@@ -643,8 +643,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasValue("2");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-            Assert.Equal("Name", entityType.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), entityType.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Name", entityType.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), entityType.FindDiscriminatorProperty().ClrType);
             Assert.Equal("1", entityType.GetDiscriminatorValue());
             Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
         }
@@ -661,8 +661,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasValue(typeof(SpecialCustomer), "2");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-            Assert.Equal("Name", entityType.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), entityType.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Name", entityType.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), entityType.FindDiscriminatorProperty().ClrType);
             Assert.Equal("1", entityType.GetDiscriminatorValue());
             Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
         }
@@ -684,8 +684,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasValue(typeof(SpecialCustomer), "2");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-            Assert.Equal("Name", entityType.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), entityType.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Name", entityType.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), entityType.FindDiscriminatorProperty().ClrType);
             Assert.Equal("1", entityType.GetDiscriminatorValue());
             Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
         }
@@ -702,8 +702,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasValue(typeof(SpecialCustomer).FullName, "2");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-            Assert.Equal("Name", entityType.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), entityType.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Name", entityType.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), entityType.FindDiscriminatorProperty().ClrType);
             Assert.Equal("1", entityType.GetDiscriminatorValue());
             Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
         }
@@ -720,8 +720,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasValue(typeof(SpecialCustomer), "2");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-            Assert.Equal("Discriminator", entityType.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), entityType.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Discriminator", entityType.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), entityType.FindDiscriminatorProperty().ClrType);
             Assert.Equal("1", entityType.GetDiscriminatorValue());
             Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
         }
@@ -742,8 +742,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasValue("2");
 
             var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-            Assert.Equal("Discriminator", entityType.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), entityType.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Discriminator", entityType.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), entityType.FindDiscriminatorProperty().ClrType);
             Assert.Equal("1", entityType.GetDiscriminatorValue());
             Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).GetDiscriminatorValue());
         }
@@ -841,7 +841,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateNamedSequence(sequence);
         }
 
-        private static void ValidateNamedSequence(ISequence sequence)
+        private static void ValidateNamedSequence(IReadOnlySequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -864,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateSchemaNamedSequence(sequence);
         }
 
-        private static void ValidateSchemaNamedSequence(ISequence sequence)
+        private static void ValidateSchemaNamedSequence(IReadOnlySequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);
@@ -949,7 +949,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValidateNamedSpecificSequence(sequence);
         }
 
-        private static void ValidateNamedSpecificSequence(ISequence sequence)
+        private static void ValidateNamedSpecificSequence(IReadOnlySequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
@@ -1224,7 +1224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected virtual ModelBuilder CreateConventionModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
-        private static void ValidateSchemaNamedSpecificSequence(ISequence sequence)
+        private static void ValidateSchemaNamedSpecificSequence(IReadOnlySequence sequence)
         {
             Assert.Equal("Snook", sequence.Name);
             Assert.Equal("Tasty", sequence.Schema);

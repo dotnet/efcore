@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -20,6 +18,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private string? _columnName;
 
         private ConfigurationSource? _columnNameConfigurationSource;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public RelationalPropertyOverrides([NotNull] IReadOnlyProperty property)
+        {
+            Property = property;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IReadOnlyProperty Property { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override bool IsReadOnly => ((Annotatable)Property).IsReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,6 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string? SetColumnName([CanBeNull] string? columnName, ConfigurationSource configurationSource)
         {
+            EnsureMutable();
+
             _columnName = columnName;
             _columnNameConfigurationSource = configurationSource.Max(_columnNameConfigurationSource);
 
@@ -63,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static RelationalPropertyOverrides? Find([NotNull] IProperty property, in StoreObjectIdentifier storeObject)
+        public static RelationalPropertyOverrides? Find([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>?)
                 property[RelationalAnnotationNames.RelationalOverrides];
@@ -93,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (!tableOverrides.TryGetValue(storeObject, out var overrides))
             {
-                overrides = new RelationalPropertyOverrides();
+                overrides = new RelationalPropertyOverrides(property);
                 tableOverrides.Add(storeObject, overrides);
             }
 

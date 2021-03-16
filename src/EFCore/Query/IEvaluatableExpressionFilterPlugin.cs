@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>

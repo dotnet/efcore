@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
     /// </summary>
     public class SqlServerOptionsExtension : RelationalOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
 
         private sealed class ExtensionInfo : RelationalExtensionInfo
         {
-            private string _logFragment;
+            private string? _logFragment;
 
             public ExtensionInfo(IDbContextOptionsExtension extension)
                 : base(extension)

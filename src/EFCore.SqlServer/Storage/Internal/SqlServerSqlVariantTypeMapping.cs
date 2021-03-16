@@ -4,8 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
     /// <summary>
@@ -24,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public SqlServerSqlVariantTypeMapping(
             [NotNull] string storeType)
-            : base(storeType, typeof(object))
+            : base(storeType, typeof(object), System.Data.DbType.Object)
         {
         }
 

@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -84,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual InternalModelBuilder ModelBuilder
-            => LeftEntityType.AsEntityType().Model.Builder;
+            => ((EntityType)LeftEntityType).Model.Builder;
 
         /// <summary>
         ///     Configures the join entity type implementing the many-to-many relationship.

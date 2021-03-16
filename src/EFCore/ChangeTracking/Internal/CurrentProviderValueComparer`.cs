@@ -43,9 +43,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(IUpdateEntry x, IUpdateEntry y)
-            => _underlyingComparer.Compare(
+        public virtual int Compare(IUpdateEntry? x, IUpdateEntry? y)
+        {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
+            return _underlyingComparer.Compare(
                 _converter(x.GetCurrentValue<TModel>(_property)),
                 _converter(y.GetCurrentValue<TModel>(_property)));
+        }
     }
 }

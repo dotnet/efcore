@@ -1227,6 +1227,9 @@ namespace Microsoft.Data.Sqlite
                 using (var reader = connection.ExecuteReader("SELECT 1 AS Id;"))
                 {
                     Assert.Equal("Id", reader.GetName(0));
+
+                    // NB: Repeated to use caching
+                    Assert.Equal("Id", reader.GetName(0));
                 }
             }
         }
@@ -1265,6 +1268,9 @@ namespace Microsoft.Data.Sqlite
 
                 using (var reader = connection.ExecuteReader("SELECT 1 AS Id;"))
                 {
+                    Assert.Equal(0, reader.GetOrdinal("Id"));
+
+                    // NB: Repeated to use caching
                     Assert.Equal(0, reader.GetOrdinal("Id"));
                 }
             }

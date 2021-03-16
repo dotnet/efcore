@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
@@ -50,17 +48,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             if (configurationSource == ConfigurationSource.Explicit)
             {
-                EntityTypeBuilder.Metadata.SetDiscriminatorMappingComplete(complete);
+                ((IMutableEntityType)EntityTypeBuilder.Metadata).SetDiscriminatorMappingComplete(complete);
             }
             else
             {
-                if (!EntityTypeBuilder.CanSetAnnotation(
-                    CoreAnnotationNames.DiscriminatorMappingComplete, complete, configurationSource))
+                if (!((IConventionEntityTypeBuilder)EntityTypeBuilder).CanSetAnnotation(
+                    CoreAnnotationNames.DiscriminatorMappingComplete, complete,
+                    configurationSource == ConfigurationSource.DataAnnotation))
                 {
                     return null;
                 }
 
-                EntityTypeBuilder.Metadata.SetDiscriminatorMappingComplete(
+                ((IConventionEntityType)EntityTypeBuilder.Metadata).SetDiscriminatorMappingComplete(
                     complete, configurationSource == ConfigurationSource.DataAnnotation);
             }
 
@@ -135,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             if (configurationSource == ConfigurationSource.Explicit)
             {
-                entityTypeBuilder.Metadata.SetDiscriminatorValue(value);
+                ((IMutableEntityType)entityTypeBuilder.Metadata).SetDiscriminatorValue(value);
             }
             else
             {
@@ -144,7 +143,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     return null;
                 }
 
-                entityTypeBuilder.Metadata.SetDiscriminatorValue(value, configurationSource == ConfigurationSource.DataAnnotation);
+                ((IConventionEntityType)entityTypeBuilder.Metadata)
+                    .SetDiscriminatorValue(value, configurationSource == ConfigurationSource.DataAnnotation);
             }
 
             return this;
@@ -181,9 +181,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionDiscriminatorBuilder.CanSetValue(IConventionEntityType entityType, object? value, bool fromDataAnnotation)
         {
-            var baseEntityTypeBuilder = EntityTypeBuilder;
-            if (!baseEntityTypeBuilder.Metadata.IsAssignableFrom(entityType)
-                && !entityType.Builder.CanSetBaseType(baseEntityTypeBuilder.Metadata, fromDataAnnotation))
+            IConventionEntityType baseEntityType = EntityTypeBuilder.Metadata;
+            if (!baseEntityType.IsAssignableFrom(entityType)
+                && !entityType.Builder.CanSetBaseType(baseEntityType, fromDataAnnotation))
             {
                 return false;
             }

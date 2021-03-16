@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The <see cref="AddPrimaryKeyOperation" /> representing the creation of the primary key for the table.
         /// </summary>
-        public virtual AddPrimaryKeyOperation PrimaryKey { get; [param: CanBeNull] set; }
+        public virtual AddPrimaryKeyOperation? PrimaryKey { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     An ordered list of <see cref="AddColumnOperation" /> for adding columns to the table.

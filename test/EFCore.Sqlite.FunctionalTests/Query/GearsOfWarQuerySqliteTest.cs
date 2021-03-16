@@ -136,6 +136,60 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Correlated_collection_with_inner_collection_references_element_two_levels_up(async))).Message);
 
+        public override async Task Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async))).Message);
+
+        public override async Task Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(async))).Message);
+
+        public override async Task Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(async))).Message);
+
+        public override async Task Correlated_collection_with_distinct_projecting_identifier_column(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_with_distinct_projecting_identifier_column(async))).Message);
+
+        public override async Task Correlated_collection_with_distinct_not_projecting_identifier_column(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_with_distinct_not_projecting_identifier_column(async))).Message);
+
+        public override async Task Correlated_collection_via_SelectMany_with_Distinct_missing_indentifying_columns_in_projection(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_via_SelectMany_with_Distinct_missing_indentifying_columns_in_projection(async))).Message);
+
+        public override async Task Correlated_collection_after_distinct_3_levels_without_original_identifiers(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_after_distinct_3_levels_without_original_identifiers(async))).Message);
+
+        public override async Task Correlated_collection_after_distinct_3_levels(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_after_distinct_3_levels(async))).Message);
+
+        public override async Task Correlated_collections_with_Distinct(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collections_with_Distinct(async))).Message);
+
         public override async Task Negate_on_binary_expression(bool async)
         {
             await base.Negate_on_binary_expression(async);

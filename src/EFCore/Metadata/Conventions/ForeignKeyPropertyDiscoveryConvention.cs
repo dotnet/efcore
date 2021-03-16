@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -713,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (key.Properties.All(p => foreignKey.Properties.Contains(p))
                     && (!foreignKey.IsUnique || foreignKey.DeclaringEntityType.BaseType != null))
                 {
-                    foreignKey.Builder.HasForeignKey((IReadOnlyList<Property>?)null);
+                    foreignKey.Builder.HasForeignKey((IReadOnlyList<IConventionProperty>?)null);
                 }
             }
         }
@@ -872,7 +870,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <returns> The string that should be used as part of the shadow properties created for the given foreign key. </returns>
-        public static string GetPropertyBaseName([NotNull] IForeignKey foreignKey)
+        public static string GetPropertyBaseName([NotNull] IReadOnlyForeignKey foreignKey)
             => foreignKey.DependentToPrincipal?.Name
                 ?? foreignKey.GetReferencingSkipNavigations().FirstOrDefault()?.Inverse?.Name
                 ?? foreignKey.PrincipalEntityType.ShortName();

@@ -26,8 +26,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
     /// </summary>
     public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValueGeneratorCache
     {
-        private readonly ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState> _sequenceGeneratorCache
-            = new();
+        private readonly ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState> _sequenceGeneratorCache = new();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
@@ -49,13 +48,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             IRelationalConnection connection)
         {
             var sequence = property.FindHiLoSequence(
-                StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table).Value);
+                StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table)!.Value);
 
             Check.DebugAssert(sequence != null, "sequence is null");
 
             return _sequenceGeneratorCache.GetOrAdd(
                 GetSequenceName(sequence, connection),
-                sequenceName => new SqlServerSequenceValueGeneratorState(sequence));
+                _ => new SqlServerSequenceValueGeneratorState(sequence));
         }
 
         private static string GetSequenceName(ISequence sequence, IRelationalConnection connection)

@@ -4,8 +4,6 @@
 using System.Transactions;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -19,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public interface ITransactionEnlistmentManager
     {
+        /// <summary>
+        ///     The current ambient transaction. Defaults to <see cref="Transaction.Current" />.
+        /// </summary>
+        Transaction? CurrentAmbientTransaction => Transaction.Current;
+
         /// <summary>
         ///     The currently enlisted transaction.
         /// </summary>

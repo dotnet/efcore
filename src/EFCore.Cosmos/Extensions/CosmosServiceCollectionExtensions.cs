@@ -63,7 +63,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 // New Query pipeline
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, CosmosQueryableMethodTranslatingExpressionVisitorFactory>()
                 .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, CosmosShapedQueryCompilingExpressionVisitorFactory>()
-                .TryAdd<ISingletonOptions, ICosmosSingletonOptions>(p => p.GetService<ICosmosSingletonOptions>())
+                .TryAdd<ISingletonOptions, ICosmosSingletonOptions>(p => p.GetRequiredService<ICosmosSingletonOptions>())
                 .TryAdd<IQueryTranslationPreprocessorFactory, CosmosQueryTranslationPreprocessorFactory>()
                 .TryAdd<IQueryCompilationContextFactory, CosmosQueryCompilationContextFactory>()
                 .TryAdd<IQueryTranslationPostprocessorFactory, CosmosQueryTranslationPostprocessorFactory>()

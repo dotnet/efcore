@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     /// </summary>
     public sealed class KeyValueIndex<TKey> : IKeyValueIndex
     {
-        private readonly IForeignKey _foreignKey;
+        private readonly IForeignKey? _foreignKey;
         private readonly TKey _keyValue;
         private readonly IEqualityComparer<TKey> _keyComparer;
         private readonly bool _fromOriginalValues;
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public KeyValueIndex(
-            [CanBeNull] IForeignKey foreignKey,
+            [CanBeNull] IForeignKey? foreignKey,
             [NotNull] TKey keyValue,
             [NotNull] IEqualityComparer<TKey> keyComparer,
             bool fromOriginalValues)
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => !(obj is null)
                 && (ReferenceEquals(this, obj)
                     || obj.GetType() == GetType()

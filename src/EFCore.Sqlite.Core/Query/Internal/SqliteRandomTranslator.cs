@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteRandomTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _methodInfo = typeof(DbFunctionsExtensions).GetRuntimeMethod(nameof(DbFunctionsExtensions.Random), new[] { typeof(DbFunctions) });
+        private static readonly MethodInfo _methodInfo = typeof(DbFunctionsExtensions).GetRequiredMethod(
+            nameof(DbFunctionsExtensions.Random), typeof(DbFunctions));
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
@@ -40,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)

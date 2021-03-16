@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
@@ -32,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
             [NotNull] IConcurrencyDetector concurrencyDetector,
             [NotNull] IRelationalConnection relationalConnection,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
+            [NotNull] ICoreSingletonOptions coreOptions)
         {
             TransactionManager = transactionManager;
             DatabaseCreator = databaseCreator;
@@ -42,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             ConcurrencyDetector = concurrencyDetector;
             RelationalConnection = relationalConnection;
             RawSqlCommandBuilder = rawSqlCommandBuilder;
+            CoreOptions = coreOptions;
         }
 
         /// <summary>
@@ -107,5 +107,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IRawSqlCommandBuilder RawSqlCommandBuilder { get; [param: NotNull] init; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ICoreSingletonOptions CoreOptions { get; [param: NotNull] init; }
     }
 }

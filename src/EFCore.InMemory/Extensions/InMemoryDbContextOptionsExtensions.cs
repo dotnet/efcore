@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
             [NotNull] string databaseName,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            [CanBeNull] Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
                 (DbContextOptionsBuilder)optionsBuilder, databaseName, inMemoryOptionsAction);
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
         public static DbContextOptionsBuilder UseInMemoryDatabase(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
             [NotNull] string databaseName,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            [CanBeNull] Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
             => UseInMemoryDatabase(optionsBuilder, databaseName, null, inMemoryOptionsAction);
 
         /// <summary>
@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
             [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
             [NotNull] string databaseName,
-            [CanBeNull] InMemoryDatabaseRoot databaseRoot,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            [CanBeNull] InMemoryDatabaseRoot? databaseRoot,
+            [CanBeNull] Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
                 (DbContextOptionsBuilder)optionsBuilder, databaseName, databaseRoot, inMemoryOptionsAction);
@@ -108,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore
         public static DbContextOptionsBuilder UseInMemoryDatabase(
             [NotNull] this DbContextOptionsBuilder optionsBuilder,
             [NotNull] string databaseName,
-            [CanBeNull] InMemoryDatabaseRoot databaseRoot,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            [CanBeNull] InMemoryDatabaseRoot? databaseRoot,
+            [CanBeNull] Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(databaseName, nameof(databaseName));

@@ -57,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         void NavigationReferenceChanged(
             [NotNull] InternalEntityEntry entry,
             [NotNull] INavigation navigation,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue);
+            [CanBeNull] object? oldValue,
+            [CanBeNull] object? newValue);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IProperty property,
             [NotNull] IEnumerable<IKey> keys,
             [NotNull] IEnumerable<IForeignKey> foreignKeys,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue);
+            [CanBeNull] object? oldValue,
+            [CanBeNull] object? newValue);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

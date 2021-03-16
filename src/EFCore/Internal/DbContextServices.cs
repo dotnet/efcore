@@ -29,10 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public class DbContextServices : IDbContextServices
     {
-        private IServiceProvider _scopedProvider;
-        private IDbContextOptions _contextOptions;
-        private ICurrentDbContext _currentContext;
-        private IModel _model;
+        private IServiceProvider? _scopedProvider;
+        private IDbContextOptions? _contextOptions;
+        private ICurrentDbContext? _currentContext;
+        private IModel? _model;
         private bool _inOnModelCreating;
 
         /// <summary>
@@ -55,11 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (providerCount > 1)
             {
-                throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(providers)));
+                throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(providers!)));
             }
 
             if (providerCount == 0
-                || !providers[0].IsConfigured(contextOptions))
+                || !providers![0].IsConfigured(contextOptions))
             {
                 throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
             }
@@ -70,26 +70,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private static string BuildDatabaseNamesString(IEnumerable<IDatabaseProvider> available)
             => string.Join(", ", available.Select(e => "'" + e.Name + "'"));
 
-        private IModel CreateModel(IModel modelFromOptions)
+        private IModel CreateModel(IModel? modelFromOptions)
         {
             if (_inOnModelCreating)
             {
                 throw new InvalidOperationException(CoreStrings.RecursiveOnModelCreating);
             }
 
-            if (modelFromOptions != null
-                && modelFromOptions.ModelDependencies != null)
-            {
-                return modelFromOptions;
-            }
-
             try
             {
                 _inOnModelCreating = true;
 
-                var dependencies = _scopedProvider.GetService<IModelCreationDependencies>();
+                var dependencies = _scopedProvider!.GetRequiredService<ModelCreationDependencies>();
                 return modelFromOptions == null
-                    ? dependencies.ModelSource.GetModel(_currentContext.Context, dependencies)
+                    ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies)
                     : dependencies.ModelRuntimeInitializer.Initialize(modelFromOptions, dependencies.ValidationLogger);
             }
             finally
@@ -105,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ICurrentDbContext CurrentContext
-            => _currentContext;
+            => _currentContext!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -116,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual IModel Model
             => _model ??= CreateModel(CoreOptions?.Model);
 
-        private CoreOptionsExtension CoreOptions
+        private CoreOptionsExtension? CoreOptions
             => _contextOptions?.FindExtension<CoreOptionsExtension>();
 
         /// <summary>
@@ -126,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IDbContextOptions ContextOptions
-            => _contextOptions;
+            => _contextOptions!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,6 +129,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IServiceProvider InternalServiceProvider
-            => _scopedProvider;
+            => _scopedProvider!;
     }
 }

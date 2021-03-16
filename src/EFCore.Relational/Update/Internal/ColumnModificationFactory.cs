@@ -57,11 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual ColumnModification CreateColumnModification(
             string columnName,
-            object originalValue,
-            object value,
-            IProperty property,
-            string columnType,
-            RelationalTypeMapping typeMapping,
+            object? originalValue,
+            object? value,
+            IProperty? property,
+            string? columnType,
+            RelationalTypeMapping? typeMapping,
             bool valueIsRead,
             bool valueIsWrite,
             bool columnIsKey,

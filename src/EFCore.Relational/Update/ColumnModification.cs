@@ -4,12 +4,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
@@ -24,14 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     public class ColumnModification
     {
-        private string _parameterName;
-        private string _originalParameterName;
-        private readonly Func<string> _generateParameterName;
-        private readonly object _originalValue;
-        private object _value;
+        private string? _parameterName;
+        private string? _originalParameterName;
+        private readonly Func<string>? _generateParameterName;
+        private readonly object? _originalValue;
+        private object? _value;
         private readonly bool _useParameters;
         private readonly bool _sensitiveLoggingEnabled;
-        private List<ColumnModification> _sharedColumnModifications;
+        private List<ColumnModification>? _sharedColumnModifications;
 
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
@@ -134,11 +136,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="isNullable"> A value indicating whether the value could be null. </param>
         public ColumnModification(
             [NotNull] string columnName,
-            [CanBeNull] object originalValue,
-            [CanBeNull] object value,
-            [CanBeNull] IProperty property,
-            [CanBeNull] string columnType,
-            [CanBeNull] RelationalTypeMapping typeMapping,
+            [CanBeNull] object? originalValue,
+            [CanBeNull] object? value,
+            [CanBeNull] IProperty? property,
+            [CanBeNull] string? columnType,
+            [CanBeNull] RelationalTypeMapping? typeMapping,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -178,10 +180,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         [Obsolete("Use the constructor with type mapping")]
         public ColumnModification(
             [NotNull] string columnName,
-            [CanBeNull] object originalValue,
-            [CanBeNull] object value,
-            [CanBeNull] IProperty property,
-            [CanBeNull] string columnType,
+            [CanBeNull] object? originalValue,
+            [CanBeNull] object? value,
+            [CanBeNull] IProperty? property,
+            [CanBeNull] string? columnType,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -242,17 +244,17 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The <see cref="IUpdateEntry" /> that represents the entity that is being modified.
         /// </summary>
-        public virtual IUpdateEntry Entry { get; }
+        public virtual IUpdateEntry? Entry { get; }
 
         /// <summary>
         ///     The property that maps to the column.
         /// </summary>
-        public virtual IProperty Property { get; }
+        public virtual IProperty? Property { get; }
 
         /// <summary>
         ///     The relational type mapping for the column.
         /// </summary>
-        public virtual RelationalTypeMapping TypeMapping { get; }
+        public virtual RelationalTypeMapping? TypeMapping { get; }
 
         /// <summary>
         ///     A value indicating whether the column could contain a null value.
@@ -285,35 +287,39 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual bool IsKey { get; }
 
+#pragma warning disable CS8775 // Member must have a non-null value when exiting with 'true'.
         /// <summary>
         ///     Indicates whether the original value of the property must be passed as a parameter to the SQL
         /// </summary>
+        [CA.MemberNotNullWhen(true, nameof(OriginalParameterName))]
         public virtual bool UseOriginalValueParameter
             => _useParameters && IsCondition;
 
         /// <summary>
         ///     Indicates whether the current value of the property must be passed as a parameter to the SQL
         /// </summary>
+        [CA.MemberNotNullWhen(true, nameof(ParameterName))]
         public virtual bool UseCurrentValueParameter
             => _useParameters && IsWrite;
+#pragma warning restore CS8775
 
         /// <summary>
         ///     A delegate for generating parameter names for the update SQL
         /// </summary>
-        protected virtual Func<string> GenerateParameterName
+        protected virtual Func<string>? GenerateParameterName
             => _generateParameterName;
 
         /// <summary>
         ///     The parameter name to use for the current value parameter (<see cref="UseCurrentValueParameter" />), if needed.
         /// </summary>
-        public virtual string ParameterName
-            => InternalValueOfParameterName ??= UseCurrentValueParameter ? GenerateParameterName() : null;
+        public virtual string? ParameterName
+            => InternalValueOfParameterName ??= UseCurrentValueParameter ? GenerateParameterName!() : null;
  
         /// <summary>
         ///     The parameter name to use for the original value parameter (<see cref="UseOriginalValueParameter" />), if needed.
         /// </summary>
-        public virtual string OriginalParameterName
-            => InternalValueOfOriginalParameterName ??= UseOriginalValueParameter ? GenerateParameterName() : null;
+        public virtual string? OriginalParameterName
+            => InternalValueOfOriginalParameterName ??= UseOriginalValueParameter ? GenerateParameterName!() : null;
 
         /// <summary>
         ///     The name of the column.
@@ -323,29 +329,29 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The database type of the column.
         /// </summary>
-        public virtual string ColumnType { get; }
+        public virtual string? ColumnType { get; }
 
         /// <summary>
         ///     The original value of the property mapped to this column.
         /// </summary>
-        public virtual object OriginalValue
+        public virtual object? OriginalValue
             => Entry == null
                 ? _originalValue
                 : Entry.SharedIdentityEntry == null
-                    ? Entry.GetOriginalValue(Property)
-                    : Entry.SharedIdentityEntry.GetOriginalValue(Property);
+                    ? Entry.GetOriginalValue(Property!)
+                    : Entry.SharedIdentityEntry.GetOriginalValue(Property!);
 
         /// <summary>
         ///     Gets or sets the current value of the property mapped to this column.
         /// </summary>
-        public virtual object Value
+        public virtual object? Value
         {
             get
                 => Entry == null
                     ? _value
                     : Entry.EntityState == EntityState.Deleted
                         ? null
-                        : Entry.GetCurrentValue(Property);
+                        : Entry.GetCurrentValue(Property!);
             [param: CanBeNull]
             set
             {
@@ -355,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
                 else
                 {
-                    Entry.SetStoreGeneratedValue(Property, value);
+                    Entry.SetStoreGeneratedValue(Property!, value);
                     if (_sharedColumnModifications != null)
                     {
                         foreach (var sharedModification in _sharedColumnModifications)
@@ -370,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The internal value of parameter name to use for the current value parameter.
         /// </summary>
-        protected virtual string InternalValueOfParameterName
+        protected virtual string? InternalValueOfParameterName
         {
             get
                 => _parameterName;
@@ -385,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The internal value of parameter name to use for the original value parameter.
         /// </summary>
-        protected virtual string InternalValueOfOriginalParameterName
+        protected virtual string? InternalValueOfOriginalParameterName
         {
             get
                 => _originalParameterName;
@@ -403,10 +409,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="modification"> The modification for the shared column. </param>
         public virtual void AddSharedColumnModification([NotNull] ColumnModification modification)
         {
-            if (_sharedColumnModifications == null)
-            {
-                _sharedColumnModifications = new List<ColumnModification>();
-            }
+            Check.DebugAssert(Entry is not null, "Entry is not null");
+            Check.DebugAssert(Property is not null, "Property is not null");
+            Check.DebugAssert(modification.Entry is not null, "modification.Entry is not null");
+            Check.DebugAssert(modification.Property is not null, "modification.Property is not null");
+
+            _sharedColumnModifications ??= new List<ColumnModification>();
 
             if (UseCurrentValueParameter
                 && !StructuralComparisons.StructuralEqualityComparer.Equals(Value, modification.Value))
@@ -416,8 +424,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingRowValuesSensitive(
                             Entry.EntityType.DisplayName(),
-                            modification.Entry.EntityType.DisplayName(),
-                            Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
+                            modification.Entry!.EntityType.DisplayName(),
+                            Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey()!.Properties),
                             Entry.BuildCurrentValuesString(new[] { Property }),
                             modification.Entry.BuildCurrentValuesString(new[] { modification.Property }),
                             ColumnName));
@@ -449,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             RelationalStrings.ConflictingOriginalRowValuesSensitive(
                                 Entry.EntityType.DisplayName(),
                                 modification.Entry.EntityType.DisplayName(),
-                                Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey().Properties),
+                                Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey()!.Properties),
                                 Entry.BuildOriginalValuesString(new[] { Property }),
                                 modification.Entry.BuildOriginalValuesString(new[] { modification.Property }),
                                 ColumnName));

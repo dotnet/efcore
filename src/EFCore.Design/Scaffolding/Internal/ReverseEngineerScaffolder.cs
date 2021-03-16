@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, databaseOptions);
-            var modelConnectionString = (string)(databaseModel[ScaffoldingAnnotationNames.ConnectionString]);
+            var modelConnectionString = (string?)(databaseModel[ScaffoldingAnnotationNames.ConnectionString]);
             if (!string.IsNullOrEmpty(modelConnectionString))
             {
                 codeOptions.ConnectionString = modelConnectionString;
@@ -124,7 +124,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var model = _factory.Create(databaseModel, modelOptions);
-
             if (model == null)
             {
                 throw new InvalidOperationException(
@@ -161,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Directory.CreateDirectory(outputDir);
 
             var contextPath = Path.GetFullPath(Path.Combine(outputDir, scaffoldedModel.ContextFile!.Path));
-            Directory.CreateDirectory(Path.GetDirectoryName(contextPath));
+            Directory.CreateDirectory(Path.GetDirectoryName(contextPath)!);
             File.WriteAllText(contextPath, scaffoldedModel.ContextFile.Code, Encoding.UTF8);
 
             var additionalFiles = new List<string>();

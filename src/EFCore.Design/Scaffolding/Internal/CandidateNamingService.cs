@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string GetDependentEndCandidateNavigationPropertyName(IForeignKey foreignKey)
+        public virtual string GetDependentEndCandidateNavigationPropertyName(IReadOnlyForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string GetPrincipalEndCandidateNavigationPropertyName(
-            IForeignKey foreignKey,
+            IReadOnlyForeignKey foreignKey,
             string dependentEndNavigationPropertyName)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return candidateStringBuilder.ToString();
         }
 
-        private static string FindCandidateNavigationName(IEnumerable<IProperty> properties)
+        private static string FindCandidateNavigationName(IEnumerable<IReadOnlyProperty> properties)
         {
             if (!properties.Any())
             {

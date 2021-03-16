@@ -52,10 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string WriteCode(IEntityType entityType, string @namespace, bool useDataAnnotations)
+        public virtual string WriteCode(IEntityType entityType, string? @namespace, bool useDataAnnotations)
         {
             Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(@namespace, nameof(@namespace));
 
             _sb = new IndentedStringBuilder();
             _useDataAnnotations = useDataAnnotations;
@@ -83,15 +82,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("#nullable disable");
 
             _sb.AppendLine();
-            _sb.AppendLine($"namespace {@namespace}");
-            _sb.AppendLine("{");
 
-            using (_sb.Indent())
+            if (!string.IsNullOrEmpty(@namespace))
             {
-                GenerateClass(entityType);
+                _sb.AppendLine($"namespace {@namespace}");
+                _sb.AppendLine("{");
+                _sb.IncrementIndent();
             }
 
-            _sb.AppendLine("}");
+            GenerateClass(entityType);
+
+            if (!string.IsNullOrEmpty(@namespace))
+            {
+                _sb.DecrementIndent();
+                _sb.AppendLine("}");
+            }
 
             return _sb.ToString();
         }
@@ -177,11 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 var tableAttribute = new AttributeWriter(nameof(TableAttribute));
 
-                tableAttribute.AddParameter(_code.Literal(tableName));
+                tableAttribute.AddParameter(_code.Literal(tableName!));
 
                 if (schemaParameterNeeded)
                 {
-                    tableAttribute.AddParameter($"{nameof(TableAttribute.Schema)} = {_code.Literal(schema)}");
+                    tableAttribute.AddParameter($"{nameof(TableAttribute.Schema)} = {_code.Literal(schema!)}");
                 }
 
                 _sb.AppendLine(tableAttribute.ToString());
@@ -492,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateComment(string comment)
+        private void GenerateComment(string? comment)
         {
             if (!string.IsNullOrWhiteSpace(comment))
             {

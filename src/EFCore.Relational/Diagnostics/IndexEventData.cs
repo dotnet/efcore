@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
             [NotNull] IEntityType entityType,
-            [CanBeNull] string indexName,
+            [CanBeNull] string? indexName,
             [NotNull] List<string> indexPropertyNames)
             : base(eventDefinition, messageGenerator)
         {
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The name of the index.
         /// </summary>
-        public virtual string Name { get; }
+        public virtual string? Name { get; }
 
         /// <summary>
         ///     The list of properties which define the index.

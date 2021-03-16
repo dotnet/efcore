@@ -5,8 +5,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
     /// <summary>

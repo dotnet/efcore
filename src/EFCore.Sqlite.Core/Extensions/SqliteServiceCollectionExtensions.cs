@@ -61,7 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IProviderConventionSetBuilder, SqliteConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator, SqliteUpdateSqlGenerator>()
                 .TryAdd<IModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()
-                .TryAdd<IRelationalConnection>(p => p.GetService<ISqliteRelationalConnection>())
+                .TryAdd<IRelationalConnection>(p => p.GetRequiredService<ISqliteRelationalConnection>())
                 .TryAdd<IMigrationsSqlGenerator, SqliteMigrationsSqlGenerator>()
                 .TryAdd<IRelationalDatabaseCreator, SqliteDatabaseCreator>()
                 .TryAdd<IHistoryRepository, SqliteHistoryRepository>()

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 CoreStrings.ModelNotFinalized("GetRelationalModel"),
                 Assert.Throws<InvalidOperationException>(
-                    () => modelBuilder.Model.GetRelationalModel()).Message);
+                    () => ((IModel)modelBuilder.Model).GetRelationalModel()).Message);
         }
 
         [ConditionalTheory]
@@ -35,6 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_use_relational_model_with_tables(bool useExplicitMapping, Mapping mapping)
         {
             var model = CreateTestModel(mapToTables: useExplicitMapping, mapping: mapping);
+
+            var m = model.Model.ToDebugString(MetadataDebugStringOptions.LongDefault);
+            var s = model.ToDebugString(MetadataDebugStringOptions.LongDefault);
 
             Assert.Equal(9, model.Model.GetEntityTypes().Count());
             Assert.Equal(mapping == Mapping.TPH || !useExplicitMapping ? 3 : 5, model.Tables.Count());
@@ -137,10 +141,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(3, specialCustomerTable.EntityTypeMappings.Count());
             Assert.True(specialCustomerTable.EntityTypeMappings.First().IsSharedTablePrincipal);
 
-            Assert.Equal(specialCustomerType.GetDiscriminatorProperty() == null ? 8 : 9, specialCustomerTable.Columns.Count());
+            Assert.Equal(specialCustomerType.FindDiscriminatorProperty() == null ? 8 : 9, specialCustomerTable.Columns.Count());
 
             var specialityColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
-            Assert.Equal(specialCustomerType.GetDiscriminatorProperty() != null, specialityColumn.IsNullable);
+            Assert.Equal(specialCustomerType.FindDiscriminatorProperty() != null, specialityColumn.IsNullable);
         }
 
         private static void AssertViews(IRelationalModel model, Mapping mapping)
@@ -236,9 +240,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var specialityColumn = specialCustomerView.Columns.Single(c => c.Name == nameof(SpecialCustomer.Speciality));
                 Assert.False(specialityColumn.IsNullable);
 
-                Assert.Null(customerType.GetDiscriminatorProperty());
+                Assert.Null(customerType.FindDiscriminatorProperty());
                 Assert.Null(customerType.GetDiscriminatorValue());
-                Assert.Null(specialCustomerType.GetDiscriminatorProperty());
+                Assert.Null(specialCustomerType.FindDiscriminatorProperty());
                 Assert.Null(specialCustomerType.GetDiscriminatorValue());
             }
             else
@@ -513,9 +517,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal("IX_SpecialCustomer_AnotherRelatedCustomerId", anotherSpecialCustomerDbIndex.Name);
                 Assert.NotNull(anotherSpecialCustomerDbIndex.MappedIndexes.Single());
 
-                Assert.Null(customerType.GetDiscriminatorProperty());
+                Assert.Null(customerType.FindDiscriminatorProperty());
                 Assert.Null(customerType.GetDiscriminatorValue());
-                Assert.Null(specialCustomerType.GetDiscriminatorProperty());
+                Assert.Null(specialCustomerType.FindDiscriminatorProperty());
                 Assert.Null(specialCustomerType.GetDiscriminatorValue());
             }
             else
@@ -628,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     {
                         cb.ToTable("ExtraSpecialCustomer", "ExtraSpecialSchema");
                     }
-                });            
+                });
 
             modelBuilder.Entity<Order>(
                 ob =>
@@ -717,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Single(model.Views);
 
             var customerType = model.Model.FindEntityType(typeof(Customer));
-            Assert.NotNull(customerType.GetDiscriminatorProperty());
+            Assert.NotNull(customerType.FindDiscriminatorProperty());
 
             var customerView = customerType.GetViewMappings().Single().View;
             Assert.Equal("CustomerView", customerView.Name);

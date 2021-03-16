@@ -8,15 +8,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     Represents a relational database function in an <see cref="IConventionModel" /> in
     ///     the a form that can be mutated while the model is being built.
     /// </summary>
-    public interface IConventionDbFunction : IConventionAnnotatable, IDbFunction
+    public interface IConventionDbFunction : IReadOnlyDbFunction, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the <see cref="IConventionModel" /> in which this function is defined.
@@ -44,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string? SetName([CanBeNull] string? name, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="IDbFunction.Name" />.
+        ///     Gets the configuration source for <see cref="IReadOnlyDbFunction.Name" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunction.Name" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyDbFunction.Name" />. </returns>
         ConfigurationSource? GetNameConfigurationSource();
 
         /// <summary>
@@ -58,9 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string? SetSchema([CanBeNull] string? schema, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="IDbFunction.Schema" />.
+        ///     Gets the configuration source for <see cref="IReadOnlyDbFunction.Schema" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunction.Schema" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyDbFunction.Schema" />. </returns>
         ConfigurationSource? GetSchemaConfigurationSource();
 
         /// <summary>
@@ -72,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool SetIsBuiltIn(bool builtIn, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="IDbFunction.IsBuiltIn" />.
+        ///     Gets the configuration source for <see cref="IReadOnlyDbFunction.IsBuiltIn" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunction.IsBuiltIn" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyDbFunction.IsBuiltIn" />. </returns>
         ConfigurationSource? GetIsBuiltInConfigurationSource();
 
         /// <summary>
@@ -86,9 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool SetIsNullable(bool nullable, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="IDbFunction.IsNullable" />.
+        ///     Gets the configuration source for <see cref="IReadOnlyDbFunction.IsNullable" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunction.IsNullable" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyDbFunction.IsNullable" />. </returns>
         ConfigurationSource? GetIsNullableConfigurationSource();
 
         /// <summary>
@@ -100,9 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string? SetStoreType([CanBeNull] string? storeType, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="IDbFunction.StoreType" />.
+        ///     Gets the configuration source for <see cref="IReadOnlyDbFunction.StoreType" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunction.StoreType" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyDbFunction.StoreType" />. </returns>
         ConfigurationSource? GetStoreTypeConfigurationSource();
 
         /// <summary>
@@ -114,9 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         RelationalTypeMapping? SetTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="IDbFunction.TypeMapping" />.
+        ///     Gets the configuration source for <see cref="IReadOnlyDbFunction.TypeMapping" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunction.TypeMapping" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyDbFunction.TypeMapping" />. </returns>
         ConfigurationSource? GetTypeMappingConfigurationSource();
 
         /// <summary>
@@ -132,9 +130,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Gets the configuration source for <see cref="IDbFunction.Translation" />.
+        ///     Gets the configuration source for <see cref="IReadOnlyDbFunction.Translation" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IDbFunction.Translation" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyDbFunction.Translation" />. </returns>
         ConfigurationSource? GetTranslationConfigurationSource();
 
         /// <summary>

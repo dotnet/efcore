@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [EntityFrameworkInternal]
         public EntityEntryGraphNode(
             [NotNull] InternalEntityEntry entry,
-            [CanBeNull] TState state,
-            [CanBeNull] InternalEntityEntry sourceEntry,
-            [CanBeNull] INavigationBase inboundNavigation)
+            [CanBeNull] TState? state,
+            [CanBeNull] InternalEntityEntry? sourceEntry,
+            [CanBeNull] INavigationBase? inboundNavigation)
             : base(entry, sourceEntry, inboundNavigation)
         {
             NodeState = state;
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets or sets state that will be available to all nodes that are visited after this node.
         /// </summary>
-        public virtual TState NodeState { get; [param: CanBeNull] set; }
+        public virtual TState? NodeState { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Creates a new node for the entity that is being traversed next in the graph.

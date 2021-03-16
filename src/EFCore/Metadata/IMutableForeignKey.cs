@@ -7,8 +7,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -21,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IForeignKey" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableForeignKey : IForeignKey, IMutableAnnotatable
+    public interface IMutableForeignKey : IReadOnlyForeignKey, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets the foreign key properties in the dependent entity.
@@ -186,6 +184,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The skip navigations using this foreign key. </returns>
         new IEnumerable<IMutableSkipNavigation> GetReferencingSkipNavigations()
-            => ((IForeignKey)this).GetReferencingSkipNavigations().Cast<IMutableSkipNavigation>();
+            => ((IReadOnlyForeignKey)this).GetReferencingSkipNavigations().Cast<IMutableSkipNavigation>();
+
+        /// <summary>
+        ///     Gets the entity type related to the given one.
+        /// </summary>
+        /// <param name="entityType"> One of the entity types related by the foreign key. </param>
+        /// <returns> The entity type related to the given one. </returns>
+        new IMutableEntityType GetRelatedEntityType([NotNull] IReadOnlyEntityType entityType)
+            => (IMutableEntityType)((IReadOnlyForeignKey)this).GetRelatedEntityType(entityType);
+
+        /// <summary>
+        ///     Returns a navigation associated with this foreign key.
+        /// </summary>
+        /// <param name="pointsToPrincipal">
+        ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
+        /// </param>
+        /// <returns>
+        ///     A navigation associated with this foreign key or <see langword="null" />.
+        /// </returns>
+        new IMutableNavigation? GetNavigation(bool pointsToPrincipal)
+            => pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
     }
 }

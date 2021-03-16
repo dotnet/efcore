@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
             var model = serviceProvider.GetRequiredService<IModelSource>()
                 .GetModel(
                     new Context1(),
-                    (serviceProvider.GetRequiredService<IModelCreationDependencies>() as ModelCreationDependencies)
+                    serviceProvider.GetRequiredService<ModelCreationDependencies>()
                     with { ConventionSetBuilder = CreateRuntimeConventionSetBuilder(new FakeSetFinder(), serviceProvider) });
 
             Assert.Equal(
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices();
             var modelSource = serviceProvider.GetRequiredService<IModelSource>();
-            var testModelDependencies = serviceProvider.GetRequiredService<IModelCreationDependencies>();
+            var testModelDependencies = serviceProvider.GetRequiredService<ModelCreationDependencies>();
 
             var model1 = modelSource.GetModel(new Context1(), testModelDependencies);
             var model2 = modelSource.GetModel(new Context2(), testModelDependencies);
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices();
             var modelSource = serviceProvider.GetRequiredService<IModelSource>();
-            var testModelDependencies = serviceProvider.GetRequiredService<IModelCreationDependencies>();
+            var testModelDependencies = serviceProvider.GetRequiredService<ModelCreationDependencies>();
 
             var model = modelSource.GetModel(new Context1(), testModelDependencies);
             var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()

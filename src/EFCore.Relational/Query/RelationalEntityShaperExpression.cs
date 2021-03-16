@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -66,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(entityType, nameof(EntityType));
 
             LambdaExpression baseCondition;
-            if (entityType.GetDiscriminatorProperty() == null
+            if (entityType.FindDiscriminatorProperty() == null
                 && entityType.GetDirectlyDerivedTypes().Any())
             {
                 // TPT

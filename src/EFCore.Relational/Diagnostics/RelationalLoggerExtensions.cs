@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             DbCommandMethod commandMethod,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime)
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static CommandCorrelatedEventData BroadcastCommandCreating(
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbConnection connection,
-            DbContext context,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             DbCommandMethod commandMethod,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbConnection connection,
             DbCommand command,
-            DbContext context,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime)
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime)
@@ -361,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime)
@@ -413,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
@@ -519,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
@@ -559,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbConnection connection,
             DbCommand command,
-            DbContext context,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
@@ -639,10 +639,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
-            [CanBeNull] DbDataReader methodResult,
+            [NotNull] DbDataReader methodResult,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -691,14 +691,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        public static object CommandScalarExecuted(
+        public static object? CommandScalarExecuted(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
-            [CanBeNull] object methodResult,
+            [CanBeNull] object? methodResult,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -751,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             int methodResult,
@@ -809,10 +809,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
-            [CanBeNull] DbDataReader methodResult,
+            [NotNull] DbDataReader methodResult,
             DateTimeOffset startTime,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
@@ -864,14 +864,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static ValueTask<object> CommandScalarExecutedAsync(
+        public static ValueTask<object?> CommandScalarExecutedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
-            [CanBeNull] object methodResult,
+            [CanBeNull] object? methodResult,
             DateTimeOffset startTime,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
@@ -905,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return new ValueTask<object>(methodResult);
+            return new ValueTask<object?>(methodResult);
         }
 
         /// <summary>
@@ -927,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             Guid commandId,
             Guid connectionId,
             int methodResult,
@@ -971,11 +971,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbConnection connection,
             DbCommand command,
-            DbContext context,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
-            object methodResult,
+            object? methodResult,
             bool async,
             DateTimeOffset startTime,
             TimeSpan duration,
@@ -1052,7 +1052,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
@@ -1126,7 +1126,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            [CanBeNull] DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
@@ -1171,7 +1171,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbConnection connection,
             DbCommand command,
-            DbContext context,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
@@ -2140,7 +2140,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
                 definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = BroadcasstTransactionUsed(
+                var eventData = BroadcastTransactionUsed(
                     diagnostics,
                     connection,
                     transaction,
@@ -2186,7 +2186,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
                 definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = BroadcasstTransactionUsed(
+                var eventData = BroadcastTransactionUsed(
                     diagnostics,
                     connection,
                     transaction,
@@ -2206,7 +2206,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             return new ValueTask<DbTransaction>(transaction);
         }
 
-        private static TransactionEventData BroadcasstTransactionUsed(
+        private static TransactionEventData BroadcastTransactionUsed(
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
             DbTransaction transaction,
@@ -2229,7 +2229,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnosticSourceEnabled)
             {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name!, eventData);
             }
 
             if (simpleLogEnabled)
@@ -2253,10 +2253,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string TransactionUsed(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string>)definition;
+            var d = (EventDefinition<string?>)definition;
             var p = (TransactionEventData)payload;
             return d.GenerateMessage(
-                p.Transaction.IsolationLevel.ToString("G"));
+                p.Transaction?.IsolationLevel.ToString("G"));
         }
 
         /// <summary>
@@ -3973,8 +3973,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration,
-            [CanBeNull] string fromMigration,
-            [CanBeNull] string toMigration,
+            [CanBeNull] string? fromMigration,
+            [CanBeNull] string? toMigration,
             bool idempotent)
         {
             var definition = RelationalResources.LogGeneratingDown(diagnostics);
@@ -4019,8 +4019,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
             [NotNull] IMigrator migrator,
             [NotNull] Migration migration,
-            [CanBeNull] string fromMigration,
-            [CanBeNull] string toMigration,
+            [CanBeNull] string? fromMigration,
+            [CanBeNull] string? toMigration,
             bool idempotent)
         {
             var definition = RelationalResources.LogGeneratingUp(diagnostics);
@@ -4094,7 +4094,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, migrationsAssembly.Assembly.GetName().Name);
+                definition.Log(diagnostics, migrationsAssembly.Assembly.GetName().Name!);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -4113,7 +4113,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string>)definition;
             var p = (MigrationAssemblyEventData)payload;
-            return d.GenerateMessage(p.MigrationsAssembly.Assembly.GetName().Name);
+            return d.GenerateMessage(p.MigrationsAssembly.Assembly.GetName().Name!);
         }
 
         /// <summary>
@@ -4456,7 +4456,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string NamedIndexAllPropertiesNotToMappedToAnyTable(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string>)definition;
+            var d = (EventDefinition<string?, string, string>)definition;
             var p = (IndexEventData)payload;
             return d.GenerateMessage(
                 p.Name,
@@ -4544,7 +4544,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string NamedIndexPropertiesBothMappedAndNotMappedToTable(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string, string>)definition;
+            var d = (EventDefinition<string?, string, string, string>)definition;
             var p = (IndexWithPropertyEventData)payload;
             return d.GenerateMessage(
                 p.Name,
@@ -4568,9 +4568,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             [NotNull] IEntityType entityType,
             [NotNull] IIndex index,
             [NotNull] string property1Name,
-            [NotNull] List<(string Table, string Schema)> tablesMappedToProperty1,
+            [NotNull] List<(string Table, string? Schema)> tablesMappedToProperty1,
             [NotNull] string property2Name,
-            [NotNull] List<(string Table, string Schema)> tablesMappedToProperty2)
+            [NotNull] List<(string Table, string? Schema)> tablesMappedToProperty2)
         {
             if (index.Name == null)
             {

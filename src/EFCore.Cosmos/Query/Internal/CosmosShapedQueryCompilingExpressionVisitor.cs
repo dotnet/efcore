@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -22,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly Type _contextType;
+        private readonly bool _concurrencyDetectionEnabled;
         private readonly string _partitionKeyFromExtension;
 
         /// <summary>
@@ -40,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _sqlExpressionFactory = sqlExpressionFactory;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _contextType = cosmosQueryCompilationContext.ContextType;
+            _concurrencyDetectionEnabled = dependencies.CoreSingletonOptions.IsConcurrencyDetectionEnabled;
             _partitionKeyFromExtension = cosmosQueryCompilationContext.PartitionKeyFromExtension;
         }
 
@@ -85,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(_contextType),
                         Expression.Constant(_partitionKeyFromExtension, typeof(string)),
                         Expression.Constant(
-                            QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+                            QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+                        Expression.Constant(_concurrencyDetectionEnabled));
 
                 case ReadItemExpression readItemExpression:
 
@@ -108,7 +113,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(shaperReadItemLambda.Compile()),
                         Expression.Constant(_contextType),
                         Expression.Constant(
-                            QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+                            QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+                        Expression.Constant(_concurrencyDetectionEnabled));
 
                 default:
                     throw new NotSupportedException(CoreStrings.UnhandledExpressionNode(shapedQueryExpression.QueryExpression));

@@ -1890,6 +1890,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         join g2 in context.Gears
                             on g1.LeaderNickname equals g2.Nickname into grouping
                         from g2 in grouping.DefaultIfEmpty()
+                        orderby g1.Nickname
                         select g2 ?? g1;
 
             var result = query.ToList();
@@ -1906,6 +1907,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         join g2 in context.Gears.Include(g => g.Weapons)
                             on g1.LeaderNickname equals g2.Nickname into grouping
                         from g2 in grouping.DefaultIfEmpty()
+                        orderby g1.Nickname
                         select g2 ?? g1;
 
             var result = query.ToList();
@@ -4410,7 +4412,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Squad>().OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Distinct()),
+                ss => ss.Set<Squad>().OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Skip(0).Distinct()),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
         }
@@ -6686,6 +6688,35 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Query_reusing_parameter_with_inner_query_doesnt_declare_duplicate_parameter(bool async)
+        {
+            var squadId = 1;
+
+            return AssertQuery(
+                async,
+                ss =>
+                {
+                    var innerQuery = ss.Set<Squad>().Where(s => s.Id == squadId);
+                    var outerQuery = ss.Set<Gear>().Where(g => innerQuery.Contains(g.Squad));
+                    return outerQuery.Concat(outerQuery).OrderBy(g => g.FullName);
+                },
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Query_reusing_parameter_with_inner_query_expression_doesnt_declare_duplicate_parameter(bool async)
+        {
+            var gearId = 1;
+            Expression<Func<Gear, bool>> predicate = s => s.SquadId == gearId;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => s.Members.AsQueryable().Where(predicate).Where(predicate).Any()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_reusing_parameter_doesnt_declare_duplicate_parameter_complex(bool async)
         {
             var prm = new ComplexParameter { Inner = new ComplexParameterInner { Squad = new Squad { Id = 1 } } };
@@ -8025,6 +8056,726 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<LocustLeader>().OfType<LocustCommander>().Where(lc => lc.DefeatedBy != null));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_comparison(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                }).Where(x => x.Nullable.SquadId == 1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_addition(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                }).Where(x => x.Nullable.SquadId + 1 == 2),
+
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                }).Where(x => x.Nullable != null && x.Nullable.SquadId + 1 == 2));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_addition_and_final_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .Select(x => new { x.Note, Value = x.Nullable.SquadId + 1 }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_conditional(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                }).Select(x => x.Note != "K.I.A." ? x.Nullable.SquadId : -1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_function_call(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                }).Select(x => x.Nullable.Nickname.Substring(0, 3)),
+                ss => ss.Set<CogTag>().Select(x => x.GearNickName == null ? null : x.GearNickName.Substring(0, 3)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_with_function_call2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .Select(x => new { x.Note, Function = x.Note.Substring(0, x.Nullable.SquadId) }),
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .Select(x => new { x.Note, Function = x.Nullable == null ? null : x.Note.Substring(0, x.Nullable.SquadId) }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_into_element_init(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .OrderBy(x => x.Note)
+                .Select(x => new List<int>
+                    {
+                        x.Nullable.Nickname.Length,
+                        x.Nullable.SquadId,
+                        x.Nullable.SquadId + 1,
+                        42
+                    }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_into_member_assignment(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .OrderBy(x => x.Note)
+                .Select(x => new Squad { Id = x.Nullable.SquadId }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_into_new_array(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .OrderBy(x => x.Note)
+                .Select(x => new int[] { x.Nullable.Nickname.Length, x.Nullable.SquadId, x.Nullable.SquadId + 1, 42 }),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_into_unary(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .OrderBy(x => x.Note)
+                .Where(x => !x.Nullable.HasSoulPatch)
+                .Select(x => x.Note),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_into_member_access(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Select(x => new
+                {
+                    x.Nickname,
+                    x.CityOfBirthName,
+                    Nullable = x.CityOfBirthName != null ? new { x.Tag.IssueDate } : null
+                })
+                .Where(x => x.CityOfBirthName != null)
+                .OrderBy(x => x.Nickname)
+                .Where(x => x.Nullable.IssueDate.Month != 5)
+                .Select(x => x.Nickname),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_property_converted_to_nullable_and_use_it_in_order_by(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<CogTag>().Select(x => new
+                {
+                    x.Note,
+                    Nullable = x.GearNickName != null ? new { x.Gear.Nickname, x.Gear.SquadId, x.Gear.HasSoulPatch } : null
+                })
+                .Where(x => x.Nullable.Nickname != null)
+                .OrderBy(x => x.Nullable.SquadId).ThenBy(x => x.Note),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_distinct_projecting_identifier_column(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(
+                        g => new
+                        {
+                            Key = g.Nickname,
+                            Subquery = g.Weapons
+                                .Select(w => new { w.Id, w.Name })
+                                .Distinct().ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.Id,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_distinct_projecting_identifier_column_and_correlation_key(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(
+                        g => new
+                        {
+                            Key = g.Nickname,
+                            Subquery = g.Weapons
+                                .Select(w => new { w.Id, w.Name, w.OwnerFullName })
+                                .Distinct().ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.Id,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.OwnerFullName, aa.OwnerFullName);
+                        });
+                });
+        }
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_distinct_projecting_identifier_column_composite_key(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>()
+                    .Select(
+                        s => new
+                        {
+                            Key = s.Id,
+                            Subquery = s.Members
+                                .Select(m => new { m.Nickname, m.SquadId, m.HasSoulPatch })
+                                .Distinct().ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.Nickname,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Nickname, aa.Nickname);
+                            Assert.Equal(ee.SquadId, aa.SquadId);
+                            Assert.Equal(ee.HasSoulPatch, aa.HasSoulPatch);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_distinct_not_projecting_identifier_column(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(
+                        g => new
+                        {
+                            Key = g.Nickname,
+                            Subquery = g.Weapons
+                                .Select(w => new { w.Name, w.IsAutomatic })
+                                .Distinct().ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.Name,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.IsAutomatic, aa.IsAutomatic);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_distinct_not_projecting_identifier_column_also_projecting_complex_expressions(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(
+                        g => new
+                        {
+                            Key = g.Nickname,
+                            Subquery = g.Weapons
+                                .Select(w => new { w.Name, w.IsAutomatic, w.OwnerFullName.Length })
+                                .Distinct().ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.Name,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.IsAutomatic, aa.IsAutomatic);
+                            Assert.Equal(ee.Length, aa.Length);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(
+                        g => new
+                        {
+                            Key = g.Nickname,
+                            Subquery = g.Weapons
+                                .Select(w => new { w.Name, w.IsAutomatic })
+                                .GroupBy(x => x.IsAutomatic)
+                                .Select(x => new { x.Key }).ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.Key,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Key, aa.Key);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(
+                        g => new
+                        {
+                            Key = g.Nickname,
+                            Subquery = g.Weapons
+                                .Select(w => new { w.Name, w.IsAutomatic })
+                                .GroupBy(x => x.IsAutomatic)
+                                .Select(x => new { x.Key, Count = x.Count() }).ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.Key,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Key, aa.Key);
+                            Assert.Equal(ee.Count, aa.Count);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(
+                        g => new
+                        {
+                            Key = g.Nickname,
+                            Subquery = g.Weapons
+                                .Select(w => new { w.Name, w.IsAutomatic })
+                                .GroupBy(x => new { x.IsAutomatic, x.Name })
+                                .Select(x => new { x.Key, Count = x.Count() }).ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.Key.Name,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Key.Name, aa.Key.Name);
+                            Assert.Equal(ee.Key.IsAutomatic, aa.Key.IsAutomatic);
+                            Assert.Equal(ee.Count, aa.Count);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(
+                        g => new
+                        {
+                            Key = g.Nickname,
+                            Subquery = g.Weapons
+                                .Select(w => new { w.Name, w.IsAutomatic })
+                                .GroupBy(x => x.Name.Length)
+                                .Select(x => new { x.Key, Count = x.Count() }).ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.Key,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Key, aa.Key);
+                            Assert.Equal(ee.Count, aa.Count);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_via_SelectMany_with_Distinct_missing_indentifying_columns_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .OrderBy(g => g.Nickname)
+                    .Select(g => g.Weapons.SelectMany(x => x.Owner.AssignedCity.BornGears)
+                    .Select(x => (bool?)x.HasSoulPatch).Distinct().ToList()),
+                ss => ss.Set<Gear>()
+                    .OrderBy(g => g.Nickname)
+                    .Select(g => g.Weapons.SelectMany(x => x.Owner.AssignedCity.Maybe(x => x.BornGears) ?? new List<Gear>())
+                    .Select(x => (bool?)x.HasSoulPatch).Distinct().ToList()),
+                elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_correlated_collection_followed_by_Distinct(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(g => g.Weapons)
+                    .Distinct(),
+                elementSorter: e => e.OrderBy(w => w.Id).FirstOrDefault().Id,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(g => new { g.FullName, g.HasSoulPatch, g.Weapons })
+                    .Distinct(),
+                elementSorter: e => e.FullName,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.FullName, a.FullName);
+                    Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
+                    AssertCollection(e.Weapons, a.Weapons);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(g => new { g, g.Weapons })
+                    .Distinct(),
+                elementSorter: e => e.g.FullName,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.g, a.g);
+                    AssertCollection(e.Weapons, a.Weapons);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(g => new { g, Weapons = g.Weapons.Where(w => w.Id == g.SquadId).ToList() })
+                    .Distinct(),
+                elementSorter: e => e.g.FullName,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.g, a.g);
+                    AssertCollection(e.Weapons, a.Weapons);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Select(g => new { g, Ids = g.Weapons.Select(w => w.Id).ToList() })
+                    .Distinct(),
+                elementSorter: e => e.g.FullName,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.g, a.g);
+                    AssertCollection(e.Ids, a.Ids);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_distinct_3_levels(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>()
+                    .Select(s => new
+                    {
+                        s,
+                        Members = s.Members.Select(m => new
+                        {
+                            m,
+                            Weapons = m.Weapons.Where(w => w.OwnerFullName == m.FullName).ToList()
+                        }).Distinct()
+                    }).Distinct(),
+                elementSorter: e => e.s.Id);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_after_distinct_3_levels(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>()
+                    .Select(s => new { s.Id, s.Name })
+                    .Distinct()
+                    .Select(x => new
+                    {
+                        x.Id,
+                        x.Name,
+                        Subquery1 = (from g in ss.Set<Gear>()
+                                     where g.SquadId == x.Id
+                                     select new { g.Nickname, g.FullName, g.HasSoulPatch })
+                                     .Distinct()
+                                     .Select(xx => new
+                                     {
+                                         xx.Nickname,
+                                         xx.FullName,
+                                         xx.HasSoulPatch,
+                                         Subquery2 = (from w in ss.Set<Weapon>()
+                                                      where w.OwnerFullName == xx.FullName
+                                                      select new { x.Id, x.Name, xx.Nickname, xx.FullName, xx.HasSoulPatch }).ToList()
+                                     })
+                                     .ToList()
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    Assert.Equal(e.Name, a.Name);
+                    AssertCollection(
+                        e.Subquery1,
+                        a.Subquery1,
+                        elementSorter: ee => ee.Nickname,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Nickname, aa.Nickname);
+                            Assert.Equal(ee.FullName, aa.FullName);
+                            Assert.Equal(ee.HasSoulPatch, aa.HasSoulPatch);
+                            AssertCollection(
+                                ee.Subquery2,
+                                aa.Subquery2,
+                                elementSorter: eee => eee.Id,
+                                elementAsserter: (eee, aaa) =>
+                                {
+                                    Assert.Equal(eee.Id, aaa.Id);
+                                    Assert.Equal(eee.Name, aaa.Name);
+                                    Assert.Equal(eee.Nickname, aaa.Nickname);
+                                    Assert.Equal(eee.FullName, aaa.FullName);
+                                    Assert.Equal(eee.HasSoulPatch, aaa.HasSoulPatch);
+                                });
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_after_distinct_3_levels_without_original_identifiers(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>()
+                    .Select(s => new { s.Name.Length })
+                    .Distinct()
+                    .Select(x => new
+                    {
+                        x.Length,
+                        Subquery1 = (from g in ss.Set<Gear>()
+                                     where g.Nickname.Length == x.Length
+                                     select new { g.HasSoulPatch, g.CityOfBirthName })
+                                     .Distinct()
+                                     .Select(xx => new
+                                     {
+                                         xx.HasSoulPatch,
+                                         Subquery2 = (from w in ss.Set<Weapon>()
+                                                      where w.OwnerFullName == xx.CityOfBirthName
+                                                      select new { w.Id, x.Length, xx.HasSoulPatch }).ToList()
+                                     })
+                                     .ToList()
+                    }),
+                elementSorter: e => e.Length,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Length, a.Length);
+                    AssertCollection(
+                        e.Subquery1,
+                        a.Subquery1,
+                        elementSorter: ee => ee.HasSoulPatch,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.HasSoulPatch, aa.HasSoulPatch);
+                            AssertCollection(
+                                ee.Subquery2,
+                                aa.Subquery2,
+                                elementSorter: eee => eee.Id,
+                                elementAsserter: (eee, aaa) =>
+                                {
+                                    Assert.Equal(eee.Id, aaa.Id);
+                                    Assert.Equal(eee.Length, aaa.Length);
+                                    Assert.Equal(eee.HasSoulPatch, aaa.HasSoulPatch);
+                                });
+                        });
+                });
         }
 
         protected GearsOfWarContext CreateContext()

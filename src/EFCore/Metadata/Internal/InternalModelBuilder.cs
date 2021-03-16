@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -280,9 +278,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             Metadata.RemoveIgnored(type);
-            Metadata.AddOwned(type);
+            Metadata.AddOwned(type, ConfigurationSource.Explicit);
 
-            foreach (var entityType in Metadata.GetEntityTypes(type))
+            foreach (var entityType in Metadata.FindEntityTypes(type))
             {
                 if (entityType.IsOwned())
                 {
@@ -474,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (type.Type != null
-                && Metadata.GetEntityTypes(type.Type).Any(o => !configurationSource.Overrides(o.GetConfigurationSource())))
+                && Metadata.FindEntityTypes(type.Type).Any(o => !configurationSource.Overrides(o.GetConfigurationSource())))
             {
                 return false;
             }
@@ -542,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalModelBuilder? UseChangeTrackingStrategy(
+        public virtual InternalModelBuilder? HasChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy,
             ConfigurationSource configurationSource)
         {
@@ -774,7 +772,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionModelBuilder? IConventionModelBuilder.HasChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy,
             bool fromDataAnnotation)
-            => UseChangeTrackingStrategy(
+            => HasChangeTrackingStrategy(
                 changeTrackingStrategy, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="targetModel"> The migration's target model. </param>
         /// <returns> The migration metadata code. </returns>
         string GenerateMetadata(
-            [NotNull] string migrationNamespace,
+            [CanBeNull] string? migrationNamespace,
             [NotNull] Type contextType,
             [NotNull] string migrationName,
             [NotNull] string migrationId,
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="downOperations"> The migration's down operations. </param>
         /// <returns> The migration code. </returns>
         string GenerateMigration(
-            [NotNull] string migrationNamespace,
+            [CanBeNull] string? migrationNamespace,
             [NotNull] string migrationName,
             [NotNull] IReadOnlyList<MigrationOperation> upOperations,
             [NotNull] IReadOnlyList<MigrationOperation> downOperations);
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="model"> The model. </param>
         /// <returns> The model snapshot code. </returns>
         string GenerateSnapshot(
-            [NotNull] string modelSnapshotNamespace,
+            [CanBeNull] string? modelSnapshotNamespace,
             [NotNull] Type contextType,
             [NotNull] string modelSnapshotName,
             [NotNull] IModel model);

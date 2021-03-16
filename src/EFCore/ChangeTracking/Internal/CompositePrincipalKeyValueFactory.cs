@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object CreateFromKeyValues(object[] keyValues)
+        public virtual object? CreateFromKeyValues(object?[] keyValues)
             => keyValues.Any(v => v == null) ? null : keyValues;
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object CreateFromBuffer(ValueBuffer valueBuffer)
+        public virtual object? CreateFromBuffer(ValueBuffer valueBuffer)
             => TryCreateFromBuffer(valueBuffer, out var values) ? values : null;
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IProperty FindNullPropertyInKeyValues(object[] keyValues)
+        public virtual IProperty FindNullPropertyInKeyValues(object?[] keyValues)
         {
             var index = -1;
             for (var i = 0; i < keyValues.Length; i++)
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IProperty FindNullPropertyInCurrentValues(IUpdateEntry entry)
+        public virtual IProperty? FindNullPropertyInCurrentValues(IUpdateEntry entry)
             => Properties.FirstOrDefault(p => entry.GetCurrentValue(p) == null);
 
         /// <summary>
@@ -106,17 +106,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private object[] CreateFromEntry(
             IUpdateEntry entry,
-            Func<IUpdateEntry, IProperty, object> getValue)
+            Func<IUpdateEntry, IProperty, object?> getValue)
         {
             var values = new object[Properties.Count];
             var index = 0;
 
             foreach (var property in Properties)
             {
-                if ((values[index++] = getValue(entry, property)) == null)
+                var value = getValue(entry, property);
+                if (value == null)
                 {
-                    return null;
+                    return default!;
                 }
+                values[index++] = value;
             }
 
             return values;

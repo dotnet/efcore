@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -63,7 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Connection> connectionLogger,
             [NotNull] INamedConnectionStringResolver connectionStringResolver,
             [NotNull] IRelationalTransactionFactory relationalTransactionFactory,
-            [NotNull] ICurrentDbContext currentContext)
+            [NotNull] ICurrentDbContext currentContext,
+            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
         {
             Check.NotNull(contextOptions, nameof(contextOptions));
             Check.NotNull(transactionLogger, nameof(transactionLogger));
@@ -71,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(connectionStringResolver, nameof(connectionStringResolver));
             Check.NotNull(relationalTransactionFactory, nameof(relationalTransactionFactory));
             Check.NotNull(currentContext, nameof(currentContext));
+            Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
 
             ContextOptions = contextOptions;
             TransactionLogger = transactionLogger;
@@ -78,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ConnectionStringResolver = connectionStringResolver;
             RelationalTransactionFactory = relationalTransactionFactory;
             CurrentContext = currentContext;
+            RelationalCommandBuilderFactory = relationalCommandBuilderFactory;
         }
 
         /// <summary>
@@ -110,5 +111,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Contains the <see cref="DbContext" /> instance currently in use.
         /// </summary>
         public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
+
+        /// <summary>
+        ///     Contains the <see cref="DbContext" /> instance currently in use.
+        /// </summary>
+        public IRelationalCommandBuilderFactory RelationalCommandBuilderFactory { get; [param: NotNull] init; }
     }
 }

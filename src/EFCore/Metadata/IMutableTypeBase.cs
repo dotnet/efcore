@@ -3,8 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-
-#nullable enable
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -14,10 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="ITypeBase" /> represents a read-only view of the same metadata.
+    ///         Once the model is built, <see cref="IReadOnlyTypeBase" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableTypeBase : ITypeBase, IMutableAnnotatable
+    public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets the model that this type belongs to.
@@ -51,5 +50,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The list of ignored member names. </returns>
         IEnumerable<string> GetIgnoredMembers();
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties and navigations of this entity type.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual properties and navigations can override this access mode. The value set here will
+        ///         be used for any property or navigation for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
+        void SetPropertyAccessMode(PropertyAccessMode? propertyAccessMode)
+            => SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for navigations of this entity type.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual navigations can override this access mode. The value set here will
+        ///         be used for any navigation for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or <see langword="null" /> to clear the mode set.</param>
+        void SetNavigationAccessMode(PropertyAccessMode? propertyAccessMode)
+            => SetOrRemoveAnnotation(CoreAnnotationNames.NavigationAccessMode, propertyAccessMode);
     }
 }

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             const string outerClassName = "." + nameof(DbLoggerCategory);
 
-            var name = loggerCategoryType.FullName.Replace('+', '.');
+            var name = loggerCategoryType.FullName!.Replace('+', '.');
             var index = name.IndexOf(outerClassName, StringComparison.Ordinal);
             if (index >= 0)
             {

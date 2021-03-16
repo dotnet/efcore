@@ -178,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
                     {
                         var injectedDescriptor = new ServiceDescriptor(
                             typeof(TService),
-                            p => InjectServices(p, descriptor.ImplementationInstance),
+                            // TODO: What should we do here? Can annotate InjectServices to accept null, but then it has to return it too...
+                            p => InjectServices(p, descriptor.ImplementationInstance!),
                             lifetime);
 
                         ServiceCollection[index] = injectedDescriptor;
@@ -191,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 
         private static object InjectServices(IServiceProvider serviceProvider, Type concreteType)
         {
-            var service = serviceProvider.GetService(concreteType);
+            var service = serviceProvider.GetRequiredService(concreteType);
 
             (service as IPatchServiceInjectionSite)?.InjectServices(serviceProvider);
 

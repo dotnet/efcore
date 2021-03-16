@@ -120,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [Migration("00000000000000_FakeMigration")]
         private class FakeMigration : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
@@ -255,6 +256,12 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
 
             public ValueTask DisposeAsync()
+                => throw new NotImplementedException();
+
+            public IRelationalCommand RentCommand()
+                => throw new NotImplementedException();
+
+            public void ReturnCommand(IRelationalCommand command)
                 => throw new NotImplementedException();
         }
 

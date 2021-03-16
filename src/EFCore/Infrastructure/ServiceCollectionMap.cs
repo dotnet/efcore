@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -272,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <typeparam name="TService"> The contract for the service. </typeparam>
         /// <param name="implementation"> The object that implements the service. </param>
         /// <returns> The map, such that further calls can be chained. </returns>
-        public virtual ServiceCollectionMap TryAddSingleton<TService>([CanBeNull] TService implementation)
+        public virtual ServiceCollectionMap TryAddSingleton<TService>([NotNull] TService implementation)
             where TService : class
             => TryAddSingleton(typeof(TService), implementation);
 
@@ -283,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="serviceType"> The contract for the service. </param>
         /// <param name="implementation"> The object that implements the service. </param>
         /// <returns> The map, such that further calls can be chained. </returns>
-        public virtual ServiceCollectionMap TryAddSingleton([NotNull] Type serviceType, [CanBeNull] object implementation)
+        public virtual ServiceCollectionMap TryAddSingleton([NotNull] Type serviceType, [NotNull] object implementation)
         {
             Check.NotNull(serviceType, nameof(serviceType));
 
@@ -508,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => descriptor.ImplementationType
                 ?? descriptor.ImplementationInstance?.GetType()
                 // Generic arg on Func may be object, but this is the best we can do and matches logic in D.I. container
-                ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1];
+                ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1]!;
 
         IInternalServiceCollectionMap IInfrastructure<IInternalServiceCollectionMap>.Instance
             => _map;

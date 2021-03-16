@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -232,7 +230,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 subQueryIndent!.Dispose();
 
                 _relationalCommandBuilder.AppendLine()
-                    .Append(")" + AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
+                    .Append(")")
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
             }
 
             return selectExpression;
@@ -255,7 +255,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (projectionExpression.Alias != string.Empty
                 && !(projectionExpression.Expression is ColumnExpression column && column.Name == projectionExpression.Alias))
             {
-                _relationalCommandBuilder.Append(AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
+                _relationalCommandBuilder
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
             }
 
             return projectionExpression;
@@ -1046,8 +1048,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(setOperation, nameof(setOperation));
 
             GenerateSetOperationOperand(setOperation, setOperation.Source1);
-            _relationalCommandBuilder.AppendLine();
-            _relationalCommandBuilder.AppendLine($"{GetSetOperation(setOperation)}{(setOperation.IsDistinct ? "" : " ALL")}");
+            _relationalCommandBuilder
+                .AppendLine()
+                .Append(GetSetOperation(setOperation))
+                .AppendLine(setOperation.IsDistinct ? string.Empty : " ALL");
             GenerateSetOperationOperand(setOperation, setOperation.Source2);
 
             static string GetSetOperation(SetOperationBase operation)

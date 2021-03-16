@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="property"> The property to set. </param>
         /// <param name="value"> The value to set. </param>
-        void SetOriginalValue([NotNull] IProperty property, [CanBeNull] object value);
+        void SetOriginalValue([NotNull] IProperty property, [CanBeNull] object? value);
 
         /// <summary>
         ///     Marks the given property as modified.
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The other entry that has the same key values, if one exists.
         /// </summary>
-        IUpdateEntry SharedIdentityEntry { get; }
+        IUpdateEntry? SharedIdentityEntry { get; }
 
         /// <summary>
         ///     Gets a value indicating if the specified property is modified. If true, the current value assigned
@@ -73,14 +73,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="propertyBase"> The property to get the value for. </param>
         /// <returns> The value for the property. </returns>
-        object GetCurrentValue([NotNull] IPropertyBase propertyBase);
+        object? GetCurrentValue([NotNull] IPropertyBase propertyBase);
 
         /// <summary>
         ///     Gets the value assigned to the property when it was retrieved from the database.
         /// </summary>
         /// <param name="propertyBase"> The property to get the value for. </param>
         /// <returns> The value for the property. </returns>
-        object GetOriginalValue([NotNull] IPropertyBase propertyBase);
+        object? GetOriginalValue([NotNull] IPropertyBase propertyBase);
 
         /// <summary>
         ///     Gets the value assigned to the property.
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="property"> The property to set the value for. </param>
         /// <param name="value"> The value to set. </param>
-        void SetStoreGeneratedValue([NotNull] IProperty property, [CanBeNull] object value);
+        void SetStoreGeneratedValue([NotNull] IProperty property, [CanBeNull] object? value);
 
         /// <summary>
         ///     Gets an <see cref="EntityEntry" /> for the entity being saved. <see cref="EntityEntry" /> is an API optimized for
@@ -118,14 +118,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="propertyBase"> The property to get the value for. </param>
         /// <returns> The value for the property. </returns>
-        object GetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase);
+        object? GetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase);
 
         /// <summary>
         ///     Gets the value assigned to the property before any store-generated values have been applied.
         /// </summary>
         /// <param name="propertyBase"> The property to get the value for. </param>
         /// <returns> The value for the property. </returns>
-        object GetPreStoreGeneratedCurrentValue([NotNull] IPropertyBase propertyBase);
+        object? GetPreStoreGeneratedCurrentValue([NotNull] IPropertyBase propertyBase);
 
         /// <summary>
         ///     Checks whether the property is conceptually set to null even if the property type is not nullable.
