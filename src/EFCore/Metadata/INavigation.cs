@@ -3,8 +3,6 @@
 
 using System.Diagnostics;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>

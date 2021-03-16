@@ -29,16 +29,16 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly string _projectDir;
         private readonly string _targetName;
         private readonly string _startupTargetName;
-        private readonly string _rootNamespace;
-        private readonly string _language;
-        private readonly string[] _designArgs;
+        private readonly string? _rootNamespace;
+        private readonly string? _language;
+        private readonly string[]? _designArgs;
         private readonly OperationReporter _reporter;
 
-        private DbContextOperations _contextOperations;
-        private DatabaseOperations _databaseOperations;
-        private MigrationsOperations _migrationsOperations;
-        private Assembly _assembly;
-        private Assembly _startupAssembly;
+        private DbContextOperations? _contextOperations;
+        private DatabaseOperations? _databaseOperations;
+        private MigrationsOperations? _migrationsOperations;
+        private Assembly? _assembly;
+        private Assembly? _startupAssembly;
 
         /// <summary>
         ///     <para>Initializes a new instance of the <see cref="OperationExecutor" /> class.</para>
@@ -58,14 +58,14 @@ namespace Microsoft.EntityFrameworkCore.Design
             Check.NotNull(args, nameof(args));
 
             _reporter = new OperationReporter(reportHandler);
-            _targetName = (string)args["targetName"];
-            _startupTargetName = (string)args["startupTargetName"];
-            _projectDir = (string)args["projectDir"];
-            _rootNamespace = (string)args["rootNamespace"];
-            _language = (string)args["language"];
-            _designArgs = (string[])args["remainingArguments"];
+            _targetName = (string)args["targetName"]!;
+            _startupTargetName = (string)args["startupTargetName"]!;
+            _projectDir = (string)args["projectDir"]!;
+            _rootNamespace = (string?)args["rootNamespace"];
+            _language = (string?)args["language"];
+            _designArgs = (string[]?)args["remainingArguments"];
 
-            var toolsVersion = (string)args["toolsVersion"];
+            var toolsVersion = (string?)args["toolsVersion"];
             var runtimeVersion = ProductInfo.GetVersion();
             if (toolsVersion != null
                 && new SemanticVersionComparer().Compare(toolsVersion, runtimeVersion) < 0)
@@ -157,10 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
-                var name = (string)args["name"];
-                var outputDir = (string)args["outputDir"];
-                var contextType = (string)args["contextType"];
-                var @namespace = (string)args["namespace"];
+                var name = (string)args["name"]!;
+                var outputDir = (string?)args["outputDir"];
+                var contextType = (string?)args["contextType"];
+                var @namespace = (string?)args["namespace"];
 
                 Execute(() => executor.AddMigrationImpl(name, outputDir, contextType, @namespace));
             }
@@ -168,9 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         private IDictionary AddMigrationImpl(
             [NotNull] string name,
-            [CanBeNull] string outputDir,
-            [CanBeNull] string contextType,
-            [CanBeNull] string @namespace)
+            [CanBeNull] string? outputDir,
+            [CanBeNull] string? contextType,
+            [CanBeNull] string? @namespace)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -210,12 +210,12 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
-                var contextType = (string)args["contextType"];
+                var contextType = (string?)args["contextType"];
                 Execute(() => executor.GetContextInfoImpl(contextType));
             }
         }
 
-        private IDictionary GetContextInfoImpl([CanBeNull] string contextType)
+        private IDictionary GetContextInfoImpl([CanBeNull] string? contextType)
         {
             var info = ContextOperations.GetContextInfo(contextType);
             return new Hashtable
@@ -258,18 +258,18 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
-                var targetMigration = (string)args["targetMigration"];
-                var connectionString = (string)args["connectionString"];
-                var contextType = (string)args["contextType"];
+                var targetMigration = (string?)args["targetMigration"];
+                var connectionString = (string?)args["connectionString"];
+                var contextType = (string?)args["contextType"];
 
                 Execute(() => executor.UpdateDatabaseImpl(targetMigration, connectionString, contextType));
             }
         }
 
         private void UpdateDatabaseImpl(
-            [CanBeNull] string targetMigration,
-            [CanBeNull] string connectionString,
-            [CanBeNull] string contextType)
+            [CanBeNull] string? targetMigration,
+            [CanBeNull] string? connectionString,
+            [CanBeNull] string? contextType)
             => MigrationsOperations.UpdateDatabase(targetMigration, connectionString, contextType);
 
         /// <summary>
@@ -298,22 +298,22 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
-                var fromMigration = (string)args["fromMigration"];
-                var toMigration = (string)args["toMigration"];
-                var idempotent = (bool)args["idempotent"];
+                var fromMigration = (string?)args["fromMigration"];
+                var toMigration = (string?)args["toMigration"];
+                var idempotent = (bool)args["idempotent"]!;
                 var noTransactions = (bool)(args["noTransactions"] ?? false);
-                var contextType = (string)args["contextType"];
+                var contextType = (string?)args["contextType"];
 
                 Execute(() => executor.ScriptMigrationImpl(fromMigration, toMigration, idempotent, noTransactions, contextType));
             }
         }
 
         private string ScriptMigrationImpl(
-            [CanBeNull] string fromMigration,
-            [CanBeNull] string toMigration,
+            [CanBeNull] string? fromMigration,
+            [CanBeNull] string? toMigration,
             bool idempotent,
             bool noTransactions,
-            [CanBeNull] string contextType)
+            [CanBeNull] string? contextType)
         {
             var options = MigrationsSqlGenerationOptions.Default;
             if (idempotent)
@@ -356,14 +356,14 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
-                var contextType = (string)args["contextType"];
-                var force = (bool)args["force"];
+                var contextType = (string?)args["contextType"];
+                var force = (bool)args["force"]!;
 
                 Execute(() => executor.RemoveMigrationImpl(contextType, force));
             }
         }
 
-        private IDictionary RemoveMigrationImpl([CanBeNull] string contextType, bool force)
+        private IDictionary RemoveMigrationImpl([CanBeNull] string? contextType, bool force)
         {
             var files = MigrationsOperations.RemoveMigration(contextType, force);
 
@@ -448,8 +448,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
-                var contextType = (string)args["contextType"];
-                var connectionString = (string)args["connectionString"];
+                var contextType = (string?)args["contextType"];
+                var connectionString = (string?)args["connectionString"];
                 var noConnect = (bool)(args["noConnect"] ?? true);
 
                 Execute(() => executor.GetMigrationsImpl(contextType, connectionString, noConnect));
@@ -457,8 +457,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         private IEnumerable<IDictionary> GetMigrationsImpl(
-            [CanBeNull] string contextType,
-            string connectionString,
+            [CanBeNull] string? contextType,
+            string? connectionString,
             bool noConnect)
         {
             var migrations = MigrationsOperations.GetMigrations(contextType, connectionString, noConnect).ToList();
@@ -510,18 +510,18 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
-                var connectionString = (string)args["connectionString"];
-                var provider = (string)args["provider"];
-                var outputDir = (string)args["outputDir"];
-                var outputDbContextDir = (string)args["outputDbContextDir"];
-                var dbContextClassName = (string)args["dbContextClassName"];
-                var schemaFilters = (IEnumerable<string>)args["schemaFilters"];
-                var tableFilters = (IEnumerable<string>)args["tableFilters"];
-                var modelNamespace = (string)args["modelNamespace"];
-                var contextNamespace = (string)args["contextNamespace"];
-                var useDataAnnotations = (bool)args["useDataAnnotations"];
-                var overwriteFiles = (bool)args["overwriteFiles"];
-                var useDatabaseNames = (bool)args["useDatabaseNames"];
+                var connectionString = (string)args["connectionString"]!;
+                var provider = (string)args["provider"]!;
+                var outputDir = (string?)args["outputDir"];
+                var outputDbContextDir = (string?)args["outputDbContextDir"];
+                var dbContextClassName = (string?)args["dbContextClassName"];
+                var schemaFilters = (IEnumerable<string>)args["schemaFilters"]!;
+                var tableFilters = (IEnumerable<string>)args["tableFilters"]!;
+                var modelNamespace = (string?)args["modelNamespace"];
+                var contextNamespace = (string?)args["contextNamespace"];
+                var useDataAnnotations = (bool)args["useDataAnnotations"]!;
+                var overwriteFiles = (bool)args["overwriteFiles"]!;
+                var useDatabaseNames = (bool)args["useDatabaseNames"]!;
                 var suppressOnConfiguring = (bool)(args["suppressOnConfiguring"] ?? false);
                 var noPluralize = (bool)(args["noPluralize"] ?? false);
 
@@ -536,13 +536,13 @@ namespace Microsoft.EntityFrameworkCore.Design
         private IDictionary ScaffoldContextImpl(
             [NotNull] string provider,
             [NotNull] string connectionString,
-            [CanBeNull] string outputDir,
-            [CanBeNull] string outputDbContextDir,
-            [CanBeNull] string dbContextClassName,
+            [CanBeNull] string? outputDir,
+            [CanBeNull] string? outputDbContextDir,
+            [CanBeNull] string? dbContextClassName,
             [NotNull] IEnumerable<string> schemaFilters,
             [NotNull] IEnumerable<string> tableFilters,
-            [CanBeNull] string modelNamespace,
-            [CanBeNull] string contextNamespace,
+            [CanBeNull] string? modelNamespace,
+            [CanBeNull] string? contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
             bool useDatabaseNames,
@@ -584,13 +584,13 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
-                var contextType = (string)args["contextType"];
+                var contextType = (string?)args["contextType"];
 
                 Execute(() => executor.DropDatabaseImpl(contextType));
             }
         }
 
-        private void DropDatabaseImpl(string contextType)
+        private void DropDatabaseImpl(string? contextType)
             => ContextOperations.DropDatabase(contextType);
 
         /// <summary>
@@ -615,13 +615,13 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Check.NotNull(executor, nameof(executor));
                 Check.NotNull(args, nameof(args));
 
-                var contextType = (string)args["contextType"];
+                var contextType = (string?)args["contextType"];
 
                 Execute(() => executor.ScriptDbContextImpl(contextType));
             }
         }
 
-        private string ScriptDbContextImpl(string contextType)
+        private string ScriptDbContextImpl(string? contextType)
             => ContextOperations.ScriptDbContext(contextType);
 
         /// <summary>
@@ -656,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 }
                 catch (Exception ex)
                 {
-                    _resultHandler.OnError(ex.GetType().FullName, ex.Message, ex.ToString());
+                    _resultHandler.OnError(ex.GetType().FullName!, ex.Message, ex.ToString());
                 }
             }
 

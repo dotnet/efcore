@@ -173,6 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             args.Add(startupTargetPath);
             args.Add("--project-dir");
             args.Add(project.ProjectDir!);
+            args.Add("--root-namespace");
+            args.Add(project.RootNamespace!);
             args.Add("--language");
             args.Add(project.Language!);
             args.Add("--working-dir");
@@ -191,12 +193,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
             if (Reporter.PrefixOutput)
             {
                 args.Add("--prefix-output");
-            }
-
-            if (project.RootNamespace!.Length != 0)
-            {
-                args.Add("--root-namespace");
-                args.Add(project.RootNamespace);
             }
 
             if (_applicationArgs!.Any())

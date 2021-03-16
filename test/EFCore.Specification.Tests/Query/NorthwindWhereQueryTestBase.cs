@@ -2039,26 +2039,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Like_with_non_string_column_using_ToString(bool async)
+        public virtual Task Like_with_non_string_column_using_ToString(bool async)
         {
-            using var context = CreateContext();
-
-            var query = context.Set<Order>().Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%"));
-            var result = async ? await query.ToListAsync() : query.ToList();
-
-            Assert.Equal(new[] { 10320, 10420, 10520, 10620, 10720, 10820, 10920, 11020 }, result.Select(e => e.OrderID));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%")),
+                ss => ss.Set<Order>().Where(o => o.OrderID.ToString().Contains("20")),
+                entryCount: 8);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Like_with_non_string_column_using_double_cast(bool async)
+        public virtual Task Like_with_non_string_column_using_double_cast(bool async)
         {
-            using var context = CreateContext();
-
-            var query = context.Set<Order>().Where(o => EF.Functions.Like((string)(object)o.OrderID, "%20%"));
-            var result = async ? await query.ToListAsync() : query.ToList();
-
-            Assert.Equal(new[] { 10320, 10420, 10520, 10620, 10720, 10820, 10920, 11020 }, result.Select(e => e.OrderID));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => EF.Functions.Like((string)(object)o.OrderID, "%20%")),
+                ss => ss.Set<Order>().Where(o => o.OrderID.ToString().Contains("20")),
+                entryCount: 8);
         }
 
         [ConditionalTheory]

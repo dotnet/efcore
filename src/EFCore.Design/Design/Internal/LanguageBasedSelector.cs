@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual T Select([CanBeNull] string language)
+        public virtual T Select([CanBeNull] string? language)
         {
             if (string.IsNullOrEmpty(language))
             {

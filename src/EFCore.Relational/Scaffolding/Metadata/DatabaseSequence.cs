@@ -3,9 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
@@ -17,14 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The database that contains the sequence.
         /// </summary>
-        [DisallowNull]
-        public virtual DatabaseModel? Database { get; [param: NotNull] set; }
+        public virtual DatabaseModel Database { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The sequence name.
         /// </summary>
-        [DisallowNull]
-        public virtual string? Name { get; [param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The schema that contains the sequence, or <see langword="null" /> to use the default schema.

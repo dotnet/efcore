@@ -37,9 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var model = CreateTestModel(mapToTables: useExplicitMapping, mapping: mapping);
 
-            var m = model.Model.ToDebugString(MetadataDebugStringOptions.LongDefault);
-            var s = model.ToDebugString(MetadataDebugStringOptions.LongDefault);
-
             Assert.Equal(9, model.Model.GetEntityTypes().Count());
             Assert.Equal(mapping == Mapping.TPH || !useExplicitMapping ? 3 : 5, model.Tables.Count());
             Assert.Empty(model.Views);
@@ -905,7 +902,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(tvfFunction, tvfDbFunction.StoreFunction);
             Assert.Same(model.Model.GetDbFunctions().Single(f => f.Parameters.Count() == 1), tvfDbFunction);
             Assert.Same(tvfFunction.Parameters.Single(), tvfDbFunction.Parameters.Single().StoreFunctionParameter);
-            Assert.Same(tvfDbFunction.Parameters.Single(), tvfFunction.Parameters.Single().DbFunctionParameters.Single());
+            Assert.Equal(tvfDbFunction.Parameters.Single().Name, tvfFunction.Parameters.Single().DbFunctionParameters.Single().Name);
         }
 
         private static IRelationalModel Finalize(ModelBuilder modelBuilder)

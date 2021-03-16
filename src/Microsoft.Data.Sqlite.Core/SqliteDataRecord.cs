@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace Microsoft.Data.Sqlite
         private readonly SqliteConnection _connection;
         private byte[][]? _blobCache;
         private int?[]? _typeCache;
+        private Dictionary<string, int>? _columnNameOrdinalCache;
+        private string[]? _columnNameCache;
         private bool _stepped;
         private int? _rowidOrdinal;
 
@@ -100,7 +103,7 @@ namespace Microsoft.Data.Sqlite
 
         public virtual string GetName(int ordinal)
         {
-            var name = sqlite3_column_name(Handle, ordinal).utf8_to_string();
+            var name = _columnNameCache?[ordinal] ?? sqlite3_column_name(Handle, ordinal).utf8_to_string();
             if (name == null
                 && (ordinal < 0 || ordinal >= FieldCount))
             {
@@ -108,17 +111,26 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
             }
 
+            _columnNameCache ??= new string[FieldCount];
+            _columnNameCache[ordinal] = name!;
+
             return name!;
         }
 
         public virtual int GetOrdinal(string name)
         {
-            for (var i = 0; i < FieldCount; i++)
+            if (_columnNameOrdinalCache == null)
             {
-                if (GetName(i) == name)
+                _columnNameOrdinalCache = new Dictionary<string, int>();
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    return i;
+                    _columnNameOrdinalCache[GetName(i)] = i;
                 }
+            }
+            
+            if (_columnNameOrdinalCache.TryGetValue(name, out var ordinal))
+            {
+                return ordinal;
             }
 
             // NB: Message is provided by framework

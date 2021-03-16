@@ -111,6 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 c => c
                     .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning)
                     .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
+                    .Log(CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning)
                     .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning)
                     .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
     }

@@ -621,8 +621,14 @@
   <data name="MissingConcurrencyColumn" xml:space="preserve">
     <value>Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' which is used by another entity type sharing the table '{table}'. Add a store-generated property to '{entityType}' which is mapped to the same column; it may be in shadow state.</value>
   </data>
-  <data name="MissingIdentifyingProjectionInDistinctGroupBySubquery" xml:space="preserve">
-    <value>Unable to translate a collection subquery in a projection since it uses 'Distinct' or 'Group By' operations and doesn't project key columns of all tables required to generate results on the client side. Missing column: {column}. Either add column(s) to the projection or rewrite the query to not use the 'GroupBy'/'Distinct' operation.</value>
+  <data name="UnableToTranslateSubqueryWithDistinct" xml:space="preserve">
+    <value>Subquery with 'Distinct' can only be translated if projection consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the projection, remove complex elements of the projection, or rewrite the query to not use the 'Distinct' operation.</value>
+  </data>
+  <data name="UnableToTranslateSubqueryWithGroupBy" xml:space="preserve">
+    <value>Subquery with 'GroupBy' can only be translated if grouping key consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the grouping key, remove complex elements of the grouping key, or rewrite the query to not use the 'GroupBy' operation.</value>
+  </data>
+  <data name="DistinctOnCollectionNotSupported" xml:space="preserve">
+    <value>Using 'Distinct' operation on a projection containing a collection is not supported.</value>
   </data>
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>

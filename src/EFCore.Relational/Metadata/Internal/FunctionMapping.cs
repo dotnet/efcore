@@ -7,8 +7,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -28,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public FunctionMapping(
             [NotNull] IEntityType entityType,
             [NotNull] StoreFunction storeFunction,
-            [NotNull] DbFunction dbFunction,
+            [NotNull] IDbFunction dbFunction,
             bool includesDerivedTypes)
             : base(entityType, storeFunction, includesDerivedTypes)
         {

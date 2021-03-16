@@ -17,8 +17,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -396,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var foreignKey in Metadata.GetForeignKeys())
                 {
-                    foreignKey.HasPrincipalToDependent((string?)null, configurationSource);
+                    foreignKey.SetPrincipalToDependent((string?)null, configurationSource);
                 }
 
                 foreach (var key in Metadata.GetKeys().ToList())

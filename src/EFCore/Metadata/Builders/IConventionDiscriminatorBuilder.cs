@@ -2,8 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-
-#nullable enable
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -12,6 +11,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public interface IConventionDiscriminatorBuilder
     {
+        /// <summary>
+        ///     Gets the entity type on which the discriminator is being configured.
+        /// </summary>
+        IConventionEntityType EntityType { get; }
+
         /// <summary>
         ///     Configures if the discriminator mapping is complete.
         /// </summary>
@@ -63,6 +67,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value"> The discriminator value. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the discriminator value can be set from this configuration source. </returns>
-        bool CanSetValue([NotNull] IConventionEntityType entityType, [CanBeNull] object? value, bool fromDataAnnotation = false);
+        bool CanSetValue([NotNull] IConventionEntityType entityType, [CanBeNull] object? value, bool fromDataAnnotation = false)
+        {
+            if (!EntityType.IsAssignableFrom(entityType)
+                && !entityType.Builder.CanSetBaseType(EntityType, fromDataAnnotation))
+            {
+                return false;
+            }
+
+            return entityType.Builder.CanSetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation);
+        }
     }
 }

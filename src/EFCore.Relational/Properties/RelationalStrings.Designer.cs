@@ -769,12 +769,26 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, missingColumn, table);
 
         /// <summary>
-        ///     Unable to translate a collection subquery in a projection since it uses 'Distinct' or 'Group By' operations and doesn't project key columns of all tables required to generate results on the client side. Missing column: {column}. Either add column(s) to the projection or rewrite the query to not use the 'GroupBy'/'Distinct' operation.
+        ///     Subquery with 'Distinct' can only be translated if projection consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the projection, remove complex elements of the projection, or rewrite the query to not use the 'Distinct' operation.
         /// </summary>
-        public static string MissingIdentifyingProjectionInDistinctGroupBySubquery([CanBeNull] object? column)
+        public static string UnableToTranslateSubqueryWithDistinct([CanBeNull] object? column)
             => string.Format(
-                GetString("MissingIdentifyingProjectionInDistinctGroupBySubquery", nameof(column)),
+                GetString("UnableToTranslateSubqueryWithDistinct", nameof(column)),
                 column);
+
+        /// <summary>
+        ///     Subquery with 'GroupBy' can only be translated if grouping key consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the grouping key, remove complex elements of the grouping key, or rewrite the query to not use the 'GroupBy' operation.
+        /// </summary>
+        public static string UnableToTranslateSubqueryWithGroupBy([CanBeNull] object? column)
+            => string.Format(
+                GetString("UnableToTranslateSubqueryWithGroupBy", nameof(column)),
+                column);
+
+        /// <summary>
+        ///     Using 'Distinct' operation on a projection containing a collection is not supported.
+        /// </summary>
+        public static string DistinctOnCollectionNotSupported
+            => GetString("DistinctOnCollectionNotSupported");
 
         /// <summary>
         ///     'Reverse' could not be translated to the server because there is no ordering on the server side.

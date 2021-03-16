@@ -13,8 +13,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -627,12 +625,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => ((IReadOnlyEntityType)this).GetNavigations().Cast<IConventionNavigation>();
 
         /// <summary>
-        ///     Adds a new skip navigation properties to this entity type.
+        ///     Adds a new skip navigation property to this entity type.
         /// </summary>
         /// <param name="name"> The name of the skip navigation property to add. </param>
         /// <param name="memberInfo">
         ///     <para>
-        ///         The corresponding CLR type member or <see langword="null" /> for a shadow property.
+        ///         The corresponding CLR type member or <see langword="null" /> for a shadow navigation.
         ///     </para>
         ///     <para>
         ///         An indexer with a <see cref="string" /> parameter and <see cref="object" /> return type can be used.
@@ -961,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         Finds matching properties on the given entity type. Returns <see langword="null" /> if any property is not found.
         ///     </para>
         ///     <para>
-        ///         This API only finds scalar properties and does not find navigation properties.
+        ///         This API only finds scalar properties and does not find navigation or service properties.
         ///     </para>
         /// </summary>
         /// <param name="propertyNames"> The property names. </param>
@@ -1035,23 +1033,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IConventionProperty? RemoveProperty([NotNull] IReadOnlyProperty property);
 
         /// <summary>
-        ///     Adds a <see cref="IConventionServiceProperty" /> to this entity type.
+        ///     Adds a service property to this entity type.
         /// </summary>
         /// <param name="memberInfo"> The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property to add. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The newly created property. </returns>
+        /// <returns> The newly created service property. </returns>
         IConventionServiceProperty AddServiceProperty([NotNull] MemberInfo memberInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     <para>
-        ///         Gets the <see cref="IConventionServiceProperty" /> with a given name.
+        ///         Gets the service property with a given name.
         ///         Returns <see langword="null" /> if no property with the given name is defined.
         ///     </para>
         ///     <para>
         ///         This API only finds service properties and does not find scalar or navigation properties.
         ///     </para>
         /// </summary>
-        /// <param name="name"> The name of the property. </param>
+        /// <param name="name"> The name of the service property. </param>
         /// <returns> The service property, or <see langword="null" /> if none is found. </returns>
         new IConventionServiceProperty? FindServiceProperty([NotNull] string name);
 

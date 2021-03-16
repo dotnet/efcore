@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -125,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
             in StoreObjectIdentifier storeObject,
             bool fromDataAnnotation = false)
         {
-            var overrides = RelationalPropertyOverrides.Find(propertyBuilder.Metadata, storeObject);
+            var overrides = (RelationalPropertyOverrides?)RelationalPropertyOverrides.Find(propertyBuilder.Metadata, storeObject);
             return overrides == null
                 || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
                 .Overrides(overrides.GetColumnNameConfigurationSource())

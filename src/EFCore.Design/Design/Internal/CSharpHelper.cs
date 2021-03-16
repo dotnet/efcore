@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Lambda(IReadOnlyList<string> properties, string lambdaIdentifier)
+        public virtual string Lambda(IReadOnlyList<string> properties, string? lambdaIdentifier)
         {
             Check.NotNull(properties, nameof(properties));
             Check.NullButNotEmpty(lambdaIdentifier, nameof(lambdaIdentifier));
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (type.IsArray)
             {
                 builder
-                    .Append(Reference(type.GetElementType()))
+                    .Append(Reference(type.GetElementType()!))
                     .Append("[");
 
                 var rank = type.GetArrayRank();
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Identifier(string name, ICollection<string> scope = null)
+        public virtual string Identifier(string name, ICollection<string>? scope = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             builder.Append("new");
 
-            var valuesList = values.Cast<object>().ToList();
+            var valuesList = values.Cast<object?>().ToList();
 
             if (valuesList.Count == 0)
             {
@@ -657,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
                     builder.Append(
                         byteArray
-                            ? Literal((int)(byte)value)
+                            ? Literal((int)(byte)value!)
                             : UnknownLiteral(value));
                 }
 
@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(object[,] values)
+        public virtual string Literal(object?[,] values)
         {
             var builder = new IndentedStringBuilder();
 
@@ -769,11 +769,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             return allValues.Aggregate(
-                (string)null,
+                (string?)null,
                 (previous, current) =>
                     previous == null
-                        ? GetSimpleEnumValue(type, Enum.GetName(type, current))
-                        : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)));
+                        ? GetSimpleEnumValue(type, Enum.GetName(type, current)!)
+                        : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!))!;
         }
 
         internal static IReadOnlyCollection<Enum> GetFlags(Enum flags)
@@ -803,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string UnknownLiteral(object value)
+        public virtual string UnknownLiteral(object? value)
         {
             if (value == null)
             {
@@ -824,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (value is Array array)
             {
-                return Array(literalType.GetElementType(), array);
+                return Array(literalType.GetElementType()!, array);
             }
 
             var mapping = _relationalTypeMappingSource.FindMapping(literalType);
@@ -856,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 case ExpressionType.NewArrayInit:
                     builder
                         .Append("new ")
-                        .Append(Reference(expression.Type.GetElementType()))
+                        .Append(Reference(expression.Type.GetElementType()!))
                         .Append("[] { ");
 
                     HandleList(((NewArrayExpression)expression).Expressions, builder, simple: true);
@@ -884,11 +884,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     if (callExpression.Method.IsStatic)
                     {
                         builder
-                            .Append(Reference(callExpression.Method.DeclaringType, useFullName: true));
+                            .Append(Reference(callExpression.Method.DeclaringType!, useFullName: true));
                     }
                     else
                     {
-                        if (!HandleExpression(callExpression.Object, builder))
+                        if (!HandleExpression(callExpression.Object!, builder))
                         {
                             return false;
                         }
@@ -918,7 +918,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     if (memberExpression.Expression == null)
                     {
                         builder
-                            .Append(Reference(memberExpression.Member.DeclaringType, useFullName: true));
+                            .Append(Reference(memberExpression.Member.DeclaringType!, useFullName: true));
                     }
                     else
                     {

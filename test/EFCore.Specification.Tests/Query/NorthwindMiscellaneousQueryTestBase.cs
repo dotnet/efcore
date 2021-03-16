@@ -6448,5 +6448,86 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(91, context.ChangeTracker.Entries().Count());
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(
+                        c => new
+                        {
+                            Key = c.CustomerID,
+                            Subquery = c.Orders
+                                .Select(o => new { First = o.OrderID, Second = o.OrderDate })
+                                .Distinct().ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.First,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.First, aa.First);
+                            Assert.Equal(ee.Second, aa.Second);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(
+                        c => new
+                        {
+                            Key = c.CustomerID,
+                            Subquery = c.Orders
+                                .Select(o => new { First = o.OrderID, Second = o.OrderDate, Third = o.Customer.City })
+                                .Distinct().ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.First,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.First, aa.First);
+                            Assert.Equal(ee.Second, aa.Second);
+                            Assert.Equal(ee.Third, aa.Third);
+                        });
+                });
+
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_nested_collection_with_distinct(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(
+                        c => c.Orders.Any()
+                            ? c.Orders.Select(o => o.CustomerID).Distinct().ToArray()
+                            : Array.Empty<string>()),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
     }
 }

@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>

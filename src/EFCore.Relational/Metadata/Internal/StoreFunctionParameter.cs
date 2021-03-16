@@ -6,8 +6,6 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -26,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public StoreFunctionParameter(
             [NotNull] StoreFunction function,
-            [NotNull] DbFunctionParameter parameter)
+            [NotNull] IRuntimeDbFunctionParameter parameter)
         {
             Function = function;
             Name = parameter.Name;

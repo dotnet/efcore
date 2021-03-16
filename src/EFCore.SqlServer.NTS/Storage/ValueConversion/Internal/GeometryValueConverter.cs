@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal
 {
     /// <summary>

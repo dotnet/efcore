@@ -5,8 +5,6 @@ using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>

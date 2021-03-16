@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class OperationReporter : IOperationReporter
     {
-        private readonly IOperationReportHandler _handler;
+        private readonly IOperationReportHandler? _handler;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public OperationReporter([CanBeNull] IOperationReportHandler handler)
+        public OperationReporter([CanBeNull] IOperationReportHandler? handler)
         {
             _handler = handler;
         }

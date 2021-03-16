@@ -5,9 +5,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
@@ -19,14 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The table that contains the foreign key constraint.
         /// </summary>
-        [DisallowNull]
-        public virtual DatabaseTable? Table { get; [param: NotNull] set; }
+        public virtual DatabaseTable Table { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The table to which the columns are constrained.
         /// </summary>
-        [DisallowNull]
-        public virtual DatabaseTable? PrincipalTable { get; [param: NotNull] set; }
+        public virtual DatabaseTable PrincipalTable { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The ordered list of columns that are constrained.

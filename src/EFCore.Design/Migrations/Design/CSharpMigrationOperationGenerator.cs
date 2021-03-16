@@ -1306,7 +1306,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                 .Append(Code.Literal(foreignKey.Name))
                                 .AppendLine(",")
                                 .Append(
-                                    foreignKey.Columns.Length == 1
+                                    foreignKey.Columns.Length == 1 || foreignKey.PrincipalColumns == null
                                         ? "column: "
                                         : "columns: ")
                                 .Append(Code.Lambda(foreignKey.Columns.Select(c => map[c]).ToList()));
@@ -1322,20 +1322,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             builder
                                 .AppendLine(",")
                                 .Append("principalTable: ")
-                                .Append(Code.Literal(foreignKey.PrincipalTable))
-                                .AppendLine(",");
+                                .Append(Code.Literal(foreignKey.PrincipalTable));
 
-                            if (foreignKey.PrincipalColumns.Length == 1)
+                            if (foreignKey.PrincipalColumns != null)
                             {
-                                builder
-                                    .Append("principalColumn: ")
-                                    .Append(Code.Literal(foreignKey.PrincipalColumns[0]));
-                            }
-                            else
-                            {
-                                builder
-                                    .Append("principalColumns: ")
-                                    .Append(Code.Literal(foreignKey.PrincipalColumns));
+                                builder.AppendLine(",");
+
+                                if (foreignKey.PrincipalColumns.Length == 1)
+                                {
+                                    builder
+                                        .Append("principalColumn: ")
+                                        .Append(Code.Literal(foreignKey.PrincipalColumns[0]));
+                                }
+                                else
+                                {
+                                    builder
+                                        .Append("principalColumns: ")
+                                        .Append(Code.Literal(foreignKey.PrincipalColumns));
+                                }
                             }
 
                             if (foreignKey.OnUpdate != ReferentialAction.NoAction)
@@ -1477,11 +1481,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.Schema));
                 }
 
-                builder
-                    .AppendLine(",")
-                    .Append("table: ")
-                    .Append(Code.Literal(operation.Table))
-                    .Append(")");
+                if (operation.Table != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("table: ")
+                        .Append(Code.Literal(operation.Table));
+                }
+
+                builder.Append(")");
 
                 Annotations(operation.GetAnnotations(), builder);
             }
@@ -1747,10 +1755,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(Code.Literal(operation.Schema));
                 }
 
+                if (operation.Table != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("table: ")
+                        .Append(Code.Literal(operation.Table));
+                }
+
                 builder
-                    .AppendLine(",")
-                    .Append("table: ")
-                    .Append(Code.Literal(operation.Table))
                     .AppendLine(",")
                     .Append("newName: ")
                     .Append(Code.Literal(operation.NewName))
@@ -2267,13 +2280,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
-        private static object[] ToOnedimensionalArray(object[,] values, bool firstDimension = false)
+        private static object?[] ToOnedimensionalArray(object?[,] values, bool firstDimension = false)
         {
             Check.DebugAssert(
                 values.GetLength(firstDimension ? 1 : 0) == 1,
                 $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
 
-            var result = new object[values.Length];
+            var result = new object?[values.Length];
             for (var i = 0; i < values.Length; i++)
             {
                 result[i] = firstDimension

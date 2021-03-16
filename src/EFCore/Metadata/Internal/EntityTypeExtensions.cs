@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable ArgumentsStyleOther
 // ReSharper disable ArgumentsStyleNamedExpression
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -214,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyCounts CalculateCounts([NotNull] this EntityType entityType)
+        public static PropertyCounts CalculateCounts([NotNull] this IRuntimeEntityType entityType)
         {
             var index = 0;
             var navigationIndex = 0;
@@ -243,13 +241,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationshipIndex: property.IsKey() || property.IsForeignKey() ? relationshipIndex++ : -1,
                     storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
 
-                property.PropertyIndexes = indexes;
+                ((IRuntimePropertyBase)property).PropertyIndexes = indexes;
             }
 
             var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;
 
             foreach (var navigation in entityType.GetDeclaredNavigations()
-                .Union<PropertyBase>(entityType.GetDeclaredSkipNavigations()))
+                .Union<IPropertyBase>(entityType.GetDeclaredSkipNavigations()))
             {
                 var indexes = new PropertyIndexes(
                     index: navigationIndex++,
@@ -258,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationshipIndex: ((IReadOnlyNavigationBase)navigation).IsCollection && isNotifying ? -1 : relationshipIndex++,
                     storeGenerationIndex: -1);
 
-                navigation.PropertyIndexes = indexes;
+                ((IRuntimePropertyBase)navigation).PropertyIndexes = indexes;
             }
 
             foreach (var serviceProperty in entityType.GetDeclaredServiceProperties())
@@ -270,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     relationshipIndex: -1,
                     storeGenerationIndex: -1);
 
-                serviceProperty.PropertyIndexes = indexes;
+                ((IRuntimePropertyBase)serviceProperty).PropertyIndexes = indexes;
             }
 
             return new PropertyCounts(

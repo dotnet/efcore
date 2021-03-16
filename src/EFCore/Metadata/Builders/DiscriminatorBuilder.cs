@@ -3,12 +3,11 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -140,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
             else
             {
-                if (!entityTypeBuilder.CanSetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, configurationSource))
+                if (!((IConventionDiscriminatorBuilder)this).CanSetValue(
+                    entityTypeBuilder.Metadata, value, configurationSource == ConfigurationSource.DataAnnotation))
                 {
                     return null;
                 }
@@ -153,21 +153,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <inheritdoc />
+        IConventionEntityType IConventionDiscriminatorBuilder.EntityType
+        {
+            [DebuggerStepThrough]
+            get => EntityTypeBuilder.Metadata;
+        }
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
         IConventionDiscriminatorBuilder? IConventionDiscriminatorBuilder.IsComplete(bool complete, bool fromDataAnnotation)
             => IsComplete(complete, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         bool IConventionDiscriminatorBuilder.CanSetIsComplete(bool complete, bool fromDataAnnotation)
             => ((IConventionEntityTypeBuilder)EntityTypeBuilder).CanSetAnnotation(
                 CoreAnnotationNames.DiscriminatorMappingComplete, fromDataAnnotation);
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         IConventionDiscriminatorBuilder? IConventionDiscriminatorBuilder.HasValue(object? value, bool fromDataAnnotation)
             => HasValue(
                 EntityTypeBuilder, value,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         IConventionDiscriminatorBuilder? IConventionDiscriminatorBuilder.HasValue(
             IConventionEntityType entityType,
             object? value,
@@ -179,19 +190,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionDiscriminatorBuilder.CanSetValue(object? value, bool fromDataAnnotation)
             => ((IConventionDiscriminatorBuilder)this).CanSetValue(EntityTypeBuilder.Metadata, value, fromDataAnnotation);
-
-        /// <inheritdoc />
-        bool IConventionDiscriminatorBuilder.CanSetValue(IConventionEntityType entityType, object? value, bool fromDataAnnotation)
-        {
-            IConventionEntityType baseEntityType = EntityTypeBuilder.Metadata;
-            if (!baseEntityType.IsAssignableFrom(entityType)
-                && !entityType.Builder.CanSetBaseType(baseEntityType, fromDataAnnotation))
-            {
-                return false;
-            }
-
-            return entityType.Builder.CanSetAnnotation(CoreAnnotationNames.DiscriminatorValue, value, fromDataAnnotation);
-        }
 
         #region Hidden System.Object members
 

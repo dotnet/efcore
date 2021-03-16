@@ -4,9 +4,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
@@ -23,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The table name.
         /// </summary>
-        [DisallowNull]
-        public virtual string? Name { get; [param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; } = null!;
 
         /// <summary>
         ///     The table schema, or <see langword="null" /> to use the default schema.

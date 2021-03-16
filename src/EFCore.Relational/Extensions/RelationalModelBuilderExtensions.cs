@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -219,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            var sequence = Sequence.FindSequence(model, name, schema);
+            var sequence = (Sequence?)Sequence.FindSequence(model, name, schema);
             if (sequence != null)
             {
                 sequence.UpdateConfigurationSource(configurationSource);

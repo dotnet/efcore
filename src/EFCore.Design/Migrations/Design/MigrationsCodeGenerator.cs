@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Gets the programming language supported by this service.
         /// </summary>
         /// <value> The language. </value>
-        public virtual string Language
+        public virtual string? Language
             => null;
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="downOperations"> The migration's down operations. </param>
         /// <returns> The migration code. </returns>
         public abstract string GenerateMigration(
-            string migrationNamespace,
+            string? migrationNamespace,
             string migrationName,
             IReadOnlyList<MigrationOperation> upOperations,
             IReadOnlyList<MigrationOperation> downOperations);
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="targetModel"> The migration's target model. </param>
         /// <returns> The migration metadata code. </returns>
         public abstract string GenerateMetadata(
-            string migrationNamespace,
+            string? migrationNamespace,
             Type contextType,
             string migrationName,
             string migrationId,
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="model"> The model. </param>
         /// <returns> The model snapshot code. </returns>
         public abstract string GenerateSnapshot(
-            string modelSnapshotNamespace,
+            string? modelSnapshotNamespace,
             Type contextType,
             string modelSnapshotName,
             IModel model);
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
-        private static IEnumerable<string> GetDataNamespaces(object[,] values)
+        private static IEnumerable<string> GetDataNamespaces(object?[,] values)
         {
             for (var row = 0; row < values.GetLength(0); row++)
             {
@@ -217,9 +217,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             => items.SelectMany(
                 i => Dependencies.AnnotationCodeGenerator.FilterIgnoredAnnotations(i.GetAnnotations())
                     .Select(a => new { Annotatable = i, Annotation = a })
-                    .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value.GetType()).GetNamespaces()));
+                    .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value!.GetType()).GetNamespaces()));
 
-        private ValueConverter FindValueConverter(IProperty property)
+        private ValueConverter? FindValueConverter(IProperty property)
             => (property.FindTypeMapping()
                 ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
 

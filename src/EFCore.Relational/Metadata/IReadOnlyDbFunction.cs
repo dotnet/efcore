@@ -11,12 +11,10 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a relational database function in an <see cref="IReadOnlyModel" />.
+    ///     Represents a relational database function in a model.
     /// </summary>
     public interface IReadOnlyDbFunction : IReadOnlyAnnotatable
     {

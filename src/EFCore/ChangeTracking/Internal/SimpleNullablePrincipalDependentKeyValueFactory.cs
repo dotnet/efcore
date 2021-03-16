@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Update;
 
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     // The methods here box, but this is only used when the primary key is nullable, but the FK is non-nullable,

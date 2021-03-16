@@ -4,8 +4,6 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>

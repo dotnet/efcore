@@ -7,13 +7,11 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a relational database function in an <see cref="IMutableModel" /> in
-    ///     the a form that can be mutated while the model is being built.
+    ///     Represents a relational database function in an model in
+    ///     the form that can be mutated while the model is being built.
     /// </summary>
     public interface IMutableDbFunction : IReadOnlyDbFunction, IMutableAnnotatable
     {

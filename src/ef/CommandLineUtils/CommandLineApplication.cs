@@ -107,53 +107,61 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public int Execute(params string[] args)
         {
             var command = this;
+            IEnumerator<CommandArgument>? arguments = null;
 
             if (HandleResponseFiles)
             {
                 args = ExpandResponseFiles(args).ToArray();
             }
 
-            for (var index = 0; index < args.Length; index++)
+            try
             {
-                var arg = args[index];
-
-                var isLongOption = arg.StartsWith("--", StringComparison.Ordinal);
-                if (isLongOption || arg.StartsWith("-", StringComparison.Ordinal))
+                for (var index = 0; index < args.Length; index++)
                 {
-                    var result = ParseOption(isLongOption, command, args, ref index, out var option);
-                    if (result == ParseOptionResult.ShowHelp)
-                    {
-                        command.ShowHelp();
-                        return 0;
-                    }
+                    var arg = args[index];
 
-                    if (result == ParseOptionResult.ShowVersion)
+                    var isLongOption = arg.StartsWith("--", StringComparison.Ordinal);
+                    if (isLongOption || arg.StartsWith("-", StringComparison.Ordinal))
                     {
-                        command.ShowVersion();
-                        return 0;
-                    }
-                }
-                else
-                {
-                    var subcommand = ParseSubCommand(arg, command);
-                    if (subcommand != null)
-                    {
-                        command = subcommand;
+                        var result = ParseOption(isLongOption, command, args, ref index, out var option);
+                        if (result == ParseOptionResult.ShowHelp)
+                        {
+                            command.ShowHelp();
+                            return 0;
+                        }
+
+                        if (result == ParseOptionResult.ShowVersion)
+                        {
+                            command.ShowVersion();
+                            return 0;
+                        }
                     }
                     else
                     {
-                        using var arguments = new CommandArgumentEnumerator(command.Arguments.GetEnumerator());
-
-                        if (arguments.MoveNext())
+                        var subcommand = ParseSubCommand(arg, command);
+                        if (subcommand != null)
                         {
-                            arguments.Current.Values.Add(arg);
+                            command = subcommand;
                         }
                         else
                         {
-                            HandleUnexpectedArg(command, args, index, argTypeName: "command or argument");
+                            arguments ??= new CommandArgumentEnumerator(command.Arguments.GetEnumerator());
+
+                            if (arguments.MoveNext())
+                            {
+                                arguments.Current.Values.Add(arg);
+                            }
+                            else
+                            {
+                                HandleUnexpectedArg(command, args, index, argTypeName: "command or argument");
+                            }
                         }
                     }
                 }
+            }
+            finally
+            {
+                arguments?.Dispose();
             }
 
             return command.Invoke(command.ApplicationArguments.ToArray());

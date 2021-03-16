@@ -15,8 +15,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -53,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(property, nameof(property));
 
             var overrides = RelationalPropertyOverrides.Find(property, storeObject);
-            if (overrides?.GetColumnNameConfigurationSource() != null)
+            if (overrides?.ColumnNameOverriden == true)
             {
                 return overrides.ColumnName;
             }
@@ -278,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetColumnNameConfigurationSource(
             [NotNull] this IConventionProperty property,
             in StoreObjectIdentifier storeObject)
-            => RelationalPropertyOverrides.Find(property, storeObject)?.GetColumnNameConfigurationSource();
+            => ((RelationalPropertyOverrides?)RelationalPropertyOverrides.Find(property, storeObject))?.GetColumnNameConfigurationSource();
 
         /// <summary>
         ///     Returns the database type of the column to which the property is mapped, or <see langword="null" /> if the database type
@@ -1065,8 +1063,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The <see cref="ConfigurationSource" /> for the column comment. </returns>
         public static ConfigurationSource? GetCommentConfigurationSource([NotNull] this IConventionProperty property)
-            => property.FindAnnotation(RelationalAnnotationNames.Comment)
-                ?.GetConfigurationSource();
+            => property.FindAnnotation(RelationalAnnotationNames.Comment)?.GetConfigurationSource();
 
         /// <summary>
         ///     Returns the collation to be used for the column.
@@ -1367,7 +1364,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> An object that stores property facet overrides. </returns>
         public static IMutableAnnotatable? FindOverrides([NotNull] this IMutableProperty property, in StoreObjectIdentifier storeObject)
-            => RelationalPropertyOverrides.Find(property, storeObject);
+            => (IMutableAnnotatable?)RelationalPropertyOverrides.Find(property, storeObject);
 
         /// <summary>
         ///     <para>
@@ -1382,7 +1379,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> An object that stores property facet overrides. </returns>
         public static IConventionAnnotatable? FindOverrides([NotNull] this IConventionProperty property, in StoreObjectIdentifier storeObject)
-            => RelationalPropertyOverrides.Find(property, storeObject);
+            => (IConventionAnnotatable?)RelationalPropertyOverrides.Find(property, storeObject);
 
         /// <summary>
         ///     <para>
@@ -1397,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> An object that stores property facet overrides. </returns>
         public static IAnnotatable? FindOverrides([NotNull] this IProperty property, in StoreObjectIdentifier storeObject)
-            => RelationalPropertyOverrides.Find(property, storeObject);
+            => (IAnnotatable?)RelationalPropertyOverrides.Find(property, storeObject);
 
         /// <summary>
         ///     <para>
@@ -1414,7 +1411,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IMutableAnnotatable GetOrCreateOverrides(
             [NotNull] this IMutableProperty property,
             in StoreObjectIdentifier storeObject)
-            => RelationalPropertyOverrides.GetOrCreate(property, storeObject);
+            => (IMutableAnnotatable)RelationalPropertyOverrides.GetOrCreate(property, storeObject);
 
         /// <summary>
         ///     <para>
@@ -1431,6 +1428,6 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionAnnotatable GetOrCreateOverrides(
             [NotNull] this IConventionProperty property,
             in StoreObjectIdentifier storeObject)
-            => RelationalPropertyOverrides.GetOrCreate(property, storeObject);
+            => (IConventionAnnotatable)RelationalPropertyOverrides.GetOrCreate(property, storeObject);
     }
 }

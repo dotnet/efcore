@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
 {
     /// <summary>

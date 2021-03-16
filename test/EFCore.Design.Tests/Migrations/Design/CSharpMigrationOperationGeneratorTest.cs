@@ -1437,8 +1437,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             Name = "FK_Post_Blog_BlogId",
                             Table = "Post",
                             Columns = new[] { "BlogId" },
-                            PrincipalTable = "Blog",
-                            PrincipalColumns = new[] { "Id" }
+                            PrincipalTable = "Blog"
                         }
                     }
                 },
@@ -1464,9 +1463,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "            column: x => x.BlogId,"
                 + _eol
-                + "            principalTable: \"Blog\","
-                + _eol
-                + "            principalColumn: \"Id\");"
+                + "            principalTable: \"Blog\");"
                 + _eol
                 + "    });",
                 o =>
@@ -1620,6 +1617,67 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(new[] { "BlogId1", "BlogId2" }, fk.Columns.ToArray());
                     Assert.Equal("Blog", fk.PrincipalTable);
                     Assert.Equal(new[] { "Id1", "Id2" }, fk.PrincipalColumns);
+                });
+        }
+
+        [ConditionalFact]
+        public void CreateTableOperation_ForeignKeys_composite_no_principal_columns()
+        {
+            Test(
+                new CreateTableOperation
+                {
+                    Name = "Post",
+                    Columns =
+                    {
+                        new AddColumnOperation { Name = "BlogId1", ClrType = typeof(int) },
+                        new AddColumnOperation { Name = "BlogId2", ClrType = typeof(int) }
+                    },
+                    ForeignKeys =
+                    {
+                        new AddForeignKeyOperation
+                        {
+                            Name = "FK_Post_Blog_BlogId1_BlogId2",
+                            Table = "Post",
+                            Columns = new[] { "BlogId1", "BlogId2" },
+                            PrincipalTable = "Blog"
+                        }
+                    }
+                },
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        BlogId1 = table.Column<int>(nullable: false),"
+                + _eol
+                + "        BlogId2 = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.ForeignKey("
+                + _eol
+                + "            name: \"FK_Post_Blog_BlogId1_BlogId2\","
+                + _eol
+                + "            column: x => new { x.BlogId1, x.BlogId2 },"
+                + _eol
+                + "            principalTable: \"Blog\");"
+                + _eol
+                + "    });",
+                o =>
+                {
+                    Assert.Single(o.ForeignKeys);
+
+                    var fk = o.ForeignKeys.First();
+                    Assert.Equal("Post", fk.Table);
+                    Assert.Equal(new[] { "BlogId1", "BlogId2" }, fk.Columns.ToArray());
+                    Assert.Equal("Blog", fk.PrincipalTable);
                 });
         }
 
@@ -2188,12 +2246,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void DropIndexOperation_required_args()
         {
             Test(
-                new DropIndexOperation { Name = "IX_Post_Title", Table = "Post" },
-                "mb.DropIndex(" + _eol + "    name: \"IX_Post_Title\"," + _eol + "    table: \"Post\");",
+                new DropIndexOperation { Name = "IX_Post_Title" },
+                "mb.DropIndex(" + _eol + "    name: \"IX_Post_Title\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
-                    Assert.Equal("Post", o.Table);
                 });
         }
 
@@ -2432,20 +2489,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 new RenameIndexOperation
                 {
                     Name = "IX_Post_Title",
-                    Table = "Post",
                     NewName = "IX_Post_PostTitle"
                 },
                 "mb.RenameIndex("
                 + _eol
                 + "    name: \"IX_Post_Title\","
                 + _eol
-                + "    table: \"Post\","
-                + _eol
                 + "    newName: \"IX_Post_PostTitle\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
-                    Assert.Equal("Post", o.Table);
                     Assert.Equal("IX_Post_PostTitle", o.NewName);
                 });
         }

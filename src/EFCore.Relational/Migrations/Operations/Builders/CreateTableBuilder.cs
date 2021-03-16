@@ -10,8 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
 {
     /// <summary>
@@ -53,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             [NotNull] string name,
             [NotNull] Expression<Func<TColumns, object>> column,
             [NotNull] string principalTable,
-            [NotNull] string principalColumn,
+            [CanBeNull] string? principalColumn = null,
             [CanBeNull] string? principalSchema = null,
             ReferentialAction onUpdate = ReferentialAction.NoAction,
             ReferentialAction onDelete = ReferentialAction.NoAction)
@@ -61,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
                 name,
                 column,
                 principalTable,
-                new[] { principalColumn },
+                principalColumn == null ? null : new[] { principalColumn },
                 principalSchema,
                 onUpdate,
                 onDelete);
@@ -81,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             [NotNull] string name,
             [NotNull] Expression<Func<TColumns, object>> columns,
             [NotNull] string principalTable,
-            [NotNull] string[] principalColumns,
+            [CanBeNull] string[]? principalColumns,
             [CanBeNull] string? principalSchema = null,
             ReferentialAction onUpdate = ReferentialAction.NoAction,
             ReferentialAction onDelete = ReferentialAction.NoAction)

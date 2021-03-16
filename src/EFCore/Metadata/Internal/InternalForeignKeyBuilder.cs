@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -399,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (navigationToDependent != null)
                     {
-                        Metadata.HasPrincipalToDependent((string?)null, configurationSource);
+                        Metadata.SetPrincipalToDependent((string?)null, configurationSource);
                     }
 
                     var navigationProperty = navigationToPrincipal.Value.MemberInfo;
@@ -442,11 +440,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (navigationProperty != null)
                     {
-                        Metadata.HasPrincipalToDependent(navigationProperty, configurationSource);
+                        Metadata.SetPrincipalToDependent(navigationProperty, configurationSource);
                     }
                     else
                     {
-                        Metadata.HasPrincipalToDependent(navigationToDependentName, configurationSource);
+                        Metadata.SetPrincipalToDependent(navigationToDependentName, configurationSource);
                     }
                 }
 

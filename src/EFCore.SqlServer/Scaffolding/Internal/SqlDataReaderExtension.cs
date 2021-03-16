@@ -5,8 +5,6 @@ using System.Data.Common;
 using JetBrains.Annotations;
 using CA = System.Diagnostics.CodeAnalysis;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
     /// <summary>

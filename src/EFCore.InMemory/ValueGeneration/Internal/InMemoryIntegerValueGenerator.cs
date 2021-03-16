@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
 {
     /// <summary>

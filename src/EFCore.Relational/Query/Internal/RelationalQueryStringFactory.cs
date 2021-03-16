@@ -5,8 +5,6 @@ using System.Data.Common;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>

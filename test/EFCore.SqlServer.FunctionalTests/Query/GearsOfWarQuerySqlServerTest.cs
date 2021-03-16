@@ -4221,13 +4221,19 @@ ORDER BY [g].[Nickname]");
             await base.Correlated_collections_with_Distinct(async);
 
             AssertSql(
-                @"SELECT [s].[Id], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+                @"SELECT [s].[Id], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOfBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
 FROM [Squads] AS [s]
-LEFT JOIN (
-    SELECT DISTINCT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
-    FROM [Gears] AS [g]
-) AS [t] ON [s].[Id] = [t].[SquadId]
-ORDER BY [s].[Name], [s].[Id], [t].[Nickname], [t].[SquadId]");
+OUTER APPLY (
+    SELECT DISTINCT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+    FROM (
+        SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+        FROM [Gears] AS [g]
+        WHERE [s].[Id] = [g].[SquadId]
+        ORDER BY [g].[Nickname]
+        OFFSET 0 ROWS
+    ) AS [t]
+) AS [t0]
+ORDER BY [s].[Name], [s].[Id], [t0].[Nickname], [t0].[SquadId]");
         }
 
         public override async Task Correlated_collections_with_FirstOrDefault(bool async)
@@ -7759,6 +7765,182 @@ ORDER BY CASE
     WHEN [t].[GearNickName] IS NOT NULL THEN [g].[SquadId]
     ELSE NULL
 END, [t].[Note]");
+        }
+
+        public override async Task Correlated_collection_with_distinct_projecting_identifier_column(bool async)
+        {
+            await base.Correlated_collection_with_distinct_projecting_identifier_column(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [t].[Id], [t].[Name]
+FROM [Gears] AS [g]
+OUTER APPLY (
+    SELECT DISTINCT [w].[Id], [w].[Name]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+) AS [t]
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
+        }
+
+        public override async Task Correlated_collection_with_distinct_projecting_identifier_column_and_correlation_key(bool async)
+        {
+            await base.Correlated_collection_with_distinct_projecting_identifier_column_and_correlation_key(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [t].[Id], [t].[Name], [t].[OwnerFullName]
+FROM [Gears] AS [g]
+LEFT JOIN (
+    SELECT DISTINCT [w].[Id], [w].[Name], [w].[OwnerFullName]
+    FROM [Weapons] AS [w]
+) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
+        }
+
+        public override async Task Correlated_collection_with_distinct_projecting_identifier_column_composite_key(bool async)
+        {
+            await base.Correlated_collection_with_distinct_projecting_identifier_column_composite_key(async);
+
+            AssertSql(
+                @"SELECT [s].[Id], [t].[Nickname], [t].[SquadId], [t].[HasSoulPatch]
+FROM [Squads] AS [s]
+LEFT JOIN (
+    SELECT DISTINCT [g].[Nickname], [g].[SquadId], [g].[HasSoulPatch]
+    FROM [Gears] AS [g]
+) AS [t] ON [s].[Id] = [t].[SquadId]
+ORDER BY [s].[Id], [t].[Nickname], [t].[SquadId]");
+        }
+
+        public override async Task Correlated_collection_with_distinct_not_projecting_identifier_column(bool async)
+        {
+            await base.Correlated_collection_with_distinct_not_projecting_identifier_column(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [t].[Name], [t].[IsAutomatic]
+FROM [Gears] AS [g]
+OUTER APPLY (
+    SELECT DISTINCT [w].[Name], [w].[IsAutomatic]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+) AS [t]
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Name], [t].[IsAutomatic]");
+        }
+
+        public override async Task Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(bool async)
+        {
+            await base.Correlated_collection_with_groupby_not_projecting_identifier_column_but_only_grouping_key_in_final_projection(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [t].[Key]
+FROM [Gears] AS [g]
+OUTER APPLY (
+    SELECT [w].[IsAutomatic] AS [Key]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    GROUP BY [w].[IsAutomatic]
+) AS [t]
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Key]");
+        }
+
+        public override async Task Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
+        {
+            await base.Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [t].[Key], [t].[Count]
+FROM [Gears] AS [g]
+OUTER APPLY (
+    SELECT [w].[IsAutomatic] AS [Key], COUNT(*) AS [Count]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    GROUP BY [w].[IsAutomatic]
+) AS [t]
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Key]");
+        }
+
+        public override async Task Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(bool async)
+        {
+            await base.Correlated_collection_with_groupby_not_projecting_identifier_column_with_group_aggregate_in_final_projection_multiple_grouping_keys(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [t].[IsAutomatic], [t].[Name], [t].[Count]
+FROM [Gears] AS [g]
+OUTER APPLY (
+    SELECT [w].[IsAutomatic], [w].[Name], COUNT(*) AS [Count]
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+    GROUP BY [w].[IsAutomatic], [w].[Name]
+) AS [t]
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[IsAutomatic], [t].[Name]");
+        }
+     
+        public override async Task Correlated_collection_via_SelectMany_with_Distinct_missing_indentifying_columns_in_projection(bool async)
+        {
+            await base.Correlated_collection_via_SelectMany_with_Distinct_missing_indentifying_columns_in_projection(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [t].[HasSoulPatch]
+FROM [Gears] AS [g]
+OUTER APPLY (
+    SELECT DISTINCT [g1].[HasSoulPatch]
+    FROM [Weapons] AS [w]
+    LEFT JOIN [Gears] AS [g0] ON [w].[OwnerFullName] = [g0].[FullName]
+    LEFT JOIN [Cities] AS [c] ON [g0].[AssignedCityName] = [c].[Name]
+    INNER JOIN [Gears] AS [g1] ON [c].[Name] = [g1].[CityOfBirthName]
+    WHERE [g].[FullName] = [w].[OwnerFullName]
+) AS [t]
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[HasSoulPatch]");
+        }
+
+        public override async Task Correlated_collection_after_distinct_3_levels(bool async)
+        {
+            await base.Correlated_collection_after_distinct_3_levels(async);
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[Name], [t2].[Nickname], [t2].[FullName], [t2].[HasSoulPatch], [t2].[Id], [t2].[Name], [t2].[Nickname0], [t2].[FullName0], [t2].[HasSoulPatch0], [t2].[Id0]
+FROM (
+    SELECT DISTINCT [s].[Id], [s].[Name]
+    FROM [Squads] AS [s]
+) AS [t]
+OUTER APPLY (
+    SELECT [t0].[Nickname], [t0].[FullName], [t0].[HasSoulPatch], [t1].[Id], [t1].[Name], [t1].[Nickname] AS [Nickname0], [t1].[FullName] AS [FullName0], [t1].[HasSoulPatch] AS [HasSoulPatch0], [t1].[Id0]
+    FROM (
+        SELECT DISTINCT [g].[Nickname], [g].[FullName], [g].[HasSoulPatch]
+        FROM [Gears] AS [g]
+        WHERE [g].[SquadId] = [t].[Id]
+    ) AS [t0]
+    OUTER APPLY (
+        SELECT [t].[Id], [t].[Name], [t0].[Nickname], [t0].[FullName], [t0].[HasSoulPatch], [w].[Id] AS [Id0]
+        FROM [Weapons] AS [w]
+        WHERE [t0].[FullName] = [w].[OwnerFullName]
+    ) AS [t1]
+) AS [t2]
+ORDER BY [t].[Id], [t2].[Nickname], [t2].[FullName], [t2].[HasSoulPatch], [t2].[Id0]");
+        }
+
+        public override async Task Correlated_collection_after_distinct_3_levels_without_original_identifiers(bool async)
+        {
+            await base.Correlated_collection_after_distinct_3_levels_without_original_identifiers(async);
+
+            AssertSql(
+                @"SELECT [t].[Length], [t2].[HasSoulPatch], [t2].[CityOfBirthName], [t2].[Id], [t2].[Length], [t2].[HasSoulPatch0]
+FROM (
+    SELECT DISTINCT CAST(LEN([s].[Name]) AS int) AS [Length]
+    FROM [Squads] AS [s]
+) AS [t]
+OUTER APPLY (
+    SELECT [t0].[HasSoulPatch], [t0].[CityOfBirthName], [t1].[Id], [t1].[Length], [t1].[HasSoulPatch] AS [HasSoulPatch0]
+    FROM (
+        SELECT DISTINCT [g].[HasSoulPatch], [g].[CityOfBirthName]
+        FROM [Gears] AS [g]
+        WHERE CAST(LEN([g].[Nickname]) AS int) = [t].[Length]
+    ) AS [t0]
+    OUTER APPLY (
+        SELECT [w].[Id], [t].[Length], [t0].[HasSoulPatch]
+        FROM [Weapons] AS [w]
+        WHERE [t0].[CityOfBirthName] = [w].[OwnerFullName]
+    ) AS [t1]
+) AS [t2]
+ORDER BY [t].[Length], [t2].[HasSoulPatch], [t2].[CityOfBirthName], [t2].[Id]");
         }
 
         private void AssertSql(params string[] expected)

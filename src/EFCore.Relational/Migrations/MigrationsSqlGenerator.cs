@@ -17,8 +17,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using NotNullWhenAttribute = System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     /// <summary>

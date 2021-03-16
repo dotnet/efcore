@@ -3,14 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -259,14 +258,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to get the sequences in. </param>
         public static IEnumerable<IMutableSequence> GetSequences([NotNull] this IMutableModel model)
-            => Sequence.GetSequences(Check.NotNull(model, nameof(model)));
+            => Sequence.GetSequences(Check.NotNull(model, nameof(model))).Cast<IMutableSequence>();
 
         /// <summary>
         ///     Returns all sequences contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the sequences in. </param>
         public static IEnumerable<IConventionSequence> GetSequences([NotNull] this IConventionModel model)
-            => Sequence.GetSequences(Check.NotNull(model, nameof(model)));
+            => Sequence.GetSequences(Check.NotNull(model, nameof(model))).Cast<IConventionSequence>();
 
         /// <summary>
         ///     Returns all sequences contained in the model.
@@ -465,14 +464,14 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to get the functions in. </param>
         public static IEnumerable<IMutableDbFunction> GetDbFunctions([NotNull] this IMutableModel model)
-            => DbFunction.GetDbFunctions((Model)Check.NotNull(model, nameof(model)));
+            => DbFunction.GetDbFunctions((Model)Check.NotNull(model, nameof(model))).Cast<IMutableDbFunction>();
 
         /// <summary>
         ///     Returns all functions contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the functions in. </param>
         public static IEnumerable<IConventionDbFunction> GetDbFunctions([NotNull] this IConventionModel model)
-            => DbFunction.GetDbFunctions((Model)Check.NotNull(model, nameof(model)));
+            => DbFunction.GetDbFunctions((Model)Check.NotNull(model, nameof(model))).Cast<IConventionDbFunction>();
 
         /// <summary>
         ///     Returns all functions contained in the model.

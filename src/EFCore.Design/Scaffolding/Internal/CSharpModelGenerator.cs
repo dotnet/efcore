@@ -89,12 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
             }
 
-            if (options.ModelNamespace == null)
-            {
-                throw new ArgumentException(
-                    CoreStrings.ArgumentPropertyNull(nameof(options.ModelNamespace), nameof(options)), nameof(options));
-            }
-
             var generatedCode = CSharpDbContextGenerator.WriteCode(
                 model,
                 options.ContextName,

@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
@@ -23,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     /// </summary>
     public class EntityProjectionExpression : Expression, IPrintableExpression
     {
-        private readonly IDictionary<IProperty, Expression> _readExpressionMap;
+        private readonly IDictionary<IProperty, MethodCallExpression> _readExpressionMap;
 
         private readonly IDictionary<INavigation, EntityShaperExpression> _navigationExpressionsCache
             = new Dictionary<INavigation, EntityShaperExpression>();
@@ -36,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         public EntityProjectionExpression(
             [NotNull] IEntityType entityType,
-            [NotNull] IDictionary<IProperty, Expression> readExpressionMap)
+            [NotNull] IDictionary<IProperty, MethodCallExpression> readExpressionMap)
         {
             EntityType = entityType;
             _readExpressionMap = readExpressionMap;
@@ -83,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         derivedType.DisplayName(), EntityType.DisplayName()));
             }
 
-            var readExpressionMap = new Dictionary<IProperty, Expression>();
+            var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
             foreach (var kvp in _readExpressionMap)
             {
                 var property = kvp.Key;
@@ -103,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression BindProperty([NotNull] IProperty property)
+        public virtual MethodCallExpression BindProperty([NotNull] IProperty property)
         {
             if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))

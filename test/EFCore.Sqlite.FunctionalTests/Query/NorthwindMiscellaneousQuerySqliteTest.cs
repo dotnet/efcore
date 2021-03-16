@@ -319,6 +319,18 @@ FROM ""Orders"" AS ""o""");
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Select_correlated_subquery_ordered(async))).Message);
 
+        public override async Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async))).Message);
+
+        public override async Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async))).Message);
+
         [ConditionalFact]
         public async Task Single_Predicate_Cancellation()
         {

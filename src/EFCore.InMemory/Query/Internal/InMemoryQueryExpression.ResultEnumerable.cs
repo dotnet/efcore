@@ -6,8 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public partial class InMemoryQueryExpression

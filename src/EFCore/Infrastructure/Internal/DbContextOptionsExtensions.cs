@@ -4,8 +4,6 @@
 using System.Text;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
     /// <summary>

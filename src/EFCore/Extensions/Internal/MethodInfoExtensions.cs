@@ -5,8 +5,6 @@ using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 
-#nullable enable
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {

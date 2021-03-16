@@ -20,8 +20,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using CA = System.Diagnostics.CodeAnalysis;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
@@ -647,13 +645,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     {
                         var predicate = TranslateInternal(RemapLambda(groupingElement, lambdaExpression));
 
-                        return predicate == null
-                            ? null
-                            : groupingElement.UpdateSource(
-                                Expression.Call(
-                                    EnumerableMethods.Where.MakeGenericMethod(typeof(ValueBuffer)),
-                                    groupingElement.Source,
-                                    Expression.Lambda(predicate, groupingElement.ValueBufferParameter)));
+                        if (predicate == null)
+                        {
+                            return null;
+                        }
+
+                        if (predicate.Type != typeof(bool))
+                        {
+                            predicate = Expression.Equal(predicate, Expression.Constant(true, typeof(bool?)));
+                        }
+
+                        return groupingElement.UpdateSource(
+                            Expression.Call(
+                                EnumerableMethods.Where.MakeGenericMethod(typeof(ValueBuffer)),
+                                groupingElement.Source,
+                                Expression.Lambda(predicate, groupingElement.ValueBufferParameter)));
                     }
 
                     Expression? ApplySelect(GroupingElementExpression groupingElement)
@@ -1185,15 +1191,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 // if the result type change was just nullability change e.g from int to int?
                 // we want to preserve the new type for null propagation
-                if (result.Type != type
+                return result.Type != type
                     && !(result.Type.IsNullableType()
                         && !type.IsNullableType()
-                        && result.Type.UnwrapNullableType() == type))
-                {
-                    result = Expression.Convert(result, type);
-                }
-
-                return result;
+                        && result.Type.UnwrapNullableType() == type)
+                    ? Expression.Convert(result, type)
+                    : (Expression)result;
             }
 
             if (entityReferenceExpression.SubqueryEntity != null)

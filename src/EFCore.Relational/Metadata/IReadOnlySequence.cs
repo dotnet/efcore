@@ -5,8 +5,6 @@ using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -25,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string? Schema { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IReadOnlyModel" /> in which this sequence is defined.
+        ///     Gets the model in which this sequence is defined.
         /// </summary>
         IReadOnlyModel Model { get; }
 

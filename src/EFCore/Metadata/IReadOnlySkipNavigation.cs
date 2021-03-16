@@ -7,8 +7,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -108,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
-                && ((Annotatable)this).IsReadOnly)
+                && ((AnnotatableBase)this).IsReadOnly)
             {
                 var indexes = ((ISkipNavigation)this).GetPropertyIndexes();
                 builder.Append(" ").Append(indexes.Index);
