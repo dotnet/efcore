@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {

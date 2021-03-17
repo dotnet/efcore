@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Net.NetworkInformation;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {

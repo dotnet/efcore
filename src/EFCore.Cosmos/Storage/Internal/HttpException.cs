@@ -3,7 +3,6 @@
 
 using System;
 using System.Net.Http;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {

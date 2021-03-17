@@ -5,7 +5,6 @@ using System;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Transactions;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
