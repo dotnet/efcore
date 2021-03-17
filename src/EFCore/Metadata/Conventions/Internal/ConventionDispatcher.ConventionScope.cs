@@ -194,7 +194,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public abstract FieldInfo? OnPropertyFieldChanged(
                 IConventionPropertyBuilder propertyBuilder,
-                // TODO-NULLABLE: Verify missing annotation
                 FieldInfo? newFieldInfo,
                 FieldInfo? oldFieldInfo);
 

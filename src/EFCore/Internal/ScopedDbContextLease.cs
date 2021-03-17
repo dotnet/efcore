@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {

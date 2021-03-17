@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>

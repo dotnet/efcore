@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal

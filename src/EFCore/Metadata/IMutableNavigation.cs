@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {

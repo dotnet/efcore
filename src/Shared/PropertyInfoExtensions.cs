@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 
 #nullable enable
 
@@ -32,12 +31,12 @@ namespace System.Reflection
         }
 
         public static PropertyInfo? FindGetterProperty(this PropertyInfo propertyInfo)
-            => propertyInfo.DeclaringType
+            => propertyInfo.DeclaringType!
                 .GetPropertiesInHierarchy(propertyInfo.GetSimpleMemberName())
                 .FirstOrDefault(p => p.GetMethod != null);
 
         public static PropertyInfo? FindSetterProperty(this PropertyInfo propertyInfo)
-            => propertyInfo.DeclaringType
+            => propertyInfo.DeclaringType!
                 .GetPropertiesInHierarchy(propertyInfo.GetSimpleMemberName())
                 .FirstOrDefault(p => p.SetMethod != null);
     }

@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {

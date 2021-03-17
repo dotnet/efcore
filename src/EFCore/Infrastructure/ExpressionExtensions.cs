@@ -83,7 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static readonly Type _assignBinaryExpressionType
-            // TODO-Nullable: Somethings are unexplainable
             = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression", throwOnError: true)!;
 
         /// <summary>

@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {

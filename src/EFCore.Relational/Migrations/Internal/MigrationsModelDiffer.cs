@@ -2413,7 +2413,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual object GetDefaultValue(Type type)
+        protected virtual object? GetDefaultValue(Type type)
             => type == typeof(string)
                 ? string.Empty
                 : type.IsArray
