@@ -3,10 +3,12 @@
     "dotnet": "6.0.100-preview.2.21155.3",
     "runtimes": {
       "dotnet": [
-        "3.1.13"
+        "3.1.13",
+        "5.0.4"
       ],
       "aspnetcore": [
-        "3.1.13"
+        "3.1.13",
+        "5.0.4"
       ]
     }
   },
@@ -16,7 +18,7 @@
     "rollForward": "latestMajor"
   },
   "msbuild-sdks": {
-    "Microsoft.DotNet.Arcade.Sdk": "6.0.0-beta.21125.5",
-    "Microsoft.DotNet.Helix.Sdk": "6.0.0-beta.21125.5"
+    "Microsoft.DotNet.Arcade.Sdk": "6.0.0-beta.21160.7",
+    "Microsoft.DotNet.Helix.Sdk": "6.0.0-beta.21160.7"
   }
 }
