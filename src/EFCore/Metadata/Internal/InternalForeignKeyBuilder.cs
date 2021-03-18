@@ -3309,9 +3309,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (configurationSource != ConfigurationSource.Explicit
                     && (shouldResetToPrincipal || shouldResetToDependent)
-                    && (navigationToPrincipal == null
-                        || navigationToPrincipal.Value.IsNone()
-                        || navigationToDependent?.IsNone() != false)
+                    && (navigationToPrincipal?.Name is null || navigationToDependent?.Name is null)
                     && candidateRelationship.Metadata.DependentToPrincipal != null
                     && candidateRelationship.Metadata.PrincipalToDependent != null
                     && ((!candidateRelationshipInverted
