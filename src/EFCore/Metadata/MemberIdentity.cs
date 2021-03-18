@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -46,6 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Checks if the identity is empty, as opposed to representing a member.
         /// </summary>
         /// <returns> <see langword="true" /> if the identity is empty; <see langword="false" /> otherwise. </returns>
+        [Obsolete("Compare Name to null")]
+        [MemberNotNullWhen(false, nameof(Name))]
         public bool IsNone()
             => _nameOrMember == null;
 
