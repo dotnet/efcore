@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -28,7 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
     public sealed class ColumnExpression : SqlExpression
     {
-        internal ColumnExpression(IProperty property, IColumnBase column, TableExpressionBase table, bool nullable)
+        private readonly TableReferenceExpression _table;
+
+        internal ColumnExpression(IProperty property, IColumnBase column, TableReferenceExpression table, bool nullable)
             : this(
                 column.Name,
                 table,
@@ -38,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
         }
 
-        internal ColumnExpression(ProjectionExpression subqueryProjection, TableExpressionBase table)
+        internal ColumnExpression(ProjectionExpression subqueryProjection, TableReferenceExpression table)
             : this(
                 subqueryProjection.Alias, table,
                 subqueryProjection.Type, subqueryProjection.Expression.TypeMapping!,
@@ -54,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 _ => true,
             };
 
-        private ColumnExpression(string name, TableExpressionBase table, Type type, RelationalTypeMapping typeMapping, bool nullable)
+        private ColumnExpression(string name, TableReferenceExpression table, Type type, RelationalTypeMapping typeMapping, bool nullable)
             : base(type, typeMapping)
         {
             Check.NotEmpty(name, nameof(name));
@@ -62,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotEmpty(table.Alias, $"{nameof(table)}.{nameof(table.Alias)}");
 
             Name = name;
-            Table = table;
+            _table = table;
             IsNullable = nullable;
         }
 
@@ -74,7 +77,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The table from which column is being referenced.
         /// </summary>
-        public TableExpressionBase Table { get; }
+        public TableExpressionBase Table => _table.Table;
+
+        /// <summary>
+        ///     The alias of the table from which column is being referenced.
+        /// </summary>
+        public string TableAlias => _table.Alias;
 
         /// <summary>
         ///     The bool value indicating if this column can have null values.
@@ -94,14 +102,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <returns> A new expression which has <see cref="IsNullable" /> property set to true. </returns>
         public ColumnExpression MakeNullable()
-            => new(Name, Table, Type, TypeMapping!, true);
+            => new(Name, _table, Type, TypeMapping!, true);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
+            => _table.UpdateTableReference(oldSelect, newSelect);
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
-            expressionPrinter.Append(Table.Alias!).Append(".");
+            expressionPrinter.Append(TableAlias).Append(".");
             expressionPrinter.Append(Name);
         }
 
@@ -115,14 +133,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private bool Equals(ColumnExpression columnExpression)
             => base.Equals(columnExpression)
                 && Name == columnExpression.Name
-                && Table.Equals(columnExpression.Table)
+                && _table.Equals(columnExpression._table)
                 && IsNullable == columnExpression.IsNullable;
 
         /// <inheritdoc />
         public override int GetHashCode()
-            => HashCode.Combine(base.GetHashCode(), Name, Table, IsNullable);
+            => HashCode.Combine(base.GetHashCode(), Name, _table, IsNullable);
 
         private string DebuggerDisplay()
-            => $"{Table.Alias}.{Name}";
+            => $"{TableAlias}.{Name}";
     }
 }

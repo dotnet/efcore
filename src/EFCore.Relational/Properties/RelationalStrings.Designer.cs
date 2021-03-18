@@ -280,6 +280,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, baseType);
 
         /// <summary>
+        ///     Using 'Distinct' operation on a projection containing a collection is not supported.
+        /// </summary>
+        public static string DistinctOnCollectionNotSupported
+            => GetString("DistinctOnCollectionNotSupported");
+
+        /// <summary>
         ///     The check constraint '{checkConstraint}' cannot be added to the entity type '{entityType}' because another check constraint with the same name already exists.
         /// </summary>
         public static string DuplicateCheckConstraint(object? checkConstraint, object? entityType)
@@ -766,28 +772,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("MissingConcurrencyColumn", nameof(entityType), nameof(missingColumn), nameof(table)),
                 entityType, missingColumn, table);
-
-        /// <summary>
-        ///     Subquery with 'Distinct' can only be translated if projection consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the projection, remove complex elements of the projection, or rewrite the query to not use the 'Distinct' operation.
-        /// </summary>
-        public static string UnableToTranslateSubqueryWithDistinct(object? column)
-            => string.Format(
-                GetString("UnableToTranslateSubqueryWithDistinct", nameof(column)),
-                column);
-
-        /// <summary>
-        ///     Subquery with 'GroupBy' can only be translated if grouping key consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the grouping key, remove complex elements of the grouping key, or rewrite the query to not use the 'GroupBy' operation.
-        /// </summary>
-        public static string UnableToTranslateSubqueryWithGroupBy(object? column)
-            => string.Format(
-                GetString("UnableToTranslateSubqueryWithGroupBy", nameof(column)),
-                column);
-
-        /// <summary>
-        ///     Using 'Distinct' operation on a projection containing a collection is not supported.
-        /// </summary>
-        public static string DistinctOnCollectionNotSupported
-            => GetString("DistinctOnCollectionNotSupported");
 
         /// <summary>
         ///     'Reverse' could not be translated to the server because there is no ordering on the server side.

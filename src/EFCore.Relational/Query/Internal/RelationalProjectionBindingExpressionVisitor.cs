@@ -35,10 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private SelectExpression _selectExpression;
         private SqlExpression[] _existingProjections;
         private bool _clientEval;
+        private Dictionary<EntityProjectionExpression, ProjectionBindingExpression>? _entityProjectionCache;
 
-        private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
-            = new Dictionary<ProjectionMember, Expression>();
-
+        private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
         private readonly Stack<ProjectionMember> _projectionMembers = new();
 
         /// <summary>
@@ -77,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (result == QueryCompilationContext.NotTranslatedExpression)
             {
                 _clientEval = true;
+                _entityProjectionCache = new();
 
                 expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_selectExpression, expression);
                 _existingProjections = _selectExpression.Projection.Select(e => e.Expression).ToArray();
@@ -334,9 +334,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (_clientEval)
                     {
-                        return entityShaperExpression.Update(
-                            new ProjectionBindingExpression(
-                                _selectExpression, _selectExpression.AddToProjection(entityProjectionExpression)));
+                        if (!_entityProjectionCache!.TryGetValue(entityProjectionExpression, out var entityProjectionBinding))
+                        {
+                            entityProjectionBinding = new ProjectionBindingExpression(
+                                _selectExpression, _selectExpression.AddToProjection(entityProjectionExpression));
+                            _entityProjectionCache[entityProjectionExpression] = entityProjectionBinding;
+                        }
+
+                        return entityShaperExpression.Update(entityProjectionBinding);
                     }
 
                     _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;

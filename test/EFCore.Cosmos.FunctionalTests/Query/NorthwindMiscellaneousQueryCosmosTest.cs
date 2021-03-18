@@ -4227,7 +4227,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         {
             return base.Select_nested_collection_with_distinct(async);
         }
-        
+
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
         {
@@ -4238,6 +4238,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         public override Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(bool async)
         {
             return base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Collection_projection_after_DefaultIfEmpty(bool async)
+        {
+            return base.Collection_projection_after_DefaultIfEmpty(async);
         }
 
         private void AssertSql(params string[] expected)

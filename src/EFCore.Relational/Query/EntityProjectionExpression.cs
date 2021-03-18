@@ -24,10 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class EntityProjectionExpression : Expression
     {
-        private readonly IDictionary<IProperty, ColumnExpression> _propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
-
-        private readonly IDictionary<INavigation, EntityShaperExpression> _ownedNavigationMap
-            = new Dictionary<INavigation, EntityShaperExpression>();
+        private readonly IReadOnlyDictionary<IProperty, ColumnExpression> _propertyExpressionMap;
+        private readonly Dictionary<INavigation, EntityShaperExpression> _ownedNavigationMap = new();
 
         /// <summary>
         ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
@@ -49,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="discriminatorExpression"> A <see cref="SqlExpression" /> to generate discriminator for each concrete entity type in hierarchy. </param>
         public EntityProjectionExpression(
             IEntityType entityType,
-            IDictionary<IProperty, ColumnExpression> propertyExpressionMap,
+            IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
             SqlExpression? discriminatorExpression = null)
         {
             Check.NotNull(entityType, nameof(entityType));
