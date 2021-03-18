@@ -144,12 +144,12 @@ WHERE [o].[ProductID] = 1");
             await base.Sum_on_float_column_in_subquery(async);
 
             AssertSql(
-                @"SELECT [o0].[OrderID], (
-    SELECT CAST(COALESCE(SUM([o].[Discount]), 0.0E0) AS real)
-    FROM [Order Details] AS [o]
-    WHERE [o0].[OrderID] = [o].[OrderID]) AS [Sum]
-FROM [Orders] AS [o0]
-WHERE [o0].[OrderID] < 10300");
+                @"SELECT [o].[OrderID], (
+    SELECT CAST(COALESCE(SUM([o0].[Discount]), 0.0E0) AS real)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
         }
 
         public override async Task Average_with_no_arg(bool async)
@@ -266,12 +266,12 @@ WHERE [o].[ProductID] = 1");
             await base.Average_on_float_column_in_subquery(async);
 
             AssertSql(
-                @"SELECT [o0].[OrderID], (
-    SELECT CAST(AVG([o].[Discount]) AS real)
-    FROM [Order Details] AS [o]
-    WHERE [o0].[OrderID] = [o].[OrderID]) AS [Sum]
-FROM [Orders] AS [o0]
-WHERE [o0].[OrderID] < 10300");
+                @"SELECT [o].[OrderID], (
+    SELECT CAST(AVG([o0].[Discount]) AS real)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
         }
 
         public override async Task Average_on_float_column_in_subquery_with_cast(bool async)
@@ -279,12 +279,12 @@ WHERE [o0].[OrderID] < 10300");
             await base.Average_on_float_column_in_subquery_with_cast(async);
 
             AssertSql(
-                @"SELECT [o0].[OrderID], (
-    SELECT CAST(AVG([o].[Discount]) AS real)
-    FROM [Order Details] AS [o]
-    WHERE [o0].[OrderID] = [o].[OrderID]) AS [Sum]
-FROM [Orders] AS [o0]
-WHERE [o0].[OrderID] < 10300");
+                @"SELECT [o].[OrderID], (
+    SELECT CAST(AVG([o0].[Discount]) AS real)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [Sum]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
         }
 
         public override async Task Min_with_no_arg(bool async)
@@ -1233,11 +1233,11 @@ END");
                 @"SELECT CASE
     WHEN EXISTS (
         SELECT 1
-        FROM [Orders] AS [o]
-        WHERE ([o].[CustomerID] = N'VINET') AND [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        FROM [Orders] AS [o0]
+        WHERE ([o0].[CustomerID] = N'VINET') AND [o0].[CustomerID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
-FROM [Orders] AS [o0]");
+FROM [Orders] AS [o]");
         }
 
         public override async Task Contains_over_non_nullable_scalar_with_null_in_subquery_simplifies_to_false(bool async)
@@ -1410,7 +1410,7 @@ FROM [Customers] AS [c]");
                 @"SELECT [p].[ProductName]
 FROM (
     SELECT NULL AS [empty]
-) AS [empty]
+) AS [e]
 LEFT JOIN [Products] AS [p] ON 1 = 1");
         }
 

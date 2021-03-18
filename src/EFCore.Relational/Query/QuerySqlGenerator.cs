@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
                 && selectExpression.Projection.Select(
                         (pe, index) => pe.Expression is ColumnExpression column
-                            && string.Equals(column.Table.Alias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(column.TableAlias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
                             && string.Equals(
                                 column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
                     .All(e => e);
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(columnExpression, nameof(columnExpression));
 
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias!))
+                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.TableAlias))
                 .Append(".")
                 .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Name));
 

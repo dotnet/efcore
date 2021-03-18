@@ -40,9 +40,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly List<Expression> _clientProjectionExpressions = new();
         private readonly List<MethodCallExpression> _projectionMappingExpressions = new();
 
-        private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
-            = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
-
         private readonly ParameterExpression _valueBufferParameter;
 
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
@@ -319,17 +316,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDictionary<IProperty, int> AddToProjection(EntityProjectionExpression entityProjectionExpression)
+        public virtual IReadOnlyDictionary<IProperty, int> AddToProjection(EntityProjectionExpression entityProjectionExpression)
         {
-            if (!_entityProjectionCache.TryGetValue(entityProjectionExpression, out var indexMap))
+            var indexMap = new Dictionary<IProperty, int>();
+            foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
             {
-                indexMap = new Dictionary<IProperty, int>();
-                foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
-                {
-                    indexMap[property] = AddToProjection(entityProjectionExpression.BindProperty(property));
-                }
-
-                _entityProjectionCache[entityProjectionExpression] = indexMap;
+                indexMap[property] = AddToProjection(entityProjectionExpression.BindProperty(property));
             }
 
             return indexMap;
@@ -1032,7 +1024,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     && projectionBindingExpression.ProjectionMember != null)
                 {
                     var mappingValue = ((ConstantExpression)_projectionMapping[projectionBindingExpression.ProjectionMember]).Value;
-                    return mappingValue is IDictionary<IProperty, int> indexMap
+                    return mappingValue is IReadOnlyDictionary<IProperty, int> indexMap
                         ? new ProjectionBindingExpression(projectionBindingExpression.QueryExpression, indexMap)
                         : mappingValue is int index
                             ? new ProjectionBindingExpression(

@@ -2823,20 +2823,20 @@ FROM [Bases] AS [b]");
                 Assert.Empty(query);
 
                 AssertSql(
-                    @"SELECT [t2].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
+                    @"SELECT [t1].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
     SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
-    INNER JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
+    INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
     WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
-) AS [t2] ON [t].[Id] = [t2].[Id]
-GROUP BY [t2].[AnotherEntity11818_Name]");
-                ClearLog();
+) AS [t1] ON [t].[Id] = [t1].[Id]
+GROUP BY [t1].[AnotherEntity11818_Name]");
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var query = (from e in context.Set<MyContext11818.Entity11818>()
                              join a in context.Set<MyContext11818.AnotherEntity11818>()
                                  on e.Id equals a.Id into grouping
@@ -2854,26 +2854,27 @@ GROUP BY [t2].[AnotherEntity11818_Name]");
                 Assert.Empty(query);
 
                 AssertSql(
-                    @"SELECT [t2].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
+                    @"SELECT [t1].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
     SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
-    INNER JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
+    INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
     WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
-) AS [t2] ON [t].[Id] = [t2].[Id]
+) AS [t1] ON [t].[Id] = [t1].[Id]
 LEFT JOIN (
-    SELECT [t3].[Id], [t3].[MaumarEntity11818_Name]
-    FROM [Table] AS [t3]
-    INNER JOIN [Table] AS [t4] ON [t3].[Id] = [t4].[Id]
-    WHERE [t3].[MaumarEntity11818_Name] IS NOT NULL
-) AS [t5] ON [t].[Id] = [t5].[Id]
-GROUP BY [t2].[AnotherEntity11818_Name], [t5].[MaumarEntity11818_Name]");
-                ClearLog();
+    SELECT [t4].[Id], [t4].[MaumarEntity11818_Name]
+    FROM [Table] AS [t4]
+    INNER JOIN [Table] AS [t5] ON [t4].[Id] = [t5].[Id]
+    WHERE [t4].[MaumarEntity11818_Name] IS NOT NULL
+) AS [t3] ON [t].[Id] = [t3].[Id]
+GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
             }
 
             using (var context = contextFactory.CreateContext())
             {
+
+                ClearLog();
                 var query = (from e in context.Set<MyContext11818.Entity11818>()
                              join a in context.Set<MyContext11818.AnotherEntity11818>()
                                  on e.Id equals a.Id into grouping
@@ -2889,21 +2890,21 @@ GROUP BY [t2].[AnotherEntity11818_Name], [t5].[MaumarEntity11818_Name]");
                 Assert.Null(query);
 
                 AssertSql(
-                @"SELECT TOP(1) [t2].[AnotherEntity11818_Name] AS [MyKey], [t5].[MaumarEntity11818_Name] AS [cnt]
+                    @"SELECT TOP(1) [t1].[AnotherEntity11818_Name] AS [MyKey], [t3].[MaumarEntity11818_Name] AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
     SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
-    INNER JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
+    INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
     WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
-) AS [t2] ON [t].[Id] = [t2].[Id]
+) AS [t1] ON [t].[Id] = [t1].[Id]
 LEFT JOIN (
-    SELECT [t3].[Id], [t3].[MaumarEntity11818_Name]
-    FROM [Table] AS [t3]
-    INNER JOIN [Table] AS [t4] ON [t3].[Id] = [t4].[Id]
-    WHERE [t3].[MaumarEntity11818_Name] IS NOT NULL
-) AS [t5] ON [t].[Id] = [t5].[Id]
-GROUP BY [t2].[AnotherEntity11818_Name], [t5].[MaumarEntity11818_Name]");
+    SELECT [t4].[Id], [t4].[MaumarEntity11818_Name]
+    FROM [Table] AS [t4]
+    INNER JOIN [Table] AS [t5] ON [t4].[Id] = [t5].[Id]
+    WHERE [t4].[MaumarEntity11818_Name] IS NOT NULL
+) AS [t3] ON [t].[Id] = [t3].[Id]
+GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
             }
         }
 
@@ -5481,7 +5482,7 @@ CROSS JOIN (
     SELECT [t].[Id]
     FROM (
         SELECT NULL AS [empty]
-    ) AS [empty]
+    ) AS [e]
     LEFT JOIN (
         SELECT [o].[Id]
         FROM [Organisations] AS [o]
@@ -5674,19 +5675,19 @@ ORDER BY [a].[Id], [a0].[Id], [t].[Id], [t].[Id0]");
                         }).ToList();
 
                 AssertSql(
-                    @"SELECT [a0].[Id], [a0].[ActivityTypeId], [a0].[DateTime], [a0].[Points], (
+                    @"SELECT [a].[Id], [a].[ActivityTypeId], [a].[DateTime], [a].[Points], (
     SELECT TOP(1) [c].[Id]
     FROM [CompetitionSeasons] AS [c]
-    WHERE ([c].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c].[EndDate])) AS [CompetitionSeasonId], COALESCE([a0].[Points], COALESCE((
-    SELECT TOP(1) [a].[Points]
-    FROM [ActivityTypePoints12456] AS [a]
-    INNER JOIN [CompetitionSeasons] AS [c0] ON [a].[CompetitionSeasonId] = [c0].[Id]
-    WHERE ([a1].[Id] = [a].[ActivityTypeId]) AND ([c0].[Id] = (
+    WHERE ([c].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c].[EndDate])) AS [CompetitionSeasonId], COALESCE([a].[Points], COALESCE((
+    SELECT TOP(1) [a1].[Points]
+    FROM [ActivityTypePoints12456] AS [a1]
+    INNER JOIN [CompetitionSeasons] AS [c0] ON [a1].[CompetitionSeasonId] = [c0].[Id]
+    WHERE ([a0].[Id] = [a1].[ActivityTypeId]) AND ([c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c1].[EndDate])))), 0)) AS [Points]
-FROM [Activities] AS [a0]
-INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
+        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate])))), 0)) AS [Points]
+FROM [Activities] AS [a]
+INNER JOIN [ActivityType12456] AS [a0] ON [a].[ActivityTypeId] = [a0].[Id]");
             }
         }
 
@@ -5779,22 +5780,22 @@ INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
                     .SingleAsync();
 
                 AssertSql(
-                    @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[IsPastTradeDeadline]
+                    @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0] AS [Id], [t1].[Id1] AS [Id], [t1].[IsPastTradeDeadline]
 FROM (
     SELECT TOP(2) [t].[Id]
     FROM [Trades] AS [t]
 ) AS [t0]
 LEFT JOIN (
-    SELECT [d0].[Id], [d1].[Id] AS [Id0], [d2].[Id] AS [Id1], CASE
+    SELECT [d].[Id], [d0].[Id] AS [Id0], [d1].[Id] AS [Id1], CASE
         WHEN COALESCE((
-            SELECT MAX([d].[GameNumber])
-            FROM [DbGame] AS [d]
-            WHERE [d2].[Id] IS NOT NULL AND ([d2].[Id] = [d].[SeasonId])), 0) > 10 THEN CAST(1 AS bit)
+            SELECT MAX([d2].[GameNumber])
+            FROM [DbGame] AS [d2]
+            WHERE [d1].[Id] IS NOT NULL AND ([d1].[Id] = [d2].[SeasonId])), 0) > 10 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
-    END AS [IsPastTradeDeadline], [d0].[DbTradeId]
-    FROM [DbTradeAsset] AS [d0]
-    INNER JOIN [DbContract] AS [d1] ON [d0].[ContractId] = [d1].[Id]
-    LEFT JOIN [DbSeason] AS [d2] ON [d1].[SeasonId] = [d2].[Id]
+    END AS [IsPastTradeDeadline], [d].[DbTradeId]
+    FROM [DbTradeAsset] AS [d]
+    INNER JOIN [DbContract] AS [d0] ON [d].[ContractId] = [d0].[Id]
+    LEFT JOIN [DbSeason] AS [d1] ON [d0].[SeasonId] = [d1].[Id]
 ) AS [t1] ON [t0].[Id] = [t1].[DbTradeId]
 ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1]");
             }
@@ -7729,23 +7730,23 @@ ORDER BY [u].[Id] DESC");
                 Assert.Equal(20, aggregate.FirstValueObject.SecondValueObjects[0].ThirdValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
 
                 AssertSql(
-                    @"SELECT [t].[Id], [t3].[Id], [t3].[AggregateId], [t3].[Id0], [t3].[AnyValue], [t3].[SecondValueObjectId], [t3].[Id1], [t3].[SecondValueObjectId0], [t3].[Id00], [t3].[AnyValue0], [t3].[ThirdValueObjectId]
+                    @"SELECT [t].[Id], [t2].[Id], [t2].[AggregateId], [t2].[Id0], [t2].[AnyValue], [t2].[SecondValueObjectId], [t2].[Id1], [t2].[SecondValueObjectId0], [t2].[Id00], [t2].[AnyValue0], [t2].[ThirdValueObjectId]
 FROM (
     SELECT TOP(1) [a].[Id]
     FROM [Aggregates] AS [a]
     ORDER BY [a].[Id] DESC
 ) AS [t]
 LEFT JOIN (
-    SELECT [s].[Id], [s].[AggregateId], [f].[Id] AS [Id0], [f].[AnyValue], [f].[SecondValueObjectId], [t2].[Id] AS [Id1], [t2].[SecondValueObjectId] AS [SecondValueObjectId0], [t2].[Id0] AS [Id00], [t2].[AnyValue] AS [AnyValue0], [t2].[ThirdValueObjectId]
+    SELECT [s].[Id], [s].[AggregateId], [f].[Id] AS [Id0], [f].[AnyValue], [f].[SecondValueObjectId], [t1].[Id] AS [Id1], [t1].[SecondValueObjectId] AS [SecondValueObjectId0], [t1].[Id0] AS [Id00], [t1].[AnyValue] AS [AnyValue0], [t1].[ThirdValueObjectId]
     FROM [SecondValueObjects] AS [s]
     LEFT JOIN [FourthFifthValueObjects] AS [f] ON [s].[Id] = [f].[SecondValueObjectId]
     LEFT JOIN (
-        SELECT [t0].[Id], [t0].[SecondValueObjectId], [t1].[Id] AS [Id0], [t1].[AnyValue], [t1].[ThirdValueObjectId]
+        SELECT [t0].[Id], [t0].[SecondValueObjectId], [t3].[Id] AS [Id0], [t3].[AnyValue], [t3].[ThirdValueObjectId]
         FROM [ThirdValueObjects] AS [t0]
-        LEFT JOIN [ThirdFifthValueObjects] AS [t1] ON [t0].[Id] = [t1].[ThirdValueObjectId]
-    ) AS [t2] ON [s].[Id] = [t2].[SecondValueObjectId]
-) AS [t3] ON [t].[Id] = [t3].[AggregateId]
-ORDER BY [t].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1], [t3].[Id00]");
+        LEFT JOIN [ThirdFifthValueObjects] AS [t3] ON [t0].[Id] = [t3].[ThirdValueObjectId]
+    ) AS [t1] ON [s].[Id] = [t1].[SecondValueObjectId]
+) AS [t2] ON [t].[Id] = [t2].[AggregateId]
+ORDER BY [t].[Id] DESC, [t2].[Id], [t2].[Id0], [t2].[Id1], [t2].[Id00]");
             }
         }
 

@@ -569,5 +569,96 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1,
                 assertOrder: true);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_after_set_operation(bool async)
+        {
+            return AssertQuery(
+                async, ss => ss.Set<Customer>().Where(c => c.City == "Seatte")
+                    .Union(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")))
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        c.Orders
+                    }),
+                elementSorter: c => c.CustomerID,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.CustomerID, a.CustomerID);
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_after_set_operation_fails_if_distinct(bool async)
+        {
+            return AssertQuery(
+                async, ss => ss.Set<Customer>().Where(c => c.City == "Seatte")
+                    .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")))
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        c.Orders
+                    }),
+                elementSorter: c => c.CustomerID,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.CustomerID, a.CustomerID);
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_before_set_operation_fails(bool async)
+        {
+            return AssertQuery(
+                async, ss => ss.Set<Customer>()
+                    .Where(c => c.City == "Seatte")
+                    .Select(c => new
+                    {
+                        c.Orders
+                    })
+                    .Union(ss.Set<Customer>()
+                        .Where(c => c.CustomerID.StartsWith("F"))
+                        .Select(c => new
+                        {
+                            c.Orders
+                        })),
+                elementSorter: a => a.Orders.FirstOrDefault().Maybe(e => e.CustomerID),
+                elementAsserter: (e, a) =>
+                {
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Concat_with_one_side_being_GroupBy_aggregate(bool async)
+        {
+            return AssertQuery(
+                async, ss => ss.Set<Order>()
+                    .Where(c => c.Customer.City == "Seatte")
+                    .Select(c => new
+                    {
+                        c.OrderDate
+                    })
+                    .Union(ss.Set<Order>()
+                        .GroupBy(e => e.CustomerID)
+                        .Select(g => new
+                        {
+                            OrderDate = g.Max(e => e.OrderDate)
+                        })),
+                elementSorter: a => a.OrderDate,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.OrderDate, a.OrderDate);
+                });
+        }
     }
 }

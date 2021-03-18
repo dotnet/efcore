@@ -219,6 +219,9 @@
     <value>The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.</value>
     <comment>Obsolete</comment>
   </data>
+  <data name="DistinctOnCollectionNotSupported" xml:space="preserve">
+    <value>Using 'Distinct' operation on a projection containing a collection is not supported.</value>
+  </data>
   <data name="DuplicateCheckConstraint" xml:space="preserve">
     <value>The check constraint '{checkConstraint}' cannot be added to the entity type '{entityType}' because another check constraint with the same name already exists.</value>
   </data>
@@ -620,15 +623,6 @@
   </data>
   <data name="MissingConcurrencyColumn" xml:space="preserve">
     <value>Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' which is used by another entity type sharing the table '{table}'. Add a store-generated property to '{entityType}' which is mapped to the same column; it may be in shadow state.</value>
-  </data>
-  <data name="UnableToTranslateSubqueryWithDistinct" xml:space="preserve">
-    <value>Subquery with 'Distinct' can only be translated if projection consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the projection, remove complex elements of the projection, or rewrite the query to not use the 'Distinct' operation.</value>
-  </data>
-  <data name="UnableToTranslateSubqueryWithGroupBy" xml:space="preserve">
-    <value>Subquery with 'GroupBy' can only be translated if grouping key consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the grouping key, remove complex elements of the grouping key, or rewrite the query to not use the 'GroupBy' operation.</value>
-  </data>
-  <data name="DistinctOnCollectionNotSupported" xml:space="preserve">
-    <value>Using 'Distinct' operation on a projection containing a collection is not supported.</value>
   </data>
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>

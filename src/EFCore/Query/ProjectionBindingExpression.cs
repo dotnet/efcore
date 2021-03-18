@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="indexMap"> The index map to bind with query expression projection for ValueBuffer. </param>
         public ProjectionBindingExpression(
             Expression queryExpression,
-            IDictionary<IProperty, int> indexMap)
+            IReadOnlyDictionary<IProperty, int> indexMap)
         {
             Check.NotNull(queryExpression, nameof(queryExpression));
             Check.NotNull(indexMap, nameof(indexMap));
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The projection member to bind if binding is via index map for a value buffer.
         /// </summary>
-        public virtual IDictionary<IProperty, int>? IndexMap { get; }
+        public virtual IReadOnlyDictionary<IProperty, int>? IndexMap { get; }
 
         /// <inheritdoc />
         public override Type Type { get; }

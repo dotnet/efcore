@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Complex_query_with_groupBy_in_subquery4(async))).Message;
 
-            Assert.Equal(RelationalStrings.UnableToTranslateSubqueryWithGroupBy("o.OrderID"), message);
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
         }
 
         protected virtual bool CanExecuteQueryString
