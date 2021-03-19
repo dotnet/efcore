@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation(
             string annotation,
-            object value)
+            object? value)
             => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)base.HasAnnotation(annotation, value);
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
-            Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+            Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
             where TDependentEntity : class
             => new(
                 HasForeignKeyBuilder(
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
-            Expression<Func<TPrincipalEntity, object>> keyExpression)
+            Expression<Func<TPrincipalEntity, object?>> keyExpression)
             where TPrincipalEntity : class
             => new(
                 HasPrincipalKeyBuilder(

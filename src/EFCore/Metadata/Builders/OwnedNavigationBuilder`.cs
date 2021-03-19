@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual OwnedNavigationBuilder<TEntity, TDependentEntity> HasAnnotation(
             string annotation,
-            object value)
+            object? value)
             => (OwnedNavigationBuilder<TEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
-        public virtual KeyBuilder<TDependentEntity> HasKey(Expression<Func<TDependentEntity, object>> keyExpression)
+        public virtual KeyBuilder<TDependentEntity> HasKey(Expression<Func<TDependentEntity, object?>> keyExpression)
             => new(
                 DependentEntityType.Builder.PrimaryKey(
                     Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(), ConfigurationSource.Explicit)!.Metadata);
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the navigation property. </returns>
         public virtual NavigationBuilder<TDependentEntity, TNavigation> Navigation<TNavigation>(
-            Expression<Func<TDependentEntity, TNavigation>> navigationExpression)
+            Expression<Func<TDependentEntity, TNavigation?>> navigationExpression)
             where TNavigation : class
             => new(
                 DependentEntityType.Builder.Navigation(
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the navigation property. </returns>
         public virtual NavigationBuilder<TDependentEntity, TNavigation> Navigation<TNavigation>(
-            Expression<Func<TDependentEntity, IEnumerable<TNavigation>>> navigationExpression)
+            Expression<Func<TDependentEntity, IEnumerable<TNavigation>?>> navigationExpression)
             where TNavigation : class
             => new(
                 DependentEntityType.Builder.Navigation(
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     (<c>blog => blog.Url</c>).
         /// </param>
         public virtual OwnedNavigationBuilder<TEntity, TDependentEntity> Ignore(
-            Expression<Func<TDependentEntity, object>> propertyExpression)
+            Expression<Func<TDependentEntity, object?>> propertyExpression)
             => (OwnedNavigationBuilder<TEntity, TDependentEntity>)
                 base.Ignore(
                     Check.NotNull(propertyExpression, nameof(propertyExpression))
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
-        public virtual IndexBuilder<TEntity> HasIndex(Expression<Func<TDependentEntity, object>> indexExpression)
+        public virtual IndexBuilder<TEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression)
             => new(
                 DependentEntityType.Builder.HasIndex(
                         Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(), ConfigurationSource.Explicit)!
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual OwnershipBuilder<TEntity, TDependentEntity> WithOwner(
-            Expression<Func<TDependentEntity, TEntity>>? referenceExpression)
+            Expression<Func<TDependentEntity, TEntity?>>? referenceExpression)
             => new(
                 PrincipalEntityType,
                 DependentEntityType,
@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
-            Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression)
+            Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression)
             where TNewDependentEntity : class
             => OwnsOneBuilder<TNewDependentEntity>(
                 new TypeIdentity(typeof(TNewDependentEntity), (Model)Metadata.DeclaringEntityType.Model),
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
             string ownedTypeName,
-            Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression)
+            Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression)
             where TNewDependentEntity : class
             => OwnsOneBuilder<TNewDependentEntity>(
                 new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TNewDependentEntity)),
@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="buildAction"> An action that performs configuration of the relationship. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual OwnedNavigationBuilder<TEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
-            Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression,
+            Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression,
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
             where TNewDependentEntity : class
         {
@@ -614,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual OwnedNavigationBuilder<TEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
             string ownedTypeName,
-            Expression<Func<TDependentEntity, TNewDependentEntity>> navigationExpression,
+            Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression,
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
             where TNewDependentEntity : class
         {
@@ -729,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the owned type and the relationship. </returns>
         public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
-            Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression)
+            Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression)
             where TNewDependentEntity : class
             => OwnsManyBuilder<TNewDependentEntity>(
                 new TypeIdentity(typeof(TNewDependentEntity), (Model)Metadata.DeclaringEntityType.Model),
@@ -761,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the owned type and the relationship. </returns>
         public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
             string ownedTypeName,
-            Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression)
+            Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression)
             where TNewDependentEntity : class
             => OwnsManyBuilder<TNewDependentEntity>(
                 new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), typeof(TNewDependentEntity)),
@@ -965,7 +965,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="buildAction"> An action that performs configuration of the owned type and the relationship. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual OwnedNavigationBuilder<TEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
-            Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression,
+            Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression,
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
             where TNewDependentEntity : class
         {
@@ -1009,7 +1009,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual OwnedNavigationBuilder<TEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
             string ownedTypeName,
-            Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>>> navigationExpression,
+            Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression,
             Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
             where TNewDependentEntity : class
         {
@@ -1113,7 +1113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
         public virtual ReferenceNavigationBuilder<TDependentEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
-            Expression<Func<TDependentEntity, TNewRelatedEntity>>? navigationExpression = null)
+            Expression<Func<TDependentEntity, TNewRelatedEntity?>>? navigationExpression = null)
             where TNewRelatedEntity : class
         {
             var navigation = navigationExpression?.GetMemberAccess();
