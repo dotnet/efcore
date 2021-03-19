@@ -448,6 +448,40 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.NavigationBaseIncludeIgnored" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="navigation"> The navigation being included. </param>
+        public static void NavigationBaseIncludeIgnored(
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            INavigationBase navigation)
+        {
+            var definition = CoreResources.LogNavigationBaseIncludeIgnored(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, navigation.DeclaringEntityType.ShortName() + "." + navigation.Name);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new NavigationBaseEventData(
+                    definition,
+                    NavigationBaseIncludeIgnored,
+                    navigation);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string NavigationBaseIncludeIgnored(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (NavigationBaseEventData)payload;
+            return d.GenerateMessage(p.NavigationBase.DeclaringEntityType.ShortName() + "." + p.NavigationBase.Name);
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.QueryExecutionPlanned" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

@@ -3226,6 +3226,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.
+        /// </summary>
+        public static EventDefinition LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+                            _resourceManager.GetString("LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.
         /// </summary>
         public static EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance(IDiagnosticsLogger logger)
@@ -3345,30 +3370,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.FirstWithoutOrderByAndFilterWarning,
                             _resourceManager.GetString("LogFirstWithoutOrderByAndFilter")!)));
-            }
-
-            return (EventDefinition)definition;
-        }
-
-        /// <summary>
-        ///     The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.
-        /// </summary>
-        public static EventDefinition LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning,
-                    () => new EventDefinition(
-                        logger.Options,
-                        CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
-                        LogLevel.Warning,
-                        "CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning",
-                        level => LoggerMessage.Define(
-                            level,
-                            CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
-                            _resourceManager.GetString("LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning")!)));
             }
 
             return (EventDefinition)definition;
@@ -3669,6 +3670,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.NavigationBaseIncluded,
                             _resourceManager.GetString("LogNavigationBaseIncluded")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The navigation '{navigation}' was ignored from 'Include' in the query since the fix-up will automatically populate it. If any further navigations are specified in 'Include' afterwards then they will be ignored. Walking back include tree is not allowed.
+        /// </summary>
+        public static EventDefinition<string> LogNavigationBaseIncludeIgnored(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNavigationBaseIncludeIgnored;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogNavigationBaseIncludeIgnored,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.NavigationBaseIncludeIgnored,
+                        LogLevel.Error,
+                        "CoreEventId.NavigationBaseIncludeIgnored",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.NavigationBaseIncludeIgnored,
+                            _resourceManager.GetString("LogNavigationBaseIncludeIgnored")!)));
             }
 
             return (EventDefinition<string>)definition;
@@ -4282,7 +4308,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used, then make sure to use the 'OrderBy' operator after 'Distinct' as the order would otherwise get erased.
+        ///     The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
         /// </summary>
         public static EventDefinition LogRowLimitingOperationWithoutOrderBy(IDiagnosticsLogger logger)
         {
