@@ -3,10 +3,8 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using CA = System.Diagnostics.CodeAnalysis;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
@@ -25,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static TService GetService<TService>([NotNull] IInfrastructure<IServiceProvider> accessor)
+        public static TService GetService<TService>(IInfrastructure<IServiceProvider> accessor)
             where TService : class
         {
             var internalServiceProvider = accessor.Instance;

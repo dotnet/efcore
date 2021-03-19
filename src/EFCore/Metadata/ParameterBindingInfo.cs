@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -19,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="entityType"> The entity type for this binding. </param>
         /// <param name="materializationContextExpression"> The expression tree from which the parameter value will come. </param>
         public ParameterBindingInfo(
-            [NotNull] IEntityType entityType,
-            [NotNull] Expression materializationContextExpression)
+            IEntityType entityType,
+            Expression materializationContextExpression)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(entityType, nameof(materializationContextExpression));
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The index where its value can be found. </returns>
-        public int GetValueBufferIndex([NotNull] IPropertyBase property)
+        public int GetValueBufferIndex(IPropertyBase property)
             => property.GetIndex();
     }
 }

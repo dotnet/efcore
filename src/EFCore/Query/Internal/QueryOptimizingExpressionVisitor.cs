@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -381,8 +381,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private bool TryExtractEqualityOperands(
             Expression expression,
-            [CA.NotNullWhen(true)] out Expression? left,
-            [CA.NotNullWhen(true)] out Expression? right,
+            [NotNullWhen(true)] out Expression? left,
+            [NotNullWhen(true)] out Expression? right,
             out bool negated)
         {
             (left, right, negated) = (default, default, default);

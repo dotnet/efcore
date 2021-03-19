@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -106,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     registration of provider services.
         /// </summary>
         /// <param name="serviceCollection"> The collection to which services will be registered. </param>
-        public EntityFrameworkRelationalServicesBuilder([NotNull] IServiceCollection serviceCollection)
+        public EntityFrameworkRelationalServicesBuilder(IServiceCollection serviceCollection)
             : base(serviceCollection)
         {
         }

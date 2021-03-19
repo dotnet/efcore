@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Initializes a new instance of the <see cref="DbUpdateException" /> class.
         /// </summary>
         /// <param name="message"> The error message that explains the reason for the exception. </param>
-        public DbUpdateException([NotNull] string message)
+        public DbUpdateException(string message)
             : base(message)
         {
         }
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="message"> The error message that explains the reason for the exception. </param>
         /// <param name="innerException"> The exception that is the cause of the current exception. </param>
-        public DbUpdateException([NotNull] string message, [CanBeNull] Exception? innerException)
+        public DbUpdateException(string message, Exception? innerException)
             : base(message, innerException)
         {
         }
@@ -53,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="message"> The error message that explains the reason for the exception. </param>
         /// <param name="entries"> The entries that were involved in the error. </param>
         public DbUpdateException(
-            [NotNull] string message,
-            [NotNull] IReadOnlyList<IUpdateEntry> entries)
+            string message,
+            IReadOnlyList<IUpdateEntry> entries)
             : this(message, null, entries)
         {
         }
@@ -66,9 +65,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="innerException"> The exception that is the cause of the current exception. </param>
         /// <param name="entries"> The entries that were involved in the error. </param>
         public DbUpdateException(
-            [NotNull] string message,
-            [CanBeNull] Exception? innerException,
-            [NotNull] IReadOnlyList<IUpdateEntry> entries)
+            string message,
+            Exception? innerException,
+            IReadOnlyList<IUpdateEntry> entries)
             : base(message, innerException)
         {
             Check.NotEmpty(entries, nameof(entries));
@@ -84,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="message"> The error message that explains the reason for the exception. </param>
         /// <param name="entries"> The entries that were involved in the error. </param>
         public DbUpdateException(
-            [NotNull] string message,
-            [NotNull] IReadOnlyList<EntityEntry> entries)
+            string message,
+            IReadOnlyList<EntityEntry> entries)
             : this(message, null, entries)
         {
         }
@@ -97,9 +96,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="innerException"> The exception that is the cause of the current exception. </param>
         /// <param name="entries"> The entries that were involved in the error. </param>
         public DbUpdateException(
-            [NotNull] string message,
-            [CanBeNull] Exception? innerException,
-            [NotNull] IReadOnlyList<EntityEntry> entries)
+            string message,
+            Exception? innerException,
+            IReadOnlyList<EntityEntry> entries)
             : base(message, innerException)
         {
             Check.NotEmpty(entries, nameof(entries));
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="info"> The serialization info. </param>
         /// <param name="context"> The streaming context being used. </param>
-        public DbUpdateException([NotNull] SerializationInfo info, StreamingContext context)
+        public DbUpdateException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

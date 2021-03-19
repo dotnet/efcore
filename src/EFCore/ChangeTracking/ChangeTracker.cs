@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -35,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         [EntityFrameworkInternal]
         public ChangeTracker(
-            [NotNull] DbContext context,
-            [NotNull] IStateManager stateManager,
-            [NotNull] IChangeDetector changeDetector,
-            [NotNull] IModel model,
-            [NotNull] IEntityEntryGraphIterator graphIterator)
+            DbContext context,
+            IStateManager stateManager,
+            IChangeDetector changeDetector,
+            IModel model,
+            IEntityEntryGraphIterator graphIterator)
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(stateManager, nameof(stateManager));
@@ -271,8 +270,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the <see cref="EntityEntry.State" /> must be set.
         /// </param>
         public virtual void TrackGraph(
-            [NotNull] object rootEntity,
-            [NotNull] Action<EntityEntryGraphNode> callback)
+            object rootEntity,
+            Action<EntityEntryGraphNode> callback)
             => TrackGraph(
                 rootEntity,
                 callback,
@@ -320,9 +319,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </param>
         /// <typeparam name="TState"> The type of the state object. </typeparam>
         public virtual void TrackGraph<TState>(
-            [NotNull] object rootEntity,
-            [CanBeNull] TState? state,
-            [NotNull] Func<EntityEntryGraphNode<TState>, bool> callback)
+            object rootEntity,
+            TState? state,
+            Func<EntityEntryGraphNode<TState>, bool> callback)
         {
             Check.NotNull(rootEntity, nameof(rootEntity));
             Check.NotNull(callback, nameof(callback));

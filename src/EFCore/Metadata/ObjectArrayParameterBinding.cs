@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     instances and combining them into one binding that will initialize an array of <see cref="object" />.
         /// </summary>
         /// <param name="bindings"> The binding to combine. </param>
-        public ObjectArrayParameterBinding([NotNull] IReadOnlyList<ParameterBinding> bindings)
+        public ObjectArrayParameterBinding(IReadOnlyList<ParameterBinding> bindings)
             : base(
                 typeof(object[]),
                 Check.NotNull(bindings, nameof(bindings)).SelectMany(b => b.ConsumedProperties).ToArray())

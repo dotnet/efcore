@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The key of this annotation. </param>
         /// <param name="value"> The value assigned to this annotation. </param>
-        public Annotation([NotNull] string name, [CanBeNull] object? value)
+        public Annotation(string name, object? value)
         {
             Check.NotEmpty(name, nameof(name));
 

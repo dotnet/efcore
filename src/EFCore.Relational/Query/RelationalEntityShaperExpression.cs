@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityType"> The entity type to shape. </param>
         /// <param name="valueBufferExpression"> An expression of ValueBuffer to get values for properties of the entity. </param>
         /// <param name="nullable"> A bool value indicating whether this entity instance can be null. </param>
-        public RelationalEntityShaperExpression([NotNull] IEntityType entityType, [NotNull] Expression valueBufferExpression, bool nullable)
+        public RelationalEntityShaperExpression(IEntityType entityType, Expression valueBufferExpression, bool nullable)
             : base(entityType, valueBufferExpression, nullable, null)
         {
         }
@@ -50,10 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     materialize.
         /// </param>
         protected RelationalEntityShaperExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] Expression valueBufferExpression,
+            IEntityType entityType,
+            Expression valueBufferExpression,
             bool nullable,
-            [CanBeNull] LambdaExpression? materializationCondition)
+            LambdaExpression? materializationCondition)
             : base(entityType, valueBufferExpression, nullable, materializationCondition)
         {
         }

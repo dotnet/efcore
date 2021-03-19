@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -30,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="constructorBinding"> The binding for the constructor with most parameters. </param>
         /// <param name="serviceOnlyBinding"> The binding for the constructor with only service property parameters. </param>
         void GetBindings(
-            [NotNull] IConventionEntityType entityType,
-            [NotNull] out InstantiationBinding constructorBinding,
-            [NotNull] out InstantiationBinding? serviceOnlyBinding);
+            IConventionEntityType entityType,
+            out InstantiationBinding constructorBinding,
+            out InstantiationBinding? serviceOnlyBinding);
 
         /// <summary>
         ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
@@ -42,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="constructorBinding"> The binding for the constructor with most parameters. </param>
         /// <param name="serviceOnlyBinding"> The binding for the constructor with only service property parameters. </param>
         void GetBindings(
-            [NotNull] IMutableEntityType entityType,
-            [NotNull] out InstantiationBinding constructorBinding,
-            [NotNull] out InstantiationBinding? serviceOnlyBinding);
+            IMutableEntityType entityType,
+            out InstantiationBinding constructorBinding,
+            out InstantiationBinding? serviceOnlyBinding);
 
         /// <summary>
         ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
@@ -54,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="constructorBinding"> The binding for the constructor with most parameters. </param>
         /// <param name="serviceOnlyBinding"> The binding for the constructor with only service property parameters. </param>
         void GetBindings(
-            [NotNull] IReadOnlyEntityType entityType,
-            [NotNull] out InstantiationBinding constructorBinding,
-            [NotNull] out InstantiationBinding? serviceOnlyBinding);
+            IReadOnlyEntityType entityType,
+            out InstantiationBinding constructorBinding,
+            out InstantiationBinding? serviceOnlyBinding);
 
         /// <summary>
         ///     Attempts to create a <see cref="InstantiationBinding" /> for the given entity type and
@@ -68,10 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="unboundParameters"> The parameters that could not be bound. </param>
         /// <returns> <see langword="true" /> if a binding was created; <see langword="false" /> otherwise. </returns>
         bool TryBindConstructor(
-            [NotNull] IConventionEntityType entityType,
-            [NotNull] ConstructorInfo constructor,
-            [CanBeNull, CA.NotNullWhen(true)] out InstantiationBinding? binding,
-            [CanBeNull, CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters);
+            IConventionEntityType entityType,
+            ConstructorInfo constructor,
+            [NotNullWhen(true)] out InstantiationBinding? binding,
+            [NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters);
 
         /// <summary>
         ///     Attempts to create a <see cref="InstantiationBinding" /> for the given entity type and
@@ -83,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="unboundParameters"> The parameters that could not be bound. </param>
         /// <returns> <see langword="true" /> if a binding was created; <see langword="false" /> otherwise. </returns>
         bool TryBindConstructor(
-            [NotNull] IMutableEntityType entityType,
-            [NotNull] ConstructorInfo constructor,
-            [CanBeNull, CA.NotNullWhen(true)] out InstantiationBinding? binding,
-            [CanBeNull, CA.NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters);
+            IMutableEntityType entityType,
+            ConstructorInfo constructor,
+            [NotNullWhen(true)] out InstantiationBinding? binding,
+            [NotNullWhen(false)] out IEnumerable<ParameterInfo>? unboundParameters);
     }
 }

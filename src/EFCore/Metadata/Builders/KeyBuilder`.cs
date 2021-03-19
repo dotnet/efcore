@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public KeyBuilder([NotNull] IMutableKey key)
+        public KeyBuilder(IMutableKey key)
             : base(key)
         {
         }
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual KeyBuilder<T> HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public new virtual KeyBuilder<T> HasAnnotation(string annotation, object value)
             => (KeyBuilder<T>)base.HasAnnotation(annotation, value);
     }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="CascadeDeleteConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public CascadeDeleteConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public CascadeDeleteConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -63,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Returns the delete behavior to set for the given foreign key.
         /// </summary>
         /// <param name="foreignKey"> The foreign key. </param>
-        protected virtual DeleteBehavior GetTargetDeleteBehavior([NotNull] IConventionForeignKey foreignKey)
+        protected virtual DeleteBehavior GetTargetDeleteBehavior(IConventionForeignKey foreignKey)
             => foreignKey.IsRequired ? DeleteBehavior.Cascade : DeleteBehavior.ClientSetNull;
     }
 }

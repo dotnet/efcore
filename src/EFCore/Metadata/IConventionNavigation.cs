@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -80,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new inverse navigation. </returns>
-        IConventionNavigation? SetInverse([CanBeNull] string? inverseName, bool fromDataAnnotation = false);
+        IConventionNavigation? SetInverse(string? inverseName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the inverse navigation.
@@ -91,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new inverse navigation. </returns>
-        IConventionNavigation? SetInverse([CanBeNull] MemberInfo? inverse, bool fromDataAnnotation = false);
+        IConventionNavigation? SetInverse(MemberInfo? inverse, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="Inverse" />.

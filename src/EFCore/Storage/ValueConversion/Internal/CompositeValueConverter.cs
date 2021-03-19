@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
@@ -24,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CompositeValueConverter(
-            [NotNull] ValueConverter converter1,
-            [NotNull] ValueConverter converter2,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            ValueConverter converter1,
+            ValueConverter converter2,
+            ConverterMappingHints? mappingHints = null)
             : base(
                 Compose(
                     (Expression<Func<TModel, TMiddle>>)converter1.ConvertToProviderExpression,

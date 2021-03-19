@@ -5,13 +5,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
@@ -49,11 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="isCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         public ColumnModification(
-            [NotNull] IUpdateEntry entry,
-            [NotNull] IProperty property,
-            [NotNull] IColumn column,
-            [NotNull] Func<string> generateParameterName,
-            [NotNull] RelationalTypeMapping typeMapping,
+            IUpdateEntry entry,
+            IProperty property,
+            IColumn column,
+            Func<string> generateParameterName,
+            RelationalTypeMapping typeMapping,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -96,9 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         [Obsolete("Use the constructor with column")]
         public ColumnModification(
-            [NotNull] IUpdateEntry entry,
-            [NotNull] IProperty property,
-            [NotNull] Func<string> generateParameterName,
+            IUpdateEntry entry,
+            IProperty property,
+            Func<string> generateParameterName,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -135,12 +134,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="isNullable"> A value indicating whether the value could be null. </param>
         public ColumnModification(
-            [NotNull] string columnName,
-            [CanBeNull] object? originalValue,
-            [CanBeNull] object? value,
-            [CanBeNull] IProperty? property,
-            [CanBeNull] string? columnType,
-            [CanBeNull] RelationalTypeMapping? typeMapping,
+            string columnName,
+            object? originalValue,
+            object? value,
+            IProperty? property,
+            string? columnType,
+            RelationalTypeMapping? typeMapping,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -179,11 +178,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         [Obsolete("Use the constructor with type mapping")]
         public ColumnModification(
-            [NotNull] string columnName,
-            [CanBeNull] object? originalValue,
-            [CanBeNull] object? value,
-            [CanBeNull] IProperty? property,
-            [CanBeNull] string? columnType,
+            string columnName,
+            object? originalValue,
+            object? value,
+            IProperty? property,
+            string? columnType,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -218,10 +217,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         [Obsolete("Use the constructor with columnType")]
         public ColumnModification(
-            [NotNull] string columnName,
-            [CanBeNull] object originalValue,
-            [CanBeNull] object value,
-            [CanBeNull] IProperty property,
+            string columnName,
+            object? originalValue,
+            object? value,
+            IProperty? property,
             bool isRead,
             bool isWrite,
             bool isKey,
@@ -291,14 +290,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Indicates whether the original value of the property must be passed as a parameter to the SQL
         /// </summary>
-        [CA.MemberNotNullWhen(true, nameof(OriginalParameterName))]
+        [MemberNotNullWhen(true, nameof(OriginalParameterName))]
         public virtual bool UseOriginalValueParameter
             => _useParameters && IsCondition;
 
         /// <summary>
         ///     Indicates whether the current value of the property must be passed as a parameter to the SQL
         /// </summary>
-        [CA.MemberNotNullWhen(true, nameof(ParameterName))]
+        [MemberNotNullWhen(true, nameof(ParameterName))]
         public virtual bool UseCurrentValueParameter
             => _useParameters && IsWrite;
 #pragma warning restore CS8775
@@ -352,7 +351,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                     : Entry.EntityState == EntityState.Deleted
                         ? null
                         : Entry.GetCurrentValue(Property!);
-            [param: CanBeNull]
             set
             {
                 if (Entry == null)
@@ -381,7 +379,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             get
                 => _parameterName;
 
-            [param: CanBeNull]
             set
             {
                 _parameterName = value;
@@ -396,7 +393,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             get
                 => _originalParameterName;
 
-            [param: CanBeNull]
             set
             {
                 _originalParameterName = value;
@@ -407,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Adds a modification affecting the same database value.
         /// </summary>
         /// <param name="modification"> The modification for the shared column. </param>
-        public virtual void AddSharedColumnModification([NotNull] ColumnModification modification)
+        public virtual void AddSharedColumnModification(ColumnModification modification)
         {
             Check.DebugAssert(Entry is not null, "Entry is not null");
             Check.DebugAssert(Property is not null, "Property is not null");

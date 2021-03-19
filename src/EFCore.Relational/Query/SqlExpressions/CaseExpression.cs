@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -30,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="whenClauses"> A list of <see cref="CaseWhenClause" /> to compare and get result from. </param>
         /// <param name="elseResult"> A value to return if no <see cref="WhenClauses" /> matches, if any. </param>
         public CaseExpression(
-            [NotNull] SqlExpression operand,
-            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
-            [CanBeNull] SqlExpression? elseResult = null)
+            SqlExpression operand,
+            IReadOnlyList<CaseWhenClause> whenClauses,
+            SqlExpression? elseResult = null)
             : base(Check.NotEmpty(whenClauses, nameof(whenClauses))[0].Result.Type, whenClauses[0].Result.TypeMapping)
         {
             Check.NotNull(operand, nameof(operand));
@@ -48,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="whenClauses"> A list of <see cref="CaseWhenClause" /> to evaluate condition and get result from. </param>
         /// <param name="elseResult"> A value to return if no <see cref="WhenClauses" /> matches, if any. </param>
         public CaseExpression(
-            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
-            [CanBeNull] SqlExpression? elseResult = null)
+            IReadOnlyList<CaseWhenClause> whenClauses,
+            SqlExpression? elseResult = null)
             : base(Check.NotEmpty(whenClauses, nameof(whenClauses))[0].Result.Type, whenClauses[0].Result.TypeMapping)
         {
             _whenClauses.AddRange(whenClauses);
@@ -116,9 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="elseResult"> The <see cref="ElseResult" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual CaseExpression Update(
-            [CanBeNull] SqlExpression? operand,
-            [NotNull] IReadOnlyList<CaseWhenClause> whenClauses,
-            [CanBeNull] SqlExpression? elseResult)
+            SqlExpression? operand,
+            IReadOnlyList<CaseWhenClause> whenClauses,
+            SqlExpression? elseResult)
             => operand != Operand || !whenClauses.SequenceEqual(WhenClauses) || elseResult != ElseResult
                 ? (operand == null
                     ? new CaseExpression(whenClauses, elseResult)

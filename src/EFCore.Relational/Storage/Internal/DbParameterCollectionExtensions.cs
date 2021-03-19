@@ -8,7 +8,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string FormatParameters(
-            [NotNull] this DbParameterCollection parameters,
+            this DbParameterCollection parameters,
             bool logParameterValues)
             => parameters
                 .Cast<DbParameter>()
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string FormatParameter([NotNull] this DbParameter parameter, bool logParameterValues)
+        public static string FormatParameter(this DbParameter parameter, bool logParameterValues)
             => FormatParameter(
                 parameter.ParameterName,
                 logParameterValues ? parameter.Value : "?",
@@ -59,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string FormatParameter(
-            [NotNull] string name,
-            [CanBeNull] object? value,
+            string name,
+            object? value,
             bool hasValue,
             ParameterDirection direction,
             DbType dbType,

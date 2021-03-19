@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimKey([NotNull] IReadOnlyList<SlimProperty> properties)
+        public SlimKey(IReadOnlyList<SlimProperty> properties)
         {
             Properties = properties;
         }
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual ISet<SlimForeignKey>? ReferencingForeignKeys { get; [param: CanBeNull] set; }
+        public virtual ISet<SlimForeignKey>? ReferencingForeignKeys { get; set; }
 
         /// <summary>
         ///     Returns a string that represents the current object.

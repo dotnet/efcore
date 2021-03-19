@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         ///     Initializes a new instance of the <see cref="ProviderConventionSetBuilder" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public ProviderConventionSetBuilder([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ProviderConventionSetBuilder(ProviderConventionSetBuilderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -250,8 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
         /// <param name="newConvention"> The new convention. </param>
         protected virtual bool ReplaceConvention<TConvention, TImplementation>(
-            [NotNull] IList<TConvention> conventionsList,
-            [NotNull] TImplementation newConvention)
+            IList<TConvention> conventionsList,
+            TImplementation newConvention)
             where TImplementation : TConvention
             => ConventionSet.Replace(conventionsList, newConvention);
     }

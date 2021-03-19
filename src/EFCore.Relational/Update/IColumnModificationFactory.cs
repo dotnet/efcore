@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -33,11 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <returns> A new instance of ColumnModification. </returns>
         ColumnModification CreateColumnModification(
-            [NotNull] IUpdateEntry entry,
-            [NotNull] IProperty property,
-            [NotNull] IColumn column,
-            [NotNull] Func<string> generateParameterName,
-            [NotNull] RelationalTypeMapping typeMapping,
+            IUpdateEntry entry,
+            IProperty property,
+            IColumn column,
+            Func<string> generateParameterName,
+            RelationalTypeMapping typeMapping,
             bool valueIsRead,
             bool valueIsWrite,
             bool columnIsKey,
@@ -61,12 +60,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="valueIsNullable"> A value indicating whether the value could be null. </param>
         /// <returns> A new instance of ColumnModification. </returns>
         ColumnModification CreateColumnModification(
-            [NotNull] string columnName,
-            [CanBeNull] object? originalValue,
-            [CanBeNull] object? value,
-            [CanBeNull] IProperty? property,
-            [CanBeNull] string? columnType,
-            [CanBeNull] RelationalTypeMapping? typeMapping,
+            string columnName,
+            object? originalValue,
+            object? value,
+            IProperty? property,
+            string? columnType,
+            RelationalTypeMapping? typeMapping,
             bool valueIsRead,
             bool valueIsWrite,
             bool columnIsKey,

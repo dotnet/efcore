@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     execution should be suppressed and the given result should be used instead.
         /// </summary>
         /// <param name="result"> The result to use. </param>
-        public static InterceptionResult<TResult> SuppressWithResult([CanBeNull] TResult result)
+        public static InterceptionResult<TResult> SuppressWithResult(TResult result)
             => new(result);
 
         private InterceptionResult(TResult result)

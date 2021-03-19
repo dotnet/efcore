@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The CLR type. </param>
         /// <returns> Whether the CLR type is used by shared type entities in the model. </returns>
-        bool IsShared([NotNull] Type type);
+        bool IsShared(Type type);
 
         /// <summary>
         ///     Gets all entity types defined in the model.
@@ -66,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null"/> if none is found. </returns>
-        IReadOnlyEntityType? FindEntityType([NotNull] string name);
+        IReadOnlyEntityType? FindEntityType(string name);
 
         /// <summary>
         ///     Gets the entity type for the given base name, defining navigation name
@@ -77,9 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null"/> if none is found. </returns>
         IReadOnlyEntityType? FindEntityType(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] IReadOnlyEntityType definingEntityType);
+            string name,
+            string definingNavigationName,
+            IReadOnlyEntityType definingEntityType);
 
         /// <summary>
         ///     Gets the entity that maps the given entity class. Returns <see langword="null" /> if no entity type with
@@ -88,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyEntityType? FindEntityType([NotNull] Type type);
+        IReadOnlyEntityType? FindEntityType(Type type);
 
         /// <summary>
         ///     Gets the entity type for the given type, defining navigation name
@@ -99,16 +98,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         IReadOnlyEntityType? FindEntityType(
-            [NotNull] Type type,
-            [NotNull] string definingNavigationName,
-            [NotNull] IReadOnlyEntityType definingEntityType);
+            Type type,
+            string definingNavigationName,
+            IReadOnlyEntityType definingEntityType);
 
         /// <summary>
         ///     Gets the entity types matching the given type.
         /// </summary>
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
-        IEnumerable<IReadOnlyEntityType> FindEntityTypes([NotNull] Type type);
+        IEnumerable<IReadOnlyEntityType> FindEntityTypes(Type type);
 
         /// <summary>
         ///     Returns the entity types corresponding to the least derived types from the given.
@@ -117,8 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="condition"> An optional condition for filtering entity types. </param>
         /// <returns> List of entity types corresponding to the least derived types from the given. </returns>
         IEnumerable<IReadOnlyEntityType> FindLeastDerivedEntityTypes(
-            [NotNull] Type type,
-            [CanBeNull] Func<IReadOnlyEntityType, bool>? condition = null)
+            Type type,
+            Func<IReadOnlyEntityType, bool>? condition = null)
         {
             var derivedLevels = new Dictionary<Type, int> { [type] = 0 };
 

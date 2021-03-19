@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerUpdateSqlGenerator(
-            [NotNull] UpdateSqlGeneratorDependencies dependencies)
+            UpdateSqlGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -232,12 +231,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         }
 
         private void AppendMergeCommandHeader(
-            [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] string name,
-            [CanBeNull] string? schema,
-            [NotNull] string toInsertTableAlias,
-            [NotNull] IReadOnlyList<ModificationCommand> modificationCommands,
-            [NotNull] IReadOnlyList<ColumnModification> writeOperations,
+            StringBuilder commandStringBuilder,
+            string name,
+            string? schema,
+            string toInsertTableAlias,
+            IReadOnlyList<ModificationCommand> modificationCommands,
+            IReadOnlyList<ColumnModification> writeOperations,
             string? additionalColumns = null)
         {
             commandStringBuilder.Append("MERGE ");

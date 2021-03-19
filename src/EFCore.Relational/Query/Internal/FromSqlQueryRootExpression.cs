@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -24,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public FromSqlQueryRootExpression(
-            [NotNull] IAsyncQueryProvider queryProvider,
-            [NotNull] IEntityType entityType,
-            [NotNull] string sql,
-            [NotNull] Expression argument)
+            IAsyncQueryProvider queryProvider,
+            IEntityType entityType,
+            string sql,
+            Expression argument)
             : base(queryProvider, entityType)
         {
             Check.NotEmpty(sql, nameof(sql));
@@ -44,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public FromSqlQueryRootExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] string sql,
-            [NotNull] Expression argument)
+            IEntityType entityType,
+            string sql,
+            Expression argument)
             : base(entityType)
         {
             Check.NotEmpty(sql, nameof(sql));

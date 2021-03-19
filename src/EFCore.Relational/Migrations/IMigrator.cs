@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="targetMigration">
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
         /// </param>
-        void Migrate([CanBeNull] string? targetMigration = null);
+        void Migrate(string? targetMigration = null);
 
         /// <summary>
         ///     Migrates the database to either a specified target migration or up to the latest
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> A task that represents the asynchronous operation </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task MigrateAsync(
-            [CanBeNull] string? targetMigration = null,
+            string? targetMigration = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -61,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </param>
         /// <returns> The generated script. </returns>
         string GenerateScript(
-            [CanBeNull] string? fromMigration = null,
-            [CanBeNull] string? toMigration = null,
+            string? fromMigration = null,
+            string? toMigration = null,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default);
     }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalQueryTranslationPostprocessorDependencies(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             SqlExpressionFactory = sqlExpressionFactory;
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
@@ -62,6 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The SQL expression factory.
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; init; }
     }
 }

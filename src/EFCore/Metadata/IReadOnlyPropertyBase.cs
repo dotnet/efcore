@@ -71,14 +71,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 && propertyInfo == DeclaringType.FindIndexerPropertyInfo();
 
         /// <summary>
-        ///     <para>
-        ///         Gets the <see cref="PropertyAccessMode" /> being used for this property.
-        ///         <see langword="null" /> indicates that the default property access mode is being used.
-        ///     </para>
+        ///     Gets the <see cref="PropertyAccessMode" /> being used for this property-like object.
         /// </summary>
         /// <returns> The access mode being used. </returns>
-        PropertyAccessMode GetPropertyAccessMode()
-            => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
-                ?? PropertyAccessMode.PreferField);
+        PropertyAccessMode GetPropertyAccessMode();
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public NumberToBytesConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
+        public NumberToBytesConverter(ConverterMappingHints? mappingHints = null)
             : base(ToBytes(), ToNumber(), _defaultHints.With(mappingHints))
         {
         }

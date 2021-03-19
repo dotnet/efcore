@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public QueryableMethodNormalizingExpressionVisitor([NotNull] QueryCompilationContext queryCompilationContext)
+        public QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext queryCompilationContext)
         {
             Check.NotNull(queryCompilationContext, nameof(Query));
 

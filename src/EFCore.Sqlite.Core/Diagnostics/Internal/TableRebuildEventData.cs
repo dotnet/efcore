@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
@@ -22,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public TableRebuildEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] Type operationType,
-            [CanBeNull] string? tableName)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            Type operationType,
+            string? tableName)
             : base(eventDefinition, messageGenerator)
         {
             OperationType = operationType;

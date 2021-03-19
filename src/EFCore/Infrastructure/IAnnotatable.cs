@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The existing runtime annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        IAnnotation? FindRuntimeAnnotation([NotNull] string name);
+        IAnnotation? FindRuntimeAnnotation(string name);
 
         /// <summary>
         ///     Gets the value of the runtime annotation with the given name, returning <see langword="null" /> if it does not exist.
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The value of the existing runtime annotation if an annotation with the specified name already exists.
         ///     Otherwise, <see langword="null" />.
         /// </returns>
-        object? FindRuntimeAnnotationValue([NotNull] string name)
+        object? FindRuntimeAnnotationValue(string name)
             => FindRuntimeAnnotation(name)?.Value;
 
         /// <summary>
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The name of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly added annotation. </returns>
-        IAnnotation AddRuntimeAnnotation([NotNull] string name, [CanBeNull] object? value);
+        IAnnotation AddRuntimeAnnotation(string name, object? value);
 
         /// <summary>
         ///     Sets the runtime annotation stored under the given key. Overwrites the existing annotation if an
@@ -58,14 +57,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The name of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly added annotation. </returns>
-        IAnnotation SetRuntimeAnnotation([NotNull] string name, [CanBeNull] object? value);
+        IAnnotation SetRuntimeAnnotation(string name, object? value);
 
         /// <summary>
         ///     Removes the given runtime annotation from this object.
         /// </summary>
         /// <param name="name"> The name of the annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        IAnnotation? RemoveRuntimeAnnotation([NotNull] string name);
+        IAnnotation? RemoveRuntimeAnnotation(string name);
 
         /// <summary>
         ///     Gets the value of the runtime annotation with the given name, adding it if one does not exist.
@@ -78,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Otherwise a newly created value.
         /// </returns>
         TValue GetOrAddRuntimeAnnotationValue<TValue, TArg>(
-            [NotNull] string name,
-            [NotNull] Func<TArg?, TValue> valueFactory,
-            [CanBeNull] TArg? factoryArgument);
+            string name,
+            Func<TArg?, TValue> valueFactory,
+            TArg? factoryArgument);
     }
 }

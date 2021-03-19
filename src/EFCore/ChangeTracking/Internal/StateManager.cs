@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -60,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public StateManager([NotNull] StateManagerDependencies dependencies)
+        public StateManager(StateManagerDependencies dependencies)
         {
             Dependencies = dependencies;
 
@@ -1076,7 +1075,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual int SaveChanges([NotNull] IList<IUpdateEntry> entriesToSave)
+        protected virtual int SaveChanges(IList<IUpdateEntry> entriesToSave)
         {
             _concurrencyDetector?.EnterCriticalSection();
 
@@ -1099,7 +1098,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual async Task<int> SaveChangesAsync(
-            [NotNull] IList<IUpdateEntry> entriesToSave,
+            IList<IUpdateEntry> entriesToSave,
             CancellationToken cancellationToken = default)
         {
             _concurrencyDetector?.EnterCriticalSection();

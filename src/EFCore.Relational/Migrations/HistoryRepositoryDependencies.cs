@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -73,20 +72,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 #pragma warning disable CS0618 // Type or member is obsolete
         [EntityFrameworkInternal]
         public HistoryRepositoryDependencies(
-            [NotNull] IRelationalDatabaseCreator databaseCreator,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IDbContextOptions options,
-            [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
-            [NotNull] ModelDependencies modelDependencies,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IModelRuntimeInitializer modelRuntimeInitializer,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            IRelationalDatabaseCreator databaseCreator,
+            IRawSqlCommandBuilder rawSqlCommandBuilder,
+            IRelationalConnection connection,
+            IDbContextOptions options,
+            IMigrationsModelDiffer modelDiffer,
+            IMigrationsSqlGenerator migrationsSqlGenerator,
+            ISqlGenerationHelper sqlGenerationHelper,
+            IConventionSetBuilder conventionSetBuilder,
+            ModelDependencies modelDependencies,
+            IRelationalTypeMappingSource typeMappingSource,
+            ICurrentDbContext currentContext,
+            IModelRuntimeInitializer modelRuntimeInitializer,
+            IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
             Check.NotNull(databaseCreator, nameof(databaseCreator));
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
@@ -123,72 +122,72 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The database creator.
         /// </summary>
-        public IRelationalDatabaseCreator DatabaseCreator { get; [param: NotNull] init; }
+        public IRelationalDatabaseCreator DatabaseCreator { get; init; }
 
         /// <summary>
         ///     A command builder for building raw SQL commands.
         /// </summary>
-        public IRawSqlCommandBuilder RawSqlCommandBuilder { get; [param: NotNull] init; }
+        public IRawSqlCommandBuilder RawSqlCommandBuilder { get; init; }
 
         /// <summary>
         ///     The connection to the database.
         /// </summary>
-        public IRelationalConnection Connection { get; [param: NotNull] init; }
+        public IRelationalConnection Connection { get; init; }
 
         /// <summary>
         ///     Options for the current context instance.
         /// </summary>
-        public IDbContextOptions Options { get; [param: NotNull] init; }
+        public IDbContextOptions Options { get; init; }
 
         /// <summary>
         ///     The model differ.
         /// </summary>
-        public IMigrationsModelDiffer ModelDiffer { get; [param: NotNull] init; }
+        public IMigrationsModelDiffer ModelDiffer { get; init; }
 
         /// <summary>
         ///     The SQL generator for Migrations operations.
         /// </summary>
-        public IMigrationsSqlGenerator MigrationsSqlGenerator { get; [param: NotNull] init; }
+        public IMigrationsSqlGenerator MigrationsSqlGenerator { get; init; }
 
         /// <summary>
         ///     Helpers for generating update SQL.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; init; }
 
         /// <summary>
         ///     The core convention set to use when creating the model.
         /// </summary>
-        public IConventionSetBuilder ConventionSetBuilder { get; [param: NotNull] init; }
+        public IConventionSetBuilder ConventionSetBuilder { get; init; }
 
         /// <summary>
         ///     The model dependencies.
         /// </summary>
-        public ModelDependencies ModelDependencies { get; [param: NotNull] init; }
+        public ModelDependencies ModelDependencies { get; init; }
 
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
+        public ICurrentDbContext CurrentContext { get; init; }
 
         /// <summary>
         ///     The model runtime initializer
         /// </summary>
-        public IModelRuntimeInitializer ModelRuntimeInitializer { get; [param: NotNull] init; }
+        public IModelRuntimeInitializer ModelRuntimeInitializer { get; init; }
 
         /// <summary>
         ///     The model logger
         /// </summary>
         [Obsolete("This is contained in ModelDependencies now.")]
-        public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; init; }
 
         /// <summary>
         ///     The command logger
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; init; }
     }
 }

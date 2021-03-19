@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -19,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int IndexOf([NotNull] this IReadOnlyKey key, [NotNull] IReadOnlyProperty property)
+        public static int IndexOf(this IReadOnlyKey key, IReadOnlyProperty property)
         {
             var index = 0;
             for (; index < key.Properties.Count && key.Properties[index] != property; index++)

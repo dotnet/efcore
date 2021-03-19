@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
@@ -35,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public RelationalCommandCache(
-            [NotNull] IMemoryCache memoryCache,
-            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
-            [NotNull] SelectExpression selectExpression,
-            [CanBeNull] IReadOnlyList<ReaderColumn>? readerColumns,
+            IMemoryCache memoryCache,
+            IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory,
+            SelectExpression selectExpression,
+            IReadOnlyList<ReaderColumn>? readerColumns,
             bool useRelationalNulls)
         {
             _memoryCache = memoryCache;
@@ -63,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IRelationalCommand GetRelationalCommand([NotNull] IReadOnlyDictionary<string, object?> parameters)
+        public virtual IRelationalCommand GetRelationalCommand(IReadOnlyDictionary<string, object?> parameters)
         {
             var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 

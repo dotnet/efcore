@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -39,13 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the <see cref="Type" /> of values returned by the sequence.
         /// </summary>
-        new Type Type { get; [param: NotNull] set; }
+        new Type Type { get; set; }
 
         /// <summary>
         ///     Gets or sets the <see cref="Type" /> of values returned by the sequence.
         /// </summary>
         [Obsolete("Use Type")]
-        new Type ClrType { get; [param: NotNull] set; }
+        new Type ClrType { get; set; }
 
         /// <summary>
         ///     Gets or sets the a value indicating whether the sequence will start again from the beginning when the max value

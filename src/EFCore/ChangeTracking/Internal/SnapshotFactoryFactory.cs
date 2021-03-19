@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<ISnapshot> CreateEmpty([NotNull] IEntityType entityType)
+        public virtual Func<ISnapshot> CreateEmpty(IEntityType entityType)
         {
             return GetPropertyCount(entityType) == 0
                 ? (() => Snapshot.Empty)
@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateConstructorExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] ParameterExpression parameter)
+            IEntityType entityType,
+            ParameterExpression parameter)
         {
             var count = GetPropertyCount(entityType);
 
@@ -101,10 +101,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateSnapshotExpression(
-            [CanBeNull] Type? entityType,
-            [NotNull] ParameterExpression parameter,
-            [NotNull] Type[] types,
-            [NotNull] IList<IPropertyBase> propertyBases)
+            Type? entityType,
+            ParameterExpression parameter,
+            Type[] types,
+            IList<IPropertyBase> propertyBases)
         {
             var count = types.Length;
 
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract ValueComparer? GetValueComparer([NotNull] IProperty property);
+        protected abstract ValueComparer? GetValueComparer(IProperty property);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -219,8 +219,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateReadShadowValueExpression(
-            [NotNull] ParameterExpression parameter,
-            [NotNull] IPropertyBase property)
+            ParameterExpression parameter,
+            IPropertyBase property)
             => Expression.Call(
                 parameter,
                 InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(property.ClrType),
@@ -233,8 +233,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateReadValueExpression(
-            [NotNull] ParameterExpression parameter,
-            [NotNull] IPropertyBase property)
+            ParameterExpression parameter,
+            IPropertyBase property)
             => Expression.Call(
                 parameter,
                 InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(property.ClrType),
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract int GetPropertyIndex([NotNull] IPropertyBase propertyBase);
+        protected abstract int GetPropertyIndex(IPropertyBase propertyBase);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract int GetPropertyCount([NotNull] IEntityType entityType);
+        protected abstract int GetPropertyCount(IEntityType entityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

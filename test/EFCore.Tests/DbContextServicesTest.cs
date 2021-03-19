@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -2710,7 +2709,7 @@ namespace Microsoft.EntityFrameworkCore
             public ParameterBinding Bind(IConventionEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
 
-            public ParameterBinding Bind([NotNull] IReadOnlyEntityType entityType, [NotNull] Type parameterType, [NotNull] string parameterName)
+            public ParameterBinding Bind(IReadOnlyEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
         }
 
@@ -2725,7 +2724,7 @@ namespace Microsoft.EntityFrameworkCore
             public ParameterBinding Bind(IConventionEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
 
-            public ParameterBinding Bind([NotNull] IReadOnlyEntityType entityType, [NotNull] Type parameterType, [NotNull] string parameterName)
+            public ParameterBinding Bind(IReadOnlyEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
         }
 

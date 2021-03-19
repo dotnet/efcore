@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="csharpHelper"> The C# helper. </param>
         [EntityFrameworkInternal]
-        public CSharpMigrationOperationGeneratorDependencies([NotNull] ICSharpHelper csharpHelper)
+        public CSharpMigrationOperationGeneratorDependencies(ICSharpHelper csharpHelper)
         {
             Check.NotNull(csharpHelper, nameof(csharpHelper));
 
@@ -58,6 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The C# helper.
         /// </summary>
-        public ICSharpHelper CSharpHelper { get; [param: NotNull] init; }
+        public ICSharpHelper CSharpHelper { get; init; }
     }
 }

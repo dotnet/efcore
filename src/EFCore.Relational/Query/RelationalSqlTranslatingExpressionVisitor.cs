@@ -5,17 +5,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -60,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         /// <param name="queryableMethodTranslatingExpressionVisitor"> A parent queryable method translating expression visitor to translate subquery. </param>
         public RelationalSqlTranslatingExpressionVisitor(
-            [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
+            QueryCompilationContext queryCompilationContext,
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Adds detailed information about error encountered during translation.
         /// </summary>
         /// <param name="details"> Detailed information about error encountered during translation. </param>
-        protected virtual void AddTranslationErrorDetails([NotNull] string details)
+        protected virtual void AddTranslationErrorDetails(string details)
         {
             Check.NotNull(details, nameof(details));
 
@@ -109,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="expression"> An expression to translate. </param>
         /// <returns> A SQL translation of the given expression. </returns>
-        public virtual SqlExpression? Translate([NotNull] Expression expression)
+        public virtual SqlExpression? Translate(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -152,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Average over. </param>
         /// <returns> A SQL translation of Average over the given expression. </returns>
-        public virtual SqlExpression? TranslateAverage([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateAverage(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -192,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Count over. </param>
         /// <returns> A SQL translation of Count over the given expression. </returns>
-        public virtual SqlExpression? TranslateCount([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateCount(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -210,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate LongCount over. </param>
         /// <returns> A SQL translation of LongCount over the given expression. </returns>
-        public virtual SqlExpression? TranslateLongCount([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -228,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Max over. </param>
         /// <returns> A SQL translation of Max over the given expression. </returns>
-        public virtual SqlExpression? TranslateMax([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateMax(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -248,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Min over. </param>
         /// <returns> A SQL translation of Min over the given expression. </returns>
-        public virtual SqlExpression? TranslateMin([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateMin(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -268,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpression"> An expression to translate Sum over. </param>
         /// <returns> A SQL translation of Sum over the given expression. </returns>
-        public virtual SqlExpression? TranslateSum([NotNull] SqlExpression sqlExpression)
+        public virtual SqlExpression? TranslateSum(SqlExpression sqlExpression)
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
@@ -1191,7 +1190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     null)
                 : QueryCompilationContext.NotTranslatedExpression;
 
-        private bool TryRewriteContainsEntity(Expression source, Expression item, [CA.NotNullWhen(true)] out Expression? result)
+        private bool TryRewriteContainsEntity(Expression source, Expression item, [NotNullWhen(true)] out Expression? result)
         {
             result = null;
 
@@ -1263,7 +1262,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private bool TryRewriteEntityEquality(
-            ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, [CA.NotNullWhen(true)] out Expression? result)
+            ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, [NotNullWhen(true)] out Expression? result)
         {
             var leftEntityReference = left as EntityReferenceExpression;
             var rightEntityReference = right as EntityReferenceExpression;
@@ -1448,14 +1447,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-#nullable disable
-        private static T ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
+        private static T? ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
         {
             var baseParameter = context.ParameterValues[baseParameterName];
-            return baseParameter == null ? (T)(object)null : (T)property.GetGetter().GetClrValue(baseParameter);
+            return baseParameter == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseParameter);
         }
 
-        private static List<TProperty> ParameterListValueExtractor<TEntity, TProperty>(
+        private static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
             QueryContext context,
             string baseParameterName,
             IProperty property)
@@ -1466,9 +1464,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var getter = property.GetGetter();
-            return baseListParameter.Select(e => e != null ? (TProperty)getter.GetClrValue(e) : (TProperty)(object)null).ToList();
+            return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
         }
-#nullable enable
 
         private static bool CanEvaluate(Expression expression)
         {

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -39,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Index(
-            [NotNull] IReadOnlyList<Property> properties,
-            [NotNull] EntityType declaringEntityType,
+            IReadOnlyList<Property> properties,
+            EntityType declaringEntityType,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -61,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Index(
-            [NotNull] IReadOnlyList<Property> properties,
-            [NotNull] string name,
-            [NotNull] EntityType declaringEntityType,
+            IReadOnlyList<Property> properties,
+            string name,
+            EntityType declaringEntityType,
             ConfigurationSource configurationSource)
             : this(properties, declaringEntityType, configurationSource)
         {

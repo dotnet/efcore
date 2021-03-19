@@ -3,7 +3,6 @@
 
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int GetShadowIndex([NotNull] this IPropertyBase propertyBase)
+        public static int GetShadowIndex(this IPropertyBase propertyBase)
             => ((IRuntimePropertyBase)propertyBase).GetShadowIndex();
 
         /// <summary>
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int GetStoreGeneratedIndex([NotNull] this IPropertyBase propertyBase)
+        public static int GetStoreGeneratedIndex(this IPropertyBase propertyBase)
             => ((IRuntimePropertyBase)propertyBase).GetStoreGeneratedIndex();
 
         /// <summary>
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int GetRelationshipIndex([NotNull] this IPropertyBase propertyBase)
+        public static int GetRelationshipIndex(this IPropertyBase propertyBase)
             => ((IRuntimePropertyBase)propertyBase).GetRelationshipIndex();
 
         /// <summary>
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int GetOriginalValueIndex([NotNull] this IPropertyBase propertyBase)
+        public static int GetOriginalValueIndex(this IPropertyBase propertyBase)
             => ((IRuntimePropertyBase)propertyBase).GetOriginalValueIndex();
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyIndexes GetPropertyIndexes([NotNull] this IPropertyBase propertyBase)
+        public static PropertyIndexes GetPropertyIndexes(this IPropertyBase propertyBase)
             => ((IRuntimePropertyBase)propertyBase).PropertyIndexes;
 
         /// <summary>
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyAccessors GetPropertyAccessors([NotNull] this IPropertyBase propertyBase)
+        public static PropertyAccessors GetPropertyAccessors(this IPropertyBase propertyBase)
             => ((IRuntimePropertyBase)propertyBase).Accessors;
 
         /// <summary>
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsShadowProperty([NotNull] this PropertyBase propertyBase)
+        public static bool IsShadowProperty(this PropertyBase propertyBase)
             => ((IReadOnlyPropertyBase)propertyBase).IsShadowProperty();
 
         /// <summary>
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsIndexerProperty([NotNull] this PropertyBase propertyBase)
+        public static bool IsIndexerProperty(this PropertyBase propertyBase)
             => ((IReadOnlyPropertyBase)propertyBase).IsIndexerProperty();
 
         /// <summary>
@@ -98,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         // Note: only use this to find the property/field that defines the property in the model. Use
         // GetMemberInfo to get the property/field to use, which may be different.
         public static MemberInfo? GetIdentifyingMemberInfo(
-            [NotNull] this IReadOnlyPropertyBase propertyBase)
+            this IReadOnlyPropertyBase propertyBase)
             => propertyBase.PropertyInfo ?? (MemberInfo?)propertyBase.FieldInfo;
 
         /// <summary>
@@ -108,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool TryGetMemberInfo(
-            [NotNull] this IPropertyBase propertyBase,
+            this IPropertyBase propertyBase,
             bool forConstruction,
             bool forSet,
             out MemberInfo? memberInfo,

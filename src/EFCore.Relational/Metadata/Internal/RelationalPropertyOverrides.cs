@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class RelationalPropertyOverrides : ConventionAnnotatable
+    public class RelationalPropertyOverrides : ConventionAnnotatable, IRelationalPropertyOverrides
     {
         private string? _columnName;
 
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public RelationalPropertyOverrides([NotNull] IReadOnlyProperty property)
+        public RelationalPropertyOverrides(IReadOnlyProperty property)
         {
             Property = property;
         }
@@ -55,7 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string? ColumnName
         {
             get => _columnName;
-            [param: CanBeNull]
             set => SetColumnName(value, ConfigurationSource.Explicit);
         }
 
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string? SetColumnName([CanBeNull] string? columnName, ConfigurationSource configurationSource)
+        public virtual string? SetColumnName(string? columnName, ConfigurationSource configurationSource)
         {
             EnsureMutable();
 
@@ -74,6 +73,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return columnName;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool ColumnNameOverriden
+            => _columnNameConfigurationSource != null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -90,9 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static RelationalPropertyOverrides? Find([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+        public static IRelationalPropertyOverrides? Find(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
-            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>?)
+            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>?)
                 property[RelationalAnnotationNames.RelationalOverrides];
             return tableOverrides != null
                 && tableOverrides.TryGetValue(storeObject, out var overrides)
@@ -107,14 +115,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyOverrides GetOrCreate(
-            [NotNull] IMutableProperty property,
+            IMutableProperty property,
             in StoreObjectIdentifier storeObject)
         {
-            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>?)
+            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>?)
                 property[RelationalAnnotationNames.RelationalOverrides];
             if (tableOverrides == null)
             {
-                tableOverrides = new SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>();
+                tableOverrides = new SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>();
                 property[RelationalAnnotationNames.RelationalOverrides] = tableOverrides;
             }
 
@@ -124,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 tableOverrides.Add(storeObject, overrides);
             }
 
-            return overrides;
+            return (RelationalPropertyOverrides)overrides;
         }
 
         /// <summary>
@@ -134,8 +142,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static RelationalPropertyOverrides GetOrCreate(
-            [NotNull] IConventionProperty property,
+            IConventionProperty property,
             in StoreObjectIdentifier storeObject)
             => GetOrCreate((IMutableProperty)property, storeObject);
+
+        /// <inheritdoc />
+        IProperty IRelationalPropertyOverrides.Property
+        {
+            [DebuggerStepThrough]
+            get => (IProperty)Property;
+        }
     }
 }

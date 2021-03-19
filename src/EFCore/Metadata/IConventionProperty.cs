@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -166,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        CoreTypeMapping? SetTypeMapping([NotNull] CoreTypeMapping typeMapping, bool fromDataAnnotation = false);
+        CoreTypeMapping? SetTypeMapping(CoreTypeMapping typeMapping, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the <see cref="ConfigurationSource" /> for <see cref="CoreTypeMapping" /> of the property.
@@ -309,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         Func<IProperty, IEntityType, ValueGenerator>? SetValueGeneratorFactory(
-            [NotNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory,
+            Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -324,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="converter"> The converter, or <see langword="null" /> to remove any previously set converter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        ValueConverter? SetValueConverter([CanBeNull] ValueConverter? converter,  bool fromDataAnnotation = false);
+        ValueConverter? SetValueConverter(ValueConverter? converter,  bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetValueConverter" />.
@@ -338,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="providerClrType"> The type to use, or <see langword="null" /> to remove any previously set type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        Type? SetProviderClrType([CanBeNull] Type? providerClrType, bool fromDataAnnotation = false);
+        Type? SetProviderClrType(Type? providerClrType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetProviderClrType" />.
@@ -352,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        ValueComparer? SetValueComparer([CanBeNull] ValueComparer? comparer, bool fromDataAnnotation = false);
+        ValueComparer? SetValueComparer(ValueComparer? comparer, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetValueComparer" />.

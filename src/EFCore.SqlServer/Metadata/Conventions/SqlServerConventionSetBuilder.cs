@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -33,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationalDependencies"> The relational dependencies for this service. </param>
         /// <param name="sqlGenerationHelper"> The SQL generation helper to use. </param>
         public SqlServerConventionSetBuilder(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies,
+            ISqlGenerationHelper sqlGenerationHelper)
             : base(dependencies, relationalDependencies)
         {
             _sqlGenerationHelper = sqlGenerationHelper;

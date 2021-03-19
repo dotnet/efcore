@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -101,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual TEntity? Find([CanBeNull] params object[]? keyValues)
+        public virtual TEntity? Find(params object[]? keyValues)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -113,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual ValueTask<TEntity?> FindAsync([CanBeNull] params object[]? keyValues)
+        public virtual ValueTask<TEntity?> FindAsync(params object[]? keyValues)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -127,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual ValueTask<TEntity?> FindAsync([CanBeNull] object[]? keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<TEntity?> FindAsync(object[]? keyValues, CancellationToken cancellationToken)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -145,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Add([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Add(TEntity entity)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -172,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<EntityEntry<TEntity>> AddAsync(
-            [NotNull] TEntity entity,
+            TEntity entity,
             CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
@@ -210,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Attach([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Attach(TEntity entity)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -237,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Remove([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Remove(TEntity entity)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -274,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Update([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Update(TEntity entity)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -283,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        public virtual void AddRange([NotNull] params TEntity[] entities)
+        public virtual void AddRange(params TEntity[] entities)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -300,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        public virtual Task AddRangeAsync([NotNull] params TEntity[] entities)
+        public virtual Task AddRangeAsync(params TEntity[] entities)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -333,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        public virtual void AttachRange([NotNull] params TEntity[] entities)
+        public virtual void AttachRange(params TEntity[] entities)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -353,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
-        public virtual void RemoveRange([NotNull] params TEntity[] entities)
+        public virtual void RemoveRange(params TEntity[] entities)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -386,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        public virtual void UpdateRange([NotNull] params TEntity[] entities)
+        public virtual void UpdateRange(params TEntity[] entities)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -395,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual void AddRange(IEnumerable<TEntity> entities)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -415,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task AddRangeAsync(
-            [NotNull] IEnumerable<TEntity> entities,
+            IEnumerable<TEntity> entities,
             CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
@@ -449,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        public virtual void AttachRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual void AttachRange(IEnumerable<TEntity> entities)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -469,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
-        public virtual void RemoveRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual void RemoveRange(IEnumerable<TEntity> entities)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -502,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        public virtual void UpdateRange([NotNull] IEnumerable<TEntity> entities)
+        public virtual void UpdateRange(IEnumerable<TEntity> entities)
             => throw new NotSupportedException();
 
         /// <summary>

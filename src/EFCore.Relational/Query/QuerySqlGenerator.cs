@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -52,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        public QuerySqlGenerator([NotNull] QuerySqlGeneratorDependencies dependencies)
+        public QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="selectExpression"> A select expression to print in command text. </param>
         /// <returns> A relational command with a SQL represented by the select expression. </returns>
-        public virtual IRelationalCommand GetCommand([NotNull] SelectExpression selectExpression)
+        public virtual IRelationalCommand GetCommand(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
@@ -108,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates the head comment for tags.
         /// </summary>
         /// <param name="selectExpression"> A select expression to generate tags for. </param>
-        protected virtual void GenerateTagsHeaderComment([NotNull] SelectExpression selectExpression)
+        protected virtual void GenerateTagsHeaderComment(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
@@ -434,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sql"> An SQL string to be checked for composability. </param>
         /// <exception cref="InvalidOperationException"> The given SQL isn't composable. </exception>
-        protected virtual void CheckComposableSql([NotNull] string sql)
+        protected virtual void CheckComposableSql(string sql)
         {
             Check.NotNull(sql, nameof(sql));
 
@@ -833,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="binaryExpression"> A SQL binary operation. </param>
         /// <returns> A string representation of the binary operator. </returns>
         [Obsolete("Use GetOperator instead.")]
-        protected virtual string GenerateOperator([NotNull] SqlBinaryExpression binaryExpression)
+        protected virtual string GenerateOperator(SqlBinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
@@ -845,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="binaryExpression"> A SQL binary operation. </param>
         /// <returns> A string representation of the binary operator. </returns>
-        protected virtual string GetOperator([NotNull] SqlBinaryExpression binaryExpression)
+        protected virtual string GetOperator(SqlBinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
@@ -856,7 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates a TOP construct in the relational command
         /// </summary>
         /// <param name="selectExpression"> A select expression to use. </param>
-        protected virtual void GenerateTop([NotNull] SelectExpression selectExpression)
+        protected virtual void GenerateTop(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
         }
@@ -865,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates an ORDER BY clause in the relational command
         /// </summary>
         /// <param name="selectExpression"> A select expression to use. </param>
-        protected virtual void GenerateOrderings([NotNull] SelectExpression selectExpression)
+        protected virtual void GenerateOrderings(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
@@ -893,7 +892,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates a LIMIT...OFFSET... construct in the relational command
         /// </summary>
         /// <param name="selectExpression"> A select expression to use. </param>
-        protected virtual void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
+        protected virtual void GenerateLimitOffset(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
@@ -1043,7 +1042,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates a set operation in the relational command.
         /// </summary>
         /// <param name="setOperation"> A set operation to print. </param>
-        protected virtual void GenerateSetOperation([NotNull] SetOperationBase setOperation)
+        protected virtual void GenerateSetOperation(SetOperationBase setOperation)
         {
             Check.NotNull(setOperation, nameof(setOperation));
 
@@ -1069,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="setOperation"> A set operation to use. </param>
         /// <param name="operand"> A set operation operand to print. </param>
-        protected virtual void GenerateSetOperationOperand([NotNull] SetOperationBase setOperation, [NotNull] SelectExpression operand)
+        protected virtual void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
         {
             Check.NotNull(setOperation, nameof(setOperation));
             Check.NotNull(operand, nameof(operand));

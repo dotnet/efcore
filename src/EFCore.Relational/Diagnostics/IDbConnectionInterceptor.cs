@@ -5,7 +5,6 @@ using System;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -51,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult ConnectionOpening(
-            [NotNull] DbConnection connection,
-            [NotNull] ConnectionEventData eventData,
+            DbConnection connection,
+            ConnectionEventData eventData,
             InterceptionResult result);
 
         /// <summary>
@@ -76,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult> ConnectionOpeningAsync(
-            [NotNull] DbConnection connection,
-            [NotNull] ConnectionEventData eventData,
+            DbConnection connection,
+            ConnectionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default);
 
@@ -87,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
         void ConnectionOpened(
-            [NotNull] DbConnection connection,
-            [NotNull] ConnectionEndEventData eventData);
+            DbConnection connection,
+            ConnectionEndEventData eventData);
 
         /// <summary>
         ///     Called just after EF has called <see cref="DbConnection.OpenAsync()" />.
@@ -99,8 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task ConnectionOpenedAsync(
-            [NotNull] DbConnection connection,
-            [NotNull] ConnectionEndEventData eventData,
+            DbConnection connection,
+            ConnectionEndEventData eventData,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -122,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult ConnectionClosing(
-            [NotNull] DbConnection connection,
-            [NotNull] ConnectionEventData eventData,
+            DbConnection connection,
+            ConnectionEventData eventData,
             InterceptionResult result);
 
         /// <summary>
@@ -145,8 +144,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
         ValueTask<InterceptionResult> ConnectionClosingAsync(
-            [NotNull] DbConnection connection,
-            [NotNull] ConnectionEventData eventData,
+            DbConnection connection,
+            ConnectionEventData eventData,
             InterceptionResult result);
 
         /// <summary>
@@ -155,8 +154,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
         void ConnectionClosed(
-            [NotNull] DbConnection connection,
-            [NotNull] ConnectionEndEventData eventData);
+            DbConnection connection,
+            ConnectionEndEventData eventData);
 
         /// <summary>
         ///     Called just after EF has called <see cref="DbConnection.CloseAsync()" />.
@@ -165,8 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventData"> Contextual information about the connection. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         Task ConnectionClosedAsync(
-            [NotNull] DbConnection connection,
-            [NotNull] ConnectionEndEventData eventData);
+            DbConnection connection,
+            ConnectionEndEventData eventData);
 
         /// <summary>
         ///     Called when closing of a connection has failed with an exception.
@@ -174,8 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
         void ConnectionFailed(
-            [NotNull] DbConnection connection,
-            [NotNull] ConnectionErrorEventData eventData);
+            DbConnection connection,
+            ConnectionErrorEventData eventData);
 
         /// <summary>
         ///     Called when closing of a connection has failed with an exception.
@@ -186,8 +185,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task ConnectionFailedAsync(
-            [NotNull] DbConnection connection,
-            [NotNull] ConnectionErrorEventData eventData,
+            DbConnection connection,
+            ConnectionErrorEventData eventData,
             CancellationToken cancellationToken = default);
     }
 }

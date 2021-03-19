@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="ForeignKeyPropertyDiscoveryConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public ForeignKeyPropertyDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ForeignKeyPropertyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -870,7 +869,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <returns> The string that should be used as part of the shadow properties created for the given foreign key. </returns>
-        public static string GetPropertyBaseName([NotNull] IReadOnlyForeignKey foreignKey)
+        public static string GetPropertyBaseName(IReadOnlyForeignKey foreignKey)
             => foreignKey.DependentToPrincipal?.Name
                 ?? foreignKey.GetReferencingSkipNavigations().FirstOrDefault()?.Inverse?.Name
                 ?? foreignKey.PrincipalEntityType.ShortName();

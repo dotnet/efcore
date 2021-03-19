@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="source"> The query source. </param>
         /// <returns> The query string for debugging. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        public static string ToQueryString([NotNull] this IQueryable source)
+        public static string ToQueryString(this IQueryable source)
         {
             Check.NotNull(source, nameof(source));
 
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<bool> AnyAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -93,8 +92,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<bool> AnyAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -124,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<bool> AllAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -155,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int> CountAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -184,8 +183,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int> CountAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -211,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long> LongCountAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -241,8 +240,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long> LongCountAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -273,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> FirstAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -313,8 +312,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> FirstAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -341,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource?> FirstOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -372,8 +371,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource?> FirstOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -404,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> LastAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -444,8 +443,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> LastAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -472,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource?> LastOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -503,8 +502,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource?> LastOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -546,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> SingleAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -593,8 +592,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> SingleAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -624,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains more than one element. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource?> SingleOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -658,8 +657,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource?> SingleOrDefaultAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, bool>> predicate,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, bool>> predicate,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -691,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> MinAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -723,8 +722,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> MinAsync<TSource, TResult>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, TResult>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, TResult>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -755,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TSource> MaxAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -787,8 +786,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> MaxAsync<TSource, TResult>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, TResult>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, TResult>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -817,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal> SumAsync(
-            [NotNull] this IQueryable<decimal> source,
+            this IQueryable<decimal> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -841,7 +840,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal?> SumAsync(
-            [NotNull] this IQueryable<decimal?> source,
+            this IQueryable<decimal?> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -870,8 +869,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, decimal>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, decimal>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -901,8 +900,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal?> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, decimal?>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, decimal?>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -928,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int> SumAsync(
-            [NotNull] this IQueryable<int> source,
+            this IQueryable<int> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -952,7 +951,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int?> SumAsync(
-            [NotNull] this IQueryable<int?> source,
+            this IQueryable<int?> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -980,8 +979,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, int>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, int>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1010,8 +1009,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<int?> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, int?>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, int?>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1037,7 +1036,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long> SumAsync(
-            [NotNull] this IQueryable<long> source,
+            this IQueryable<long> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1061,7 +1060,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long?> SumAsync(
-            [NotNull] this IQueryable<long?> source,
+            this IQueryable<long?> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1089,8 +1088,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, long>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, long>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1120,8 +1119,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<long?> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, long?>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, long?>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1147,7 +1146,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> SumAsync(
-            [NotNull] this IQueryable<double> source,
+            this IQueryable<double> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1171,7 +1170,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> SumAsync(
-            [NotNull] this IQueryable<double?> source,
+            this IQueryable<double?> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1199,8 +1198,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, double>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, double>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1230,8 +1229,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, double?>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, double?>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1257,7 +1256,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float> SumAsync(
-            [NotNull] this IQueryable<float> source,
+            this IQueryable<float> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1281,7 +1280,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float?> SumAsync(
-            [NotNull] this IQueryable<float?> source,
+            this IQueryable<float?> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1309,8 +1308,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, float>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, float>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1340,8 +1339,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float?> SumAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, float?>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, float?>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1372,7 +1371,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal> AverageAsync(
-            [NotNull] this IQueryable<decimal> source,
+            this IQueryable<decimal> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1397,7 +1396,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal?> AverageAsync(
-            [NotNull] this IQueryable<decimal?> source,
+            this IQueryable<decimal?> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1428,8 +1427,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, decimal>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, decimal>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1460,8 +1459,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<decimal?> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, decimal?>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, decimal?>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1488,7 +1487,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync(
-            [NotNull] this IQueryable<int> source,
+            this IQueryable<int> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1512,7 +1511,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync(
-            [NotNull] this IQueryable<int?> source,
+            this IQueryable<int?> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1542,8 +1541,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, int>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, int>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1574,8 +1573,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, int?>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, int?>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1602,7 +1601,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync(
-            [NotNull] this IQueryable<long> source,
+            this IQueryable<long> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1626,7 +1625,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync(
-            [NotNull] this IQueryable<long?> source,
+            this IQueryable<long?> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1656,8 +1655,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, long>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, long>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1688,8 +1687,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, long?>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, long?>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1716,7 +1715,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync(
-            [NotNull] this IQueryable<double> source,
+            this IQueryable<double> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1741,7 +1740,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync(
-            [NotNull] this IQueryable<double?> source,
+            this IQueryable<double?> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1772,8 +1771,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, double>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, double>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1804,8 +1803,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, double?>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, double?>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1832,7 +1831,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float> AverageAsync(
-            [NotNull] this IQueryable<float> source,
+            this IQueryable<float> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1856,7 +1855,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float?> AverageAsync(
-            [NotNull] this IQueryable<float?> source,
+            this IQueryable<float?> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1887,8 +1886,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, float>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, float>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1919,8 +1918,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<float?> AverageAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Expression<Func<TSource, float?>> selector,
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, float?>> selector,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1953,8 +1952,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<bool> ContainsAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] TSource item,
+            this IQueryable<TSource> source,
+            TSource item,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -1988,7 +1987,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task<List<TSource>> ToListAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             var list = new List<TSource>();
@@ -2017,7 +2016,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task<TSource[]> ToArrayAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
             => (await source.ToListAsync(cancellationToken).ConfigureAwait(false)).ToArray();
 
@@ -2091,8 +2090,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> or <paramref name="navigationPropertyPath" /> is <see langword="null" />.
         /// </exception>
         public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(
-            [NotNull] this IQueryable<TEntity> source,
-            [NotNull] Expression<Func<TEntity, TProperty>> navigationPropertyPath)
+            this IQueryable<TEntity> source,
+            Expression<Func<TEntity, TProperty>> navigationPropertyPath)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -2110,8 +2109,8 @@ namespace Microsoft.EntityFrameworkCore
 
         // A version of Include that doesn't set the navigation as loaded
         internal static IIncludableQueryable<TEntity, TProperty> NotQuiteInclude<TEntity, TProperty>(
-            [NotNull] this IQueryable<TEntity> source,
-            [NotNull] Expression<Func<TEntity, TProperty>> navigationPropertyPath)
+            this IQueryable<TEntity> source,
+            Expression<Func<TEntity, TProperty>> navigationPropertyPath)
             where TEntity : class
         {
             return new IncludableQueryable<TEntity, TProperty>(
@@ -2186,8 +2185,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> A new query with the related data included. </returns>
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
-            [NotNull] this IIncludableQueryable<TEntity, IEnumerable<TPreviousProperty>> source,
-            [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
+            this IIncludableQueryable<TEntity, IEnumerable<TPreviousProperty>> source,
+            Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
             where TEntity : class
             => new IncludableQueryable<TEntity, TProperty>(
                 source.Provider is EntityQueryProvider
@@ -2238,8 +2237,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> A new query with the related data included. </returns>
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
-            [NotNull] this IIncludableQueryable<TEntity, TPreviousProperty> source,
-            [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
+            this IIncludableQueryable<TEntity, TPreviousProperty> source,
+            Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
             where TEntity : class
             => new IncludableQueryable<TEntity, TProperty>(
                 source.Provider is EntityQueryProvider
@@ -2318,8 +2317,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="ArgumentException"> <paramref name="navigationPropertyPath" /> is empty or whitespace. </exception>
         public static IQueryable<TEntity> Include<TEntity>(
-            [NotNull] this IQueryable<TEntity> source,
-            [NotNull][NotParameterized] string navigationPropertyPath)
+            this IQueryable<TEntity> source,
+            [NotParameterized] string navigationPropertyPath)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -2351,7 +2350,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="source"> The source query. </param>
         /// <returns> A new query that will not apply any model-level eager loaded navigations. </returns>
         public static IQueryable<TEntity> IgnoreAutoIncludes<TEntity>(
-            [NotNull] this IQueryable<TEntity> source)
+            this IQueryable<TEntity> source)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -2382,7 +2381,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A new query that will not apply any model-level entity query filters. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static IQueryable<TEntity> IgnoreQueryFilters<TEntity>(
-            [NotNull] this IQueryable<TEntity> source)
+            this IQueryable<TEntity> source)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -2430,7 +2429,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A new query where the result set will not be tracked by the context. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static IQueryable<TEntity> AsNoTracking<TEntity>(
-            [NotNull] this IQueryable<TEntity> source)
+            this IQueryable<TEntity> source)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -2474,7 +2473,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A new query where the result set will not be tracked by the context. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static IQueryable<TEntity> AsNoTrackingWithIdentityResolution<TEntity>(
-            [NotNull] this IQueryable<TEntity> source)
+            this IQueryable<TEntity> source)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -2510,7 +2509,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A new query where the result set will be tracked by the context. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static IQueryable<TEntity> AsTracking<TEntity>(
-            [NotNull] this IQueryable<TEntity> source)
+            this IQueryable<TEntity> source)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -2550,7 +2549,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A new query where the result set will be tracked by the context. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         public static IQueryable<TEntity> AsTracking<TEntity>(
-            [NotNull] this IQueryable<TEntity> source,
+            this IQueryable<TEntity> source,
             QueryTrackingBehavior track)
             where TEntity : class
             => track == QueryTrackingBehavior.TrackAll
@@ -2578,8 +2577,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="ArgumentException"> <paramref name="tag" /> is empty or whitespace. </exception>
         public static IQueryable<T> TagWith<T>(
-            [NotNull] this IQueryable<T> source,
-            [NotNull][NotParameterized] string tag)
+            this IQueryable<T> source,
+            [NotParameterized] string tag)
         {
             Check.NotNull(source, nameof(source));
             Check.NotEmpty(tag, nameof(tag));
@@ -2606,7 +2605,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="source"> The source query. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        public static void Load<TSource>([NotNull] this IQueryable<TSource> source)
+        public static void Load<TSource>(this IQueryable<TSource> source)
         {
             Check.NotNull(source, nameof(source));
 
@@ -2627,7 +2626,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task LoadAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source,
+            this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
@@ -2667,8 +2666,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Func<TSource, TKey> keySelector,
+            this IQueryable<TSource> source,
+            Func<TSource, TKey> keySelector,
             CancellationToken cancellationToken = default)
             where TKey : notnull
             => ToDictionaryAsync(source, keySelector, e => e, comparer: null, cancellationToken);
@@ -2697,9 +2696,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Func<TSource, TKey> keySelector,
-            [NotNull] IEqualityComparer<TKey> comparer,
+            this IQueryable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            IEqualityComparer<TKey> comparer,
             CancellationToken cancellationToken = default)
             where TKey : notnull
             => ToDictionaryAsync(source, keySelector, e => e, comparer, cancellationToken);
@@ -2730,9 +2729,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Func<TSource, TKey> keySelector,
-            [NotNull] Func<TSource, TElement> elementSelector,
+            this IQueryable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector,
             CancellationToken cancellationToken = default)
             where TKey : notnull
             => ToDictionaryAsync(source, keySelector, elementSelector, comparer: null, cancellationToken);
@@ -2764,10 +2763,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
-            [NotNull] this IQueryable<TSource> source,
-            [NotNull] Func<TSource, TKey> keySelector,
-            [NotNull] Func<TSource, TElement> elementSelector,
-            [CanBeNull] IEqualityComparer<TKey>? comparer,
+            this IQueryable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector,
+            IEqualityComparer<TKey>? comparer,
             CancellationToken cancellationToken = default)
             where TKey : notnull
         {
@@ -2805,8 +2804,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static async Task ForEachAsync<T>(
-            [NotNull] this IQueryable<T> source,
-            [NotNull] Action<T> action,
+            this IQueryable<T> source,
+            Action<T> action,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(action, nameof(action));
@@ -2834,7 +2833,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is not a <see cref="IAsyncEnumerable{T}" />. </exception>
         public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(
-            [NotNull] this IQueryable<TSource> source)
+            this IQueryable<TSource> source)
         {
             Check.NotNull(source, nameof(source));
 

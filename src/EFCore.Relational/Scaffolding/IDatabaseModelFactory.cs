@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="connectionString"> The connection string for the database to reverse engineer. </param>
         /// <param name="options"> The options specifying which metadata to read. </param>
         /// <returns> The database model. </returns>
-        DatabaseModel Create([NotNull] string connectionString, [NotNull] DatabaseModelFactoryOptions options);
+        DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options);
 
         /// <summary>
         ///     Connects to the database using the given connection and creates a <see cref="DatabaseModel" />
@@ -29,6 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="connection"> The connection to the database to reverse engineer. </param>
         /// <param name="options"> The options specifying which metadata to read. </param>
         /// <returns> The database model. </returns>
-        DatabaseModel Create([NotNull] DbConnection connection, [NotNull] DatabaseModelFactoryOptions options);
+        DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options);
     }
 }

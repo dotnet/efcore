@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context">
         ///     The context instance that this key is for.
         /// </param>
-        public ModelCacheKey([NotNull] DbContext context)
+        public ModelCacheKey(DbContext context)
         {
             _dbContextType = context.GetType();
         }
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     <see langword="true" /> if the key is for the same context type, otherwise <see langword="false" />.
         /// </returns>
-        protected virtual bool Equals([NotNull] ModelCacheKey other)
+        protected virtual bool Equals(ModelCacheKey other)
             => _dbContextType == other._dbContextType;
 
         /// <summary>

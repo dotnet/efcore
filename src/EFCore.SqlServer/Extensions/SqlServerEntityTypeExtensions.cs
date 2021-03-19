@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> <see langword="true" /> if the entity type is mapped to a memory-optimized table. </returns>
-        public static bool IsMemoryOptimized([NotNull] this IReadOnlyEntityType entityType)
+        public static bool IsMemoryOptimized(this IReadOnlyEntityType entityType)
             => entityType[SqlServerAnnotationNames.MemoryOptimized] as bool? ?? false;
 
         /// <summary>
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="memoryOptimized"> The value to set. </param>
-        public static void SetIsMemoryOptimized([NotNull] this IMutableEntityType entityType, bool memoryOptimized)
+        public static void SetIsMemoryOptimized(this IMutableEntityType entityType, bool memoryOptimized)
             => entityType.SetOrRemoveAnnotation(SqlServerAnnotationNames.MemoryOptimized, memoryOptimized);
 
         /// <summary>
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         public static bool? SetIsMemoryOptimized(
-            [NotNull] this IConventionEntityType entityType,
+            this IConventionEntityType entityType,
             bool? memoryOptimized,
             bool fromDataAnnotation = false)
         {
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for the memory-optimized setting. </returns>
-        public static ConfigurationSource? GetIsMemoryOptimizedConfigurationSource([NotNull] this IConventionEntityType entityType)
+        public static ConfigurationSource? GetIsMemoryOptimizedConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(SqlServerAnnotationNames.MemoryOptimized)?.GetConfigurationSource();
     }
 }

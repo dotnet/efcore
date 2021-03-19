@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -55,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public ModelDependencies(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
             Check.NotNull(logger, nameof(logger));
 
@@ -65,6 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; init; }
     }
 }

@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -41,11 +40,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryDatabase(
-            [NotNull] DatabaseDependencies dependencies,
-            [NotNull] IInMemoryStoreCache storeCache,
-            [NotNull] IDbContextOptions options,
-            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
+            DatabaseDependencies dependencies,
+            IInMemoryStoreCache storeCache,
+            IDbContextOptions options,
+            IUpdateAdapterFactory updateAdapterFactory,
+            IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
             : base(dependencies)
         {
             Check.NotNull(storeCache, nameof(storeCache));

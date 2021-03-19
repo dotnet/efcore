@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableBuilder([NotNull] string name, [CanBeNull] string? schema, [NotNull] IMutableEntityType entityType)
+        public TableBuilder(string name, string? schema, IMutableEntityType entityType)
         {
             EntityType = entityType;
         }

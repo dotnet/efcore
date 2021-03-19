@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static void SetProductVersion([NotNull] this IMutableModel model, [NotNull] string value)
+        public static void SetProductVersion(this IMutableModel model, string value)
             => model[CoreAnnotationNames.ProductVersion] = value;
 
         /// <summary>
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<IEntityType> GetRootEntityTypes([NotNull] this IModel model)
+        public static IEnumerable<IEntityType> GetRootEntityTypes(this IModel model)
             => model.GetEntityTypes().Where(e => e.BaseType == null);
 
         /// <summary>
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string? FindSameTypeNameWithDifferentNamespace([NotNull] this IModel model, [NotNull] Type type)
+        public static string? FindSameTypeNameWithDifferentNamespace(this IModel model, Type type)
             => model.GetEntityTypes()
                 .Where(x => x.ClrType.DisplayName(false) == type.DisplayName(false))
                 .Select(x => x.ClrType.DisplayName())

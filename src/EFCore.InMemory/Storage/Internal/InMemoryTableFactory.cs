@@ -3,11 +3,9 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -34,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryTableFactory(
-            [NotNull] ILoggingOptions loggingOptions,
-            [NotNull] IInMemorySingletonOptions options)
+            ILoggingOptions loggingOptions,
+            IInMemorySingletonOptions options)
         {
             Check.NotNull(loggingOptions, nameof(loggingOptions));
             Check.NotNull(options, nameof(options));
@@ -53,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public virtual IInMemoryTable Create(IEntityType entityType, IInMemoryTable? baseTable)
             => _factories.GetOrAdd((entityType, baseTable), e => CreateTable(e.EntityType, e.BaseTable))();
 
-        private Func<IInMemoryTable> CreateTable([NotNull] IEntityType entityType, IInMemoryTable? baseTable)
+        private Func<IInMemoryTable> CreateTable(IEntityType entityType, IInMemoryTable? baseTable)
             => (Func<IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))!
                 .MakeGenericMethod(entityType.FindPrimaryKey()!.GetKeyType())

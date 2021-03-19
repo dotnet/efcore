@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -72,15 +71,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public ProviderConventionSetBuilderDependencies(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IConstructorBindingFactory constructorBindingFactory,
-            [NotNull] IParameterBindingFactories parameterBindingFactories,
-            [NotNull] IMemberClassifier memberClassifier,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger,
-            [NotNull] IDbSetFinder setFinder,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IModelValidator validator)
+            ITypeMappingSource typeMappingSource,
+            IConstructorBindingFactory constructorBindingFactory,
+            IParameterBindingFactories parameterBindingFactories,
+            IMemberClassifier memberClassifier,
+            IDiagnosticsLogger<DbLoggerCategory.Model> logger,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger,
+            IDbSetFinder setFinder,
+            ICurrentDbContext currentContext,
+            IModelValidator validator)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(constructorBindingFactory, nameof(constructorBindingFactory));
@@ -107,38 +106,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        public ITypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+        public ITypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     The parameter binding factories.
         /// </summary>
-        public IParameterBindingFactories ParameterBindingFactories { get; [param: NotNull] init; }
+        public IParameterBindingFactories ParameterBindingFactories { get; init; }
 
         /// <summary>
         ///     The member classifier.
         /// </summary>
         [EntityFrameworkInternal]
-        public IMemberClassifier MemberClassifier { get; [param: NotNull] init; }
+        public IMemberClassifier MemberClassifier { get; init; }
 
         /// <summary>
         ///     The constructor binding factory.
         /// </summary>
-        public IConstructorBindingFactory ConstructorBindingFactory { get; [param: NotNull] init; }
+        public IConstructorBindingFactory ConstructorBindingFactory { get; init; }
 
         /// <summary>
         ///     The model logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; init; }
 
         /// <summary>
         ///     The model validation logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; init; }
 
         /// <summary>
         ///     The set finder.
         /// </summary>
-        public IDbSetFinder SetFinder { get; [param: NotNull] init; }
+        public IDbSetFinder SetFinder { get; init; }
 
         /// <summary>
         ///     The current context instance.
@@ -150,14 +149,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         ///     The model validator.
         /// </summary>
         [Obsolete("The validation is no longer performed by a convention")]
-        public IModelValidator ModelValidator { get; [param: NotNull] init; }
+        public IModelValidator ModelValidator { get; init; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderConventionSetBuilderDependencies With([NotNull] ICurrentDbContext currentContext)
+        public ProviderConventionSetBuilderDependencies With(ICurrentDbContext currentContext)
 #pragma warning disable CS0618 // Type or member is obsolete
             => new(
                 TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,

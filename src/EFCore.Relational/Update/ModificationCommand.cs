@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -44,12 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
         /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
         public ModificationCommand(
-            [NotNull] string name,
-            [CanBeNull] string? schema,
-            [NotNull] Func<string> generateParameterName,
+            string name,
+            string? schema,
+            Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            [CanBeNull] IComparer<IUpdateEntry>? comparer,
-            [NotNull] IColumnModificationFactory columnModificationFactory)
+            IComparer<IUpdateEntry>? comparer,
+            IColumnModificationFactory columnModificationFactory)
             : this(
                 Check.NotEmpty(name, nameof(name)),
                 schema,
@@ -72,11 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
         public ModificationCommand(
-            [NotNull] string name,
-            [CanBeNull] string? schema,
-            [CanBeNull] IReadOnlyList<ColumnModification>? columnModifications,
+            string name,
+            string? schema,
+            IReadOnlyList<ColumnModification>? columnModifications,
             bool sensitiveLoggingEnabled,
-            [NotNull] IColumnModificationFactory columnModificationFactory)
+            IColumnModificationFactory columnModificationFactory)
         {
             Check.NotNull(name, nameof(name));
             Check.NotNull(columnModificationFactory, nameof(columnModificationFactory));
@@ -97,11 +96,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
         public ModificationCommand(
-            [NotNull] string name,
-            [CanBeNull] string schema,
-            [NotNull] Func<string> generateParameterName,
+            string name,
+            string? schema,
+            Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            [CanBeNull] IComparer<IUpdateEntry> comparer)
+            IComparer<IUpdateEntry>? comparer)
             : this(
                 name,
                 schema,
@@ -120,9 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         public ModificationCommand(
-            [NotNull] string name,
-            [CanBeNull] string schema,
-            [CanBeNull] IReadOnlyList<ColumnModification> columnModifications,
+            string name,
+            string? schema,
+            IReadOnlyList<ColumnModification>? columnModifications,
             bool sensitiveLoggingEnabled)
             :this(
                 name,
@@ -222,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="entry"> The entry representing the entity to add. </param>
         /// <param name="mainEntry"> A value indicating whether this is the main entry for the row. </param>
-        public virtual void AddEntry([NotNull] IUpdateEntry entry, bool mainEntry)
+        public virtual void AddEntry(IUpdateEntry entry, bool mainEntry)
         {
             Check.NotNull(entry, nameof(entry));
 

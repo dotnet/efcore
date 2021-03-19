@@ -3,14 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void Update(
-            [NotNull] InternalEntityEntry entry,
+            InternalEntityEntry entry,
             EntityState state,
             EntityState? oldState)
         {
@@ -116,9 +115,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool TryGet(
-            [NotNull] object entity,
-            [CanBeNull] IEntityType? entityType,
-            [CanBeNull] [CA.NotNullWhen(true)] out InternalEntityEntry? entry,
+            object entity,
+            IEntityType? entityType,
+            [NotNullWhen(true)] out InternalEntityEntry? entry,
             bool throwOnNonUniqueness)
         {
             entry = null;

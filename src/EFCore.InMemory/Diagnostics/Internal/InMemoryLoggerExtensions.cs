@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Update;
 
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void TransactionIgnoredWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics)
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics)
         {
             var definition = InMemoryResources.LogTransactionsNotSupported(diagnostics);
 
@@ -50,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ChangesSaved(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] IEnumerable<IUpdateEntry> entries,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            IEnumerable<IUpdateEntry> entries,
             int rowsAffected)
         {
             var definition = InMemoryResources.LogSavedChanges(diagnostics);

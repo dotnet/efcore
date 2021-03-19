@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerHistoryRepository([NotNull] HistoryRepositoryDependencies dependencies)
+        public SqlServerHistoryRepository(HistoryRepositoryDependencies dependencies)
             : base(dependencies)
         {
         }

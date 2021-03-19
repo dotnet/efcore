@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -28,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="logger"> The command logger. </param>
         /// <param name="transactionSuppressed"> Indicates whether or not transactions should be suppressed while executing the command. </param>
         public MigrationCommand(
-            [NotNull] IRelationalCommand relationalCommand,
-            [CanBeNull] DbContext? context,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+            IRelationalCommand relationalCommand,
+            DbContext? context,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
             bool transactionSuppressed = false)
         {
             Check.NotNull(relationalCommand, nameof(relationalCommand));
@@ -64,8 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="parameterValues"> The values for the parameters, or <see langword="null" /> if the command has no parameters. </param>
         /// <returns> The number of rows affected. </returns>
         public virtual int ExecuteNonQuery(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object?>? parameterValues = null)
+            IRelationalConnection connection,
+            IReadOnlyDictionary<string, object?>? parameterValues = null)
             => _relationalCommand.ExecuteNonQuery(
                 new RelationalCommandParameterObject(
                     connection,
@@ -83,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> A task that represents the asynchronous operation. The task result contains the number of rows affected.  </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task<int> ExecuteNonQueryAsync(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object?>? parameterValues = null,
+            IRelationalConnection connection,
+            IReadOnlyDictionary<string, object?>? parameterValues = null,
             CancellationToken cancellationToken = default)
             => _relationalCommand.ExecuteNonQueryAsync(
                 new RelationalCommandParameterObject(

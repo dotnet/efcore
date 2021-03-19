@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -24,11 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="indexName"> The name of the index. </param>
         /// <param name="indexPropertyNames"> The names of the properties which define the index. </param>
         public IndexEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IEntityType entityType,
-            [CanBeNull] string? indexName,
-            [NotNull] List<string> indexPropertyNames)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IEntityType entityType,
+            string? indexName,
+            List<string> indexPropertyNames)
             : base(eventDefinition, messageGenerator)
         {
             EntityType = entityType;

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public ValueGeneratorSelectorDependencies([NotNull] IValueGeneratorCache cache)
+        public ValueGeneratorSelectorDependencies(IValueGeneratorCache cache)
         {
             Check.NotNull(cache, nameof(cache));
 
@@ -63,6 +62,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     The cache being used to store value generator instances.
         /// </summary>
-        public IValueGeneratorCache Cache { get; [param: NotNull] init; }
+        public IValueGeneratorCache Cache { get; init; }
     }
 }

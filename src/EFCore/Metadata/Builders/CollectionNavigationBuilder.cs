@@ -4,7 +4,6 @@
 using System;
 using System.ComponentModel;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -32,11 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public CollectionNavigationBuilder(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
+            IMutableEntityType declaringEntityType,
+            IMutableEntityType relatedEntityType,
             MemberIdentity navigation,
-            [CanBeNull] IMutableForeignKey? foreignKey,
-            [CanBeNull] IMutableSkipNavigation? skipNavigation)
+            IMutableForeignKey? foreignKey,
+            IMutableSkipNavigation? skipNavigation)
         {
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
@@ -120,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If null or not specified, then there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceCollectionBuilder WithOne([CanBeNull] string? navigationName = null)
+        public virtual ReferenceCollectionBuilder WithOne(string? navigationName = null)
             => new(
                 DeclaringEntityType,
                 RelatedEntityType,
@@ -134,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder WithOneBuilder([CanBeNull] string? navigationName)
+        protected virtual InternalForeignKeyBuilder WithOneBuilder(string? navigationName)
             => WithOneBuilder(MemberIdentity.Create(navigationName));
 
         /// <summary>
@@ -145,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual InternalForeignKeyBuilder WithOneBuilder(
-            [CanBeNull] MemberInfo? navigationMemberInfo)
+            MemberInfo? navigationMemberInfo)
             => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo));
 
         private InternalForeignKeyBuilder WithOneBuilder(MemberIdentity reference)
@@ -221,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name of the collection navigation property on the other end of this relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual CollectionCollectionBuilder WithMany([NotNull] string navigationName)
+        public virtual CollectionCollectionBuilder WithMany(string navigationName)
         {
             if (Builder != null
                 && Builder.Metadata.PrincipalToDependent == null)
@@ -252,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual void Configure([NotNull] CollectionCollectionBuilder collectionCollectionBuilder)
+        protected virtual void Configure(CollectionCollectionBuilder collectionCollectionBuilder)
         {
             Check.NotNull(collectionCollectionBuilder, nameof(collectionCollectionBuilder));
 
@@ -275,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual IMutableSkipNavigation WithLeftManyNavigation([NotNull] MemberInfo inverseMemberInfo)
+        protected virtual IMutableSkipNavigation WithLeftManyNavigation(MemberInfo inverseMemberInfo)
             => WithLeftManyNavigation(inverseMemberInfo.Name);
 
         /// <summary>
@@ -285,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual IMutableSkipNavigation WithLeftManyNavigation([NotNull] string inverseName)
+        protected virtual IMutableSkipNavigation WithLeftManyNavigation(string inverseName)
         {
             Check.NotEmpty(inverseName, nameof(inverseName));
 
@@ -320,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual IMutableSkipNavigation WithRightManyNavigation([NotNull] string navigationName, [NotNull] string inverseName)
+        protected virtual IMutableSkipNavigation WithRightManyNavigation(string navigationName, string inverseName)
             => WithRightManyNavigation(MemberIdentity.Create(navigationName), inverseName);
 
         /// <summary>
@@ -331,11 +330,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual IMutableSkipNavigation WithRightManyNavigation(
-            [NotNull] MemberInfo navigationMemberInfo,
-            [CanBeNull] string? inverseName)
+            MemberInfo navigationMemberInfo,
+            string? inverseName)
             => WithRightManyNavigation(MemberIdentity.Create(navigationMemberInfo), inverseName);
 
-        private IMutableSkipNavigation WithRightManyNavigation(MemberIdentity navigationMember, [CanBeNull] string? inverseName)
+        private IMutableSkipNavigation WithRightManyNavigation(MemberIdentity navigationMember, string? inverseName)
         {
             Check.DebugAssert(Builder == null, "Expected no associated foreign key at this point");
             Check.DebugAssert(navigationMember.Name is not null, $"{nameof(navigationMember.Name)} is null");

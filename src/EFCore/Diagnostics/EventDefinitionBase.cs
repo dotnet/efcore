@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -24,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
         /// </param>
         protected EventDefinitionBase(
-            [NotNull] ILoggingOptions loggingOptions,
+            ILoggingOptions loggingOptions,
             EventId eventId,
             LogLevel level,
-            [NotNull] string eventIdCode)
+            string eventIdCode)
         {
             Check.NotNull(loggingOptions, nameof(loggingOptions));
             Check.NotEmpty(eventIdCode, nameof(eventIdCode));
@@ -80,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Returns a warning-as-error exception wrapping the given message for this event.
         /// </summary>
         /// <param name="message"> The message to wrap. </param>
-        protected virtual Exception WarningAsError([NotNull] string message)
+        protected virtual Exception WarningAsError(string message)
             => new InvalidOperationException(
                 CoreStrings.WarningAsErrorTemplate(EventId.ToString(), message, EventIdCode));
 
@@ -102,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             void ILogger.Log<TState>(
                 LogLevel logLevel,
                 EventId eventId,
-                [CanBeNull] TState state,
+                TState state,
                 Exception? exception,
                 Func<TState, Exception?, string> formatter)
             {
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool ILogger.IsEnabled(LogLevel logLevel)
                 => true;
 
-            IDisposable ILogger.BeginScope<TState>([CanBeNull] TState state)
+            IDisposable ILogger.BeginScope<TState>(TState state)
                 => throw new NotSupportedException();
         }
     }

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimModel([NotNull] RuntimeModelDependencies modelDependencies, bool skipDetectChanges = false)
+        public SlimModel(RuntimeModelDependencies modelDependencies, bool skipDetectChanges = false)
         {
            ((IModel)this).ModelDependencies = modelDependencies;
             _skipDetectChanges = skipDetectChanges;
@@ -63,13 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The new entity type. </returns>
         public virtual SlimEntityType AddEntityType(
-            [NotNull] string name,
-            [NotNull] Type type,
+            string name,
+            Type type,
             bool sharedClrType,
-            [CanBeNull] SlimEntityType? baseType = null,
-            [CanBeNull] string? discriminatorProperty = null,
+            SlimEntityType? baseType = null,
+            string? discriminatorProperty = null,
             ChangeTrackingStrategy changeTrackingStrategy = ChangeTrackingStrategy.Snapshot,
-            [CanBeNull] PropertyInfo? indexerPropertyInfo = null,
+            PropertyInfo? indexerPropertyInfo = null,
             bool propertyBag = false)
         {
             var entityType = new SlimEntityType(
@@ -108,21 +107,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null"/> if none is found. </returns>
-        public virtual SlimEntityType? FindEntityType([NotNull] string name)
+        public virtual SlimEntityType? FindEntityType(string name)
             => _entityTypes.TryGetValue(name, out var entityType)
                 ? entityType
                 : null;
 
-        private SlimEntityType? FindEntityType([NotNull] Type type)
+        private SlimEntityType? FindEntityType(Type type)
             => FindEntityType(GetDisplayName(type));
 
         private SlimEntityType? FindEntityType(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] IReadOnlyEntityType definingEntityType)
+            string name,
+            string definingNavigationName,
+            IReadOnlyEntityType definingEntityType)
             => FindEntityType(definingEntityType.GetOwnedName(name, definingNavigationName));
 
-        private IEnumerable<SlimEntityType> FindEntityTypes([NotNull] Type type)
+        private IEnumerable<SlimEntityType> FindEntityTypes(Type type)
         {
             var entityType = FindEntityType(GetDisplayName(type));
             var result = entityType == null
@@ -134,10 +133,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 : result;
         }
 
-        private string GetDisplayName([NotNull] Type type)
+        private string GetDisplayName(Type type)
             => _clrTypeNameMap.GetOrAdd(type, t => t.DisplayName());
 
-        private PropertyInfo? FindIndexerPropertyInfo([NotNull] Type type)
+        private PropertyInfo? FindIndexerPropertyInfo(Type type)
             => _indexerPropertyInfoMap.GetOrAdd(type, type.FindIndexerProperty());
 
         /// <summary>

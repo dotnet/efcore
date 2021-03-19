@@ -162,12 +162,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
-            Assert.Null(entityTypeBuilder.Metadata.FindDeclaredPrimaryKey());
+            Assert.Null(entityTypeBuilder.Metadata.FindPrimaryKey());
 
             RunConvention(propertyBuilder);
 
-            Assert.Equal(1, entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties.Count);
-            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties[0].Name);
+            Assert.Equal(1, entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
+            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
         }
 
         [ConditionalFact]
@@ -175,15 +175,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<B>();
 
-            Assert.Null(entityTypeBuilder.Metadata.FindDeclaredPrimaryKey());
+            Assert.Null(entityTypeBuilder.Metadata.FindPrimaryKey());
 
             var idPropertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
             var myPrimaryKeyPropertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
             RunConvention(idPropertyBuilder);
 
-            Assert.Equal(1, entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties.Count);
-            Assert.Equal("Id", entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties[0].Name);
+            Assert.Equal(1, entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
+            Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
 
             RunConvention(myPrimaryKeyPropertyBuilder);
 

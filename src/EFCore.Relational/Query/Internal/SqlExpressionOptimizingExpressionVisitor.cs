@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlExpressionOptimizingExpressionVisitor([NotNull] ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
+        public SqlExpressionOptimizingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
             _useRelationalNulls = useRelationalNulls;
@@ -130,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return newExpression;
         }
 
-        private Expression VisitSqlUnary([NotNull] SqlUnaryExpression sqlUnaryExpression)
+        private Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
         {
             var newOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
 
@@ -236,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ExpressionType operatorType,
             SqlExpression operand,
             Type type,
-            RelationalTypeMapping typeMapping)
+            RelationalTypeMapping? typeMapping)
         {
             switch (operatorType)
             {
@@ -329,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _sqlExpressionFactory.MakeUnary(operatorType, operand, type, typeMapping)!;
         }
 
-        private Expression VisitSqlBinary([NotNull] SqlBinaryExpression sqlBinaryExpression)
+        private Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
         {
             var newLeft = (SqlExpression)Visit(sqlBinaryExpression.Left);
             var newRight = (SqlExpression)Visit(sqlBinaryExpression.Right);
@@ -424,11 +423,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private SqlExpression SimplifyNullComparisonExpression(
             ExpressionType operatorType,
-            [NotNull] SqlExpression left,
-            [NotNull] SqlExpression right,
+            SqlExpression left,
+            SqlExpression right,
             bool leftNull,
             bool rightNull,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            RelationalTypeMapping? typeMapping)
         {
             if ((operatorType == ExpressionType.Equal || operatorType == ExpressionType.NotEqual)
                 && (leftNull || rightNull))
@@ -516,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ExpressionType operatorType,
             SqlExpression left,
             SqlExpression right,
-            RelationalTypeMapping typeMapping)
+            RelationalTypeMapping? typeMapping)
         {
             // true && a -> a
             // true || a -> true

@@ -6,7 +6,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="RelationalDataReader" /> class.
         /// </summary>
         /// <param name="relationalCommand"> The relational command which owns this relational reader. </param>
-        public RelationalDataReader([NotNull] IRelationalCommand relationalCommand)
+        public RelationalDataReader(IRelationalCommand relationalCommand)
         {
             Check.NotNull(relationalCommand, nameof(relationalCommand));
 
@@ -57,11 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="commandId"> A correlation ID that identifies the <see cref="DbCommand" /> instance being used. </param>
         /// <param name="logger"> The diagnostic source. </param>
         public virtual void Initialize(
-            [NotNull] IRelationalConnection relationalConnection,
-            [NotNull] DbCommand command,
-            [NotNull] DbDataReader reader,
+            IRelationalConnection relationalConnection,
+            DbCommand command,
+            DbDataReader reader,
             Guid commandId,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger)
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger)
         {
             Check.NotNull(command, nameof(command));
             Check.NotNull(reader, nameof(reader));

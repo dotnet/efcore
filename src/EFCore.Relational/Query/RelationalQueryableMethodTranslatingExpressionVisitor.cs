@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -35,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
         /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         public RelationalQueryableMethodTranslatingExpressionVisitor(
-            [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext)
+            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
+            QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext, subquery: false)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="parentVisitor"> A parent visitor to create subquery visitor for. </param>
         protected RelationalQueryableMethodTranslatingExpressionVisitor(
-            [NotNull] RelationalQueryableMethodTranslatingExpressionVisitor parentVisitor)
+            RelationalQueryableMethodTranslatingExpressionVisitor parentVisitor)
             : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
         {
             RelationalDependencies = parentVisitor.RelationalDependencies;

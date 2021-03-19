@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -91,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the entity to be added. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
-        IConventionEntityType? AddEntityType([NotNull] string name, bool fromDataAnnotation = false);
+        IConventionEntityType? AddEntityType(string name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Adds an entity type to the model.
@@ -99,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The CLR class that is used to represent instances of the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
-        IConventionEntityType? AddEntityType([NotNull] Type type, bool fromDataAnnotation = false);
+        IConventionEntityType? AddEntityType(Type type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     <para>
@@ -114,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="clrType"> The CLR class that is used to represent instances of the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
-        IConventionEntityType? AddEntityType([NotNull] string name, [NotNull] Type clrType, bool fromDataAnnotation = false);
+        IConventionEntityType? AddEntityType(string name, Type clrType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Adds an entity type with a defining navigation to the model.
@@ -125,9 +124,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
         IConventionEntityType? AddEntityType(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] IConventionEntityType definingEntityType,
+            string name,
+            string definingNavigationName,
+            IConventionEntityType definingEntityType,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -139,9 +138,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new entity type. </returns>
         IConventionEntityType? AddEntityType(
-            [NotNull] Type type,
-            [NotNull] string definingNavigationName,
-            [NotNull] IConventionEntityType definingEntityType,
+            Type type,
+            string definingNavigationName,
+            IConventionEntityType definingEntityType,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -151,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
-        new IConventionEntityType? FindEntityType([NotNull] string name);
+        new IConventionEntityType? FindEntityType(string name);
 
         /// <summary>
         ///     Gets the entity type for the given name, defining navigation name
@@ -162,16 +161,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         IConventionEntityType? FindEntityType(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] IConventionEntityType definingEntityType);
+            string name,
+            string definingNavigationName,
+            IConventionEntityType definingEntityType);
 
         /// <summary>
         ///     Gets the entity that maps the given entity class. Returns <see langword="null" /> if no entity type with the given name is found.
         /// </summary>
         /// <param name="type"> The type to find the corresponding entity type for. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
-        new IConventionEntityType? FindEntityType([NotNull] Type type)
+        new IConventionEntityType? FindEntityType(Type type)
             => (IConventionEntityType?)((IReadOnlyModel)this).FindEntityType(type);
 
         /// <summary>
@@ -183,9 +182,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         IConventionEntityType? FindEntityType(
-            [NotNull] Type type,
-            [NotNull] string definingNavigationName,
-            [NotNull] IConventionEntityType definingEntityType)
+            Type type,
+            string definingNavigationName,
+            IConventionEntityType definingEntityType)
             => (IConventionEntityType?)((IReadOnlyModel)this).FindEntityType(type, definingNavigationName, definingEntityType);
 
         /// <summary>
@@ -193,14 +192,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> The entity type to be removed. </param>
         /// <returns> The removed entity type, or <see langword="null" /> if the entity type was not found. </returns>
-        IConventionEntityType? RemoveEntityType([NotNull] IConventionEntityType entityType);
+        IConventionEntityType? RemoveEntityType(IConventionEntityType entityType);
 
         /// <summary>
         ///     Removes an entity type without a defining navigation from the model.
         /// </summary>
         /// <param name="name"> The name of the entity type to be removed. </param>
         /// <returns> The entity type that was removed. </returns>
-        IConventionEntityType? RemoveEntityType([NotNull] string name);
+        IConventionEntityType? RemoveEntityType(string name);
 
         /// <summary>
         ///     Removes an entity type with the given type, defining navigation name
@@ -211,16 +210,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
         IConventionEntityType? RemoveEntityType(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] IConventionEntityType definingEntityType);
+            string name,
+            string definingNavigationName,
+            IConventionEntityType definingEntityType);
 
         /// <summary>
         ///     Removes an entity type from the model.
         /// </summary>
         /// <param name="type"> The entity type to be removed. </param>
         /// <returns> The entity type that was removed. </returns>
-        IConventionEntityType? RemoveEntityType([NotNull] Type type);
+        IConventionEntityType? RemoveEntityType(Type type);
 
         /// <summary>
         ///     Removes an entity type with the given type, defining navigation name
@@ -231,9 +230,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="definingEntityType"> The defining entity type. </param>
         /// <returns> The entity type that was removed. </returns>
         IConventionEntityType? RemoveEntityType(
-            [NotNull] Type type,
-            [NotNull] string definingNavigationName,
-            [NotNull] IConventionEntityType definingEntityType);
+            Type type,
+            string definingNavigationName,
+            IConventionEntityType definingEntityType);
 
         /// <summary>
         ///     Gets all entity types defined in the model.
@@ -246,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type of the entity type to find. </param>
         /// <returns> The entity types found. </returns>
-        new IEnumerable<IConventionEntityType> FindEntityTypes([NotNull] Type type)
+        new IEnumerable<IConventionEntityType> FindEntityTypes(Type type)
             => ((IReadOnlyModel)this).FindEntityTypes(type).Cast<IConventionEntityType>();
 
         /// <summary>
@@ -256,8 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="condition"> An optional condition for filtering entity types. </param>
         /// <returns> List of entity types corresponding to the least derived types from the given one. </returns>
         new IEnumerable<IConventionEntityType> FindLeastDerivedEntityTypes(
-            [NotNull] Type type,
-            [CanBeNull] Func<IReadOnlyEntityType, bool>? condition = null)
+            Type type,
+            Func<IReadOnlyEntityType, bool>? condition = null)
             => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition == null ? null : t => condition(t))
                 .Cast<IConventionEntityType>();
 
@@ -267,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type of the entity type that should be shared. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void AddShared([NotNull] Type type, bool fromDataAnnotation = false);
+        void AddShared(Type type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Marks the given entity type as owned, indicating that when discovered entity types using the given type
@@ -275,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type of the entity type that should be owned. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void AddOwned([NotNull] Type type, bool fromDataAnnotation = false);
+        void AddOwned(Type type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the given owned type, indicating that when discovered matching entity types
@@ -283,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type of the entity type that should not be owned. </param>
         /// <returns> The name of the removed owned type. </returns>
-        string? RemoveOwned([NotNull] Type type);
+        string? RemoveOwned(Type type);
 
         /// <summary>
         ///     Returns a value indicating whether the entity types using the given type should be configured
@@ -294,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <see langword="true" /> if the given type name is marked as owned,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        bool IsOwned([NotNull] Type type) => FindIsOwnedConfigurationSource(type) != null;
+        bool IsOwned(Type type) => FindIsOwnedConfigurationSource(type) != null;
 
         /// <summary>
         ///     Returns a value indicating whether the entity types using the given type should be configured
@@ -305,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The configuration source if the given type name is marked as owned,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        ConfigurationSource? FindIsOwnedConfigurationSource([NotNull] Type type);
+        ConfigurationSource? FindIsOwnedConfigurationSource(Type type);
 
         /// <summary>
         ///     Marks the given entity type name as ignored.
@@ -313,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="typeName"> The name of the entity type to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The name of the ignored entity type. </returns>
-        string? AddIgnored([NotNull] string typeName, bool fromDataAnnotation = false);
+        string? AddIgnored(string typeName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Marks the given entity type as ignored.
@@ -321,21 +320,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The entity type to be ignored. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The name of the ignored entity type. </returns>
-        string? AddIgnored([NotNull] Type type, bool fromDataAnnotation = false);
+        string? AddIgnored(Type type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the ignored entity type name.
         /// </summary>
         /// <param name="typeName"> The name of the ignored entity type to be removed. </param>
         /// <returns> The removed ignored type name. </returns>
-        string? RemoveIgnored([NotNull] string typeName);
+        string? RemoveIgnored(string typeName);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.
         /// </summary>
         /// <param name="typeName"> The name of the entity type that could be ignored. </param>
         /// <returns> <see langword="true" /> if the given entity type name is ignored. </returns>
-        bool IsIgnored([NotNull] string typeName)
+        bool IsIgnored(string typeName)
             => FindIgnoredConfigurationSource(typeName) != null;
 
         /// <summary>
@@ -343,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The entity type that might be ignored. </param>
         /// <returns> <see langword="true" /> if the given entity type is ignored. </returns>
-        bool IsIgnored([NotNull] Type type);
+        bool IsIgnored(Type type);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.
@@ -353,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The configuration source if the given entity type name is ignored,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        ConfigurationSource? FindIgnoredConfigurationSource([NotNull] string typeName);
+        ConfigurationSource? FindIgnoredConfigurationSource(string typeName);
 
         /// <summary>
         ///     Indicates whether the given entity type is ignored.
@@ -363,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The configuration source if the given entity type is ignored,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        ConfigurationSource? FindIgnoredConfigurationSource([NotNull] Type type);
+        ConfigurationSource? FindIgnoredConfigurationSource(Type type);
 
         /// <summary>
         ///     Forces post-processing on the model such that it is ready for use by the runtime. This post-

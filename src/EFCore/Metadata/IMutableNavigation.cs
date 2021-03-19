@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     no inverse navigation property defined.
         /// </param>
         /// <returns> The inverse navigation. </returns>
-        IMutableNavigation? SetInverse([CanBeNull] string? inverseName);
+        IMutableNavigation? SetInverse(string? inverseName);
 
         /// <summary>
         ///     Sets the inverse navigation.
@@ -72,6 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     no inverse navigation property defined.
         /// </param>
         /// <returns> The inverse navigation. </returns>
-        IMutableNavigation? SetInverse([CanBeNull] MemberInfo? inverse);
+        IMutableNavigation? SetInverse(MemberInfo? inverse);
     }
 }

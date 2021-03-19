@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -35,12 +34,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Indicates whether or not the script is idempotent.
         /// </param>
         public MigrationScriptingEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IMigrator migrator,
-            [NotNull] Migration migration,
-            [CanBeNull] string? fromMigration,
-            [CanBeNull] string? toMigration,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IMigrator migrator,
+            Migration migration,
+            string? fromMigration,
+            string? toMigration,
             bool idempotent)
             : base(eventDefinition, messageGenerator, migrator, migration)
         {

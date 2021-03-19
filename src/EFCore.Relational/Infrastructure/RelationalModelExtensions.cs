@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="methodName"> The name of the calling method. </param>
         /// <returns> The relational service dependencies. </returns>
         public static RelationalModelDependencies GetRelationalDependencies(
-            [NotNull] this IModel model, [CallerMemberName][CanBeNull] string methodName = "")
+            this IModel model, [CallerMemberName]string methodName = "")
             => (RelationalModelDependencies?)model
                 .FindRuntimeAnnotation(RelationalAnnotationNames.ModelDependencies)?.Value
                 ?? throw new InvalidOperationException(CoreStrings.ModelNotFinalized(methodName));

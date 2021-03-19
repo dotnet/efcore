@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="operand"> An expression on which collation is applied. </param>
         /// <param name="collation"> A collation value to use. </param>
-        public CollateExpression([NotNull] SqlExpression operand, [NotNull] string collation)
+        public CollateExpression(SqlExpression operand, string collation)
             : base(operand.Type, operand.TypeMapping)
         {
             Check.NotNull(operand, nameof(operand));
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="operand"> The <see cref="Operand" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual CollateExpression Update([NotNull] SqlExpression operand)
+        public virtual CollateExpression Update(SqlExpression operand)
         {
             Check.NotNull(operand, nameof(operand));
 

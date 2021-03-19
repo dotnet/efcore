@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="type"> The <see cref="System.Type" /> of the expression. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
-        protected SqlExpression([NotNull] Type type, [CanBeNull] RelationalTypeMapping? typeMapping)
+        protected SqlExpression(Type type, RelationalTypeMapping? typeMapping)
         {
             Check.NotNull(type, nameof(type));
 
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
         /// </summary>
         /// <param name="expressionPrinter"> The expression printer to use. </param>
-        protected abstract void Print([NotNull] ExpressionPrinter expressionPrinter);
+        protected abstract void Print(ExpressionPrinter expressionPrinter);
 
         /// <inheritdoc />
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -57,17 +56,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         [EntityFrameworkInternal]
         public MigrationsScaffolderDependencies(
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IModel model,
-            [NotNull] IMigrationsAssembly migrationsAssembly,
-            [NotNull] IMigrationsModelDiffer migrationsModelDiffer,
-            [NotNull] IMigrationsIdGenerator migrationsIdGenerator,
-            [NotNull] IMigrationsCodeGeneratorSelector migrationsCodeGeneratorSelector,
-            [NotNull] IHistoryRepository historyRepository,
-            [NotNull] IOperationReporter operationReporter,
-            [NotNull] IDatabaseProvider databaseProvider,
-            [NotNull] ISnapshotModelProcessor snapshotModelProcessor,
-            [NotNull] IMigrator migrator)
+            ICurrentDbContext currentContext,
+            IModel model,
+            IMigrationsAssembly migrationsAssembly,
+            IMigrationsModelDiffer migrationsModelDiffer,
+            IMigrationsIdGenerator migrationsIdGenerator,
+            IMigrationsCodeGeneratorSelector migrationsCodeGeneratorSelector,
+            IHistoryRepository historyRepository,
+            IOperationReporter operationReporter,
+            IDatabaseProvider databaseProvider,
+            ISnapshotModelProcessor snapshotModelProcessor,
+            IMigrator migrator)
         {
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(model, nameof(model));
@@ -97,58 +96,58 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The current DbContext.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
+        public ICurrentDbContext CurrentContext { get; init; }
 
         /// <summary>
         ///     The model.
         /// </summary>
-        public IModel Model { get; [param: NotNull] init; }
+        public IModel Model { get; init; }
 
         /// <summary>
         ///     The migrations assembly.
         /// </summary>
-        public IMigrationsAssembly MigrationsAssembly { get; [param: NotNull] init; }
+        public IMigrationsAssembly MigrationsAssembly { get; init; }
 
         /// <summary>
         ///     The migrations model differ.
         /// </summary>
-        public IMigrationsModelDiffer MigrationsModelDiffer { get; [param: NotNull] init; }
+        public IMigrationsModelDiffer MigrationsModelDiffer { get; init; }
 
         /// <summary>
         ///     The migrations ID generator.
         /// </summary>
-        public IMigrationsIdGenerator MigrationsIdGenerator { get; [param: NotNull] init; }
+        public IMigrationsIdGenerator MigrationsIdGenerator { get; init; }
 
         /// <summary>
         ///     The migrations code generator selector.
         /// </summary>
-        public IMigrationsCodeGeneratorSelector MigrationsCodeGeneratorSelector { get; [param: NotNull] init; }
+        public IMigrationsCodeGeneratorSelector MigrationsCodeGeneratorSelector { get; init; }
 
         /// <summary>
         ///     The history repository.
         /// </summary>
-        public IHistoryRepository HistoryRepository { get; [param: NotNull] init; }
+        public IHistoryRepository HistoryRepository { get; init; }
 
         /// <summary>
         ///     The operation reporter.
         /// </summary>
         [EntityFrameworkInternal]
-        public IOperationReporter OperationReporter { get; [param: NotNull] init; }
+        public IOperationReporter OperationReporter { get; init; }
 
         /// <summary>
         ///     The database provider.
         /// </summary>
-        public IDatabaseProvider DatabaseProvider { get; [param: NotNull] init; }
+        public IDatabaseProvider DatabaseProvider { get; init; }
 
         /// <summary>
         ///     The snapshot model processor.
         /// </summary>
         [EntityFrameworkInternal]
-        public ISnapshotModelProcessor SnapshotModelProcessor { get; [param: NotNull] init; }
+        public ISnapshotModelProcessor SnapshotModelProcessor { get; init; }
 
         /// <summary>
         ///     The migrator.
         /// </summary>
-        public IMigrator Migrator { get; [param: NotNull] init; }
+        public IMigrator Migrator { get; init; }
     }
 }

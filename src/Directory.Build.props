@@ -7,6 +7,7 @@
     <IncludeSymbols>True</IncludeSymbols>
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.ruleset</CodeAnalysisRuleSet>
     <Nullable>enable</Nullable>
+    <Feature>nullablePublicOnly</Feature>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -55,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalParameterBasedSqlProcessorDependencies(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IRelationalTypeMappingSource typeMappingSource,
+            IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
@@ -71,16 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Sql expression factory.
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 
         /// <summary>
         ///     Relational type mapping souce.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     Parameter name generator factory.
         /// </summary>
-        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; [param: NotNull] init; }
+        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; init; }
     }
 }

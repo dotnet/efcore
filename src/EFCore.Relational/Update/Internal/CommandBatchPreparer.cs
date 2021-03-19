@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CommandBatchPreparer([NotNull] CommandBatchPreparerDependencies dependencies)
+        public CommandBatchPreparer(CommandBatchPreparerDependencies dependencies)
         {
             _modificationCommandBatchFactory = dependencies.ModificationCommandBatchFactory;
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
@@ -162,9 +161,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<ModificationCommand> CreateModificationCommands(
-            [NotNull] IList<IUpdateEntry> entries,
-            [NotNull] IUpdateAdapter updateAdapter,
-            [NotNull] Func<string> generateParameterName)
+            IList<IUpdateEntry> entries,
+            IUpdateAdapter updateAdapter,
+            Func<string> generateParameterName)
         {
             var commands = new List<ModificationCommand>();
             Dictionary<(string Name, string? Schema), SharedTableEntryMap<ModificationCommand>>? sharedTablesCommandsMap =
@@ -280,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IReadOnlyList<List<ModificationCommand>> TopologicalSort([NotNull] IEnumerable<ModificationCommand> commands)
+        protected virtual IReadOnlyList<List<ModificationCommand>> TopologicalSort(IEnumerable<ModificationCommand> commands)
         {
             var modificationCommandGraph = new Multigraph<ModificationCommand, IAnnotatable>();
             modificationCommandGraph.AddVertices(commands);

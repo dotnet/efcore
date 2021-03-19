@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -69,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsRequiredDependent { get; }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether this relationship defines an ownership.
+        ///     Gets a value indicating whether this relationship defines an ownership.
         ///     If <see langword="true" />, the dependent entity must always be accessed via the navigation from the principal entity.
         /// </summary>
         bool IsOwnership { get; }
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> One of the entity types related by the foreign key. </param>
         /// <returns> The entity type related to the given one. </returns>
-        IReadOnlyEntityType GetRelatedEntityType([NotNull] IReadOnlyEntityType entityType)
+        IReadOnlyEntityType GetRelatedEntityType(IReadOnlyEntityType entityType)
         {
             if (DeclaringEntityType != entityType
                 && PrincipalEntityType != entityType)

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InternalEntityEntryNotifier(
-            [NotNull] ILocalViewListener localViewListener,
-            [NotNull] IChangeDetector changeDetector,
-            [NotNull] INavigationFixer navigationFixer)
+            ILocalViewListener localViewListener,
+            IChangeDetector changeDetector,
+            INavigationFixer navigationFixer)
         {
             _localViewListener = localViewListener;
             _changeDetector = changeDetector;

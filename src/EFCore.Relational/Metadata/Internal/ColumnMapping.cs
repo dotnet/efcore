@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -24,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ColumnMapping(
-            [NotNull] IProperty property,
-            [NotNull] Column column,
-            [NotNull] TableMapping tableMapping)
+            IProperty property,
+            Column column,
+            TableMapping tableMapping)
             : base(property, column, tableMapping)
         {
         }

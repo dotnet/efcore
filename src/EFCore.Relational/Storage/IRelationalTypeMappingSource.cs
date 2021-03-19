@@ -3,7 +3,6 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        new RelationalTypeMapping? FindMapping([NotNull] IProperty property);
+        new RelationalTypeMapping? FindMapping(IProperty property);
 
         /// <summary>
         ///     <para>
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="member"> The field or property. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        new RelationalTypeMapping? FindMapping([NotNull] MemberInfo member);
+        new RelationalTypeMapping? FindMapping(MemberInfo member);
 
         /// <summary>
         ///     <para>
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="type"> The CLR type. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        new RelationalTypeMapping? FindMapping([NotNull] Type type);
+        new RelationalTypeMapping? FindMapping(Type type);
 
         /// <summary>
         ///     <para>
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="storeTypeName"> The database type name. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
-        RelationalTypeMapping? FindMapping([NotNull] string storeTypeName);
+        RelationalTypeMapping? FindMapping(string storeTypeName);
 
         /// <summary>
         ///     <para>
@@ -100,8 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         RelationalTypeMapping? FindMapping(
-            [NotNull] Type type,
-            [CanBeNull] string? storeTypeName,
+            Type type,
+            string? storeTypeName,
             bool keyOrIndex = false,
             bool? unicode = null,
             int? size = null,

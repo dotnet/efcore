@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     a given <see cref="DbContextOptions" />.
         /// </summary>
         /// <param name="options"> The options to be configured. </param>
-        public DbContextOptionsBuilder([NotNull] DbContextOptions options)
+        public DbContextOptionsBuilder(DbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
 
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseModel([NotNull] IModel model)
+        public virtual DbContextOptionsBuilder UseModel(IModel model)
             => WithOption(e => e.WithModel(Check.NotNull(model, nameof(model))));
 
         /// <summary>
@@ -105,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="loggerFactory"> The logger factory to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
+        public virtual DbContextOptionsBuilder UseLoggerFactory(ILoggerFactory? loggerFactory)
             => WithOption(e => e.WithLoggerFactory(loggerFactory));
 
         /// <summary>
@@ -133,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder LogTo(
-            [NotNull] Action<string> action,
+            Action<string> action,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
             => LogTo(action, (i, l) => l >= minimumLevel, options);
@@ -162,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder LogTo(
-            [NotNull] Action<string> action,
-            [NotNull] IEnumerable<EventId> events,
+            Action<string> action,
+            IEnumerable<EventId> events,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
         {
@@ -227,8 +226,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder LogTo(
-            [NotNull] Action<string> action,
-            [NotNull] IEnumerable<string> categories,
+            Action<string> action,
+            IEnumerable<string> categories,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
         {
@@ -294,8 +293,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder LogTo(
-            [NotNull] Action<string> action,
-            [NotNull] Func<EventId, LogLevel, bool> filter,
+            Action<string> action,
+            Func<EventId, LogLevel, bool> filter,
             DbContextLoggerOptions? options = null)
         {
             Check.NotNull(action, nameof(action));
@@ -324,8 +323,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         // Filter comes first, logger second, otherwise it's hard to get the correct overload to resolve
         public virtual DbContextOptionsBuilder LogTo(
-            [NotNull] Func<EventId, LogLevel, bool> filter,
-            [NotNull] Action<EventData> logger)
+            Func<EventId, LogLevel, bool> filter,
+            Action<EventData> logger)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(filter, nameof(filter));
@@ -333,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore
             return LogTo(new DelegatingDbContextLogger(logger, filter));
         }
 
-        private DbContextOptionsBuilder LogTo([NotNull] IDbContextLogger logger)
+        private DbContextOptionsBuilder LogTo(IDbContextLogger logger)
             => WithOption(e => e.WithDbContextLogger(logger));
 
         /// <summary>
@@ -397,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="memoryCache"> The memory cache to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
+        public virtual DbContextOptionsBuilder UseMemoryCache(IMemoryCache? memoryCache)
             => WithOption(e => e.WithMemoryCache(memoryCache));
 
         /// <summary>
@@ -419,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+        public virtual DbContextOptionsBuilder UseInternalServiceProvider(IServiceProvider? serviceProvider)
             => WithOption(e => e.WithInternalServiceProvider(serviceProvider));
 
         /// <summary>
@@ -429,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder UseApplicationServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+        public virtual DbContextOptionsBuilder UseApplicationServiceProvider(IServiceProvider? serviceProvider)
             => WithOption(e => e.WithApplicationServiceProvider(serviceProvider));
 
         /// <summary>
@@ -519,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual DbContextOptionsBuilder ConfigureWarnings(
-            [NotNull] Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
+            Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
         {
             Check.NotNull(warningsConfigurationBuilderAction, nameof(warningsConfigurationBuilderAction));
 
@@ -603,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="interceptors"> The interceptors to add. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder AddInterceptors([NotNull] IEnumerable<IInterceptor> interceptors)
+        public virtual DbContextOptionsBuilder AddInterceptors(IEnumerable<IInterceptor> interceptors)
             => WithOption(e => e.WithInterceptors(Check.NotNull(interceptors, nameof(interceptors))));
 
         /// <summary>
@@ -627,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="interceptors"> The interceptors to add. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder AddInterceptors([NotNull] params IInterceptor[] interceptors)
+        public virtual DbContextOptionsBuilder AddInterceptors(params IInterceptor[] interceptors)
             => AddInterceptors((IEnumerable<IInterceptor>)interceptors);
 
         /// <summary>

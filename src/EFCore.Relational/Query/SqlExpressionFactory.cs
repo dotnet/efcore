@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new instance of the <see cref="SqlExpressionFactory" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        public SqlExpressionFactory([NotNull] SqlExpressionFactoryDependencies dependencies)
+        public SqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        [return: CA.NotNullIfNotNull("sqlExpression")]
+        [return: NotNullIfNotNull("sqlExpression")]
         public virtual SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression)
         {
             return sqlExpression == null
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        [return: CA.NotNullIfNotNull("sqlExpression")]
+        [return: NotNullIfNotNull("sqlExpression")]
         public virtual SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
         {
 #pragma warning disable IDE0046 // Convert to conditional expression

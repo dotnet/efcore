@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
@@ -55,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InMemoryQueryExpression([NotNull] IEntityType entityType)
+        public InMemoryQueryExpression(IEntityType entityType)
         {
             _valueBufferParameter = Parameter(typeof(ValueBuffer), "valueBuffer");
             ServerQueryExpression = new InMemoryTableExpression(entityType);
@@ -220,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ReplaceProjectionMapping([NotNull] IDictionary<ProjectionMember, Expression> projectionMappings)
+        public virtual void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMappings)
         {
             _projectionMapping.Clear();
             _projectionMappingExpressions.Clear();
@@ -320,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDictionary<IProperty, int> AddToProjection([NotNull] EntityProjectionExpression entityProjectionExpression)
+        public virtual IDictionary<IProperty, int> AddToProjection(EntityProjectionExpression entityProjectionExpression)
         {
             if (!_entityProjectionCache.TryGetValue(entityProjectionExpression, out var indexMap))
             {
@@ -342,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int AddToProjection([NotNull] Expression expression)
+        public virtual int AddToProjection(Expression expression)
         {
             _clientProjectionExpressions.Add(expression);
 
@@ -356,8 +355,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual int AddSubqueryProjection(
-            [NotNull] ShapedQueryExpression shapedQueryExpression,
-            [NotNull] out Expression innerShaper)
+            ShapedQueryExpression shapedQueryExpression,
+            out Expression innerShaper)
         {
             var subquery = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
             subquery.ApplyProjection();
@@ -387,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression GetMappedProjection([NotNull] ProjectionMember member)
+        public virtual Expression GetMappedProjection(ProjectionMember member)
             => _projectionMapping[member];
 
         /// <summary>
@@ -396,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void UpdateServerQueryExpression([NotNull] Expression serverQueryExpression)
+        public virtual void UpdateServerQueryExpression(Expression serverQueryExpression)
             => ServerQueryExpression = serverQueryExpression;
 
         /// <summary>
@@ -405,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ApplySetOperation([NotNull] MethodInfo setOperationMethodInfo, [NotNull] InMemoryQueryExpression source2)
+        public virtual void ApplySetOperation(MethodInfo setOperationMethodInfo, InMemoryQueryExpression source2)
         {
             Check.DebugAssert(_groupingParameter == null, "Cannot apply set operation after GroupBy without flattening.");
             if (_clientProjectionExpressions.Count == 0)
@@ -587,8 +586,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InMemoryGroupByShaperExpression ApplyGrouping(
-            [NotNull] Expression groupingKey,
-            [NotNull] Expression shaperExpression,
+            Expression groupingKey,
+            Expression shaperExpression,
             bool defaultElementSelector)
         {
             var source = ServerQueryExpression;
@@ -643,10 +642,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void AddInnerJoin(
-            [NotNull] InMemoryQueryExpression innerQueryExpression,
-            [NotNull] LambdaExpression outerKeySelector,
-            [NotNull] LambdaExpression innerKeySelector,
-            [NotNull] Type transparentIdentifierType)
+            InMemoryQueryExpression innerQueryExpression,
+            LambdaExpression outerKeySelector,
+            LambdaExpression innerKeySelector,
+            Type transparentIdentifierType)
             => AddJoin(innerQueryExpression, outerKeySelector, innerKeySelector, transparentIdentifierType, innerNullable: false);
 
         /// <summary>
@@ -656,10 +655,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void AddLeftJoin(
-            [NotNull] InMemoryQueryExpression innerQueryExpression,
-            [NotNull] LambdaExpression outerKeySelector,
-            [NotNull] LambdaExpression innerKeySelector,
-            [NotNull] Type transparentIdentifierType)
+            InMemoryQueryExpression innerQueryExpression,
+            LambdaExpression outerKeySelector,
+            LambdaExpression innerKeySelector,
+            Type transparentIdentifierType)
             => AddJoin(innerQueryExpression, outerKeySelector, innerKeySelector, transparentIdentifierType, innerNullable: true);
 
         /// <summary>
@@ -669,8 +668,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void AddSelectMany(
-            [NotNull] InMemoryQueryExpression innerQueryExpression,
-            [NotNull] Type transparentIdentifierType,
+            InMemoryQueryExpression innerQueryExpression,
+            Type transparentIdentifierType,
             bool innerNullable)
             => AddJoin(innerQueryExpression, null, null, transparentIdentifierType, innerNullable);
 
@@ -681,11 +680,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual EntityShaperExpression AddNavigationToWeakEntityType(
-            [NotNull] EntityProjectionExpression entityProjectionExpression,
-            [NotNull] INavigation navigation,
-            [NotNull] InMemoryQueryExpression innerQueryExpression,
-            [NotNull] LambdaExpression outerKeySelector,
-            [NotNull] LambdaExpression innerKeySelector)
+            EntityProjectionExpression entityProjectionExpression,
+            INavigation navigation,
+            InMemoryQueryExpression innerQueryExpression,
+            LambdaExpression outerKeySelector,
+            LambdaExpression innerKeySelector)
         {
             var innerNullable = !navigation.ForeignKey.IsRequiredDependent;
             var outerParameter = Parameter(typeof(ValueBuffer), "outer");
@@ -1026,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _projectionMapping = projectionMapping;
             }
 
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is ProjectionBindingExpression projectionBindingExpression

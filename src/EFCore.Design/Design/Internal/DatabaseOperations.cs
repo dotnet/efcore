@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,13 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DatabaseOperations(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [NotNull] string projectDir,
-            [CanBeNull] string? rootNamespace,
-            [CanBeNull] string? language,
-            [CanBeNull] string[]? args)
+            IOperationReporter reporter,
+            Assembly assembly,
+            Assembly startupAssembly,
+            string projectDir,
+            string? rootNamespace,
+            string? language,
+            string[]? args)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
@@ -62,15 +61,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SavedModelFiles ScaffoldContext(
-            [NotNull] string provider,
-            [NotNull] string connectionString,
-            [CanBeNull] string? outputDir,
-            [CanBeNull] string? outputContextDir,
-            [CanBeNull] string? dbContextClassName,
-            [NotNull] IEnumerable<string> schemas,
-            [NotNull] IEnumerable<string> tables,
-            [CanBeNull] string? modelNamespace,
-            [CanBeNull] string? contextNamespace,
+            string provider,
+            string connectionString,
+            string? outputDir,
+            string? outputContextDir,
+            string? dbContextClassName,
+            IEnumerable<string> schemas,
+            IEnumerable<string> tables,
+            string? modelNamespace,
+            string? contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
             bool useDatabaseNames,

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public RelationalConventionSetBuilderDependencies([NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
+        public RelationalConventionSetBuilderDependencies(IRelationalAnnotationProvider relationalAnnotationProvider)
         {
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
 
@@ -73,6 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         ///     The relational annotation provider.
         /// </summary>
         [Obsolete("This is now part of RelationalModelRuntimeInitializerDependencies")]
-        public IRelationalAnnotationProvider RelationalAnnotationProvider { get; [param: NotNull] init; }
+        public IRelationalAnnotationProvider RelationalAnnotationProvider { get; init; }
     }
 }

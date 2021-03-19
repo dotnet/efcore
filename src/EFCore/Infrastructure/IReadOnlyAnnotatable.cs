@@ -1,13 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -29,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        object? this[[NotNull] string name] { get; }
+        object? this[string name] { get; }
 
         /// <summary>
         ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
@@ -38,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        IAnnotation? FindAnnotation([NotNull] string name);
+        IAnnotation? FindAnnotation(string name);
 
         /// <summary>
         ///     Gets all annotations on the current object.
@@ -50,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="annotationName"> The key of the annotation to find. </param>
         /// <returns> The annotation with the specified name. </returns>
-        IAnnotation GetAnnotation([NotNull] string annotationName)
+        IAnnotation GetAnnotation(string annotationName)
             => Annotatable.GetAnnotation(this, annotationName);
 
         /// <summary>

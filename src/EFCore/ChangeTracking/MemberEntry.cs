@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected MemberEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] IPropertyBase metadata)
+        protected MemberEntry(InternalEntityEntry internalEntry, IPropertyBase metadata)
         {
             Check.NotNull(internalEntry, nameof(internalEntry));
             Check.NotNull(metadata, nameof(metadata));
@@ -80,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual object? CurrentValue
         {
             get => InternalEntry[Metadata];
-            [param: CanBeNull] set => InternalEntry[Metadata] = value;
+            set => InternalEntry[Metadata] = value;
         }
 
         /// <summary>

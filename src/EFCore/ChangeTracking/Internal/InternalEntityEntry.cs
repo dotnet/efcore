@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected InternalEntityEntry(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IEntityType entityType)
+            IStateManager stateManager,
+            IEntityType entityType)
         {
             StateManager = stateManager;
             EntityType = entityType;
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry? SharedIdentityEntry { get; [param: CanBeNull] set; }
+        public virtual InternalEntityEntry? SharedIdentityEntry { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void SetPropertyModified(
-            [NotNull] IProperty property,
+            IProperty property,
             bool changeState = true,
             bool isModified = true,
             bool isConceptualNull = false,
@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetTemporaryValue([NotNull] IProperty property, [CanBeNull] object? value, bool setModified = true)
+        public virtual void SetTemporaryValue(IProperty property, object? value, bool setModified = true)
         {
             if (property.GetStoreGeneratedIndex() == -1)
             {
@@ -640,7 +640,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void MarkShadowPropertiesNotSet([NotNull] IEntityType entityType)
+        protected virtual void MarkShadowPropertiesNotSet(IEntityType entityType)
         {
             foreach (var property in entityType.GetProperties())
             {
@@ -657,7 +657,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void MarkUnknown([NotNull] IProperty property)
+        public virtual void MarkUnknown(IProperty property)
             => _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Unknown, true);
 
         internal static readonly MethodInfo ReadShadowValueMethod
@@ -729,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TProperty GetRelationshipSnapshotValue<TProperty>([NotNull] IPropertyBase propertyBase)
+        public virtual TProperty GetRelationshipSnapshotValue<TProperty>(IPropertyBase propertyBase)
             => ((Func<IUpdateEntry, TProperty>)propertyBase.GetPropertyAccessors().RelationshipSnapshotGetter)(
                 this);
 
@@ -739,7 +739,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual object? ReadPropertyValue([NotNull] IPropertyBase propertyBase)
+        protected virtual object? ReadPropertyValue(IPropertyBase propertyBase)
         {
             Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
@@ -752,7 +752,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual bool PropertyHasDefaultValue([NotNull] IPropertyBase propertyBase)
+        protected virtual bool PropertyHasDefaultValue(IPropertyBase propertyBase)
         {
             Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
@@ -766,8 +766,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void WritePropertyValue(
-            [NotNull] IPropertyBase propertyBase,
-            [CanBeNull] object? value,
+            IPropertyBase propertyBase,
+            object? value,
             bool forMaterialization)
         {
             Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
@@ -787,7 +787,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object GetOrCreateCollection([NotNull] INavigationBase navigationBase, bool forMaterialization)
+        public virtual object GetOrCreateCollection(INavigationBase navigationBase, bool forMaterialization)
         {
             Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
@@ -800,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CollectionContains([NotNull] INavigationBase navigationBase, [NotNull] InternalEntityEntry value)
+        public virtual bool CollectionContains(INavigationBase navigationBase, InternalEntityEntry value)
         {
             Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
@@ -814,8 +814,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool AddToCollection(
-            [NotNull] INavigationBase navigationBase,
-            [NotNull] InternalEntityEntry value,
+            INavigationBase navigationBase,
+            InternalEntityEntry value,
             bool forMaterialization)
         {
             Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
@@ -829,7 +829,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool RemoveFromCollection([NotNull] INavigationBase navigationBase, [NotNull] InternalEntityEntry value)
+        public virtual bool RemoveFromCollection(INavigationBase navigationBase, InternalEntityEntry value)
         {
             Check.DebugAssert(!navigationBase.IsShadowProperty(), "navigation is shadow property");
 
@@ -883,8 +883,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void SetOriginalValue(
-            [NotNull] IPropertyBase propertyBase,
-            [CanBeNull] object? value,
+            IPropertyBase propertyBase,
+            object? value,
             int index = -1)
         {
             EnsureOriginalValues();
@@ -915,7 +915,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetRelationshipSnapshotValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object? value)
+        public virtual void SetRelationshipSnapshotValue(IPropertyBase propertyBase, object? value)
         {
             EnsureRelationshipSnapshot();
             _relationshipsSnapshot.SetValue(propertyBase, value);
@@ -1002,8 +1002,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void RemoveFromCollectionSnapshot(
-            [NotNull] IPropertyBase propertyBase,
-            [NotNull] object removedEntity)
+            IPropertyBase propertyBase,
+            object removedEntity)
         {
             EnsureRelationshipSnapshot();
             _relationshipsSnapshot.RemoveFromCollection(propertyBase, removedEntity);
@@ -1015,7 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AddToCollectionSnapshot([NotNull] IPropertyBase propertyBase, [NotNull] object addedEntity)
+        public virtual void AddToCollectionSnapshot(IPropertyBase propertyBase, object addedEntity)
         {
             EnsureRelationshipSnapshot();
             _relationshipsSnapshot.AddToCollection(propertyBase, addedEntity);
@@ -1028,8 +1028,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void AddRangeToCollectionSnapshot(
-            [NotNull] IPropertyBase propertyBase,
-            [NotNull] IEnumerable<object> addedEntities)
+            IPropertyBase propertyBase,
+            IEnumerable<object> addedEntities)
         {
             EnsureRelationshipSnapshot();
             _relationshipsSnapshot.AddRangeToCollection(propertyBase, addedEntities);
@@ -1041,7 +1041,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object? this[[NotNull] IPropertyBase propertyBase] // Intentionally non-virtual
+        public object? this[IPropertyBase propertyBase] // Intentionally non-virtual
         {
             get
             {
@@ -1076,7 +1076,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return ReadPropertyValue(propertyBase);
             }
 
-            [param: CanBeNull] set => SetProperty(propertyBase, value, isMaterialization: false);
+            set => SetProperty(propertyBase, value, isMaterialization: false);
         }
 
         /// <summary>
@@ -1086,16 +1086,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void SetProperty(
-            [NotNull] IPropertyBase propertyBase,
-            [CanBeNull] object? value,
+            IPropertyBase propertyBase,
+            object? value,
             bool isMaterialization,
             bool setModified = true,
             bool isCascadeDelete = false)
             => SetProperty(propertyBase, value, isMaterialization, setModified, isCascadeDelete, CurrentValueType.Normal);
 
         private void SetProperty(
-            [NotNull] IPropertyBase propertyBase,
-            [CanBeNull] object? value,
+            IPropertyBase propertyBase,
+            object? value,
             bool isMaterialization,
             bool setModified,
             bool isCascadeDelete,
@@ -1507,7 +1507,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasDefaultValue([NotNull] IProperty property) // Intentionally non-virtual
+        public bool HasDefaultValue(IProperty property) // Intentionally non-virtual
         {
             if (!PropertyHasDefaultValue(property))
             {
@@ -1617,8 +1617,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void HandleINotifyPropertyChanging(
-            [NotNull] object? sender,
-            [NotNull] PropertyChangingEventArgs eventArgs)
+            object? sender,
+            PropertyChangingEventArgs eventArgs)
         {
             foreach (var propertyBase in GetNotificationProperties(EntityType, eventArgs.PropertyName))
             {
@@ -1633,8 +1633,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void HandleINotifyPropertyChanged(
-            [NotNull] object? sender,
-            [NotNull] PropertyChangedEventArgs eventArgs)
+            object? sender,
+            PropertyChangedEventArgs eventArgs)
         {
             foreach (var propertyBase in GetNotificationProperties(EntityType, eventArgs.PropertyName))
             {
@@ -1643,8 +1643,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private static IEnumerable<IPropertyBase> GetNotificationProperties(
-            [NotNull] IEntityType entityType,
-            [CanBeNull] string? propertyName)
+            IEntityType entityType,
+            string? propertyName)
         {
             if (string.IsNullOrEmpty(propertyName))
             {
@@ -1685,8 +1685,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void HandleINotifyCollectionChanged(
-            [NotNull] object? sender,
-            [NotNull] NotifyCollectionChangedEventArgs eventArgs)
+            object? sender,
+            NotifyCollectionChangedEventArgs eventArgs)
         {
             var navigation = EntityType.GetNavigations()
                 .Concat<INavigationBase>(EntityType.GetSkipNavigations())
@@ -1730,7 +1730,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetIsLoaded([NotNull] INavigationBase navigation, bool loaded = true)
+        public virtual void SetIsLoaded(INavigationBase navigation, bool loaded = true)
         {
             if (!loaded
                 && !navigation.IsCollection
@@ -1755,7 +1755,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsLoaded([NotNull] INavigationBase navigation)
+        public virtual bool IsLoaded(INavigationBase navigation)
             => _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
 
         /// <summary>

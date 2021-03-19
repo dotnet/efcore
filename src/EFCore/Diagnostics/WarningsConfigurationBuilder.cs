@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Initializes a new instance of the <see cref="WarningsConfigurationBuilder" /> class.
         /// </summary>
         /// <param name="optionsBuilder"> The options builder to which the warnings configuration will be applied. </param>
-        public WarningsConfigurationBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
+        public WarningsConfigurationBuilder(DbContextOptionsBuilder optionsBuilder)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Throw(
-            [NotNull] params EventId[] eventIds)
+            params EventId[] eventIds)
         {
             Check.NotNull(eventIds, nameof(eventIds));
 
@@ -87,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Log(
-            [NotNull] params EventId[] eventIds)
+            params EventId[] eventIds)
         {
             Check.NotNull(eventIds, nameof(eventIds));
 
@@ -109,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Log(
-            [NotNull] params (EventId Id, LogLevel Level)[] eventsAndLevels)
+            params (EventId Id, LogLevel Level)[] eventsAndLevels)
         {
             Check.NotNull(eventsAndLevels, nameof(eventsAndLevels));
 
@@ -131,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual WarningsConfigurationBuilder Ignore(
-            [NotNull] params EventId[] eventIds)
+            params EventId[] eventIds)
         {
             Check.NotNull(eventIds, nameof(eventIds));
 

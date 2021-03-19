@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface ICheckConstraint : IReadOnlyCheckConstraint, IAnnotatable
     {
         /// <summary>
-        ///     Gets the <see cref="IEntityType" /> in which this check constraint is defined.
+        ///     Gets the entity type on which this check constraint is defined.
         /// </summary>
         new IEntityType EntityType { get; }
 

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -33,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SnapshotModelProcessor(
-            [NotNull] IOperationReporter operationReporter,
-            [NotNull] IModelRuntimeInitializer modelRuntimeInitializer)
+            IOperationReporter operationReporter,
+            IModelRuntimeInitializer modelRuntimeInitializer)
         {
             _operationReporter = operationReporter;
             _relationalNames = new HashSet<string>(
@@ -157,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Select(a => new Sequence(model, a.Name));
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            var sequencesDictionary = new SortedDictionary<(string, string?), Sequence>();
+            var sequencesDictionary = new SortedDictionary<(string, string?), ISequence>();
             foreach (var sequence in sequences)
             {
                 sequencesDictionary[(sequence.Name, sequence.Schema)] = sequence;

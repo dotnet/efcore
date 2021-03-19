@@ -4,7 +4,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryTransactionManager(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
         {
             Check.NotNull(logger, nameof(logger));
 

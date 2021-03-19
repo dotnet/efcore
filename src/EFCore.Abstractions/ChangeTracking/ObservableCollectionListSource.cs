@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     contains elements copied from the specified collection.
         /// </summary>
         /// <param name="collection"> The collection from which the elements are copied. </param>
-        public ObservableCollectionListSource([NotNull] IEnumerable<T> collection)
+        public ObservableCollectionListSource(IEnumerable<T> collection)
             : base(collection)
         {
         }
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     contains elements copied from the specified list.
         /// </summary>
         /// <param name="list"> The list from which the elements are copied. </param>
-        public ObservableCollectionListSource([NotNull] List<T> list)
+        public ObservableCollectionListSource(List<T> list)
             : base(list)
         {
         }

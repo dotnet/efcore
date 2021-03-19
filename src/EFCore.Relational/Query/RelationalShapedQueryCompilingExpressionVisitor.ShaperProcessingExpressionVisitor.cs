@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -19,7 +20,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -1902,7 +1902,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return _containsCollection;
                 }
 
-                [return: CA.NotNullIfNotNull("expression")]
+                [return: NotNullIfNotNull("expression")]
                 public override Expression? Visit(Expression? expression)
                 {
                     if (_containsCollection)

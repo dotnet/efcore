@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -23,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatibleForSqlServer(
-            [NotNull] this IReadOnlyIndex index,
-            [NotNull] IReadOnlyIndex duplicateIndex,
+            this IReadOnlyIndex index,
+            IReadOnlyIndex duplicateIndex,
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {

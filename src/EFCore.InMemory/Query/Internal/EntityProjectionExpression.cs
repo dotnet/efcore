@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -33,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public EntityProjectionExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] IDictionary<IProperty, MethodCallExpression> readExpressionMap)
+            IEntityType entityType,
+            IDictionary<IProperty, MethodCallExpression> readExpressionMap)
         {
             EntityType = entityType;
             _readExpressionMap = readExpressionMap;
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityProjectionExpression UpdateEntityType([NotNull] IEntityType derivedType)
+        public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
         {
             if (!derivedType.GetAllBaseTypes().Contains(EntityType))
             {
@@ -101,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual MethodCallExpression BindProperty([NotNull] IProperty property)
+        public virtual MethodCallExpression BindProperty(IProperty property)
         {
             if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -119,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AddNavigationBinding([NotNull] INavigation navigation, [NotNull] EntityShaperExpression entityShaper)
+        public virtual void AddNavigationBinding(INavigation navigation, EntityShaperExpression entityShaper)
         {
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -137,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityShaperExpression? BindNavigation([NotNull] INavigation navigation)
+        public virtual EntityShaperExpression? BindNavigation(INavigation navigation)
         {
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))

@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ConventionAnnotatable,
         IMutableDbFunctionParameter,
         IConventionDbFunctionParameter,
-        IDbFunctionParameter
+        IRuntimeDbFunctionParameter
     {
         private string? _storeType;
         private RelationalTypeMapping? _typeMapping;
@@ -42,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DbFunctionParameter(
-            [NotNull] DbFunction function,
-            [NotNull] string name,
-            [NotNull] Type clrType)
+            DbFunction function,
+            string name,
+            Type clrType)
         {
             Check.NotNull(function, nameof(function));
             Check.NotEmpty(name, nameof(name));
@@ -111,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => Function.GetConfigurationSource();
 
         /// <inheritdoc />
-        public virtual IStoreFunctionParameter StoreFunctionParameter { get; [param: NotNull] set; } = default!;
+        public virtual IStoreFunctionParameter StoreFunctionParameter { get; set; } = default!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string? SetStoreType([CanBeNull] string? storeType, ConfigurationSource configurationSource)
+        public virtual string? SetStoreType(string? storeType, ConfigurationSource configurationSource)
         {
             _storeType = storeType;
 
@@ -177,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual RelationalTypeMapping? SetTypeMapping(
-            [CanBeNull] RelationalTypeMapping? typeMapping,
+            RelationalTypeMapping? typeMapping,
             ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;
@@ -284,6 +283,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         RelationalTypeMapping? IConventionDbFunctionParameter.SetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
             => SetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        string IDbFunctionParameter.StoreType
+        {
+            [DebuggerStepThrough]
+            get => StoreType!;
+        }
 
         /// <inheritdoc />
         [DebuggerStepThrough]

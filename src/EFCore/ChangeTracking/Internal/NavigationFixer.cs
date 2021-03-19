@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -40,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public NavigationFixer(
-            [NotNull] IChangeDetector changeDetector,
-            [NotNull] IEntityGraphAttacher attacher)
+            IChangeDetector changeDetector,
+            IEntityGraphAttacher attacher)
         {
             _changeDetector = changeDetector;
             _attacher = attacher;

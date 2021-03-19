@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -21,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="contextType"> The <see cref="DbContext" /> CLR type. </param>
         /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or <see langword="null" />. </param>
         public ContextParameterBinding(
-            [NotNull] Type contextType,
-            [CanBeNull] IPropertyBase? serviceProperty = null)
+            Type contextType,
+            IPropertyBase? serviceProperty = null)
             : base(contextType, contextType, serviceProperty)
         {
         }

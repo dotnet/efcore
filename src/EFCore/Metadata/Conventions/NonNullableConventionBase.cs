@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="NonNullableConventionBase" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        protected NonNullableConventionBase([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        protected NonNullableConventionBase(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -46,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="memberInfo"> The member info. </param>
         /// <returns> <see langword="true" /> if the member type is a non-nullable reference type. </returns>
         protected virtual bool IsNonNullableReferenceType(
-            [NotNull] IConventionModelBuilder modelBuilder,
-            [NotNull] MemberInfo memberInfo)
+            IConventionModelBuilder modelBuilder,
+            MemberInfo memberInfo)
         {
             if (memberInfo.GetMemberType().IsValueType)
             {
@@ -61,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var isMaybeNull = memberInfo switch
             {
                 FieldInfo f
-                    => f.CustomAttributes.Any(a => a.AttributeType == typeof(CA.MaybeNullAttribute)),
+                    => f.CustomAttributes.Any(a => a.AttributeType == typeof(MaybeNullAttribute)),
                 PropertyInfo p
-                    => p.GetMethod?.ReturnParameter?.CustomAttributes?.Any(a => a.AttributeType == typeof(CA.MaybeNullAttribute)) == true,
+                    => p.GetMethod?.ReturnParameter?.CustomAttributes?.Any(a => a.AttributeType == typeof(MaybeNullAttribute)) == true,
                 _ => false
             };
 

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="validationLogger"> The validation logger. </param>
         /// <returns> The initialized model. </returns>
         IModel Initialize(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger);
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger);
     }
 }

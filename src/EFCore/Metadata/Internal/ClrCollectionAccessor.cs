@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -44,12 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ClrICollectionAccessor(
-            [NotNull] string propertyName,
-            [NotNull] Func<TEntity, TCollection> getCollection,
-            [CanBeNull] Action<TEntity, TCollection>? setCollection,
-            [CanBeNull] Action<TEntity, TCollection>? setCollectionForMaterialization,
-            [CanBeNull] Func<TEntity, Action<TEntity, TCollection>, TCollection>? createAndSetCollection,
-            [CanBeNull] Func<TCollection>? createCollection)
+            string propertyName,
+            Func<TEntity, TCollection> getCollection,
+            Action<TEntity, TCollection>? setCollection,
+            Action<TEntity, TCollection>? setCollectionForMaterialization,
+            Func<TEntity, Action<TEntity, TCollection>, TCollection>? createAndSetCollection,
+            Func<TCollection>? createCollection)
         {
             _propertyName = propertyName;
             _getCollection = getCollection;

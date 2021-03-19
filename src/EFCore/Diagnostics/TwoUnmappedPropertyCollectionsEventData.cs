@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -23,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="firstPropertyCollection"> The first property collection. </param>
         /// <param name="secondPropertyCollection"> The second property collection. </param>
         public TwoUnmappedPropertyCollectionsEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IEnumerable<Tuple<MemberInfo?, Type>> firstPropertyCollection,
-            [NotNull] IEnumerable<Tuple<MemberInfo?, Type>> secondPropertyCollection)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IEnumerable<Tuple<MemberInfo?, Type>> firstPropertyCollection,
+            IEnumerable<Tuple<MemberInfo?, Type>> secondPropertyCollection)
             : base(eventDefinition, messageGenerator)
         {
             FirstPropertyCollection = firstPropertyCollection;

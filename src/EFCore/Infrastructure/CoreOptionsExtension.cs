@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Called by a derived class constructor when implementing the <see cref="Clone" /> method.
         /// </summary>
         /// <param name="copyFrom"> The instance that is being cloned. </param>
-        protected CoreOptionsExtension([NotNull] CoreOptionsExtension copyFrom)
+        protected CoreOptionsExtension(CoreOptionsExtension copyFrom)
         {
             _internalServiceProvider = copyFrom.InternalServiceProvider;
             _applicationServiceProvider = copyFrom.ApplicationServiceProvider;
@@ -104,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="internalServiceProvider"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithInternalServiceProvider([CanBeNull] IServiceProvider? internalServiceProvider)
+        public virtual CoreOptionsExtension WithInternalServiceProvider(IServiceProvider? internalServiceProvider)
         {
             var clone = Clone();
 
@@ -119,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="applicationServiceProvider"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithApplicationServiceProvider([CanBeNull] IServiceProvider? applicationServiceProvider)
+        public virtual CoreOptionsExtension WithApplicationServiceProvider(IServiceProvider? applicationServiceProvider)
         {
             var clone = Clone();
 
@@ -134,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="model"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithModel([CanBeNull] IModel? model)
+        public virtual CoreOptionsExtension WithModel(IModel? model)
         {
             var clone = Clone();
 
@@ -149,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="memoryCache"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithMemoryCache([CanBeNull] IMemoryCache? memoryCache)
+        public virtual CoreOptionsExtension WithMemoryCache(IMemoryCache? memoryCache)
         {
             var clone = Clone();
 
@@ -164,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="loggerFactory"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithLoggerFactory([CanBeNull] ILoggerFactory? loggerFactory)
+        public virtual CoreOptionsExtension WithLoggerFactory(ILoggerFactory? loggerFactory)
         {
             var clone = Clone();
 
@@ -179,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="contextLogger"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithDbContextLogger([CanBeNull] IDbContextLogger? contextLogger)
+        public virtual CoreOptionsExtension WithDbContextLogger(IDbContextLogger? contextLogger)
         {
             var clone = Clone();
 
@@ -257,9 +256,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="currentImplementationType"> The specific existing implementation type to replace. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual CoreOptionsExtension WithReplacedService(
-            [NotNull] Type serviceType,
-            [NotNull] Type newImplementationType,
-            [CanBeNull] Type? currentImplementationType = null)
+            Type serviceType,
+            Type newImplementationType,
+            Type? currentImplementationType = null)
         {
             var clone = Clone();
 
@@ -294,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="warningsConfiguration"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithWarningsConfiguration([NotNull] WarningsConfiguration warningsConfiguration)
+        public virtual CoreOptionsExtension WithWarningsConfiguration(WarningsConfiguration warningsConfiguration)
         {
             var clone = Clone();
 
@@ -324,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="interceptors"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithInterceptors([NotNull] IEnumerable<IInterceptor> interceptors)
+        public virtual CoreOptionsExtension WithInterceptors(IEnumerable<IInterceptor> interceptors)
         {
             Check.NotNull(interceptors, nameof(interceptors));
 

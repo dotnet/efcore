@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -39,10 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public EntityFinder(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IDbSetSource setSource,
-            [NotNull] IDbSetCache setCache,
-            [NotNull] IEntityType entityType)
+            IStateManager stateManager,
+            IDbSetSource setSource,
+            IDbSetCache setCache,
+            IEntityType entityType)
         {
             _stateManager = stateManager;
             _setSource = setSource;
@@ -340,8 +339,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = typeof(EntityFinder<TEntity>).GetTypeInfo().GetDeclaredMethods(nameof(Select)).Single(mi => mi.IsGenericMethodDefinition);
 
         private static IQueryable<TResult> Select<TSource, TResult>(
-            [NotNull] IQueryable<TSource> source,
-            [NotNull] string propertyName)
+            IQueryable<TSource> source,
+            string propertyName)
             where TResult : class
             where TSource : class
         {
@@ -356,8 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = typeof(EntityFinder<TEntity>).GetTypeInfo().GetDeclaredMethods(nameof(SelectMany)).Single(mi => mi.IsGenericMethodDefinition);
 
         private static IQueryable<TResult> SelectMany<TSource, TResult>(
-            [NotNull] IQueryable<TSource> source,
-            [NotNull] string propertyName)
+            IQueryable<TSource> source,
+            string propertyName)
             where TResult : class
             where TSource : class
         {

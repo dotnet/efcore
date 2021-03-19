@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -24,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public NullableKeyIdentityMap(
-            [NotNull] IKey key,
-            [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
+            IKey key,
+            IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
             bool sensitiveLoggingEnabled)
             : base(key, principalKeyValueFactory, sensitiveLoggingEnabled)
         {

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Transactions;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -31,6 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Specifies an existing <see cref="Transaction" /> to be used for database operations.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
-        void EnlistTransaction([CanBeNull] Transaction? transaction);
+        void EnlistTransaction(Transaction? transaction);
     }
 }

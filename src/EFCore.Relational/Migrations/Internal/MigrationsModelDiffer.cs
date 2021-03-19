@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -79,13 +78,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public MigrationsModelDiffer(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
+            IRelationalTypeMappingSource typeMappingSource,
+            IMigrationsAnnotationProvider migrationsAnnotations,
 #pragma warning disable EF1001 // Internal EF Core API usage.
-            [NotNull] IChangeDetector changeDetector,
+            IChangeDetector changeDetector,
 #pragma warning restore EF1001 // Internal EF Core API usage.
-            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
-            [NotNull] CommandBatchPreparerDependencies commandBatchPreparerDependencies)
+            IUpdateAdapterFactory updateAdapterFactory,
+            CommandBatchPreparerDependencies commandBatchPreparerDependencies)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(migrationsAnnotations, nameof(migrationsAnnotations));
@@ -172,8 +171,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IReadOnlyList<MigrationOperation> Sort(
-            [NotNull] IEnumerable<MigrationOperation> operations,
-            [NotNull] DiffContext diffContext)
+            IEnumerable<MigrationOperation> operations,
+            DiffContext diffContext)
         {
             Check.NotNull(operations, nameof(operations));
 
@@ -380,9 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [CanBeNull] IRelationalModel? source,
-            [CanBeNull] IRelationalModel? target,
-            [NotNull] DiffContext diffContext)
+            IRelationalModel? source,
+            IRelationalModel? target,
+            DiffContext diffContext)
         {
             var operations = Enumerable.Empty<MigrationOperation>();
             if (source != null && target != null)
@@ -474,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Add([NotNull] IRelationalModel target, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Add(IRelationalModel target, DiffContext diffContext)
             => DiffAnnotations(null, target)
                 .Concat(GetSchemas(target).SelectMany(t => Add(t, diffContext)))
                 .Concat(target.Tables.SelectMany(t => Add(t, diffContext)))
@@ -487,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IRelationalModel source, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Remove(IRelationalModel source, DiffContext diffContext)
             => DiffAnnotations(source, null)
                 .Concat(source.Tables.SelectMany(t => Remove(t, diffContext)))
                 .Concat(source.Sequences.SelectMany(t => Remove(t, diffContext)));
@@ -503,9 +502,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<string> source,
-            [NotNull] IEnumerable<string> target,
-            [NotNull] DiffContext diffContext)
+            IEnumerable<string> source,
+            IEnumerable<string> target,
+            DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -522,9 +521,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] string source,
-            [NotNull] string target,
-            [NotNull] DiffContext diffContext)
+            string source,
+            string target,
+            DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
@@ -533,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Add([NotNull] string target, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Add(string target, DiffContext diffContext)
         {
             yield return new EnsureSchemaOperation { Name = target };
         }
@@ -544,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] string source, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Remove(string source, DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
 
         #endregion
@@ -558,9 +557,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<ITable> source,
-            [NotNull] IEnumerable<ITable> target,
-            [NotNull] DiffContext diffContext)
+            IEnumerable<ITable> source,
+            IEnumerable<ITable> target,
+            DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -592,9 +591,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] ITable source,
-            [NotNull] ITable target,
-            [NotNull] DiffContext diffContext)
+            ITable source,
+            ITable target,
+            DiffContext diffContext)
         {
             if (source.IsExcludedFromMigrations
                 && target.IsExcludedFromMigrations)
@@ -656,8 +655,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add(
-            [NotNull] ITable target,
-            [NotNull] DiffContext diffContext)
+            ITable target,
+            DiffContext diffContext)
         {
             if (target.IsExcludedFromMigrations)
             {
@@ -704,8 +703,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove(
-            [NotNull] ITable source,
-            [NotNull] DiffContext diffContext)
+            ITable source,
+            DiffContext diffContext)
         {
             if (source.IsExcludedFromMigrations)
             {
@@ -890,9 +889,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<IColumn> source,
-            [NotNull] IEnumerable<IColumn> target,
-            [NotNull] DiffContext diffContext)
+            IEnumerable<IColumn> source,
+            IEnumerable<IColumn> target,
+            DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -968,9 +967,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IColumn source,
-            [NotNull] IColumn target,
-            [NotNull] DiffContext diffContext)
+            IColumn source,
+            IColumn target,
+            DiffContext diffContext)
         {
             var sourceMapping = source.PropertyMappings.First();
             var targetMapping = target.PropertyMappings.First();
@@ -1040,8 +1039,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add(
-            [NotNull] IColumn target,
-            [NotNull] DiffContext diffContext,
+            IColumn target,
+            DiffContext diffContext,
             bool inline = false)
         {
             var table = target.Table;
@@ -1069,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IColumn source, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Remove(IColumn source, DiffContext diffContext)
         {
             var table = source.Table;
 
@@ -1155,9 +1154,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<IUniqueConstraint> source,
-            [NotNull] IEnumerable<IUniqueConstraint> target,
-            [NotNull] DiffContext diffContext)
+            IEnumerable<IUniqueConstraint> source,
+            IEnumerable<IUniqueConstraint> target,
+            DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -1178,9 +1177,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IUniqueConstraint source,
-            [NotNull] IUniqueConstraint target,
-            [NotNull] DiffContext diffContext)
+            IUniqueConstraint source,
+            IUniqueConstraint target,
+            DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
@@ -1189,7 +1188,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Add([NotNull] IUniqueConstraint target, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Add(IUniqueConstraint target, DiffContext diffContext)
         {
             if (target.GetIsPrimaryKey())
             {
@@ -1208,8 +1207,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Remove(
-            [NotNull] IUniqueConstraint source,
-            [NotNull] DiffContext diffContext)
+            IUniqueConstraint source,
+            DiffContext diffContext)
         {
             var table = source.Table;
 
@@ -1249,9 +1248,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<IForeignKeyConstraint> source,
-            [NotNull] IEnumerable<IForeignKeyConstraint> target,
-            [NotNull] DiffContext diffContext)
+            IEnumerable<IForeignKeyConstraint> source,
+            IEnumerable<IForeignKeyConstraint> target,
+            DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -1275,9 +1274,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IForeignKeyConstraint source,
-            [NotNull] IForeignKeyConstraint target,
-            [NotNull] DiffContext diffContext)
+            IForeignKeyConstraint source,
+            IForeignKeyConstraint target,
+            DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
@@ -1286,7 +1285,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Add([NotNull] IForeignKeyConstraint target, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Add(IForeignKeyConstraint target, DiffContext diffContext)
         {
             var targetTable = target.Table;
             if (targetTable.IsExcludedFromMigrations)
@@ -1313,7 +1312,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IForeignKeyConstraint source, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Remove(IForeignKeyConstraint source, DiffContext diffContext)
         {
             var sourceTable = source.Table;
 
@@ -1348,9 +1347,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<ITableIndex> source,
-            [NotNull] IEnumerable<ITableIndex> target,
-            [NotNull] DiffContext diffContext)
+            IEnumerable<ITableIndex> source,
+            IEnumerable<ITableIndex> target,
+            DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -1376,9 +1375,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] ITableIndex source,
-            [NotNull] ITableIndex target,
-            [NotNull] DiffContext diffContext)
+            ITableIndex source,
+            ITableIndex target,
+            DiffContext diffContext)
         {
             var targetTable = target.Table;
             var sourceName = source.Name;
@@ -1403,8 +1402,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Add(
-            [NotNull] ITableIndex target,
-            [NotNull] DiffContext diffContext)
+            ITableIndex target,
+            DiffContext diffContext)
         {
             yield return CreateIndexOperation.CreateFrom(target);
         }
@@ -1415,7 +1414,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ITableIndex source, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Remove(ITableIndex source, DiffContext diffContext)
         {
             var sourceTable = source.Table;
 
@@ -1441,9 +1440,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<ICheckConstraint> source,
-            [NotNull] IEnumerable<ICheckConstraint> target,
-            [NotNull] DiffContext diffContext)
+            IEnumerable<ICheckConstraint> source,
+            IEnumerable<ICheckConstraint> target,
+            DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -1462,9 +1461,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] ICheckConstraint source,
-            [NotNull] ICheckConstraint target,
-            [NotNull] DiffContext diffContext)
+            ICheckConstraint source,
+            ICheckConstraint target,
+            DiffContext diffContext)
             => Enumerable.Empty<MigrationOperation>();
 
         /// <summary>
@@ -1473,7 +1472,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Add([NotNull] ICheckConstraint target, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Add(ICheckConstraint target, DiffContext diffContext)
         {
             yield return AddCheckConstraintOperation.CreateFrom(target);
         }
@@ -1484,7 +1483,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ICheckConstraint source, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Remove(ICheckConstraint source, DiffContext diffContext)
         {
             var sourceEntityType = source.EntityType;
 
@@ -1510,9 +1509,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] IEnumerable<ISequence> source,
-            [NotNull] IEnumerable<ISequence> target,
-            [NotNull] DiffContext diffContext)
+            IEnumerable<ISequence> source,
+            IEnumerable<ISequence> target,
+            DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -1533,9 +1532,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> Diff(
-            [NotNull] ISequence source,
-            [NotNull] ISequence target,
-            [NotNull] DiffContext diffContext)
+            ISequence source,
+            ISequence target,
+            DiffContext diffContext)
         {
             if (source.Schema != target.Schema
                 || source.Name != target.Name)
@@ -1583,7 +1582,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Add([NotNull] ISequence target, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Add(ISequence target, DiffContext diffContext)
         {
             var operation = new CreateSequenceOperation
             {
@@ -1602,7 +1601,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ISequence source, [NotNull] DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Remove(ISequence source, DiffContext diffContext)
         {
             var operation = new DropSequenceOperation { Schema = source.Schema, Name = source.Name };
             operation.AddAnnotations(MigrationsAnnotations.ForRemove(source));
@@ -1635,9 +1634,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void TrackData(
-            [CanBeNull] IRelationalModel? source,
-            [CanBeNull] IRelationalModel? target,
-            [NotNull] DiffContext diffContext)
+            IRelationalModel? source,
+            IRelationalModel? target,
+            DiffContext diffContext)
         {
             if (target == null)
             {
@@ -1689,9 +1688,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Dictionary<IEntityType, List<ITable>>? DiffData(
-            [CanBeNull] IRelationalModel? source,
-            [CanBeNull] IRelationalModel? target,
-            [NotNull] DiffContext diffContext)
+            IRelationalModel? source,
+            IRelationalModel? target,
+            DiffContext diffContext)
         {
             Check.NotNull(diffContext, nameof(diffContext));
 
@@ -2060,9 +2059,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> GetDataOperations(
-            [CanBeNull] IRelationalModel? source,
-            [CanBeNull] IRelationalModel? target,
-            [NotNull] DiffContext diffContext)
+            IRelationalModel? source,
+            IRelationalModel? target,
+            DiffContext diffContext)
         {
             TrackData(source, target, diffContext);
 
@@ -2308,13 +2307,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<MigrationOperation> DiffCollection<T>(
-            [NotNull] IEnumerable<T> sources,
-            [NotNull] IEnumerable<T> targets,
-            [NotNull] DiffContext diffContext,
-            [NotNull] Func<T, T, DiffContext, IEnumerable<MigrationOperation>> diff,
-            [NotNull] Func<T, DiffContext, IEnumerable<MigrationOperation>> add,
-            [NotNull] Func<T, DiffContext, IEnumerable<MigrationOperation>> remove,
-            [NotNull] params Func<T, T, DiffContext, bool>[] predicates)
+            IEnumerable<T> sources,
+            IEnumerable<T> targets,
+            DiffContext diffContext,
+            Func<T, T, DiffContext, IEnumerable<MigrationOperation>> diff,
+            Func<T, DiffContext, IEnumerable<MigrationOperation>> add,
+            Func<T, DiffContext, IEnumerable<MigrationOperation>> remove,
+            params Func<T, T, DiffContext, bool>[] predicates)
             where T : notnull
         {
             var sourceList = sources.ToList();
@@ -2375,7 +2374,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual bool HasDifferences([NotNull] IEnumerable<IAnnotation> source, [NotNull] IEnumerable<IAnnotation> target)
+        protected virtual bool HasDifferences(IEnumerable<IAnnotation> source, IEnumerable<IAnnotation> target)
         {
             var unmatched = new List<IAnnotation>(target);
 
@@ -2400,7 +2399,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<string> GetSchemas([NotNull] IRelationalModel model)
+        protected virtual IEnumerable<string> GetSchemas(IRelationalModel model)
             => model.Tables.Where(t => !t.IsExcludedFromMigrations).Select(t => t.Schema)
                 .Concat(model.Views.Where(t => t.ViewDefinitionSql != null).Select(s => s.Schema))
                 .Concat(model.Sequences.Select(s => s.Schema))
@@ -2414,7 +2413,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual object GetDefaultValue([NotNull] Type type)
+        protected virtual object? GetDefaultValue(Type type)
             => type == typeof(string)
                 ? string.Empty
                 : type.IsArray
@@ -2434,7 +2433,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [Obsolete]
-        public static IProperty[] GetMappedProperties([NotNull] ITable table, [NotNull] string[] names)
+        public static IProperty[] GetMappedProperties(ITable table, string[] names)
         {
             var properties = new IProperty[names.Length];
             for (var i = 0; i < names.Length; i++)
@@ -2518,7 +2517,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public EntryMapping GetOrAddValue([NotNull] IUpdateEntry entry, ITable table)
+            public EntryMapping GetOrAddValue(IUpdateEntry entry, ITable table)
             {
                 var mainEntry = GetMainEntry(entry, table);
                 if (_entryValueMap.TryGetValue(mainEntry, out var entryMapping))
@@ -2584,7 +2583,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual void AddMapping<T>([NotNull] T source, [NotNull] T target)
+            public virtual void AddMapping<T>(T source, T target)
                 where T : notnull
             {
                 _targetToSource.Add(target, source);
@@ -2597,7 +2596,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual void AddCreate([NotNull] ITable target, [NotNull] CreateTableOperation operation)
+            public virtual void AddCreate(ITable target, CreateTableOperation operation)
                 => _createTableOperations.Add(target, operation);
 
             /// <summary>
@@ -2606,7 +2605,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual void AddDrop([NotNull] ITable source, [NotNull] DropTableOperation operation)
+            public virtual void AddDrop(ITable source, DropTableOperation operation)
             {
                 _dropTableOperations.Add(source, operation);
                 _removedTables.Add(operation, source);
@@ -2618,7 +2617,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual void AddDrop([NotNull] IColumn source, [NotNull] DropColumnOperation operation)
+            public virtual void AddDrop(IColumn source, DropColumnOperation operation)
             {
                 _dropColumnOperations.Add(source, operation);
             }
@@ -2638,7 +2637,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual T? FindSource<T>([CanBeNull] T? target)
+            public virtual T? FindSource<T>(T? target)
                 where T : class
                 => target == null
                     ? null
@@ -2652,7 +2651,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual T? FindTarget<T>([CanBeNull] T? source)
+            public virtual T? FindTarget<T>(T? source)
                 where T : class
                 => source == null
                     ? null
@@ -2666,7 +2665,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual CreateTableOperation? FindCreate([NotNull] ITable target)
+            public virtual CreateTableOperation? FindCreate(ITable target)
                 => _createTableOperations.TryGetValue(target, out var operation)
                     ? operation
                     : null;
@@ -2677,7 +2676,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual DropTableOperation? FindDrop([NotNull] ITable source)
+            public virtual DropTableOperation? FindDrop(ITable source)
                 => _dropTableOperations.TryGetValue(source, out var operation)
                     ? operation
                     : null;
@@ -2688,7 +2687,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual DropColumnOperation? FindDrop([NotNull] IColumn source)
+            public virtual DropColumnOperation? FindDrop(IColumn source)
                 => _dropColumnOperations.TryGetValue(source, out var operation)
                     ? operation
                     : null;
@@ -2699,7 +2698,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual ITable? FindTable([NotNull] DropTableOperation operation)
+            public virtual ITable? FindTable(DropTableOperation operation)
                 => _removedTables.TryGetValue(operation, out var source)
                     ? source
                     : null;

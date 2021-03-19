@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Interceptors(
-            [NotNull] IServiceProvider serviceProvider,
-            [NotNull] IEnumerable<IInterceptor> injectedInterceptors,
-            [NotNull] IEnumerable<IInterceptorAggregator> interceptorAggregators)
+            IServiceProvider serviceProvider,
+            IEnumerable<IInterceptor> injectedInterceptors,
+            IEnumerable<IInterceptorAggregator> interceptorAggregators)
         {
             _serviceProvider = serviceProvider;
             _injectedInterceptors = injectedInterceptors;

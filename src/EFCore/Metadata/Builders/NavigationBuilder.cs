@@ -3,7 +3,6 @@
 
 using System;
 using System.ComponentModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public NavigationBuilder([NotNull] IMutableNavigationBase navigationOrSkipNavigation)
+        public NavigationBuilder(IMutableNavigationBase navigationOrSkipNavigation)
         {
             Check.NotNull(navigationOrSkipNavigation, nameof(navigationOrSkipNavigation));
 
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual NavigationBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public virtual NavigationBuilder HasAnnotation(string annotation, object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldName"> The name of the field to use for this navigation property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual NavigationBuilder HasField([CanBeNull] string? fieldName)
+        public virtual NavigationBuilder HasField(string? fieldName)
         {
             if (InternalNavigationBuilder != null)
             {

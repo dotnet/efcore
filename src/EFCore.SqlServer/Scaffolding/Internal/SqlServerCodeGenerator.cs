@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         ///     Initializes a new instance of the <see cref="SqlServerCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public SqlServerCodeGenerator([NotNull] ProviderCodeGeneratorDependencies dependencies)
+        public SqlServerCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }

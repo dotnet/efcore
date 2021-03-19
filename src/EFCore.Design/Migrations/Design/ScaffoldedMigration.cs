@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
@@ -24,15 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="snapshotName"> The model snapshot's name. </param>
         /// <param name="snapshotSubNamespace"> The model snapshot's sub-namespace. </param>
         public ScaffoldedMigration(
-            [NotNull] string fileExtension,
-            [CanBeNull] string? previousMigrationId,
-            [NotNull] string migrationCode,
-            [NotNull] string migrationId,
-            [NotNull] string metadataCode,
-            [NotNull] string migrationSubNamespace,
-            [NotNull] string snapshotCode,
-            [NotNull] string snapshotName,
-            [NotNull] string snapshotSubNamespace)
+            string fileExtension,
+            string? previousMigrationId,
+            string migrationCode,
+            string migrationId,
+            string metadataCode,
+            string migrationSubNamespace,
+            string snapshotCode,
+            string snapshotName,
+            string snapshotSubNamespace)
         {
             Check.NotEmpty(fileExtension, nameof(fileExtension));
             Check.NotEmpty(migrationCode, nameof(migrationCode));

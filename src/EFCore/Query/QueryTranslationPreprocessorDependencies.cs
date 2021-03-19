@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public QueryTranslationPreprocessorDependencies(
-            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
+            IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {
             Check.NotNull(evaluatableExpressionFilter, nameof(evaluatableExpressionFilter));
 
@@ -63,6 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Evaluatable expression filter.
         /// </summary>
-        public IEvaluatableExpressionFilter EvaluatableExpressionFilter { get; [param: NotNull] init; }
+        public IEvaluatableExpressionFilter EvaluatableExpressionFilter { get; init; }
     }
 }

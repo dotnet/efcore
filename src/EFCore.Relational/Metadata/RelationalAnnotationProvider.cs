@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Initializes a new instance of this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public RelationalAnnotationProvider([NotNull] RelationalAnnotationProviderDependencies dependencies)
+        public RelationalAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
         }

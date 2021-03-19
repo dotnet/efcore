@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalModelBuilder([NotNull] Model metadata)
+        public InternalModelBuilder(Model metadata)
             : base(metadata, null!)
         {
         }
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityTypeBuilder? Entity(
-            [NotNull] string name,
+            string name,
             ConfigurationSource configurationSource,
             bool? shouldBeOwned = false)
             => Entity(new TypeIdentity(name), configurationSource, shouldBeOwned);
@@ -59,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityTypeBuilder? SharedTypeEntity(
-            [NotNull] string name,
-            [CanBeNull] Type? type,
+            string name,
+            Type? type,
             ConfigurationSource configurationSource,
             bool? shouldBeOwned = false)
             => Entity(new TypeIdentity(name, type ?? Model.DefaultPropertyBagType), configurationSource, shouldBeOwned);
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityTypeBuilder? Entity(
-            [NotNull] Type type,
+            Type type,
             ConfigurationSource configurationSource,
             bool? shouldBeOwned = false)
             => Entity(new TypeIdentity(type, Metadata), configurationSource, shouldBeOwned);
@@ -211,9 +210,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityTypeBuilder? Entity(
-            [NotNull] string name,
-            [NotNull] string definingNavigationName,
-            [NotNull] EntityType definingEntityType,
+            string name,
+            string definingNavigationName,
+            EntityType definingEntityType,
             ConfigurationSource configurationSource)
             => Entity(new TypeIdentity(name), definingNavigationName, definingEntityType, configurationSource);
 
@@ -224,9 +223,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityTypeBuilder? Entity(
-            [NotNull] Type type,
-            [NotNull] string definingNavigationName,
-            [NotNull] EntityType definingEntityType,
+            Type type,
+            string definingNavigationName,
+            EntityType definingEntityType,
             ConfigurationSource configurationSource)
             => Entity(new TypeIdentity(type, Metadata), definingNavigationName, definingEntityType, configurationSource);
 
@@ -245,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalModelBuilder? RemoveImplicitJoinEntity([NotNull] EntityType joinEntityType)
+        public virtual InternalModelBuilder? RemoveImplicitJoinEntity(EntityType joinEntityType)
         {
             Check.NotNull(joinEntityType, nameof(joinEntityType));
 
@@ -269,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionOwnedEntityTypeBuilder? Owned(
-            [NotNull] Type type,
+            Type type,
             ConfigurationSource configurationSource)
         {
             if (IsIgnored(type, configurationSource))
@@ -351,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsIgnored([NotNull] Type type, ConfigurationSource configurationSource)
+        public virtual bool IsIgnored(Type type, ConfigurationSource configurationSource)
             => IsIgnored(new TypeIdentity(type, Metadata), configurationSource);
 
         /// <summary>
@@ -360,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsIgnored([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual bool IsIgnored(string name, ConfigurationSource configurationSource)
             => IsIgnored(new TypeIdentity(name), configurationSource);
 
         private bool IsIgnored(in TypeIdentity type, ConfigurationSource configurationSource)
@@ -381,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalModelBuilder? Ignore([NotNull] Type type, ConfigurationSource configurationSource)
+        public virtual InternalModelBuilder? Ignore(Type type, ConfigurationSource configurationSource)
             => Ignore(new TypeIdentity(type, Metadata), configurationSource);
 
         /// <summary>
@@ -390,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalModelBuilder? Ignore([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual InternalModelBuilder? Ignore(string name, ConfigurationSource configurationSource)
             => Ignore(new TypeIdentity(name), configurationSource);
 
         private InternalModelBuilder? Ignore(in TypeIdentity type, ConfigurationSource configurationSource)
@@ -445,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanIgnore([NotNull] Type type, ConfigurationSource configurationSource)
+        public virtual bool CanIgnore(Type type, ConfigurationSource configurationSource)
             => CanIgnore(new TypeIdentity(type, Metadata), configurationSource);
 
         /// <summary>
@@ -454,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanIgnore([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual bool CanIgnore(string name, ConfigurationSource configurationSource)
             => CanIgnore(new TypeIdentity(name), configurationSource);
 
         private bool CanIgnore(in TypeIdentity type, ConfigurationSource configurationSource)
@@ -491,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalModelBuilder? HasNoEntityType([NotNull] EntityType entityType, ConfigurationSource configurationSource)
+        public virtual InternalModelBuilder? HasNoEntityType(EntityType entityType, ConfigurationSource configurationSource)
         {
             var entityTypeConfigurationSource = entityType.GetConfigurationSource();
             if (!configurationSource.Overrides(entityTypeConfigurationSource))

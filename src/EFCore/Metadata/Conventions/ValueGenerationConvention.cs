@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="ValueGenerationConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public ValueGenerationConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ValueGenerationConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -182,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
-        protected virtual ValueGenerated? GetValueGenerated([NotNull] IConventionProperty property)
+        protected virtual ValueGenerated? GetValueGenerated(IConventionProperty property)
             => GetValueGenerated((IReadOnlyProperty)property);
 
         /// <summary>
@@ -190,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
-        public static ValueGenerated? GetValueGenerated([NotNull] IReadOnlyProperty property)
+        public static ValueGenerated? GetValueGenerated(IReadOnlyProperty property)
             => !property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking())
                 && ShouldHaveGeneratedProperty(property.FindContainingPrimaryKey())
                 && CanBeGenerated(property)

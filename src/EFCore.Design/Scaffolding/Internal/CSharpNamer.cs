@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -36,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpNamer(
-            [NotNull] Func<T, string> nameGetter,
-            [NotNull] ICSharpUtilities cSharpUtilities,
-            [CanBeNull] Func<string, string>? singularizePluralizer)
+            Func<T, string> nameGetter,
+            ICSharpUtilities cSharpUtilities,
+            Func<string, string>? singularizePluralizer)
         {
             Check.NotNull(nameGetter, nameof(nameGetter));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
@@ -54,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string GetName([NotNull] T item)
+        public virtual string GetName(T item)
         {
             Check.NotNull(item, nameof(item));
 

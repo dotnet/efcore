@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new instance of the <see cref="SqlFragmentExpression" /> class.
         /// </summary>
         /// <param name="sql"> A string token to print in SQL tree. </param>
-        public SqlFragmentExpression([NotNull] string sql)
+        public SqlFragmentExpression(string sql)
             : base(typeof(string), null)
         {
             Check.NotEmpty(sql, nameof(sql));

@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -17,7 +18,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryExpressionTranslatingExpressionVisitor(
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            QueryCompilationContext queryCompilationContext,
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
         {
             _queryCompilationContext = queryCompilationContext;
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void AddTranslationErrorDetails([NotNull] string details)
+        protected virtual void AddTranslationErrorDetails(string details)
         {
             Check.NotNull(details, nameof(details));
 
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression? Translate([NotNull] Expression expression)
+        public virtual Expression? Translate(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -1301,7 +1301,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return null;
         }
 
-        private bool TryRewriteContainsEntity(Expression? source, Expression item, [CA.NotNullWhen(true)] out Expression? result)
+        private bool TryRewriteContainsEntity(Expression? source, Expression item, [NotNullWhen(true)] out Expression? result)
         {
             result = null;
 
@@ -1375,7 +1375,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         private bool TryRewriteEntityEquality(
-            ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, [CA.NotNullWhen(true)] out Expression? result)
+            ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, [NotNullWhen(true)] out Expression? result)
         {
             var leftEntityReference = left as EntityReferenceExpression;
             var rightEntityReference = right as EntityReferenceExpression;
@@ -1511,16 +1511,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-#nullable disable
-        // Need unconstrainted nullable T
-        private static T ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
+        private static T? ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
         {
             var baseParameter = context.ParameterValues[baseParameterName];
-            return baseParameter == null ? (T)(object)null : (T)property.GetGetter().GetClrValue(baseParameter);
+            return baseParameter == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseParameter);
         }
 
-        // Need unconstrainted nullable TProperty
-        private static List<TProperty> ParameterListValueExtractor<TEntity, TProperty>(
+        private static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
             QueryContext context,
             string baseParameterName,
             IProperty property)
@@ -1531,9 +1528,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             var getter = property.GetGetter();
-            return baseListParameter.Select(e => e != null ? (TProperty)getter.GetClrValue(e) : (TProperty)(object)null).ToList();
+            return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
         }
-#nullable enable
 
         private static ConstantExpression GetValue(Expression expression)
             => Expression.Constant(
@@ -1696,7 +1692,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return _found;
             }
 
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 if (_found)

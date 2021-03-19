@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -62,14 +61,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         [EntityFrameworkInternal]
         public CommandBatchPreparerDependencies(
-            [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] IKeyValueIndexFactorySource keyValueIndexFactorySource,
-            [NotNull] IColumnModificationFactory columnModificationFactory,
-            [NotNull] ILoggingOptions loggingOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
-            [NotNull] IDbContextOptions options)
+            IModificationCommandBatchFactory modificationCommandBatchFactory,
+            IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            IComparer<ModificationCommand> modificationCommandComparer,
+            IKeyValueIndexFactorySource keyValueIndexFactorySource,
+            IColumnModificationFactory columnModificationFactory,
+            ILoggingOptions loggingOptions,
+            IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
+            IDbContextOptions options)
         {
             ModificationCommandBatchFactory = modificationCommandBatchFactory;
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
@@ -87,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IModificationCommandBatchFactory ModificationCommandBatchFactory { get; [param: NotNull] init; }
+        public IModificationCommandBatchFactory ModificationCommandBatchFactory { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -95,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; [param: NotNull] init; }
+        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -103,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IComparer<ModificationCommand> ModificationCommandComparer { get; [param: NotNull] init; }
+        public IComparer<ModificationCommand> ModificationCommandComparer { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -111,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IKeyValueIndexFactorySource KeyValueIndexFactorySource { get; [param: NotNull] init; }
+        public IKeyValueIndexFactorySource KeyValueIndexFactorySource { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -119,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IColumnModificationFactory ColumnModificationFactory { get; [param: NotNull] init; }
+        public IColumnModificationFactory ColumnModificationFactory { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -127,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ILoggingOptions LoggingOptions { get; [param: NotNull] init; }
+        public ILoggingOptions LoggingOptions { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,6 +142,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IDbContextOptions Options { get; [param: NotNull] init; }
+        public IDbContextOptions Options { get; init; }
     }
 }

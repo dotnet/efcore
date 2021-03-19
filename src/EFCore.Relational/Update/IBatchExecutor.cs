@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="connection"> The database connection to use. </param>
         /// <returns> The total number of rows affected. </returns>
         int Execute(
-            [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
-            [NotNull] IRelationalConnection connection);
+            IEnumerable<ModificationCommandBatch> commandBatches,
+            IRelationalConnection connection);
 
         /// <summary>
         ///     Executes the commands in the batches against the given database connection.
@@ -49,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<int> ExecuteAsync(
-            [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
-            [NotNull] IRelationalConnection connection,
+            IEnumerable<ModificationCommandBatch> commandBatches,
+            IRelationalConnection connection,
             CancellationToken cancellationToken = default);
     }
 }

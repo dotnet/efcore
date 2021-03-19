@@ -129,7 +129,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [AllowNull]
             public string NonNullablePropertyAllowNull { get; } = "";
 
-            [NotNull]
             public string? NullablePropertyNotNull { get; } = "";
 
             [DisallowNull]
@@ -141,7 +140,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [AllowNull]
             public string NonNullableFieldAllowNull = "";
 
-            [NotNull]
             public string? NullableFieldNotNull = "";
 
             [DisallowNull]

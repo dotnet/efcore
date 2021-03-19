@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
@@ -21,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="connectionType"> The connection type. </param>
         public UnexpectedConnectionTypeEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] Type connectionType)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            Type connectionType)
             : base(eventDefinition, messageGenerator)
         {
             ConnectionType = connectionType;

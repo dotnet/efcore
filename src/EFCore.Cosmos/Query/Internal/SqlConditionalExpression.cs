@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -24,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlConditionalExpression(
-            [NotNull] SqlExpression test,
-            [NotNull] SqlExpression ifTrue,
-            [NotNull] SqlExpression ifFalse)
+            SqlExpression test,
+            SqlExpression ifTrue,
+            SqlExpression ifFalse)
             : base(ifTrue.Type, ifTrue.TypeMapping ?? ifFalse.TypeMapping)
         {
             Test = test;
@@ -82,9 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlConditionalExpression Update(
-            [NotNull] SqlExpression test,
-            [NotNull] SqlExpression ifTrue,
-            [NotNull] SqlExpression ifFalse)
+            SqlExpression test,
+            SqlExpression ifTrue,
+            SqlExpression ifFalse)
             => test != Test || ifTrue != IfTrue || ifFalse != IfFalse
                 ? new SqlConditionalExpression(test, ifTrue, ifFalse)
                 : this;

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty([CanBeNull] object? argumentName)
+        public static string ArgumentIsEmpty(object? argumentName)
             => string.Format(
                 GetString("ArgumentIsEmpty", nameof(argumentName)),
                 argumentName);
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The number argument '{argumentName}' cannot be negative number.
         /// </summary>
-        public static string ArgumentIsNegativeNumber([CanBeNull] object? argumentName)
+        public static string ArgumentIsNegativeNumber(object? argumentName)
             => string.Format(
                 GetString("ArgumentIsNegativeNumber", nameof(argumentName)),
                 argumentName);
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The collection argument '{argumentName}' must not contain any empty elements.
         /// </summary>
-        public static string CollectionArgumentHasEmptyElements([CanBeNull] object? argumentName)
+        public static string CollectionArgumentHasEmptyElements(object? argumentName)
             => string.Format(
                 GetString("CollectionArgumentHasEmptyElements", nameof(argumentName)),
                 argumentName);
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty([CanBeNull] object? argumentName)
+        public static string CollectionArgumentIsEmpty(object? argumentName)
             => string.Format(
                 GetString("CollectionArgumentIsEmpty", nameof(argumentName)),
                 argumentName);

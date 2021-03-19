@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="queryExpression"> The query expression to get results from server. </param>
         /// <param name="shaperExpression"> The shaper expression to create result objects from server results. </param>
-        public ShapedQueryExpression([NotNull] Expression queryExpression, [NotNull] Expression shaperExpression)
+        public ShapedQueryExpression(Expression queryExpression, Expression shaperExpression)
             : this(
                 Check.NotNull(queryExpression, nameof(queryExpression)),
                 Check.NotNull(shaperExpression, nameof(shaperExpression)),
@@ -35,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private ShapedQueryExpression(
-            [NotNull] Expression queryExpression,
-            [NotNull] Expression shaperExpression,
+            Expression queryExpression,
+            Expression shaperExpression,
             ResultCardinality resultCardinality)
         {
             QueryExpression = queryExpression;
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryExpression"> The <see cref="QueryExpression" /> property of the result. </param>
         /// <param name="shaperExpression"> The <see cref="ShaperExpression" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual ShapedQueryExpression Update([NotNull] Expression queryExpression, [NotNull] Expression shaperExpression)
+        public virtual ShapedQueryExpression Update(Expression queryExpression, Expression shaperExpression)
         {
             Check.NotNull(queryExpression, nameof(queryExpression));
             Check.NotNull(shaperExpression, nameof(shaperExpression));
@@ -97,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="shaperExpression"> The <see cref="ShaperExpression" /> property of the result. </param>
         /// <returns> This expression if shaper expression did not change, or an expression with the updated shaper expression. </returns>
-        public virtual ShapedQueryExpression UpdateShaperExpression([NotNull] Expression shaperExpression)
+        public virtual ShapedQueryExpression UpdateShaperExpression(Expression shaperExpression)
         {
             Check.NotNull(shaperExpression, nameof(shaperExpression));
 

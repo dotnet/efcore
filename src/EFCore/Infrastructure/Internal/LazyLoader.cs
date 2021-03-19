@@ -2,15 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
@@ -40,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public LazyLoader(
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+            ICurrentDbContext currentContext,
+            IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
         {
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(logger, nameof(logger));
@@ -122,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
                 : Task.CompletedTask;
         }
 
-        private bool ShouldLoad(object entity, string navigationName, [CA.NotNullWhen(true)] out NavigationEntry? navigationEntry)
+        private bool ShouldLoad(object entity, string navigationName, [NotNullWhen(true)] out NavigationEntry? navigationEntry)
         {
             if (_loadedStates != null
                 && _loadedStates.TryGetValue(navigationName, out var loaded)

@@ -6,17 +6,16 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using IsolationLevel = System.Data.IsolationLevel;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -52,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="RelationalConnection" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected RelationalConnection([NotNull] RelationalConnectionDependencies dependencies)
+        protected RelationalConnection(RelationalConnectionDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -151,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note that a connection set must be disposed by application code since it was not created by Entity Framework.
         ///     </para>
         /// </summary>
-        [CA.AllowNull]
+        [AllowNull]
         public virtual DbConnection DbConnection
         {
             get
@@ -190,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the current transaction.
         /// </summary>
-        public virtual IDbContextTransaction? CurrentTransaction { get; [param: CanBeNull] protected set; }
+        public virtual IDbContextTransaction? CurrentTransaction { get; protected set; }
 
         /// <summary>
         ///     The currently enlisted transaction.
@@ -216,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 return _enlistedTransaction;
             }
-            [param: CanBeNull] protected set => _enlistedTransaction = value;
+            protected set => _enlistedTransaction = value;
         }
 
         /// <summary>
@@ -246,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     by providers to make a different call instead.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
-        protected virtual void ConnectionEnlistTransaction([CanBeNull] Transaction? transaction)
+        protected virtual void ConnectionEnlistTransaction(Transaction? transaction)
              => DbConnection.EnlistTransaction(transaction);
 
         /// <summary>
@@ -462,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     An instance of <see cref="IDbContextTransaction" /> that wraps the provided transaction, or <see langword="null" />
         ///     if <paramref name="transaction" /> is <see langword="null" />.
         /// </returns>
-        [return: CA.NotNullIfNotNull("transaction")]
+        [return: NotNullIfNotNull("transaction")]
         public virtual IDbContextTransaction? UseTransaction(DbTransaction? transaction, Guid transactionId)
         {
             if (ShouldUseTransaction(transaction))
@@ -524,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return CurrentTransaction;
         }
 
-        private bool ShouldUseTransaction([CA.NotNullWhen(true)] DbTransaction? transaction)
+        private bool ShouldUseTransaction([NotNullWhen(true)] DbTransaction? transaction)
         {
             if (transaction == null)
             {

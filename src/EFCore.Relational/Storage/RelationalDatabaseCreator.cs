@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected RelationalDatabaseCreator([NotNull] RelationalDatabaseCreatorDependencies dependencies)
+        protected RelationalDatabaseCreator(RelationalDatabaseCreatorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

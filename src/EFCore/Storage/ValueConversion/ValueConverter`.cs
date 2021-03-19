@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -27,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public ValueConverter(
-            [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
-            [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            Expression<Func<TModel, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TModel>> convertFromProviderExpression,
+            ConverterMappingHints? mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }

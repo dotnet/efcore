@@ -5,14 +5,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using CA = System.Diagnostics.CodeAnalysis;
 
 #pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -43,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="relationalDependencies"> Parameter object containing relational-specific dependencies for this service. </param>
         protected RelationalTypeMappingSource(
-            [NotNull] TypeMappingSourceDependencies dependencies,
-            [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies)
+            TypeMappingSourceDependencies dependencies,
+            RelationalTypeMappingSourceDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -94,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private RelationalTypeMapping? FindMappingWithConversion(
             in RelationalTypeMappingInfo mappingInfo,
-            [CanBeNull] IReadOnlyList<IProperty>? principals)
+            IReadOnlyList<IProperty>? principals)
         {
             Type? providerClrType = null;
             ValueConverter? customConverter = null;
@@ -392,9 +391,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> The precision parsed from the type name, or <see langword="null" /> if none was specified. </param>
         /// <param name="scale"> The scale parsed from the type name, or <see langword="null" /> if none was specified. </param>
         /// <returns> The provider-specific relational type name, with any facets removed. </returns>
-        [return: CA.NotNullIfNotNull("storeTypeName")]
+        [return: NotNullIfNotNull("storeTypeName")]
         protected virtual string? ParseStoreTypeName(
-            [CanBeNull] string? storeTypeName,
+            string? storeTypeName,
             out bool? unicode,
             out int? size,
             out int? precision,

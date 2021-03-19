@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="source"> The query source. </param>
         /// <returns> The query string for debugging. </returns>
-        public static DbCommand CreateDbCommand([NotNull] this IQueryable source)
+        public static DbCommand CreateDbCommand(this IQueryable source)
         {
             Check.NotNull(source, nameof(source));
 
@@ -90,9 +90,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An <see cref="IQueryable{T}" /> representing the raw SQL query. </returns>
         [StringFormatMethod("sql")]
         public static IQueryable<TEntity> FromSqlRaw<TEntity>(
-            [NotNull] this DbSet<TEntity> source,
-            [NotNull] [NotParameterized] string sql,
-            [NotNull] params object[] parameters)
+            this DbSet<TEntity> source,
+            [NotParameterized] string sql,
+            params object[] parameters)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -130,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the interpolated string SQL query. </returns>
         public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
-            [NotNull] this DbSet<TEntity> source,
-            [NotNull] [NotParameterized] FormattableString sql)
+            this DbSet<TEntity> source,
+            [NotParameterized] FormattableString sql)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="source"> The source query. </param>
         /// <returns> A new query where collections will be loaded through single database query. </returns>
         public static IQueryable<TEntity> AsSingleQuery<TEntity>(
-            [NotNull] this IQueryable<TEntity> source)
+            this IQueryable<TEntity> source)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="source"> The source query. </param>
         /// <returns> A new query where collections will be loaded through separate database queries. </returns>
         public static IQueryable<TEntity> AsSplitQuery<TEntity>(
-            [NotNull] this IQueryable<TEntity> source)
+            this IQueryable<TEntity> source)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -56,13 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalConnectionDependencies(
-            [NotNull] IDbContextOptions contextOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> transactionLogger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Connection> connectionLogger,
-            [NotNull] INamedConnectionStringResolver connectionStringResolver,
-            [NotNull] IRelationalTransactionFactory relationalTransactionFactory,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
+            IDbContextOptions contextOptions,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> transactionLogger,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> connectionLogger,
+            INamedConnectionStringResolver connectionStringResolver,
+            IRelationalTransactionFactory relationalTransactionFactory,
+            ICurrentDbContext currentContext,
+            IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
         {
             Check.NotNull(contextOptions, nameof(contextOptions));
             Check.NotNull(transactionLogger, nameof(transactionLogger));
@@ -84,37 +83,37 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The options for the current context instance.
         /// </summary>
-        public IDbContextOptions ContextOptions { get; [param: NotNull] init; }
+        public IDbContextOptions ContextOptions { get; init; }
 
         /// <summary>
         ///     The logger to which transaction messages will be written.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> TransactionLogger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> TransactionLogger { get; init; }
 
         /// <summary>
         ///     The logger to which connection messages will be written.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Connection> ConnectionLogger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Connection> ConnectionLogger { get; init; }
 
         /// <summary>
         ///     A service for resolving a connection string from a name.
         /// </summary>
         [EntityFrameworkInternal]
-        public INamedConnectionStringResolver ConnectionStringResolver { get; [param: NotNull] init; }
+        public INamedConnectionStringResolver ConnectionStringResolver { get; init; }
 
         /// <summary>
         ///     A service for creating <see cref="RelationalTransaction" /> instances.
         /// </summary>
-        public IRelationalTransactionFactory RelationalTransactionFactory { get; [param: NotNull] init; }
+        public IRelationalTransactionFactory RelationalTransactionFactory { get; init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> instance currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
+        public ICurrentDbContext CurrentContext { get; init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> instance currently in use.
         /// </summary>
-        public IRelationalCommandBuilderFactory RelationalCommandBuilderFactory { get; [param: NotNull] init; }
+        public IRelationalCommandBuilderFactory RelationalCommandBuilderFactory { get; init; }
     }
 }

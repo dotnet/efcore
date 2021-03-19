@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -56,10 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalShapedQueryCompilingExpressionVisitorDependencies(
-            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory)
+            IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            ISqlExpressionFactory sqlExpressionFactory,
+            IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
@@ -77,23 +76,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The SQL generator factory.
         /// </summary>
-        public IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; [param: NotNull] init; }
+        public IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; init; }
 
         /// <summary>
         ///     The SQL expression factory.
         /// </summary>
         [Obsolete("Use the service from " + nameof(RelationalParameterBasedSqlProcessorDependencies) + ".")]
-        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 
         /// <summary>
         ///     The parameter name-generator factory.
         /// </summary>
         [Obsolete("Use the service from " + nameof(RelationalParameterBasedSqlProcessorDependencies) + ".")]
-        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; [param: NotNull] init; }
+        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; init; }
 
         /// <summary>
         ///     The SQL processor based on parameter values.
         /// </summary>
-        public IRelationalParameterBasedSqlProcessorFactory RelationalParameterBasedSqlProcessorFactory { get; [param: NotNull] init; }
+        public IRelationalParameterBasedSqlProcessorFactory RelationalParameterBasedSqlProcessorFactory { get; init; }
     }
 }

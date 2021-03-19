@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -34,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceCollectionBuilder(
-            [NotNull] IMutableEntityType principalEntityType,
-            [NotNull] IMutableEntityType dependentEntityType,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType principalEntityType,
+            IMutableEntityType dependentEntityType,
+            IMutableForeignKey foreignKey)
             : base(principalEntityType, dependentEntityType, foreignKey)
         {
         }
@@ -49,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected ReferenceCollectionBuilder(
-            [NotNull] InternalForeignKeyBuilder builder,
-            [NotNull] ReferenceCollectionBuilder oldBuilder,
+            InternalForeignKeyBuilder builder,
+            ReferenceCollectionBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
-            [NotNull] params string[] foreignKeyPropertyNames)
+            params string[] foreignKeyPropertyNames)
             => new(
                 HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
@@ -113,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
-            [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+            Expression<Func<TDependentEntity, object>> foreignKeyExpression)
             => new(
                 HasForeignKeyBuilder(Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList()),
                 this,
@@ -128,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the referenced key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
-            [NotNull] params string[] keyPropertyNames)
+            params string[] keyPropertyNames)
             => new(
                 HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
@@ -152,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
-            [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
+            Expression<Func<TPrincipalEntity, object>> keyExpression)
             => new(
                 HasPrincipalKeyBuilder(Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList()),
                 this,
@@ -166,8 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasAnnotation(
-            [NotNull] string annotation,
-            [NotNull] object value)
+            string annotation,
+            object value)
             => (ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>)base.HasAnnotation(
                 Check.NotEmpty(annotation, nameof(annotation)),
                 Check.NotNull(value, nameof(value)));

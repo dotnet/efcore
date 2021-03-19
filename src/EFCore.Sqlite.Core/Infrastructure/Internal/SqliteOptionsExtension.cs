@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected SqliteOptionsExtension([NotNull] SqliteOptionsExtension copyFrom)
+        protected SqliteOptionsExtension(SqliteOptionsExtension copyFrom)
             : base(copyFrom)
         {
             _loadSpatialite = copyFrom._loadSpatialite;

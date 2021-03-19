@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IDbContextServices Initialize(
-            [NotNull] IServiceProvider scopedProvider,
-            [NotNull] IDbContextOptions contextOptions,
-            [NotNull] DbContext context);
+            IServiceProvider scopedProvider,
+            IDbContextOptions contextOptions,
+            DbContext context);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

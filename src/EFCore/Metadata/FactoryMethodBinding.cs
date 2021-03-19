@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -26,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterBindings"> The parameters to use. </param>
         /// <param name="runtimeType"> The CLR type of the instance created by the factory method. </param>
         public FactoryMethodBinding(
-            [NotNull] MethodInfo factoryMethod,
-            [NotNull] IReadOnlyList<ParameterBinding> parameterBindings,
-            [NotNull] Type runtimeType)
+            MethodInfo factoryMethod,
+            IReadOnlyList<ParameterBinding> parameterBindings,
+            Type runtimeType)
             : base(parameterBindings)
         {
             Check.NotNull(factoryMethod, nameof(factoryMethod));
@@ -46,10 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterBindings"> The parameters to use. </param>
         /// <param name="runtimeType"> The CLR type of the instance created by the factory method. </param>
         public FactoryMethodBinding(
-            [NotNull] object factoryInstance,
-            [NotNull] MethodInfo factoryMethod,
-            [NotNull] IReadOnlyList<ParameterBinding> parameterBindings,
-            [NotNull] Type runtimeType)
+            object factoryInstance,
+            MethodInfo factoryMethod,
+            IReadOnlyList<ParameterBinding> parameterBindings,
+            Type runtimeType)
             : this(factoryMethod, parameterBindings, runtimeType)
         {
             Check.NotNull(factoryInstance, nameof(factoryInstance));

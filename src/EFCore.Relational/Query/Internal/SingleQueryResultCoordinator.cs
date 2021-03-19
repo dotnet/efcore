@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual void SetSingleQueryCollectionContext(
             int collectionId,
-            [NotNull] SingleQueryCollectionContext singleQueryCollectionContext)
+            SingleQueryCollectionContext singleQueryCollectionContext)
         {
             while (Collections.Count <= collectionId)
             {

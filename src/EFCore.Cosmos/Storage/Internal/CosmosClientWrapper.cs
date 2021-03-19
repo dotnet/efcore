@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,7 +12,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
@@ -25,7 +25,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -80,10 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosClientWrapper(
-            [NotNull] ISingletonCosmosClientWrapper singletonWrapper,
-            [NotNull] IDbContextOptions dbContextOptions,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            ISingletonCosmosClientWrapper singletonWrapper,
+            IDbContextOptions dbContextOptions,
+            IExecutionStrategyFactory executionStrategyFactory,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
             var options = dbContextOptions.FindExtension<CosmosOptionsExtension>();
 
@@ -114,8 +113,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CreateDatabaseIfNotExistsOnce(
-            [CanBeNull] DbContext? context,
-            [CanBeNull] object? state)
+            DbContext? context,
+            object? state)
             => CreateDatabaseIfNotExistsOnceAsync(context, state).GetAwaiter().GetResult();
 
         /// <summary>
@@ -136,8 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<bool> CreateDatabaseIfNotExistsOnceAsync(
-            [CanBeNull] DbContext? _,
-            [CanBeNull] object? __,
+            DbContext? _,
+            object? __,
             CancellationToken cancellationToken = default)
         {
             var response = await Client.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken)
@@ -162,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool DeleteDatabaseOnce(
-            [CanBeNull] DbContext? context,
-            [CanBeNull] object? state)
+            DbContext? context,
+            object? state)
             => DeleteDatabaseOnceAsync(context, state).GetAwaiter().GetResult();
 
         /// <summary>
@@ -184,8 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<bool> DeleteDatabaseOnceAsync(
-            [CanBeNull] DbContext? _,
-            [CanBeNull] object? __,
+            DbContext? _,
+            object? __,
             CancellationToken cancellationToken = default)
         {
             using var response = await Client.GetDatabase(_databaseId).DeleteStreamAsync(cancellationToken: cancellationToken)
@@ -388,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool DeleteItemOnce(
-            [NotNull] DbContext context,
+            DbContext context,
             (string ContainerId, string DocumentId, IUpdateEntry Entry) parameters)
             => DeleteItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
@@ -413,13 +412,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<bool> DeleteItemOnceAsync(
-            [CanBeNull] DbContext? _,
+            DbContext? _,
             (string ContainerId, string DocumentId, IUpdateEntry Entry) parameters,
             CancellationToken cancellationToken = default)
         {
             var entry = parameters.Entry;
             var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
-            
+
             var itemRequestOptions = CreateItemRequestOptions(entry);
             var partitionKey = CreatePartitionKey(entry);
 
@@ -647,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryReadJObject(JsonTextReader jsonReader, [CA.NotNullWhen(true)] out JObject? jObject)
+        private static bool TryReadJObject(JsonTextReader jsonReader, [NotNullWhen(true)] out JObject? jObject)
         {
             jObject = null;
 

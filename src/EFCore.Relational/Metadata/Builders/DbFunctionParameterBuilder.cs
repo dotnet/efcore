@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public DbFunctionParameterBuilder([NotNull] IMutableDbFunctionParameter parameter)
+        public DbFunctionParameterBuilder(IMutableDbFunctionParameter parameter)
         {
             Check.NotNull(parameter, nameof(parameter));
 
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="storeType"> The store type of the function parameter in the database. </param>
         /// <returns> The same builder instance so that further configuration calls can be chained. </returns>
-        public virtual DbFunctionParameterBuilder HasStoreType([CanBeNull] string? storeType)
+        public virtual DbFunctionParameterBuilder HasStoreType(string? storeType)
         {
             Builder.HasStoreType(storeType, ConfigurationSource.Explicit);
 

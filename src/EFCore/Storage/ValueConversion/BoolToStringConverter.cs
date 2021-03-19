@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -24,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public BoolToStringConverter(
-            [NotNull] string falseValue,
-            [NotNull] string trueValue,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            string falseValue,
+            string trueValue,
+            ConverterMappingHints? mappingHints = null)
             : base(
                 Check.NotNull(falseValue, nameof(falseValue)),
                 Check.NotNull(trueValue, nameof(trueValue)),

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -22,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="constructor"> The constructor to use. </param>
         /// <param name="parameterBindings"> The parameters to bind. </param>
         public ConstructorBinding(
-            [NotNull] ConstructorInfo constructor,
-            [NotNull] IReadOnlyList<ParameterBinding> parameterBindings)
+            ConstructorInfo constructor,
+            IReadOnlyList<ParameterBinding> parameterBindings)
             : base(parameterBindings)
         {
             Check.NotNull(constructor, nameof(constructor));

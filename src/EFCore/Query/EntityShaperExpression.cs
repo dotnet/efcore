@@ -41,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="valueBufferExpression"> An expression of ValueBuffer to get values for properties of the entity. </param>
         /// <param name="nullable"> A bool value indicating whether this entity instance can be null. </param>
         public EntityShaperExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] Expression valueBufferExpression,
+            IEntityType entityType,
+            Expression valueBufferExpression,
             bool nullable)
             : this(entityType, valueBufferExpression, nullable, null)
         {
@@ -59,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     materialize.
         /// </param>
         protected EntityShaperExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] Expression valueBufferExpression,
+            IEntityType entityType,
+            Expression valueBufferExpression,
             bool nullable,
-            [CanBeNull] LambdaExpression? materializationCondition)
+            LambdaExpression? materializationCondition)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityType"> The entity type for which materialization was requested. </param>
         /// <param name="discriminatorValue"> The expression containing value of discriminator. </param>
         /// <returns> An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type. </returns>
-        protected static Expression CreateUnableToDiscriminateExceptionExpression([NotNull] IEntityType entityType, [NotNull] Expression discriminatorValue)
+        protected static Expression CreateUnableToDiscriminateExceptionExpression(IEntityType entityType, Expression discriminatorValue)
             => Block(
                 Throw(Call(_createUnableToDiscriminateException,
                     Constant(Check.NotNull(entityType, nameof(entityType))),
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityType"> The entity type to create materialization condition for. </param>
         /// <param name="nullable"> Whether this entity instance can be null. </param>
         /// <returns> An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type. </returns>
-        protected virtual LambdaExpression GenerateMaterializationCondition([NotNull] IEntityType entityType, bool nullable)
+        protected virtual LambdaExpression GenerateMaterializationCondition(IEntityType entityType, bool nullable)
         {
             Check.NotNull(entityType, nameof(EntityType));
 
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="entityType"> The new entity type to use. </param>
         /// <returns> This expression if entity type not changed, or an expression with updated entity type. </returns>
-        public virtual EntityShaperExpression WithEntityType([NotNull] IEntityType entityType)
+        public virtual EntityShaperExpression WithEntityType(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="valueBufferExpression"> The <see cref="ValueBufferExpression" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual EntityShaperExpression Update([NotNull] Expression valueBufferExpression)
+        public virtual EntityShaperExpression Update(Expression valueBufferExpression)
         {
             Check.NotNull(valueBufferExpression, nameof(valueBufferExpression));
 

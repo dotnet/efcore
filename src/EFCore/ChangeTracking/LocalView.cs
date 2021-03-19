@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public LocalView([NotNull] DbSet<TEntity> set)
+        public LocalView(DbSet<TEntity> set)
         {
             _context = set.GetService<ICurrentDbContext>().Context;
 
@@ -409,21 +408,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Raises the <see cref="PropertyChanged" /> event.
         /// </summary>
         /// <param name="e"> Details of the property that changed. </param>
-        protected virtual void OnPropertyChanged([NotNull] PropertyChangedEventArgs e)
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
             => PropertyChanged?.Invoke(this, e);
 
         /// <summary>
         ///     Raises the <see cref="PropertyChanging" /> event.
         /// </summary>
         /// <param name="e"> Details of the property that is changing. </param>
-        protected virtual void OnPropertyChanging([NotNull] PropertyChangingEventArgs e)
+        protected virtual void OnPropertyChanging(PropertyChangingEventArgs e)
             => PropertyChanging?.Invoke(this, e);
 
         /// <summary>
         ///     Raises the <see cref="CollectionChanged" /> event.
         /// </summary>
         /// <param name="e"> Details of the change. </param>
-        protected virtual void OnCollectionChanged([NotNull] NotifyCollectionChangedEventArgs e)
+        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
             => CollectionChanged?.Invoke(this, e);
 
         private void OnCountPropertyChanged()

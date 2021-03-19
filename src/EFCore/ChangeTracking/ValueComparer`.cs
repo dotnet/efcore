@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -56,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="equalsExpression"> The comparison expression. </param>
         /// <param name="hashCodeExpression"> The associated hash code generator. </param>
         public ValueComparer(
-            [NotNull] Expression<Func<T?, T?, bool>> equalsExpression,
-            [NotNull] Expression<Func<T, int>> hashCodeExpression)
+            Expression<Func<T?, T?, bool>> equalsExpression,
+            Expression<Func<T, int>> hashCodeExpression)
             : this(equalsExpression, hashCodeExpression, CreateDefaultSnapshotExpression(false))
         {
         }
@@ -78,9 +77,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="hashCodeExpression"> The associated hash code generator. </param>
         /// <param name="snapshotExpression"> The snapshot expression. </param>
         public ValueComparer(
-            [NotNull] Expression<Func<T?, T?, bool>> equalsExpression,
-            [NotNull] Expression<Func<T, int>> hashCodeExpression,
-            [NotNull] Expression<Func<T?, T?>> snapshotExpression)
+            Expression<Func<T?, T?, bool>> equalsExpression,
+            Expression<Func<T, int>> hashCodeExpression,
+            Expression<Func<T?, T?>> snapshotExpression)
             : base(equalsExpression, hashCodeExpression, snapshotExpression)
         {
         }
@@ -306,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="instance"> The instance. </param>
         /// <returns> The snapshot. </returns>
-        public virtual T? Snapshot([CanBeNull] T? instance)
+        public virtual T? Snapshot(T? instance)
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _snapshot, this, static c => c.SnapshotExpression.Compile())(instance);
 

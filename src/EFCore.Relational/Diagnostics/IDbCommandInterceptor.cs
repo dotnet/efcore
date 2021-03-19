@@ -5,7 +5,6 @@ using System;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult<DbCommand> CommandCreating(
-            [NotNull] CommandCorrelatedEventData eventData,
+            CommandCorrelatedEventData eventData,
             InterceptionResult<DbCommand> result);
 
         /// <summary>
@@ -73,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         DbCommand CommandCreated(
-            [NotNull] CommandEndEventData eventData,
-            [NotNull] DbCommand result);
+            CommandEndEventData eventData,
+            DbCommand result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbCommand.ExecuteReader()" />.
@@ -95,8 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult<DbDataReader> ReaderExecuting(
-            [NotNull] DbCommand command,
-            [NotNull] CommandEventData eventData,
+            DbCommand command,
+            CommandEventData eventData,
             InterceptionResult<DbDataReader> result);
 
         /// <summary>
@@ -118,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult<object> ScalarExecuting(
-            [NotNull] DbCommand command,
-            [NotNull] CommandEventData eventData,
+            DbCommand command,
+            CommandEventData eventData,
             InterceptionResult<object> result);
 
         /// <summary>
@@ -141,8 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult<int> NonQueryExecuting(
-            [NotNull] DbCommand command,
-            [NotNull] CommandEventData eventData,
+            DbCommand command,
+            CommandEventData eventData,
             InterceptionResult<int> result);
 
         /// <summary>
@@ -166,8 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
-            [NotNull] DbCommand command,
-            [NotNull] CommandEventData eventData,
+            DbCommand command,
+            CommandEventData eventData,
             InterceptionResult<DbDataReader> result,
             CancellationToken cancellationToken = default);
 
@@ -192,8 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
-            [NotNull] DbCommand command,
-            [NotNull] CommandEventData eventData,
+            DbCommand command,
+            CommandEventData eventData,
             InterceptionResult<object> result,
             CancellationToken cancellationToken = default);
 
@@ -218,8 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
-            [NotNull] DbCommand command,
-            [NotNull] CommandEventData eventData,
+            DbCommand command,
+            CommandEventData eventData,
             InterceptionResult<int> result,
             CancellationToken cancellationToken = default);
 
@@ -244,9 +243,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         DbDataReader ReaderExecuted(
-            [NotNull] DbCommand command,
-            [NotNull] CommandExecutedEventData eventData,
-            [NotNull] DbDataReader result);
+            DbCommand command,
+            CommandExecutedEventData eventData,
+            DbDataReader result);
 
         /// <summary>
         ///     <para>
@@ -269,9 +268,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         object? ScalarExecuted(
-            [NotNull] DbCommand command,
-            [NotNull] CommandExecutedEventData eventData,
-            [CanBeNull] object? result);
+            DbCommand command,
+            CommandExecutedEventData eventData,
+            object? result);
 
         /// <summary>
         ///     <para>
@@ -294,8 +293,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     is to return the <paramref name="result" /> value passed in.
         /// </returns>
         int NonQueryExecuted(
-            [NotNull] DbCommand command,
-            [NotNull] CommandExecutedEventData eventData,
+            DbCommand command,
+            CommandExecutedEventData eventData,
             int result);
 
         /// <summary>
@@ -321,9 +320,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<DbDataReader> ReaderExecutedAsync(
-            [NotNull] DbCommand command,
-            [NotNull] CommandExecutedEventData eventData,
-            [NotNull] DbDataReader result,
+            DbCommand command,
+            CommandExecutedEventData eventData,
+            DbDataReader result,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -349,9 +348,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<object?> ScalarExecutedAsync(
-            [NotNull] DbCommand command,
-            [NotNull] CommandExecutedEventData eventData,
-            [CanBeNull] object? result,
+            DbCommand command,
+            CommandExecutedEventData eventData,
+            object? result,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -377,8 +376,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         ValueTask<int> NonQueryExecutedAsync(
-            [NotNull] DbCommand command,
-            [NotNull] CommandExecutedEventData eventData,
+            DbCommand command,
+            CommandExecutedEventData eventData,
             int result,
             CancellationToken cancellationToken = default);
 
@@ -388,8 +387,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="command"> The command. </param>
         /// <param name="eventData"> Contextual information about the command and execution. </param>
         void CommandFailed(
-            [NotNull] DbCommand command,
-            [NotNull] CommandErrorEventData eventData);
+            DbCommand command,
+            CommandErrorEventData eventData);
 
         /// <summary>
         ///     Called when execution of a command has failed with an exception.
@@ -400,8 +399,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task CommandFailedAsync(
-            [NotNull] DbCommand command,
-            [NotNull] CommandErrorEventData eventData,
+            DbCommand command,
+            CommandErrorEventData eventData,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -423,8 +422,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
         InterceptionResult DataReaderDisposing(
-            [NotNull] DbCommand command,
-            [NotNull] DataReaderDisposingEventData eventData,
+            DbCommand command,
+            DataReaderDisposingEventData eventData,
             InterceptionResult result);
     }
 }

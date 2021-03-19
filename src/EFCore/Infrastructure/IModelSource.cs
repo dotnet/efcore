@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The model to be used. </returns>
         [Obsolete("Use the overload with IModelCreationDependencies")]
         IModel GetModel(
-            [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder);
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder);
 
         /// <summary>
         ///     Gets the model to be used.
@@ -46,9 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The model to be used. </returns>
         [Obsolete("Use the overload with IModelCreationDependencies")]
         IModel GetModel(
-            [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
-            [NotNull] ModelDependencies modelDependencies);
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder,
+            ModelDependencies modelDependencies);
 
         /// <summary>
         ///     Gets the model to be used.
@@ -57,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="modelCreationDependencies"> The dependencies object used during the creation of the model. </param>
         /// <returns> The model to be used. </returns>
         IModel GetModel(
-            [NotNull] DbContext context,
-            [NotNull] ModelCreationDependencies modelCreationDependencies);
+            DbContext context,
+            ModelCreationDependencies modelCreationDependencies);
     }
 }

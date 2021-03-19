@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -38,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="migrationsAnnotations"> Provider-specific Migrations annotations to use. </param>
         public SqliteMigrationsSqlGenerator(
-            [NotNull] MigrationsSqlGeneratorDependencies dependencies,
-            [NotNull] IRelationalAnnotationProvider migrationsAnnotations)
+            MigrationsSqlGeneratorDependencies dependencies,
+            IRelationalAnnotationProvider migrationsAnnotations)
             : base(dependencies)
         {
         }

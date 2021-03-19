@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         ///     Initializes a new instance of the <see cref="SqliteCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public SqliteCodeGenerator([NotNull] ProviderCodeGeneratorDependencies dependencies)
+        public SqliteCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }

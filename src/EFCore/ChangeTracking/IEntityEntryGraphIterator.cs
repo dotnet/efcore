@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -28,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="handleNode"> A delegate to call to handle the node. </param>
         /// <typeparam name="TState"> The type of the state object. </typeparam>
         void TraverseGraph<TState>(
-            [NotNull] EntityEntryGraphNode<TState> node,
-            [NotNull] Func<EntityEntryGraphNode<TState>, bool> handleNode);
+            EntityEntryGraphNode<TState> node,
+            Func<EntityEntryGraphNode<TState>, bool> handleNode);
 
         /// <summary>
         ///     Traverses a graph of entities allowing an action to be taken at each node.
@@ -41,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task TraverseGraphAsync<TState>(
-            [NotNull] EntityEntryGraphNode<TState> node,
-            [NotNull] Func<EntityEntryGraphNode<TState>, CancellationToken, Task<bool>> handleNode,
+            EntityEntryGraphNode<TState> node,
+            Func<EntityEntryGraphNode<TState>, CancellationToken, Task<bool>> handleNode,
             CancellationToken cancellationToken = default);
     }
 }

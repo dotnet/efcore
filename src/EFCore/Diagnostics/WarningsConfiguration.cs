@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Called by a derived class constructor when implementing the <see cref="Clone" /> method.
         /// </summary>
         /// <param name="copyFrom"> The instance that is being cloned. </param>
-        protected WarningsConfiguration([NotNull] WarningsConfiguration copyFrom)
+        protected WarningsConfiguration(WarningsConfiguration copyFrom)
         {
             _defaultBehavior = copyFrom._defaultBehavior;
             _explicitBehaviors = copyFrom._explicitBehaviors;
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="warningBehavior"> The behavior to set. </param>
         /// <returns> A new instance with the behaviors set. </returns>
         public virtual WarningsConfiguration WithExplicit(
-            [NotNull] IEnumerable<EventId> eventIds,
+            IEnumerable<EventId> eventIds,
             WarningBehavior warningBehavior)
         {
             var clone = Clone();
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventsAndLevels"> The event IDs and corresponding log levels to set. </param>
         /// <returns> A new instance with the behaviors set. </returns>
         public virtual WarningsConfiguration WithExplicit(
-            [NotNull] IEnumerable<(EventId Id, LogLevel Level)> eventsAndLevels)
+            IEnumerable<(EventId Id, LogLevel Level)> eventsAndLevels)
         {
             var clone = Clone();
 

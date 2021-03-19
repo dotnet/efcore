@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 
@@ -34,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="operand"> The operand to which to apply the collation. </param>
         /// <param name="collation"> The name of the collation. </param>
         public static TProperty Collate<TProperty>(
-            [NotNull] this DbFunctions _,
-            [NotNull] TProperty operand,
-            [NotNull] [NotParameterized] string collation)
+            this DbFunctions _,
+            TProperty operand,
+            [NotParameterized] string collation)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Collate)));
     }
 }
