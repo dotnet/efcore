@@ -94,22 +94,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 if (duplicateMap != null
                     && duplicateMap.TryGetValue(propertyInfo.PropertyType, out var duplicateServiceProperties))
                 {
-                    duplicateServiceProperties.Add(propertyInfo);
+                    duplicateServiceProperties.Add(name);
 
                     return;
                 }
 
                 var otherServicePropertySameType = entityType.GetServiceProperties()
                     .FirstOrDefault(p => p.ClrType == propertyInfo.PropertyType);
-                if (otherServicePropertySameType != null)
+                if (otherServicePropertySameType != null
+                    && otherServicePropertySameType.Name != name)
                 {
                     if (ConfigurationSource.Convention.Overrides(otherServicePropertySameType.GetConfigurationSource()))
                     {
                         otherServicePropertySameType.DeclaringEntityType.RemoveServiceProperty(otherServicePropertySameType.Name);
                     }
 
-                    AddDuplicateServiceProperty(entityTypeBuilder, propertyInfo);
-                    AddDuplicateServiceProperty(entityTypeBuilder, otherServicePropertySameType.GetIdentifyingMemberInfo()!);
+                    AddDuplicateServiceProperty(entityTypeBuilder, propertyInfo.PropertyType, name);
+                    AddDuplicateServiceProperty(entityTypeBuilder, propertyInfo.PropertyType, otherServicePropertySameType.Name);
 
                     return;
                 }
@@ -141,15 +142,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ?? entityType.GetRuntimeFields().Find(name)!;
             var type = member.GetMemberType();
             if (duplicateMap.TryGetValue(type, out var duplicateServiceProperties)
-                && duplicateServiceProperties.Remove(member))
+                && duplicateServiceProperties.Remove(member.Name))
             {
                 if (duplicateServiceProperties.Count != 1)
                 {
                     return;
                 }
 
-                var otherMember = duplicateServiceProperties.First();
-                var otherName = otherMember.GetSimpleMemberName();
+                var otherName = duplicateServiceProperties.First();
+                var otherMember = (MemberInfo?)entityType.GetRuntimeProperties().Find(otherName)
+                    ?? entityType.GetRuntimeFields().Find(name)!;
                 var factory = Dependencies.ParameterBindingFactories.FindFactory(type, otherName)!;
                 entityType.Builder.ServiceProperty(otherMember)?.HasParameterBinding(
                     (ServiceParameterBinding)factory.Bind(entityType, type, otherName));
@@ -174,17 +176,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                foreach (var duplicateServiceProperties in duplicateMap.Values)
+                foreach (var duplicateServiceProperties in duplicateMap)
                 {
-                    foreach (var duplicateServiceProperty in duplicateServiceProperties)
+                    foreach (var duplicateServicePropertyName in duplicateServiceProperties.Value)
                     {
-                        if (entityType.FindProperty(duplicateServiceProperty.GetSimpleMemberName()) == null
-                            && entityType.FindNavigation(duplicateServiceProperty.GetSimpleMemberName()) == null)
+                        if (entityType.FindProperty(duplicateServicePropertyName) == null
+                            && entityType.FindNavigation(duplicateServicePropertyName) == null)
                         {
                             throw new InvalidOperationException(
                                 CoreStrings.AmbiguousServiceProperty(
-                                    duplicateServiceProperty.Name,
-                                    duplicateServiceProperty.GetMemberType().ShortDisplayName(),
+                                    duplicateServicePropertyName,
+                                    duplicateServiceProperties.Key.ShortDisplayName(),
                                     entityType.DisplayName()));
                         }
                     }
@@ -194,30 +196,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static void AddDuplicateServiceProperty(IConventionEntityTypeBuilder entityTypeBuilder, MemberInfo serviceProperty)
+        private static void AddDuplicateServiceProperty(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            Type propertyType,
+            string propertyName)
         {
             var duplicateMap = GetDuplicateServiceProperties(entityTypeBuilder.Metadata)
-                ?? new Dictionary<Type, HashSet<MemberInfo>>(1);
+                ?? new Dictionary<Type, HashSet<string>>(1);
 
-            var type = serviceProperty.GetMemberType();
-            if (!duplicateMap.TryGetValue(type, out var duplicateServiceProperties))
+            if (!duplicateMap.TryGetValue(propertyType, out var duplicateServiceProperties))
             {
-                duplicateServiceProperties = new HashSet<MemberInfo>();
-                duplicateMap[type] = duplicateServiceProperties;
+                duplicateServiceProperties = new HashSet<string>();
+                duplicateMap[propertyType] = duplicateServiceProperties;
             }
 
-            duplicateServiceProperties.Add(serviceProperty);
+            duplicateServiceProperties.Add(propertyName);
 
             SetDuplicateServiceProperties(entityTypeBuilder, duplicateMap);
         }
 
-        private static Dictionary<Type, HashSet<MemberInfo>>? GetDuplicateServiceProperties(IConventionEntityType entityType)
+        private static Dictionary<Type, HashSet<string>>? GetDuplicateServiceProperties(IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.DuplicateServiceProperties)?.Value
-                as Dictionary<Type, HashSet<MemberInfo>>;
+                as Dictionary<Type, HashSet<string>>;
 
         private static void SetDuplicateServiceProperties(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            Dictionary<Type, HashSet<MemberInfo>>? duplicateServiceProperties)
+            Dictionary<Type, HashSet<string>>? duplicateServiceProperties)
             => entityTypeBuilder.HasAnnotation(CoreAnnotationNames.DuplicateServiceProperties, duplicateServiceProperties);
     }
 }
