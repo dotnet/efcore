@@ -58,6 +58,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
+        ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
+        ///     <paramref name="annotation" /> already exists its value will be updated.
+        /// </summary>
+        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
+        /// <param name="value"> The value to be stored in the annotation. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasAnnotation(
+            string annotation,
+            object? value)
+            => (ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>)base.HasAnnotation(
+                Check.NotEmpty(annotation, nameof(annotation)),
+                Check.NotNull(value, nameof(value)));
+
+        /// <summary>
         ///     <para>
         ///         Configures the property(s) to use as the foreign key for this relationship.
         ///     </para>
@@ -112,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
-            Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+            Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
             => new(
                 HasForeignKeyBuilder(Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList()),
                 this,
@@ -151,25 +165,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
-            Expression<Func<TPrincipalEntity, object>> keyExpression)
+            Expression<Func<TPrincipalEntity, object?>> keyExpression)
             => new(
                 HasPrincipalKeyBuilder(Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList()),
                 this,
                 principalKeySet: true);
-
-        /// <summary>
-        ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in
-        ///     <paramref name="annotation" /> already exists its value will be updated.
-        /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasAnnotation(
-            string annotation,
-            object value)
-            => (ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>)base.HasAnnotation(
-                Check.NotEmpty(annotation, nameof(annotation)),
-                Check.NotNull(value, nameof(value)));
 
         /// <summary>
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can

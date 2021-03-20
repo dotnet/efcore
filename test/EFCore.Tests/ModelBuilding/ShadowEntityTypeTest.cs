@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ShadowEntityTypeTest
@@ -53,15 +55,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 });
 
             var model = modelBuilder.Model;
-            var ownership1 = model.FindEntityType("Customer").FindNavigation("Details").ForeignKey;
-            var ownership2 = model.FindEntityType("Customer").FindNavigation("AdditionalDetails").ForeignKey;
+            var ownership1 = model.FindEntityType("Customer")!.FindNavigation("Details")!.ForeignKey;
+            var ownership2 = model.FindEntityType("Customer")!.FindNavigation("AdditionalDetails")!.ForeignKey;
             Assert.True(ownership1.IsRequired);
             Assert.True(ownership2.IsRequired);
             Assert.NotEqual(ownership1.DeclaringEntityType, ownership2.DeclaringEntityType);
             Assert.Equal(ownership1.Properties.Single().Name, ownership2.Properties.Single().Name);
             Assert.Equal(
-                ownership1.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name,
-                ownership2.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
+                ownership1.DeclaringEntityType.FindPrimaryKey()!.Properties.Single().Name,
+                ownership2.DeclaringEntityType.FindPrimaryKey()!.Properties.Single().Name);
             Assert.Equal(2, model.GetEntityTypes().Count(e => e.ShortName() == "CustomerDetails"));
         }
 
@@ -134,16 +136,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public int? CustomerId { get; set; }
             public Guid AnotherCustomerId { get; set; }
-            public Customer Customer { get; set; }
+            public Customer? Customer { get; set; }
         }
 
         protected class Customer
         {
             public int Id { get; set; }
             public Guid AlternateKey { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public IEnumerable<Order> Orders { get; set; }
+            public IEnumerable<Order>? Orders { get; set; }
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasAnnotation(
             string annotation,
-            object value)
+            object? value)
             => (OwnershipBuilder<TEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual OwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
-            Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+            Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
         {
             Builder = Builder.HasForeignKey(
                 Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList(),
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual OwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
-            Expression<Func<TEntity, object>> keyExpression)
+            Expression<Func<TEntity, object?>> keyExpression)
         {
             Builder = Builder.HasPrincipalKey(
                 Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),

@@ -59,10 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual EntityTypeBuilder HasAnnotation(string annotation, object value)
+        public virtual EntityTypeBuilder HasAnnotation(string annotation, object? value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotNull(value, nameof(value));
 
             Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -814,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     the relationship. The navigation must be a CLR property on the entity type.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual ReferenceNavigationBuilder HasOne(string navigationName)
+        public virtual ReferenceNavigationBuilder HasOne(string? navigationName)
         {
             Check.NotEmpty(navigationName, nameof(navigationName));
 

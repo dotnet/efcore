@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-            Expression<Func<TRelatedEntity, IEnumerable<TEntity>>>? navigationExpression)
+            Expression<Func<TRelatedEntity, IEnumerable<TEntity>?>>? navigationExpression)
         {
             return new(
                 RelatedEntityType,
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
-            Expression<Func<TRelatedEntity, TEntity>>? navigationExpression)
+            Expression<Func<TRelatedEntity, TEntity?>>? navigationExpression)
             => new(
                 DeclaringEntityType,
                 RelatedEntityType,
