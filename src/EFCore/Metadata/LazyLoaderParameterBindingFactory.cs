@@ -134,18 +134,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ? new DependencyInjectionParameterBinding(
                     typeof(ILazyLoader),
                     typeof(ILazyLoader),
-                    entityType.GetServiceProperties().FirstOrDefault(p => IsLazyLoader(p.ClrType)))
+                    entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => IsLazyLoader(p.ClrType)).ToArray())
                 : parameterType == typeof(Action<object, string>)
                     ? new DependencyInjectionMethodParameterBinding(
                         typeof(Action<object, string>),
                         typeof(ILazyLoader),
                         _loadMethod,
-                        entityType.GetServiceProperties().FirstOrDefault(p => IsLazyLoaderMethod(p.ClrType, p.Name)))
+                        entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => IsLazyLoaderMethod(p.ClrType, p.Name)).ToArray())
                     : new DependencyInjectionMethodParameterBinding(
                         typeof(Func<object, CancellationToken, string, Task>),
                         typeof(ILazyLoader),
                         _loadAsyncMethod,
-                        entityType.GetServiceProperties().FirstOrDefault(p => IsLazyLoaderAsyncMethod(p.ClrType, p.Name)));
+                        entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => IsLazyLoaderAsyncMethod(p.ClrType, p.Name))
+                            .ToArray());
 
         private static bool IsLazyLoader(Type type)
             => type == typeof(ILazyLoader);

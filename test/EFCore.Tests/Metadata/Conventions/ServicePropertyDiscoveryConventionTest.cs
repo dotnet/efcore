@@ -4,8 +4,8 @@
 #nullable enable
 
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -36,8 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 foreach (var entityType in entityTypes)
                 {
                     ValidateServiceProperty<DbContext, DbContext>(entityType, "Context");
+                    ValidateServiceProperty<DbContext, DbContext>(entityType, "Context2");
                     ValidateServiceProperty<IEntityType, IEntityType>(entityType, "EntityType");
+                    ValidateServiceProperty<IEntityType, IEntityType>(entityType, "EntityType2");
                     ValidateServiceProperty<ILazyLoader, ILazyLoader>(entityType, "ALazyLoader");
+                    ValidateServiceProperty<ILazyLoader, ILazyLoader>(entityType, "ALazyLoader2");
                     ValidateServiceProperty<Action<object, string>, ILazyLoader>(entityType, "LazyLoader");
 
                     var clrType = entityType.ClrType;
@@ -47,22 +50,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
 
                     var contextProperty = clrType.GetAnyProperty("Context");
+                    var context2Property = clrType.GetAnyProperty("Context2");
                     var entityTypeProperty = clrType.GetAnyProperty("EntityType");
+                    var entityType2Property = clrType.GetAnyProperty("EntityType2");
                     var lazyLoaderProperty = clrType.GetAnyProperty("ALazyLoader");
+                    var lazyLoader2Property = clrType.GetAnyProperty("ALazyLoader2");
                     var lazyLoaderServiceProperty = clrType.GetAnyProperty("LazyLoader");
 
                     var entity = Activator.CreateInstance(entityType.ClrType);
 
                     Assert.Null(contextProperty!.GetValue(entity));
+                    Assert.Null(context2Property!.GetValue(entity));
                     Assert.Null(entityTypeProperty!.GetValue(entity));
+                    Assert.Null(entityType2Property!.GetValue(entity));
                     Assert.Null(lazyLoaderProperty!.GetValue(entity));
+                    Assert.Null(lazyLoader2Property!.GetValue(entity));
                     Assert.Null(lazyLoaderServiceProperty!.GetValue(entity));
 
                     context.Add(entity!);
 
                     Assert.Same(context, contextProperty!.GetValue(entity));
+                    Assert.Same(context, context2Property!.GetValue(entity));
                     Assert.Same(entityType, entityTypeProperty!.GetValue(entity));
+                    Assert.Same(entityType, entityType2Property!.GetValue(entity));
                     Assert.NotNull(lazyLoaderProperty!.GetValue(entity));
+                    Assert.NotNull(lazyLoader2Property!.GetValue(entity));
                     Assert.NotNull(lazyLoaderServiceProperty!.GetValue(entity));
                 }
 
@@ -86,9 +98,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         clrType = clrType.BaseType;
                     }
 
+                    if (clrType == typeof(PublicUnmappedBaseSuper))
+                    {
+                        Assert.True(((PublicUnmappedBase)entry.Entity).ConstructorCalled);
+                    }
+
                     Assert.Same(context, clrType.GetAnyProperty("Context")!.GetValue(entry.Entity));
+                    Assert.Same(context, clrType.GetAnyProperty("Context2")!.GetValue(entry.Entity));
                     Assert.Same(entry.Metadata, clrType.GetAnyProperty("EntityType")!.GetValue(entry.Entity));
+                    Assert.Same(entry.Metadata, clrType.GetAnyProperty("EntityType2")!.GetValue(entry.Entity));
                     Assert.NotNull(clrType.GetAnyProperty("ALazyLoader")!.GetValue(entry.Entity));
+                    Assert.NotNull(clrType.GetAnyProperty("ALazyLoader2")!.GetValue(entry.Entity));
                     Assert.NotNull(clrType.GetAnyProperty("LazyLoader")!.GetValue(entry.Entity));
                 }
             }
@@ -144,49 +164,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void Does_not_find_duplicate_service_properties()
-        {
-            var entityType = RunConvention<BlogDuplicateService>();
-
-            Assert.Empty(entityType.GetServiceProperties());
-
-            Assert.Equal(
-                CoreStrings.AmbiguousServiceProperty(
-                    nameof(BlogDuplicateService.ContextTwo), nameof(DbContext), nameof(BlogDuplicateService)),
-                Assert.Throws<InvalidOperationException>(
-                    () => Validate(entityType)).Message);
-        }
-
-        [ConditionalFact]
         public void Finds_service_property_duplicate_ignored()
         {
             var entityType = RunConvention<BlogDuplicateService>();
 
-            Assert.Empty(entityType.GetServiceProperties());
-
             entityType.Builder.Ignore(nameof(BlogDuplicateService.ContextTwo), ConfigurationSource.Convention);
 
-            RunConvention(entityType, nameof(BlogDuplicateService.ContextTwo));
-
             Assert.NotNull(entityType.FindServiceProperty(nameof(BlogDuplicateService.ContextOne)));
-
-            Validate(entityType);
-        }
-
-        private void Validate(EntityType entityType)
-        {
-            var convention = CreateServicePropertyDiscoveryConvention();
-            convention.ProcessModelFinalizing(
-                entityType.Model.Builder,
-                new ConventionContext<IConventionModelBuilder>(entityType.Model.ConventionDispatcher));
-        }
-
-        private void RunConvention(EntityType entityType, string ignoredMember)
-        {
-            var convention = CreateServicePropertyDiscoveryConvention();
-            convention.ProcessEntityTypeMemberIgnored(
-                entityType.Builder, ignoredMember,
-                new ConventionContext<string>(entityType.Model.ConventionDispatcher));
+            Assert.Null(entityType.FindServiceProperty(nameof(BlogDuplicateService.ContextTwo)));
         }
 
         private EntityType RunConvention<TEntity>()
@@ -269,8 +254,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         // Because private properties on un-mapped base types are not found by convention
                         b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("Context")!);
+                        b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("Context2")!);
                         b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("EntityType")!);
+                        b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("EntityType2")!);
                         b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("ALazyLoader")!);
+                        b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("ALazyLoader2")!);
                         b.Metadata.AddServiceProperty(typeof(PrivateUnmappedBase).GetAnyProperty("LazyLoader")!);
                     });
             }
@@ -280,8 +268,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             public int Id { get; set; }
             private DbContext? Context { get; set; }
+            private DbContext? Context2 { get; set; }
             private IEntityType? EntityType { get; set; }
+            private IEntityType? EntityType2 { get; set; }
             private ILazyLoader? ALazyLoader { get; set; }
+            private ILazyLoader? ALazyLoader2 { get; set; }
             private Action<object, string>? LazyLoader { get; set; }
         }
 
@@ -297,8 +288,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             public int Id { get; set; }
             private DbContext? Context { get; set; }
+            private DbContext? Context2 { get; set; }
             private IEntityType? EntityType { get; set; }
+            private IEntityType? EntityType2 { get; set; }
             private ILazyLoader? ALazyLoader { get; set; }
+            private ILazyLoader? ALazyLoader2 { get; set; }
             private Action<object, string>? LazyLoader { get; set; }
         }
 
@@ -312,27 +306,102 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         protected class PublicUnmappedBase
         {
+            public PublicUnmappedBase()
+            {
+            }
+
+            public PublicUnmappedBase(
+                int id,
+                DbContext? context,
+                DbContext? context2,
+                IEntityType? entityType,
+                IEntityType? entityType2,
+                ILazyLoader? aLazyLoader,
+                ILazyLoader? aLazyLoader2,
+                Action<object, string>? lazyLoader)
+            {
+                Id = id;
+                Context = context;
+                Context2 = context2;
+                EntityType = entityType;
+                EntityType2 = entityType2;
+                ALazyLoader = aLazyLoader;
+                ALazyLoader2 = aLazyLoader2;
+                LazyLoader = lazyLoader;
+
+                Assert.NotNull(context);
+                Assert.NotNull(context2);
+                Assert.NotNull(entityType);
+                Assert.NotNull(entityType2);
+                Assert.NotNull(aLazyLoader);
+                Assert.NotNull(aLazyLoader2);
+                Assert.NotNull(lazyLoader);
+
+                ConstructorCalled = true;
+            }
+
             public int Id { get; set; }
             public DbContext? Context { get; set; }
+            public DbContext? Context2 { get; set; }
             public IEntityType? EntityType { get; set; }
+            public IEntityType? EntityType2 { get; set; }
             public ILazyLoader? ALazyLoader { get; set; }
+            public ILazyLoader? ALazyLoader2 { get; set; }
             public Action<object, string>? LazyLoader { get; set; }
+
+            [NotMapped]
+            public bool ConstructorCalled { get; }
         }
 
         protected class PublicUnmappedBaseSuper : PublicUnmappedBase
         {
+            public PublicUnmappedBaseSuper()
+            {
+            }
+
+            public PublicUnmappedBaseSuper(
+                int id,
+                DbContext? context,
+                DbContext? context2,
+                IEntityType? entityType,
+                IEntityType? entityType2,
+                ILazyLoader? aLazyLoader,
+                ILazyLoader? aLazyLoader2,
+                Action<object, string>? lazyLoader)
+                : base(id, context, context2, entityType, entityType2, aLazyLoader, aLazyLoader2, lazyLoader)
+            {
+            }
         }
 
         protected class PublicUnmappedBaseSub : PublicUnmappedBaseSuper
         {
+            public PublicUnmappedBaseSub()
+            {
+            }
+
+            public PublicUnmappedBaseSub(
+                int id,
+                DbContext? context,
+                DbContext? context2,
+                IEntityType? entityType,
+                IEntityType? entityType2,
+                ILazyLoader? aLazyLoader,
+                ILazyLoader? aLazyLoader2,
+                Action<object, string>? lazyLoader)
+                : base(id, context, context2, entityType, entityType2, aLazyLoader, aLazyLoader2, lazyLoader)
+            {
+            }
         }
 
         protected class PublicMappedBase
         {
             public int Id { get; set; }
             public DbContext? Context { get; set; }
+            public DbContext? Context2 { get; set; }
             public IEntityType? EntityType { get; set; }
+            public IEntityType? EntityType2 { get; set; }
             public ILazyLoader? ALazyLoader { get; set; }
+            public ILazyLoader? ALazyLoader2 { get; set; }
             public Action<object, string>? LazyLoader { get; set; }
         }
 

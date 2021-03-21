@@ -21,13 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="consumedProperties"> The properties that are handled by this binding and so do not need to be set in some other way. </param>
         protected ParameterBinding(
             Type parameterType,
-            params IPropertyBase[] consumedProperties)
+            params IPropertyBase[]? consumedProperties)
         {
             Check.NotNull(parameterType, nameof(parameterType));
-            Check.NotNull(consumedProperties, nameof(consumedProperties));
 
             ParameterType = parameterType;
-            ConsumedProperties = consumedProperties;
+            ConsumedProperties = consumedProperties ?? Array.Empty<IPropertyBase>();
         }
 
         /// <summary>

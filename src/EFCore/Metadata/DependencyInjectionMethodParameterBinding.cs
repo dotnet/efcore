@@ -24,13 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterType"> The parameter CLR type. </param>
         /// <param name="serviceType"> The service CLR types, as resolved from dependency injection </param>
         /// <param name="method"> The method of the service to bind to. </param>
-        /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
+        /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> objects, or <see langword="null" />. </param>
         public DependencyInjectionMethodParameterBinding(
             Type parameterType,
             Type serviceType,
             MethodInfo method,
-            IPropertyBase? serviceProperty = null)
-            : base(parameterType, serviceType, serviceProperty)
+            IPropertyBase[]? serviceProperties = null)
+            : base(parameterType, serviceType, serviceProperties)
         {
             Check.NotNull(method, nameof(method));
 
