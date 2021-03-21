@@ -710,6 +710,32 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
             }
 
+            /* TODO
+            if (expression is MethodCallExpression methodCallExpression)
+            {
+                var innerType = methodCallExpression.Arguments[0].Type.UnwrapNullableType();
+                if (innerType.IsEnum)
+                {
+                    innerType = Enum.GetUnderlyingType(innerType);
+                }
+
+                var convertedType = methodCallExpression.Type.UnwrapNullableType();
+
+                if (innerType == convertedType
+                    || (convertedType == typeof(int)
+                        && (innerType == typeof(byte)
+                            || innerType == typeof(sbyte)
+                            || innerType == typeof(char)
+                            || innerType == typeof(short)
+                            || innerType == typeof(ushort)))
+                    || (convertedType == typeof(double)
+                        && (innerType == typeof(float))))
+                {
+                    return TryRemoveImplicitConvert(methodCallExpression.Arguments[0]);
+                }
+            }
+            */
+
             return expression;
         }
 

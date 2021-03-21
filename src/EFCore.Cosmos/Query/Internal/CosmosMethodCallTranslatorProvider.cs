@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     new EqualsTranslator(sqlExpressionFactory),
                     new StringMethodTranslator(sqlExpressionFactory),
                     new ContainsTranslator(sqlExpressionFactory),
-                    new RandomTranslator(sqlExpressionFactory)
+                    new RandomTranslator(sqlExpressionFactory),
+                    new MathTranslator(sqlExpressionFactory)
                     //new LikeTranslator(sqlExpressionFactory),
                     //new EnumHasFlagTranslator(sqlExpressionFactory),
                     //new GetValueOrDefaultTranslator(sqlExpressionFactory),
