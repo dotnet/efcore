@@ -17,7 +17,6 @@ namespace Microsoft.Data.Sqlite
     public class SqliteTransaction : DbTransaction
     {
         private SqliteConnection? _connection;
-        private readonly IsolationLevel _isolationLevel;
         private bool _completed;
 
         internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel, bool deferred)
@@ -25,23 +24,20 @@ namespace Microsoft.Data.Sqlite
             if ((isolationLevel == IsolationLevel.ReadUncommitted
                     && ((connection.ConnectionOptions!.Cache != SqliteCacheMode.Shared) || !deferred))
                 || isolationLevel == IsolationLevel.ReadCommitted
-                || isolationLevel == IsolationLevel.RepeatableRead)
+                || isolationLevel == IsolationLevel.RepeatableRead
+                || isolationLevel == IsolationLevel.Unspecified)
             {
                 isolationLevel = IsolationLevel.Serializable;
             }
 
             _connection = connection;
-            _isolationLevel = isolationLevel;
+            IsolationLevel = isolationLevel;
 
             if (isolationLevel == IsolationLevel.ReadUncommitted)
             {
                 connection.ExecuteNonQuery("PRAGMA read_uncommitted = 1;");
             }
-            else if (isolationLevel == IsolationLevel.Serializable)
-            {
-                connection.ExecuteNonQuery("PRAGMA read_uncommitted = 0;");
-            }
-            else if (isolationLevel != IsolationLevel.Unspecified)
+            else if (isolationLevel != IsolationLevel.Serializable)
             {
                 throw new ArgumentException(Resources.InvalidIsolationLevel(isolationLevel));
             }
@@ -70,19 +66,10 @@ namespace Microsoft.Data.Sqlite
         internal bool ExternalRollback { get; private set; }
 
         /// <summary>
-        ///     Gets the isolation level for the transaction. This cannot be changed if the transaction is completed or
-        ///     closed.
+        ///     Gets the isolation level for the transaction.
         /// </summary>
         /// <value>The isolation level for the transaction.</value>
-        public override IsolationLevel IsolationLevel
-            => _completed || _connection!.State != ConnectionState.Open
-                ? throw new InvalidOperationException(Resources.TransactionCompleted)
-                : _isolationLevel != IsolationLevel.Unspecified
-                    ? _isolationLevel
-                    : (_connection.ConnectionOptions!.Cache == SqliteCacheMode.Shared
-                        && _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0)
-                        ? IsolationLevel.ReadUncommitted
-                        : IsolationLevel.Serializable;
+        public override IsolationLevel IsolationLevel { get; }
 
         /// <summary>
         ///     Applies the changes made in the transaction.
@@ -224,6 +211,11 @@ namespace Microsoft.Data.Sqlite
 
         private void Complete()
         {
+            if (IsolationLevel == IsolationLevel.ReadUncommitted)
+            {
+                _connection!.ExecuteNonQuery("PRAGMA read_uncommitted = 0;");
+            }
+
             _connection!.Transaction = null;
             _connection = null;
             _completed = true;

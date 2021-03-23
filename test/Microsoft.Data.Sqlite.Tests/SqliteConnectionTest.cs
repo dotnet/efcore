@@ -363,6 +363,8 @@ namespace Microsoft.Data.Sqlite
             }
             finally
             {
+                SqliteConnection.ClearPool(new SqliteConnection("Data Source=encrypted2.db;Password=password"));
+                SqliteConnection.ClearPool(new SqliteConnection("Data Source=encrypted2.db"));
                 File.Delete("encrypted2.db");
             }
         }

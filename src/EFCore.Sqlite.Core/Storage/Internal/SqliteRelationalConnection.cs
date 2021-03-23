@@ -92,8 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public virtual ISqliteRelationalConnection CreateReadOnlyConnection()
         {
-            var connectionStringBuilder =
-                new SqliteConnectionStringBuilder(GetValidatedConnectionString()) { Mode = SqliteOpenMode.ReadOnly };
+            var connectionStringBuilder = new SqliteConnectionStringBuilder(GetValidatedConnectionString())
+            {
+                Mode = SqliteOpenMode.ReadOnly,
+                Pooling = false
+            };
 
             var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
 

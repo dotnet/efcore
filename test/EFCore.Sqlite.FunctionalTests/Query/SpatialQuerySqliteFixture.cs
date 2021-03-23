@@ -47,14 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         null)));
         }
 
-        protected override void Clean(DbContext context)
-        {
-            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers");
-            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_auth");
-            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_statistics");
-            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_field_infos");
-        }
-
         private class ReplacementTypeMappingSource : SqliteTypeMappingSource
         {
             public ReplacementTypeMappingSource(

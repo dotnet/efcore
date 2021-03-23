@@ -926,6 +926,7 @@ namespace Microsoft.Data.Sqlite
             }
             finally
             {
+                SqliteConnection.ClearPool(new SqliteConnection(connectionString));
                 File.Delete("busy.db");
             }
         }

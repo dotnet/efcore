@@ -17,7 +17,7 @@ namespace Microsoft.Data.Sqlite
     public class SqliteBlob : Stream
     {
         private sqlite3_blob? _blob;
-        private readonly sqlite3 _db;
+        private readonly SqliteConnection _connection;
         private long _position;
 
         /// <summary>
@@ -72,17 +72,17 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentNullException(nameof(columnName));
             }
 
-            _db = connection.Handle!;
+            _connection = connection;
             CanWrite = !readOnly;
             var rc = sqlite3_blob_open(
-                _db,
+                _connection.Handle,
                 databaseName,
                 tableName,
                 columnName,
                 rowid,
                 readOnly ? 0 : 1,
                 out _blob);
-            SqliteException.ThrowExceptionForRC(rc, _db);
+            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
             Length = sqlite3_blob_bytes(_blob);
         }
 
@@ -207,7 +207,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             var rc = sqlite3_blob_read(_blob, buffer.Slice(0, count), (int)position);
-            SqliteException.ThrowExceptionForRC(rc, _db);
+            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
             _position += count;
             return count;
         }
@@ -281,7 +281,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             var rc = sqlite3_blob_write(_blob, buffer.Slice(0, count), (int)position);
-            SqliteException.ThrowExceptionForRC(rc, _db);
+            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
             _position += count;
         }
 
