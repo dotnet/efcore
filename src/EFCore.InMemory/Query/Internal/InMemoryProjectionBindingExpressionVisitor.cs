@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private InMemoryQueryExpression _queryExpression;
         private bool _clientEval;
 
-        private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
-            = new Dictionary<ProjectionMember, Expression>();
+        private Dictionary<EntityProjectionExpression, ProjectionBindingExpression>? _entityProjectionCache;
 
+        private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
         private readonly Stack<ProjectionMember> _projectionMembers = new();
 
         /// <summary>
@@ -68,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (result == QueryCompilationContext.NotTranslatedExpression)
             {
                 _clientEval = true;
+                _entityProjectionCache = new();
 
                 expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_queryExpression, expression);
                 result = Visit(expandedExpression);
@@ -255,8 +256,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 if (_clientEval)
                 {
-                    return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(entityProjectionExpression)));
+                    if (!_entityProjectionCache!.TryGetValue(entityProjectionExpression, out var entityProjectionBinding))
+                    {
+                        entityProjectionBinding = new ProjectionBindingExpression(
+                            _queryExpression, _queryExpression.AddToProjection(entityProjectionExpression));
+                        _entityProjectionCache[entityProjectionExpression] = entityProjectionBinding;
+                    }
+
+                    return entityShaperExpression.Update(entityProjectionBinding);
                 }
 
                 _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;

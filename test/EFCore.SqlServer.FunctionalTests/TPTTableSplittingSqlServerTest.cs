@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
                 @"SELECT [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
-END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator], [t3].[Name], [t3].[Type], [t5].[Name], [t5].[Computed], [t5].[Description], [t5].[Discriminator], [t7].[VehicleName], [t7].[Capacity], [t7].[FuelType], [t7].[GrainGeometry], [t7].[Discriminator]
+END AS [Discriminator], [t0].[Name], [t0].[Operator_Name], [t0].[LicenseType], [t0].[Discriminator], [t1].[Name], [t1].[Type], [t4].[Name], [t4].[Computed], [t4].[Description], [t4].[Discriminator], [t6].[VehicleName], [t6].[Capacity], [t6].[FuelType], [t6].[GrainGeometry], [t6].[Discriminator]
 FROM [Vehicles] AS [v]
 LEFT JOIN [PoweredVehicles] AS [p] ON [v].[Name] = [p].[Name]
 LEFT JOIN [CompositeVehicles] AS [c] ON [v].[Name] = [c].[Name]
@@ -49,10 +49,10 @@ LEFT JOIN (
         INNER JOIN (
             SELECT [v4].[Name]
             FROM [Vehicles] AS [v4]
-        ) AS [t1] ON [v3].[Name] = [t1].[Name]
+        ) AS [t3] ON [v3].[Name] = [t3].[Name]
     ) AS [t2] ON [v2].[Name] = [t2].[Name]
     WHERE [v2].[Type] IS NOT NULL
-) AS [t3] ON [t0].[Name] = [t3].[Name]
+) AS [t1] ON [t0].[Name] = [t1].[Name]
 LEFT JOIN (
     SELECT [p2].[Name], [p2].[Computed], [p2].[Description], CASE
         WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidRocket'
@@ -67,9 +67,9 @@ LEFT JOIN (
         SELECT [v5].[Name]
         FROM [Vehicles] AS [v5]
         INNER JOIN [PoweredVehicles] AS [p3] ON [v5].[Name] = [p3].[Name]
-    ) AS [t4] ON [p2].[Name] = [t4].[Name]
+    ) AS [t5] ON [p2].[Name] = [t5].[Name]
     WHERE [p2].[Computed] IS NOT NULL
-) AS [t5] ON [v].[Name] = [t5].[Name]
+) AS [t4] ON [v].[Name] = [t4].[Name]
 LEFT JOIN (
     SELECT [c5].[VehicleName], [c5].[Capacity], [c5].[FuelType], [s0].[GrainGeometry], CASE
         WHEN [s0].[VehicleName] IS NOT NULL THEN N'SolidFuelTank'
@@ -80,9 +80,9 @@ LEFT JOIN (
         SELECT [p4].[Name]
         FROM [PoweredVehicles] AS [p4]
         INNER JOIN [CombustionEngines] AS [c6] ON [p4].[Name] = [c6].[VehicleName]
-    ) AS [t6] ON [c5].[VehicleName] = [t6].[Name]
+    ) AS [t7] ON [c5].[VehicleName] = [t7].[Name]
     WHERE [c5].[FuelType] IS NOT NULL OR [c5].[Capacity] IS NOT NULL
-) AS [t7] ON [t5].[Name] = [t7].[VehicleName]
+) AS [t6] ON [t4].[Name] = [t6].[VehicleName]
 ORDER BY [v].[Name]");
         }
 

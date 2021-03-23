@@ -20,10 +20,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     /// </summary>
     public class EntityProjectionExpression : Expression, IPrintableExpression
     {
-        private readonly IDictionary<IProperty, MethodCallExpression> _readExpressionMap;
-
-        private readonly IDictionary<INavigation, EntityShaperExpression> _navigationExpressionsCache
-            = new Dictionary<INavigation, EntityShaperExpression>();
+        private readonly IReadOnlyDictionary<IProperty, MethodCallExpression> _readExpressionMap;
+        private readonly Dictionary<INavigation, EntityShaperExpression> _navigationExpressionsCache = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         public EntityProjectionExpression(
             IEntityType entityType,
-            IDictionary<IProperty, MethodCallExpression> readExpressionMap)
+            IReadOnlyDictionary<IProperty, MethodCallExpression> readExpressionMap)
         {
             EntityType = entityType;
             _readExpressionMap = readExpressionMap;
