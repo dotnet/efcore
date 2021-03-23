@@ -2873,7 +2873,6 @@ GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
 
             using (var context = contextFactory.CreateContext())
             {
-
                 ClearLog();
                 var query = (from e in context.Set<MyContext11818.Entity11818>()
                              join a in context.Set<MyContext11818.AnotherEntity11818>()

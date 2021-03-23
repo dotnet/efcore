@@ -2294,6 +2294,21 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE [o].[OrderID] < 10300");
         }
 
+        public override void Select_DTO_constructor_distinct_with_collection_projection_translated_to_server()
+        {
+            base.Select_DTO_constructor_distinct_with_collection_projection_translated_to_server();
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT DISTINCT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10300
+) AS [t]
+LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
+ORDER BY [t].[CustomerID], [o0].[OrderID]");
+        }
+
         public override void Select_DTO_with_member_init_distinct_translated_to_server()
         {
             base.Select_DTO_with_member_init_distinct_translated_to_server();
