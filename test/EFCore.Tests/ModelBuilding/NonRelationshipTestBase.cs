@@ -1538,13 +1538,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         c.HasData(customers);
                     });
 
-                modelBuilder.FinalizeModel();
+                var finalModel = modelBuilder.FinalizeModel();
 
                 var customer = model.FindEntityType(typeof(Beta));
                 var data = customer.GetSeedData();
                 Assert.Equal(2, data.Count());
                 Assert.Equal(-1, data.First()[nameof(Beta.Id)]);
                 Assert.Equal(-2, data.Last()[nameof(Beta.Id)]);
+
+                Assert.Equal(
+                    CoreStrings.SlimModelMissingData,
+                    Assert.Throws<InvalidOperationException>(() => finalModel.FindEntityType(typeof(Beta)).GetSeedData()).Message);
+
+                var _ = finalModel.ToDebugString();
             }
 
             [ConditionalFact]

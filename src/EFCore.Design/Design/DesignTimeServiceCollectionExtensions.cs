@@ -58,6 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                     .TryAddSingleton<IMigrationsCodeGeneratorSelector, MigrationsCodeGeneratorSelector>()
                     .TryAddSingleton<IModelCodeGenerator, CSharpModelGenerator>()
                     .TryAddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
+                    .TryAddSingleton<ICompiledModelCodeGenerator, CSharpSlimModelCodeGenerator>()
+                    .TryAddSingleton<ICompiledModelCodeGeneratorSelector, CompiledModelCodeGeneratorSelector>()
                     .TryAddSingleton<INamedConnectionStringResolver>(
                         new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                     .TryAddSingleton<IPluralizer, HumanizerPluralizer>()

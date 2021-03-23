@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
-                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetKeylessEntities(System.Int32)",
+                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetKeylessEntities(int)",
                     typeof(KeylessEntity).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => Finalize(modelBuilder)).Message);
         }
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
-                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetKeylessEntities(System.Int32)",
+                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetKeylessEntities(int)",
                     typeof(KeylessEntity).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => Finalize(modelBuilder)).Message);
         }
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableReturnType(
-                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetScalars(System.Int32)",
+                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetScalars(int)",
                     typeof(IQueryable<int>).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => Finalize(modelBuilder)).Message);
         }

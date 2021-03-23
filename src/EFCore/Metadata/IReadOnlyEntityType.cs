@@ -830,7 +830,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 builder.Append(" Keyless");
             }
 
-            if (GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            if (this is Model
+                && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
             {
                 builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());
             }
@@ -909,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                 if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
                 {
-                    builder.Append(this.AnnotationsToDebugString(indent: indent + 2));
+                    builder.Append(AnnotationsToDebugString(indent: indent + 2));
                 }
             }
 

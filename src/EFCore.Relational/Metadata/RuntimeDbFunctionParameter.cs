@@ -37,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             string storeType,
             RelationalTypeMapping? typeMapping)
         {
-            Function = function;
             _name = name;
+            Function = function;
             _clrType = clrType;
             _propagatesNullability = propagatesNullability;
             _storeType = storeType;

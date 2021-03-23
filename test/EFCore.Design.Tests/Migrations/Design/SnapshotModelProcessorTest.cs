@@ -1397,7 +1397,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private class SequenceContext : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder options)
-                => options.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Ownership");
+                => options.UseSqlServer();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -1445,7 +1445,7 @@ namespace Ownership
     internal class OwnershipContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Ownership");
+            => options.UseSqlServer();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

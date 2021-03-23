@@ -132,14 +132,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (methodInfo.DeclaringType != null)
             {
                 builder
-                    .Append(methodInfo.DeclaringType.FullName)
+                    .Append(methodInfo.DeclaringType.DisplayName())
                     .Append('.');
             }
 
             builder
                 .Append(methodInfo.Name)
                 .Append('(')
-                .AppendJoin(',', parameters.Select(p => p.ParameterType.FullName))
+                .AppendJoin(',', parameters.Select(p => p.ParameterType.DisplayName()))
                 .Append(')');
 
             return builder.ToString();

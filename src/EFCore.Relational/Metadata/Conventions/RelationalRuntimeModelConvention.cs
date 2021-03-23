@@ -162,15 +162,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => new RuntimeDbFunction(
                 function.ModelName,
                 runtimeModel,
-                function.MethodInfo,
                 function.ReturnType,
+                function.Name,
+                function.Schema,
+                function.StoreType,
+                function.MethodInfo,
                 function.IsScalar,
                 function.IsAggregate,
                 function.IsNullable,
                 function.IsBuiltIn,
-                function.Name,
-                function.Schema,
-                function.StoreType,
                 function.TypeMapping,
                 function.Translation);
 
@@ -215,11 +215,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private RuntimeSequence Create(ISequence sequence, RuntimeModel runtimeModel)
             => new RuntimeSequence(
                 sequence.Name,
-                sequence.Schema,
                 runtimeModel,
                 sequence.Type,
                 sequence.StartValue,
                 sequence.IncrementBy,
+                sequence.Schema,
                 sequence.IsCyclic,
                 sequence.MinValue,
                 sequence.MaxValue);
@@ -284,14 +284,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 if (annotations.TryGetValue(RelationalAnnotationNames.RelationalOverrides, out var overrides))
                 {
-                    var runtimePropertyOverrides = new SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>();
-                    foreach (var overridesPair in (SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>?)overrides!)
+                    var runtimePropertyOverrides = new SortedDictionary<StoreObjectIdentifier, object>();
+                    foreach (var overridesPair in (SortedDictionary<StoreObjectIdentifier, object>?)overrides!)
                     {
-                        var runtimeOverrides = Create(overridesPair.Value, runtimeProperty);
-                        runtimePropertyOverrides[overridesPair.Key] = runtimeOverrides;
+                        var runtimeOverrides = Create((IRelationalPropertyOverrides)overridesPair.Value, slimProperty);
+                        slimPropertyOverrides[overridesPair.Key] = slimOverrides;
 
-                        CreateAnnotations(overridesPair.Value, runtimeOverrides, static (convention, annotations, source, target, runtime) =>
-                            convention.ProcessPropertyOverridesAnnotations(annotations, source, target, runtime));
+                        CreateAnnotations((IRelationalPropertyOverrides)overridesPair.Value, runtimeOverrides,
+                            static (convention, annotations, source, target, runtime) =>
+                                convention.ProcessPropertyOverridesAnnotations(annotations, source, target, runtime));
                     }
 
                     annotations[RelationalAnnotationNames.RelationalOverrides] = runtimePropertyOverrides;
@@ -304,8 +305,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RuntimeProperty runtimeProperty)
             => new RuntimeRelationalPropertyOverrides(
                 runtimeProperty,
-                propertyOverrides.ColumnName,
-                propertyOverrides.ColumnNameOverriden);
+                propertyOverrides.ColumnNameOverriden,
+                propertyOverrides.ColumnName);
 
         /// <summary>
         ///     Updates the relational property overrides annotations that will be set on the read-only object.

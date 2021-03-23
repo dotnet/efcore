@@ -50,9 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <returns> An optimized model. </returns>
         protected virtual RuntimeModel Create(IModel model)
         {
-            var runtimeModel = new RuntimeModel(model.ModelDependencies!, ((IRuntimeModel)model).SkipDetectChanges);
+            var runtimeModel = new RuntimeModel();
+            runtimeModel.SetSkipDetectChanges(((IRuntimeModel)model).SkipDetectChanges);
+            ((IModel)slimModel).ModelDependencies = model.ModelDependencies!;
 
-            var entityTypes = Sort(model.GetEntityTypes());
+            var entityTypes = model.GetEntityTypesInHierarchicalOrder();
             var entityTypePairs = new List<(IEntityType Source, RuntimeEntityType Target)>(entityTypes.Count);
 
             foreach (var entityType in entityTypes)
@@ -195,23 +197,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static IReadOnlyList<IEntityType> Sort(IEnumerable<IEntityType> entityTypes)
-        {
-            var entityTypeGraph = new Multigraph<IEntityType, int>();
-            entityTypeGraph.AddVertices(entityTypes);
-            foreach (var entityType in entityTypes.Where(et => et.BaseType != null))
-            {
-                entityTypeGraph.AddEdge(entityType.BaseType!, entityType, 0);
-            }
-
-            return entityTypeGraph.TopologicalSort();
-        }
-
         private RuntimeEntityType Create(IEntityType entityType, RuntimeModel model)
             => model.AddEntityType(entityType.Name,
                 entityType.ClrType,
-                entityType.HasSharedClrType,
                 entityType.BaseType == null ? null : model.FindEntityType(entityType.BaseType.Name)!,
+                entityType.HasSharedClrType,
                 entityType.GetDiscriminatorPropertyName(),
                 entityType.GetChangeTrackingStrategy(),
                 entityType.FindIndexerPropertyInfo(),
@@ -415,11 +405,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => (navigation.IsOnDependent ? runtimeForeigKey.DeclaringEntityType : runtimeForeigKey.PrincipalEntityType)
                 .AddNavigation(
                     navigation.Name,
+                    slimForeigKey,
+                    navigation.IsOnDependent,
                     navigation.ClrType,
                     navigation.PropertyInfo,
                     navigation.FieldInfo,
-                    runtimeForeigKey,
-                    navigation.IsOnDependent,
                     navigation.GetPropertyAccessMode(),
                     navigation.IsEagerLoaded);
 
@@ -446,13 +436,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private RuntimeSkipNavigation Create(ISkipNavigation navigation, RuntimeEntityType runtimeEntityType)
             => runtimeEntityType.AddSkipNavigation(
                 navigation.Name,
-                navigation.ClrType,
-                navigation.PropertyInfo,
-                navigation.FieldInfo,
                 runtimeEntityType.Model.FindEntityType(navigation.TargetEntityType.Name)!,
                 GetForeignKey(navigation.ForeignKey, runtimeEntityType.Model.FindEntityType(navigation.ForeignKey.DeclaringEntityType.Name)!),
                 navigation.IsCollection,
                 navigation.IsOnDependent,
+                navigation.ClrType,
+                navigation.PropertyInfo,
+                navigation.FieldInfo,
                 navigation.GetPropertyAccessMode(),
                 navigation.IsEagerLoaded);
 

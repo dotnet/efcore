@@ -5398,7 +5398,7 @@ namespace RootNamespace
 
         protected IModel BuildModelFromSnapshotSource(string code)
         {
-            var build = new BuildSource { Sources = { code } };
+            var build = new BuildSource { Sources = { { "Snapshot.cs", code } } };
 
             foreach (var buildReference in GetReferences())
             {

@@ -1097,8 +1097,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 sensitiveDataLoggingEnabled
-                    ? CoreStrings.SeedDatumIncompatibleValueSensitive(nameof(A), "invalid", nameof(A.P0), "System.Nullable<int>")
-                    : CoreStrings.SeedDatumIncompatibleValue(nameof(A), nameof(A.P0), "System.Nullable<int>"),
+                    ? CoreStrings.SeedDatumIncompatibleValueSensitive(nameof(A), "invalid", nameof(A.P0), "int?")
+                    : CoreStrings.SeedDatumIncompatibleValue(nameof(A), nameof(A.P0), "int?"),
                 modelBuilder.Model,
                 sensitiveDataLoggingEnabled);
         }

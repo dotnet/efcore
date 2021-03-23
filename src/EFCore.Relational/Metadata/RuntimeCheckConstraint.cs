@@ -12,12 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RuntimeCheckConstraint : AnnotatableBase, ICheckConstraint
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Initializes a new instance of the <see cref="SlimCheckConstraint"/> class.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="name"> The constraint name. </param>
+        /// <param name="entityType"> The affected entity type. </param>
+        /// <param name="sql"> The SQL string. </param>
         public RuntimeCheckConstraint(
             string name,
             RuntimeEntityType entityType,

@@ -52,6 +52,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ClientGroupByNotSupported");
 
         /// <summary>
+        ///     The function parameter '{function}({parameter})' has a custom type mapping configured. Compiled model can't be generated, because custom type mappings are not supported.
+        /// </summary>
+        public static string CompiledModelFunctionParameterTypeMapping(object? function, object? parameter)
+            => string.Format(
+                GetString("CompiledModelFunctionParameterTypeMapping", nameof(function), nameof(parameter)),
+                function, parameter);
+
+        /// <summary>
+        ///     The function '{function}' has a custom translation. Compiled model can't be generated, because custom function translations are not supported.
+        /// </summary>
+        public static string CompiledModelFunctionTranslation(object? function)
+            => string.Format(
+                GetString("CompiledModelFunctionTranslation", nameof(function)),
+                function);
+
+        /// <summary>
+        ///     The function '{function}' has a custom type mapping configured. Compiled model can't be generated, because custom type mappings are not supported.
+        /// </summary>
+        public static string CompiledModelFunctionTypeMapping(object? function)
+            => string.Format(
+                GetString("CompiledModelFunctionTypeMapping", nameof(function)),
+                function);
+
+        /// <summary>
         ///     The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.
         /// </summary>
         public static string ComputedColumnSqlUnspecified(object? table, object? column)

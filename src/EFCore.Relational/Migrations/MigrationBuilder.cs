@@ -793,8 +793,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     addColumnOperation.Name = property.Name;
                 }
-                // TODO
-                //addColumnOperation.Validate();
+                // TODO: addColumnOperation.Validate();
 
                 columnMap.Add(property, addColumnOperation);
             }

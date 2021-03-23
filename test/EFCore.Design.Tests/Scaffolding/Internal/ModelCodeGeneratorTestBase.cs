@@ -51,9 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer")
                 },
-                Sources = new List<string>(
-                    new[] { scaffoldedModel.ContextFile.Code }.Concat(
-                        scaffoldedModel.AdditionalFiles.Select(f => f.Code))),
+                Sources = new[] { scaffoldedModel.ContextFile }.Concat(scaffoldedModel.AdditionalFiles)
+                    .ToDictionary(f => f.Path, f => f.Code),
                 NullableReferenceTypes = options.UseNullableReferenceTypes
             };
 

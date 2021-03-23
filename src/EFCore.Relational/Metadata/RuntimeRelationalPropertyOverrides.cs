@@ -13,16 +13,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RuntimeRelationalPropertyOverrides : AnnotatableBase, IRelationalPropertyOverrides
     {
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// Initializes a new instance of the <see cref="SlimRelationalPropertyOverrides"/> class.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="property"> The property for which the overrides are applied. </param>
+        /// <param name="columnNameOverriden"> Whether the column name is overriden. </param>
+        /// <param name="columnName"> The column name. </param>
         public RuntimeRelationalPropertyOverrides(
             RuntimeProperty property,
-            string? columnName,
-            bool columnNameOverriden)
+            bool columnNameOverriden,
+            string? columnName)
         {
             Property = property;
             if (columnNameOverriden)

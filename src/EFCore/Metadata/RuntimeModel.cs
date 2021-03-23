@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -31,18 +32,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
         private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
         private readonly Dictionary<Type, SortedSet<RuntimeEntityType>> _sharedTypes = new();
-        private readonly bool _skipDetectChanges;
+        private bool _skipDetectChanges;
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Creates a new instance of <seealso cref="SlimModel"/>
         /// </summary>
-        [EntityFrameworkInternal]
-        public RuntimeModel(RuntimeModelDependencies modelDependencies, bool skipDetectChanges = false)
+        public RuntimeModel()
         {
-           ((IModel)this).ModelDependencies = modelDependencies;
+        }
+
+        /// <summary>
+        ///     Initializes this model instance.
+        /// </summary>
+        protected virtual void Initialize()
+        {
+        }
+
+        /// <summary>
+        ///     Sets a value indicating whether <see cref="ChangeTracker.DetectChanges" /> should be called.
+        /// </summary>
+        public virtual void SetSkipDetectChanges(bool skipDetectChanges)
+        {
             _skipDetectChanges = skipDetectChanges;
         }
 
@@ -64,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual RuntimeEntityType AddEntityType(
             string name,
             Type type,
-            bool sharedClrType,
             RuntimeEntityType? baseType = null,
+            bool sharedClrType = false,
             string? discriminatorProperty = null,
             ChangeTrackingStrategy changeTrackingStrategy = ChangeTrackingStrategy.Snapshot,
             PropertyInfo? indexerPropertyInfo = null,

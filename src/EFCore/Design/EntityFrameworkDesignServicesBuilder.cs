@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         public static readonly IDictionary<Type, ServiceCharacteristics> Services
             = new Dictionary<Type, ServiceCharacteristics>{
                 { typeof(IDbContextLogger), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) }
+                { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ICSharpSlimAnnotationCodeGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) }
             };
 
         /// <summary>
@@ -78,6 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Design
             TryAdd<IDbContextLogger, NullDbContextLogger>();
             TryAdd(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
             TryAdd<ILoggingOptions, LoggingOptions>();
+            TryAdd<ICSharpSlimAnnotationCodeGenerator, CSharpSlimAnnotationCodeGenerator>();
+
+            ServiceCollectionMap.GetInfrastructure()
+                .AddDependencySingleton<CSharpSlimAnnotationCodeGeneratorDependencies>();
 
             return this;
         }

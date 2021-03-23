@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -40,6 +41,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             DoIndent();
 
             _stringBuilder.Append(value);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Appends the current indent and then the given strings to the string being built.
+        /// </summary>
+        /// <param name="value"> The strings to append. </param>
+        /// <returns> This builder so that additional calls can be chained. </returns>
+        public virtual IndentedStringBuilder Append(IEnumerable<string> value)
+        {
+            DoIndent();
+
+            foreach (var str in value)
+            {
+                _stringBuilder.Append(str);
+            }
 
             return this;
         }
@@ -119,6 +137,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
+        ///     Appends the current indent and additional indent if provided.
+        /// </summary>
+        /// <returns> This builder so that additional calls can be chained. </returns>
+        public virtual IndentedStringBuilder AppendIndent()
+        {
+            _stringBuilder.Append(' ', _indent  * IndentSize);
+
+            return this;
+        }
+
+        /// <summary>
         ///     Resets this builder ready to build a new string.
         /// </summary>
         /// <returns> This builder so that additional calls can be chained. </returns>
@@ -173,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (_indentPending && _indent > 0)
             {
-                _stringBuilder.Append(' ', _indent * IndentSize);
+                AppendIndent();
             }
 
             _indentPending = false;

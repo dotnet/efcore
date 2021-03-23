@@ -132,6 +132,27 @@
   <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
     <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
   </data>
+  <data name="CompiledModelConstructorBinding" xml:space="preserve">
+    <value>The entity type '{entityType}' has a custom constructor binding. This is usually caused by using proxies. Compiled model can't be generated, because custom constructor bindings are not supported.</value>
+  </data>
+  <data name="CompiledModelDefiningQuery" xml:space="preserve">
+    <value>The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.</value>
+  </data>
+  <data name="CompiledModelQueryFilter" xml:space="preserve">
+    <value>The entity type '{entityType}' has a query filter configured. Compiled model can't be generated, because query filters are not supported.</value>
+  </data>
+  <data name="CompiledModelTypeMapping" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a custom type mapping configured. Compiled model can't be generated, because custom type mappings are not supported.</value>
+  </data>
+  <data name="CompiledModelValueComparer" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value comparer configured. Compiled model can't be generated, because value comparers are not supported.</value>
+  </data>
+  <data name="CompiledModelValueConverter" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value converter configured. Compiled model can't be generated, because value converters are not supported.</value>
+  </data>
+  <data name="CompiledModelValueGenerator" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value generator configured. Compiled model can't be generated, because value generators are not supported.</value>
+  </data>
   <data name="ConflictingContextAndMigrationName" xml:space="preserve">
     <value>The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?</value>
   </data>

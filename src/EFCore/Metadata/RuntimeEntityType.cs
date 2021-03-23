@@ -276,7 +276,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     : _baseType.FindForeignKeys(properties).Concat(FindDeclaredForeignKeys(properties))
                 : FindDeclaredForeignKeys(properties);
 
-        private RuntimeForeignKey? FindForeignKey(
+        /// <summary>
+        ///     Gets the foreign key for the given properties that points to a given primary or alternate key.
+        ///     Returns <see langword="null" /> if no foreign key is found.
+        /// </summary>
+        /// <param name="properties"> The properties that the foreign key is defined on. </param>
+        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
+        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
+        ///     base type of the hierarchy).
+        /// </param>
+        /// <returns> The foreign key, or <see langword="null" /> if none is defined. </returns>
+        public virtual RuntimeForeignKey? FindForeignKey(
             IReadOnlyList<IReadOnlyProperty> properties,
             IReadOnlyKey principalKey,
             IReadOnlyEntityType principalEntityType)
@@ -343,23 +355,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Adds a new navigation property to this entity type.
         /// </summary>
         /// <param name="name"> The name of the skip navigation property to add. </param>
-        /// <param name="clrType"> The type of value that this navigation holds. </param>
-        /// <param name="propertyInfo"> The corresponding CLR property or <see langword="null" /> for a shadow navigation. </param>
-        /// <param name="fieldInfo"> The corresponding CLR field or <see langword="null" /> for a shadow navigation. </param>
         /// <param name="foreignKey"> The foreign key that defines the relationship this navigation property will navigate. </param>
         /// <param name="onDependent">
         ///     A value indicating whether the navigation property is defined on the dependent side of the underlying foreign key.
         /// </param>
+        /// <param name="clrType"> The type of value that this navigation holds. </param>
+        /// <param name="propertyInfo"> The corresponding CLR property or <see langword="null" /> for a shadow navigation. </param>
+        /// <param name="fieldInfo"> The corresponding CLR field or <see langword="null" /> for a shadow navigation. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> used for this navigation. </param>
         /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
         /// <returns> The newly created navigation property. </returns>
         public virtual RuntimeNavigation AddNavigation(
             string name,
-            Type clrType,
-            PropertyInfo? propertyInfo,
-            FieldInfo? fieldInfo,
             RuntimeForeignKey foreignKey,
             bool onDependent,
+            Type clrType,
+            PropertyInfo? propertyInfo = null,
+            FieldInfo? fieldInfo = null,
             PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
             bool eagerLoaded = false)
         {
@@ -397,27 +409,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Adds a new skip navigation property to this entity type.
         /// </summary>
         /// <param name="name"> The name of the skip navigation property to add. </param>
-        /// <param name="clrType"> The type of value that this navigation holds. </param>
-        /// <param name="propertyInfo"> The corresponding CLR property or <see langword="null" /> for a shadow navigation. </param>
-        /// <param name="fieldInfo"> The corresponding CLR field or <see langword="null" /> for a shadow navigation. </param>
         /// <param name="targetEntityType"> The entity type that the skip navigation property will hold an instance(s) of.</param>
         /// <param name="foreignKey"> The foreign key to the join type. </param>
         /// <param name="collection"> Whether the navigation property is a collection property. </param>
         /// <param name="onDependent">
         ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
         /// </param>
+        /// <param name="clrType"> The type of value that this navigation holds. </param>
+        /// <param name="propertyInfo"> The corresponding CLR property or <see langword="null" /> for a shadow navigation. </param>
+        /// <param name="fieldInfo"> The corresponding CLR field or <see langword="null" /> for a shadow navigation. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> used for this navigation. </param>
         /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
         /// <returns> The newly created skip navigation property. </returns>
         public virtual RuntimeSkipNavigation AddSkipNavigation(
             string name,
-            Type clrType,
-            PropertyInfo? propertyInfo,
-            FieldInfo? fieldInfo,
             RuntimeEntityType targetEntityType,
             RuntimeForeignKey foreignKey,
             bool collection,
             bool onDependent,
+            Type clrType,
+            PropertyInfo? propertyInfo = null,
+            FieldInfo? fieldInfo = null,
             PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
             bool eagerLoaded = false)
         {
@@ -553,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Adds a property to this entity type.
         /// </summary>
         /// <param name="name"> The name of the property to add. </param>
-        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="clrType"> The type of value the property will hold. </param>
         /// <param name="propertyInfo"> The corresponding CLR property or <see langword="null" /> for a shadow property. </param>
         /// <param name="fieldInfo"> The corresponding CLR field or <see langword="null" /> for a shadow property. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> used for this property. </param>
@@ -581,9 +593,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The newly created property. </returns>
         public virtual RuntimeProperty AddProperty(
             string name,
-            Type propertyType,
-            PropertyInfo? propertyInfo,
-            FieldInfo? fieldInfo,
+            Type clrType,
+            PropertyInfo? propertyInfo = null,
+            FieldInfo? fieldInfo = null,
             PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
             bool nullable = false,
             bool concurrencyToken = false,
@@ -603,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var property = new RuntimeProperty(
                 name,
-                propertyType,
+                clrType,
                 propertyInfo,
                 fieldInfo,
                 this,
@@ -688,6 +700,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ? _baseType.GetProperties().Concat(_properties.Values)
                 : _properties.Values;
 
+
+        /// <inheritdoc/>
+        [DebuggerStepThrough]
+        public virtual PropertyInfo? FindIndexerPropertyInfo()
+            => _indexerPropertyInfo;
+
         /// <summary>
         ///     Adds a service property to this entity type.
         /// </summary>
@@ -698,8 +716,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The newly created service property. </returns>
         public virtual RuntimeServiceProperty AddServiceProperty(
             string name,
-            PropertyInfo? propertyInfo,
-            FieldInfo? fieldInfo,
+            PropertyInfo? propertyInfo = null,
+            FieldInfo? fieldInfo = null,
             PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode)
         {
             var serviceProperty = new RuntimeServiceProperty(
@@ -782,6 +800,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [DebuggerStepThrough]
             set => _serviceOnlyConstructorBinding = value;
         }
+
+        /// <summary>
+        ///     Returns the default indexer property that takes a <see cref="string"/> value if one exists.
+        /// </summary>
+        /// <param name="type">The type to look for the indexer on. </param>
+        /// <returns> An indexer property or <see langword="null" />. </returns>
+        public static PropertyInfo? FindIndexerProperty(Type type)
+            => type.FindIndexerProperty();
 
         /// <summary>
         ///     Returns a string that represents the current object.
@@ -872,11 +898,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [DebuggerStepThrough]
             get => _baseType;
         }
-
-        /// <inheritdoc/>
-        [DebuggerStepThrough]
-        PropertyInfo? IReadOnlyTypeBase.FindIndexerPropertyInfo()
-            => _indexerPropertyInfo;
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
@@ -1340,6 +1361,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => GetServiceProperties();
 
         IEnumerable<IDictionary<string, object?>> IReadOnlyEntityType.GetSeedData(bool providerValues)
+            => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+
+        ConfigurationSource? IRuntimeEntityType.GetConstructorBindingConfigurationSource()
+            => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+
+        ConfigurationSource? IRuntimeEntityType.GetServiceOnlyConstructorBindingConfigurationSource()
             => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
     }
 }

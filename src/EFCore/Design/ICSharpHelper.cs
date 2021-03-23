@@ -25,8 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="name"> The base identifier name. </param>
         /// <param name="scope"> A list of in-scope identifiers. </param>
+        /// <param name="capitalize">
+        ///     <see langword="true"/> if the first letter should be converted to uppercase;
+        ///     <see langword="false"/> if the first letter should be converted to lowercase;
+        /// </param>
         /// <returns> The identifier. </returns>
-        string Identifier(string name, ICollection<string>? scope = null);
+        string Identifier(string name, ICollection<string>? scope = null, bool? capitalize = null);
 
         /// <summary>
         ///     Generates a property accessor lambda.
@@ -193,6 +197,13 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="value"> The value. </param>
         /// <returns> The literal. </returns>
         string Literal(ushort value);
+
+        /// <summary>
+        ///     Generates a <seealso cref="Type"/> literal.
+        /// </summary>
+        /// <param name="value"> The value. </param>
+        /// <returns> The literal. </returns>
+        string Literal(Type value);
 
         /// <summary>
         ///     Generates an object array literal.
