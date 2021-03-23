@@ -138,11 +138,22 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
+        ///     May not include all the information necessary to initialize the database.
         /// </summary>
         public virtual IModel Model
         {
             [DebuggerStepThrough]
-            get => DbContextDependencies.Model;
+            get => ContextServices.Model;
+        }
+
+        /// <summary>
+        ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
+        ///     Also includes all the information necessary to initialize the database.
+        /// </summary>
+        public virtual IModel DesignTimeModel
+        {
+            [DebuggerStepThrough]
+            get => ContextServices.DesignTimeModel;
         }
 
         /// <summary>
@@ -331,7 +342,9 @@ namespace Microsoft.EntityFrameworkCore
             return DbContextDependencies.EntityFinderFactory.Create(entityType);
         }
 
-        private IServiceProvider InternalServiceProvider
+        private IServiceProvider InternalServiceProvider => ContextServices.InternalServiceProvider;
+
+        private IDbContextServices ContextServices
         {
             get
             {
@@ -339,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (_contextServices != null)
                 {
-                    return _contextServices.InternalServiceProvider;
+                    return _contextServices;
                 }
 
                 if (_initializing)
@@ -382,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore
                     _initializing = false;
                 }
 
-                return _contextServices.InternalServiceProvider;
+                return _contextServices;
             }
         }
 

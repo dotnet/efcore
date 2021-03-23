@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         ? validAnnotations[annotationName].Value
                         : null);
 
-                    SqlServerTestHelpers.Instance.Finalize(modelBuilder);
+                    SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true);
 
                     var sb = new IndentedStringBuilder();
 
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     eb.Property<RawEnum>("EnumDiscriminator").HasConversion<int>();
                 });
 
-            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder);
+            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true);
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
@@ -649,7 +649,7 @@ namespace MyNamespace
 
             entityType.SetPrimaryKey(property2);
 
-            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder);
+            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true);
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
@@ -765,7 +765,7 @@ namespace MyNamespace
                     eb.HasKey(e => e.Boolean);
                 });
 
-            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder);
+            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true);
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",

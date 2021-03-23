@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddTransient(_ => context.GetService<IMigrationsModelDiffer>())
                 .AddTransient(_ => context.GetService<IMigrator>())
                 .AddTransient(_ => context.GetService<IRelationalTypeMappingSource>())
-                .AddTransient(_ => context.GetService<IModel>())
+                .AddTransient(_ => context.DesignTimeModel)
                 .AddTransient(_ => context.GetService<IModelRuntimeInitializer>());
     }
 }

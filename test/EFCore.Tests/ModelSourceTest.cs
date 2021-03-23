@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -73,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore
                 .GetModel(
                     new Context1(),
                     serviceProvider.GetRequiredService<ModelCreationDependencies>()
-                    with { ConventionSetBuilder = CreateRuntimeConventionSetBuilder(new FakeSetFinder(), serviceProvider) });
+                    with { ConventionSetBuilder = CreateRuntimeConventionSetBuilder(new FakeSetFinder(), serviceProvider) },
+                    designTime: false);
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
@@ -123,12 +123,69 @@ namespace Microsoft.EntityFrameworkCore
             var modelSource = serviceProvider.GetRequiredService<IModelSource>();
             var testModelDependencies = serviceProvider.GetRequiredService<ModelCreationDependencies>();
 
-            var model1 = modelSource.GetModel(new Context1(), testModelDependencies);
-            var model2 = modelSource.GetModel(new Context2(), testModelDependencies);
+            var model1 = modelSource.GetModel(new Context1(), testModelDependencies, designTime: false);
+            var model2 = modelSource.GetModel(new Context2(), testModelDependencies, designTime: false);
+
+            var designModel1 = modelSource.GetModel(new Context1(), testModelDependencies, designTime: true);
+            var designModel2 = modelSource.GetModel(new Context2(), testModelDependencies, designTime: true);
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1(), testModelDependencies));
-            Assert.Same(model2, modelSource.GetModel(new Context2(), testModelDependencies));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), testModelDependencies, designTime: false));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), testModelDependencies, designTime: false));
+
+            Assert.NotSame(designModel1, designModel2);
+            Assert.Same(designModel1, modelSource.GetModel(new Context1(), testModelDependencies, designTime: true));
+            Assert.Same(designModel2, modelSource.GetModel(new Context2(), testModelDependencies, designTime: true));
+
+            Assert.NotSame(model1, designModel1);
+            Assert.NotSame(model2, designModel2);
+        }
+
+        [ConditionalFact]
+        public void Model_from_options_is_preserved()
+        {
+            var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices();
+            var modelSource = serviceProvider.GetRequiredService<IModelSource>();
+            var testModelDependencies = serviceProvider.GetRequiredService<ModelCreationDependencies>();
+
+            var model = modelSource.GetModel(new Context1(), testModelDependencies, designTime: false);
+            var designTimeModel = modelSource.GetModel(new Context1(), testModelDependencies, designTime: true);
+
+            Assert.NotSame(model, designTimeModel);
+
+            var context = new ModelContext(model);
+
+            Assert.NotSame(context.Model, context.DesignTimeModel);
+            Assert.Same(model, context.Model);
+            Assert.NotSame(model, context.DesignTimeModel);
+
+            var designTimeContext = new ModelContext(designTimeModel);
+
+            Assert.NotSame(context.Model, designTimeContext.DesignTimeModel);
+            Assert.NotSame(model, designTimeContext.Model);
+            Assert.Same(designTimeModel, designTimeContext.DesignTimeModel);
+        }
+
+        private class ModelContext : DbContext
+        {
+            private readonly IModel _model;
+
+            public ModelContext(IModel model)
+            {
+                _model = model;
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder = optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(ModelContext));
+
+                if (_model != null)
+                {
+                    optionsBuilder.UseModel(_model);
+                }
+            }
         }
 
         [ConditionalFact]
@@ -138,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelSource = serviceProvider.GetRequiredService<IModelSource>();
             var testModelDependencies = serviceProvider.GetRequiredService<ModelCreationDependencies>();
 
-            var model = modelSource.GetModel(new Context1(), testModelDependencies);
+            var model = modelSource.GetModel(new Context1(), testModelDependencies, designTime: false);
             var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
                 .Single(m => m.Key == "PackageVersion").Value;
 

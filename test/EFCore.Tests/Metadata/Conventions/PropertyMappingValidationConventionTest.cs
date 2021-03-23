@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 try
                 {
                     m.FinalizeModel();
-                    modelRuntimeInitializer.Initialize(m, validationLogger: null);
+                    modelRuntimeInitializer.Initialize(m, designTime: false, validationLogger: null);
                     validatePropertyMappingMethod.Invoke(
                         validator, new object[] { m, logger });
                 }

@@ -71,7 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     The relational annotation provider.
         /// </summary>
-        [Obsolete("This is now part of RelationalModelRuntimeInitializerDependencies")]
         public IRelationalAnnotationProvider RelationalAnnotationProvider { get; init; }
     }
 }

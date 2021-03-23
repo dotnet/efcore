@@ -661,7 +661,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public IModel GetModel(
                 DbContext context,
-                ModelCreationDependencies modelCreationDependencies)
+                ModelCreationDependencies modelCreationDependencies,
+                bool designTime)
                 => new Model();
         }
 

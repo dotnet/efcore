@@ -172,12 +172,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
-            public virtual IModel FinalizeModel()
+            public virtual IModel FinalizeModel(bool designTime = false)
             {
                 var serviceProvider = TestHelpers.CreateContextServices();
                 var modelRuntimeInitializer = serviceProvider.GetRequiredService<IModelRuntimeInitializer>();
 
-                return modelRuntimeInitializer.Initialize(ModelBuilder.FinalizeModel(), ValidationLogger);
+                return modelRuntimeInitializer.Initialize(ModelBuilder.FinalizeModel(), designTime, ValidationLogger);
             }
 
             public virtual string GetDisplayName(Type entityType)
@@ -227,6 +227,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestEntityTypeBuilder<TEntity> Ignore(string propertyName);
 
             public abstract TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression);
+            public abstract TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression, string name);
             public abstract TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames);
 
             public abstract TestOwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne<TRelatedEntity>(string navigationName)

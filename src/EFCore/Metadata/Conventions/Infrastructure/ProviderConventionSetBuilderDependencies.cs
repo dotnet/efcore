@@ -159,8 +159,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         public ProviderConventionSetBuilderDependencies With(ICurrentDbContext currentContext)
 #pragma warning disable CS0618 // Type or member is obsolete
             => new(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
-                SetFinder, currentContext, ModelValidator);
+                TypeMappingSource,
+                ConstructorBindingFactory,
+                ParameterBindingFactories,
+                MemberClassifier,
+                Logger,
+                ValidationLogger,
+                SetFinder,
+                currentContext,
+                ModelValidator);
 #pragma warning restore CS0618 // Type or member is obsolete
     }
 }

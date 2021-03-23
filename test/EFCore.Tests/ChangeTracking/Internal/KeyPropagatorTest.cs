@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent = new Product { Id = 21, Category = principal };
 
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
             var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
             var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
@@ -47,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel(generateTemporary);
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var principal = new Category { Id = 11 };
@@ -100,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent = new ProductDetail { Product = principal };
 
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
             var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
             var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
@@ -119,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel(generateTemporary);
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var dependent = new ProductDetail();
@@ -201,6 +205,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var dependent = new OrderLineDetail { OrderLine = principal };
 
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
             var property1 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("OrderId");
             var property2 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("ProductId");
@@ -224,6 +229,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel(generateTemporary);
             var contextServices = CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
             var manager = contextServices.GetRequiredService<IStateManager>();
 
             var dependent = new OrderLineDetail();

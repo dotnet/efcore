@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
             var context = CreateContext();
             var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
             var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
-            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), logger);
+            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), designTime: false, logger);
         }
 
         protected class Person

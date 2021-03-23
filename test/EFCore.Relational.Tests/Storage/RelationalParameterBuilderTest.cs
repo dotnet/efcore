@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             property.IsNullable = nullable;
 
             RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>()
-                .Initialize(model.FinalizeModel(), validationLogger: null);
+                .Initialize(model.FinalizeModel(), designTime: false, validationLogger: null);
 
             var parameterBuilder = new RelationalCommandBuilder(
                 new RelationalCommandBuilderDependencies(typeMapper));

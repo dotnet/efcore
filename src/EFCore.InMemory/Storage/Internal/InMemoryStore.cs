@@ -68,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public virtual bool EnsureCreated(
             IUpdateAdapterFactory updateAdapterFactory,
+            IModel designModel,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             lock (_lock)
@@ -80,11 +81,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                     var updateAdapter = updateAdapterFactory.CreateStandalone();
                     var entries = new List<IUpdateEntry>();
-                    foreach (var entityType in updateAdapter.Model.GetEntityTypes())
+                    foreach (var entityType in designModel.GetEntityTypes())
                     {
+                        IEntityType? targetEntityType = null;
                         foreach (var targetSeed in entityType.GetSeedData())
                         {
-                            var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                            targetEntityType ??= updateAdapter.Model.FindEntityType(entityType.Name)!;
+                            var entry = updateAdapter.CreateEntry(targetSeed, targetEntityType);
                             entry.EntityState = EntityState.Added;
                             entries.Add(entry);
                         }

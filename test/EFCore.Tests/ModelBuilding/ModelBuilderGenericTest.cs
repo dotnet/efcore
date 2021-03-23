@@ -223,6 +223,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression)
                 => new GenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(indexExpression));
 
+            public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TEntity, object?>> indexExpression, string name)
+                => new GenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(indexExpression, name));
+
             public override TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames)
                 => new GenericTestIndexBuilder<TEntity>(EntityTypeBuilder.HasIndex(propertyNames));
 

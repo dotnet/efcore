@@ -1,11 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private readonly IInMemoryStore _store;
         private readonly IUpdateAdapterFactory _updateAdapterFactory;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Update> _updateLogger;
+        private readonly Func<IModel> _getDesignModel;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             DatabaseDependencies dependencies,
             IInMemoryStoreCache storeCache,
             IDbContextOptions options,
+            ICurrentDbContext context,
             IUpdateAdapterFactory updateAdapterFactory,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
             : base(dependencies)
@@ -53,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             Check.NotNull(updateLogger, nameof(updateLogger));
 
             _store = storeCache.GetStore(options);
+            _getDesignModel = () => context.Context.DesignTimeModel;
             _updateAdapterFactory = updateAdapterFactory;
             _updateLogger = updateLogger;
         }
@@ -93,6 +98,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool EnsureDatabaseCreated()
-            => _store.EnsureCreated(_updateAdapterFactory, _updateLogger);
+            => _store.EnsureCreated(_updateAdapterFactory, _getDesignModel(), _updateLogger);
     }
 }

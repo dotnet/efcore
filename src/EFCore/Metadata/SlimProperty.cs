@@ -28,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private readonly PropertySaveBehavior _afterSaveBehavior;
         private readonly Func<IProperty, IEntityType, ValueGenerator>? _valueGeneratorFactory;
         private readonly ValueConverter? _valueConverter;
-        private readonly ValueComparer? _valueComparer;
+        private readonly ValueComparer _valueComparer;
+        private readonly ValueComparer _keyValueComparer;
         private CoreTypeMapping? _typeMapping;
 
         /// <summary>
@@ -58,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory,
             ValueConverter? valueConverter,
             ValueComparer? valueComparer,
+            ValueComparer? keyValueComparer,
             CoreTypeMapping? typeMapping)
             : base(name, propertyInfo, fieldInfo, propertyAccessMode)
         {
@@ -70,7 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             _afterSaveBehavior = afterSaveBehavior;
             _valueGeneratorFactory = valueGeneratorFactory;
             _valueConverter = valueConverter;
-            _valueComparer = valueComparer;
 
             if (maxLength != null)
             {
@@ -94,6 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             _typeMapping = typeMapping;
+            _valueComparer = valueComparer ?? TypeMapping.Comparer;
+            _keyValueComparer = keyValueComparer ?? TypeMapping.KeyComparer;
         }
 
         /// <summary>
@@ -258,21 +261,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <inheritdoc/>
         ValueComparer? IReadOnlyProperty.GetValueComparer()
-            => _valueComparer ?? TypeMapping.Comparer;
+            => _valueComparer;
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
         ValueComparer IProperty.GetValueComparer()
-            => _valueComparer ?? TypeMapping.Comparer;
+            => _valueComparer;
 
         /// <inheritdoc/>
         ValueComparer? IReadOnlyProperty.GetKeyValueComparer()
-            => _valueComparer ?? TypeMapping.KeyComparer;
+            => _keyValueComparer;
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
         ValueComparer IProperty.GetKeyValueComparer()
-            => _valueComparer ?? TypeMapping.KeyComparer;
+            => _keyValueComparer;
 
         /// <inheritdoc/>
         [DebuggerStepThrough]

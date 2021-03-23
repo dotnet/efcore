@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual void Finds_DbFunctions_on_DbContext()
         {
             var model = RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>()
-                .Initialize(GetModelBuilder(new MyDerivedContext()).FinalizeModel(), validationLogger: null);
+                .Initialize(GetModelBuilder(new MyDerivedContext()).FinalizeModel(), designTime: false, validationLogger: null);
 
             foreach (var function in MyBaseContext.FunctionNames)
             {
@@ -680,7 +680,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var functionName = modelBuilder.HasDbFunction(queryableNoParams).Metadata.ModelName;
 
             var model = RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>()
-                .Initialize(modelBuilder.FinalizeModel(), validationLogger: null);
+                .Initialize(modelBuilder.FinalizeModel(), designTime: false, validationLogger: null);
 
             var function = model.FindDbFunction(functionName);
             var entityType = model.FindEntityType(typeof(Foo));

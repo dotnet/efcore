@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -57,5 +59,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         MaterializationContext.ContextProperty),
                     typeof(IInfrastructure<IServiceProvider>)));
         }
+
+        /// <summary>
+        ///     Creates a copy that contains the given consumed properties.
+        /// </summary>
+        /// <param name="consumedProperties"> The new consumed properties. </param>
+        /// <returns> A copy with replaced consumed properties. </returns>
+        public override ParameterBinding With(IReadOnlyList<IPropertyBase> consumedProperties)
+            => new DependencyInjectionParameterBinding(ParameterType, ServiceType, consumedProperties.SingleOrDefault());
     }
 }

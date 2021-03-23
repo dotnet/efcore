@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         bool EnsureCreated(
             IUpdateAdapterFactory updateAdapterFactory,
+            IModel designModel,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger);
 
         /// <summary>

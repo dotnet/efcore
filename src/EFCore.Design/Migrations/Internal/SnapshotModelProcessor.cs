@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 model = mutableModel.FinalizeModel();
             }
 
-            return _modelRuntimeInitializer.Initialize((IModel)model, validationLogger: null);
+            return _modelRuntimeInitializer.Initialize((IModel)model, designTime: true, validationLogger: null);
         }
 
         private void ProcessCollection(IEnumerable<IReadOnlyAnnotatable> metadata, string version)
