@@ -30,8 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///     </para>
     /// </summary>
     // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
-    public sealed class SelectExpression : TableExpressionBase
+    public sealed partial class SelectExpression : TableExpressionBase
     {
+        private static readonly string _discriminatorColumnAlias = "Discriminator";
+
         private static readonly Dictionary<ExpressionType, ExpressionType> _mirroredOperationMap =
             new()
             {
@@ -43,8 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThanOrEqual },
             };
 
-        private const string DiscriminatorColumnAlias = "Discriminator";
-
         private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
 
@@ -52,82 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly List<TableExpressionBase> _tables = new();
         private readonly List<SqlExpression> _groupBy = new();
         private readonly List<OrderingExpression> _orderings = new();
-
-        private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier
-            = new();
-
-        private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _childIdentifiers
-            = new();
-
+        private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier = new();
+        private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _childIdentifiers = new();
         private readonly List<SelectExpression?> _pendingCollections = new();
 
         private List<int> _tptLeftJoinTables = new();
         private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
-
-        /// <summary>
-        ///     The list of expressions being projected out from the result set.
-        /// </summary>
-        public IReadOnlyList<ProjectionExpression> Projection
-            => _projection;
-
-        /// <summary>
-        ///     The list of tables sources used to generate the result set.
-        /// </summary>
-        public IReadOnlyList<TableExpressionBase> Tables
-            => _tables;
-
-        /// <summary>
-        ///     The SQL GROUP BY clause for the SELECT.
-        /// </summary>
-        public IReadOnlyList<SqlExpression> GroupBy
-            => _groupBy;
-
-        /// <summary>
-        ///     The list of orderings used to sort the result set.
-        /// </summary>
-        public IReadOnlyList<OrderingExpression> Orderings
-            => _orderings;
-
-        /// <summary>
-        ///     The list of tags applied to this <see cref="SelectExpression" />.
-        /// </summary>
-        public ISet<string> Tags { get; private set; } = new HashSet<string>();
-
-        /// <summary>
-        ///     The WHERE predicate for the SELECT.
-        /// </summary>
-        public SqlExpression? Predicate { get; private set; }
-
-        /// <summary>
-        ///     The HAVING predicate for the SELECT when <see cref="GroupBy" /> clause exists.
-        /// </summary>
-        public SqlExpression? Having { get; private set; }
-
-        /// <summary>
-        ///     The limit applied to the number of rows in the result set.
-        /// </summary>
-        public SqlExpression? Limit { get; private set; }
-
-        /// <summary>
-        ///     The offset to skip rows from the result set.
-        /// </summary>
-        public SqlExpression? Offset { get; private set; }
-
-        /// <summary>
-        ///     A bool value indicating if DISTINCT is applied to projection of this <see cref="SelectExpression" />.
-        /// </summary>
-        public bool IsDistinct { get; private set; }
-
-        /// <summary>
-        ///     Applies a given set of tags.
-        /// </summary>
-        /// <param name="tags"> A list of tags to apply. </param>
-        public void ApplyTags(ISet<string> tags)
-        {
-            Check.NotNull(tags, nameof(tags));
-
-            Tags = tags;
-        }
 
         private SelectExpression(
             string? alias,
@@ -309,32 +239,91 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        private static ColumnExpression CreateColumnExpression(
-            IProperty property,
-            ITableBase table,
-            TableExpressionBase tableExpression,
-            bool nullable)
-            => new(property, table.FindColumn(property)!, tableExpression, nullable);
+        /// <summary>
+        ///     The list of tags applied to this <see cref="SelectExpression" />.
+        /// </summary>
+        public ISet<string> Tags { get; private set; } = new HashSet<string>();
 
         /// <summary>
-        ///     Checks whether this <see cref="SelectExpression" /> representes a <see cref="FromSqlExpression" /> which is not composed upon.
+        ///     A bool value indicating if DISTINCT is applied to projection of this <see cref="SelectExpression" />.
         /// </summary>
-        /// <returns> A bool value indicating a non-composed <see cref="FromSqlExpression" />. </returns>
-        public bool IsNonComposedFromSql()
-            => Limit == null
-                && Offset == null
-                && !IsDistinct
-                && Predicate == null
-                && GroupBy.Count == 0
-                && Having == null
-                && Orderings.Count == 0
-                && Tables.Count == 1
-                && Tables[0] is FromSqlExpression fromSql
-                && Projection.All(
-                    pe => pe.Expression is ColumnExpression column
-                        && string.Equals(fromSql.Alias, column.Table.Alias, StringComparison.OrdinalIgnoreCase))
-                && _projectionMapping.TryGetValue(new ProjectionMember(), out var mapping)
-                && mapping.Type == typeof(Dictionary<IProperty, int>);
+        public bool IsDistinct { get; private set; }
+
+        /// <summary>
+        ///     The list of expressions being projected out from the result set.
+        /// </summary>
+        public IReadOnlyList<ProjectionExpression> Projection
+            => _projection;
+
+        /// <summary>
+        ///     The list of tables sources used to generate the result set.
+        /// </summary>
+        public IReadOnlyList<TableExpressionBase> Tables
+            => _tables;
+
+        /// <summary>
+        ///     The WHERE predicate for the SELECT.
+        /// </summary>
+        public SqlExpression? Predicate { get; private set; }
+
+        /// <summary>
+        ///     The SQL GROUP BY clause for the SELECT.
+        /// </summary>
+        public IReadOnlyList<SqlExpression> GroupBy
+            => _groupBy;
+
+        /// <summary>
+        ///     The HAVING predicate for the SELECT when <see cref="GroupBy" /> clause exists.
+        /// </summary>
+        public SqlExpression? Having { get; private set; }
+
+        /// <summary>
+        ///     The list of orderings used to sort the result set.
+        /// </summary>
+        public IReadOnlyList<OrderingExpression> Orderings
+            => _orderings;
+
+        /// <summary>
+        ///     The limit applied to the number of rows in the result set.
+        /// </summary>
+        public SqlExpression? Limit { get; private set; }
+
+        /// <summary>
+        ///     The offset to skip rows from the result set.
+        /// </summary>
+        public SqlExpression? Offset { get; private set; }
+
+        /// <summary>
+        ///     Applies a given set of tags.
+        /// </summary>
+        /// <param name="tags"> A list of tags to apply. </param>
+        public void ApplyTags(ISet<string> tags)
+        {
+            Check.NotNull(tags, nameof(tags));
+
+            Tags = tags;
+        }
+
+        /// <summary>
+        ///     Applies DISTINCT operator to the projections of the <see cref="SelectExpression" />.
+        /// </summary>
+        public void ApplyDistinct()
+        {
+            if (_pendingCollections.Count > 0)
+            {
+                throw new InvalidOperationException(RelationalStrings.DistinctOnCollectionNotSupported);
+            }
+
+            if (Limit != null
+                || Offset != null)
+            {
+                PushdownIntoSubquery();
+            }
+
+            IsDistinct = true;
+
+            ClearOrdering();
+        }
 
         /// <summary>
         ///     Adds expressions from projection mapping to projection if not done already.
@@ -359,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                     if (entityProjection.DiscriminatorExpression != null)
                     {
-                        AddToProjection(entityProjection.DiscriminatorExpression, DiscriminatorColumnAlias);
+                        AddToProjection(entityProjection.DiscriminatorExpression, _discriminatorColumnAlias);
                     }
 
                     result[keyValuePair.Key] = Constant(map);
@@ -382,10 +371,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             _projection.Clear();
         }
-
-        private static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
-            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(t => t.GetDeclaredProperties());
 
         /// <summary>
         ///     Replaces current projection mapping with a new one to change what is being projected out from this <see cref="SelectExpression" />.
@@ -415,18 +400,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Adds given <see cref="SqlExpression" /> to the projection.
-        /// </summary>
-        /// <param name="sqlExpression"> An expression to add. </param>
-        /// <returns> An int value indicating the index at which the expression was added in the projection list. </returns>
-        public int AddToProjection(SqlExpression sqlExpression)
-        {
-            Check.NotNull(sqlExpression, nameof(sqlExpression));
-
-            return AddToProjection(sqlExpression, null);
-        }
-
-        /// <summary>
         ///     Adds given <see cref="EntityProjectionExpression" /> to the projection.
         /// </summary>
         /// <param name="entityProjection"> An entity projection to add. </param>
@@ -445,13 +418,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 if (entityProjection.DiscriminatorExpression != null)
                 {
-                    AddToProjection(entityProjection.DiscriminatorExpression, DiscriminatorColumnAlias);
+                    AddToProjection(entityProjection.DiscriminatorExpression, _discriminatorColumnAlias);
                 }
 
                 _entityProjectionCache[entityProjection] = dictionary;
             }
 
             return dictionary;
+        }
+
+        /// <summary>
+        ///     Adds given <see cref="SqlExpression" /> to the projection.
+        /// </summary>
+        /// <param name="sqlExpression"> An expression to add. </param>
+        /// <returns> An int value indicating the index at which the expression was added in the projection list. </returns>
+        public int AddToProjection(SqlExpression sqlExpression)
+        {
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
+
+            return AddToProjection(sqlExpression, null);
         }
 
         private int AddToProjection(SqlExpression sqlExpression, string? alias)
@@ -485,15 +470,508 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Prepares the <see cref="SelectExpression" /> to apply aggregate operation over it.
+        ///     Adds a non-scalar single result to the projection of the <see cref="SelectExpression" />.
         /// </summary>
-        public void PrepareForAggregate()
+        /// <param name="shapedQueryExpression"> A shaped query expression for the subquery producing single non-scalar result. </param>
+        /// <returns> A shaper expression to shape the result of this projection. </returns>
+        public Expression AddSingleProjection(ShapedQueryExpression shapedQueryExpression)
         {
-            if (IsDistinct
-                || Limit != null
-                || Offset != null)
+            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
+
+            var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+            var shaperExpression = shapedQueryExpression.ShaperExpression;
+            var innerExpression = RemoveConvert(shaperExpression);
+            if (!(innerExpression is EntityShaperExpression))
             {
-                PushdownIntoSubquery();
+                var sentinelExpression = innerSelectExpression.Limit!;
+                var sentinelNullableType = sentinelExpression.Type.MakeNullable();
+                ProjectionBindingExpression dummyProjection;
+                if (innerSelectExpression.Projection.Any())
+                {
+                    var index = innerSelectExpression.AddToProjection(sentinelExpression);
+                    dummyProjection = new ProjectionBindingExpression(
+                        innerSelectExpression, index, sentinelNullableType);
+                }
+                else
+                {
+                    innerSelectExpression._projectionMapping[new ProjectionMember()] = sentinelExpression;
+                    dummyProjection = new ProjectionBindingExpression(
+                        innerSelectExpression, new ProjectionMember(), sentinelNullableType);
+                }
+
+                var defaultResult = shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault
+                    ? (Expression)Default(shaperExpression.Type)
+                    : Block(
+                        Throw(
+                            New(
+                                typeof(InvalidOperationException).GetConstructors().Single(ci => ci.GetParameters().Count() == 1),
+                                Constant(CoreStrings.SequenceContainsNoElements))),
+                        Default(shaperExpression.Type));
+
+                shaperExpression = Condition(
+                    Equal(dummyProjection, Default(sentinelNullableType)),
+                    defaultResult,
+                    shaperExpression);
+            }
+
+            var remapper = new ProjectionBindingExpressionRemappingExpressionVisitor(this);
+            var pendingCollectionOffset = _pendingCollections.Count;
+            AddJoin(JoinType.OuterApply, ref innerSelectExpression);
+            var projectionCount = innerSelectExpression.Projection.Count;
+
+            if (projectionCount > 0)
+            {
+                var indexMap = new int[projectionCount];
+                for (var i = 0; i < projectionCount; i++)
+                {
+                    var projectionToAdd = innerSelectExpression.Projection[i].Expression;
+                    if (projectionToAdd is ColumnExpression column)
+                    {
+                        projectionToAdd = column.MakeNullable();
+                    }
+
+                    indexMap[i] = AddToProjection(projectionToAdd);
+                }
+
+                shaperExpression = remapper.RemapIndex(shaperExpression, indexMap, pendingCollectionOffset);
+            }
+            else
+            {
+                var mapping = new Dictionary<ProjectionMember, object>();
+                foreach (var projection in innerSelectExpression._projectionMapping)
+                {
+                    var projectionMember = projection.Key;
+                    var projectionToAdd = projection.Value;
+
+                    if (projectionToAdd is EntityProjectionExpression entityProjection)
+                    {
+                        mapping[projectionMember] = AddToProjection(entityProjection.MakeNullable());
+                    }
+                    else
+                    {
+                        if (projectionToAdd is ColumnExpression column)
+                        {
+                            projectionToAdd = column.MakeNullable();
+                        }
+
+                        mapping[projectionMember] = AddToProjection((SqlExpression)projectionToAdd);
+                    }
+                }
+
+                shaperExpression = remapper.RemapProjectionMember(shaperExpression, mapping, pendingCollectionOffset);
+            }
+
+            return new EntityShaperNullableMarkingExpressionVisitor().Visit(shaperExpression);
+
+            static Expression RemoveConvert(Expression expression)
+                => expression is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Convert
+                        ? RemoveConvert(unaryExpression.Operand)
+                        : expression;
+        }
+
+        /// <summary>
+        ///     Adds a collection to the projection of the <see cref="SelectExpression" />.
+        /// </summary>
+        /// <param name="shapedQueryExpression"> A shaped query expression for the subquery producing collection result. </param>
+        /// <param name="navigation"> A navigation associated with this collection, if any. </param>
+        /// <param name="elementType"> The type of the element in the collection. </param>
+        /// <returns> A <see cref="CollectionShaperExpression" /> which represents shaping of this collection. </returns>
+        public CollectionShaperExpression AddCollectionProjection(
+            ShapedQueryExpression shapedQueryExpression, INavigationBase? navigation, Type elementType)
+        {
+            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
+
+            var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+            _pendingCollections.Add(innerSelectExpression);
+
+            return new CollectionShaperExpression(
+                new ProjectionBindingExpression(this, _pendingCollections.Count - 1, typeof(object)),
+                shapedQueryExpression.ShaperExpression,
+                navigation,
+                elementType);
+        }
+
+        /// <summary>
+        ///     Applies previously added collection projection.
+        /// </summary>
+        /// <param name="collectionIndex"> An int value specifing which collection from pending collection to apply. </param>
+        /// <param name="collectionId"> An int value of unique collection id associated with this collection projection. </param>
+        /// <param name="innerShaper"> A shaper expression to use for shaping the elements of this collection. </param>
+        /// <param name="navigation"> A navigation associated with this collection, if any. </param>
+        /// <param name="elementType"> The type of the element in the collection. </param>
+        /// <param name="splitQuery"> A value indicating whether the collection query would be run with a different DbCommand. </param>
+        /// <returns> An expression which represents shaping of this collection. </returns>
+        public Expression? ApplyCollectionJoin(
+            int collectionIndex,
+            int collectionId,
+            Expression innerShaper,
+            INavigationBase? navigation,
+            Type elementType,
+            bool splitQuery = false)
+        {
+            Check.NotNull(innerShaper, nameof(innerShaper));
+            Check.NotNull(elementType, nameof(elementType));
+
+            var innerSelectExpression = _pendingCollections[collectionIndex]!;
+            _pendingCollections[collectionIndex] = null;
+
+            if (_identifier.Count == 0
+                || innerSelectExpression._identifier.Count == 0)
+            {
+                throw new InvalidOperationException(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin);
+            }
+
+            if (splitQuery)
+            {
+                var containsReferenceToOuter = new SelectExpressionCorrelationFindingExpressionVisitor(this)
+                    .ContainsOuterReference(innerSelectExpression);
+                if (containsReferenceToOuter)
+                {
+                    return null;
+                }
+
+                var identifierFromParent = _identifier;
+                if (innerSelectExpression.Tables.LastOrDefault(e => e is InnerJoinExpression) is InnerJoinExpression
+                        collectionInnerJoinExpression
+                    && collectionInnerJoinExpression.Table is TableExpressionBase collectionTableExpressionBase)
+                {
+                    // This computes true parent identifier count for correlation.
+                    // The last inner joined table in innerSelectExpression brings collection data.
+                    // Further tables load additional data on the collection (hence uses outer pattern)
+                    // So identifier not coming from there (which would be at the start only) are for correlation with parent.
+                    // Parent can have additional identifier if a owned reference was expanded.
+                    var actualParentIdentifierCount = innerSelectExpression._identifier
+                        .TakeWhile(e => !ReferenceEquals(e.Column.Table, collectionTableExpressionBase))
+                        .Count();
+                    identifierFromParent = _identifier.Take(actualParentIdentifierCount).ToList();
+                }
+
+                var parentIdentifier = GetIdentifierAccessor(this, identifierFromParent).Item1;
+                innerSelectExpression.ApplyProjection();
+
+                RemapIdentifiers(innerSelectExpression);
+
+                for (var i = 0; i < identifierFromParent.Count; i++)
+                {
+                    AppendOrdering(new OrderingExpression(identifierFromParent[i].Column, ascending: true));
+                }
+
+                // Copy over ordering from previous collections
+                var innerOrderingExpressions = new List<OrderingExpression>();
+                foreach (var table in innerSelectExpression.Tables)
+                {
+                    if (table is InnerJoinExpression collectionJoinExpression
+                        && collectionJoinExpression.Table is SelectExpression collectionSelectExpression
+                        && collectionSelectExpression.Predicate != null
+                        && collectionSelectExpression.Tables.Count == 1
+                        && collectionSelectExpression.Tables[0] is SelectExpression rowNumberSubquery
+                        && rowNumberSubquery.Projection.Select(pe => pe.Expression)
+                            .OfType<RowNumberExpression>().SingleOrDefault() is RowNumberExpression rowNumberExpression)
+                    {
+                        foreach (var partition in rowNumberExpression.Partitions)
+                        {
+                            innerOrderingExpressions.Add(
+                                new OrderingExpression(
+                                    collectionSelectExpression.GenerateOuterColumn(rowNumberSubquery.GenerateOuterColumn(partition)),
+                                    ascending: true));
+                        }
+
+                        foreach (var ordering in rowNumberExpression.Orderings)
+                        {
+                            innerOrderingExpressions.Add(
+                                new OrderingExpression(
+                                    collectionSelectExpression.GenerateOuterColumn(
+                                        rowNumberSubquery.GenerateOuterColumn(ordering.Expression)),
+                                    ordering.IsAscending));
+                        }
+                    }
+
+                    if (table is CrossApplyExpression collectionApplyExpression
+                        && collectionApplyExpression.Table is SelectExpression collectionSelectExpression2
+                        && collectionSelectExpression2.Orderings.Count > 0)
+                    {
+                        foreach (var ordering in collectionSelectExpression2.Orderings)
+                        {
+                            if (innerSelectExpression._identifier.Any(e => e.Column.Equals(ordering.Expression)))
+                            {
+                                continue;
+                            }
+
+                            innerOrderingExpressions.Add(
+                                new OrderingExpression(
+                                    collectionSelectExpression2.GenerateOuterColumn(ordering.Expression),
+                                    ordering.IsAscending));
+                        }
+                    }
+                }
+
+                var (childIdentifier, childIdentifierValueComparers) = GetIdentifierAccessor(
+                    innerSelectExpression, innerSelectExpression._identifier.Take(identifierFromParent.Count));
+
+                var identifierIndex = 0;
+                var orderingIndex = 0;
+                for (var i = 0; i < Orderings.Count; i++)
+                {
+                    var outerOrdering = Orderings[i];
+                    if (identifierIndex < identifierFromParent.Count
+                        && outerOrdering.Expression.Equals(identifierFromParent[identifierIndex].Column))
+                    {
+                        innerSelectExpression.AppendOrdering(
+                            new OrderingExpression(
+                                innerSelectExpression._identifier[identifierIndex].Column, ascending: true));
+                        identifierIndex++;
+                    }
+                    else
+                    {
+                        if (i < innerSelectExpression.Orderings.Count)
+                        {
+                            continue;
+                        }
+
+                        innerSelectExpression.AppendOrdering(innerOrderingExpressions[orderingIndex]);
+                        orderingIndex++;
+                    }
+                }
+
+                foreach (var orderingExpression in innerOrderingExpressions.Skip(orderingIndex))
+                {
+                    innerSelectExpression.AppendOrdering(orderingExpression);
+                }
+
+                return new RelationalSplitCollectionShaperExpression(
+                    collectionId, parentIdentifier, childIdentifier, childIdentifierValueComparers,
+                    innerSelectExpression, innerShaper, navigation, elementType);
+            }
+            else
+            {
+                var parentIdentifierList = _identifier.Except(_childIdentifiers).ToList();
+
+                var (parentIdentifier, parentIdentifierValueComparers) = GetIdentifierAccessor(this, parentIdentifierList);
+                var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(this, _identifier);
+                var innerClientEval = innerSelectExpression.Projection.Count > 0;
+                innerSelectExpression.ApplyProjection();
+
+                RemapIdentifiers(innerSelectExpression);
+
+                if (collectionIndex == 0)
+                {
+                    foreach (var identifier in parentIdentifierList)
+                    {
+                        AppendOrdering(new OrderingExpression(identifier.Column, ascending: true));
+                    }
+                }
+
+                AddJoin(JoinType.OuterApply, ref innerSelectExpression);
+                var innerOrderingExpressions = new List<OrderingExpression>();
+                var joinedTable = innerSelectExpression.Tables.Single();
+                if (joinedTable is SelectExpression collectionSelectExpression
+                    && collectionSelectExpression.Predicate != null
+                    && collectionSelectExpression.Tables.Count == 1
+                    && collectionSelectExpression.Tables[0] is SelectExpression rowNumberSubquery
+                    && rowNumberSubquery.Projection.Select(pe => pe.Expression)
+                        .OfType<RowNumberExpression>().SingleOrDefault() is RowNumberExpression rowNumberExpression)
+                {
+                    foreach (var partition in rowNumberExpression.Partitions)
+                    {
+                        innerOrderingExpressions.Add(
+                            new OrderingExpression(
+                                collectionSelectExpression.GenerateOuterColumn(rowNumberSubquery.GenerateOuterColumn(partition)),
+                                ascending: true));
+                    }
+
+                    foreach (var ordering in rowNumberExpression.Orderings)
+                    {
+                        innerOrderingExpressions.Add(
+                            new OrderingExpression(
+                                collectionSelectExpression.GenerateOuterColumn(rowNumberSubquery.GenerateOuterColumn(ordering.Expression)),
+                                ordering.IsAscending));
+                    }
+                }
+                else if (joinedTable is SelectExpression collectionSelectExpression2
+                    && collectionSelectExpression2.Orderings.Count > 0)
+                {
+                    foreach (var ordering in collectionSelectExpression2.Orderings)
+                    {
+                        if (innerSelectExpression._identifier.Any(e => e.Column.Equals(ordering.Expression)))
+                        {
+                            continue;
+                        }
+
+                        innerOrderingExpressions.Add(
+                            new OrderingExpression(
+                                collectionSelectExpression2.GenerateOuterColumn(ordering.Expression),
+                                ordering.IsAscending));
+                    }
+                }
+                else
+                {
+                    innerOrderingExpressions.AddRange(innerSelectExpression.Orderings);
+                }
+
+                foreach (var ordering in innerOrderingExpressions)
+                {
+                    AppendOrdering(ordering.Update(MakeNullable(ordering.Expression)));
+                }
+
+                var remapper = new ProjectionBindingExpressionRemappingExpressionVisitor(this);
+                var innerProjectionCount = innerSelectExpression.Projection.Count;
+                var indexMap = new int[innerProjectionCount];
+                for (var i = 0; i < innerProjectionCount; i++)
+                {
+                    indexMap[i] = AddToProjection(MakeNullable(innerSelectExpression.Projection[i].Expression));
+                }
+
+                if (innerClientEval)
+                {
+                    innerShaper = remapper.RemapIndex(innerShaper, indexMap, pendingCollectionOffset: 0);
+                }
+                else
+                {
+                    var mapping = new Dictionary<ProjectionMember, object>();
+                    foreach (var projection in innerSelectExpression._projectionMapping)
+                    {
+                        var value = ((ConstantExpression)projection.Value).Value;
+                        object? mappedValue = null;
+                        if (value is int index)
+                        {
+                            mappedValue = indexMap[index];
+                        }
+                        else if (value is IDictionary<IProperty, int> entityIndexMap)
+                        {
+                            var newEntityIndexMap = new Dictionary<IProperty, int>();
+                            foreach (var item in entityIndexMap)
+                            {
+                                newEntityIndexMap[item.Key] = indexMap[item.Value];
+                            }
+
+                            mappedValue = newEntityIndexMap;
+                        }
+
+                        mapping[projection.Key] = mappedValue!;
+                    }
+
+                    innerShaper = remapper.RemapProjectionMember(innerShaper, mapping, pendingCollectionOffset: 0);
+                }
+
+                innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
+
+                var (selfIdentifier, selfIdentifierValueComparers) = GetIdentifierAccessor(
+                    this,
+                    innerSelectExpression._identifier
+                        .Except(innerSelectExpression._childIdentifiers)
+                        .Select(e => (e.Column.MakeNullable(), e.Comparer)));
+
+                foreach (var identifier in innerSelectExpression._identifier)
+                {
+                    var updatedColumn = identifier.Column.MakeNullable();
+                    _childIdentifiers.Add((updatedColumn, identifier.Comparer));
+                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
+                }
+
+                var result = new RelationalCollectionShaperExpression(
+                    collectionId, parentIdentifier, outerIdentifier, selfIdentifier,
+                    parentIdentifierValueComparers, outerIdentifierValueComparers, selfIdentifierValueComparers,
+                    innerShaper, navigation, elementType);
+
+                return result;
+            }
+
+            static SqlExpression MakeNullable(SqlExpression sqlExpression)
+                => sqlExpression is ColumnExpression column ? column.MakeNullable() : sqlExpression;
+
+            static void RemapIdentifiers(SelectExpression innerSelectExpression)
+            {
+                if (innerSelectExpression.IsDistinct
+                    || innerSelectExpression.GroupBy.Count > 0)
+                {
+                    if (!IdentifiersInProjection(innerSelectExpression, out var missingIdentifier))
+                    {
+                        // we can safely clear identifiers here - child identifiers will always be empty at this point
+                        // - nested collection scenarios where distinct is applied after projection are blocked
+                        //   since we can't translate them in any meaningful way
+                        // - if distinct is applied before the projection, pushdown happens which guarantees child identifiers to be empty
+                        // - for groupby we only support aggregate scenarios so collection can never happen in the projection
+                        if (innerSelectExpression.IsDistinct)
+                        {
+                            if (innerSelectExpression._projection.All(p => p.Expression is ColumnExpression))
+                            {
+                                innerSelectExpression._identifier.Clear();
+                                foreach (var projection in innerSelectExpression._projection)
+                                {
+                                    innerSelectExpression._identifier.Add(((ColumnExpression)projection.Expression, projection.Expression.TypeMapping!.Comparer));
+                                }
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException(
+                                    RelationalStrings.UnableToTranslateSubqueryWithDistinct(
+                                        missingIdentifier.Table.Alias + "." + missingIdentifier.Name));
+                            }
+                        }
+                        else
+                        {
+                            if (innerSelectExpression.GroupBy.All(g => g is ColumnExpression))
+                            {
+                                innerSelectExpression._identifier.Clear();
+                                foreach (var grouping in innerSelectExpression.GroupBy)
+                                {
+                                    innerSelectExpression._identifier.Add(((ColumnExpression)grouping, grouping.TypeMapping!.Comparer));
+                                }
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException(
+                                    RelationalStrings.UnableToTranslateSubqueryWithGroupBy(
+                                        missingIdentifier.Table.Alias + "." + missingIdentifier.Name));
+                            }
+                        }
+                    }
+                }
+            }
+
+            static bool IdentifiersInProjection(
+                SelectExpression selectExpression,
+                [NotNullWhen(false)] out ColumnExpression? missingIdentifier)
+            {
+                var innerSelectProjectionExpressions = selectExpression._projection.Select(p => p.Expression).ToList();
+                foreach (var innerSelectIdentifier in selectExpression._identifier)
+                {
+                    if (!innerSelectProjectionExpressions.Contains(innerSelectIdentifier.Column)
+                        && (selectExpression.GroupBy.Count == 0
+                            || !selectExpression.GroupBy.Contains(innerSelectIdentifier.Column)))
+                    {
+                        missingIdentifier = innerSelectIdentifier.Column;
+
+                        return false;
+                    }
+                }
+
+                missingIdentifier = null;
+
+                return true;
+            }
+
+            static (Expression, IReadOnlyList<ValueComparer>) GetIdentifierAccessor(
+                SelectExpression selectExpression,
+                IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifyingProjection)
+            {
+                var updatedExpressions = new List<Expression>();
+                var comparers = new List<ValueComparer>();
+                foreach (var keyExpression in identifyingProjection)
+                {
+                    var index = selectExpression.AddToProjection(keyExpression.Column);
+                    var projectionBindingExpression = new ProjectionBindingExpression(
+                        selectExpression, index, keyExpression.Column.Type.MakeNullable());
+
+                    updatedExpressions.Add(
+                        projectionBindingExpression.Type.IsValueType
+                            ? Convert(projectionBindingExpression, typeof(object))
+                            : (Expression)projectionBindingExpression);
+                    comparers.Add(keyExpression.Comparer);
+                }
+
+                return (NewArrayInit(typeof(object), updatedExpressions), comparers);
             }
         }
 
@@ -634,6 +1112,38 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
+        ///     Reverses the existing orderings on the <see cref="SelectExpression" />.
+        /// </summary>
+        public void ReverseOrderings()
+        {
+            if (Limit != null
+                || Offset != null)
+            {
+                PushdownIntoSubquery();
+            }
+
+            var existingOrdering = _orderings.ToArray();
+
+            _orderings.Clear();
+
+            for (var i = 0; i < existingOrdering.Length; i++)
+            {
+                _orderings.Add(
+                    new OrderingExpression(
+                        existingOrdering[i].Expression,
+                        !existingOrdering[i].IsAscending));
+            }
+        }
+
+        /// <summary>
+        ///     Clears existing orderings.
+        /// </summary>
+        public void ClearOrdering()
+        {
+            _orderings.Clear();
+        }
+
+        /// <summary>
         ///     Applies limit to the <see cref="SelectExpression" /> to limit the number of rows returned in the result set.
         /// </summary>
         /// <param name="sqlExpression"> An expression representing limit row count. </param>
@@ -665,129 +1175,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             Offset = sqlExpression;
-        }
-
-        /// <summary>
-        ///     Reverses the existing orderings on the <see cref="SelectExpression" />.
-        /// </summary>
-        public void ReverseOrderings()
-        {
-            if (Limit != null
-                || Offset != null)
-            {
-                PushdownIntoSubquery();
-            }
-
-            var existingOrdering = _orderings.ToArray();
-
-            _orderings.Clear();
-
-            for (var i = 0; i < existingOrdering.Length; i++)
-            {
-                _orderings.Add(
-                    new OrderingExpression(
-                        existingOrdering[i].Expression,
-                        !existingOrdering[i].IsAscending));
-            }
-        }
-
-        /// <summary>
-        ///     Applies DISTINCT operator to the projections of the <see cref="SelectExpression" />.
-        /// </summary>
-        public void ApplyDistinct()
-        {
-            if (_pendingCollections.Count > 0)
-            {
-                throw new InvalidOperationException(RelationalStrings.DistinctOnCollectionNotSupported);
-            }
-
-            if (Limit != null
-                || Offset != null)
-            {
-                PushdownIntoSubquery();
-            }
-
-            IsDistinct = true;
-
-            ClearOrdering();
-        }
-
-        /// <summary>
-        ///     Applies <see cref="Queryable.DefaultIfEmpty{TSource}(IQueryable{TSource})" /> on the <see cref="SelectExpression" />.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A factory to use for generating required sql expressions. </param>
-        public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
-        {
-            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
-
-            var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
-                new SqlConstantExpression(Constant(null, typeof(string)), null));
-
-            var dummySelectExpression = new SelectExpression(
-                alias: "empty",
-                new List<ProjectionExpression> { new(nullSqlExpression, "empty") },
-                new List<TableExpressionBase>(),
-                new List<SqlExpression>(),
-                new List<OrderingExpression>());
-
-            if (Orderings.Any()
-                || Limit != null
-                || Offset != null
-                || IsDistinct
-                || Predicate != null
-                || Tables.Count > 1
-                || GroupBy.Count > 0)
-            {
-                PushdownIntoSubquery();
-            }
-
-            var joinPredicate = sqlExpressionFactory.Equal(sqlExpressionFactory.Constant(1), sqlExpressionFactory.Constant(1));
-            var joinTable = new LeftJoinExpression(Tables.Single(), joinPredicate);
-            _tables.Clear();
-            _tables.Add(dummySelectExpression);
-            _tables.Add(joinTable);
-
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-            foreach (var projection in _projectionMapping)
-            {
-                var projectionToAdd = projection.Value;
-                if (projectionToAdd is EntityProjectionExpression entityProjection)
-                {
-                    projectionToAdd = entityProjection.MakeNullable();
-                }
-                else if (projectionToAdd is ColumnExpression column)
-                {
-                    projectionToAdd = column.MakeNullable();
-                }
-
-                projectionMapping[projection.Key] = projectionToAdd;
-            }
-
-            for (var i = 0; i < _identifier.Count; i++)
-            {
-                if (_identifier[i].Column is ColumnExpression column)
-                {
-                    _identifier[i] = (column.MakeNullable(), _identifier[i].Comparer);
-                }
-            }
-
-            for (var i = 0; i < _childIdentifiers.Count; i++)
-            {
-                if (_childIdentifiers[i].Column is ColumnExpression column)
-                {
-                    _childIdentifiers[i] = (column.MakeNullable(), _childIdentifiers[i].Comparer);
-                }
-            }
-
-            _projectionMapping = projectionMapping;
-        }
-
-        /// <summary>
-        ///     Clears existing orderings.
-        /// </summary>
-        public void ClearOrdering()
-        {
-            _orderings.Clear();
         }
 
         private enum SetOperationType
@@ -969,7 +1356,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     discriminatorExpression = GenerateDiscriminatorExpression(
                         select1, projection1.DiscriminatorExpression,
                         select2, projection2.DiscriminatorExpression,
-                        DiscriminatorColumnAlias);
+                        _discriminatorColumnAlias);
                 }
 
                 _projectionMapping[projectionMember] = new EntityProjectionExpression(
@@ -1039,12 +1426,912 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 };
         }
 
-        private ColumnExpression GenerateOuterColumn(SqlExpression projection, string? alias = null)
+        /// <summary>
+        ///     Applies <see cref="Queryable.DefaultIfEmpty{TSource}(IQueryable{TSource})" /> on the <see cref="SelectExpression" />.
+        /// </summary>
+        /// <param name="sqlExpressionFactory"> A factory to use for generating required sql expressions. </param>
+        public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
         {
-            var index = AddToProjection(projection, alias);
+            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
 
-            return new ColumnExpression(_projection[index], this);
+            var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
+                new SqlConstantExpression(Constant(null, typeof(string)), null));
+
+            var dummySelectExpression = new SelectExpression(
+                alias: "empty",
+                new List<ProjectionExpression> { new(nullSqlExpression, "empty") },
+                new List<TableExpressionBase>(),
+                new List<SqlExpression>(),
+                new List<OrderingExpression>());
+
+            if (Orderings.Any()
+                || Limit != null
+                || Offset != null
+                || IsDistinct
+                || Predicate != null
+                || Tables.Count > 1
+                || GroupBy.Count > 0)
+            {
+                PushdownIntoSubquery();
+            }
+
+            var joinPredicate = sqlExpressionFactory.Equal(sqlExpressionFactory.Constant(1), sqlExpressionFactory.Constant(1));
+            var joinTable = new LeftJoinExpression(Tables.Single(), joinPredicate);
+            _tables.Clear();
+            _tables.Add(dummySelectExpression);
+            _tables.Add(joinTable);
+
+            var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+            foreach (var projection in _projectionMapping)
+            {
+                var projectionToAdd = projection.Value;
+                if (projectionToAdd is EntityProjectionExpression entityProjection)
+                {
+                    projectionToAdd = entityProjection.MakeNullable();
+                }
+                else if (projectionToAdd is ColumnExpression column)
+                {
+                    projectionToAdd = column.MakeNullable();
+                }
+
+                projectionMapping[projection.Key] = projectionToAdd;
+            }
+
+            for (var i = 0; i < _identifier.Count; i++)
+            {
+                if (_identifier[i].Column is ColumnExpression column)
+                {
+                    _identifier[i] = (column.MakeNullable(), _identifier[i].Comparer);
+                }
+            }
+
+            for (var i = 0; i < _childIdentifiers.Count; i++)
+            {
+                if (_childIdentifiers[i].Column is ColumnExpression column)
+                {
+                    _childIdentifiers[i] = (column.MakeNullable(), _childIdentifiers[i].Comparer);
+                }
+            }
+
+            _projectionMapping = projectionMapping;
         }
+
+        private enum JoinType
+        {
+            InnerJoin,
+            LeftJoin,
+            CrossJoin,
+            CrossApply,
+            OuterApply
+        }
+
+        private Expression AddJoin(
+            JoinType joinType,
+            SelectExpression innerSelectExpression,
+            Expression outerShaper,
+            Expression innerShaper,
+            SqlExpression? joinPredicate = null)
+        {
+            var pendingCollectionOffset = _pendingCollections.Count;
+            AddJoin(joinType, ref innerSelectExpression, joinPredicate);
+
+            var transparentIdentifierType = TransparentIdentifierFactory.Create(outerShaper.Type, innerShaper.Type);
+            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
+            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
+            var outerClientEval = Projection.Count > 0;
+            var innerClientEval = innerSelectExpression.Projection.Count > 0;
+            var remapper = new ProjectionBindingExpressionRemappingExpressionVisitor(this);
+            var innerNullable = joinType == JoinType.LeftJoin || joinType == JoinType.OuterApply;
+
+            if (outerClientEval)
+            {
+                if (innerClientEval)
+                {
+                    var indexMap = new int[innerSelectExpression.Projection.Count];
+                    for (var i = 0; i < innerSelectExpression.Projection.Count; i++)
+                    {
+                        var projectionToAdd = innerSelectExpression.Projection[i].Expression;
+                        if (projectionToAdd is ColumnExpression column)
+                        {
+                            projectionToAdd = column.MakeNullable();
+                        }
+
+                        indexMap[i] = AddToProjection(projectionToAdd);
+                    }
+
+                    innerShaper = remapper.RemapIndex(innerShaper, indexMap, pendingCollectionOffset);
+                    _projectionMapping.Clear();
+                }
+                else
+                {
+                    var mapping = new Dictionary<ProjectionMember, object>();
+                    foreach (var projection in innerSelectExpression._projectionMapping)
+                    {
+                        var projectionMember = projection.Key;
+                        var projectionToAdd = projection.Value;
+
+                        if (projectionToAdd is EntityProjectionExpression entityProjection)
+                        {
+                            mapping[projectionMember] = AddToProjection(entityProjection.MakeNullable());
+                        }
+                        else
+                        {
+                            if (projectionToAdd is ColumnExpression column)
+                            {
+                                projectionToAdd = column.MakeNullable();
+                            }
+
+                            mapping[projectionMember] = AddToProjection((SqlExpression)projectionToAdd);
+                        }
+                    }
+
+                    innerShaper = remapper.RemapProjectionMember(innerShaper, mapping, pendingCollectionOffset);
+                    _projectionMapping.Clear();
+                }
+            }
+            else
+            {
+                if (innerClientEval)
+                {
+                    var mapping = new Dictionary<ProjectionMember, object>();
+                    foreach (var projection in _projectionMapping)
+                    {
+                        var projectionToAdd = projection.Value;
+
+                        mapping[projection.Key] = projectionToAdd is EntityProjectionExpression entityProjection
+                            ? AddToProjection(entityProjection)
+                            : (object)AddToProjection((SqlExpression)projectionToAdd);
+                    }
+
+                    outerShaper = remapper.RemapProjectionMember(outerShaper, mapping);
+
+                    var indexMap = new int[innerSelectExpression.Projection.Count];
+                    for (var i = 0; i < innerSelectExpression.Projection.Count; i++)
+                    {
+                        var projectionToAdd = innerSelectExpression.Projection[i].Expression;
+                        if (projectionToAdd is ColumnExpression column)
+                        {
+                            projectionToAdd = column.MakeNullable();
+                        }
+
+                        indexMap[i] = AddToProjection(projectionToAdd);
+                    }
+
+                    innerShaper = remapper.RemapIndex(innerShaper, indexMap, pendingCollectionOffset);
+                    _projectionMapping.Clear();
+                }
+                else
+                {
+                    var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+                    var mapping = new Dictionary<ProjectionMember, object>();
+
+                    foreach (var projection in _projectionMapping)
+                    {
+                        var projectionMember = projection.Key;
+                        var remappedProjectionMember = projection.Key.Prepend(outerMemberInfo);
+                        mapping[projectionMember] = remappedProjectionMember;
+                        projectionMapping[remappedProjectionMember] = projection.Value;
+                    }
+
+                    outerShaper = remapper.RemapProjectionMember(outerShaper, mapping);
+                    mapping.Clear();
+
+                    foreach (var projection in innerSelectExpression._projectionMapping)
+                    {
+                        var projectionMember = projection.Key;
+                        var remappedProjectionMember = projection.Key.Prepend(innerMemberInfo);
+                        mapping[projectionMember] = remappedProjectionMember;
+                        var projectionToAdd = projection.Value;
+                        if (innerNullable)
+                        {
+                            if (projectionToAdd is EntityProjectionExpression entityProjection)
+                            {
+                                projectionToAdd = entityProjection.MakeNullable();
+                            }
+                            else if (projectionToAdd is ColumnExpression column)
+                            {
+                                projectionToAdd = column.MakeNullable();
+                            }
+                        }
+
+                        projectionMapping[remappedProjectionMember] = projectionToAdd;
+                    }
+
+                    innerShaper = remapper.RemapProjectionMember(innerShaper, mapping, pendingCollectionOffset);
+                    _projectionMapping = projectionMapping;
+                }
+            }
+
+            if (innerNullable)
+            {
+                innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
+            }
+
+            return New(
+                transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
+                new[] { outerShaper, innerShaper }, outerMemberInfo, innerMemberInfo);
+        }
+
+        private void AddJoin(
+            JoinType joinType,
+            ref SelectExpression innerSelectExpression,
+            SqlExpression? joinPredicate = null)
+        {
+            // Try to convert Apply to normal join
+            if (joinType == JoinType.CrossApply
+                || joinType == JoinType.OuterApply)
+            {
+                var limit = innerSelectExpression.Limit;
+                var offset = innerSelectExpression.Offset;
+                innerSelectExpression.Limit = null;
+                innerSelectExpression.Offset = null;
+
+                joinPredicate = TryExtractJoinKey(this, innerSelectExpression, allowNonEquality: limit == null && offset == null);
+                if (joinPredicate != null)
+                {
+                    var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(this)
+                        .ContainsOuterReference(innerSelectExpression);
+                    if (containsOuterReference)
+                    {
+                        innerSelectExpression.ApplyPredicate(joinPredicate);
+                        joinPredicate = null;
+                        if (limit != null)
+                        {
+                            innerSelectExpression.ApplyLimit(limit);
+                        }
+
+                        if (offset != null)
+                        {
+                            innerSelectExpression.ApplyOffset(offset);
+                        }
+                    }
+                    else
+                    {
+                        if (limit != null || offset != null)
+                        {
+                            var partitions = new List<SqlExpression>();
+                            GetPartitions(joinPredicate, partitions);
+                            var orderings = innerSelectExpression.Orderings.Count > 0
+                                ? innerSelectExpression.Orderings
+                                : innerSelectExpression._identifier.Count > 0
+                                    ? innerSelectExpression._identifier.Select(e => new OrderingExpression(e.Column, true))
+                                    : new[] { new OrderingExpression(new SqlFragmentExpression("(SELECT 1)"), true) };
+
+                            var rowNumberExpression = new RowNumberExpression(
+                                partitions, orderings.ToList(), (limit ?? offset)!.TypeMapping);
+                            innerSelectExpression.ClearOrdering();
+
+                            var projectionMappings = innerSelectExpression.PushdownIntoSubquery();
+                            var subquery = (SelectExpression)innerSelectExpression.Tables[0];
+
+                            joinPredicate = new SqlRemappingVisitor(projectionMappings, subquery).Remap(joinPredicate);
+
+                            var outerColumn = subquery.GenerateOuterColumn(rowNumberExpression, "row");
+                            SqlExpression? offsetPredicate = null;
+                            SqlExpression? limitPredicate = null;
+                            if (offset != null)
+                            {
+                                offsetPredicate = new SqlBinaryExpression(
+                                    ExpressionType.LessThan, offset, outerColumn, typeof(bool), joinPredicate.TypeMapping);
+                            }
+
+                            if (limit != null)
+                            {
+                                if (offset != null)
+                                {
+                                    limit = offset is SqlConstantExpression offsetConstant
+                                        && limit is SqlConstantExpression limitConstant
+                                            ? (SqlExpression)new SqlConstantExpression(
+                                                Constant((int)offsetConstant.Value! + (int)limitConstant.Value!),
+                                                limit.TypeMapping)
+                                            : new SqlBinaryExpression(ExpressionType.Add, offset, limit, limit.Type, limit.TypeMapping);
+                                }
+
+                                limitPredicate = new SqlBinaryExpression(
+                                    ExpressionType.LessThanOrEqual, outerColumn, limit, typeof(bool), joinPredicate.TypeMapping);
+                            }
+
+                            var predicate = offsetPredicate != null
+                                ? limitPredicate != null
+                                    ? new SqlBinaryExpression(
+                                        ExpressionType.AndAlso, offsetPredicate, limitPredicate, typeof(bool), joinPredicate.TypeMapping)
+                                    : offsetPredicate
+                                : limitPredicate;
+                            innerSelectExpression.ApplyPredicate(predicate!);
+                        }
+
+                        joinType = joinType == JoinType.CrossApply ? JoinType.InnerJoin : JoinType.LeftJoin;
+                    }
+                }
+                else
+                {
+                    // Order matters Apply Offset before Limit
+                    if (offset != null)
+                    {
+                        innerSelectExpression.ApplyOffset(offset);
+                    }
+
+                    if (limit != null)
+                    {
+                        innerSelectExpression.ApplyLimit(limit);
+                    }
+                }
+            }
+
+            // Verify what are the cases of pushdown for inner & outer both sides
+            if (Limit != null
+                || Offset != null
+                || IsDistinct
+                || GroupBy.Count > 0)
+            {
+                var sqlRemappingVisitor = new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0]);
+                innerSelectExpression = sqlRemappingVisitor.Remap(innerSelectExpression);
+                joinPredicate = sqlRemappingVisitor.Remap(joinPredicate);
+            }
+
+            if (innerSelectExpression.Orderings.Any()
+                || innerSelectExpression.Limit != null
+                || innerSelectExpression.Offset != null
+                || innerSelectExpression.IsDistinct
+                || innerSelectExpression.Predicate != null
+                || innerSelectExpression.Tables.Count > 1
+                || innerSelectExpression.GroupBy.Count > 0)
+            {
+                joinPredicate = new SqlRemappingVisitor(
+                        innerSelectExpression.PushdownIntoSubquery(), (SelectExpression)innerSelectExpression.Tables[0])
+                    .Remap(joinPredicate);
+            }
+
+            if (_identifier.Count > 0
+                && innerSelectExpression._identifier.Count > 0)
+            {
+                if (joinType == JoinType.LeftJoin
+                    || joinType == JoinType.OuterApply)
+                {
+                    _identifier.AddRange(innerSelectExpression._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
+                }
+                else
+                {
+                    _identifier.AddRange(innerSelectExpression._identifier);
+                }
+            }
+            else if (innerSelectExpression._identifier.Count == 0)
+            {
+                // if the subquery that is joined to can't be uniquely identified
+                // then the entire join should also not be marked as non-identifiable
+                _identifier.Clear();
+            }
+
+            var innerTable = innerSelectExpression.Tables.Single();
+            // Copy over pending collection if in join else that info would be lost.
+            // The calling method is supposed to take care of remapping the shaper so that copied over collection indexes match.
+            _pendingCollections.AddRange(innerSelectExpression._pendingCollections);
+
+            var joinTable = joinType switch
+            {
+                JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate!),
+                JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate!),
+                JoinType.CrossJoin => new CrossJoinExpression(innerTable),
+                JoinType.CrossApply => new CrossApplyExpression(innerTable),
+                JoinType.OuterApply => (TableExpressionBase)new OuterApplyExpression(innerTable),
+                _ => throw new InvalidOperationException(CoreStrings.InvalidSwitch(nameof(joinType), joinType))
+            };
+
+            _tables.Add(joinTable);
+
+            static void GetPartitions(SqlExpression sqlExpression, List<SqlExpression> partitions)
+            {
+                if (sqlExpression is SqlBinaryExpression sqlBinaryExpression)
+                {
+                    if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
+                    {
+                        partitions.Add(sqlBinaryExpression.Right);
+                    }
+                    else if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+                    {
+                        GetPartitions(sqlBinaryExpression.Left, partitions);
+                        GetPartitions(sqlBinaryExpression.Right, partitions);
+                    }
+                }
+            }
+
+            static SqlExpression? TryExtractJoinKey(SelectExpression outer, SelectExpression inner, bool allowNonEquality)
+            {
+                if (inner.Limit == null
+                    && inner.Offset == null
+                    && inner.Predicate != null)
+                {
+                    var columnExpressions = new List<ColumnExpression>();
+                    var joinPredicate = TryExtractJoinKey(
+                        outer,
+                        inner,
+                        inner.Predicate,
+                        columnExpressions,
+                        allowNonEquality,
+                        out var predicate);
+
+                    if (joinPredicate != null)
+                    {
+                        joinPredicate = RemoveRedundantNullChecks(joinPredicate, columnExpressions);
+                    }
+
+                    // we can't convert apply to join in case of distinct and groupby, if the projection doesn't already contain the join keys
+                    // since we can't add the missing keys to the projection - only convert to join if all the keys are already there
+                    if (joinPredicate != null
+                        && (inner.IsDistinct
+                        || inner.GroupBy.Count > 0))
+                    {
+                        var innerKeyColumns = new List<ColumnExpression>();
+                        InnerKeyColumns(inner.Tables, joinPredicate, innerKeyColumns);
+
+                        // if projection has already been applied we can use it directly
+                        // otherwise we extract future projection columns from projection mapping
+                        // and based on that we determine whether we can convert from APPLY to JOIN
+                        var projectionColumns = inner.Projection.Count > 0
+                            ? inner.Projection.Select(p => p.Expression)
+                            : ExtractColumnsFromProjectionMapping(inner._projectionMapping);
+
+                        foreach (var innerColumn in innerKeyColumns)
+                        {
+                            if (!projectionColumns.Contains(innerColumn))
+                            {
+                                return null;
+                            }
+                        }
+                    }
+
+                    inner.Predicate = predicate;
+
+                    return joinPredicate;
+                }
+
+                return null;
+
+                static SqlExpression? TryExtractJoinKey(
+                    SelectExpression outer,
+                    SelectExpression inner,
+                    SqlExpression predicate,
+                    List<ColumnExpression> columnExpressions,
+                    bool allowNonEquality,
+                    out SqlExpression? updatedPredicate)
+                {
+                    if (predicate is SqlBinaryExpression sqlBinaryExpression)
+                    {
+                        var joinPredicate = ValidateKeyComparison(outer, inner, sqlBinaryExpression, columnExpressions, allowNonEquality);
+                        if (joinPredicate != null)
+                        {
+                            updatedPredicate = null;
+
+                            return joinPredicate;
+                        }
+
+                        if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+                        {
+                            var leftJoinKey = TryExtractJoinKey(
+                                outer, inner, sqlBinaryExpression.Left, columnExpressions, allowNonEquality, out var leftPredicate);
+                            var rightJoinKey = TryExtractJoinKey(
+                                outer, inner, sqlBinaryExpression.Right, columnExpressions, allowNonEquality, out var rightPredicate);
+
+                            updatedPredicate = CombineNonNullExpressions(leftPredicate, rightPredicate);
+
+                            return CombineNonNullExpressions(leftJoinKey, rightJoinKey);
+                        }
+                    }
+
+                    updatedPredicate = predicate;
+
+                    return null;
+                }
+
+                static SqlBinaryExpression? ValidateKeyComparison(
+                    SelectExpression outer,
+                    SelectExpression inner,
+                    SqlBinaryExpression sqlBinaryExpression,
+                    List<ColumnExpression> columnExpressions,
+                    bool allowNonEquality)
+                {
+                    if (sqlBinaryExpression.OperatorType == ExpressionType.Equal
+                        || (allowNonEquality
+                            && (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
+                                || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
+                                || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
+                                || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
+                                || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual)))
+                    {
+                        if (sqlBinaryExpression.Left is ColumnExpression leftColumn
+                            && sqlBinaryExpression.Right is ColumnExpression rightColumn)
+                        {
+                            if (outer.ContainsTableReference(leftColumn.Table)
+                                && inner.ContainsTableReference(rightColumn.Table))
+                            {
+                                columnExpressions.Add(leftColumn);
+
+                                return sqlBinaryExpression;
+                            }
+
+                            if (outer.ContainsTableReference(rightColumn.Table)
+                                && inner.ContainsTableReference(leftColumn.Table))
+                            {
+                                columnExpressions.Add(rightColumn);
+
+                                return new SqlBinaryExpression(
+                                    _mirroredOperationMap[sqlBinaryExpression.OperatorType],
+                                    sqlBinaryExpression.Right,
+                                    sqlBinaryExpression.Left,
+                                    sqlBinaryExpression.Type,
+                                    sqlBinaryExpression.TypeMapping);
+                            }
+                        }
+                    }
+
+                    // null checks are considered part of join key
+                    if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
+                    {
+                        if (sqlBinaryExpression.Left is ColumnExpression leftNullCheckColumn
+                            && outer.ContainsTableReference(leftNullCheckColumn.Table)
+                            && sqlBinaryExpression.Right is SqlConstantExpression rightConstant
+                            && rightConstant.Value == null)
+                        {
+                            return sqlBinaryExpression;
+                        }
+
+                        if (sqlBinaryExpression.Right is ColumnExpression rightNullCheckColumn
+                            && outer.ContainsTableReference(rightNullCheckColumn.Table)
+                            && sqlBinaryExpression.Left is SqlConstantExpression leftConstant
+                            && leftConstant.Value == null)
+                        {
+                            return sqlBinaryExpression.Update(
+                                sqlBinaryExpression.Right,
+                                sqlBinaryExpression.Left);
+                        }
+                    }
+
+                    return null;
+                }
+
+                static void InnerKeyColumns(IEnumerable<TableExpressionBase> tables, SqlExpression joinPredicate, List<ColumnExpression> resultColumns)
+                {
+                    if (joinPredicate is SqlBinaryExpression sqlBinaryExpression)
+                    {
+                        InnerKeyColumns(tables, sqlBinaryExpression.Left, resultColumns);
+                        InnerKeyColumns(tables, sqlBinaryExpression.Right, resultColumns);
+                    }
+                    else if (joinPredicate is ColumnExpression columnExpression
+                        && tables.Contains(columnExpression.Table))
+                    {
+                        resultColumns.Add(columnExpression);
+                    }
+                }
+
+                static List<ColumnExpression> ExtractColumnsFromProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
+                {
+                    var result = new List<ColumnExpression>();
+                    foreach (var mappingElement in projectionMapping)
+                    {
+                        if (mappingElement.Value is EntityProjectionExpression entityProjection)
+                        {
+                            foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                            {
+                                result.Add(entityProjection.BindProperty(property));
+                            }
+
+                            if (entityProjection.DiscriminatorExpression != null
+                                && entityProjection.DiscriminatorExpression is ColumnExpression discriminatorColumn)
+                            {
+                                result.Add(discriminatorColumn);
+                            }
+                        }
+                        else if (mappingElement.Value is ColumnExpression column)
+                        {
+                            result.Add(column);
+                        }
+                    }
+
+                    return result;
+                }
+
+                static SqlExpression? CombineNonNullExpressions(SqlExpression? left, SqlExpression? right)
+                    => left != null
+                        ? right != null
+                            ? new SqlBinaryExpression(ExpressionType.AndAlso, left, right, left.Type, left.TypeMapping)
+                            : left
+                        : right;
+
+                static SqlExpression? RemoveRedundantNullChecks(SqlExpression predicate, List<ColumnExpression> columnExpressions)
+                {
+                    if (predicate is SqlBinaryExpression sqlBinaryExpression)
+                    {
+                        if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
+                            && sqlBinaryExpression.Left is ColumnExpression leftColumn
+                            && columnExpressions.Contains(leftColumn)
+                            && sqlBinaryExpression.Right is SqlConstantExpression sqlConstantExpression
+                            && sqlConstantExpression.Value == null)
+                        {
+                            return null;
+                        }
+
+                        if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+                        {
+                            var leftPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Left, columnExpressions);
+                            var rightPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Right, columnExpressions);
+
+                            return CombineNonNullExpressions(leftPredicate, rightPredicate);
+                        }
+                    }
+
+                    return predicate;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Adds the given <see cref="SelectExpression" /> to table sources using INNER JOIN.
+        /// </summary>
+        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
+        /// <param name="joinPredicate"> A predicate to use for the join. </param>
+        public void AddInnerJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+            Check.NotNull(joinPredicate, nameof(joinPredicate));
+
+            AddJoin(JoinType.InnerJoin, ref innerSelectExpression, joinPredicate);
+        }
+
+        /// <summary>
+        ///     Adds the given <see cref="SelectExpression" /> to table sources using LEFT JOIN.
+        /// </summary>
+        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
+        /// <param name="joinPredicate"> A predicate to use for the join. </param>
+        public void AddLeftJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+            Check.NotNull(joinPredicate, nameof(joinPredicate));
+
+            AddJoin(JoinType.LeftJoin, ref innerSelectExpression, joinPredicate);
+        }
+
+        /// <summary>
+        ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS JOIN.
+        /// </summary>
+        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
+        public void AddCrossJoin(SelectExpression innerSelectExpression)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+
+            AddJoin(JoinType.CrossJoin, ref innerSelectExpression);
+        }
+
+        /// <summary>
+        ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS APPLY.
+        /// </summary>
+        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
+        public void AddCrossApply(SelectExpression innerSelectExpression)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+
+            AddJoin(JoinType.CrossApply, ref innerSelectExpression);
+        }
+
+        /// <summary>
+        ///     Adds the given <see cref="SelectExpression" /> to table sources using OUTER APPLY.
+        /// </summary>
+        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
+        public void AddOuterApply(SelectExpression innerSelectExpression)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+
+            AddJoin(JoinType.OuterApply, ref innerSelectExpression);
+        }
+
+        /// <summary>
+        ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using INNER JOIN and combine shapers.
+        /// </summary>
+        /// <param name="innerSource"> A <see cref="ShapedQueryExpression" /> to join with. </param>
+        /// <param name="joinPredicate"> A predicate to use for the join. </param>
+        /// <param name="outerShaper"> An expression for outer shaper. </param>
+        /// <returns> An expression which shapes the result of this join. </returns>
+        public Expression AddInnerJoin(
+            ShapedQueryExpression innerSource,
+            SqlExpression joinPredicate,
+            Expression outerShaper)
+        {
+            Check.NotNull(innerSource, nameof(innerSource));
+            Check.NotNull(joinPredicate, nameof(joinPredicate));
+            Check.NotNull(outerShaper, nameof(outerShaper));
+
+            return AddJoin(
+                JoinType.InnerJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
+                joinPredicate);
+        }
+
+        /// <summary>
+        ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using LEFT JOIN and combine shapers.
+        /// </summary>
+        /// <param name="innerSource"> A <see cref="ShapedQueryExpression" /> to join with. </param>
+        /// <param name="joinPredicate"> A predicate to use for the join. </param>
+        /// <param name="outerShaper"> An expression for outer shaper. </param>
+        /// <returns> An expression which shapes the result of this join. </returns>
+        public Expression AddLeftJoin(
+            ShapedQueryExpression innerSource,
+            SqlExpression joinPredicate,
+            Expression outerShaper)
+        {
+            Check.NotNull(innerSource, nameof(innerSource));
+            Check.NotNull(joinPredicate, nameof(joinPredicate));
+            Check.NotNull(outerShaper, nameof(outerShaper));
+
+            return AddJoin(
+                JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression, joinPredicate);
+        }
+
+        /// <summary>
+        ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using CROSS JOIN and combine shapers.
+        /// </summary>
+        /// <param name="innerSource"> A <see cref="ShapedQueryExpression" /> to join with. </param>
+        /// <param name="outerShaper"> An expression for outer shaper. </param>
+        /// <returns> An expression which shapes the result of this join. </returns>
+        public Expression AddCrossJoin(
+            ShapedQueryExpression innerSource,
+            Expression outerShaper)
+        {
+            Check.NotNull(innerSource, nameof(innerSource));
+            Check.NotNull(outerShaper, nameof(outerShaper));
+
+            return AddJoin(JoinType.CrossJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
+        }
+
+        /// <summary>
+        ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using CROSS APPLY and combine shapers.
+        /// </summary>
+        /// <param name="innerSource"> A <see cref="ShapedQueryExpression" /> to join with. </param>
+        /// <param name="outerShaper"> An expression for outer shaper. </param>
+        /// <returns> An expression which shapes the result of this join. </returns>
+        public Expression AddCrossApply(
+            ShapedQueryExpression innerSource,
+            Expression outerShaper)
+        {
+            Check.NotNull(innerSource, nameof(innerSource));
+            Check.NotNull(outerShaper, nameof(outerShaper));
+
+            return AddJoin(JoinType.CrossApply, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
+        }
+
+        /// <summary>
+        ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using OUTER APPLY and combine shapers.
+        /// </summary>
+        /// <param name="innerSource"> A <see cref="ShapedQueryExpression" /> to join with. </param>
+        /// <param name="outerShaper"> An expression for outer shaper. </param>
+        /// <returns> An expression which shapes the result of this join. </returns>
+        public Expression AddOuterApply(
+            ShapedQueryExpression innerSource,
+            Expression outerShaper)
+        {
+            Check.NotNull(innerSource, nameof(innerSource));
+            Check.NotNull(outerShaper, nameof(outerShaper));
+
+            return AddJoin(JoinType.OuterApply, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
+        }
+
+        #region ObsoleteMethods
+
+        [Obsolete]
+        private void AddJoin(
+            JoinType joinType,
+            SelectExpression innerSelectExpression,
+            Type? transparentIdentifierType,
+            SqlExpression? joinPredicate)
+        {
+            AddJoin(joinType, ref innerSelectExpression, joinPredicate);
+
+            if (transparentIdentifierType != null)
+            {
+                var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
+                var projectionMapping = new Dictionary<ProjectionMember, Expression>();
+                foreach (var projection in _projectionMapping)
+                {
+                    projectionMapping[projection.Key.Prepend(outerMemberInfo)] = projection.Value;
+                }
+
+                var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
+                var innerNullable = joinType == JoinType.LeftJoin || joinType == JoinType.OuterApply;
+                foreach (var projection in innerSelectExpression._projectionMapping)
+                {
+                    var projectionToAdd = projection.Value;
+                    if (innerNullable)
+                    {
+                        if (projectionToAdd is EntityProjectionExpression entityProjection)
+                        {
+                            projectionToAdd = entityProjection.MakeNullable();
+                        }
+                        else if (projectionToAdd is ColumnExpression column)
+                        {
+                            projectionToAdd = column.MakeNullable();
+                        }
+                    }
+
+                    projectionMapping[projection.Key.Prepend(innerMemberInfo)] = projectionToAdd;
+                }
+
+                _projectionMapping = projectionMapping;
+            }
+        }
+
+        /// <summary>
+        ///     Adds the given <see cref="SelectExpression" /> to table sources using INNER JOIN.
+        /// </summary>
+        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
+        /// <param name="joinPredicate"> A predicate to use for the join. </param>
+        /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
+        [Obsolete("Use the other overloads.")]
+        public void AddInnerJoin(
+            SelectExpression innerSelectExpression,
+            SqlExpression joinPredicate,
+            Type? transparentIdentifierType)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+            Check.NotNull(joinPredicate, nameof(joinPredicate));
+
+            AddJoin(JoinType.InnerJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
+        }
+
+        /// <summary>
+        ///     Adds the given <see cref="SelectExpression" /> to table sources using LEFT JOIN.
+        /// </summary>
+        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
+        /// <param name="joinPredicate"> A predicate to use for the join. </param>
+        /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
+        [Obsolete("Use the other overloads.")]
+        public void AddLeftJoin(
+            SelectExpression innerSelectExpression,
+            SqlExpression joinPredicate,
+            Type? transparentIdentifierType)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+            Check.NotNull(joinPredicate, nameof(joinPredicate));
+
+            AddJoin(JoinType.LeftJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
+        }
+
+        /// <summary>
+        ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS JOIN.
+        /// </summary>
+        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
+        /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
+        [Obsolete("Use the other overloads.")]
+        public void AddCrossJoin(SelectExpression innerSelectExpression, Type? transparentIdentifierType)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+
+            AddJoin(JoinType.CrossJoin, innerSelectExpression, transparentIdentifierType, null);
+        }
+
+        /// <summary>
+        ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS APPLY.
+        /// </summary>
+        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
+        /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
+        [Obsolete("Use the other overloads.")]
+        public void AddCrossApply(SelectExpression innerSelectExpression, Type? transparentIdentifierType)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+
+            AddJoin(JoinType.CrossApply, innerSelectExpression, transparentIdentifierType, null);
+        }
+
+        /// <summary>
+        ///     Adds the given <see cref="SelectExpression" /> to table sources using OUTER APPLY.
+        /// </summary>
+        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
+        /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
+        [Obsolete("Use the other overloads.")]
+        public void AddOuterApply(SelectExpression innerSelectExpression, Type? transparentIdentifierType)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+
+            AddJoin(JoinType.OuterApply, innerSelectExpression, transparentIdentifierType, null);
+        }
+
+        #endregion
 
         /// <summary>
         ///     Pushes down the <see cref="SelectExpression" /> into a subquery.
@@ -1218,7 +2505,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 if (entityProjection.DiscriminatorExpression != null)
                 {
                     discriminatorExpression = subquery.GenerateOuterColumn(
-                        entityProjection.DiscriminatorExpression, DiscriminatorColumnAlias);
+                        entityProjection.DiscriminatorExpression, _discriminatorColumnAlias);
                     projectionMap[entityProjection.DiscriminatorExpression] = discriminatorExpression;
                 }
 
@@ -1245,1534 +2532,37 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Adds a non-scalar single result to the projection of the <see cref="SelectExpression" />.
+        ///     Checks whether this <see cref="SelectExpression" /> representes a <see cref="FromSqlExpression" /> which is not composed upon.
         /// </summary>
-        /// <param name="shapedQueryExpression"> A shaped query expression for the subquery producing single non-scalar result. </param>
-        /// <returns> A shaper expression to shape the result of this projection. </returns>
-        public Expression AddSingleProjection(ShapedQueryExpression shapedQueryExpression)
-        {
-            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
-
-            var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-            var shaperExpression = shapedQueryExpression.ShaperExpression;
-            var innerExpression = RemoveConvert(shaperExpression);
-            if (!(innerExpression is EntityShaperExpression))
-            {
-                var sentinelExpression = innerSelectExpression.Limit!;
-                var sentinelNullableType = sentinelExpression.Type.MakeNullable();
-                ProjectionBindingExpression dummyProjection;
-                if (innerSelectExpression.Projection.Any())
-                {
-                    var index = innerSelectExpression.AddToProjection(sentinelExpression);
-                    dummyProjection = new ProjectionBindingExpression(
-                        innerSelectExpression, index, sentinelNullableType);
-                }
-                else
-                {
-                    innerSelectExpression._projectionMapping[new ProjectionMember()] = sentinelExpression;
-                    dummyProjection = new ProjectionBindingExpression(
-                        innerSelectExpression, new ProjectionMember(), sentinelNullableType);
-                }
-
-                var defaultResult = shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault
-                    ? (Expression)Default(shaperExpression.Type)
-                    : Block(
-                        Throw(
-                            New(
-                                typeof(InvalidOperationException).GetConstructors().Single(ci => ci.GetParameters().Count() == 1),
-                                Constant(CoreStrings.SequenceContainsNoElements))),
-                        Default(shaperExpression.Type));
-
-                shaperExpression = Condition(
-                    Equal(dummyProjection, Default(sentinelNullableType)),
-                    defaultResult,
-                    shaperExpression);
-            }
-
-            var remapper = new ProjectionBindingExpressionRemappingExpressionVisitor(this);
-            var pendingCollectionOffset = _pendingCollections.Count;
-            AddJoin(JoinType.OuterApply, ref innerSelectExpression);
-            var projectionCount = innerSelectExpression.Projection.Count;
-
-            if (projectionCount > 0)
-            {
-                var indexMap = new int[projectionCount];
-                for (var i = 0; i < projectionCount; i++)
-                {
-                    var projectionToAdd = innerSelectExpression.Projection[i].Expression;
-                    if (projectionToAdd is ColumnExpression column)
-                    {
-                        projectionToAdd = column.MakeNullable();
-                    }
-
-                    indexMap[i] = AddToProjection(projectionToAdd);
-                }
-
-                shaperExpression = remapper.RemapIndex(shaperExpression, indexMap, pendingCollectionOffset);
-            }
-            else
-            {
-                var mapping = new Dictionary<ProjectionMember, object>();
-                foreach (var projection in innerSelectExpression._projectionMapping)
-                {
-                    var projectionMember = projection.Key;
-                    var projectionToAdd = projection.Value;
-
-                    if (projectionToAdd is EntityProjectionExpression entityProjection)
-                    {
-                        mapping[projectionMember] = AddToProjection(entityProjection.MakeNullable());
-                    }
-                    else
-                    {
-                        if (projectionToAdd is ColumnExpression column)
-                        {
-                            projectionToAdd = column.MakeNullable();
-                        }
-
-                        mapping[projectionMember] = AddToProjection((SqlExpression)projectionToAdd);
-                    }
-                }
-
-                shaperExpression = remapper.RemapProjectionMember(shaperExpression, mapping, pendingCollectionOffset);
-            }
-
-            return new EntityShaperNullableMarkingExpressionVisitor().Visit(shaperExpression);
-
-            static Expression RemoveConvert(Expression expression)
-                => expression is UnaryExpression unaryExpression
-                    && unaryExpression.NodeType == ExpressionType.Convert
-                        ? RemoveConvert(unaryExpression.Operand)
-                        : expression;
-        }
+        /// <returns> A bool value indicating a non-composed <see cref="FromSqlExpression" />. </returns>
+        public bool IsNonComposedFromSql()
+            => Limit == null
+                && Offset == null
+                && !IsDistinct
+                && Predicate == null
+                && GroupBy.Count == 0
+                && Having == null
+                && Orderings.Count == 0
+                && Tables.Count == 1
+                && Tables[0] is FromSqlExpression fromSql
+                && Projection.All(
+                    pe => pe.Expression is ColumnExpression column
+                        && string.Equals(fromSql.Alias, column.Table.Alias, StringComparison.OrdinalIgnoreCase))
+                && _projectionMapping.TryGetValue(new ProjectionMember(), out var mapping)
+                && mapping.Type == typeof(Dictionary<IProperty, int>);
 
         /// <summary>
-        ///     Adds a collection to the projection of the <see cref="SelectExpression" />.
+        ///     Prepares the <see cref="SelectExpression" /> to apply aggregate operation over it.
         /// </summary>
-        /// <param name="shapedQueryExpression"> A shaped query expression for the subquery producing collection result. </param>
-        /// <param name="navigation"> A navigation associated with this collection, if any. </param>
-        /// <param name="elementType"> The type of the element in the collection. </param>
-        /// <returns> A <see cref="CollectionShaperExpression" /> which represents shaping of this collection. </returns>
-        public CollectionShaperExpression AddCollectionProjection(
-            ShapedQueryExpression shapedQueryExpression,
-            INavigationBase? navigation,
-            Type elementType)
+        public void PrepareForAggregate()
         {
-            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
-
-            var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
-            _pendingCollections.Add(innerSelectExpression);
-
-            return new CollectionShaperExpression(
-                new ProjectionBindingExpression(this, _pendingCollections.Count - 1, typeof(object)),
-                shapedQueryExpression.ShaperExpression,
-                navigation,
-                elementType);
-        }
-
-        /// <summary>
-        ///     Applies previously added collection projection.
-        /// </summary>
-        /// <param name="collectionIndex"> An int value specifing which collection from pending collection to apply. </param>
-        /// <param name="collectionId"> An int value of unique collection id associated with this collection projection. </param>
-        /// <param name="innerShaper"> A shaper expression to use for shaping the elements of this collection. </param>
-        /// <param name="navigation"> A navigation associated with this collection, if any. </param>
-        /// <param name="elementType"> The type of the element in the collection. </param>
-        /// <param name="splitQuery"> A value indicating whether the collection query would be run with a different DbCommand. </param>
-        /// <returns> An expression which represents shaping of this collection. </returns>
-        public Expression? ApplyCollectionJoin(
-            int collectionIndex,
-            int collectionId,
-            Expression innerShaper,
-            INavigationBase? navigation,
-            Type elementType,
-            bool splitQuery = false)
-        {
-            Check.NotNull(innerShaper, nameof(innerShaper));
-            Check.NotNull(elementType, nameof(elementType));
-
-            var innerSelectExpression = _pendingCollections[collectionIndex]!;
-            _pendingCollections[collectionIndex] = null;
-
-            if (_identifier.Count == 0
-                || innerSelectExpression._identifier.Count == 0)
+            if (IsDistinct
+                || Limit != null
+                || Offset != null)
             {
-                throw new InvalidOperationException(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin);
-            }
-
-            if (splitQuery)
-            {
-                var containsReferenceToOuter = new SelectExpressionCorrelationFindingExpressionVisitor(this)
-                    .ContainsOuterReference(innerSelectExpression);
-                if (containsReferenceToOuter)
-                {
-                    return null;
-                }
-
-                var identifierFromParent = _identifier;
-                if (innerSelectExpression.Tables.LastOrDefault(e => e is InnerJoinExpression) is InnerJoinExpression
-                        collectionInnerJoinExpression
-                    && collectionInnerJoinExpression.Table is TableExpressionBase collectionTableExpressionBase)
-                {
-                    // This computes true parent identifier count for correlation.
-                    // The last inner joined table in innerSelectExpression brings collection data.
-                    // Further tables load additional data on the collection (hence uses outer pattern)
-                    // So identifier not coming from there (which would be at the start only) are for correlation with parent.
-                    // Parent can have additional identifier if a owned reference was expanded.
-                    var actualParentIdentifierCount = innerSelectExpression._identifier
-                        .TakeWhile(e => !ReferenceEquals(e.Column.Table, collectionTableExpressionBase))
-                        .Count();
-                    identifierFromParent = _identifier.Take(actualParentIdentifierCount).ToList();
-                }
-
-                var parentIdentifier = GetIdentifierAccessor(identifierFromParent).Item1;
-                innerSelectExpression.ApplyProjection();
-
-                RemapIdentifiers(innerSelectExpression);
-
-                for (var i = 0; i < identifierFromParent.Count; i++)
-                {
-                    AppendOrdering(new OrderingExpression(identifierFromParent[i].Column, ascending: true));
-                }
-
-                // Copy over ordering from previous collections
-                var innerOrderingExpressions = new List<OrderingExpression>();
-                foreach (var table in innerSelectExpression.Tables)
-                {
-                    if (table is InnerJoinExpression collectionJoinExpression
-                        && collectionJoinExpression.Table is SelectExpression collectionSelectExpression
-                        && collectionSelectExpression.Predicate != null
-                        && collectionSelectExpression.Tables.Count == 1
-                        && collectionSelectExpression.Tables[0] is SelectExpression rowNumberSubquery
-                        && rowNumberSubquery.Projection.Select(pe => pe.Expression)
-                            .OfType<RowNumberExpression>().SingleOrDefault() is RowNumberExpression rowNumberExpression)
-                    {
-                        foreach (var partition in rowNumberExpression.Partitions)
-                        {
-                            innerOrderingExpressions.Add(
-                                new OrderingExpression(
-                                    collectionSelectExpression.GenerateOuterColumn(rowNumberSubquery.GenerateOuterColumn(partition)),
-                                    ascending: true));
-                        }
-
-                        foreach (var ordering in rowNumberExpression.Orderings)
-                        {
-                            innerOrderingExpressions.Add(
-                                new OrderingExpression(
-                                    collectionSelectExpression.GenerateOuterColumn(
-                                        rowNumberSubquery.GenerateOuterColumn(ordering.Expression)),
-                                    ordering.IsAscending));
-                        }
-                    }
-
-                    if (table is CrossApplyExpression collectionApplyExpression
-                        && collectionApplyExpression.Table is SelectExpression collectionSelectExpression2
-                        && collectionSelectExpression2.Orderings.Count > 0)
-                    {
-                        foreach (var ordering in collectionSelectExpression2.Orderings)
-                        {
-                            if (innerSelectExpression._identifier.Any(e => e.Column.Equals(ordering.Expression)))
-                            {
-                                continue;
-                            }
-
-                            innerOrderingExpressions.Add(
-                                new OrderingExpression(
-                                    collectionSelectExpression2.GenerateOuterColumn(ordering.Expression),
-                                    ordering.IsAscending));
-                        }
-                    }
-                }
-
-                var (childIdentifier, childIdentifierValueComparers) = innerSelectExpression
-                    .GetIdentifierAccessor(innerSelectExpression._identifier.Take(identifierFromParent.Count));
-
-                var identifierIndex = 0;
-                var orderingIndex = 0;
-                for (var i = 0; i < Orderings.Count; i++)
-                {
-                    var outerOrdering = Orderings[i];
-                    if (identifierIndex < identifierFromParent.Count
-                        && outerOrdering.Expression.Equals(identifierFromParent[identifierIndex].Column))
-                    {
-                        innerSelectExpression.AppendOrdering(
-                            new OrderingExpression(
-                                innerSelectExpression._identifier[identifierIndex].Column, ascending: true));
-                        identifierIndex++;
-                    }
-                    else
-                    {
-                        if (i < innerSelectExpression.Orderings.Count)
-                        {
-                            continue;
-                        }
-
-                        innerSelectExpression.AppendOrdering(innerOrderingExpressions[orderingIndex]);
-                        orderingIndex++;
-                    }
-                }
-
-                foreach (var orderingExpression in innerOrderingExpressions.Skip(orderingIndex))
-                {
-                    innerSelectExpression.AppendOrdering(orderingExpression);
-                }
-
-                return new RelationalSplitCollectionShaperExpression(
-                    collectionId, parentIdentifier, childIdentifier, childIdentifierValueComparers,
-                    innerSelectExpression, innerShaper, navigation, elementType);
-            }
-            else
-            {
-                var parentIdentifierList = _identifier.Except(_childIdentifiers).ToList();
-
-                var (parentIdentifier, parentIdentifierValueComparers) = GetIdentifierAccessor(parentIdentifierList);
-                var (outerIdentifier, outerIdentifierValueComparers) = GetIdentifierAccessor(_identifier);
-                var innerClientEval = innerSelectExpression.Projection.Count > 0;
-                innerSelectExpression.ApplyProjection();
-
-                RemapIdentifiers(innerSelectExpression);
-
-                if (collectionIndex == 0)
-                {
-                    foreach (var identifier in parentIdentifierList)
-                    {
-                        AppendOrdering(new OrderingExpression(identifier.Column, ascending: true));
-                    }
-                }
-
-                AddJoin(JoinType.OuterApply, ref innerSelectExpression);
-                var innerOrderingExpressions = new List<OrderingExpression>();
-                var joinedTable = innerSelectExpression.Tables.Single();
-                if (joinedTable is SelectExpression collectionSelectExpression
-                    && collectionSelectExpression.Predicate != null
-                    && collectionSelectExpression.Tables.Count == 1
-                    && collectionSelectExpression.Tables[0] is SelectExpression rowNumberSubquery
-                    && rowNumberSubquery.Projection.Select(pe => pe.Expression)
-                        .OfType<RowNumberExpression>().SingleOrDefault() is RowNumberExpression rowNumberExpression)
-                {
-                    foreach (var partition in rowNumberExpression.Partitions)
-                    {
-                        innerOrderingExpressions.Add(
-                            new OrderingExpression(
-                                collectionSelectExpression.GenerateOuterColumn(rowNumberSubquery.GenerateOuterColumn(partition)),
-                                ascending: true));
-                    }
-
-                    foreach (var ordering in rowNumberExpression.Orderings)
-                    {
-                        innerOrderingExpressions.Add(
-                            new OrderingExpression(
-                                collectionSelectExpression.GenerateOuterColumn(rowNumberSubquery.GenerateOuterColumn(ordering.Expression)),
-                                ordering.IsAscending));
-                    }
-                }
-                else if (joinedTable is SelectExpression collectionSelectExpression2
-                    && collectionSelectExpression2.Orderings.Count > 0)
-                {
-                    foreach (var ordering in collectionSelectExpression2.Orderings)
-                    {
-                        if (innerSelectExpression._identifier.Any(e => e.Column.Equals(ordering.Expression)))
-                        {
-                            continue;
-                        }
-
-                        innerOrderingExpressions.Add(
-                            new OrderingExpression(
-                                collectionSelectExpression2.GenerateOuterColumn(ordering.Expression),
-                                ordering.IsAscending));
-                    }
-                }
-                else
-                {
-                    innerOrderingExpressions.AddRange(innerSelectExpression.Orderings);
-                }
-
-                foreach (var ordering in innerOrderingExpressions)
-                {
-                    AppendOrdering(ordering.Update(MakeNullable(ordering.Expression)));
-                }
-
-                var remapper = new ProjectionBindingExpressionRemappingExpressionVisitor(this);
-                var innerProjectionCount = innerSelectExpression.Projection.Count;
-                var indexMap = new int[innerProjectionCount];
-                for (var i = 0; i < innerProjectionCount; i++)
-                {
-                    indexMap[i] = AddToProjection(MakeNullable(innerSelectExpression.Projection[i].Expression));
-                }
-
-                if (innerClientEval)
-                {
-                    innerShaper = remapper.RemapIndex(innerShaper, indexMap, pendingCollectionOffset: 0);
-                }
-                else
-                {
-                    var mapping = new Dictionary<ProjectionMember, object>();
-                    foreach (var projection in innerSelectExpression._projectionMapping)
-                    {
-                        var value = ((ConstantExpression)projection.Value).Value;
-                        object? mappedValue = null;
-                        if (value is int index)
-                        {
-                            mappedValue = indexMap[index];
-                        }
-                        else if (value is IDictionary<IProperty, int> entityIndexMap)
-                        {
-                            var newEntityIndexMap = new Dictionary<IProperty, int>();
-                            foreach (var item in entityIndexMap)
-                            {
-                                newEntityIndexMap[item.Key] = indexMap[item.Value];
-                            }
-
-                            mappedValue = newEntityIndexMap;
-                        }
-
-                        mapping[projection.Key] = mappedValue!;
-                    }
-
-                    innerShaper = remapper.RemapProjectionMember(innerShaper, mapping, pendingCollectionOffset: 0);
-                }
-
-                innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
-
-                var (selfIdentifier, selfIdentifierValueComparers) = GetIdentifierAccessor(
-                    innerSelectExpression._identifier
-                        .Except(innerSelectExpression._childIdentifiers)
-                        .Select(e => (e.Column.MakeNullable(), e.Comparer)));
-
-                foreach (var identifier in innerSelectExpression._identifier)
-                {
-                    var updatedColumn = identifier.Column.MakeNullable();
-                    _childIdentifiers.Add((updatedColumn, identifier.Comparer));
-                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
-                }
-
-                var result = new RelationalCollectionShaperExpression(
-                    collectionId, parentIdentifier, outerIdentifier, selfIdentifier,
-                    parentIdentifierValueComparers, outerIdentifierValueComparers, selfIdentifierValueComparers,
-                    innerShaper, navigation, elementType);
-
-                return result;
-            }
-
-            static void RemapIdentifiers(SelectExpression innerSelectExpression)
-            {
-                if (innerSelectExpression.IsDistinct
-                    || innerSelectExpression.GroupBy.Count > 0)
-                {
-                    if (!IdentifiersInProjection(innerSelectExpression, out var missingIdentifier))
-                    {
-                        // we can safely clear identifiers here - child identifiers will always be empty at this point
-                        // - nested collection scenarios where distinct is applied after projection are blocked
-                        //   since we can't translate them in any meaningful way
-                        // - if distinct is applied before the projection, pushdown happens which guarantees child identifiers to be empty
-                        // - for groupby we only support aggregate scenarios so collection can never happen in the projection
-                        if (innerSelectExpression.IsDistinct)
-                        {
-                            if (innerSelectExpression._projection.All(p => p.Expression is ColumnExpression))
-                            {
-                                innerSelectExpression._identifier.Clear();
-                                foreach (var projection in innerSelectExpression._projection)
-                                {
-                                    innerSelectExpression._identifier.Add(((ColumnExpression)projection.Expression, projection.Expression.TypeMapping!.Comparer));
-                                }
-                            }
-                            else
-                            {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.UnableToTranslateSubqueryWithDistinct(
-                                        missingIdentifier.Table.Alias + "." + missingIdentifier.Name));
-                            }
-                        }
-                        else
-                        {
-                            if (innerSelectExpression.GroupBy.All(g => g is ColumnExpression))
-                            {
-                                innerSelectExpression._identifier.Clear();
-                                foreach (var grouping in innerSelectExpression.GroupBy)
-                                {
-                                    innerSelectExpression._identifier.Add(((ColumnExpression)grouping, grouping.TypeMapping!.Comparer));
-                                }
-                            }
-                            else
-                            {
-                                throw new InvalidOperationException(
-                                    RelationalStrings.UnableToTranslateSubqueryWithGroupBy(
-                                        missingIdentifier.Table.Alias + "." + missingIdentifier.Name));
-                            }
-                        }
-                    }
-                }
-            }
-
-            static bool IdentifiersInProjection(
-                SelectExpression selectExpression,
-                [NotNullWhen(false)] out ColumnExpression? missingIdentifier)
-            {
-                var innerSelectProjectionExpressions = selectExpression._projection.Select(p => p.Expression).ToList();
-                foreach (var innerSelectIdentifier in selectExpression._identifier)
-                {
-                    if (!innerSelectProjectionExpressions.Contains(innerSelectIdentifier.Column)
-                        && (selectExpression.GroupBy.Count == 0
-                            || !selectExpression.GroupBy.Contains(innerSelectIdentifier.Column)))
-                    {
-                        missingIdentifier = innerSelectIdentifier.Column;
-
-                        return false;
-                    }
-                }
-
-                missingIdentifier = null;
-
-                return true;
+                PushdownIntoSubquery();
             }
         }
-
-        private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
-        {
-            protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                Check.NotNull(extensionExpression, nameof(extensionExpression));
-
-                return extensionExpression is EntityShaperExpression entityShaper
-                    ? entityShaper.MakeNullable()
-                    : base.VisitExtension(extensionExpression);
-            }
-        }
-
-        private static SqlExpression MakeNullable(SqlExpression sqlExpression)
-            => sqlExpression is ColumnExpression column ? column.MakeNullable() : sqlExpression;
-
-        private (Expression, IReadOnlyList<ValueComparer>) GetIdentifierAccessor(
-            IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifyingProjection)
-        {
-            var updatedExpressions = new List<Expression>();
-            var comparers = new List<ValueComparer>();
-            foreach (var keyExpression in identifyingProjection)
-            {
-                var index = AddToProjection(keyExpression.Column);
-                var projectionBindingExpression = new ProjectionBindingExpression(this, index, keyExpression.Column.Type.MakeNullable());
-
-                updatedExpressions.Add(
-                    projectionBindingExpression.Type.IsValueType
-                        ? Convert(projectionBindingExpression, typeof(object))
-                        : (Expression)projectionBindingExpression);
-                comparers.Add(keyExpression.Comparer);
-            }
-
-            return (NewArrayInit(typeof(object), updatedExpressions), comparers);
-        }
-
-        private SqlExpression? TryExtractJoinKey(SelectExpression selectExpression, bool allowNonEquality)
-        {
-            if (selectExpression.Limit == null
-                && selectExpression.Offset == null
-                && selectExpression.Predicate != null)
-            {
-                var columnExpressions = new List<ColumnExpression>();
-                var joinPredicate = TryExtractJoinKey(
-                    selectExpression,
-                    selectExpression.Predicate,
-                    columnExpressions,
-                    allowNonEquality,
-                    out var predicate);
-
-                if (joinPredicate != null)
-                {
-                    joinPredicate = RemoveRedundantNullChecks(joinPredicate, columnExpressions);
-                }
-
-                // we can't convert apply to join in case of distinct and groupby, if the projection doesn't already contain the join keys
-                // since we can't add the missing keys to the projection - only convert to join if all the keys are already there
-                if (joinPredicate != null
-                    && (selectExpression.IsDistinct
-                    || selectExpression.GroupBy.Count > 0))
-                {
-                    var innerKeyColumns = new List<ColumnExpression>();
-                    InnerKeyColumns(selectExpression.Tables, joinPredicate, innerKeyColumns);
-
-                    // if projection has already been applied we can use it directly
-                    // otherwise we extract future projection columns from projection mapping
-                    // and based on that we determine whether we can convert from APPLY to JOIN
-                    var projectionColumns = selectExpression.Projection.Count > 0
-                        ? selectExpression.Projection.Select(p => p.Expression)
-                        : ExtractColumnsFromProjectionMapping(selectExpression._projectionMapping);
-
-                    foreach (var innerColumn in innerKeyColumns)
-                    {
-                        if (!projectionColumns.Contains(innerColumn))
-                        {
-                            return null;
-                        }
-                    }
-                }
-
-                selectExpression.Predicate = predicate;
-
-                return joinPredicate;
-            }
-
-            return null;
-
-            static void InnerKeyColumns(IEnumerable<TableExpressionBase> tables, SqlExpression joinPredicate, List<ColumnExpression> resultColumns)
-            {
-                if (joinPredicate is SqlBinaryExpression sqlBinaryExpression)
-                {
-                    InnerKeyColumns(tables, sqlBinaryExpression.Left, resultColumns);
-                    InnerKeyColumns(tables, sqlBinaryExpression.Right, resultColumns);
-                }
-                else if (joinPredicate is ColumnExpression columnExpression
-                    && tables.Contains(columnExpression.Table))
-                {
-                    resultColumns.Add(columnExpression);
-                }
-            }
-
-            static List<ColumnExpression> ExtractColumnsFromProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
-            {
-                var result = new List<ColumnExpression>();
-                foreach (var mappingElement in projectionMapping)
-                {
-                    if (mappingElement.Value is EntityProjectionExpression entityProjection)
-                    {
-                        foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                        {
-                            result.Add(entityProjection.BindProperty(property));
-                        }
-
-                        if (entityProjection.DiscriminatorExpression != null
-                            && entityProjection.DiscriminatorExpression is ColumnExpression discriminatorColumn)
-                        {
-                            result.Add(discriminatorColumn);
-                        }
-                    }
-                    else if (mappingElement.Value is ColumnExpression column)
-                    {
-                        result.Add(column);
-                    }
-                }
-
-                return result;
-            }
-        }
-
-        private SqlExpression? TryExtractJoinKey(
-            SelectExpression selectExpression,
-            SqlExpression predicate,
-            List<ColumnExpression> columnExpressions,
-            bool allowNonEquality,
-            out SqlExpression? updatedPredicate)
-        {
-            if (predicate is SqlBinaryExpression sqlBinaryExpression)
-            {
-                var joinPredicate = ValidateKeyComparison(selectExpression, sqlBinaryExpression, columnExpressions, allowNonEquality);
-                if (joinPredicate != null)
-                {
-                    updatedPredicate = null;
-
-                    return joinPredicate;
-                }
-
-                if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
-                {
-                    var leftJoinKey = TryExtractJoinKey(
-                        selectExpression, sqlBinaryExpression.Left, columnExpressions, allowNonEquality, out var leftPredicate);
-                    var rightJoinKey = TryExtractJoinKey(
-                        selectExpression, sqlBinaryExpression.Right, columnExpressions, allowNonEquality, out var rightPredicate);
-
-                    updatedPredicate = CombineNonNullExpressions(leftPredicate, rightPredicate);
-
-                    return CombineNonNullExpressions(leftJoinKey, rightJoinKey);
-                }
-            }
-
-            updatedPredicate = predicate;
-
-            return null;
-        }
-
-        private static SqlExpression? CombineNonNullExpressions(SqlExpression? left, SqlExpression? right)
-            => left != null
-                ? right != null
-                    ? new SqlBinaryExpression(ExpressionType.AndAlso, left, right, left.Type, left.TypeMapping)
-                    : left
-                : right;
-
-        private SqlBinaryExpression? ValidateKeyComparison(
-            SelectExpression inner,
-            SqlBinaryExpression sqlBinaryExpression,
-            List<ColumnExpression> columnExpressions,
-            bool allowNonEquality)
-        {
-            if (sqlBinaryExpression.OperatorType == ExpressionType.Equal
-                || (allowNonEquality
-                    && (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
-                        || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
-                        || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
-                        || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
-                        || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual)))
-            {
-                if (sqlBinaryExpression.Left is ColumnExpression leftColumn
-                    && sqlBinaryExpression.Right is ColumnExpression rightColumn)
-                {
-                    if (ContainsTableReference(leftColumn.Table)
-                        && inner.ContainsTableReference(rightColumn.Table))
-                    {
-                        columnExpressions.Add(leftColumn);
-
-                        return sqlBinaryExpression;
-                    }
-
-                    if (ContainsTableReference(rightColumn.Table)
-                        && inner.ContainsTableReference(leftColumn.Table))
-                    {
-                        columnExpressions.Add(rightColumn);
-
-                        return new SqlBinaryExpression(
-                            _mirroredOperationMap[sqlBinaryExpression.OperatorType],
-                            sqlBinaryExpression.Right,
-                            sqlBinaryExpression.Left,
-                            sqlBinaryExpression.Type,
-                            sqlBinaryExpression.TypeMapping);
-                    }
-                }
-            }
-
-            // null checks are considered part of join key
-            if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
-            {
-                if (sqlBinaryExpression.Left is ColumnExpression leftNullCheckColumn
-                    && ContainsTableReference(leftNullCheckColumn.Table)
-                    && sqlBinaryExpression.Right is SqlConstantExpression rightConstant
-                    && rightConstant.Value == null)
-                {
-                    return sqlBinaryExpression;
-                }
-
-                if (sqlBinaryExpression.Right is ColumnExpression rightNullCheckColumn
-                    && ContainsTableReference(rightNullCheckColumn.Table)
-                    && sqlBinaryExpression.Left is SqlConstantExpression leftConstant
-                    && leftConstant.Value == null)
-                {
-                    return sqlBinaryExpression.Update(
-                        sqlBinaryExpression.Right,
-                        sqlBinaryExpression.Left);
-                }
-            }
-
-            return null;
-        }
-
-        private SqlExpression? RemoveRedundantNullChecks(SqlExpression predicate, List<ColumnExpression> columnExpressions)
-        {
-            if (predicate is SqlBinaryExpression sqlBinaryExpression)
-            {
-                if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
-                    && sqlBinaryExpression.Left is ColumnExpression leftColumn
-                    && columnExpressions.Contains(leftColumn)
-                    && sqlBinaryExpression.Right is SqlConstantExpression sqlConstantExpression
-                    && sqlConstantExpression.Value == null)
-                {
-                    return null;
-                }
-
-                if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
-                {
-                    var leftPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Left, columnExpressions);
-                    var rightPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Right, columnExpressions);
-
-                    return CombineNonNullExpressions(leftPredicate, rightPredicate);
-                }
-            }
-
-            return predicate;
-        }
-
-        private bool ContainsTableReference(TableExpressionBase table)
-            => Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
-
-        private sealed class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
-        {
-            private readonly SelectExpression _outerSelectExpression;
-            private bool _containsOuterReference;
-
-            public SelectExpressionCorrelationFindingExpressionVisitor(SelectExpression outerSelectExpression)
-            {
-                _outerSelectExpression = outerSelectExpression;
-            }
-
-            public bool ContainsOuterReference(SelectExpression selectExpression)
-            {
-                _containsOuterReference = false;
-
-                Visit(selectExpression);
-
-                return _containsOuterReference;
-            }
-
-            [return: NotNullIfNotNull("expression")]
-            public override Expression? Visit(Expression? expression)
-            {
-                if (_containsOuterReference)
-                {
-                    return expression;
-                }
-
-                if (expression is ColumnExpression columnExpression
-                    && _outerSelectExpression.ContainsTableReference(columnExpression.Table))
-                {
-                    _containsOuterReference = true;
-
-                    return expression;
-                }
-
-                return base.Visit(expression);
-            }
-        }
-
-        private void GetPartitions(SqlExpression sqlExpression, List<SqlExpression> partitions)
-        {
-            if (sqlExpression is SqlBinaryExpression sqlBinaryExpression)
-            {
-                if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
-                {
-                    partitions.Add(sqlBinaryExpression.Right);
-                }
-                else if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
-                {
-                    GetPartitions(sqlBinaryExpression.Left, partitions);
-                    GetPartitions(sqlBinaryExpression.Right, partitions);
-                }
-            }
-        }
-
-        private enum JoinType
-        {
-            InnerJoin,
-            LeftJoin,
-            CrossJoin,
-            CrossApply,
-            OuterApply
-        }
-
-        private Expression AddJoin(
-            JoinType joinType,
-            SelectExpression innerSelectExpression,
-            Expression outerShaper,
-            Expression innerShaper,
-            SqlExpression? joinPredicate = null)
-        {
-            var pendingCollectionOffset = _pendingCollections.Count;
-            AddJoin(joinType, ref innerSelectExpression, joinPredicate);
-
-            var transparentIdentifierType = TransparentIdentifierFactory.Create(outerShaper.Type, innerShaper.Type);
-            var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-            var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
-            var outerClientEval = Projection.Count > 0;
-            var innerClientEval = innerSelectExpression.Projection.Count > 0;
-            var remapper = new ProjectionBindingExpressionRemappingExpressionVisitor(this);
-            var innerNullable = joinType == JoinType.LeftJoin || joinType == JoinType.OuterApply;
-
-            if (outerClientEval)
-            {
-                if (innerClientEval)
-                {
-                    var indexMap = new int[innerSelectExpression.Projection.Count];
-                    for (var i = 0; i < innerSelectExpression.Projection.Count; i++)
-                    {
-                        var projectionToAdd = innerSelectExpression.Projection[i].Expression;
-                        if (projectionToAdd is ColumnExpression column)
-                        {
-                            projectionToAdd = column.MakeNullable();
-                        }
-
-                        indexMap[i] = AddToProjection(projectionToAdd);
-                    }
-
-                    innerShaper = remapper.RemapIndex(innerShaper, indexMap, pendingCollectionOffset);
-                    _projectionMapping.Clear();
-                }
-                else
-                {
-                    var mapping = new Dictionary<ProjectionMember, object>();
-                    foreach (var projection in innerSelectExpression._projectionMapping)
-                    {
-                        var projectionMember = projection.Key;
-                        var projectionToAdd = projection.Value;
-
-                        if (projectionToAdd is EntityProjectionExpression entityProjection)
-                        {
-                            mapping[projectionMember] = AddToProjection(entityProjection.MakeNullable());
-                        }
-                        else
-                        {
-                            if (projectionToAdd is ColumnExpression column)
-                            {
-                                projectionToAdd = column.MakeNullable();
-                            }
-
-                            mapping[projectionMember] = AddToProjection((SqlExpression)projectionToAdd);
-                        }
-                    }
-
-                    innerShaper = remapper.RemapProjectionMember(innerShaper, mapping, pendingCollectionOffset);
-                    _projectionMapping.Clear();
-                }
-            }
-            else
-            {
-                if (innerClientEval)
-                {
-                    var mapping = new Dictionary<ProjectionMember, object>();
-                    foreach (var projection in _projectionMapping)
-                    {
-                        var projectionToAdd = projection.Value;
-
-                        mapping[projection.Key] = projectionToAdd is EntityProjectionExpression entityProjection
-                            ? AddToProjection(entityProjection)
-                            : (object)AddToProjection((SqlExpression)projectionToAdd);
-                    }
-
-                    outerShaper = remapper.RemapProjectionMember(outerShaper, mapping);
-
-                    var indexMap = new int[innerSelectExpression.Projection.Count];
-                    for (var i = 0; i < innerSelectExpression.Projection.Count; i++)
-                    {
-                        var projectionToAdd = innerSelectExpression.Projection[i].Expression;
-                        if (projectionToAdd is ColumnExpression column)
-                        {
-                            projectionToAdd = column.MakeNullable();
-                        }
-
-                        indexMap[i] = AddToProjection(projectionToAdd);
-                    }
-
-                    innerShaper = remapper.RemapIndex(innerShaper, indexMap, pendingCollectionOffset);
-                    _projectionMapping.Clear();
-                }
-                else
-                {
-                    var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-                    var mapping = new Dictionary<ProjectionMember, object>();
-
-                    foreach (var projection in _projectionMapping)
-                    {
-                        var projectionMember = projection.Key;
-                        var remappedProjectionMember = projection.Key.Prepend(outerMemberInfo);
-                        mapping[projectionMember] = remappedProjectionMember;
-                        projectionMapping[remappedProjectionMember] = projection.Value;
-                    }
-
-                    outerShaper = remapper.RemapProjectionMember(outerShaper, mapping);
-                    mapping.Clear();
-
-                    foreach (var projection in innerSelectExpression._projectionMapping)
-                    {
-                        var projectionMember = projection.Key;
-                        var remappedProjectionMember = projection.Key.Prepend(innerMemberInfo);
-                        mapping[projectionMember] = remappedProjectionMember;
-                        var projectionToAdd = projection.Value;
-                        if (innerNullable)
-                        {
-                            if (projectionToAdd is EntityProjectionExpression entityProjection)
-                            {
-                                projectionToAdd = entityProjection.MakeNullable();
-                            }
-                            else if (projectionToAdd is ColumnExpression column)
-                            {
-                                projectionToAdd = column.MakeNullable();
-                            }
-                        }
-
-                        projectionMapping[remappedProjectionMember] = projectionToAdd;
-                    }
-
-                    innerShaper = remapper.RemapProjectionMember(innerShaper, mapping, pendingCollectionOffset);
-                    _projectionMapping = projectionMapping;
-                }
-            }
-
-            if (innerNullable)
-            {
-                innerShaper = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaper);
-            }
-
-            return New(
-                transparentIdentifierType.GetTypeInfo().DeclaredConstructors.Single(),
-                new[] { outerShaper, innerShaper }, outerMemberInfo, innerMemberInfo);
-        }
-
-        private sealed class ProjectionBindingExpressionRemappingExpressionVisitor : ExpressionVisitor
-        {
-            private readonly Expression _queryExpression;
-
-            // Shifting PMs, converting PMs to index/indexMap
-            private IDictionary<ProjectionMember, object>? _projectionMemberMappings;
-
-            // Relocating index
-            private int[]? _indexMap;
-
-            // Shift pending collection offset
-            private int? _pendingCollectionOffset;
-
-            public ProjectionBindingExpressionRemappingExpressionVisitor(Expression queryExpression)
-            {
-                _queryExpression = queryExpression;
-            }
-
-            public Expression RemapProjectionMember(
-                Expression expression,
-                IDictionary<ProjectionMember, object> projectionMemberMappings,
-                int pendingCollectionOffset = 0)
-            {
-                _projectionMemberMappings = projectionMemberMappings;
-                _indexMap = null;
-                _pendingCollectionOffset = pendingCollectionOffset;
-
-                return Visit(expression);
-            }
-
-            public Expression RemapIndex(Expression expression, int[] indexMap, int pendingCollectionOffset = 0)
-            {
-                _projectionMemberMappings = null;
-                _indexMap = indexMap;
-                _pendingCollectionOffset = pendingCollectionOffset;
-
-                return Visit(expression);
-            }
-
-            protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                return extensionExpression switch
-                {
-                    ProjectionBindingExpression projectionBindingExpression => Remap(projectionBindingExpression),
-                    CollectionShaperExpression collectionShaperExpression => Remap(collectionShaperExpression),
-                    _ => base.VisitExtension(extensionExpression)
-                };
-            }
-
-            private CollectionShaperExpression Remap(CollectionShaperExpression collectionShaperExpression)
-                => new(
-                    new ProjectionBindingExpression(
-                        _queryExpression,
-                        ((ProjectionBindingExpression)collectionShaperExpression.Projection).Index!.Value + (int)_pendingCollectionOffset!,
-                        typeof(object)),
-                    collectionShaperExpression.InnerShaper,
-                    collectionShaperExpression.Navigation,
-                    collectionShaperExpression.ElementType);
-
-            private ProjectionBindingExpression Remap(ProjectionBindingExpression projectionBindingExpression)
-            {
-                if (_indexMap != null)
-                {
-                    if (projectionBindingExpression.Index is int index)
-                    {
-                        return CreateNewBinding(_indexMap[index], projectionBindingExpression.Type);
-                    }
-
-                    var indexMap = new Dictionary<IProperty, int>();
-                    foreach (var item in projectionBindingExpression.IndexMap!)
-                    {
-                        indexMap[item.Key] = _indexMap[item.Value];
-                    }
-
-                    return CreateNewBinding(indexMap, projectionBindingExpression.Type);
-                }
-
-                var currentProjectionMember = projectionBindingExpression.ProjectionMember;
-                var newBinding = _projectionMemberMappings![currentProjectionMember!];
-
-                return CreateNewBinding(newBinding, projectionBindingExpression.Type);
-            }
-
-            private ProjectionBindingExpression CreateNewBinding(object binding, Type type)
-                => binding switch
-                {
-                    ProjectionMember projectionMember => new ProjectionBindingExpression(
-                        _queryExpression, projectionMember, type),
-
-                    int index => new ProjectionBindingExpression(_queryExpression, index, type),
-
-                    IDictionary<IProperty, int> indexMap => new ProjectionBindingExpression(_queryExpression, indexMap),
-
-                    _ => throw new InvalidOperationException(),
-                };
-        }
-
-        private void AddJoin(
-            JoinType joinType,
-            ref SelectExpression innerSelectExpression,
-            SqlExpression? joinPredicate = null)
-        {
-            // Try to convert Apply to normal join
-            if (joinType == JoinType.CrossApply
-                || joinType == JoinType.OuterApply)
-            {
-                var limit = innerSelectExpression.Limit;
-                var offset = innerSelectExpression.Offset;
-                innerSelectExpression.Limit = null;
-                innerSelectExpression.Offset = null;
-
-                joinPredicate = TryExtractJoinKey(innerSelectExpression, allowNonEquality: limit == null && offset == null);
-                if (joinPredicate != null)
-                {
-                    var containsOuterReference = new SelectExpressionCorrelationFindingExpressionVisitor(this)
-                        .ContainsOuterReference(innerSelectExpression);
-                    if (containsOuterReference)
-                    {
-                        innerSelectExpression.ApplyPredicate(joinPredicate);
-                        joinPredicate = null;
-                        if (limit != null)
-                        {
-                            innerSelectExpression.ApplyLimit(limit);
-                        }
-
-                        if (offset != null)
-                        {
-                            innerSelectExpression.ApplyOffset(offset);
-                        }
-                    }
-                    else
-                    {
-                        if (limit != null || offset != null)
-                        {
-                            var partitions = new List<SqlExpression>();
-                            GetPartitions(joinPredicate, partitions);
-                            var orderings = innerSelectExpression.Orderings.Count > 0
-                                ? innerSelectExpression.Orderings
-                                : innerSelectExpression._identifier.Count > 0
-                                    ? innerSelectExpression._identifier.Select(e => new OrderingExpression(e.Column, true))
-                                    : new[] { new OrderingExpression(new SqlFragmentExpression("(SELECT 1)"), true) };
-
-                            var rowNumberExpression = new RowNumberExpression(
-                                partitions, orderings.ToList(), (limit ?? offset)!.TypeMapping);
-                            innerSelectExpression.ClearOrdering();
-
-                            var projectionMappings = innerSelectExpression.PushdownIntoSubquery();
-                            var subquery = (SelectExpression)innerSelectExpression.Tables[0];
-
-                            joinPredicate = new SqlRemappingVisitor(projectionMappings, subquery).Remap(joinPredicate);
-
-                            var outerColumn = subquery.GenerateOuterColumn(rowNumberExpression, "row");
-                            SqlExpression? offsetPredicate = null;
-                            SqlExpression? limitPredicate = null;
-                            if (offset != null)
-                            {
-                                offsetPredicate = new SqlBinaryExpression(
-                                    ExpressionType.LessThan, offset, outerColumn, typeof(bool), joinPredicate.TypeMapping);
-                            }
-
-                            if (limit != null)
-                            {
-                                if (offset != null)
-                                {
-                                    limit = offset is SqlConstantExpression offsetConstant
-                                        && limit is SqlConstantExpression limitConstant
-                                            ? (SqlExpression)new SqlConstantExpression(
-                                                Constant((int)offsetConstant.Value! + (int)limitConstant.Value!),
-                                                limit.TypeMapping)
-                                            : new SqlBinaryExpression(ExpressionType.Add, offset, limit, limit.Type, limit.TypeMapping);
-                                }
-
-                                limitPredicate = new SqlBinaryExpression(
-                                    ExpressionType.LessThanOrEqual, outerColumn, limit, typeof(bool), joinPredicate.TypeMapping);
-                            }
-
-                            var predicate = offsetPredicate != null
-                                ? limitPredicate != null
-                                    ? new SqlBinaryExpression(
-                                        ExpressionType.AndAlso, offsetPredicate, limitPredicate, typeof(bool), joinPredicate.TypeMapping)
-                                    : offsetPredicate
-                                : limitPredicate;
-                            innerSelectExpression.ApplyPredicate(predicate!);
-                        }
-
-                        joinType = joinType == JoinType.CrossApply ? JoinType.InnerJoin : JoinType.LeftJoin;
-                    }
-                }
-                else
-                {
-                    // Order matters Apply Offset before Limit
-                    if (offset != null)
-                    {
-                        innerSelectExpression.ApplyOffset(offset);
-                    }
-
-                    if (limit != null)
-                    {
-                        innerSelectExpression.ApplyLimit(limit);
-                    }
-                }
-            }
-
-            // Verify what are the cases of pushdown for inner & outer both sides
-            if (Limit != null
-                || Offset != null
-                || IsDistinct
-                || GroupBy.Count > 0)
-            {
-                var sqlRemappingVisitor = new SqlRemappingVisitor(PushdownIntoSubquery(), (SelectExpression)Tables[0]);
-                innerSelectExpression = sqlRemappingVisitor.Remap(innerSelectExpression);
-                joinPredicate = sqlRemappingVisitor.Remap(joinPredicate);
-            }
-
-            if (innerSelectExpression.Orderings.Any()
-                || innerSelectExpression.Limit != null
-                || innerSelectExpression.Offset != null
-                || innerSelectExpression.IsDistinct
-                || innerSelectExpression.Predicate != null
-                || innerSelectExpression.Tables.Count > 1
-                || innerSelectExpression.GroupBy.Count > 0)
-            {
-                joinPredicate = new SqlRemappingVisitor(
-                        innerSelectExpression.PushdownIntoSubquery(), (SelectExpression)innerSelectExpression.Tables[0])
-                    .Remap(joinPredicate);
-            }
-
-            if (_identifier.Count > 0
-                && innerSelectExpression._identifier.Count > 0)
-            {
-                if (joinType == JoinType.LeftJoin
-                    || joinType == JoinType.OuterApply)
-                {
-                    _identifier.AddRange(innerSelectExpression._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
-                }
-                else
-                {
-                    _identifier.AddRange(innerSelectExpression._identifier);
-                }
-            }
-            else if (innerSelectExpression._identifier.Count == 0)
-            {
-                // if the subquery that is joined to can't be uniquely identified
-                // then the entire join should also not be marked as non-identifiable
-                _identifier.Clear();
-            }
-
-            var innerTable = innerSelectExpression.Tables.Single();
-            // Copy over pending collection if in join else that info would be lost.
-            // The calling method is supposed to take care of remapping the shaper so that copied over collection indexes match.
-            _pendingCollections.AddRange(innerSelectExpression._pendingCollections);
-
-            var joinTable = joinType switch
-            {
-                JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate!),
-                JoinType.LeftJoin => new LeftJoinExpression(innerTable, joinPredicate!),
-                JoinType.CrossJoin => new CrossJoinExpression(innerTable),
-                JoinType.CrossApply => new CrossApplyExpression(innerTable),
-                JoinType.OuterApply => (TableExpressionBase)new OuterApplyExpression(innerTable),
-                _ => throw new InvalidOperationException(CoreStrings.InvalidSwitch(nameof(joinType), joinType))
-            };
-
-            _tables.Add(joinTable);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using INNER JOIN.
-        /// </summary>
-        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
-        /// <param name="joinPredicate"> A predicate to use for the join. </param>
-        public void AddInnerJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-
-            AddJoin(JoinType.InnerJoin, ref innerSelectExpression, joinPredicate);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using LEFT JOIN.
-        /// </summary>
-        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
-        /// <param name="joinPredicate"> A predicate to use for the join. </param>
-        public void AddLeftJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-
-            AddJoin(JoinType.LeftJoin, ref innerSelectExpression, joinPredicate);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS JOIN.
-        /// </summary>
-        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
-        public void AddCrossJoin(SelectExpression innerSelectExpression)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.CrossJoin, ref innerSelectExpression);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS APPLY.
-        /// </summary>
-        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
-        public void AddCrossApply(SelectExpression innerSelectExpression)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.CrossApply, ref innerSelectExpression);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using OUTER APPLY.
-        /// </summary>
-        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
-        public void AddOuterApply(SelectExpression innerSelectExpression)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.OuterApply, ref innerSelectExpression);
-        }
-
-        /// <summary>
-        ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using INNER JOIN and combine shapers.
-        /// </summary>
-        /// <param name="innerSource"> A <see cref="ShapedQueryExpression" /> to join with. </param>
-        /// <param name="joinPredicate"> A predicate to use for the join. </param>
-        /// <param name="outerShaper"> An expression for outer shaper. </param>
-        /// <returns> An expression which shapes the result of this join. </returns>
-        public Expression AddInnerJoin(
-            ShapedQueryExpression innerSource,
-            SqlExpression joinPredicate,
-            Expression outerShaper)
-        {
-            Check.NotNull(innerSource, nameof(innerSource));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-            Check.NotNull(outerShaper, nameof(outerShaper));
-
-            return AddJoin(
-                JoinType.InnerJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression,
-                joinPredicate);
-        }
-
-        /// <summary>
-        ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using LEFT JOIN and combine shapers.
-        /// </summary>
-        /// <param name="innerSource"> A <see cref="ShapedQueryExpression" /> to join with. </param>
-        /// <param name="joinPredicate"> A predicate to use for the join. </param>
-        /// <param name="outerShaper"> An expression for outer shaper. </param>
-        /// <returns> An expression which shapes the result of this join. </returns>
-        public Expression AddLeftJoin(
-            ShapedQueryExpression innerSource,
-            SqlExpression joinPredicate,
-            Expression outerShaper)
-        {
-            Check.NotNull(innerSource, nameof(innerSource));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-            Check.NotNull(outerShaper, nameof(outerShaper));
-
-            return AddJoin(
-                JoinType.LeftJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression, joinPredicate);
-        }
-
-        /// <summary>
-        ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using CROSS JOIN and combine shapers.
-        /// </summary>
-        /// <param name="innerSource"> A <see cref="ShapedQueryExpression" /> to join with. </param>
-        /// <param name="outerShaper"> An expression for outer shaper. </param>
-        /// <returns> An expression which shapes the result of this join. </returns>
-        public Expression AddCrossJoin(
-            ShapedQueryExpression innerSource,
-            Expression outerShaper)
-        {
-            Check.NotNull(innerSource, nameof(innerSource));
-            Check.NotNull(outerShaper, nameof(outerShaper));
-
-            return AddJoin(JoinType.CrossJoin, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
-        }
-
-        /// <summary>
-        ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using CROSS APPLY and combine shapers.
-        /// </summary>
-        /// <param name="innerSource"> A <see cref="ShapedQueryExpression" /> to join with. </param>
-        /// <param name="outerShaper"> An expression for outer shaper. </param>
-        /// <returns> An expression which shapes the result of this join. </returns>
-        public Expression AddCrossApply(
-            ShapedQueryExpression innerSource,
-            Expression outerShaper)
-        {
-            Check.NotNull(innerSource, nameof(innerSource));
-            Check.NotNull(outerShaper, nameof(outerShaper));
-
-            return AddJoin(JoinType.CrossApply, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
-        }
-
-        /// <summary>
-        ///     Adds the query expression of the given <see cref="ShapedQueryExpression" /> to table sources using OUTER APPLY and combine shapers.
-        /// </summary>
-        /// <param name="innerSource"> A <see cref="ShapedQueryExpression" /> to join with. </param>
-        /// <param name="outerShaper"> An expression for outer shaper. </param>
-        /// <returns> An expression which shapes the result of this join. </returns>
-        public Expression AddOuterApply(
-            ShapedQueryExpression innerSource,
-            Expression outerShaper)
-        {
-            Check.NotNull(innerSource, nameof(innerSource));
-            Check.NotNull(outerShaper, nameof(outerShaper));
-
-            return AddJoin(JoinType.OuterApply, (SelectExpression)innerSource.QueryExpression, outerShaper, innerSource.ShaperExpression);
-        }
-
-        private sealed class SqlRemappingVisitor : ExpressionVisitor
-        {
-            private readonly SelectExpression _subquery;
-            private readonly IDictionary<SqlExpression, ColumnExpression> _mappings;
-
-            public SqlRemappingVisitor(IDictionary<SqlExpression, ColumnExpression> mappings, SelectExpression subquery)
-            {
-                _subquery = subquery;
-                _mappings = mappings;
-            }
-
-            [return: NotNullIfNotNull("sqlExpression")]
-            public SqlExpression? Remap(SqlExpression? sqlExpression)
-                => (SqlExpression?)Visit(sqlExpression);
-
-            [return: NotNullIfNotNull("sqlExpression")]
-            public SelectExpression? Remap(SelectExpression? sqlExpression)
-                => (SelectExpression?)Visit(sqlExpression);
-
-            [return: NotNullIfNotNull("expression")]
-            public override Expression? Visit(Expression? expression)
-            {
-                switch (expression)
-                {
-                    case SqlExpression sqlExpression
-                        when _mappings.TryGetValue(sqlExpression, out var outer):
-                        return outer;
-
-                    case ColumnExpression columnExpression
-                        when _subquery.ContainsTableReference(columnExpression.Table):
-                        var index = _subquery.AddToProjection(columnExpression);
-                        var projectionExpression = _subquery._projection[index];
-                        return new ColumnExpression(projectionExpression, _subquery);
-
-                    default:
-                        return base.Visit(expression);
-                }
-            }
-        }
-
-        #region ObsoleteMethods
-
-        [Obsolete]
-        private void AddJoin(
-            JoinType joinType,
-            SelectExpression innerSelectExpression,
-            Type? transparentIdentifierType,
-            SqlExpression? joinPredicate)
-        {
-            AddJoin(joinType, ref innerSelectExpression, joinPredicate);
-
-            if (transparentIdentifierType != null)
-            {
-                var outerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
-                var projectionMapping = new Dictionary<ProjectionMember, Expression>();
-                foreach (var projection in _projectionMapping)
-                {
-                    projectionMapping[projection.Key.Prepend(outerMemberInfo)] = projection.Value;
-                }
-
-                var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
-                var innerNullable = joinType == JoinType.LeftJoin || joinType == JoinType.OuterApply;
-                foreach (var projection in innerSelectExpression._projectionMapping)
-                {
-                    var projectionToAdd = projection.Value;
-                    if (innerNullable)
-                    {
-                        if (projectionToAdd is EntityProjectionExpression entityProjection)
-                        {
-                            projectionToAdd = entityProjection.MakeNullable();
-                        }
-                        else if (projectionToAdd is ColumnExpression column)
-                        {
-                            projectionToAdd = column.MakeNullable();
-                        }
-                    }
-
-                    projectionMapping[projection.Key.Prepend(innerMemberInfo)] = projectionToAdd;
-                }
-
-                _projectionMapping = projectionMapping;
-            }
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using INNER JOIN.
-        /// </summary>
-        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
-        /// <param name="joinPredicate"> A predicate to use for the join. </param>
-        /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
-        [Obsolete("Use the other overloads.")]
-        public void AddInnerJoin(
-            SelectExpression innerSelectExpression,
-            SqlExpression joinPredicate,
-            Type? transparentIdentifierType)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-
-            AddJoin(JoinType.InnerJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using LEFT JOIN.
-        /// </summary>
-        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
-        /// <param name="joinPredicate"> A predicate to use for the join. </param>
-        /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
-        [Obsolete("Use the other overloads.")]
-        public void AddLeftJoin(
-            SelectExpression innerSelectExpression,
-            SqlExpression joinPredicate,
-            Type? transparentIdentifierType)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-            Check.NotNull(joinPredicate, nameof(joinPredicate));
-
-            AddJoin(JoinType.LeftJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS JOIN.
-        /// </summary>
-        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
-        /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
-        [Obsolete("Use the other overloads.")]
-        public void AddCrossJoin(SelectExpression innerSelectExpression, Type? transparentIdentifierType)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.CrossJoin, innerSelectExpression, transparentIdentifierType, null);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using CROSS APPLY.
-        /// </summary>
-        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
-        /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
-        [Obsolete("Use the other overloads.")]
-        public void AddCrossApply(SelectExpression innerSelectExpression, Type? transparentIdentifierType)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.CrossApply, innerSelectExpression, transparentIdentifierType, null);
-        }
-
-        /// <summary>
-        ///     Adds the given <see cref="SelectExpression" /> to table sources using OUTER APPLY.
-        /// </summary>
-        /// <param name="innerSelectExpression"> A <see cref="SelectExpression" /> to join with. </param>
-        /// <param name="transparentIdentifierType"> The type of the result generated after performing the join. </param>
-        [Obsolete("Use the other overloads.")]
-        public void AddOuterApply(SelectExpression innerSelectExpression, Type? transparentIdentifierType)
-        {
-            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
-
-            AddJoin(JoinType.OuterApply, innerSelectExpression, transparentIdentifierType, null);
-        }
-
-        #endregion
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2837,85 +2627,26 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return this;
         }
 
-        private sealed class ColumnExpressionFindingExpressionVisitor : ExpressionVisitor
+        private static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
+            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                .SelectMany(t => t.GetDeclaredProperties());
+
+        private static ColumnExpression CreateColumnExpression(
+            IProperty property,
+            ITableBase table,
+            TableExpressionBase tableExpression,
+            bool nullable)
+            => new(property, table.FindColumn(property)!, tableExpression, nullable);
+
+        private ColumnExpression GenerateOuterColumn(SqlExpression projection, string? alias = null)
         {
-            private Dictionary<string, HashSet<string>?>? _columnReferenced;
-            private Dictionary<string, HashSet<string>?>? _columnsUsedInJoinCondition;
+            var index = AddToProjection(projection, alias);
 
-            public Dictionary<string, HashSet<string>?> FindColumns(SelectExpression selectExpression)
-            {
-                _columnReferenced = new Dictionary<string, HashSet<string>?>();
-                _columnsUsedInJoinCondition = new Dictionary<string, HashSet<string>?>();
-
-                foreach (var table in selectExpression.Tables)
-                {
-                    var tableAlias = table is JoinExpressionBase joinExpressionBase
-                        ? joinExpressionBase.Table.Alias!
-                        : table.Alias!;
-                    _columnReferenced[tableAlias] = null;
-                }
-
-                Visit(selectExpression);
-
-                foreach (var keyValuePair in _columnsUsedInJoinCondition)
-                {
-                    var tableAlias = keyValuePair.Key;
-                    if (_columnReferenced[tableAlias] != null
-                        && _columnsUsedInJoinCondition[tableAlias] != null)
-                    {
-                        _columnReferenced[tableAlias]!.UnionWith(_columnsUsedInJoinCondition[tableAlias]!);
-                    }
-                }
-
-                return _columnReferenced;
-            }
-
-            [return: NotNullIfNotNull("expression")]
-            public override Expression? Visit(Expression? expression)
-            {
-                switch (expression)
-                {
-                    case ColumnExpression columnExpression:
-                        var tableAlias = columnExpression.Table.Alias!;
-                        if (_columnReferenced!.ContainsKey(tableAlias))
-                        {
-                            if (_columnReferenced[tableAlias] == null)
-                            {
-                                _columnReferenced[tableAlias] = new HashSet<string>();
-                            }
-
-                            _columnReferenced[tableAlias]!.Add(columnExpression.Name);
-                        }
-
-                        // Always skip the table of ColumnExpression since it will traverse into deeper subquery
-                        return columnExpression;
-
-                    case LeftJoinExpression leftJoinExpression:
-                        var leftJoinTableAlias = leftJoinExpression.Table.Alias!;
-                        // Visiting the join predicate will add some columns for join table.
-                        // But if all the referenced columns are in join predicate only then we can remove the join table.
-                        // So if there are no referenced columns yet means there is still potential to remove this table,
-                        // In such case we moved the columns encountered in join predicate to other dictionary and later merge
-                        // if there are more references to the join table outside of join predicate.
-                        // We currently do this only for LeftJoin since that is the only predicate join table we remove.
-                        // We should also remove references to the outer if this column gets removed then that subquery can also remove projections
-                        // But currently we only remove table for TPT scenario in which there are all table expressions which connects via joins.
-                        var joinOnSameLevel = _columnReferenced!.ContainsKey(leftJoinTableAlias);
-                        var noReferences = !joinOnSameLevel || _columnReferenced[leftJoinTableAlias] == null;
-                        base.Visit(leftJoinExpression);
-                        if (noReferences && joinOnSameLevel)
-                        {
-                            _columnsUsedInJoinCondition![leftJoinTableAlias] = _columnReferenced[leftJoinTableAlias];
-                            _columnReferenced[leftJoinTableAlias] = null;
-                        }
-
-                        return leftJoinExpression;
-
-                    default:
-                        return base.Visit(expression);
-                }
-            }
+            return new ColumnExpression(_projection[index], this);
         }
+
+        private bool ContainsTableReference(TableExpressionBase table)
+            => Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -3123,122 +2854,21 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             return this;
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-            => obj != null
-                && (ReferenceEquals(this, obj)
-                    || obj is SelectExpression selectExpression
-                    && Equals(selectExpression));
-
-        private bool Equals(SelectExpression selectExpression)
-        {
-            if (!base.Equals(selectExpression))
-            {
-                return false;
-            }
-
-            if (_projection.Count != selectExpression._projection.Count)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < _projection.Count; i++)
-            {
-                if (!_projection[i].Equals(selectExpression._projection[i]))
-                {
-                    return false;
-                }
-            }
-
-            if (_projectionMapping.Count != selectExpression._projectionMapping.Count)
-            {
-                return false;
-            }
-
-            foreach (var projectionMapping in _projectionMapping)
-            {
-                if (!selectExpression._projectionMapping.TryGetValue(projectionMapping.Key, out var projection))
-                {
-                    return false;
-                }
-
-                if (!projectionMapping.Value.Equals(projection))
-                {
-                    return false;
-                }
-            }
-
-            if (!Tags.SequenceEqual(selectExpression.Tags))
-            {
-                return false;
-            }
-
-            if (!_tables.SequenceEqual(selectExpression._tables))
-            {
-                return false;
-            }
-
-            if (!(Predicate == null && selectExpression.Predicate == null
-                || Predicate != null && Predicate.Equals(selectExpression.Predicate)))
-            {
-                return false;
-            }
-
-            if (!_pendingCollections.SequenceEqual(selectExpression._pendingCollections))
-            {
-                return false;
-            }
-
-            if (!_groupBy.SequenceEqual(selectExpression._groupBy))
-            {
-                return false;
-            }
-
-            if (!(Having == null && selectExpression.Having == null
-                || Having != null && Having.Equals(selectExpression.Having)))
-            {
-                return false;
-            }
-
-            if (!_orderings.SequenceEqual(selectExpression._orderings))
-            {
-                return false;
-            }
-
-            if (!(Offset == null && selectExpression.Offset == null
-                || Offset != null && Offset.Equals(selectExpression.Offset)))
-            {
-                return false;
-            }
-
-#pragma warning disable IDE0046 // Convert to conditional expression
-            if (!(Limit == null && selectExpression.Limit == null
-#pragma warning restore IDE0046 // Convert to conditional expression
-                || Limit != null && Limit.Equals(selectExpression.Limit)))
-            {
-                return false;
-            }
-
-            return IsDistinct == selectExpression.IsDistinct;
-        }
-
-        /// <summary>
-        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
-        ///     return this expression.
-        /// </summary>
-        /// <param name="projections"> The <see cref="Projection" /> property of the result. </param>
-        /// <param name="tables"> The <see cref="Tables" /> property of the result. </param>
-        /// <param name="predicate"> The <see cref="Predicate" /> property of the result. </param>
-        /// <param name="groupBy"> The <see cref="GroupBy" /> property of the result. </param>
-        /// <param name="having"> The <see cref="Having" /> property of the result. </param>
-        /// <param name="orderings"> The <see cref="Orderings" /> property of the result. </param>
-        /// <param name="limit"> The <see cref="Limit" /> property of the result. </param>
-        /// <param name="offset"> The <see cref="Offset" /> property of the result. </param>
-        /// <param name="distinct"> The <see cref="IsDistinct" /> property of the result. </param>
-        /// <param name="alias"> The <see cref="P:Alias" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        }/// <summary>
+         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+         ///     return this expression.
+         /// </summary>
+         /// <param name="projections"> The <see cref="Projection" /> property of the result. </param>
+         /// <param name="tables"> The <see cref="Tables" /> property of the result. </param>
+         /// <param name="predicate"> The <see cref="Predicate" /> property of the result. </param>
+         /// <param name="groupBy"> The <see cref="GroupBy" /> property of the result. </param>
+         /// <param name="having"> The <see cref="Having" /> property of the result. </param>
+         /// <param name="orderings"> The <see cref="Orderings" /> property of the result. </param>
+         /// <param name="limit"> The <see cref="Limit" /> property of the result. </param>
+         /// <param name="offset"> The <see cref="Offset" /> property of the result. </param>
+         /// <param name="distinct"> The <see cref="IsDistinct" /> property of the result. </param>
+         /// <param name="alias"> The <see cref="P:Alias" /> property of the result. </param>
+         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         // This does not take internal states since when using this method SelectExpression should be finalized
         [Obsolete("Use the overload which does not require distinct & alias parameter.")]
         public SelectExpression Update(
@@ -3321,55 +2951,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 IsDistinct = IsDistinct,
                 Tags = Tags
             };
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            var hash = new HashCode();
-            hash.Add(base.GetHashCode());
-
-            // TODO: See issue#21700 & #18923
-            //foreach (var projection in _projection)
-            //{
-            //    hash.Add(projection);
-            //}
-
-            foreach (var projectionMapping in _projectionMapping)
-            {
-                hash.Add(projectionMapping.Key);
-                hash.Add(projectionMapping.Value);
-            }
-
-            foreach (var tag in Tags)
-            {
-                hash.Add(tag);
-            }
-
-            foreach (var table in _tables)
-            {
-                hash.Add(table);
-            }
-
-            hash.Add(Predicate);
-
-            foreach (var groupingKey in _groupBy)
-            {
-                hash.Add(groupingKey);
-            }
-
-            hash.Add(Having);
-
-            foreach (var ordering in _orderings)
-            {
-                hash.Add(ordering);
-            }
-
-            hash.Add(Offset);
-            hash.Add(Limit);
-            hash.Add(IsDistinct);
-
-            return hash.ToHashCode();
         }
 
         /// <inheritdoc />
@@ -3481,6 +3062,154 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 indent?.Dispose();
                 expressionPrinter.AppendLine().Append(") AS " + Alias);
             }
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object? obj)
+            => obj != null
+                && (ReferenceEquals(this, obj)
+                    || obj is SelectExpression selectExpression
+                    && Equals(selectExpression));
+
+        private bool Equals(SelectExpression selectExpression)
+        {
+            if (!base.Equals(selectExpression))
+            {
+                return false;
+            }
+
+            if (_projection.Count != selectExpression._projection.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < _projection.Count; i++)
+            {
+                if (!_projection[i].Equals(selectExpression._projection[i]))
+                {
+                    return false;
+                }
+            }
+
+            if (_projectionMapping.Count != selectExpression._projectionMapping.Count)
+            {
+                return false;
+            }
+
+            foreach (var projectionMapping in _projectionMapping)
+            {
+                if (!selectExpression._projectionMapping.TryGetValue(projectionMapping.Key, out var projection))
+                {
+                    return false;
+                }
+
+                if (!projectionMapping.Value.Equals(projection))
+                {
+                    return false;
+                }
+            }
+
+            if (!Tags.SequenceEqual(selectExpression.Tags))
+            {
+                return false;
+            }
+
+            if (!_tables.SequenceEqual(selectExpression._tables))
+            {
+                return false;
+            }
+
+            if (!(Predicate == null && selectExpression.Predicate == null
+                || Predicate != null && Predicate.Equals(selectExpression.Predicate)))
+            {
+                return false;
+            }
+
+            if (!_pendingCollections.SequenceEqual(selectExpression._pendingCollections))
+            {
+                return false;
+            }
+
+            if (!_groupBy.SequenceEqual(selectExpression._groupBy))
+            {
+                return false;
+            }
+
+            if (!(Having == null && selectExpression.Having == null
+                || Having != null && Having.Equals(selectExpression.Having)))
+            {
+                return false;
+            }
+
+            if (!_orderings.SequenceEqual(selectExpression._orderings))
+            {
+                return false;
+            }
+
+            if (!(Offset == null && selectExpression.Offset == null
+                || Offset != null && Offset.Equals(selectExpression.Offset)))
+            {
+                return false;
+            }
+
+#pragma warning disable IDE0046 // Convert to conditional expression
+            if (!(Limit == null && selectExpression.Limit == null
+                || Limit != null && Limit.Equals(selectExpression.Limit)))
+            {
+                return false;
+            }
+
+            return IsDistinct == selectExpression.IsDistinct;
+#pragma warning restore IDE0046 // Convert to conditional expression
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            var hash = new HashCode();
+            hash.Add(base.GetHashCode());
+
+            // TODO: See issue#21700 & #18923
+            //foreach (var projection in _projection)
+            //{
+            //    hash.Add(projection);
+            //}
+
+            foreach (var projectionMapping in _projectionMapping)
+            {
+                hash.Add(projectionMapping.Key);
+                hash.Add(projectionMapping.Value);
+            }
+
+            foreach (var tag in Tags)
+            {
+                hash.Add(tag);
+            }
+
+            foreach (var table in _tables)
+            {
+                hash.Add(table);
+            }
+
+            hash.Add(Predicate);
+
+            foreach (var groupingKey in _groupBy)
+            {
+                hash.Add(groupingKey);
+            }
+
+            hash.Add(Having);
+
+            foreach (var ordering in _orderings)
+            {
+                hash.Add(ordering);
+            }
+
+            hash.Add(Offset);
+            hash.Add(Limit);
+            hash.Add(IsDistinct);
+
+            return hash.ToHashCode();
         }
     }
 }
