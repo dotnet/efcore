@@ -139,6 +139,55 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [ConditionalFact]
+        public void SetValues_to_owned_property()
+        {
+            Guid id;
+            using (var context = new OwnedDbContext())
+            {
+                id = context.Add(new Owner { OwnerInt = 1, Owned = new() { OwnedInt = 1 } }).Entity.Id;
+                context.SaveChanges();
+            }
+
+            var disconnectedEntity = new Owner { Id = id, OwnerInt = 2, Owned = new() { OwnedInt = 2 } };
+
+
+            using (var context = new OwnedDbContext())
+            {
+                var trackedEntity = context.Find<Owner>(id);
+                var entry = context.Entry(trackedEntity);
+                entry.CurrentValues.SetValues(disconnectedEntity);
+
+                Assert.Equal(2, trackedEntity.OwnerInt);
+                Assert.Equal(2, trackedEntity.Owned.OwnedInt);
+
+                context.SaveChanges();
+            }
+        }
+
+        public class Owner
+        {
+            public Guid Id { get; set; }
+            public int OwnerInt { get; set; }
+            public Owned Owned { get; set; } = null!;
+        }
+
+
+        [Owned]
+        public class Owned
+        {
+            public int OwnedInt { get; set; }
+        }
+
+        protected class OwnedDbContext : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(GetType().FullName);
+
+            public DbSet<Owner> Owners { get; set; } = null!;
+        }
+
+
+        [ConditionalFact]
         public void Setting_IsModified_is_not_reset_by_OriginalValues()
         {
             Guid id;
