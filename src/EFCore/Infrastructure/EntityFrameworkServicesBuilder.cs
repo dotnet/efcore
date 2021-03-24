@@ -121,6 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IQueryCompiler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICompiledQueryCacheKeyGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModel), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IDesignTimeModel), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IUpdateAdapterFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICurrentDbContext), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDbContextDependencies), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -253,6 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetRequiredService<ILoggingOptions>());
             TryAdd<ISingletonOptions, ICoreSingletonOptions>(p => p.GetRequiredService<ICoreSingletonOptions>());
             TryAdd(p => GetContextServices(p).Model);
+            TryAdd<IDesignTimeModel>(p => new DesignTimeModel(GetContextServices(p)));
             TryAdd(p => GetContextServices(p).CurrentContext);
             TryAdd(p => GetContextServices(p).ContextOptions);
             TryAdd<IResettableService, IStateManager>(p => p.GetRequiredService<IStateManager>());

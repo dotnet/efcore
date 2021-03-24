@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -178,7 +179,7 @@ SELECT 1 ELSE SELECT 0");
                     {
                         Name = builder.InitialCatalog,
                         FileName = builder.AttachDBFilename,
-                        Collation = Dependencies.CurrentContext.Context.DesignTimeModel.GetCollation()
+                        Collation = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>().Model.GetCollation()
                     }
                 },
                 null);

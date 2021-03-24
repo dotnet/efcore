@@ -147,16 +147,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
-        ///     Also includes all the information necessary to initialize the database.
-        /// </summary>
-        public virtual IModel DesignTimeModel
-        {
-            [DebuggerStepThrough]
-            get => ContextServices.DesignTimeModel;
-        }
-
-        /// <summary>
         ///     <para>
         ///         A unique identifier for the context instance and pool lease, if any.
         ///     </para>
