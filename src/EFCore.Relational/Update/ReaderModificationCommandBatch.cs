@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         storeCommand.ParameterValues,
                         null,
                         Dependencies.CurrentContext.Context,
-                        Dependencies.Logger), CommandSource.SaveChanges);
+                        Dependencies.Logger, CommandSource.SaveChanges));
                 Consume(dataReader);
             }
             catch (DbUpdateException)
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         storeCommand.ParameterValues,
                         null,
                         Dependencies.CurrentContext.Context,
-                        Dependencies.Logger), CommandSource.SaveChanges,
+                        Dependencies.Logger, CommandSource.SaveChanges),
                     cancellationToken).ConfigureAwait(false);
                 await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
             }

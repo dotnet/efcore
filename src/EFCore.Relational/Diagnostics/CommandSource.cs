@@ -12,6 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public enum CommandSource
     {
         /// <summary>
+        /// Unknown
+        /// </summary>
+        Unknown,
+
+        /// <summary>
         /// Linq Query
         /// </summary>
         LinqQuery,

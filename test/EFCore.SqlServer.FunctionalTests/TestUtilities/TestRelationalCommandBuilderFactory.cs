@@ -108,12 +108,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public IReadOnlyList<IRelationalParameter> Parameters
                 => _realRelationalCommand.Parameters;
 
-            public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject, CommandSource source)
+            public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteNonQuery(parameterObject, source);
+                var result = _realRelationalCommand.ExecuteNonQuery(parameterObject);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -125,13 +125,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public Task<int> ExecuteNonQueryAsync(
                 RelationalCommandParameterObject parameterObject,
-                CommandSource source,
                 CancellationToken cancellationToken = default)
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteNonQueryAsync(parameterObject, source, cancellationToken);
+                var result = _realRelationalCommand.ExecuteNonQueryAsync(parameterObject, cancellationToken);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -141,12 +140,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return result;
             }
 
-            public object? ExecuteScalar(RelationalCommandParameterObject parameterObject, CommandSource source)
+            public object? ExecuteScalar(RelationalCommandParameterObject parameterObject)
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteScalar(parameterObject, source);
+                var result = _realRelationalCommand.ExecuteScalar(parameterObject);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -158,13 +157,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public async Task<object?> ExecuteScalarAsync(
                 RelationalCommandParameterObject parameterObject,
-                CommandSource source,
                 CancellationToken cancellationToken = default)
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = await _realRelationalCommand.ExecuteScalarAsync(parameterObject, source, cancellationToken);
+                var result = await _realRelationalCommand.ExecuteScalarAsync(parameterObject, cancellationToken);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -174,12 +172,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return result;
             }
 
-            public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject, CommandSource source)
+            public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = _realRelationalCommand.ExecuteReader(parameterObject, source);
+                var result = _realRelationalCommand.ExecuteReader(parameterObject);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -192,13 +190,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             public async Task<RelationalDataReader> ExecuteReaderAsync(
                 RelationalCommandParameterObject parameterObject,
-                CommandSource source,
                 CancellationToken cancellationToken = default)
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
 
-                var result = await _realRelationalCommand.ExecuteReaderAsync(parameterObject, cancellationToken);
+                var result = await _realRelationalCommand.ExecuteReaderAsync(parameterObject);
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
@@ -212,8 +209,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public DbCommand CreateDbCommand(
                 RelationalCommandParameterObject parameterObject,
                 Guid commandId,
-                DbCommandMethod commandMethod,
-                CommandSource commandSource)
+                DbCommandMethod commandMethod)
                 => throw new NotSupportedException();
 
             public void PopulateFromTemplate(IRelationalCommand templateCommand)

@@ -59,6 +59,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="readerColumns"> The expected columns if the reader needs to be buffered, or null otherwise. </param>
         /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
         /// <param name="logger"> A logger, or null if no logger is available. </param>
+        /// <param name="commandSource">Source of the command.</param>
+        public RelationalCommandParameterObject(
+            [NotNull] IRelationalConnection connection,
+            [CanBeNull] IReadOnlyDictionary<string, object?>? parameterValues,
+            [CanBeNull] IReadOnlyList<ReaderColumn>? readerColumns,
+            [CanBeNull] DbContext? context,
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger,
+            CommandSource commandSource)
+            : this(connection, parameterValues, readerColumns, context, logger, detailedErrorsEnabled: false, commandSource)
+        {
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a new parameter object for the given parameters.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="connection"> The connection on which the command will execute. </param>
+        /// <param name="parameterValues"> The SQL parameter values to use, or null if none. </param>
+        /// <param name="readerColumns"> The expected columns if the reader needs to be buffered, or null otherwise. </param>
+        /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
+        /// <param name="logger"> A logger, or null if no logger is available. </param>
         /// <param name="detailedErrorsEnabled"> A value indicating if detailed errors are enabled. </param>
         public RelationalCommandParameterObject(
             [NotNull] IRelationalConnection connection,
@@ -66,7 +92,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [CanBeNull] IReadOnlyList<ReaderColumn>? readerColumns,
             [CanBeNull] DbContext? context,
             [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger,
-            bool detailedErrorsEnabled)
+            bool detailedErrorsEnabled) : this(connection, parameterValues, readerColumns, context,
+                                               logger, detailedErrorsEnabled, CommandSource.Unknown)
+        {
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a new parameter object for the given parameters.
+        ///     </para>
+        ///     <para>
+        ///         This type is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="connection"> The connection on which the command will execute. </param>
+        /// <param name="parameterValues"> The SQL parameter values to use, or null if none. </param>
+        /// <param name="readerColumns"> The expected columns if the reader needs to be buffered, or null otherwise. </param>
+        /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
+        /// <param name="logger"> A logger, or null if no logger is available. </param>
+        /// <param name="detailedErrorsEnabled"> A value indicating if detailed errors are enabled. </param>
+        /// <param name="commandSource">Source of the command.</param>
+        public RelationalCommandParameterObject(
+            [NotNull] IRelationalConnection connection,
+            [CanBeNull] IReadOnlyDictionary<string, object?>? parameterValues,
+            [CanBeNull] IReadOnlyList<ReaderColumn>? readerColumns,
+            [CanBeNull] DbContext? context,
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger,
+            bool detailedErrorsEnabled,
+            CommandSource commandSource)
         {
             Check.NotNull(connection, nameof(connection));
 
@@ -76,6 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Context = context;
             Logger = logger;
             DetailedErrorsEnabled = detailedErrorsEnabled;
+            CommandSource = commandSource;
         }
 
         /// <summary>
@@ -107,5 +162,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A value indicating if detailed errors are enabled.
         /// </summary>
         public bool DetailedErrorsEnabled { get; }
+
+        /// <summary>
+        ///     Source of the command.
+        /// </summary>
+        public CommandSource CommandSource { get; }
     }
 }

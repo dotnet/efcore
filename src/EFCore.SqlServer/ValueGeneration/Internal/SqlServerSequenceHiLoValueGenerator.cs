@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
                             parameterValues: null,
                             readerColumns: null,
                             context: null,
-                            _commandLogger), CommandSource.HiLoValueGenerator),
+                            _commandLogger, CommandSource.HiLoValueGenerator)),
                 typeof(long),
                 CultureInfo.InvariantCulture)!;
 
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
                             parameterValues: null,
                             readerColumns: null,
                             context: null,
-                            _commandLogger), CommandSource.HiLoValueGenerator,
+                            _commandLogger, CommandSource.HiLoValueGenerator),
                         cancellationToken)
                     .ConfigureAwait(false),
                 typeof(long),
