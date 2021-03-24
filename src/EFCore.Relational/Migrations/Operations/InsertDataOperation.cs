@@ -4,13 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -23,35 +20,35 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The name of the table into which data will be inserted.
         /// </summary>
-        public virtual string Table { get; [param: NotNull] set; } = null!;
+        public virtual string Table { get; set; } = null!;
 
         /// <summary>
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string? Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; set; }
 
         /// <summary>
         ///     A list of column names that represent the columns into which data will be inserted.
         /// </summary>
-        public virtual string[] Columns { get; [param: NotNull] set; } = null!;
+        public virtual string[] Columns { get; set; } = null!;
 
         /// <summary>
         ///     A list of store types for the columns into which data will be inserted.
         /// </summary>
-        public virtual string[]? ColumnTypes { get; [param: CanBeNull] set; }
+        public virtual string[]? ColumnTypes { get; set; }
 
         /// <summary>
         ///     The data to be inserted, represented as a list of value arrays where each
         ///     value in the array corresponds to a column in the <see cref="Columns" /> property.
         /// </summary>
-        public virtual object?[,] Values { get; [param: NotNull] set; } = null!;
+        public virtual object?[,] Values { get; set; } = null!;
 
         /// <summary>
         ///     Generates the commands that correspond to this operation.
         /// </summary>
         /// <returns> The commands that correspond to this operation. </returns>
         [Obsolete]
-        public virtual IEnumerable<ModificationCommand> GenerateModificationCommands([CanBeNull] IModel model)
+        public virtual IEnumerable<ModificationCommand> GenerateModificationCommands(IModel? model)
         {
             Check.DebugAssert(
                 Columns.Length == Values.GetLength(1),

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -71,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     .GetRuntimeMethods().Single(mi => mi.Name == nameof(SafeToObject));
 
             public CosmosProjectionBindingRemovingExpressionVisitorBase(
-                [NotNull] ParameterExpression jObjectParameter,
+                ParameterExpression jObjectParameter,
                 bool trackQueryResults)
             {
                 _jObjectParameter = jObjectParameter;

@@ -3,13 +3,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -25,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention. </param>
         public SequenceUniquificationConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             Dependencies = dependencies;
         }
@@ -43,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var model = modelBuilder.Metadata;
             var modelSequences =
-                (SortedDictionary<(string Name, string Schema), Sequence>?)model[RelationalAnnotationNames.Sequences];
+                (SortedDictionary<(string Name, string? Schema), ISequence>?)model[RelationalAnnotationNames.Sequences];
 
             if (modelSequences != null)
             {
@@ -57,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var newSequenceName = Uniquifier.Uniquify(
                         sequence.Key.Name, modelSequences,
                         sequenceName => (sequenceName, schemaName), maxLength);
-                    Sequence.SetName((IMutableModel)model, sequence.Value, newSequenceName);
+                    Sequence.SetName((IMutableModel)model, (Sequence)sequence.Value, newSequenceName);
                 }
             }
         }

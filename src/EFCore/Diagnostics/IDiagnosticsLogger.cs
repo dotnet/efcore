@@ -3,11 +3,8 @@
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -71,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     <see langword="false" /> otherwise.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
-        bool ShouldLog([NotNull] EventDefinitionBase definition)
+        bool ShouldLog(EventDefinitionBase definition)
             // No null checks; low-level code in hot path for logging.
             => definition.WarningBehavior == WarningBehavior.Throw
                 || (Logger.IsEnabled(definition.Level)
@@ -87,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="simpleLogEnabled"> True to dispatch to a <see cref="IDbContextLogger" />; <see langword="false" /> otherwise. </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         void DispatchEventData(
-            [NotNull] EventDefinitionBase definition,
-            [NotNull] EventData eventData,
+            EventDefinitionBase definition,
+            EventData eventData,
             bool diagnosticSourceEnabled,
             bool simpleLogEnabled)
         {
@@ -122,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> <see langword="true" /> if either a diagnostic source or a LogTo logger is enabled; <see langword="false" /> otherwise. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         bool NeedsEventData(
-            [NotNull] EventDefinitionBase definition,
+            EventDefinitionBase definition,
             out bool diagnosticSourceEnabled,
             out bool simpleLogEnabled)
         {
@@ -158,8 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         bool NeedsEventData<TInterceptor>(
-            [NotNull] EventDefinitionBase definition,
-            [CanBeNull] out TInterceptor? interceptor,
+            EventDefinitionBase definition,
+            out TInterceptor? interceptor,
             out bool diagnosticSourceEnabled,
             out bool simpleLogEnabled)
             where TInterceptor : class, IInterceptor

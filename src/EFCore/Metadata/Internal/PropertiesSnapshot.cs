@@ -3,9 +3,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -24,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public PropertiesSnapshot(
-            [CanBeNull] List<InternalPropertyBuilder>? properties,
-            [CanBeNull] List<InternalIndexBuilder>? indexes,
-            [CanBeNull] List<(InternalKeyBuilder, ConfigurationSource?)>? keys,
-            [CanBeNull] List<RelationshipSnapshot>? relationships)
+            List<InternalPropertyBuilder>? properties,
+            List<InternalIndexBuilder>? indexes,
+            List<(InternalKeyBuilder, ConfigurationSource?)>? keys,
+            List<RelationshipSnapshot>? relationships)
         {
             Properties = properties;
             Indexes = indexes;
@@ -46,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Add([NotNull] List<RelationshipSnapshot> relationships)
+        public virtual void Add(List<RelationshipSnapshot> relationships)
         {
             if (Relationships == null)
             {
@@ -64,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Add([NotNull] List<InternalIndexBuilder> indexes)
+        public virtual void Add(List<InternalIndexBuilder> indexes)
         {
             if (Indexes == null)
             {
@@ -82,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Add([NotNull] List<(InternalKeyBuilder, ConfigurationSource?)> keys)
+        public virtual void Add(List<(InternalKeyBuilder, ConfigurationSource?)> keys)
         {
             if (Keys == null)
             {
@@ -100,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
+        public virtual void Attach(InternalEntityTypeBuilder entityTypeBuilder)
         {
             if (Properties != null)
             {

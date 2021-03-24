@@ -8,8 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 {
     /// <summary>
@@ -33,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         {
             private readonly IDbTransactionInterceptor[] _interceptors;
 
-            public CompositeDbTransactionInterceptor([NotNull] IEnumerable<IDbTransactionInterceptor> interceptors)
+            public CompositeDbTransactionInterceptor(IEnumerable<IDbTransactionInterceptor> interceptors)
             {
                 _interceptors = interceptors.ToArray();
             }

@@ -3,13 +3,10 @@
 
 using System;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -34,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseSqlite(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [CanBeNull] Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
@@ -56,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseSqlite(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] string connectionString,
-            [CanBeNull] Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            string connectionString,
+            Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -85,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseSqlite(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] DbConnection connection,
-            [CanBeNull] Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            DbConnection connection,
+            Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connection, nameof(connection));
@@ -117,8 +114,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseSqlite<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [CanBeNull] Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseSqlite(
                 (DbContextOptionsBuilder)optionsBuilder, sqliteOptionsAction);
@@ -132,9 +129,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseSqlite<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] string connectionString,
-            [CanBeNull] Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            string connectionString,
+            Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseSqlite(
                 (DbContextOptionsBuilder)optionsBuilder, connectionString, sqliteOptionsAction);
@@ -152,9 +149,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseSqlite<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] DbConnection connection,
-            [CanBeNull] Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            DbConnection connection,
+            Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseSqlite(
                 (DbContextOptionsBuilder)optionsBuilder, connection, sqliteOptionsAction);

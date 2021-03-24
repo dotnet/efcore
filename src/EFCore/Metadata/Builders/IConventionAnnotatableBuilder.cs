@@ -2,9 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -39,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An <see cref="IConventionAnnotatableBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
         /// </returns>
-        IConventionAnnotatableBuilder? HasAnnotation([NotNull] string name, [CanBeNull] object? value, bool fromDataAnnotation = false);
+        IConventionAnnotatableBuilder? HasAnnotation(string name, object? value, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
@@ -54,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionAnnotatableBuilder? HasNonNullAnnotation(
-            [NotNull] string name,
-            [CanBeNull] object? value,
+            string name,
+            object? value,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -70,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         [Obsolete("Use HasNonNullAnnotation")]
         IConventionAnnotatableBuilder? SetOrRemoveAnnotation(
-            [NotNull] string name,
-            [CanBeNull] object? value,
+            string name,
+            object? value,
             bool fromDataAnnotation = false)
             => HasNonNullAnnotation(name, value, fromDataAnnotation);
 
@@ -82,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the annotation can be set, <see langword="false" /> otherwise. </returns>
-        bool CanSetAnnotation([NotNull] string name, [CanBeNull] object? value, bool fromDataAnnotation = false);
+        bool CanSetAnnotation(string name, object? value, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the annotation with the given name from this object.
@@ -92,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     An <see cref="IConventionAnnotatableBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
         /// </returns>
-        IConventionAnnotatableBuilder? HasNoAnnotation([NotNull] string name, bool fromDataAnnotation = false);
+        IConventionAnnotatableBuilder? HasNoAnnotation(string name, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Removes the annotation with the given name from this object.
@@ -103,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An <see cref="IConventionAnnotatableBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
         /// </returns>
         [Obsolete("Use HasNoAnnotation")]
-        IConventionAnnotatableBuilder? RemoveAnnotation([NotNull] string name, bool fromDataAnnotation = false)
+        IConventionAnnotatableBuilder? RemoveAnnotation(string name, bool fromDataAnnotation = false)
             => HasNoAnnotation(name, fromDataAnnotation);
 
         /// <summary>
@@ -112,6 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name"> The name of the annotation to remove. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the annotation can be removed, <see langword="false" /> otherwise. </returns>
-        bool CanRemoveAnnotation([NotNull] string name, bool fromDataAnnotation = false);
+        bool CanRemoveAnnotation(string name, bool fromDataAnnotation = false);
     }
 }

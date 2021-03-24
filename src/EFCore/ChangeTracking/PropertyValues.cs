@@ -5,13 +5,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -36,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected PropertyValues([NotNull] InternalEntityEntry internalEntry)
+        protected PropertyValues(InternalEntityEntry internalEntry)
         {
             InternalEntry = internalEntry;
         }
@@ -69,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <param name="obj"> The object to read values from. </param>
-        public abstract void SetValues([NotNull] object obj);
+        public abstract void SetValues(object obj);
 
         /// <summary>
         ///     Creates a clone of the values in this object. Changes made to the new object will not be
@@ -89,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <param name="propertyValues"> The object from which values should be copied. </param>
-        public abstract void SetValues([NotNull] PropertyValues propertyValues);
+        public abstract void SetValues(PropertyValues propertyValues);
 
         /// <summary>
         ///     <para>
@@ -101,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <param name="values"> The dictionary to read values from. </param>
-        public virtual void SetValues([NotNull] IDictionary<string, object?> values)
+        public virtual void SetValues(IDictionary<string, object?> values)
         {
             Check.NotNull(values, nameof(values));
 
@@ -133,14 +130,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="propertyName"> The property name. </param>
         /// <returns> The value of the property. </returns>
-        public abstract object? this[[NotNull] string propertyName] { get; [param: CanBeNull] set; }
+        public abstract object? this[string propertyName] { get; set; }
 
         /// <summary>
         ///     Gets or sets the value of the property.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The value of the property. </returns>
-        public abstract object? this[[NotNull] IProperty property] { get; [param: CanBeNull] set; }
+        public abstract object? this[IProperty property] { get; set; }
 
         /// <summary>
         ///     Gets the value of the property just like using the indexed property getter but
@@ -149,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <typeparam name="TValue"> The type of the property. </typeparam>
         /// <param name="propertyName"> The property name. </param>
         /// <returns> The value of the property. </returns>
-        public abstract TValue GetValue<TValue>([NotNull] string propertyName);
+        public abstract TValue GetValue<TValue>(string propertyName);
 
         /// <summary>
         ///     Try to gets the value of the property just like using the indexed property getter but
@@ -160,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="propertyName"> The property name. </param>
         /// <param name="value"> The property value if any. </param>
         /// <returns> True if the property exists, otherwise false. </returns>
-        public virtual bool TryGetValue<TValue>([NotNull] string propertyName, out TValue value)
+        public virtual bool TryGetValue<TValue>(string propertyName, out TValue value)
         {
             var property = Properties.FirstOrDefault(p => p.Name == propertyName);
             if (property != null)
@@ -180,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <typeparam name="TValue"> The type of the property. </typeparam>
         /// <param name="property"> The property. </param>
         /// <returns> The value of the property. </returns>
-        public abstract TValue GetValue<TValue>([NotNull] IProperty property);
+        public abstract TValue GetValue<TValue>(IProperty property);
 
         #region Hidden System.Object members
 

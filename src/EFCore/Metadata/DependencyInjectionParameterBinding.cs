@@ -2,15 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -31,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="serviceType"> The service CLR types, as resolved from dependency injection </param>
         /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
         public DependencyInjectionParameterBinding(
-            [NotNull] Type parameterType,
-            [NotNull] Type serviceType,
-            [CanBeNull] IPropertyBase? serviceProperty = null)
+            Type parameterType,
+            Type serviceType,
+            IPropertyBase? serviceProperty = null)
             : base(parameterType, serviceType, serviceProperty)
         {
         }
@@ -60,5 +59,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         MaterializationContext.ContextProperty),
                     typeof(IInfrastructure<IServiceProvider>)));
         }
+
+        /// <summary>
+        ///     Creates a copy that contains the given consumed properties.
+        /// </summary>
+        /// <param name="consumedProperties"> The new consumed properties. </param>
+        /// <returns> A copy with replaced consumed properties. </returns>
+        public override ParameterBinding With(IReadOnlyList<IPropertyBase> consumedProperties)
+            => new DependencyInjectionParameterBinding(ParameterType, ServiceType, consumedProperties.SingleOrDefault());
     }
 }

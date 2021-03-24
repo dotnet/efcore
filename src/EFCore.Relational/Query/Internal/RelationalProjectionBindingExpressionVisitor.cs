@@ -4,19 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -38,10 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private SelectExpression _selectExpression;
         private SqlExpression[] _existingProjections;
         private bool _clientEval;
+        private Dictionary<EntityProjectionExpression, ProjectionBindingExpression>? _entityProjectionCache;
 
-        private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
-            = new Dictionary<ProjectionMember, Expression>();
-
+        private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
         private readonly Stack<ProjectionMember> _projectionMembers = new();
 
         /// <summary>
@@ -51,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public RelationalProjectionBindingExpressionVisitor(
-            [NotNull] RelationalQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
-            [NotNull] RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor)
+            RelationalQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
+            RelationalSqlTranslatingExpressionVisitor sqlTranslatingExpressionVisitor)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _sqlTranslator = sqlTranslatingExpressionVisitor;
@@ -67,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Translate([NotNull] SelectExpression selectExpression, [NotNull] Expression expression)
+        public virtual Expression Translate(SelectExpression selectExpression, Expression expression)
         {
             _selectExpression = selectExpression;
             _clientEval = false;
@@ -80,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (result == QueryCompilationContext.NotTranslatedExpression)
             {
                 _clientEval = true;
+                _entityProjectionCache = new();
 
                 expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_selectExpression, expression);
                 _existingProjections = _selectExpression.Projection.Select(e => e.Expression).ToArray();
@@ -105,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [return: CA.NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
         {
             if (expression == null)
@@ -337,9 +334,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (_clientEval)
                     {
-                        return entityShaperExpression.Update(
-                            new ProjectionBindingExpression(
-                                _selectExpression, _selectExpression.AddToProjection(entityProjectionExpression)));
+                        if (!_entityProjectionCache!.TryGetValue(entityProjectionExpression, out var entityProjectionBinding))
+                        {
+                            entityProjectionBinding = new ProjectionBindingExpression(
+                                _selectExpression, _selectExpression.AddToProjection(entityProjectionExpression));
+                            _entityProjectionCache[entityProjectionExpression] = entityProjectionBinding;
+                        }
+
+                        return entityShaperExpression.Update(entityProjectionBinding);
                     }
 
                     _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
@@ -614,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return _containsInclude;
             }
 
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
                 => _containsInclude ? expression : base.Visit(expression);
 

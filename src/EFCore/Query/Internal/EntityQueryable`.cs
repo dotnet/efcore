@@ -8,13 +8,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -37,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityQueryable([NotNull] IAsyncQueryProvider queryProvider, [NotNull] IEntityType entityType)
+        public EntityQueryable(IAsyncQueryProvider queryProvider, IEntityType entityType)
             : this(queryProvider, new QueryRootExpression(queryProvider, entityType))
         {
         }
@@ -48,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityQueryable([NotNull] IAsyncQueryProvider queryProvider, [NotNull] Expression expression)
+        public EntityQueryable(IAsyncQueryProvider queryProvider, Expression expression)
         {
             Check.NotNull(queryProvider, nameof(queryProvider));
             Check.NotNull(expression, nameof(expression));

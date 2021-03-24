@@ -5,9 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -91,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> Foreign key properties in the dependent entity. </param>
         /// <param name="principalKey"> The primary or alternate key to target. </param>
-        void SetProperties([NotNull] IReadOnlyList<IMutableProperty> properties, [NotNull] IMutableKey principalKey);
+        void SetProperties(IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey);
 
         /// <summary>
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
@@ -101,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     no navigation property defined.
         /// </param>
         /// <returns> The newly set navigation property. </returns>
-        IMutableNavigation? SetDependentToPrincipal([CanBeNull] string name);
+        IMutableNavigation? SetDependentToPrincipal(string? name);
 
         /// <summary>
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
@@ -111,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     no navigation property defined.
         /// </param>
         /// <returns> The newly set navigation property. </returns>
-        IMutableNavigation? SetDependentToPrincipal([CanBeNull] MemberInfo property);
+        IMutableNavigation? SetDependentToPrincipal(MemberInfo? property);
 
         /// <summary>
         ///     Sets the navigation property on the dependent entity type that points to the principal entity.
@@ -122,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The newly created navigation property. </returns>
         [Obsolete("Use SetDependentToPrincipal")]
-        IMutableNavigation? HasDependentToPrincipal([CanBeNull] string name)
+        IMutableNavigation? HasDependentToPrincipal(string? name)
             => SetDependentToPrincipal(name);
 
         /// <summary>
@@ -134,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The newly created navigation property. </returns>
         [Obsolete("Use SetDependentToPrincipal")]
-        IMutableNavigation? HasDependentToPrincipal([CanBeNull] MemberInfo property)
+        IMutableNavigation? HasDependentToPrincipal(MemberInfo? property)
             => SetDependentToPrincipal(property);
 
         /// <summary>
@@ -145,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     no navigation property defined.
         /// </param>
         /// <returns> The newly set navigation property. </returns>
-        IMutableNavigation? SetPrincipalToDependent([CanBeNull] string name);
+        IMutableNavigation? SetPrincipalToDependent(string? name);
 
         /// <summary>
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
@@ -155,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     no navigation property defined.
         /// </param>
         /// <returns> The newly set navigation property. </returns>
-        IMutableNavigation? SetPrincipalToDependent([CanBeNull] MemberInfo property);
+        IMutableNavigation? SetPrincipalToDependent(MemberInfo? property);
 
         /// <summary>
         ///     Sets the navigation property on the principal entity type that points to the dependent entity.
@@ -166,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The newly created navigation property. </returns>
         [Obsolete("Use SetPrincipalToDependent")]
-        IMutableNavigation? HasPrincipalToDependent([CanBeNull] string name)
+        IMutableNavigation? HasPrincipalToDependent(string? name)
             => SetPrincipalToDependent(name);
 
         /// <summary>
@@ -178,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The newly created navigation property. </returns>
         [Obsolete("Use SetPrincipalToDependent")]
-        IMutableNavigation? HasPrincipalToDependent([CanBeNull] MemberInfo property)
+        IMutableNavigation? HasPrincipalToDependent(MemberInfo? property)
             => SetPrincipalToDependent(property);
 
         /// <summary>
@@ -193,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> One of the entity types related by the foreign key. </param>
         /// <returns> The entity type related to the given one. </returns>
-        new IMutableEntityType GetRelatedEntityType([NotNull] IReadOnlyEntityType entityType)
+        new IMutableEntityType GetRelatedEntityType(IReadOnlyEntityType entityType)
             => (IMutableEntityType)((IReadOnlyForeignKey)this).GetRelatedEntityType(entityType);
 
         /// <summary>

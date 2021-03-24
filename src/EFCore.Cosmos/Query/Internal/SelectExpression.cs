@@ -5,14 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable disable
+#nullable disable warnings
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SelectExpression([NotNull] IEntityType entityType)
+        public SelectExpression(IEntityType entityType)
         {
             Container = entityType.GetContainer();
             FromExpression = new RootReferenceExpression(entityType, RootAlias);
@@ -53,9 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SelectExpression(
-            [NotNull] List<ProjectionExpression> projections,
-            [NotNull] RootReferenceExpression fromExpression,
-            [NotNull] List<OrderingExpression> orderings)
+            List<ProjectionExpression> projections,
+            RootReferenceExpression fromExpression,
+            List<OrderingExpression> orderings)
         {
             _projection = projections;
             FromExpression = fromExpression;
@@ -144,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression GetMappedProjection([NotNull] ProjectionMember projectionMember)
+        public virtual Expression GetMappedProjection(ProjectionMember projectionMember)
             => _projectionMapping[projectionMember];
 
         /// <summary>
@@ -153,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetPartitionKey([NotNull] IProperty partitionKeyProperty, [NotNull] Expression expression)
+        public virtual void SetPartitionKey(IProperty partitionKeyProperty, Expression expression)
         {
             _partitionKeyValueConverter = partitionKeyProperty.GetTypeMapping().Converter;
             _partitionKeyValue = expression;
@@ -165,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string GetPartitionKey([NotNull] IReadOnlyDictionary<string, object> parameterValues)
+        public virtual string GetPartitionKey(IReadOnlyDictionary<string, object> parameterValues)
         {
             switch (_partitionKeyValue)
             {
@@ -217,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ReplaceProjectionMapping([NotNull] IDictionary<ProjectionMember, Expression> projectionMapping)
+        public virtual void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
         {
             _projectionMapping.Clear();
             foreach (var kvp in projectionMapping)
@@ -232,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int AddToProjection([NotNull] SqlExpression sqlExpression)
+        public virtual int AddToProjection(SqlExpression sqlExpression)
             => AddToProjection(sqlExpression, null);
 
         /// <summary>
@@ -241,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int AddToProjection([NotNull] EntityProjectionExpression entityProjection)
+        public virtual int AddToProjection(EntityProjectionExpression entityProjection)
             => AddToProjection(entityProjection, null);
 
         /// <summary>
@@ -250,10 +249,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int AddToProjection([NotNull] ObjectArrayProjectionExpression objectArrayProjection)
+        public virtual int AddToProjection(ObjectArrayProjectionExpression objectArrayProjection)
             => AddToProjection(objectArrayProjection, null);
 
-        private int AddToProjection([NotNull] Expression expression, string alias)
+        private int AddToProjection(Expression expression, string alias)
         {
             var existingIndex = _projection.FindIndex(pe => pe.Expression.Equals(expression));
             if (existingIndex != -1)
@@ -305,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ApplyPredicate([NotNull] SqlExpression expression)
+        public virtual void ApplyPredicate(SqlExpression expression)
         {
             if (expression is SqlConstantExpression sqlConstant
                 && sqlConstant.Value is bool boolValue
@@ -330,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ApplyLimit([NotNull] SqlExpression sqlExpression)
+        public virtual void ApplyLimit(SqlExpression sqlExpression)
         {
             if (Limit != null)
             {
@@ -346,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ApplyOffset([NotNull] SqlExpression sqlExpression)
+        public virtual void ApplyOffset(SqlExpression sqlExpression)
         {
             if (Limit != null
                 || Offset != null)
@@ -363,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ApplyOrdering([NotNull] OrderingExpression orderingExpression)
+        public virtual void ApplyOrdering(OrderingExpression orderingExpression)
         {
             if (IsDistinct
                 || Limit != null
@@ -382,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AppendOrdering([NotNull] OrderingExpression orderingExpression)
+        public virtual void AppendOrdering(OrderingExpression orderingExpression)
         {
             if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
             {
@@ -516,12 +515,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SelectExpression Update(
-            [NotNull] List<ProjectionExpression> projections,
-            [NotNull] RootReferenceExpression fromExpression,
-            [CanBeNull] SqlExpression predicate,
-            [CanBeNull] List<OrderingExpression> orderings,
-            [CanBeNull] SqlExpression limit,
-            [CanBeNull] SqlExpression offset)
+            List<ProjectionExpression> projections,
+            RootReferenceExpression fromExpression,
+            SqlExpression? predicate,
+            List<OrderingExpression>? orderings,
+            SqlExpression? limit,
+            SqlExpression? offset)
         {
             Check.NotNull(projections, nameof(projections));
             Check.NotNull(fromExpression, nameof(fromExpression));

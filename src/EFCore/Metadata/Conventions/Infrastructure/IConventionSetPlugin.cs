@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 {
@@ -35,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// </summary>
         /// <param name="conventionSet"> The convention set to customize. </param>
         /// <returns> The customized convention set. </returns>
-        ConventionSet ModifyConventions([NotNull] ConventionSet conventionSet);
+        ConventionSet ModifyConventions(ConventionSet conventionSet);
     }
 }

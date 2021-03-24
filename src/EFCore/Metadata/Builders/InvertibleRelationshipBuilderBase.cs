@@ -5,12 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -31,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected InvertibleRelationshipBuilderBase(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType declaringEntityType,
+            IMutableEntityType relatedEntityType,
+            IMutableForeignKey foreignKey)
         {
             Builder = ((ForeignKey)foreignKey).Builder;
 
@@ -49,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected InvertibleRelationshipBuilderBase(
-            [NotNull] InternalForeignKeyBuilder builder,
-            [NotNull] InvertibleRelationshipBuilderBase oldBuilder,
+            InternalForeignKeyBuilder builder,
+            InvertibleRelationshipBuilderBase oldBuilder,
             bool inverted = false,
             bool foreignKeySet = false,
             bool principalKeySet = false,
@@ -109,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder Builder { get; [param: NotNull] set; }
+        protected virtual InternalForeignKeyBuilder Builder { get; set; }
 
         /// <inheritdoc />
         IConventionForeignKeyBuilder IInfrastructure<IConventionForeignKeyBuilder>.Instance

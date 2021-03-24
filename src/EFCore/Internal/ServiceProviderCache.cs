@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IServiceProvider GetOrAdd([NotNull] IDbContextOptions options, bool providerRequired)
+        public virtual IServiceProvider GetOrAdd(IDbContextOptions options, bool providerRequired)
         {
             var coreOptionsExtension = options.FindExtension<CoreOptionsExtension>();
             var internalServiceProvider = coreOptionsExtension?.InternalServiceProvider;

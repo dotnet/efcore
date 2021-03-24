@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -24,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public TypeMappedRelationalParameter(
-            [NotNull] string invariantName,
-            [NotNull] string name,
-            [NotNull] RelationalTypeMapping relationalTypeMapping,
+            string invariantName,
+            string name,
+            RelationalTypeMapping relationalTypeMapping,
             bool? nullable)
             : base(invariantName)
         {

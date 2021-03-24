@@ -3,12 +3,9 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -29,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected RelationshipBuilderBase(
-            [NotNull] IMutableEntityType principalEntityType,
-            [NotNull] IMutableEntityType dependentEntityType,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType principalEntityType,
+            IMutableEntityType dependentEntityType,
+            IMutableForeignKey foreignKey)
         {
             Check.NotNull(principalEntityType, nameof(principalEntityType));
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
@@ -50,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected RelationshipBuilderBase(
-            [NotNull] InternalForeignKeyBuilder builder,
-            [NotNull] RelationshipBuilderBase oldBuilder,
+            InternalForeignKeyBuilder builder,
+            RelationshipBuilderBase oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -108,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder Builder { get; [param: NotNull] set; }
+        protected virtual InternalForeignKeyBuilder Builder { get; set; }
 
         /// <summary>
         ///     The foreign key that represents this relationship.

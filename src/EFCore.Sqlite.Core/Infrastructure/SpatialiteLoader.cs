@@ -10,12 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyModel;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -49,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <returns> <see langword="true" /> if the extension was loaded; otherwise, <see langword="false" />. </returns>
-        public static bool TryLoad([NotNull] DbConnection connection)
+        public static bool TryLoad(DbConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
 
@@ -89,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <param name="connection"> The connection. </param>
-        public static void Load([NotNull] DbConnection connection)
+        public static void Load(DbConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
 

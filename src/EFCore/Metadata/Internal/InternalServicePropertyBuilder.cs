@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -23,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalServicePropertyBuilder([NotNull] ServiceProperty property, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalServicePropertyBuilder(ServiceProperty property, InternalModelBuilder modelBuilder)
             : base(property, modelBuilder)
         {
         }
@@ -34,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalServicePropertyBuilder? HasField([CanBeNull] string? fieldName, ConfigurationSource configurationSource)
+        public new virtual InternalServicePropertyBuilder? HasField(string? fieldName, ConfigurationSource configurationSource)
             => (InternalServicePropertyBuilder?)base.HasField(fieldName, configurationSource);
 
         /// <summary>
@@ -44,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public new virtual InternalServicePropertyBuilder? HasField(
-            [CanBeNull] FieldInfo? fieldInfo,
+            FieldInfo? fieldInfo,
             ConfigurationSource configurationSource)
             => (InternalServicePropertyBuilder?)base.HasField(fieldInfo, configurationSource);
 
@@ -66,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalServicePropertyBuilder? HasParameterBinding(
-            [CanBeNull] ServiceParameterBinding? parameterBinding,
+            ServiceParameterBinding? parameterBinding,
             ConfigurationSource configurationSource)
         {
             if (CanSetParameterBinding(parameterBinding, configurationSource))
@@ -85,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetParameterBinding(
-            [CanBeNull] ServiceParameterBinding? parameterBinding,
+            ServiceParameterBinding? parameterBinding,
             ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetParameterBindingConfigurationSource())
                 || (Metadata.ParameterBinding == parameterBinding);
@@ -96,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalServicePropertyBuilder? Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
+        public virtual InternalServicePropertyBuilder? Attach(InternalEntityTypeBuilder entityTypeBuilder)
         {
             var newPropertyBuilder = entityTypeBuilder.ServiceProperty(
                 Metadata.GetIdentifyingMemberInfo()!, Metadata.GetConfigurationSource());

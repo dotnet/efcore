@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 {
@@ -26,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosConventionSetBuilder(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies)
+            ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }

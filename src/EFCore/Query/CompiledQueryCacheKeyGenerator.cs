@@ -3,12 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -34,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Initializes a new instance of the <see cref="CompiledQueryCacheKeyGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public CompiledQueryCacheKeyGenerator([NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies)
+        public CompiledQueryCacheKeyGenerator(CompiledQueryCacheKeyGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -61,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="query"> The query to get the cache key for. </param>
         /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
         /// <returns> The cache key. </returns>
-        protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async) // Intentionally non-virtual
+        protected CompiledQueryCacheKey GenerateCacheKeyCore(Expression query, bool async) // Intentionally non-virtual
             => new(
                 Check.NotNull(query, nameof(query)),
                 Dependencies.Model,
@@ -93,8 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// <param name="queryTrackingBehavior"> The tracking behavior for results of the query. </param>
             /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
             public CompiledQueryCacheKey(
-                [NotNull] Expression query,
-                [NotNull] IModel model,
+                Expression query,
+                IModel model,
                 QueryTrackingBehavior queryTrackingBehavior,
                 bool async)
             {

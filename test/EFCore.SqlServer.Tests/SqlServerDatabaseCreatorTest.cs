@@ -288,10 +288,10 @@ namespace Microsoft.EntityFrameworkCore
                 DbCommandMethod commandMethod)
                 => throw new NotImplementedException();
 
-            public object? ExecuteScalar(RelationalCommandParameterObject parameterObject)
+            public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
                 => throw new NotImplementedException();
 
-            public Task<object?> ExecuteScalarAsync(
+            public Task<object> ExecuteScalarAsync(
                 RelationalCommandParameterObject parameterObject,
                 CancellationToken cancellationToken = default)
                 => throw new NotImplementedException();

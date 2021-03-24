@@ -4,7 +4,6 @@ using System;
 using System.Reflection;
 using System.Resources;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     SQLite cannot apply aggregate operator '{aggregateOperator}' on expressions of type '{type}'. Convert the values to a supported type, or use LINQ to Objects to aggregate the results on the client side.
         /// </summary>
-        public static string AggregateOperationNotSupported([CanBeNull] object? aggregateOperator, [CanBeNull] object? type)
+        public static string AggregateOperationNotSupported(object? aggregateOperator, object? type)
             => string.Format(
                 GetString("AggregateOperationNotSupported", nameof(aggregateOperator), nameof(type)),
                 aggregateOperator, type);
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different SRIDs.
         /// </summary>
-        public static string DuplicateColumnNameSridMismatch([CanBeNull] object? entityType1, [CanBeNull] object? property1, [CanBeNull] object? entityType2, [CanBeNull] object? property2, [CanBeNull] object? columnName, [CanBeNull] object? table)
+        public static string DuplicateColumnNameSridMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)
             => string.Format(
                 GetString("DuplicateColumnNameSridMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     SQLite does not support this migration operation ('{operation}'). For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
         /// </summary>
-        public static string InvalidMigrationOperation([CanBeNull] object? operation)
+        public static string InvalidMigrationOperation(object? operation)
             => string.Format(
                 GetString("InvalidMigrationOperation", nameof(operation)),
                 operation);
@@ -63,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     SQLite does not support expressions of type '{type}' in ORDER BY clauses. Convert the values to a supported type, or use LINQ to Objects to order the results on the client side.
         /// </summary>
-        public static string OrderByNotSupported([CanBeNull] object? type)
+        public static string OrderByNotSupported(object? type)
             => string.Format(
                 GetString("OrderByNotSupported", nameof(type)),
                 type);
@@ -103,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.
         /// </summary>
-        public static EventDefinition<string?, string?, string?> LogForeignKeyScaffoldErrorPrincipalTableNotFound([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?, string?> LogForeignKeyScaffoldErrorPrincipalTableNotFound(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogForeignKeyScaffoldErrorPrincipalTableNotFound;
             if (definition == null)
@@ -128,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Found column on table '{tableName}' with name: '{columnName}', data type: {dataType}, not nullable: {notNullable}, default value: {defaultValue}.
         /// </summary>
-        public static EventDefinition<string?, string?, string?, bool, string?> LogFoundColumn([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?, string?, bool, string?> LogFoundColumn(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundColumn;
             if (definition == null)
@@ -153,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Found foreign key on table '{tableName}', id: {id}, principal table: {principalTableName}, delete action: {deleteAction}.
         /// </summary>
-        public static EventDefinition<string?, long, string?, string?> LogFoundForeignKey([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, long, string?, string?> LogFoundForeignKey(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundForeignKey;
             if (definition == null)
@@ -178,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Found index on table '{tableName}' with name '{indexName}', is unique: {isUnique}.
         /// </summary>
-        public static EventDefinition<string?, string?, bool?> LogFoundIndex([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?, bool?> LogFoundIndex(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundIndex;
             if (definition == null)
@@ -203,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Found primary key on table '{tableName}' with name {primaryKeyName}.
         /// </summary>
-        public static EventDefinition<string?, string?> LogFoundPrimaryKey([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?> LogFoundPrimaryKey(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundPrimaryKey;
             if (definition == null)
@@ -228,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Found table with name: '{name}'.
         /// </summary>
-        public static EventDefinition<string?> LogFoundTable([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?> LogFoundTable(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundTable;
             if (definition == null)
@@ -253,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Found unique constraint on table '{tableName}' with name: {uniqueConstraintName}.
         /// </summary>
-        public static EventDefinition<string?, string?> LogFoundUniqueConstraint([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?> LogFoundUniqueConstraint(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFoundUniqueConstraint;
             if (definition == null)
@@ -278,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Unable to find a table in the database matching the selected table '{table}'.
         /// </summary>
-        public static EventDefinition<string?> LogMissingTable([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?> LogMissingTable(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogMissingTable;
             if (definition == null)
@@ -303,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.
         /// </summary>
-        public static EventDefinition<string?, string?, string?, string?> LogPrincipalColumnNotFound([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string?, string?, string?, string?> LogPrincipalColumnNotFound(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogPrincipalColumnNotFound;
             if (definition == null)
@@ -328,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     The entity type '{entityType}' is configured to use schema '{schema}', but SQLite does not support schemas. This configuration will be ignored by the SQLite provider.
         /// </summary>
-        public static EventDefinition<string, string> LogSchemaConfigured([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogSchemaConfigured(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSchemaConfigured;
             if (definition == null)
@@ -353,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     The model was configured with the database sequence '{sequence}'. SQLite does not support sequences.
         /// </summary>
-        public static EventDefinition<string> LogSequenceConfigured([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string> LogSequenceConfigured(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogSequenceConfigured;
             if (definition == null)
@@ -378,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     An operation of type '{operationType}' will be attempted while a rebuild of table '{tableName}' is pending. The database may not be in an expected state. Review the SQL generated by this migration to help diagnose any failures. Consider moving these operations to a subsequent migration.
         /// </summary>
-        public static EventDefinition<string, string> LogTableRebuildPendingWarning([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogTableRebuildPendingWarning(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogTableRebuildPendingWarning;
             if (definition == null)
@@ -403,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     A connection of an unexpected type ({type}) is being used. The SQL functions prefixed with 'ef_' could not be created automatically. Manually define them if you encounter errors while querying.
         /// </summary>
-        public static EventDefinition<string> LogUnexpectedConnectionType([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition<string> LogUnexpectedConnectionType(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUnexpectedConnectionType;
             if (definition == null)
@@ -428,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         /// <summary>
         ///     SQLite doesn't support schemas. The specified schema selection arguments will be ignored.
         /// </summary>
-        public static EventDefinition LogUsingSchemaSelectionsWarning([NotNull] IDiagnosticsLogger logger)
+        public static EventDefinition LogUsingSchemaSelectionsWarning(IDiagnosticsLogger logger)
         {
             var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogUsingSchemaSelectionsWarning;
             if (definition == null)

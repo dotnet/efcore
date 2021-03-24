@@ -7,8 +7,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>

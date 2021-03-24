@@ -7,11 +7,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -31,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     in your application code.
         /// </summary>
         /// <param name="context"> The context this database API belongs to .</param>
-        public DatabaseFacade([NotNull] DbContext context)
+        public DatabaseFacade(DbContext context)
         {
             Check.NotNull(context, nameof(context));
 

@@ -5,10 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -29,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public RawRelationalParameter(
-            [NotNull] string invariantName,
-            [NotNull] DbParameter parameter)
+            string invariantName,
+            DbParameter parameter)
             : base(invariantName)
         {
             Check.NotNull(parameter, nameof(parameter));

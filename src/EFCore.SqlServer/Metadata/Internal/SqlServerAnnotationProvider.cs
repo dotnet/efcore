@@ -5,12 +5,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
 {
@@ -33,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         ///     Initializes a new instance of this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public SqlServerAnnotationProvider([NotNull] RelationalAnnotationProviderDependencies dependencies)
+        public SqlServerAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
             : base(dependencies)
         {
         }

@@ -4,13 +4,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -23,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     public class CosmosDatabaseCreator : IDatabaseCreator
     {
         private readonly ICosmosClientWrapper _cosmosClient;
-        private readonly IModel _model;
+        private readonly IModel _designModel;
         private readonly IUpdateAdapterFactory _updateAdapterFactory;
         private readonly IDatabase _database;
 
@@ -34,13 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosDatabaseCreator(
-            [NotNull] ICosmosClientWrapper cosmosClient,
-            [NotNull] IModel model,
-            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
-            [NotNull] IDatabase database)
+            ICosmosClientWrapper cosmosClient,
+            ICurrentDbContext context,
+            IUpdateAdapterFactory updateAdapterFactory,
+            IDatabase database)
         {
             _cosmosClient = cosmosClient;
-            _model = model;
+            _designModel = context.Context.DesignTimeModel;
             _updateAdapterFactory = updateAdapterFactory;
             _database = database;
         }
@@ -54,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public virtual bool EnsureCreated()
         {
             var created = _cosmosClient.CreateDatabaseIfNotExists();
-            foreach (var entityType in _model.GetEntityTypes())
+            foreach (var entityType in _designModel.GetEntityTypes())
             {
                 var containerName = entityType.GetContainer();
                 if (containerName != null)
@@ -83,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken)
                 .ConfigureAwait(false);
-            foreach (var entityType in _model.GetEntityTypes())
+            foreach (var entityType in _designModel.GetEntityTypes())
             {
                 var containerName = entityType.GetContainer();
                 if (containerName != null)
@@ -133,10 +131,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private IUpdateAdapter AddSeedData()
         {
             var updateAdapter = _updateAdapterFactory.CreateStandalone();
-            foreach (var entityType in _model.GetEntityTypes())
+            foreach (var entityType in _designModel.GetEntityTypes())
             {
+                IEntityType? targetEntityType = null;
                 foreach (var targetSeed in entityType.GetSeedData())
                 {
+                    targetEntityType ??= updateAdapter.Model.FindEntityType(entityType.Name)!;
                     var entry = updateAdapter.CreateEntry(targetSeed, entityType);
                     entry.EntityState = EntityState.Added;
                 }
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         /// <param name="entityType"> The entity type to get the partition key property name for. </param>
         /// <returns> The name of the partition key property. </returns>
-        private static string GetPartitionKeyStoreName([NotNull] IEntityType entityType)
+        private static string GetPartitionKeyStoreName(IEntityType entityType)
         {
             var name = entityType.GetPartitionKeyPropertyName();
             if (name != null)

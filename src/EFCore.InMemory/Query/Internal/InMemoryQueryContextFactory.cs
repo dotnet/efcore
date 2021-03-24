@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -37,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryQueryContextFactory(
-            [NotNull] QueryContextDependencies dependencies,
-            [NotNull] IInMemoryStoreCache storeCache,
-            [NotNull] IDbContextOptions contextOptions)
+            QueryContextDependencies dependencies,
+            IInMemoryStoreCache storeCache,
+            IDbContextOptions contextOptions)
         {
             _store = storeCache.GetStore(contextOptions);
             _dependencies = dependencies;

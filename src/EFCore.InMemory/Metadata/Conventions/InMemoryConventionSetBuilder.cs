@@ -2,13 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
 {
@@ -31,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
         /// </summary>
         /// <param name="dependencies"> The core dependencies for this service. </param>
         public InMemoryConventionSetBuilder(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies)
+            ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }

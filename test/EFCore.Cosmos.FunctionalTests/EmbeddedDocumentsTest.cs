@@ -545,6 +545,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 public object Create(DbContext context)
                     => Tuple.Create(context.GetType(), _getAdditionalKey());
+
+                public object Create(DbContext context, bool designTime)
+                    => Tuple.Create(context.GetType(), _getAdditionalKey(), designTime);
             }
         }
 

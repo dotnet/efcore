@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -33,11 +32,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ModelCreationDependencies(
-            [NotNull] IModelSource modelSource,
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
-            [NotNull] ModelDependencies modelDependencies,
-            [NotNull] IModelRuntimeInitializer modelRuntimeInitializer,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+            IModelSource modelSource,
+            IConventionSetBuilder conventionSetBuilder,
+            ModelDependencies modelDependencies,
+            IModelRuntimeInitializer modelRuntimeInitializer,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
         {
             Check.NotNull(modelSource, nameof(modelSource));
             Check.NotNull(conventionSetBuilder, nameof(conventionSetBuilder));
@@ -55,26 +54,26 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The model source.
         /// </summary>
-        public IModelSource ModelSource { get; [param: NotNull] init; }
+        public IModelSource ModelSource { get; init; }
 
         /// <summary>
         ///     The convention set to use when creating the model.
         /// </summary>
-        public IConventionSetBuilder ConventionSetBuilder { get; [param: NotNull] init; }
+        public IConventionSetBuilder ConventionSetBuilder { get; init; }
 
         /// <summary>
         ///     The dependencies object for the model.
         /// </summary>
-        public ModelDependencies ModelDependencies { get; [param: NotNull] init; }
+        public ModelDependencies ModelDependencies { get; init; }
 
         /// <summary>
         ///     The model runtime initializer that will be used after the model building is finished.
         /// </summary>
-        public IModelRuntimeInitializer ModelRuntimeInitializer { get; [param: NotNull] init; }
+        public IModelRuntimeInitializer ModelRuntimeInitializer { get; init; }
 
         /// <summary>
         ///     The validation logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; init; }
     }
 }

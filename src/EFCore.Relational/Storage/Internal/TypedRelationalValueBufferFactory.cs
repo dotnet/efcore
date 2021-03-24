@@ -4,10 +4,7 @@
 using System;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -28,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public TypedRelationalValueBufferFactory(
-            [NotNull] RelationalValueBufferFactoryDependencies dependencies,
-            [NotNull] Func<DbDataReader, object[]> valueFactory)
+            RelationalValueBufferFactoryDependencies dependencies,
+            Func<DbDataReader, object[]> valueFactory)
         {
             _valueFactory = valueFactory;
         }

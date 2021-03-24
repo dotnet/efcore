@@ -3,11 +3,8 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -26,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="parentEntry"> The entity entry for the parent that trigger the cascade. </param>
         /// <param name="state"> The state that the child is transitioning to--usually 'Deleted'. </param>
         public CascadeDeleteEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] EntityEntry entityEntry,
-            [NotNull] EntityEntry parentEntry,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            EntityEntry entityEntry,
+            EntityEntry parentEntry,
             EntityState state)
             : base(eventDefinition, messageGenerator, entityEntry)
         {

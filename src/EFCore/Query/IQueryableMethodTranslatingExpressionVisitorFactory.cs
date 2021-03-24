@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -25,6 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="queryCompilationContext"> The query compilation context to use. </param>
         /// <returns> The created visitor. </returns>
-        QueryableMethodTranslatingExpressionVisitor Create([NotNull] QueryCompilationContext queryCompilationContext);
+        QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext);
     }
 }

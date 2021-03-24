@@ -4,13 +4,10 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -29,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="BaseTypeDiscoveryConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public BaseTypeDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public BaseTypeDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }

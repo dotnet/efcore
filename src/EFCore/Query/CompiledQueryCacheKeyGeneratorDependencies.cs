@@ -1,14 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -62,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public CompiledQueryCacheKeyGeneratorDependencies(
-            [NotNull] IModel model,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            IModel model,
+            ICurrentDbContext currentContext,
+            IExecutionStrategyFactory executionStrategyFactory)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(currentContext, nameof(currentContext));
@@ -78,12 +75,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The model that queries will be written against.
         /// </summary>
-        public IModel Model { get; [param: NotNull] init; }
+        public IModel Model { get; init; }
 
         /// <summary>
         ///     The context that queries will be executed for.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
+        public ICurrentDbContext CurrentContext { get; init; }
 
         /// <summary>
         ///     Whether the configured execution strategy can retry.

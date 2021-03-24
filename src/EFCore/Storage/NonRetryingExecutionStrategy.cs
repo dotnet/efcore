@@ -4,9 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -27,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Constructs a new <see cref="NonRetryingExecutionStrategy" /> with the given service dependencies.
         /// </summary>
         /// <param name="dependencies"> Dependencies for this execution strategy. </param>
-        public NonRetryingExecutionStrategy([NotNull] ExecutionStrategyDependencies dependencies)
+        public NonRetryingExecutionStrategy(ExecutionStrategyDependencies dependencies)
             => Dependencies = dependencies;
 
         /// <summary>

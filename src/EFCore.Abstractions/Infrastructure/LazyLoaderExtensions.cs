@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -24,10 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The loaded navigation property value, or the navigation property value unchanged if the loader is <see langword="null" />.
         /// </returns>
         public static TRelated? Load<TRelated>(
-            [CanBeNull] this ILazyLoader? loader,
-            [NotNull] object entity,
-            [CanBeNull] ref TRelated? navigationField,
-            [NotNull] [CallerMemberName] string navigationName = "")
+            this ILazyLoader? loader,
+            object entity,
+            ref TRelated? navigationField,
+            [CallerMemberName] string navigationName = "")
             where TRelated : class
         {
             loader?.Load(entity, navigationName);

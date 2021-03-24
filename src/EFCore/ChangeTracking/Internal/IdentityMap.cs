@@ -4,15 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -37,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IdentityMap(
-            [NotNull] IKey key,
-            [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
+            IKey key,
+            IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
             bool sensitiveLoggingEnabled)
         {
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
@@ -230,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void Add([NotNull] TKey key, [NotNull] InternalEntityEntry entry)
+        protected virtual void Add(TKey key, InternalEntityEntry entry)
             => Add(key, entry, updateDuplicate: false);
 
         private void ThrowIdentityConflict(InternalEntityEntry entry)
@@ -401,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void Remove([NotNull] TKey key, [NotNull] InternalEntityEntry entry)
+        protected virtual void Remove(TKey key, InternalEntityEntry entry)
         {
             InternalEntityEntry? otherEntry = null;
             if (entry.SharedIdentityEntry != null)

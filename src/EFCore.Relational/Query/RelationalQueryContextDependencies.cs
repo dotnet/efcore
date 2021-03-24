@@ -2,13 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -58,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalQueryContextDependencies(
-            [NotNull] IRelationalConnection relationalConnection,
-            [NotNull] IRelationalQueryStringFactory relationalQueryStringFactory)
+            IRelationalConnection relationalConnection,
+            IRelationalQueryStringFactory relationalQueryStringFactory)
         {
             Check.NotNull(relationalConnection, nameof(relationalConnection));
             Check.NotNull(relationalQueryStringFactory, nameof(relationalQueryStringFactory));
@@ -71,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The connection.
         /// </summary>
-        public IRelationalConnection RelationalConnection { get; [param: NotNull] init; }
+        public IRelationalConnection RelationalConnection { get; init; }
 
         /// <summary>
         ///     A factory for creating a readable query string from a <see cref="DbCommand" />
         /// </summary>
-        public IRelationalQueryStringFactory RelationalQueryStringFactory { get; [param: NotNull] init; }
+        public IRelationalQueryStringFactory RelationalQueryStringFactory { get; init; }
     }
 }

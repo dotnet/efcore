@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -26,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosTypeMapping(
-            [NotNull] Type clrType,
-            [CanBeNull] ValueComparer? comparer = null,
-            [CanBeNull] ValueComparer? keyComparer = null)
+            Type clrType,
+            ValueComparer? comparer = null,
+            ValueComparer? keyComparer = null)
             : base(
                 new CoreTypeMappingParameters(
                     clrType,

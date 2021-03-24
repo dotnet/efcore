@@ -4,12 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -32,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="projectionMember"> The projection member to bind with query expression. </param>
         /// <param name="type"> The clr type of value being read. </param>
         public ProjectionBindingExpression(
-            [NotNull] Expression queryExpression,
-            [NotNull] ProjectionMember projectionMember,
-            [NotNull] Type type)
+            Expression queryExpression,
+            ProjectionMember projectionMember,
+            Type type)
         {
             Check.NotNull(queryExpression, nameof(queryExpression));
             Check.NotNull(projectionMember, nameof(projectionMember));
@@ -52,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="index"> The index to bind with query expression projection. </param>
         /// <param name="type"> The clr type of value being read. </param>
         public ProjectionBindingExpression(
-            [NotNull] Expression queryExpression,
+            Expression queryExpression,
             int index,
-            [NotNull] Type type)
+            Type type)
         {
             Check.NotNull(queryExpression, nameof(queryExpression));
             Check.NotNull(type, nameof(type));
@@ -70,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryExpression"> The query expression to get the value from. </param>
         /// <param name="indexMap"> The index map to bind with query expression projection for ValueBuffer. </param>
         public ProjectionBindingExpression(
-            [NotNull] Expression queryExpression,
-            [NotNull] IDictionary<IProperty, int> indexMap)
+            Expression queryExpression,
+            IReadOnlyDictionary<IProperty, int> indexMap)
         {
             Check.NotNull(queryExpression, nameof(queryExpression));
             Check.NotNull(indexMap, nameof(indexMap));
@@ -99,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The projection member to bind if binding is via index map for a value buffer.
         /// </summary>
-        public virtual IDictionary<IProperty, int>? IndexMap { get; }
+        public virtual IReadOnlyDictionary<IProperty, int>? IndexMap { get; }
 
         /// <inheritdoc />
         public override Type Type { get; }

@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -24,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="mapping"> The type mapping to use or <see langword="null" /> to infer one. </param>
         /// <param name="nullable"> A value indicating whether the value could be null. </param>
         public TypeMaterializationInfo(
-            [NotNull] Type modelClrType,
-            [CanBeNull] IProperty? property,
-            [NotNull] RelationalTypeMapping mapping,
+            Type modelClrType,
+            IProperty? property,
+            RelationalTypeMapping mapping,
             bool? nullable = null)
         {
             Check.NotNull(modelClrType, nameof(modelClrType));
@@ -81,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="other"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
-        protected virtual bool Equals([NotNull] TypeMaterializationInfo other)
+        protected virtual bool Equals(TypeMaterializationInfo other)
             => ProviderClrType == other.ProviderClrType
                 && ModelClrType == other.ModelClrType
                 && Equals(Mapping, other.Mapping)

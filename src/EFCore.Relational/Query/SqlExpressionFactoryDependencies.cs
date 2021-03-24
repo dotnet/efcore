@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -55,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public SqlExpressionFactoryDependencies([NotNull] IRelationalTypeMappingSource typeMappingSource)
+        public SqlExpressionFactoryDependencies(IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
@@ -65,6 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
     }
 }

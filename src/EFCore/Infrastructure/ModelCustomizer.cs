@@ -1,11 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -30,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Initializes a new instance of the <see cref="ModelCustomizer" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public ModelCustomizer([NotNull] ModelCustomizerDependencies dependencies)
+        public ModelCustomizer(ModelCustomizerDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

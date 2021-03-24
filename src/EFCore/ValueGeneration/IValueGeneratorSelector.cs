@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     this entity type may be different from the declared entity type on <paramref name="property" />
         /// </param>
         /// <returns> The value generator to be used. </returns>
-        ValueGenerator Select([NotNull] IProperty property, [NotNull] IEntityType entityType);
+        ValueGenerator Select(IProperty property, IEntityType entityType);
     }
 }

@@ -18,8 +18,6 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
     /// <summary>
@@ -46,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [UsedImplicitly]
-        public SqlServerGeometryTypeMapping([NotNull] NtsGeometryServices geometryServices, [NotNull] string storeType)
+        public SqlServerGeometryTypeMapping(NtsGeometryServices geometryServices, string storeType)
             : base(
                 new GeometryValueConverter<TGeometry>(
                     CreateReader(geometryServices, IsGeography(storeType)),
@@ -62,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected SqlServerGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            [CanBeNull] ValueConverter<TGeometry, SqlBytes>? converter)
+            ValueConverter<TGeometry, SqlBytes>? converter)
             : base(parameters, converter)
         {
             _isGeography = IsGeography(StoreType);

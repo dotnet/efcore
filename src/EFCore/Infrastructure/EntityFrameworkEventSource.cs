@@ -8,8 +8,6 @@ using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>

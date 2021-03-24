@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -41,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpModelGenerator(
-            [NotNull] ModelCodeGeneratorDependencies dependencies,
-            [NotNull] ICSharpDbContextGenerator cSharpDbContextGenerator,
-            [NotNull] ICSharpEntityTypeGenerator cSharpEntityTypeGenerator)
+            ModelCodeGeneratorDependencies dependencies,
+            ICSharpDbContextGenerator cSharpDbContextGenerator,
+            ICSharpEntityTypeGenerator cSharpEntityTypeGenerator)
             : base(dependencies)
         {
             Check.NotNull(cSharpDbContextGenerator, nameof(cSharpDbContextGenerator));

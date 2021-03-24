@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     Initializes a new instance of the <see cref="ValueGeneratorSelector" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public ValueGeneratorSelector([NotNull] ValueGeneratorSelectorDependencies dependencies)
+        public ValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -103,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     this entity type may be different from the declared entity type on <paramref name="property" />
         /// </param>
         /// <returns> The newly created value generator. </returns>
-        public virtual ValueGenerator Create([NotNull] IProperty property, [NotNull] IEntityType entityType)
+        public virtual ValueGenerator Create(IProperty property, IEntityType entityType)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));

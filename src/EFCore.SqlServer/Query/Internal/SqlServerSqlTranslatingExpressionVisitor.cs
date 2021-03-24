@@ -3,12 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -47,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerSqlTranslatingExpressionVisitor(
-            [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
+            QueryCompilationContext queryCompilationContext,
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
         {
         }

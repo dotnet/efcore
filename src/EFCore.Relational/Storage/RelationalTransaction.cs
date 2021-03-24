@@ -6,12 +6,9 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -45,12 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <param name="sqlGenerationHelper"> The SQL generation helper to use. </param>
         public RelationalTransaction(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            ISqlGenerationHelper sqlGenerationHelper)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(transaction, nameof(transaction));

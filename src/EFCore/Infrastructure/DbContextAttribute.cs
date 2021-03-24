@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -20,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Initializes a new instance of the <see cref="DbContextAttribute" /> class.
         /// </summary>
         /// <param name="contextType"> The associated context. </param>
-        public DbContextAttribute([NotNull] Type contextType)
+        public DbContextAttribute(Type contextType)
         {
             Check.NotNull(contextType, nameof(contextType));
 

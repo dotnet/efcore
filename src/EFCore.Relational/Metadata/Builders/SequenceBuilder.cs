@@ -3,13 +3,10 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -22,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Creates a new builder for the given <see cref="ISequence" />.
         /// </summary>
         /// <param name="sequence"> The <see cref="IMutableSequence" /> to configure. </param>
-        public SequenceBuilder([NotNull] IMutableSequence sequence)
+        public SequenceBuilder(IMutableSequence sequence)
         {
             Check.NotNull(sequence, nameof(sequence));
 

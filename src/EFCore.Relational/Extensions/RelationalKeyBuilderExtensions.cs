@@ -1,12 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -22,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="name"> The name of the key. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static KeyBuilder HasName([NotNull] this KeyBuilder keyBuilder, [CanBeNull] string? name)
+        public static KeyBuilder HasName(this KeyBuilder keyBuilder, string? name)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -39,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the key. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static KeyBuilder<TEntity> HasName<TEntity>(
-            [NotNull] this KeyBuilder<TEntity> keyBuilder,
-            [CanBeNull] string? name)
+            this KeyBuilder<TEntity> keyBuilder,
+            string? name)
             => (KeyBuilder<TEntity>)HasName((KeyBuilder)keyBuilder, name);
 
         /// <summary>
@@ -54,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionKeyBuilder? HasName(
-            [NotNull] this IConventionKeyBuilder keyBuilder,
-            [CanBeNull] string? name,
+            this IConventionKeyBuilder keyBuilder,
+            string? name,
             bool fromDataAnnotation = false)
         {
             if (keyBuilder.CanSetName(name, fromDataAnnotation))
@@ -75,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given name can be set for the key constraint. </returns>
         public static bool CanSetName(
-            [NotNull] this IConventionKeyBuilder keyBuilder,
-            [CanBeNull] string? name,
+            this IConventionKeyBuilder keyBuilder,
+            string? name,
             bool fromDataAnnotation = false)
             => keyBuilder.CanSetAnnotation(RelationalAnnotationNames.Name, name, fromDataAnnotation);
     }

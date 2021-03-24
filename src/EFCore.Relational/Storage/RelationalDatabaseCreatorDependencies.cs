@@ -1,15 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -65,15 +63,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalDatabaseCreatorDependencies(
-            [NotNull] IModel model,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            IModel model,
+            IRelationalConnection connection,
+            IMigrationsModelDiffer modelDiffer,
+            IMigrationsSqlGenerator migrationsSqlGenerator,
+            IMigrationCommandExecutor migrationCommandExecutor,
+            ISqlGenerationHelper sqlGenerationHelper,
+            IExecutionStrategyFactory executionStrategyFactory,
+            ICurrentDbContext currentContext,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(connection, nameof(connection));
@@ -85,7 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(commandLogger, nameof(commandLogger));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Model = model;
+#pragma warning restore CS0618 // Type or member is obsolete
             Connection = connection;
             ModelDiffer = modelDiffer;
             MigrationsSqlGenerator = migrationsSqlGenerator;
@@ -99,46 +99,47 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The model differ.
         /// </summary>
-        public IMigrationsModelDiffer ModelDiffer { get; [param: NotNull] init; }
+        public IMigrationsModelDiffer ModelDiffer { get; init; }
 
         /// <summary>
         ///     The Migrations SQL generator.
         /// </summary>
-        public IMigrationsSqlGenerator MigrationsSqlGenerator { get; [param: NotNull] init; }
+        public IMigrationsSqlGenerator MigrationsSqlGenerator { get; init; }
 
         /// <summary>
         ///     Gets the model for the context this creator is being used with.
         /// </summary>
-        public IModel Model { get; [param: NotNull] init; }
+        [Obsolete("Use CurrentContext.Context.DesignTimeModel instead")]
+        public IModel Model { get; init; }
 
         /// <summary>
         ///     Gets the connection for the database.
         /// </summary>
-        public IRelationalConnection Connection { get; [param: NotNull] init; }
+        public IRelationalConnection Connection { get; init; }
 
         /// <summary>
         ///     Gets the <see cref="IMigrationCommandExecutor" /> to be used.
         /// </summary>
-        public IMigrationCommandExecutor MigrationCommandExecutor { get; [param: NotNull] init; }
+        public IMigrationCommandExecutor MigrationCommandExecutor { get; init; }
 
         /// <summary>
         ///     Gets the <see cref="ISqlGenerationHelper" /> to be used.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; init; }
 
         /// <summary>
         ///     Gets the <see cref="IExecutionStrategyFactory" /> to be used.
         /// </summary>
-        public IExecutionStrategyFactory ExecutionStrategyFactory { get; [param: NotNull] init; }
+        public IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
 
         /// <summary>
         ///     The command logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
+        public ICurrentDbContext CurrentContext { get; init; }
     }
 }

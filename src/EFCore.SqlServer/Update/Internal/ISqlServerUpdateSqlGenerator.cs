@@ -3,11 +3,8 @@
 
 using System.Collections.Generic;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 {
@@ -33,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         ResultSetMapping AppendBulkInsertOperation(
-            [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] IReadOnlyList<ModificationCommand> modificationCommands,
+            StringBuilder commandStringBuilder,
+            IReadOnlyList<ModificationCommand> modificationCommands,
             int commandPosition);
     }
 }

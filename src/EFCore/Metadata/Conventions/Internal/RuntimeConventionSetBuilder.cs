@@ -3,11 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -38,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public RuntimeConventionSetBuilder(
-            [NotNull] IProviderConventionSetBuilder providerConventionSetBuilder,
-            [NotNull] IEnumerable<IConventionSetPlugin> plugins)
+            IProviderConventionSetBuilder providerConventionSetBuilder,
+            IEnumerable<IConventionSetPlugin> plugins)
         {
             _conventionSetBuilder = providerConventionSetBuilder;
             _plugins = plugins.ToList();

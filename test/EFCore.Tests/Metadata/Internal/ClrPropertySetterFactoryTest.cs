@@ -65,99 +65,64 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 => throw new NotImplementedException();
 
             public CoreTypeMapping FindTypeMapping()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public int? GetMaxLength()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public int? GetPrecision()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public int? GetScale()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public bool? IsUnicode()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public PropertySaveBehavior GetBeforeSaveBehavior()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public PropertySaveBehavior GetAfterSaveBehavior()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public ValueConverter GetValueConverter()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public Type GetProviderClrType()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public ValueComparer GetValueComparer()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public ValueComparer GetKeyValueComparer()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public bool IsForeignKey()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             IEnumerable<IReadOnlyForeignKey> IReadOnlyProperty.GetContainingForeignKeys()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public bool IsIndex()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             IEnumerable<IReadOnlyIndex> IReadOnlyProperty.GetContainingIndexes()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public IReadOnlyKey FindContainingPrimaryKey()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public bool IsKey()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             IEnumerable<IReadOnlyKey> IReadOnlyProperty.GetContainingKeys()
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
+
+            public PropertyAccessMode GetPropertyAccessMode()
+                => throw new NotImplementedException();
         }
 
         [ConditionalFact]

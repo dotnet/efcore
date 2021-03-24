@@ -3,10 +3,7 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -72,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new foreign key. </returns>
-        IConventionForeignKey? SetForeignKey([CanBeNull] IConventionForeignKey? foreignKey, bool fromDataAnnotation = false);
+        IConventionForeignKey? SetForeignKey(IConventionForeignKey? foreignKey, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="ForeignKey" />.
@@ -97,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [DebuggerStepThrough]
-        IConventionSkipNavigation? SetInverse([CanBeNull] IConventionSkipNavigation? inverse, bool fromDataAnnotation = false);
+        IConventionSkipNavigation? SetInverse(IConventionSkipNavigation? inverse, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="Inverse" />.

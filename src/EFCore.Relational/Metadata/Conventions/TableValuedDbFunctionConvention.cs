@@ -3,13 +3,10 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -24,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public TableValuedDbFunctionConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             Dependencies = dependencies;
         }
@@ -52,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dbFunctionBuilder"> The builder for the <see cref="IConventionDbFunction" />. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         private void ProcessDbFunctionAdded(
-            [NotNull] IConventionDbFunctionBuilder dbFunctionBuilder,
-            [NotNull] IConventionContext context)
+            IConventionDbFunctionBuilder dbFunctionBuilder,
+            IConventionContext context)
         {
             var function = dbFunctionBuilder.Metadata;
             if (function.IsScalar)

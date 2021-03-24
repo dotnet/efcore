@@ -4,10 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -50,12 +47,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the column with the given name. Returns <see langword="null" />
         ///     if no column with the given name is defined for the returned row set.
         /// </summary>
-        new IFunctionColumn? FindColumn([NotNull] string name);
+        new IFunctionColumn? FindColumn(string name);
 
         /// <summary>
         ///     Gets the column mapped to the given property. Returns <see langword="null" /> if no column is mapped to the given property.
         /// </summary>
-        new IFunctionColumn? FindColumn([NotNull] IProperty property);
+        new IFunctionColumn? FindColumn(IProperty property);
 
         /// <summary>
         ///     <para>
@@ -69,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="options"> Options for generating the string. </param>
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
-        string ToDebugString(MetadataDebugStringOptions options, int indent = 0)
+        string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
         {
             var builder = new StringBuilder();
             var indentString = new string(' ', indent);

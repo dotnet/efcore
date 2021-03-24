@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -27,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
         /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         public QueryTranslationPostprocessor(
-            [NotNull] QueryTranslationPostprocessorDependencies dependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext)
+            QueryTranslationPostprocessorDependencies dependencies,
+            QueryCompilationContext queryCompilationContext)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
@@ -52,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="query"> The query to process. </param>
         /// <returns> A query expression after transformations. </returns>
-        public virtual Expression Process([NotNull] Expression query)
+        public virtual Expression Process(Expression query)
         {
             Check.NotNull(query, nameof(query));
 

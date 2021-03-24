@@ -3,13 +3,10 @@
 
 using System;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -34,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseSqlServer(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [CanBeNull] Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
@@ -56,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseSqlServer(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] string connectionString,
-            [CanBeNull] Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            string connectionString,
+            Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -86,9 +83,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseSqlServer(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] DbConnection connection,
-            [CanBeNull] Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            DbConnection connection,
+            Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connection, nameof(connection));
@@ -118,8 +115,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [CanBeNull] Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseSqlServer(
                 (DbContextOptionsBuilder)optionsBuilder, sqlServerOptionsAction);
@@ -133,9 +130,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] string connectionString,
-            [CanBeNull] Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            string connectionString,
+            Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseSqlServer(
                 (DbContextOptionsBuilder)optionsBuilder, connectionString, sqlServerOptionsAction);
@@ -154,9 +151,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sqlServerOptionsAction">An optional action to allow additional SQL Server specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseSqlServer<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] DbConnection connection,
-            [CanBeNull] Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            DbConnection connection,
+            Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseSqlServer(
                 (DbContextOptionsBuilder)optionsBuilder, connection, sqlServerOptionsAction);

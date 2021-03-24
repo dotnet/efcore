@@ -3,9 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -31,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public BoolToTwoValuesConverter(
-            [CanBeNull] TProvider falseValue,
-            [CanBeNull] TProvider trueValue,
-            [CanBeNull] Expression<Func<TProvider, bool>>? fromProvider = null,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            TProvider falseValue,
+            TProvider trueValue,
+            Expression<Func<TProvider, bool>>? fromProvider = null,
+            ConverterMappingHints? mappingHints = null)
             : base(ToProvider(falseValue, trueValue), fromProvider ?? ToBool(trueValue), mappingHints)
         {
         }

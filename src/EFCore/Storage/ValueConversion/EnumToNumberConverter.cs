@@ -3,11 +3,8 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public EnumToNumberConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
+        public EnumToNumberConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 ToNumber(),
                 ToEnum(),

@@ -3,11 +3,8 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -26,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SingleResultShaperExpression(
-            [NotNull] Expression projection,
-            [NotNull] Expression innerShaper,
-            [NotNull] Type type)
+            Expression projection,
+            Expression innerShaper,
+            Type type)
         {
             Projection = projection;
             InnerShaper = innerShaper;
@@ -57,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SingleResultShaperExpression Update([NotNull] Expression projection, [NotNull] Expression innerShaper)
+        public virtual SingleResultShaperExpression Update(Expression projection, Expression innerShaper)
             => projection != Projection || innerShaper != InnerShaper
                 ? new SingleResultShaperExpression(projection, innerShaper, Type)
                 : this;

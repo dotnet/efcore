@@ -1,13 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -38,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerQueryCompilationContextFactory(
-            [NotNull] QueryCompilationContextDependencies dependencies,
-            [NotNull] RelationalQueryCompilationContextDependencies relationalDependencies,
-            [NotNull] ISqlServerConnection sqlServerConnection)
+            QueryCompilationContextDependencies dependencies,
+            RelationalQueryCompilationContextDependencies relationalDependencies,
+            ISqlServerConnection sqlServerConnection)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));

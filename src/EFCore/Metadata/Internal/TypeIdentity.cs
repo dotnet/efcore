@@ -4,9 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -26,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public TypeIdentity([NotNull] string name)
+        public TypeIdentity(string name)
         {
             Name = name;
             Type = null;
@@ -40,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public TypeIdentity([NotNull] string name, [NotNull] Type type)
+        public TypeIdentity(string name, Type type)
         {
             Name = name;
             Type = type;
@@ -54,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public TypeIdentity([NotNull] Type type, [NotNull] Model model)
+        public TypeIdentity(Type type, Model model)
         {
             Name = model.GetDisplayName(type);
             Type = type;

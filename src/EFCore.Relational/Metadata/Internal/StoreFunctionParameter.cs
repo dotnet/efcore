@@ -3,10 +3,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -25,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public StoreFunctionParameter(
-            [NotNull] StoreFunction function,
-            [NotNull] DbFunctionParameter parameter)
+            StoreFunction function,
+            IRuntimeDbFunctionParameter parameter)
         {
             Function = function;
             Name = parameter.Name;

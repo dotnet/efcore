@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     Initializes a new instance of the <see cref="HiLoValueGenerator{TValue}" /> class.
         /// </summary>
         /// <param name="generatorState"> The state used to keep track of which value to return next. </param>
-        protected HiLoValueGenerator([NotNull] HiLoValueGeneratorState generatorState)
+        protected HiLoValueGenerator(HiLoValueGeneratorState generatorState)
         {
             Check.NotNull(generatorState, nameof(generatorState));
 

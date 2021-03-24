@@ -4,8 +4,6 @@
 using System;
 using System.Globalization;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>

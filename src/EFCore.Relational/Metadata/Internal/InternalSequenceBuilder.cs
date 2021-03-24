@@ -4,11 +4,8 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 {
@@ -26,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalSequenceBuilder([NotNull] Sequence sequence, [NotNull] IConventionModelBuilder modelBuilder)
+        public InternalSequenceBuilder(Sequence sequence, IConventionModelBuilder modelBuilder)
             : base(sequence, modelBuilder)
         {
         }
@@ -37,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionSequenceBuilder? HasType([CanBeNull] Type? type, ConfigurationSource configurationSource)
+        public virtual IConventionSequenceBuilder? HasType(Type? type, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetTypeConfigurationSource())
                 || Metadata.Type == type)
@@ -55,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetType([CanBeNull] Type? type, ConfigurationSource configurationSource)
+        public virtual bool CanSetType(Type? type, ConfigurationSource configurationSource)
             => (type == null || Sequence.SupportedTypes.Contains(type))
                 && (configurationSource.Overrides(Metadata.GetTypeConfigurationSource())
                     || Metadata.Type == type);

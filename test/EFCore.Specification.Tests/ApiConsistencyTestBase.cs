@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -800,77 +799,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(
                 nonVirtualMethods.Count > 0,
                 "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
-        }
-
-        [ConditionalFact]
-        public virtual void Public_api_arguments_should_have_not_null_annotation()
-        {
-            var parametersMissingAttribute
-                = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.IsVisible
-                       && !typeof(Delegate).IsAssignableFrom(type)
-                   let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
-                   let events = type.GetEvents()
-                   from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
-                       .Concat<MethodBase>(
-                           type.GetConstructors(
-                               BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static))
-                   where (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                       && !IsCompilerSynthesizedMethod(method)
-                       && !Fixture.NotAnnotatedMethods.Contains(method)
-                       && (method is ConstructorInfo || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
-                       && (type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method)))
-                       && (!events.Any(e => e.AddMethod == method || e.RemoveMethod == method))
-                   from parameter in method.GetParameters()
-                   where !parameter.IsOut
-                   let parameterType = parameter.ParameterType.IsByRef
-                       ? parameter.ParameterType.GetElementType()
-                       : parameter.ParameterType
-                   where !parameterType.IsValueType
-                       && !parameter.GetCustomAttributes()
-                           .Any(
-                               a => a.GetType().Namespace == "JetBrains.Annotations"
-                                   && (a.GetType().Name == nameof(NotNullAttribute)
-                                       || a.GetType().Name == nameof(CanBeNullAttribute)))
-                   select $"{type.FullName}.{method.Name}[{parameter.Name}]")
-                .ToList();
-
-            Assert.False(
-                parametersMissingAttribute.Count > 0,
-                "\r\n-- Missing NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersMissingAttribute));
-        }
-
-        [ConditionalFact]
-        public virtual void Public_api_arguments_should_not_have_redundant_not_null_annotation()
-        {
-            var parametersWithRedundantAttribute
-                = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.IsVisible && !typeof(Delegate).IsAssignableFrom(type)
-                   let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
-                   let events = type.GetEvents()
-                   from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
-                       .Concat<MethodBase>(type.GetConstructors())
-                   where method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly
-                   from parameter in method.GetParameters()
-                   let parameterType = parameter.ParameterType.IsByRef ? parameter.ParameterType.GetElementType() : parameter.ParameterType
-                   let attributes = parameter.GetCustomAttributes(inherit: false)
-                   where (!(method is ConstructorInfo || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
-                           || !type.IsInterface && interfaceMappings.Any(im => im.TargetMethods.Contains(method))
-                           || events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
-                           || parameterType.IsValueType && !parameterType.IsNullableType())
-                       && attributes.Any(
-                           a => a.GetType().Namespace == "JetBrains.Annotations"
-                               && (a.GetType().Name == nameof(NotNullAttribute)
-                                   || a.GetType().Name == nameof(CanBeNullAttribute)))
-                       || parameterType.IsValueType
-                       && parameterType.IsNullableType()
-                       && attributes.Any(a => a.GetType().Name == nameof(CanBeNullAttribute))
-                   select (Type: type, Method: method, Parameter: parameter)).ToList();
-
-            Assert.False(
-                parametersWithRedundantAttribute.Count > 0,
-                "\r\n-- Redundant NotNull annotations --\r\n" + string.Join(Environment.NewLine,
-                    parametersWithRedundantAttribute.Select(t => $"{t.Type.FullName}.{t.Method.Name}[{t.Parameter.Name}]")));
         }
 
         private static readonly HashSet<MethodInfo> _nonCancellableAsyncMethods = new();

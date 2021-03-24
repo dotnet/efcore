@@ -1,10 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
@@ -17,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="valueComparer"> The value comparer. </param>
         /// <returns> <see langword="true" /> if the value comparer is the default; <see langword="false" /> otherwise. </returns>
-        public static bool IsDefault([NotNull] this ValueComparer valueComparer)
+        public static bool IsDefault(this ValueComparer valueComparer)
             => valueComparer.GetType().IsGenericType
                 && valueComparer.GetType().GetGenericTypeDefinition() == typeof(ValueComparer.DefaultValueComparer<>);
     }

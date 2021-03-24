@@ -3,10 +3,7 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -23,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="sequence"> The sequence. </param>
         public SequenceEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IReadOnlySequence sequence)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IReadOnlySequence sequence)
             : base(eventDefinition, messageGenerator)
         {
             Sequence = sequence;

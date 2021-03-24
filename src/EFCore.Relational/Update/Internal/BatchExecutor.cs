@@ -7,13 +7,10 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
@@ -42,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public BatchExecutor(
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
+            ICurrentDbContext currentContext,
+            IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             CurrentContext = currentContext;
             UpdateLogger = updateLogger;

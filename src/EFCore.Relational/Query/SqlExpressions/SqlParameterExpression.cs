@@ -3,11 +3,8 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -52,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="typeMapping"> A relational type mapping to apply. </param>
         /// <returns> A new expression which has supplied type mapping. </returns>
-        public SqlExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping)
+        public SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
             => new SqlParameterExpression(_parameterExpression, typeMapping);
 
         /// <inheritdoc />

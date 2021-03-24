@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 
 #nullable enable
 
@@ -18,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         public static LegacyReferenceEqualityComparer Instance { get; } = new();
 
-        public new bool Equals([CanBeNull] object? x, [CanBeNull] object? y)
+        public new bool Equals(object? x, object? y)
             => ReferenceEquals(x, y);
 
-        public int GetHashCode([NotNull] object obj)
+        public int GetHashCode(object obj)
             => RuntimeHelpers.GetHashCode(obj);
 
         bool IEqualityComparer<object>.Equals(object? x, object? y)

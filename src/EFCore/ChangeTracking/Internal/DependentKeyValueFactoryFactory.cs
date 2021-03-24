@@ -3,11 +3,8 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDependentKeyValueFactory<TKey> Create<TKey>([NotNull] IForeignKey foreignKey)
+        public virtual IDependentKeyValueFactory<TKey> Create<TKey>(IForeignKey foreignKey)
             => foreignKey.Properties.Count == 1
                 ? CreateSimple<TKey>(foreignKey)
                 : (IDependentKeyValueFactory<TKey>)CreateComposite(foreignKey);
@@ -36,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDependentKeyValueFactory<TKey> CreateSimple<TKey>([NotNull] IForeignKey foreignKey)
+        public virtual IDependentKeyValueFactory<TKey> CreateSimple<TKey>(IForeignKey foreignKey)
         {
             var dependentProperty = foreignKey.Properties.Single();
             var principalType = foreignKey.PrincipalKey.Properties.Single().ClrType;
@@ -68,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDependentKeyValueFactory<object[]> CreateComposite([NotNull] IForeignKey foreignKey)
+        public virtual IDependentKeyValueFactory<object[]> CreateComposite(IForeignKey foreignKey)
             => new CompositeValueFactory(foreignKey.Properties);
     }
 }

@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -28,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public ValueConverterInfo(
-            [NotNull] Type modelClrType,
-            [NotNull] Type providerClrType,
-            [NotNull] Func<ValueConverterInfo, ValueConverter> factory,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            Type modelClrType,
+            Type providerClrType,
+            Func<ValueConverterInfo, ValueConverter> factory,
+            ConverterMappingHints? mappingHints = null)
         {
             _factory = factory;
             Check.NotNull(modelClrType, nameof(modelClrType));

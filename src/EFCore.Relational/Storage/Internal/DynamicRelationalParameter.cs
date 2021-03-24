@@ -3,10 +3,7 @@
 
 using System;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -27,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DynamicRelationalParameter(
-            [NotNull] string invariantName,
-            [NotNull] string name,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            string invariantName,
+            string name,
+            IRelationalTypeMappingSource typeMappingSource)
             : base(invariantName)
         {
             Check.NotEmpty(name, nameof(name));

@@ -3,8 +3,6 @@
 
 using System.Collections;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>

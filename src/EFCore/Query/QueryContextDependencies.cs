@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -11,8 +10,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -62,11 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public QueryContextDependencies(
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
-            [NotNull] IConcurrencyDetector concurrencyDetector,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
+            ICurrentDbContext currentContext,
+            IExecutionStrategyFactory executionStrategyFactory,
+            IConcurrencyDetector concurrencyDetector,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
+            IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
         {
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
@@ -84,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The cache being used to store value generator instances.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
+        public ICurrentDbContext CurrentContext { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -106,21 +103,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The execution strategy.
         /// </summary>
-        public IExecutionStrategyFactory ExecutionStrategyFactory { get; [param: NotNull] init; }
+        public IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
 
         /// <summary>
         ///     Gets the concurrency detector.
         /// </summary>
-        public IConcurrencyDetector ConcurrencyDetector { get; [param: NotNull] init; }
+        public IConcurrencyDetector ConcurrencyDetector { get; init; }
 
         /// <summary>
         ///     The command logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; init; }
 
         /// <summary>
         ///     A query logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger { get; init; }
     }
 }

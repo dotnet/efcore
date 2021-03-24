@@ -3,11 +3,8 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -45,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyName"> The name of the property. </param>
         /// <returns> The value assigned to the property. </returns>
         public static TProperty Property<TProperty>(
-            [NotNull] object entity,
-            [NotNull] [NotParameterized] string propertyName)
+            object entity,
+            [NotParameterized] string propertyName)
             => throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
 
         /// <summary>

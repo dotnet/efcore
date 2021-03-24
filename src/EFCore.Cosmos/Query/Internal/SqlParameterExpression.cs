@@ -3,12 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -29,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlParameterExpression([NotNull] ParameterExpression parameterExpression, [CanBeNull] CoreTypeMapping? typeMapping)
+        public SqlParameterExpression(ParameterExpression parameterExpression, CoreTypeMapping? typeMapping)
             : base(parameterExpression.Type, typeMapping)
         {
             Check.DebugAssert(parameterExpression.Name != null, "Parameter must have name.");
@@ -53,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlExpression ApplyTypeMapping([CanBeNull] CoreTypeMapping? typeMapping)
+        public SqlExpression ApplyTypeMapping(CoreTypeMapping? typeMapping)
             => new SqlParameterExpression(_parameterExpression, typeMapping ?? TypeMapping);
 
         /// <summary>

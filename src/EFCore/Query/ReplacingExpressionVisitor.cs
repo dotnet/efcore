@@ -2,15 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -35,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="replacement"> The expression to be used as replacement. </param>
         /// <param name="tree"> The expression tree in which replacement is going to be performed. </param>
         /// <returns> An expression tree with replacements made. </returns>
-        public static Expression Replace([NotNull] Expression original, [NotNull] Expression replacement, [NotNull] Expression tree)
+        public static Expression Replace(Expression original, Expression replacement, Expression tree)
         {
             Check.NotNull(original, nameof(original));
             Check.NotNull(replacement, nameof(replacement));
@@ -49,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="originals"> A list of original expressions to replace. </param>
         /// <param name="replacements"> A list of expressions to be used as replacements. </param>
-        public ReplacingExpressionVisitor([NotNull] IReadOnlyList<Expression> originals, [NotNull] IReadOnlyList<Expression> replacements)
+        public ReplacingExpressionVisitor(IReadOnlyList<Expression> originals, IReadOnlyList<Expression> replacements)
         {
             Check.NotNull(originals, nameof(originals));
             Check.NotNull(replacements, nameof(replacements));
@@ -59,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        [return: CA.NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
         {
             if (expression == null

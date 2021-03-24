@@ -5,10 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -34,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="ValueBuffer" /> class.
         /// </summary>
         /// <param name="values"> The list of values for this buffer. </param>
-        public ValueBuffer([NotNull] object?[] values)
+        public ValueBuffer(object?[] values)
         {
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             Check.DebugAssert(values != null, "values is null");
@@ -52,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _values[index];
 
-            [param: CanBeNull] set => _values[index] = value;
+            set => _values[index] = value;
         }
 
         internal static readonly MethodInfo GetValueMethod

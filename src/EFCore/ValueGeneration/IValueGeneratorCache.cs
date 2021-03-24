@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="factory"> Factory to create a new value generator if one is not present in the cache. </param>
         /// <returns> The existing or newly created value generator. </returns>
         ValueGenerator GetOrAdd(
-            [NotNull] IProperty property,
-            [NotNull] IEntityType entityType,
-            [NotNull] Func<IProperty, IEntityType, ValueGenerator> factory);
+            IProperty property,
+            IEntityType entityType,
+            Func<IProperty, IEntityType, ValueGenerator> factory);
     }
 }

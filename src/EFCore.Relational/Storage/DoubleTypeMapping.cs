@@ -4,10 +4,6 @@
 using System;
 using System.Data;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -28,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public DoubleTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null)
             : base(storeType, typeof(double), dbType)
         {

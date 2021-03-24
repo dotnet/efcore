@@ -3,11 +3,8 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -23,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="DatabaseGeneratedAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public DatabaseGeneratedAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public DatabaseGeneratedAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }

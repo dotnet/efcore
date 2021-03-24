@@ -3,7 +3,6 @@
 
 using System;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public OperationLogger([NotNull] string categoryName, [NotNull] IOperationReporter reporter)
+        public OperationLogger(string categoryName, IOperationReporter reporter)
         {
             _categoryName = categoryName;
             _reporter = reporter;

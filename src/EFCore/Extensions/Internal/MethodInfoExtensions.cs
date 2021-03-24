@@ -3,9 +3,6 @@
 
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -26,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool MethodIsClosedFormOf(
-            [NotNull] this MethodInfo methodInfo,
-            [NotNull] MethodInfo genericMethod)
+            this MethodInfo methodInfo,
+            MethodInfo genericMethod)
             => methodInfo.IsGenericMethod
                 && Equals(
                     methodInfo.GetGenericMethodDefinition(),

@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -24,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="storeType"> The store type of the function parameter in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The same builder instance if the configuration was applied; <see langword="null" /> otherwise. </returns>
-        IConventionDbFunctionParameterBuilder? HasStoreType([CanBeNull] string? storeType, bool fromDataAnnotation = false);
+        IConventionDbFunctionParameterBuilder? HasStoreType(string? storeType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the store type can be set for this property
@@ -33,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="storeType"> The store type of the function parameter in the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the store type can be set for this property. </returns>
-        bool CanSetStoreType([CanBeNull] string? storeType, bool fromDataAnnotation = false);
+        bool CanSetStoreType(string? storeType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the <see cref="RelationalTypeMapping" /> of the function parameter.
@@ -42,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The same builder instance if the configuration was applied; <see langword="null" /> otherwise. </returns>
         IConventionDbFunctionParameterBuilder? HasTypeMapping(
-            [CanBeNull] RelationalTypeMapping? typeMapping,
+            RelationalTypeMapping? typeMapping,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -52,6 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="typeMapping"> The type mapping to use for the function parameter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the type mapping can be set for this property. </returns>
-        bool CanSetTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);
+        bool CanSetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation = false);
     }
 }

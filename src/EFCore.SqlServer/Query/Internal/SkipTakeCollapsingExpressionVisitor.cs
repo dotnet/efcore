@@ -3,12 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -31,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SkipTakeCollapsingExpressionVisitor([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SkipTakeCollapsingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
 
@@ -46,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SelectExpression Process(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object?> parametersValues,
+            SelectExpression selectExpression,
+            IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));

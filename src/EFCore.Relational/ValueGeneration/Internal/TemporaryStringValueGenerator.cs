@@ -4,8 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
 {
     /// <summary>

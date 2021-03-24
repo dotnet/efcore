@@ -3,14 +3,11 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="PropertyAttributeConventionBase{TAttribute}" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        protected PropertyAttributeConventionBase([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        protected PropertyAttributeConventionBase(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -102,9 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="clrMember"> The member that has the attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         protected abstract void ProcessPropertyAdded(
-            [NotNull] IConventionPropertyBuilder propertyBuilder,
-            [NotNull] TAttribute attribute,
-            [NotNull] MemberInfo clrMember,
-            [NotNull] IConventionContext context);
+            IConventionPropertyBuilder propertyBuilder,
+            TAttribute attribute,
+            MemberInfo clrMember,
+            IConventionContext context);
     }
 }

@@ -656,20 +656,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss =>
                     (from c in ss.Set<Customer>()
-                    where c.City == "London"
-                    orderby c.CustomerID
-                    select new { c.City }).Distinct().Select(x => 
+                     where c.City == "London"
+                     orderby c.CustomerID
+                     select new { c.City }).Distinct().Select(x =>
 
-                           ((from o1 in ss.Set<Order>()
-                            where o1.CustomerID == x.City
-                                && o1.OrderDate.Value.Year == 1997
-                            orderby o1.OrderID
-                            select o1).Distinct().Select(xx => 
+                            ((from o1 in ss.Set<Order>()
+                              where o1.CustomerID == x.City
+                                 && o1.OrderDate.Value.Year == 1997
+                              orderby o1.OrderID
+                              select o1).Distinct().Select(xx =>
 
-                             (from o2 in ss.Set<Order>()
-                                    where xx.CustomerID == x.City
-                                    orderby o2.OrderID
-                                    select xx.OrderID).ToList()).ToList())),
+                              (from o2 in ss.Set<Order>()
+                               where xx.CustomerID == x.City
+                               orderby o2.OrderID
+                               select xx.OrderID).ToList()).ToList())),
                 elementSorter: e => e.Count,
                 elementAsserter: (e, a) => AssertCollection(
                     e,
@@ -1911,7 +1911,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#24440")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
         {
@@ -2219,6 +2219,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Complex, a.Complex);
                     AssertCollection(e.Subquery, a.Subquery, elementSorter: ee => ee.Outer);
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_include_over_result_of_single_non_scalar(bool async)
+        {
+            return AssertQuery(
+              async,
+              ss =>
+               ss.Set<Customer>().Include(c => c.Orders).ThenInclude(o => o.OrderDetails)
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .Select(c => new
+                    {
+                        c,
+                        SingleOrder = c.Orders.OrderBy(o => o.OrderDate).FirstOrDefault()
+                    }),
+              elementSorter: e => e.c.CustomerID,
+              elementAsserter: (e, a) =>
+              {
+                  AssertInclude(e, a,
+                      new ExpectedInclude<Customer>(c => c.Orders),
+                      new ExpectedInclude<Order>(o => o.OrderDetails, "Orders"));
+                  AssertInclude(e.SingleOrder, a.SingleOrder, new ExpectedInclude<Order>(o => o.OrderDetails));
+              },
+              entryCount: 235);
         }
 
         private static string ClientMethod(string s) => s;

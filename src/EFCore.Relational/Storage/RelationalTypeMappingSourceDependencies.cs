@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -57,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalTypeMappingSourceDependencies(
-            [NotNull] IEnumerable<IRelationalTypeMappingSourcePlugin> plugins)
+            IEnumerable<IRelationalTypeMappingSourcePlugin> plugins)
         {
             Check.NotNull(plugins, nameof(plugins));
 
@@ -67,6 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the plugins.
         /// </summary>
-        public IEnumerable<IRelationalTypeMappingSourcePlugin> Plugins { get; [param: NotNull] init; }
+        public IEnumerable<IRelationalTypeMappingSourcePlugin> Plugins { get; init; }
     }
 }

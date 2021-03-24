@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -31,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of this class with the given service dependencies.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public RelationalExecutionStrategyFactory([NotNull] ExecutionStrategyDependencies dependencies)
+        public RelationalExecutionStrategyFactory(ExecutionStrategyDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -51,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates or returns a cached instance of the default <see cref="IExecutionStrategy" /> for the
         ///     current database provider.
         /// </summary>
-        protected virtual IExecutionStrategy CreateDefaultStrategy([NotNull] ExecutionStrategyDependencies dependencies)
+        protected virtual IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyDependencies dependencies)
             => new NonRetryingExecutionStrategy(Dependencies);
 
         /// <summary>

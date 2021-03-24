@@ -7,13 +7,10 @@ using System.Data.Common;
 using System.Data.SqlTypes;
 using System.Globalization;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -33,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerQueryStringFactory([NotNull] IRelationalTypeMappingSource typeMapper)
+        public SqlServerQueryStringFactory(IRelationalTypeMappingSource typeMapper)
         {
             _typeMapper = typeMapper;
         }

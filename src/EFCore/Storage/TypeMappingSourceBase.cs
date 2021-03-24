@@ -3,12 +3,9 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 #pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -34,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected TypeMappingSourceBase([NotNull] TypeMappingSourceDependencies dependencies)
+        protected TypeMappingSourceBase(TypeMappingSourceDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -78,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="mapping"> The mapping, if any. </param>
         /// <param name="property"> The property, if any. </param>
         protected virtual void ValidateMapping(
-            [CanBeNull] CoreTypeMapping? mapping,
-            [CanBeNull] IProperty? property)
+            CoreTypeMapping? mapping,
+            IProperty? property)
         {
         }
 

@@ -6,12 +6,9 @@ using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -32,14 +29,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerUdtTypeMapping(
-            [NotNull] Type clrType,
-            [NotNull] string storeType,
-            [NotNull] Func<object, Expression> literalGenerator,
+            Type clrType,
+            string storeType,
+            Func<object, Expression> literalGenerator,
             StoreTypePostfix storeTypePostfix = StoreTypePostfix.None,
-            [CanBeNull] string? udtTypeName = null,
-            [CanBeNull] ValueConverter? converter = null,
-            [CanBeNull] ValueComparer? comparer = null,
-            [CanBeNull] ValueComparer? keyComparer = null,
+            string? udtTypeName = null,
+            ValueConverter? converter = null,
+            ValueComparer? comparer = null,
+            ValueComparer? keyComparer = null,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null,
@@ -65,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected SqlServerUdtTypeMapping(
             RelationalTypeMappingParameters parameters,
-            [NotNull] Func<object, Expression> literalGenerator,
-            [CanBeNull] string? udtTypeName)
+            Func<object, Expression> literalGenerator,
+            string? udtTypeName)
             : base(parameters)
         {
             LiteralGenerator = literalGenerator;

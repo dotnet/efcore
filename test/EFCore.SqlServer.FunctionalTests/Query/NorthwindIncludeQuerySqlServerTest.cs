@@ -925,13 +925,13 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], (
     SELECT COUNT(*)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [TotalOrders]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]) AS [TotalOrders]
 FROM [Customers] AS [c]
 WHERE ([c].[ContactTitle] = N'Owner') AND ((
     SELECT COUNT(*)
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]) > 2)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) > 2)
 ORDER BY [c].[CustomerID]");
         }
 

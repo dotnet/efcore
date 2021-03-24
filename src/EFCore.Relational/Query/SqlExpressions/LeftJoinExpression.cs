@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="table"> A table source to LEFT JOIN with. </param>
         /// <param name="joinPredicate"> A predicate to use for the join. </param>
-        public LeftJoinExpression([NotNull] TableExpressionBase table, [NotNull] SqlExpression joinPredicate)
+        public LeftJoinExpression(TableExpressionBase table, SqlExpression joinPredicate)
             : base(table, joinPredicate)
         {
         }
@@ -48,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="table"> The <see cref="P:Table" /> property of the result. </param>
         /// <param name="joinPredicate"> The <see cref="P:JoinPredicate" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual LeftJoinExpression Update([NotNull] TableExpressionBase table, [NotNull] SqlExpression joinPredicate)
+        public virtual LeftJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         {
             Check.NotNull(table, nameof(table));
             Check.NotNull(joinPredicate, nameof(joinPredicate));

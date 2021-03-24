@@ -5,14 +5,11 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -36,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceNavigationBuilder(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] string? navigationName,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType declaringEntityType,
+            IMutableEntityType relatedEntityType,
+            string? navigationName,
+            IMutableForeignKey foreignKey)
         {
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
@@ -55,10 +52,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceNavigationBuilder(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] MemberInfo? navigationMemberInfo,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType declaringEntityType,
+            IMutableEntityType relatedEntityType,
+            MemberInfo? navigationMemberInfo,
+            IMutableForeignKey foreignKey)
         {
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
@@ -133,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceCollectionBuilder WithMany([CanBeNull] string? collection = null)
+        public virtual ReferenceCollectionBuilder WithMany(string? collection = null)
         {
             return new(
                 RelatedEntityType,
@@ -148,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder WithManyBuilder([CanBeNull] string? navigationName)
+        protected virtual InternalForeignKeyBuilder WithManyBuilder(string? navigationName)
             => WithManyBuilder(MemberIdentity.Create(navigationName));
 
         /// <summary>
@@ -158,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder WithManyBuilder([CanBeNull] MemberInfo? navigationMemberInfo)
+        protected virtual InternalForeignKeyBuilder WithManyBuilder(MemberInfo? navigationMemberInfo)
             => WithManyBuilder(MemberIdentity.Create(navigationMemberInfo));
 
         private InternalForeignKeyBuilder WithManyBuilder(MemberIdentity collection)
@@ -208,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     If null or not specified, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual ReferenceReferenceBuilder WithOne([CanBeNull] string? reference = null)
+        public virtual ReferenceReferenceBuilder WithOne(string? reference = null)
             => new(DeclaringEntityType, RelatedEntityType, WithOneBuilder(Check.NullButNotEmpty(reference, nameof(reference))).Metadata);
 
         /// <summary>
@@ -218,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder WithOneBuilder([CanBeNull] string? navigationName)
+        protected virtual InternalForeignKeyBuilder WithOneBuilder(string? navigationName)
             => WithOneBuilder(MemberIdentity.Create(navigationName));
 
         /// <summary>
@@ -228,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder WithOneBuilder([CanBeNull] MemberInfo? navigationMemberInfo)
+        protected virtual InternalForeignKeyBuilder WithOneBuilder(MemberInfo? navigationMemberInfo)
             => WithOneBuilder(MemberIdentity.Create(navigationMemberInfo));
 
         private InternalForeignKeyBuilder WithOneBuilder(MemberIdentity reference)

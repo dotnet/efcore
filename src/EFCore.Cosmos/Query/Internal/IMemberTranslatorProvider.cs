@@ -3,10 +3,7 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -25,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         SqlExpression? Translate(
-            [CanBeNull] SqlExpression? instance,
-            [NotNull] MemberInfo member,
-            [NotNull] Type returnType,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger);
+            SqlExpression? instance,
+            MemberInfo member,
+            Type returnType,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger);
     }
 }

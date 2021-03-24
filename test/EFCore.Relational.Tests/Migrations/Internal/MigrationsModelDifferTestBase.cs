@@ -79,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
 
             var modelRuntimeInitializer = TestHelpers.CreateContextServices().GetService<IModelRuntimeInitializer>();
-            sourceModel = modelRuntimeInitializer.Initialize(sourceModel, validationLogger: null);
-            targetModel = modelRuntimeInitializer.Initialize(targetModel, validationLogger: null);
+            sourceModel = modelRuntimeInitializer.Initialize(sourceModel, designTime: true, validationLogger: null);
+            targetModel = modelRuntimeInitializer.Initialize(targetModel, designTime: true, validationLogger: null);
 
             var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
 

@@ -3,10 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -27,6 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="contextType"> A type that inherits from <see cref="DbContext" /> </param>
         /// <returns> A list of the found properties. </returns>
-        IReadOnlyList<DbSetProperty> FindSets([NotNull] Type contextType);
+        IReadOnlyList<DbSetProperty> FindSets(Type contextType);
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -39,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="applicationServiceProviderAccessor"> An accessor to the application service provider. </param>
         /// <returns> The <paramref name="services" />. This enables chaining additional method calls. </returns>
         public static IServiceCollection AddEntityFrameworkDesignTimeServices(
-            [NotNull] this IServiceCollection services,
-            [CanBeNull] IOperationReporter? reporter = null,
-            [CanBeNull] Func<IServiceProvider>? applicationServiceProviderAccessor = null)
+            this IServiceCollection services,
+            IOperationReporter? reporter = null,
+            Func<IServiceProvider>? applicationServiceProviderAccessor = null)
         {
             if (reporter == null)
             {
@@ -109,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="context"> The <see cref="DbContext" /> the services will be added from. </param>
         /// <returns> The <paramref name="services" />. This enables chaining additional method calls. </returns>
         public static IServiceCollection AddDbContextDesignTimeServices(
-            [NotNull] this IServiceCollection services,
-            [NotNull] DbContext context)
+            this IServiceCollection services,
+            DbContext context)
             => services
                 .AddTransient(_ => context.GetService<ICurrentDbContext>())
                 .AddTransient(_ => context.GetService<IDatabaseProvider>())
@@ -121,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddTransient(_ => context.GetService<IMigrationsModelDiffer>())
                 .AddTransient(_ => context.GetService<IMigrator>())
                 .AddTransient(_ => context.GetService<IRelationalTypeMappingSource>())
-                .AddTransient(_ => context.GetService<IModel>())
+                .AddTransient(_ => context.DesignTimeModel)
                 .AddTransient(_ => context.GetService<IModelRuntimeInitializer>());
     }
 }

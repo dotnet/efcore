@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -35,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies"> The dependencies to use. </param>
         /// <param name="relationalDependencies"> The relational-specific dependencies to use. </param>
         public RelationalEvaluatableExpressionFilter(
-            [NotNull] EvaluatableExpressionFilterDependencies dependencies,
-            [NotNull] RelationalEvaluatableExpressionFilterDependencies relationalDependencies)
+            EvaluatableExpressionFilterDependencies dependencies,
+            RelationalEvaluatableExpressionFilterDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));

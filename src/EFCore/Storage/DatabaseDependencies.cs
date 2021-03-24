@@ -1,14 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -58,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public DatabaseDependencies(
-            [NotNull] IQueryCompilationContextFactory queryCompilationContextFactory,
-            [NotNull] IUpdateAdapterFactory updateAdapterFactory)
+            IQueryCompilationContextFactory queryCompilationContextFactory,
+            IUpdateAdapterFactory updateAdapterFactory)
         {
             Check.NotNull(queryCompilationContextFactory, nameof(queryCompilationContextFactory));
             Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
@@ -71,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Factory for compilation contexts to process LINQ queries.
         /// </summary>
-        public IQueryCompilationContextFactory QueryCompilationContextFactory { get; [param: NotNull] init; }
+        public IQueryCompilationContextFactory QueryCompilationContextFactory { get; init; }
 
         /// <summary>
         ///     Factory for creating model data tracker.
         /// </summary>
-        public IUpdateAdapterFactory UpdateAdapterFactory { get; [param: NotNull] init; }
+        public IUpdateAdapterFactory UpdateAdapterFactory { get; init; }
     }
 }

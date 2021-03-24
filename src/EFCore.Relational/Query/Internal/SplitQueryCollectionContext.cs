@@ -1,10 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -22,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SplitQueryCollectionContext(
-            [CanBeNull] object? parent,
-            [CanBeNull] object? collection,
-            [NotNull] object[] parentIdentifier)
+            object? parent,
+            object? collection,
+            object[] parentIdentifier)
         {
             Parent = parent;
             Collection = collection;

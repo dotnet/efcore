@@ -2,13 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -29,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public RelationalValueConverterCompensatingExpressionVisitor(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -152,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return leftJoinExpression.Update(table, joinPredicate);
         }
 
-        [return: CA.NotNullIfNotNull("sqlExpression")]
+        [return: NotNullIfNotNull("sqlExpression")]
         private SqlExpression? TryCompensateForBoolWithValueConverter(SqlExpression? sqlExpression)
         {
             if (sqlExpression is ColumnExpression columnExpression

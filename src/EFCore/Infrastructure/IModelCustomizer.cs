@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -44,6 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context">
         ///     The context instance that the model is being created for.
         /// </param>
-        void Customize([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context);
+        void Customize(ModelBuilder modelBuilder, DbContext context);
     }
 }

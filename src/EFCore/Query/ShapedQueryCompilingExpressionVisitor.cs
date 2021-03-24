@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -16,8 +15,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -53,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
         /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         protected ShapedQueryCompilingExpressionVisitor(
-            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext)
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            QueryCompilationContext queryCompilationContext)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
@@ -187,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="shapedQueryExpression"> The shaped query expression to compile. </param>
         /// <returns> An expression of enumerable. </returns>
-        protected abstract Expression VisitShapedQuery([NotNull] ShapedQueryExpression shapedQueryExpression);
+        protected abstract Expression VisitShapedQuery(ShapedQueryExpression shapedQueryExpression);
 
         /// <summary>
         ///     Inject entity materializers in given shaper expression. <see cref="EntityShaperExpression" /> is replaced with materializer
@@ -195,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="expression"> The expression to inject entity materializers. </param>
         /// <returns> A expression with entity materializers injected. </returns>
-        protected virtual Expression InjectEntityMaterializers([NotNull] Expression expression)
+        protected virtual Expression InjectEntityMaterializers(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -208,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Verifies that the given shaper expression does not contain client side constant which could cause memory leak.
         /// </summary>
         /// <param name="expression"> An expression to verify. </param>
-        protected virtual void VerifyNoClientConstant([NotNull] Expression expression)
+        protected virtual void VerifyNoClientConstant(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 

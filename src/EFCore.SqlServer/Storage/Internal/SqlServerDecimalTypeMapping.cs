@@ -3,10 +3,7 @@
 
 using System.Data;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerDecimalTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null,
             int? precision = null,
             int? scale = null,

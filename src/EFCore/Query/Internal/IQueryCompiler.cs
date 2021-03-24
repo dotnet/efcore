@@ -4,10 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -33,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        TResult Execute<TResult>([NotNull] Expression query);
+        TResult Execute<TResult>(Expression query);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        TResult ExecuteAsync<TResult>([NotNull] Expression query, CancellationToken cancellationToken);
+        TResult ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Func<QueryContext, TResult> CreateCompiledQuery<TResult>([NotNull] Expression query);
+        Func<QueryContext, TResult> CreateCompiledQuery<TResult>(Expression query);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,6 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Func<QueryContext, TResult> CreateCompiledAsyncQuery<TResult>([NotNull] Expression query);
+        Func<QueryContext, TResult> CreateCompiledAsyncQuery<TResult>(Expression query);
     }
 }

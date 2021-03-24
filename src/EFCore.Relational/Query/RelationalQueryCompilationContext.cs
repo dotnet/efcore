@@ -1,11 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -27,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
         /// <param name="async"> A bool value indicating whether it is for async query. </param>
         public RelationalQueryCompilationContext(
-            [NotNull] QueryCompilationContextDependencies dependencies,
-            [NotNull] RelationalQueryCompilationContextDependencies relationalDependencies,
+            QueryCompilationContextDependencies dependencies,
+            RelationalQueryCompilationContextDependencies relationalDependencies,
             bool async)
             : base(dependencies, async)
         {

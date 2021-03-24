@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Initializes a new instance of the <see cref="MigrationsScaffolder" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public MigrationsScaffolder([NotNull] MigrationsScaffolderDependencies dependencies)
+        public MigrationsScaffolder(MigrationsScaffolderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -52,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="subNamespace"> The migration's sub-namespace. </param>
         /// <returns> The scaffolded migration. </returns>
         public virtual ScaffoldedMigration ScaffoldMigration(
-            [NotNull] string migrationName,
-            [CanBeNull] string? rootNamespace,
-            [CanBeNull] string? subNamespace)
+            string migrationName,
+            string? rootNamespace,
+            string? subNamespace)
             => ScaffoldMigration(migrationName, rootNamespace, subNamespace, language: null);
 
         /// <summary>
@@ -211,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="rootNamespace"> The root namespace. </param>
         /// <param name="namespace"> The full namespace. </param>
         /// <returns> The sub-namespace. </returns>
-        protected virtual string GetSubNamespace([CanBeNull] string? rootNamespace, [NotNull] string @namespace)
+        protected virtual string GetSubNamespace(string? rootNamespace, string @namespace)
         {
             rootNamespace ??= string.Empty;
 
@@ -229,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="rootNamespace"> The project's root namespace. </param>
         /// <param name="force"> Don't check to see if the migration has been applied to the database. </param>
         /// <returns> The removed migration files. </returns>
-        public virtual MigrationFiles RemoveMigration([NotNull] string projectDir, [NotNull] string rootNamespace, bool force)
+        public virtual MigrationFiles RemoveMigration(string projectDir, string rootNamespace, bool force)
             => RemoveMigration(projectDir, rootNamespace, force, language: null);
 
         /// <summary>
@@ -422,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="siblingType"> The sibling type. </param>
         /// <param name="defaultNamespace"> The default namespace. </param>
         /// <returns> The namespace. </returns>
-        protected virtual string GetNamespace([CanBeNull] Type? siblingType, [NotNull] string defaultNamespace)
+        protected virtual string GetNamespace(Type? siblingType, string defaultNamespace)
         {
             if (siblingType != null)
             {
@@ -446,9 +445,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="subnamespace"> The sub-namespace. </param>
         /// <returns> The directory path. </returns>
         protected virtual string GetDirectory(
-            [NotNull] string projectDir,
-            [CanBeNull] string? siblingFileName,
-            [NotNull] string subnamespace)
+            string projectDir,
+            string? siblingFileName,
+            string subnamespace)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
             Check.NotNull(subnamespace, nameof(subnamespace));
@@ -479,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="projectDir"> The project directory. </param>
         /// <param name="fileName"> The filename. </param>
         /// <returns> The file path or null if none. </returns>
-        protected virtual string? TryGetProjectFile([NotNull] string projectDir, [NotNull] string fileName)
+        protected virtual string? TryGetProjectFile(string projectDir, string fileName)
             => Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
 
         private bool ContainsForeignMigrations(string migrationsNamespace)

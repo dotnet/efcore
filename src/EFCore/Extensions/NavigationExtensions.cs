@@ -3,11 +3,8 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -29,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IReadOnlyNavigation.IsOnDependent")]
-        public static bool IsDependentToPrincipal([NotNull] this INavigation navigation)
+        public static bool IsDependentToPrincipal(this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).IsOnDependent;
 
         /// <summary>
@@ -41,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IReadOnlyNavigation.IsCollection")]
-        public static bool IsCollection([NotNull] this INavigation navigation)
+        public static bool IsCollection(this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).IsCollection;
 
         /// <summary>
@@ -54,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IReadOnlyNavigation.Inverse")]
-        public static INavigation? FindInverse([NotNull] this INavigation navigation)
+        public static INavigation? FindInverse(this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).Inverse;
 
         /// <summary>
@@ -65,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The target entity type. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IReadOnlyNavigation.TargetEntityType")]
-        public static IEntityType GetTargetType([NotNull] this INavigation navigation)
+        public static IEntityType GetTargetType(this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).TargetEntityType;
 
         /// <summary>
@@ -74,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigation"> The navigation property to find whether it should be eager loaded. </param>
         /// <returns> A value indicating whether this navigation should be eager loaded by default. </returns>
         [Obsolete("Use IReadOnlyNavigation.IsEagerLoaded")]
-        public static bool IsEagerLoaded([NotNull] this INavigation navigation)
+        public static bool IsEagerLoaded(this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).IsEagerLoaded;
     }
 }

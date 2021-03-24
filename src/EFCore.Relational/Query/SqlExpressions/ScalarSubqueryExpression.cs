@@ -3,12 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -27,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new instance of the <see cref="ScalarSubqueryExpression" /> class.
         /// </summary>
         /// <param name="subquery"> A subquery projecting single row with a single scalar projection. </param>
-        public ScalarSubqueryExpression([NotNull] SelectExpression subquery)
+        public ScalarSubqueryExpression(SelectExpression subquery)
             : base(Verify(subquery).Projection[0].Type, subquery.Projection[0].Expression.TypeMapping)
         {
             Check.NotNull(subquery, nameof(subquery));
@@ -64,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual ScalarSubqueryExpression Update([NotNull] SelectExpression subquery)
+        public virtual ScalarSubqueryExpression Update(SelectExpression subquery)
         {
             Check.NotNull(subquery, nameof(subquery));
 

@@ -3,10 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
         /// </summary>
         /// <param name="propertyNames"> The properties which constitute the index, in order (there must be at least one). </param>
-        public IndexAttribute([NotNull] params string[] propertyNames)
+        public IndexAttribute(params string[] propertyNames)
         {
             Check.NotEmpty(propertyNames, nameof(propertyNames));
             Check.HasNoEmptyElements(propertyNames, nameof(propertyNames));
@@ -39,11 +38,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The name of the index.
         /// </summary>
-        [CA.DisallowNull]
+        [DisallowNull]
         public string? Name
         {
             get => _name;
-            [param: NotNull] set => _name = Check.NotNull(value, nameof(value));
+            set => _name = Check.NotNull(value, nameof(value));
         }
 
         /// <summary>

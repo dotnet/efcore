@@ -1,12 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -22,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static KeyBuilder IsClustered([NotNull] this KeyBuilder keyBuilder, bool clustered = true)
+        public static KeyBuilder IsClustered(this KeyBuilder keyBuilder, bool clustered = true)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static KeyBuilder<TEntity> IsClustered<TEntity>(
-            [NotNull] this KeyBuilder<TEntity> keyBuilder,
+            this KeyBuilder<TEntity> keyBuilder,
             bool clustered = true)
             => (KeyBuilder<TEntity>)IsClustered((KeyBuilder)keyBuilder, clustered);
 
@@ -53,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionKeyBuilder? IsClustered(
-            [NotNull] this IConventionKeyBuilder keyBuilder,
+            this IConventionKeyBuilder keyBuilder,
             bool? clustered,
             bool fromDataAnnotation = false)
         {
@@ -74,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the key can be configured as clustered. </returns>
         public static bool CanSetIsClustered(
-            [NotNull] this IConventionKeyBuilder keyBuilder,
+            this IConventionKeyBuilder keyBuilder,
             bool? clustered,
             bool fromDataAnnotation = false)
         {

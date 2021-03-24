@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -31,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="navigation"> A navigation associated with this collection, if any. </param>
         /// <param name="elementType"> The clr type of individual elements in the collection. </param>
         public CollectionShaperExpression(
-            [NotNull] Expression projection,
-            [NotNull] Expression innerShaper,
-            [CanBeNull] INavigationBase? navigation,
-            [NotNull] Type elementType)
+            Expression projection,
+            Expression innerShaper,
+            INavigationBase? navigation,
+            Type elementType)
         {
             Check.NotNull(projection, nameof(projection));
             Check.NotNull(innerShaper, nameof(innerShaper));
@@ -92,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerShaper"> The <see cref="InnerShaper" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual CollectionShaperExpression Update(
-            [NotNull] Expression projection,
-            [NotNull] Expression innerShaper)
+            Expression projection,
+            Expression innerShaper)
         {
             Check.NotNull(projection, nameof(projection));
             Check.NotNull(innerShaper, nameof(innerShaper));

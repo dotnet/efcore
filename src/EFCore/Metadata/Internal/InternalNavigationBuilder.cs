@@ -4,11 +4,8 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -26,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalNavigationBuilder([NotNull] Navigation metadata, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalNavigationBuilder(Navigation metadata, InternalModelBuilder modelBuilder)
             : base(metadata, modelBuilder)
         {
         }
@@ -37,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalNavigationBuilder? HasField([CanBeNull] string? fieldName, ConfigurationSource configurationSource)
+        public new virtual InternalNavigationBuilder? HasField(string? fieldName, ConfigurationSource configurationSource)
             => (InternalNavigationBuilder?)base.HasField(fieldName, configurationSource);
 
         /// <summary>
@@ -46,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalNavigationBuilder? HasField([CanBeNull] FieldInfo? fieldInfo, ConfigurationSource configurationSource)
+        public new virtual InternalNavigationBuilder? HasField(FieldInfo? fieldInfo, ConfigurationSource configurationSource)
             => (InternalNavigationBuilder?)base.HasField(fieldInfo, configurationSource);
 
         /// <summary>

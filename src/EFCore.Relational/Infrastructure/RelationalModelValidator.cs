@@ -5,15 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -35,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
         public RelationalModelValidator(
-            [NotNull] ModelValidatorDependencies dependencies,
-            [NotNull] RelationalModelValidatorDependencies relationalDependencies)
+            ModelValidatorDependencies dependencies,
+            RelationalModelValidatorDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -74,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSqlQueries(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -102,8 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateDbFunctions(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var dbFunction in model.GetDbFunctions())
             {
@@ -212,8 +209,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateBoolsWithDefaults(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             Check.NotNull(model, nameof(model));
 
@@ -247,8 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateDefaultValuesOnKeys(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -273,8 +270,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedTableCompatibility(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var tables = new Dictionary<StoreObjectIdentifier, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes())
@@ -315,10 +312,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="schema"> The schema. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedTableCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
-            [NotNull] string tableName,
-            [CanBeNull] string? schema,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IReadOnlyList<IEntityType> mappedTypes,
+            string tableName,
+            string? schema,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (mappedTypes.Count == 1)
             {
@@ -461,8 +458,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedViewCompatibility(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var views = new Dictionary<StoreObjectIdentifier, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes())
@@ -500,10 +497,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="schema"> The schema. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedViewCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
-            [NotNull] string viewName,
-            [CanBeNull] string? schema,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IReadOnlyList<IEntityType> mappedTypes,
+            string viewName,
+            string? schema,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (mappedTypes.Count == 1)
             {
@@ -608,9 +605,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedColumnsCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            IReadOnlyList<IEntityType> mappedTypes,
             in StoreObjectIdentifier storeObject,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var concurrencyColumns = TableSharingConcurrencyTokenConvention.GetConcurrencyTokensMap(storeObject, mappedTypes);
             HashSet<string>? missingConcurrencyTokens = null;
@@ -682,11 +679,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateCompatible(
-            [NotNull] IProperty property,
-            [NotNull] IProperty duplicateProperty,
-            [NotNull] string columnName,
+            IProperty property,
+            IProperty duplicateProperty,
+            string columnName,
             in StoreObjectIdentifier storeObject,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (property.IsColumnNullable(storeObject) != duplicateProperty.IsColumnNullable(storeObject))
             {
@@ -912,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The object that is used as the default value for the column the property is mapped to. </returns>
         protected virtual object? GetDefaultColumnValue(
-            [NotNull] IProperty property,
+            IProperty property,
             in StoreObjectIdentifier storeObject)
         {
             var value = property.GetDefaultValue(storeObject);
@@ -930,9 +927,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedForeignKeysCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            IReadOnlyList<IEntityType> mappedTypes,
             in StoreObjectIdentifier storeObject,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (storeObject.StoreObjectType != StoreObjectType.Table)
             {
@@ -987,11 +984,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateCompatible(
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] IForeignKey duplicateForeignKey,
-            [NotNull] string foreignKeyName,
+            IForeignKey foreignKey,
+            IForeignKey duplicateForeignKey,
+            string foreignKeyName,
             in StoreObjectIdentifier storeObject,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
             => foreignKey.AreCompatible(duplicateForeignKey, storeObject, shouldThrow: true);
 
         /// <summary>
@@ -1001,9 +998,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedIndexesCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            IReadOnlyList<IEntityType> mappedTypes,
             in StoreObjectIdentifier storeObject,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var indexMappings = new Dictionary<string, IIndex>();
             foreach (var index in mappedTypes.SelectMany(et => et.GetDeclaredIndexes()))
@@ -1033,11 +1030,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateCompatible(
-            [NotNull] IIndex index,
-            [NotNull] IIndex duplicateIndex,
-            [NotNull] string indexName,
+            IIndex index,
+            IIndex duplicateIndex,
+            string indexName,
             in StoreObjectIdentifier storeObject,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
             => index.AreCompatible(duplicateIndex, storeObject, shouldThrow: true);
 
         /// <summary>
@@ -1047,9 +1044,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedKeysCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
+            IReadOnlyList<IEntityType> mappedTypes,
             in StoreObjectIdentifier storeObject,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var keyMappings = new Dictionary<string, IKey>();
             foreach (var key in mappedTypes.SelectMany(et => et.GetDeclaredKeys()))
@@ -1079,11 +1076,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateCompatible(
-            [NotNull] IKey key,
-            [NotNull] IKey duplicateKey,
-            [NotNull] string keyName,
+            IKey key,
+            IKey duplicateKey,
+            string keyName,
             in StoreObjectIdentifier storeObject,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             key.AreCompatible(duplicateKey, storeObject, shouldThrow: true);
         }
@@ -1189,14 +1186,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidatePropertyOverrides(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    var tableOverrides = (SortedDictionary<StoreObjectIdentifier, RelationalPropertyOverrides>?)
+                    var tableOverrides = (SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>?)
                         property[RelationalAnnotationNames.RelationalOverrides];
                     if (tableOverrides == null)
                     {
@@ -1268,8 +1265,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateIndexProperties(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             Check.NotNull(model, nameof(model));
 

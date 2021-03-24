@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -21,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="previousPrimaryKey"> The old primary key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessEntityTypePrimaryKeyChanged(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] IConventionKey? newPrimaryKey,
-            [CanBeNull] IConventionKey? previousPrimaryKey,
-            [NotNull] IConventionContext<IConventionKey> context);
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionKey? newPrimaryKey,
+            IConventionKey? previousPrimaryKey,
+            IConventionContext<IConventionKey> context);
     }
 }

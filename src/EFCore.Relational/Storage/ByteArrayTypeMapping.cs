@@ -4,10 +4,7 @@
 using System.Data;
 using System.Globalization;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -29,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public ByteArrayTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null,
             int? size = null)
             : base(

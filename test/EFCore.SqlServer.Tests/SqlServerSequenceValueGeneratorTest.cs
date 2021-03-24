@@ -258,10 +258,10 @@ namespace Microsoft.EntityFrameworkCore
                     throw new NotImplementedException();
                 }
 
-                public object? ExecuteScalar(RelationalCommandParameterObject parameterObject)
+                public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
                     => Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize);
 
-                public Task<object?> ExecuteScalarAsync(
+                public Task<object> ExecuteScalarAsync(
                     RelationalCommandParameterObject parameterObject,
                     CancellationToken cancellationToken = default)
                     => Task.FromResult<object>(Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize));

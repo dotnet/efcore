@@ -3,9 +3,6 @@
 
 using System;
 using System.Data;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -26,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public TimeSpanTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null)
             : base(storeType, typeof(TimeSpan), dbType)
         {

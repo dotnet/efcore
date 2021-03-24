@@ -5,15 +5,12 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public ReferenceEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
+        public ReferenceEntry(InternalEntityEntry internalEntry, string name)
             : base(internalEntry, name, collection: false)
         {
             LocalDetectChanges();
@@ -54,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public ReferenceEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
+        public ReferenceEntry(InternalEntityEntry internalEntry, INavigation navigation)
             : base(internalEntry, navigation)
         {
             LocalDetectChanges();

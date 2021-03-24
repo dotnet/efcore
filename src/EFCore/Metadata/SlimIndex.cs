@@ -3,13 +3,10 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -31,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public SlimIndex(
-            [NotNull] IReadOnlyList<SlimProperty> properties,
-            [NotNull] SlimEntityType declaringEntityType,
-            [CanBeNull] string? name,
+            IReadOnlyList<SlimProperty> properties,
+            SlimEntityType declaringEntityType,
+            string? name,
             bool unique)
         {
             Properties = properties;

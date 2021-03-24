@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -27,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IMutableEntityType.FindEntityTypes")]
-        public static IEnumerable<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] Type type)
+        public static IEnumerable<IMutableEntityType> GetEntityTypes(this IMutableModel model, Type type)
             => model.FindEntityTypes(type);
 
         /// <summary>
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use FindEntityTypes(Type) or FindEntityType(string)")]
-        public static IReadOnlyCollection<IMutableEntityType> GetEntityTypes([NotNull] this IMutableModel model, [NotNull] string name)
+        public static IReadOnlyCollection<IMutableEntityType> GetEntityTypes(this IMutableModel model, string name)
             => ((Model)model).GetEntityTypes(name);
     }
 }

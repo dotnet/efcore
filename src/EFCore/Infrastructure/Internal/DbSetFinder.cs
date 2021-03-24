@@ -9,8 +9,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
     /// <summary>

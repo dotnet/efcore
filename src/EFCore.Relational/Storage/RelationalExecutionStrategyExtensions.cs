@@ -5,9 +5,6 @@ using System;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -35,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static void ExecuteInTransaction(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Action operation,
-            [NotNull] Func<bool> verifySucceeded,
+            this IExecutionStrategy strategy,
+            Action operation,
+            Func<bool> verifySucceeded,
             IsolationLevel isolationLevel)
             => strategy.ExecuteInTransaction<object?>(null, s => operation(), s => verifySucceeded(), isolationLevel);
 
@@ -63,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static Task ExecuteInTransactionAsync(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<Task> operation,
-            [NotNull] Func<Task<bool>> verifySucceeded,
+            this IExecutionStrategy strategy,
+            Func<Task> operation,
+            Func<Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel)
             => strategy.ExecuteInTransactionAsync<object?>(null, (s, ct) => operation(), (s, ct) => verifySucceeded(), isolationLevel);
 
@@ -96,9 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ExecuteInTransactionAsync(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<CancellationToken, Task> operation,
-            [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
+            this IExecutionStrategy strategy,
+            Func<CancellationToken, Task> operation,
+            Func<CancellationToken, Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync<object?>(
@@ -123,9 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static TResult ExecuteInTransaction<TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<TResult> operation,
-            [NotNull] Func<bool> verifySucceeded,
+            this IExecutionStrategy strategy,
+            Func<TResult> operation,
+            Func<bool> verifySucceeded,
             IsolationLevel isolationLevel)
             => strategy.ExecuteInTransaction<object?, TResult>(null, s => operation(), s => verifySucceeded(), isolationLevel);
 
@@ -157,9 +154,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<CancellationToken, Task<TResult>> operation,
-            [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
+            this IExecutionStrategy strategy,
+            Func<CancellationToken, Task<TResult>> operation,
+            Func<CancellationToken, Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync<object?, TResult>(
@@ -184,10 +181,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static void ExecuteInTransaction<TState>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Action<TState> operation,
-            [NotNull] Func<TState, bool> verifySucceeded,
+            this IExecutionStrategy strategy,
+            TState state,
+            Action<TState> operation,
+            Func<TState, bool> verifySucceeded,
             IsolationLevel isolationLevel)
             => strategy.ExecuteInTransaction(
                 state,
@@ -226,10 +223,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ExecuteInTransactionAsync<TState>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, CancellationToken, Task> operation,
-            [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, CancellationToken, Task> operation,
+            Func<TState, CancellationToken, Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync(
@@ -261,10 +258,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static TResult ExecuteInTransaction<TState, TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, TResult> operation,
-            [NotNull] Func<TState, bool> verifySucceeded,
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, TResult> operation,
+            Func<TState, bool> verifySucceeded,
             IsolationLevel isolationLevel)
             => ExecutionStrategyExtensions.ExecuteInTransaction(
                 strategy, state, operation, verifySucceeded, c => c.Database.BeginTransaction(isolationLevel));
@@ -299,10 +296,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </exception>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TState, TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
-            [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, CancellationToken, Task<TResult>> operation,
+            Func<TState, CancellationToken, Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
             => ExecutionStrategyExtensions.ExecuteInTransactionAsync(

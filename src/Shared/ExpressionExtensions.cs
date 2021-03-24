@@ -2,8 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
-using CA = System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -13,7 +12,7 @@ namespace System.Linq.Expressions
     [DebuggerStepThrough]
     internal static class ExpressionExtensions
     {
-        public static bool IsNullConstantExpression([NotNull] this Expression expression)
+        public static bool IsNullConstantExpression(this Expression expression)
             => RemoveConvert(expression) is ConstantExpression constantExpression
                 && constantExpression.Value == null;
 
@@ -22,7 +21,7 @@ namespace System.Linq.Expressions
                 ? unary.Operand
                 : expression);
 
-        [return: CA.NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull("expression")]
         public static Expression? UnwrapTypeConversion(this Expression? expression, out Type? convertedType)
         {
             convertedType = null;

@@ -2,14 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -37,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new <see cref="ModelSource" /> instance.
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
-        public ModelSource([NotNull] ModelSourceDependencies dependencies)
+        public ModelSource(ModelSourceDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -114,13 +111,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="modelCreationDependencies"> The dependencies object used during the creation of the model. </param>
+        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
         /// <returns> The model to be used. </returns>
         public virtual IModel GetModel(
             DbContext context,
-            ModelCreationDependencies modelCreationDependencies)
+            ModelCreationDependencies modelCreationDependencies,
+            bool designTime)
         {
             var cache = Dependencies.MemoryCache;
-            var cacheKey = Dependencies.ModelCacheKeyFactory.Create(context);
+            var cacheKey = Dependencies.ModelCacheKeyFactory.Create(context, designTime);
             if (!cache.TryGetValue(cacheKey, out IModel model))
             {
                 // Make sure OnModelCreating really only gets called once, since it may not be thread safe.
@@ -130,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         model = CreateModel(context, modelCreationDependencies.ConventionSetBuilder, modelCreationDependencies.ModelDependencies);
 
-                        modelCreationDependencies.ModelRuntimeInitializer.Initialize(model, modelCreationDependencies.ValidationLogger);
+                        model = modelCreationDependencies.ModelRuntimeInitializer.Initialize(
+                            model, designTime, modelCreationDependencies.ValidationLogger);
 
                         model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
                     }
@@ -148,8 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The model to be used. </returns>
         [Obsolete("Use the overload with IModelCreationDependencies")]
         protected virtual IModel CreateModel(
-            [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder)
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder)
         {
             Check.NotNull(context, nameof(context));
 
@@ -168,11 +168,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="modelDependencies"> The dependencies object for the model. </param>
         /// <returns> The model to be used. </returns>
         protected virtual IModel CreateModel(
-            [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
-            [NotNull] ModelDependencies modelDependencies)
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder,
+            ModelDependencies modelDependencies)
         {
-            Check.NotNull(context, nameof(context));
+            Check.DebugAssert(context != null, "context == null");
 
             var modelBuilder = new ModelBuilder(conventionSetBuilder.CreateConventionSet(), modelDependencies);
 

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -55,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public RuntimeModelDependencies(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IConstructorBindingFactory constructorBindingFactory,
-            [NotNull] IParameterBindingFactories parameterBindingFactories)
+            ITypeMappingSource typeMappingSource,
+            IConstructorBindingFactory constructorBindingFactory,
+            IParameterBindingFactories parameterBindingFactories)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(constructorBindingFactory, nameof(constructorBindingFactory));
@@ -71,16 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public ITypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+        public ITypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     The constructor binding factory.
         /// </summary>
-        public IConstructorBindingFactory ConstructorBindingFactory { get; [param: NotNull] init; }
+        public IConstructorBindingFactory ConstructorBindingFactory { get; init; }
 
         /// <summary>
         ///     The parameter binding factories.
         /// </summary>
-        public IParameterBindingFactories ParameterBindingFactories { get; [param: NotNull] init; }
+        public IParameterBindingFactories ParameterBindingFactories { get; init; }
     }
 }

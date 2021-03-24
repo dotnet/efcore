@@ -3,11 +3,8 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -36,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public EntityGraphAttacher(
-            [NotNull] IEntityEntryGraphIterator graphIterator)
+            IEntityEntryGraphIterator graphIterator)
             => _graphIterator = graphIterator;
 
         /// <summary>

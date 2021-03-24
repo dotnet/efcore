@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -35,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     the first time it is requested.
         /// </summary>
         /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> to use to build the model. </param>
-        protected abstract void BuildModel([NotNull] ModelBuilder modelBuilder);
+        protected abstract void BuildModel(ModelBuilder modelBuilder);
     }
 }

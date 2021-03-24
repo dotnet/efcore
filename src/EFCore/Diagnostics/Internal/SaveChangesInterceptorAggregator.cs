@@ -5,9 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 {
@@ -31,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         {
             private readonly ISaveChangesInterceptor[] _interceptors;
 
-            public CompositeSaveChangesInterceptor([NotNull] IEnumerable<ISaveChangesInterceptor> interceptors)
+            public CompositeSaveChangesInterceptor(IEnumerable<ISaveChangesInterceptor> interceptors)
             {
                 _interceptors = interceptors.ToArray();
             }

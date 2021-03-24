@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return result;
             }
 
-            public object? ExecuteScalar(RelationalCommandParameterObject parameterObject)
+            public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
             {
                 var connection = parameterObject.Connection;
                 var errorNumber = PreExecution(connection);
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 return result;
             }
 
-            public async Task<object?> ExecuteScalarAsync(
+            public async Task<object> ExecuteScalarAsync(
                 RelationalCommandParameterObject parameterObject,
                 CancellationToken cancellationToken = default)
             {

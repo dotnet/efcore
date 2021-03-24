@@ -3,13 +3,10 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -24,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="QueryFilterRewritingConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public QueryFilterRewritingConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public QueryFilterRewritingConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
             DbSetAccessRewriter = new DbSetAccessRewritingExpressionVisitor(dependencies.ContextType);
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Visitor used to rewrite <see cref="DbSet{TEntity}" /> accesses encountered in query filters to <see cref="QueryRootExpression" />.
         /// </summary>
-        protected virtual DbSetAccessRewritingExpressionVisitor DbSetAccessRewriter { get; [param: NotNull] set; }
+        protected virtual DbSetAccessRewritingExpressionVisitor DbSetAccessRewriter { get; set; }
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(

@@ -3,13 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -82,13 +79,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     </para>
         /// </summary>
         [DisallowNull]
-        public virtual string? ActiveProvider { get; [param: NotNull] set; }
+        public virtual string? ActiveProvider { get; set; }
 
         /// <summary>
         ///     Implemented to build the <see cref="TargetModel" />.
         /// </summary>
         /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> to use to build the model. </param>
-        protected virtual void BuildTargetModel([NotNull] ModelBuilder modelBuilder)
+        protected virtual void BuildTargetModel(ModelBuilder modelBuilder)
         {
         }
 
@@ -105,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     </para>
         /// </summary>
         /// <param name="migrationBuilder"> The <see cref="MigrationBuilder" /> that will build the operations. </param>
-        protected abstract void Up([NotNull] MigrationBuilder migrationBuilder);
+        protected abstract void Up(MigrationBuilder migrationBuilder);
 
         /// <summary>
         ///     <para>
@@ -122,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     </para>
         /// </summary>
         /// <param name="migrationBuilder"> The <see cref="MigrationBuilder" /> that will build the operations. </param>
-        protected virtual void Down([NotNull] MigrationBuilder migrationBuilder)
+        protected virtual void Down(MigrationBuilder migrationBuilder)
             => throw new NotSupportedException(RelationalStrings.MigrationDownMissing);
 
         private List<MigrationOperation> BuildOperations(Action<MigrationBuilder> buildAction)

@@ -3,12 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -29,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerCompiledQueryCacheKeyGenerator(
-            [NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies,
-            [NotNull] RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies,
-            [NotNull] ISqlServerConnection sqlServerConnection)
+            CompiledQueryCacheKeyGeneratorDependencies dependencies,
+            RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies,
+            ISqlServerConnection sqlServerConnection)
             : base(dependencies, relationalDependencies)
         {
             Check.NotNull(sqlServerConnection, nameof(sqlServerConnection));

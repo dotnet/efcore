@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     <see cref="Migration.Down(MigrationBuilder)" />.
         /// </param>
         /// <returns> <see langword="true" /> if SQLite is being used; <see langword="false" /> otherwise. </returns>
-        public static bool IsSqlite([NotNull] this MigrationBuilder migrationBuilder)
+        public static bool IsSqlite(this MigrationBuilder migrationBuilder)
             => string.Equals(
                 migrationBuilder.ActiveProvider,
                 typeof(SqliteOptionsExtension).Assembly.GetName().Name,

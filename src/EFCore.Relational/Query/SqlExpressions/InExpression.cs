@@ -4,12 +4,9 @@
 using System;
 using System.Collections;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -33,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         [Obsolete("Use overload which passes negated argument after subquery argument.")]
         public InExpression(
-            [NotNull] SqlExpression item,
+            SqlExpression item,
             bool negated,
-            [NotNull] SelectExpression subquery,
-            [CanBeNull] RelationalTypeMapping? typeMapping)
+            SelectExpression subquery,
+            RelationalTypeMapping? typeMapping)
             : this(Check.NotNull(item, nameof(item)), null, Check.NotNull(subquery, nameof(subquery)), negated, typeMapping)
         {
         }
@@ -50,10 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         [Obsolete("Use overload which passes negated argument after values argument.")]
         public InExpression(
-            [NotNull] SqlExpression item,
+            SqlExpression item,
             bool negated,
-            [NotNull] SqlExpression values,
-            [CanBeNull] RelationalTypeMapping? typeMapping)
+            SqlExpression values,
+            RelationalTypeMapping? typeMapping)
             : this(Check.NotNull(item, nameof(item)), Check.NotNull(values, nameof(values)), null, negated, typeMapping)
         {
         }
@@ -66,10 +63,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="negated"> A value indicating if the item should be present in the values or absent. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public InExpression(
-            [NotNull] SqlExpression item,
-            [NotNull] SelectExpression subquery,
+            SqlExpression item,
+            SelectExpression subquery,
             bool negated,
-            [CanBeNull] RelationalTypeMapping? typeMapping)
+            RelationalTypeMapping? typeMapping)
             : this(Check.NotNull(item, nameof(item)), null, Check.NotNull(subquery, nameof(subquery)), negated, typeMapping)
         {
         }
@@ -82,10 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="negated"> A value indicating if the item should be present in the values or absent. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public InExpression(
-            [NotNull] SqlExpression item,
-            [NotNull] SqlExpression values,
+            SqlExpression item,
+            SqlExpression values,
             bool negated,
-            [CanBeNull] RelationalTypeMapping? typeMapping)
+            RelationalTypeMapping? typeMapping)
             : this(Check.NotNull(item, nameof(item)), Check.NotNull(values, nameof(values)), null, negated, typeMapping)
         {
         }
@@ -152,9 +149,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual InExpression Update(
-            [NotNull] SqlExpression item,
-            [CanBeNull] SqlExpression? values,
-            [CanBeNull] SelectExpression? subquery)
+            SqlExpression item,
+            SqlExpression? values,
+            SelectExpression? subquery)
         {
             Check.NotNull(item, nameof(item));
 

@@ -12,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public partial class InMemoryShapedQueryCompilingExpressionVisitor

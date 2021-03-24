@@ -3,10 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -29,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="source2"> A table source which is second source in the set operation. </param>
         /// <param name="distinct"> A bool value indicating whether result will remove duplicate rows. </param>
         public IntersectExpression(
-            [NotNull] string alias,
-            [NotNull] SelectExpression source1,
-            [NotNull] SelectExpression source2,
+            string alias,
+            SelectExpression source1,
+            SelectExpression source2,
             bool distinct)
             : base(alias, source1, source2, distinct)
         {
@@ -55,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="source1"> The <see cref="P:Source1" /> property of the result. </param>
         /// <param name="source2"> The <see cref="P:Source2" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual IntersectExpression Update([NotNull] SelectExpression source1, [NotNull] SelectExpression source2)
+        public virtual IntersectExpression Update(SelectExpression source1, SelectExpression source2)
         {
             Check.NotNull(source1, nameof(source1));
             Check.NotNull(source2, nameof(source2));

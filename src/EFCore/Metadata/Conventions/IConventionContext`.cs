@@ -1,10 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -22,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     </para>
         /// </summary>
         /// <param name="result"> The new metadata object or <see langword="null" />. </param>
-        void StopProcessing([CanBeNull] TMetadata? result);
+        void StopProcessing(TMetadata? result);
 
         /// <summary>
         ///     <para>
@@ -34,6 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     </para>
         /// </summary>
         /// <param name="result"> The new metadata object or <see langword="null" />. </param>
-        void StopProcessingIfChanged([CanBeNull] TMetadata? result);
+        void StopProcessingIfChanged(TMetadata? result);
     }
 }

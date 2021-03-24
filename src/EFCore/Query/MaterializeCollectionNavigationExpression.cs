@@ -3,11 +3,8 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -27,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="subquery"> An expression reprensenting how to get value from query to create the collection. </param>
         /// <param name="navigation"> A navigation associated with this collection. </param>
-        public MaterializeCollectionNavigationExpression([NotNull] Expression subquery, [NotNull] INavigationBase navigation)
+        public MaterializeCollectionNavigationExpression(Expression subquery, INavigationBase navigation)
         {
             Check.NotNull(subquery, nameof(subquery));
             Check.NotNull(navigation, nameof(navigation));
@@ -68,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual MaterializeCollectionNavigationExpression Update([NotNull] Expression subquery)
+        public virtual MaterializeCollectionNavigationExpression Update(Expression subquery)
         {
             Check.NotNull(subquery, nameof(subquery));
 

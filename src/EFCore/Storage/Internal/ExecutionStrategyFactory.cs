@@ -1,11 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -34,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     Creates a new instance of this class with the given service dependencies.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public ExecutionStrategyFactory([NotNull] ExecutionStrategyDependencies dependencies)
+        public ExecutionStrategyFactory(ExecutionStrategyDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

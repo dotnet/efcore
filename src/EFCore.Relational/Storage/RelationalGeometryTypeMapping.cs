@@ -6,13 +6,10 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -29,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use when converting to and from database types. </param>
         /// <param name="storeType"> The store type name. </param>
         protected RelationalGeometryTypeMapping(
-            [CanBeNull] ValueConverter<TGeometry, TProvider>? converter,
-            [NotNull] string storeType)
+            ValueConverter<TGeometry, TProvider>? converter,
+            string storeType)
             : base(CreateRelationalTypeMappingParameters(storeType))
         {
             SpatialConverter = converter;
@@ -43,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use when converting to and from database types. </param>
         protected RelationalGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            [CanBeNull] ValueConverter<TGeometry, TProvider>? converter)
+            ValueConverter<TGeometry, TProvider>? converter)
             : base(parameters)
         {
             SpatialConverter = converter;
@@ -163,13 +160,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="value"> The 'Geometry' value. </param>
         /// <returns> The WKT. </returns>
-        protected abstract string AsText([NotNull] object value);
+        protected abstract string AsText(object value);
 
         /// <summary>
         ///     Returns the SRID representation of the given object.
         /// </summary>
         /// <param name="value"> The 'Geometry' value. </param>
         /// <returns> The SRID. </returns>
-        protected abstract int GetSrid([NotNull] object value);
+        protected abstract int GetSrid(object value);
     }
 }

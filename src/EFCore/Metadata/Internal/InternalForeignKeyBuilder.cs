@@ -6,15 +6,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -33,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InternalForeignKeyBuilder(
-            [NotNull] ForeignKey foreignKey,
-            [NotNull] InternalModelBuilder modelBuilder)
+            ForeignKey foreignKey,
+            InternalModelBuilder modelBuilder)
             : base(foreignKey, modelBuilder)
         {
         }
@@ -46,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasNavigation(
-            [CanBeNull] string? name,
+            string? name,
             bool pointsToPrincipal,
             ConfigurationSource configurationSource)
             => pointsToPrincipal
@@ -66,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasNavigation(
-            [CanBeNull] MemberInfo? property,
+            MemberInfo? property,
             bool pointsToPrincipal,
             ConfigurationSource configurationSource)
             => pointsToPrincipal
@@ -86,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasNavigations(
-            [CanBeNull] string? navigationToPrincipalName,
-            [CanBeNull] string? navigationToDependentName,
+            string? navigationToPrincipalName,
+            string? navigationToDependentName,
             ConfigurationSource configurationSource)
             => HasNavigations(
                 MemberIdentity.Create(navigationToPrincipalName),
@@ -101,8 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasNavigations(
-            [CanBeNull] MemberInfo? navigationToPrincipal,
-            [CanBeNull] MemberInfo? navigationToDependent,
+            MemberInfo? navigationToPrincipal,
+            MemberInfo? navigationToDependent,
             ConfigurationSource configurationSource)
             => HasNavigations(
                 MemberIdentity.Create(navigationToPrincipal),
@@ -133,10 +130,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasNavigations(
-            [CanBeNull] string? navigationToPrincipalName,
-            [CanBeNull] string? navigationToDependentName,
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
+            string? navigationToPrincipalName,
+            string? navigationToDependentName,
+            EntityType principalEntityType,
+            EntityType dependentEntityType,
             ConfigurationSource configurationSource)
             => HasNavigations(
                 MemberIdentity.Create(navigationToPrincipalName),
@@ -152,10 +149,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasNavigations(
-            [CanBeNull] MemberInfo? navigationToPrincipal,
-            [CanBeNull] MemberInfo? navigationToDependent,
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
+            MemberInfo? navigationToPrincipal,
+            MemberInfo? navigationToDependent,
+            EntityType principalEntityType,
+            EntityType dependentEntityType,
             ConfigurationSource configurationSource)
             => HasNavigations(
                 MemberIdentity.Create(navigationToPrincipal),
@@ -399,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (navigationToDependent != null)
                     {
-                        Metadata.HasPrincipalToDependent((string?)null, configurationSource);
+                        Metadata.SetPrincipalToDependent((string?)null, configurationSource);
                     }
 
                     var navigationProperty = navigationToPrincipal.Value.MemberInfo;
@@ -442,11 +439,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (navigationProperty != null)
                     {
-                        Metadata.HasPrincipalToDependent(navigationProperty, configurationSource);
+                        Metadata.SetPrincipalToDependent(navigationProperty, configurationSource);
                     }
                     else
                     {
-                        Metadata.HasPrincipalToDependent(navigationToDependentName, configurationSource);
+                        Metadata.SetPrincipalToDependent(navigationToDependentName, configurationSource);
                     }
                 }
 
@@ -485,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetNavigation(
-            [CanBeNull] MemberInfo? property,
+            MemberInfo? property,
             bool pointsToPrincipal,
             ConfigurationSource? configurationSource)
             => CanSetNavigation(
@@ -504,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetNavigation(
-            [CanBeNull] string? name,
+            string? name,
             bool pointsToPrincipal,
             ConfigurationSource? configurationSource)
             => CanSetNavigation(
@@ -551,8 +548,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetNavigations(
-            [CanBeNull] MemberInfo? navigationToPrincipal,
-            [CanBeNull] MemberInfo? navigationToDependent,
+            MemberInfo? navigationToPrincipal,
+            MemberInfo? navigationToDependent,
             ConfigurationSource? configurationSource)
             => CanSetNavigations(
                 MemberIdentity.Create(navigationToPrincipal),
@@ -571,8 +568,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetNavigations(
-            [CanBeNull] string? navigationToPrincipalName,
-            [CanBeNull] string? navigationToDependentName,
+            string? navigationToPrincipalName,
+            string? navigationToDependentName,
             ConfigurationSource? configurationSource)
             => CanSetNavigations(
                 MemberIdentity.Create(navigationToPrincipalName),
@@ -864,10 +861,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && (overrideSameSource || configurationSource != Metadata.GetPrincipalToDependentConfigurationSource()));
 
         private static bool IsCompatible(
-            [NotNull] MemberInfo navigationMember,
+            MemberInfo navigationMember,
             bool pointsToPrincipal,
-            [NotNull] EntityType dependentType,
-            [NotNull] EntityType principalType,
+            EntityType dependentType,
+            EntityType principalType,
             bool shouldThrow,
             out bool? shouldBeUnique)
         {
@@ -1331,7 +1328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? DependentEntityType(
-            [NotNull] InternalEntityTypeBuilder dependentEntityTypeBuilder,
+            InternalEntityTypeBuilder dependentEntityTypeBuilder,
             ConfigurationSource configurationSource)
             => DependentEntityType(dependentEntityTypeBuilder.Metadata, configurationSource);
 
@@ -1342,7 +1339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? DependentEntityType(
-            [NotNull] Type dependentType,
+            Type dependentType,
             ConfigurationSource configurationSource)
             => DependentEntityType(
                 ModelBuilder.Entity(dependentType, configurationSource)!.Metadata,
@@ -1355,7 +1352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? DependentEntityType(
-            [NotNull] string dependentTypeName,
+            string dependentTypeName,
             ConfigurationSource configurationSource)
             => DependentEntityType(ModelBuilder.Entity(dependentTypeName, configurationSource)!.Metadata, configurationSource);
 
@@ -1366,7 +1363,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? DependentEntityType(
-            [NotNull] EntityType dependentEntityType,
+            EntityType dependentEntityType,
             ConfigurationSource configurationSource)
         {
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
@@ -1399,7 +1396,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? PrincipalEntityType(
-            [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
+            InternalEntityTypeBuilder principalEntityTypeBuilder,
             ConfigurationSource configurationSource)
             => PrincipalEntityType(principalEntityTypeBuilder.Metadata, configurationSource);
 
@@ -1410,7 +1407,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? PrincipalEntityType(
-            [NotNull] Type principalType,
+            Type principalType,
             ConfigurationSource configurationSource)
             => PrincipalEntityType(
                 ModelBuilder.Entity(principalType, configurationSource)!.Metadata,
@@ -1423,7 +1420,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? PrincipalEntityType(
-            [NotNull] string principalTypeName,
+            string principalTypeName,
             ConfigurationSource configurationSource)
             => PrincipalEntityType(
                 ModelBuilder.Entity(principalTypeName, configurationSource)!.Metadata,
@@ -1436,7 +1433,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? PrincipalEntityType(
-            [NotNull] EntityType principalEntityType,
+            EntityType principalEntityType,
             ConfigurationSource configurationSource)
         {
             Check.NotNull(principalEntityType, nameof(principalEntityType));
@@ -1468,14 +1465,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasEntityTypes(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
+            EntityType principalEntityType,
+            EntityType dependentEntityType,
             ConfigurationSource configurationSource)
             => HasEntityTypes(principalEntityType, dependentEntityType, configurationSource, configurationSource);
 
         private InternalForeignKeyBuilder? HasEntityTypes(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
+            EntityType principalEntityType,
+            EntityType dependentEntityType,
             ConfigurationSource? principalEndConfigurationSource,
             ConfigurationSource configurationSource)
         {
@@ -1572,8 +1569,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetEntityTypes(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
+            EntityType principalEntityType,
+            EntityType dependentEntityType,
             ConfigurationSource? configurationSource)
             => CanSetRelatedTypes(
                 principalEntityType,
@@ -1597,7 +1594,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanInvert(
-            [CanBeNull] IReadOnlyList<Property>? newForeignKeyProperties,
+            IReadOnlyList<Property>? newForeignKeyProperties,
             ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetPrincipalEndConfigurationSource())
                 && ((newForeignKeyProperties == null)
@@ -1686,7 +1683,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasForeignKey(
-            [CanBeNull] IReadOnlyList<MemberInfo>? properties,
+            IReadOnlyList<MemberInfo>? properties,
             ConfigurationSource configurationSource)
             => HasForeignKey(properties, Metadata.DeclaringEntityType, configurationSource);
 
@@ -1697,7 +1694,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasForeignKey(
-            [CanBeNull] IReadOnlyList<string>? propertyNames,
+            IReadOnlyList<string>? propertyNames,
             ConfigurationSource configurationSource)
             => HasForeignKey(propertyNames, Metadata.DeclaringEntityType, configurationSource);
 
@@ -1708,8 +1705,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasForeignKey(
-            [CanBeNull] IReadOnlyList<MemberInfo>? properties,
-            [NotNull] EntityType dependentEntityType,
+            IReadOnlyList<MemberInfo>? properties,
+            EntityType dependentEntityType,
             ConfigurationSource configurationSource)
         {
             using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
@@ -1735,8 +1732,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasForeignKey(
-            [CanBeNull] IReadOnlyList<string>? propertyNames,
-            [NotNull] EntityType dependentEntityType,
+            IReadOnlyList<string>? propertyNames,
+            EntityType dependentEntityType,
             ConfigurationSource configurationSource)
         {
             using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
@@ -1768,7 +1765,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasForeignKey(
-            [CanBeNull] IReadOnlyList<Property>? properties,
+            IReadOnlyList<Property>? properties,
             ConfigurationSource configurationSource)
             => HasForeignKey(properties, Metadata.DeclaringEntityType, configurationSource);
 
@@ -1779,8 +1776,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasForeignKey(
-            [CanBeNull] IReadOnlyList<Property>? properties,
-            [NotNull] EntityType dependentEntityType,
+            IReadOnlyList<Property>? properties,
+            EntityType dependentEntityType,
             ConfigurationSource configurationSource)
         {
             if (properties == null)
@@ -1832,7 +1829,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetForeignKey([CanBeNull] IReadOnlyList<string>? propertyNames, ConfigurationSource? configurationSource)
+        public virtual bool CanSetForeignKey(IReadOnlyList<string>? propertyNames, ConfigurationSource? configurationSource)
         {
             if (propertyNames is not null
                 && ((IReadOnlyEntityType)Metadata.DeclaringEntityType).FindProperties(propertyNames) is IReadOnlyList<IReadOnlyProperty> properties)
@@ -1853,7 +1850,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetForeignKey([CanBeNull] IReadOnlyList<Property>? properties, ConfigurationSource? configurationSource)
+        public virtual bool CanSetForeignKey(IReadOnlyList<Property>? properties, ConfigurationSource? configurationSource)
             => CanSetForeignKey(
                 properties,
                 dependentEntityType: null,
@@ -1957,7 +1954,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasPrincipalKey(
-            [CanBeNull] IReadOnlyList<MemberInfo>? members,
+            IReadOnlyList<MemberInfo>? members,
             ConfigurationSource configurationSource)
         {
             using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
@@ -1982,7 +1979,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasPrincipalKey(
-            [CanBeNull] IReadOnlyList<string>? propertyNames,
+            IReadOnlyList<string>? propertyNames,
             ConfigurationSource configurationSource)
         {
             using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
@@ -2007,7 +2004,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalForeignKeyBuilder? HasPrincipalKey(
-            [CanBeNull] IReadOnlyList<Property>? properties,
+            IReadOnlyList<Property>? properties,
             ConfigurationSource configurationSource)
         {
             if (properties == null)
@@ -2059,7 +2056,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetPrincipalKey([CanBeNull] IReadOnlyList<string>? propertyNames, ConfigurationSource? configurationSource)
+        public virtual bool CanSetPrincipalKey(IReadOnlyList<string>? propertyNames, ConfigurationSource? configurationSource)
         {
             if (propertyNames is not null
                 && ((IReadOnlyEntityType)Metadata.PrincipalEntityType).FindProperties(propertyNames) is IReadOnlyList<IReadOnlyProperty> properties)
@@ -2080,7 +2077,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetPrincipalKey([CanBeNull] IReadOnlyList<Property>? properties, ConfigurationSource? configurationSource)
+        public virtual bool CanSetPrincipalKey(IReadOnlyList<Property>? properties, ConfigurationSource? configurationSource)
             => CanSetPrincipalKey(
                 properties,
                 configurationSource,
@@ -2278,13 +2275,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private InternalForeignKeyBuilder? ReplaceForeignKey(
-            [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
-            [NotNull] InternalEntityTypeBuilder dependentEntityTypeBuilder,
+            InternalEntityTypeBuilder principalEntityTypeBuilder,
+            InternalEntityTypeBuilder dependentEntityTypeBuilder,
             MemberIdentity? navigationToPrincipal,
             MemberIdentity? navigationToDependent,
-            [CanBeNull] IReadOnlyList<Property>? dependentProperties,
-            [CanBeNull] IReadOnlyList<Property>? oldNameDependentProperties,
-            [CanBeNull] IReadOnlyList<Property>? principalProperties,
+            IReadOnlyList<Property>? dependentProperties,
+            IReadOnlyList<Property>? oldNameDependentProperties,
+            IReadOnlyList<Property>? principalProperties,
             bool? isUnique,
             bool? isRequired,
             bool? isRequiredDependent,
@@ -3312,9 +3309,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (configurationSource != ConfigurationSource.Explicit
                     && (shouldResetToPrincipal || shouldResetToDependent)
-                    && (navigationToPrincipal == null
-                        || navigationToPrincipal.Value.IsNone()
-                        || navigationToDependent?.IsNone() != false)
+                    && (navigationToPrincipal?.Name is null || navigationToDependent?.Name is null)
                     && candidateRelationship.Metadata.DependentToPrincipal != null
                     && candidateRelationship.Metadata.PrincipalToDependent != null
                     && ((!candidateRelationshipInverted
@@ -3361,8 +3356,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ThrowForConflictingNavigation(
-            [NotNull] IReadOnlyForeignKey foreignKey,
-            [NotNull] string newInverseName,
+            IReadOnlyForeignKey foreignKey,
+            string newInverseName,
             bool newToPrincipal)
             => ThrowForConflictingNavigation(
                 foreignKey,
@@ -3377,11 +3372,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ThrowForConflictingNavigation(
-            [NotNull] IReadOnlyForeignKey foreignKey,
-            [NotNull] IReadOnlyEntityType principalEntityType,
-            [NotNull] IReadOnlyEntityType dependentEntityType,
-            [CanBeNull] string? navigationToDependent,
-            [CanBeNull] string? navigationToPrincipal)
+            IReadOnlyForeignKey foreignKey,
+            IReadOnlyEntityType principalEntityType,
+            IReadOnlyEntityType dependentEntityType,
+            string? navigationToDependent,
+            string? navigationToPrincipal)
             => throw new InvalidOperationException(
                 CoreStrings.ConflictingRelationshipNavigation(
                     principalEntityType.DisplayName()
@@ -3402,8 +3397,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         : "." + foreignKey.DependentToPrincipal.Name)));
 
         private static IReadOnlyList<InternalForeignKeyBuilder> FindRelationships(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
+            EntityType principalEntityType,
+            EntityType dependentEntityType,
             MemberIdentity? navigationToPrincipal,
             MemberIdentity? navigationToDependent,
             IReadOnlyList<Property>? dependentProperties,
@@ -3459,12 +3454,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static InternalForeignKeyBuilder? FindCurrentForeignKeyBuilder(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
+            EntityType principalEntityType,
+            EntityType dependentEntityType,
             MemberIdentity? navigationToPrincipal,
             MemberIdentity? navigationToDependent,
-            [CanBeNull] IReadOnlyList<Property>? dependentProperties,
-            [CanBeNull] IReadOnlyList<Property>? principalProperties)
+            IReadOnlyList<Property>? dependentProperties,
+            IReadOnlyList<Property>? principalProperties)
         {
             InternalForeignKeyBuilder? currentRelationship = null;
             var matchingRelationships = FindRelationships(
@@ -3541,7 +3536,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalForeignKeyBuilder? Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
+        public virtual InternalForeignKeyBuilder? Attach(InternalEntityTypeBuilder entityTypeBuilder)
         {
             var configurationSource = Metadata.GetConfigurationSource();
             var model = Metadata.DeclaringEntityType.Model;
@@ -3725,12 +3720,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatible(
-            [NotNull] EntityType principalEntityType,
-            [NotNull] EntityType dependentEntityType,
-            [CanBeNull] MemberInfo? navigationToPrincipal,
-            [CanBeNull] MemberInfo? navigationToDependent,
-            [CanBeNull] IReadOnlyList<Property>? dependentProperties,
-            [CanBeNull] IReadOnlyList<Property>? principalProperties,
+            EntityType principalEntityType,
+            EntityType dependentEntityType,
+            MemberInfo? navigationToPrincipal,
+            MemberInfo? navigationToDependent,
+            IReadOnlyList<Property>? dependentProperties,
+            IReadOnlyList<Property>? principalProperties,
             bool? isUnique,
             ConfigurationSource? configurationSource)
             => ForeignKey.AreCompatible(

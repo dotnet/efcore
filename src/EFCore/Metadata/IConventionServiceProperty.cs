@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterBinding"> The parameter binding. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured binding. </returns>
-        ServiceParameterBinding? SetParameterBinding([CanBeNull] ServiceParameterBinding? parameterBinding, bool fromDataAnnotation = false);
+        ServiceParameterBinding? SetParameterBinding(ServiceParameterBinding? parameterBinding, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyServiceProperty.ParameterBinding" />.

@@ -9,11 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -27,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, IEnumerable<TResult>> CompileQuery<TContext, TResult>(
-            [NotNull] Expression<Func<TContext, DbSet<TResult>>> queryExpression)
+            Expression<Func<TContext, DbSet<TResult>>> queryExpression)
             where TContext : DbContext
             where TResult : class
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
@@ -58,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<TContext, <#= paramsList #>IEnumerable<TResult>> CompileQuery<
             TContext, <#= paramsList #>TResult, TProperty>(
 <# } #>
-            [NotNull] Expression<Func<TContext, <#= paramsList #>IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, <#= paramsList #>IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -78,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<TContext, <#= paramsList #>IEnumerable<TResult>> CompileQuery<
             TContext, <#= paramsList #>TResult>(
 <# } #>
-            [NotNull] Expression<Func<TContext, <#= paramsList #>IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, <#= paramsList #>IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -98,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<TContext, <#= paramsList #>TResult> CompileQuery<
             TContext, <#= paramsList #>TResult>(
 <# } #>
-            [NotNull] Expression<Func<TContext, <#= paramsList #>TResult>> queryExpression)
+            Expression<Func<TContext, <#= paramsList #>TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 <#

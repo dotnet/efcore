@@ -4,10 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -26,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Type? TryFindTypeToInstantiate(
-            [NotNull] Type entityType,
-            [NotNull] Type collectionType,
+            Type entityType,
+            Type collectionType,
             bool requireFullNotifications)
         {
             // Code taken from EF6. The rules are:

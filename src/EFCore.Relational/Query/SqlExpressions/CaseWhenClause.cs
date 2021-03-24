@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="test"> A value to compare with <see cref="CaseExpression.Operand" /> or condition to evaluate. </param>
         /// <param name="result"> A value to return if test succeeds. </param>
-        public CaseWhenClause([NotNull] SqlExpression test, [NotNull] SqlExpression result)
+        public CaseWhenClause(SqlExpression test, SqlExpression result)
         {
             Check.NotNull(test, nameof(test));
             Check.NotNull(result, nameof(result));

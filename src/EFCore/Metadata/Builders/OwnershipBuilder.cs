@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -26,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public OwnershipBuilder(
-            [NotNull] IMutableEntityType principalEntityType,
-            [NotNull] IMutableEntityType dependentEntityType,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType principalEntityType,
+            IMutableEntityType dependentEntityType,
+            IMutableForeignKey foreignKey)
             : base(principalEntityType, dependentEntityType, foreignKey)
         {
         }
@@ -41,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected OwnershipBuilder(
-            [NotNull] InternalForeignKeyBuilder builder,
-            [NotNull] OwnershipBuilder oldBuilder,
+            InternalForeignKeyBuilder builder,
+            OwnershipBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -57,10 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual OwnershipBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public virtual OwnershipBuilder HasAnnotation(string annotation, object? value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotNull(value, nameof(value));
 
             Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -90,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual OwnershipBuilder HasForeignKey(
-            [NotNull] params string[] foreignKeyPropertyNames)
+            params string[] foreignKeyPropertyNames)
         {
             Builder = Builder.HasForeignKey(
                 Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
@@ -111,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual OwnershipBuilder HasPrincipalKey(
-            [NotNull] params string[] keyPropertyNames)
+            params string[] keyPropertyNames)
         {
             Builder = Builder.HasPrincipalKey(
                 Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),

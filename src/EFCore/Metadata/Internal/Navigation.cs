@@ -4,14 +4,11 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -36,15 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Navigation(
-            [NotNull] string name,
-            [CanBeNull] PropertyInfo? propertyInfo,
-            [CanBeNull] FieldInfo? fieldInfo,
-            [NotNull] ForeignKey foreignKey)
+            string name,
+            PropertyInfo? propertyInfo,
+            FieldInfo? fieldInfo,
+            ForeignKey foreignKey)
             : base(name, propertyInfo, fieldInfo, ConfigurationSource.Convention)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             ForeignKey = foreignKey;
+            ClrType = this.GetIdentifyingMemberInfo()?.GetMemberType() ?? typeof(object);
 
             _builder = new InternalNavigationBuilder(this, foreignKey.DeclaringEntityType.Model.Builder);
         }
@@ -55,8 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type ClrType
-            => this.GetIdentifyingMemberInfo()?.GetMemberType() ?? typeof(object);
+        public override Type ClrType { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -189,10 +186,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool IsCompatible(
-            [NotNull] string navigationName,
-            [NotNull] MemberInfo navigationProperty,
-            [NotNull] EntityType sourceType,
-            [NotNull] EntityType targetType,
+            string navigationName,
+            MemberInfo navigationProperty,
+            EntityType sourceType,
+            EntityType targetType,
             bool? shouldBeCollection,
             bool shouldThrow)
         {
@@ -263,9 +260,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation? SetInverse([CanBeNull] string? inverseName, ConfigurationSource configurationSource)
+        public virtual Navigation? SetInverse(string? inverseName, ConfigurationSource configurationSource)
             => IsOnDependent
-                ? ForeignKey.HasPrincipalToDependent(inverseName, configurationSource)
+                ? ForeignKey.SetPrincipalToDependent(inverseName, configurationSource)
                 : ForeignKey.SetDependentToPrincipal(inverseName, configurationSource);
 
         /// <summary>
@@ -274,9 +271,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Navigation? SetInverse([CanBeNull] MemberInfo? inverse, ConfigurationSource configurationSource)
+        public virtual Navigation? SetInverse(MemberInfo? inverse, ConfigurationSource configurationSource)
             => IsOnDependent
-                ? ForeignKey.HasPrincipalToDependent(inverse, configurationSource)
+                ? ForeignKey.SetPrincipalToDependent(inverse, configurationSource)
                 : ForeignKey.SetDependentToPrincipal(inverse, configurationSource);
 
         /// <summary>

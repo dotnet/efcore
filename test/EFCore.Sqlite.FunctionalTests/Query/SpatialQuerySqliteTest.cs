@@ -416,11 +416,11 @@ FROM ""MultiLineStringEntity"" AS ""m""");
             await base.GetGeometryN_with_null_argument(async);
 
             AssertSql(
-                @"SELECT ""m0"".""Id"", GeometryN(""m0"".""MultiLineString"", (
-    SELECT MAX(""m"".""Id"")
-    FROM ""MultiLineStringEntity"" AS ""m""
+                @"SELECT ""m"".""Id"", GeometryN(""m"".""MultiLineString"", (
+    SELECT MAX(""m0"".""Id"")
+    FROM ""MultiLineStringEntity"" AS ""m0""
     WHERE 0) + 1) AS ""Geometry0""
-FROM ""MultiLineStringEntity"" AS ""m0""");
+FROM ""MultiLineStringEntity"" AS ""m""");
         }
 
         public override async Task GetInteriorRingN(bool async)

@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -57,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The candidate name for the parameter.
         /// </param>
         /// <returns> A valid name based on the candidate name. </returns>
-        string GenerateParameterName([NotNull] string name);
+        string GenerateParameterName(string name);
 
         /// <summary>
         ///     Writes a valid parameter name for the given candidate name.
@@ -66,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">
         ///     The candidate name for the parameter.
         /// </param>
-        void GenerateParameterName([NotNull] StringBuilder builder, [NotNull] string name);
+        void GenerateParameterName(StringBuilder builder, string name);
 
         /// <summary>
         ///     Generates a valid parameter placeholder name for the given candidate name.
@@ -75,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The candidate name for the parameter placeholder.
         /// </param>
         /// <returns> A valid placeholder name based on the candidate name. </returns>
-        string GenerateParameterNamePlaceholder([NotNull] string name);
+        string GenerateParameterNamePlaceholder(string name);
 
         /// <summary>
         ///     Writes a valid parameter placeholder name for the given candidate name.
@@ -84,21 +81,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">
         ///     The candidate name for the parameter placeholder.
         /// </param>
-        void GenerateParameterNamePlaceholder([NotNull] StringBuilder builder, [NotNull] string name);
+        void GenerateParameterNamePlaceholder(StringBuilder builder, string name);
 
         /// <summary>
         ///     Generates the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
         /// <param name="identifier"> The identifier to delimit. </param>
         /// <returns> The generated string. </returns>
-        string DelimitIdentifier([NotNull] string identifier);
+        string DelimitIdentifier(string identifier);
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
         /// </summary>
         /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="identifier"> The identifier to delimit. </param>
-        void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string identifier);
+        void DelimitIdentifier(StringBuilder builder, string identifier);
 
         /// <summary>
         ///     Generates the delimited SQL representation of an identifier (column name, table name, etc.).
@@ -106,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
         /// <returns> The generated string. </returns>
-        string DelimitIdentifier([NotNull] string name, [CanBeNull] string? schema);
+        string DelimitIdentifier(string name, string? schema);
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).
@@ -114,34 +111,34 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="name"> The identifier to delimit. </param>
         /// <param name="schema"> The schema of the identifier. </param>
-        void DelimitIdentifier([NotNull] StringBuilder builder, [NotNull] string name, [CanBeNull] string? schema);
+        void DelimitIdentifier(StringBuilder builder, string name, string? schema);
 
         /// <summary>
         ///     Generates a SQL comment.
         /// </summary>
         /// <param name="text"> The comment text. </param>
         /// <returns> The generated SQL. </returns>
-        string GenerateComment([NotNull] string text);
+        string GenerateComment(string text);
 
         /// <summary>
         ///     Generates an SQL statement which creates a savepoint with the given name.
         /// </summary>
         /// <param name="name"> The name of the savepoint to be created. </param>
         /// <returns> An SQL string to create the savepoint. </returns>
-        string GenerateCreateSavepointStatement([NotNull] string name);
+        string GenerateCreateSavepointStatement(string name);
 
         /// <summary>
         ///     Generates an SQL statement which which rolls back to a savepoint with the given name.
         /// </summary>
         /// <param name="name"> The name of the savepoint to be rolled back to. </param>
         /// <returns> An SQL string to roll back the savepoint. </returns>
-        string GenerateRollbackToSavepointStatement([NotNull] string name);
+        string GenerateRollbackToSavepointStatement(string name);
 
         /// <summary>
         ///     Generates an SQL statement which which releases a savepoint with the given name.
         /// </summary>
         /// <param name="name"> The name of the savepoint to be released. </param>
         /// <returns> An SQL string to release the savepoint. </returns>
-        string GenerateReleaseSavepointStatement([NotNull] string name);
+        string GenerateReleaseSavepointStatement(string name);
     }
 }

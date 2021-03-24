@@ -9,12 +9,10 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Base type for navigations and properties.
+    ///     Base interface for navigations and properties.
     /// </summary>
     public interface IPropertyBase : IReadOnlyPropertyBase, IAnnotatable
     {

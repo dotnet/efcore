@@ -2,9 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -29,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> The precision of data the property is configured to store, or null if the default precision is required. </param>
         /// <param name="scale"> The scale of data the property is configured to store, or null if the default scale is required. </param>
         public DecimalTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null,
             int? precision = null,
             int? scale = null)

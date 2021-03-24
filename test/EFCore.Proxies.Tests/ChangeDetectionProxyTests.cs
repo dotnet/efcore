@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = new ChangeContext<ChangeValueEntity>();
 
-            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, context.Model.GetChangeTrackingStrategy());
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, context.DesignTimeModel.GetChangeTrackingStrategy());
         }
 
         [ConditionalFact]

@@ -4,14 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -45,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public SqlUnaryExpression(
             ExpressionType operatorType,
-            [NotNull] SqlExpression operand,
-            [NotNull] Type type,
-            [CanBeNull] CoreTypeMapping? typeMapping)
+            SqlExpression operand,
+            Type type,
+            CoreTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
             Check.NotNull(operand, nameof(operand));
@@ -90,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlUnaryExpression Update([NotNull] SqlExpression operand)
+        public virtual SqlUnaryExpression Update(SqlExpression operand)
             => operand != Operand
                 ? new SqlUnaryExpression(OperatorType, operand, Type, TypeMapping)
                 : this;

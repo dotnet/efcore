@@ -171,14 +171,14 @@ WHERE (((((((((([d].[SmallDateTime] = '1970-09-03T12:00:00') AND ([d].[DateTime]
                         && dateTimes.Contains(d.DateTime2_6)
                         && dateTimes.Contains(d.DateTime2_7));
 
-                var results = async
-                    ? await query.ToListAsync()
-                    : query.ToList();
+            var results = async
+                ? await query.ToListAsync()
+                : query.ToList();
 
-                Assert.Single(results);
+            Assert.Single(results);
 
-                AssertSql(
-                    @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
+            AssertSql(
+                @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
 WHERE ((((((((([d].[SmallDateTime] IN ('1970-09-03T12:00:00', '1971-09-03T12:00:10', '1972-09-03T12:00:10', '1973-09-03T12:00:10', '1974-09-03T12:00:10', '1975-09-03T12:00:10', '1976-09-03T12:00:10', '1977-09-03T12:00:10', '1978-09-03T12:00:10', '1979-09-03T12:00:10', '1980-09-03T12:00:10') AND [d].[DateTime] IN ('1970-09-03T12:00:00.000', '1971-09-03T12:00:10.220', '1972-09-03T12:00:10.333', '1973-09-03T12:00:10.000', '1974-09-03T12:00:10.500', '1975-09-03T12:00:10.660', '1976-09-03T12:00:10.777', '1977-09-03T12:00:10.888', '1978-09-03T12:00:10.999', '1979-09-03T12:00:10.111', '1980-09-03T12:00:10.222')) AND [d].[DateTime2] IN ('1970-09-03T12:00:00.0000000', '1971-09-03T12:00:10.2200000', '1972-09-03T12:00:10.3330000', '1973-09-03T12:00:10.0000000', '1974-09-03T12:00:10.5000000', '1975-09-03T12:00:10.6600000', '1976-09-03T12:00:10.7770000', '1977-09-03T12:00:10.8880000', '1978-09-03T12:00:10.9990000', '1979-09-03T12:00:10.1110000', '1980-09-03T12:00:10.2220000')) AND [d].[DateTime2_0] IN ('1970-09-03T12:00:00', '1971-09-03T12:00:10', '1972-09-03T12:00:10', '1973-09-03T12:00:10', '1974-09-03T12:00:10', '1975-09-03T12:00:10', '1976-09-03T12:00:10', '1977-09-03T12:00:10', '1978-09-03T12:00:10', '1979-09-03T12:00:10', '1980-09-03T12:00:10')) AND [d].[DateTime2_1] IN ('1970-09-03T12:00:00.0', '1971-09-03T12:00:10.2', '1972-09-03T12:00:10.3', '1973-09-03T12:00:10.0', '1974-09-03T12:00:10.5', '1975-09-03T12:00:10.6', '1976-09-03T12:00:10.7', '1977-09-03T12:00:10.8', '1978-09-03T12:00:10.9', '1979-09-03T12:00:10.1', '1980-09-03T12:00:10.2')) AND [d].[DateTime2_2] IN ('1970-09-03T12:00:00.00', '1971-09-03T12:00:10.22', '1972-09-03T12:00:10.33', '1973-09-03T12:00:10.00', '1974-09-03T12:00:10.50', '1975-09-03T12:00:10.66', '1976-09-03T12:00:10.77', '1977-09-03T12:00:10.88', '1978-09-03T12:00:10.99', '1979-09-03T12:00:10.11', '1980-09-03T12:00:10.22')) AND [d].[DateTime2_3] IN ('1970-09-03T12:00:00.000', '1971-09-03T12:00:10.220', '1972-09-03T12:00:10.333', '1973-09-03T12:00:10.000', '1974-09-03T12:00:10.500', '1975-09-03T12:00:10.660', '1976-09-03T12:00:10.777', '1977-09-03T12:00:10.888', '1978-09-03T12:00:10.999', '1979-09-03T12:00:10.111', '1980-09-03T12:00:10.222')) AND [d].[DateTime2_4] IN ('1970-09-03T12:00:00.0000', '1971-09-03T12:00:10.2200', '1972-09-03T12:00:10.3330', '1973-09-03T12:00:10.0000', '1974-09-03T12:00:10.5000', '1975-09-03T12:00:10.6600', '1976-09-03T12:00:10.7770', '1977-09-03T12:00:10.8880', '1978-09-03T12:00:10.9990', '1979-09-03T12:00:10.1110', '1980-09-03T12:00:10.2220')) AND [d].[DateTime2_5] IN ('1970-09-03T12:00:00.00000', '1971-09-03T12:00:10.22000', '1972-09-03T12:00:10.33300', '1973-09-03T12:00:10.00000', '1974-09-03T12:00:10.50000', '1975-09-03T12:00:10.66000', '1976-09-03T12:00:10.77700', '1977-09-03T12:00:10.88800', '1978-09-03T12:00:10.99900', '1979-09-03T12:00:10.11100', '1980-09-03T12:00:10.22200')) AND [d].[DateTime2_6] IN ('1970-09-03T12:00:00.000000', '1971-09-03T12:00:10.220000', '1972-09-03T12:00:10.333000', '1973-09-03T12:00:10.000000', '1974-09-03T12:00:10.500000', '1975-09-03T12:00:10.660000', '1976-09-03T12:00:10.777000', '1977-09-03T12:00:10.888000', '1978-09-03T12:00:10.999000', '1979-09-03T12:00:10.111000', '1980-09-03T12:00:10.222000')) AND [d].[DateTime2_7] IN ('1970-09-03T12:00:00.0000000', '1971-09-03T12:00:10.2200000', '1972-09-03T12:00:10.3330000', '1973-09-03T12:00:10.0000000', '1974-09-03T12:00:10.5000000', '1975-09-03T12:00:10.6600000', '1976-09-03T12:00:10.7770000', '1977-09-03T12:00:10.8880000', '1978-09-03T12:00:10.9990000', '1979-09-03T12:00:10.1110000', '1980-09-03T12:00:10.2220000')");
         }
@@ -721,7 +721,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 });
 
                 modelBuilder.Entity<Dragon>().ToTable("Dragon")
-                    .HasData(new Dragon { Id = 1, Name = "Drogon", MotherId =2 },
+                    .HasData(new Dragon { Id = 1, Name = "Drogon", MotherId = 2 },
                             new Dragon { Id = 2, Name = "Rhaegal", MotherId = 2 },
                             new Dragon { Id = 3, Name = "Viserion", MotherId = 2 },
                             new Dragon { Id = 4, Name = "Balerion" });
@@ -1121,11 +1121,11 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             using (var ctx = contextFactory.CreateContext())
             {
                 var query = from eVersion in ctx.Entities.Include(e => e.Children)
-                        join eRoot in ctx.Entities.Include(e => e.Children)
-                            on eVersion.RootEntityId equals eRoot.Id
-                            into RootEntities
-                        from eRootJoined in RootEntities.DefaultIfEmpty()
-                        select eRootJoined ?? eVersion;
+                            join eRoot in ctx.Entities.Include(e => e.Children)
+                                on eVersion.RootEntityId equals eRoot.Id
+                                into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select eRootJoined ?? eVersion;
 
                 var result = query.ToList();
 
@@ -1155,11 +1155,11 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             using (var ctx = contextFactory.CreateContext())
             {
                 var query = from eVersion in ctx.Entities
-                             join eRoot in ctx.Entities.Include(e => e.Children)
-                                 on eVersion.RootEntityId equals eRoot.Id
-                                 into RootEntities
-                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                             select new { Root = eRootJoined, Coalesce = eRootJoined ?? eVersion };
+                            join eRoot in ctx.Entities.Include(e => e.Children)
+                                on eVersion.RootEntityId equals eRoot.Id
+                                into RootEntities
+                            from eRootJoined in RootEntities.DefaultIfEmpty()
+                            select new { Root = eRootJoined, Coalesce = eRootJoined ?? eVersion };
 
                 var result = query.ToList();
 
@@ -2823,20 +2823,20 @@ FROM [Bases] AS [b]");
                 Assert.Empty(query);
 
                 AssertSql(
-                    @"SELECT [t2].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
+                    @"SELECT [t1].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
     SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
-    INNER JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
+    INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
     WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
-) AS [t2] ON [t].[Id] = [t2].[Id]
-GROUP BY [t2].[AnotherEntity11818_Name]");
-                ClearLog();
+) AS [t1] ON [t].[Id] = [t1].[Id]
+GROUP BY [t1].[AnotherEntity11818_Name]");
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var query = (from e in context.Set<MyContext11818.Entity11818>()
                              join a in context.Set<MyContext11818.AnotherEntity11818>()
                                  on e.Id equals a.Id into grouping
@@ -2854,26 +2854,27 @@ GROUP BY [t2].[AnotherEntity11818_Name]");
                 Assert.Empty(query);
 
                 AssertSql(
-                    @"SELECT [t2].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
+                    @"SELECT [t1].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
     SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
-    INNER JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
+    INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
     WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
-) AS [t2] ON [t].[Id] = [t2].[Id]
+) AS [t1] ON [t].[Id] = [t1].[Id]
 LEFT JOIN (
-    SELECT [t3].[Id], [t3].[MaumarEntity11818_Name]
-    FROM [Table] AS [t3]
-    INNER JOIN [Table] AS [t4] ON [t3].[Id] = [t4].[Id]
-    WHERE [t3].[MaumarEntity11818_Name] IS NOT NULL
-) AS [t5] ON [t].[Id] = [t5].[Id]
-GROUP BY [t2].[AnotherEntity11818_Name], [t5].[MaumarEntity11818_Name]");
-                ClearLog();
+    SELECT [t4].[Id], [t4].[MaumarEntity11818_Name]
+    FROM [Table] AS [t4]
+    INNER JOIN [Table] AS [t5] ON [t4].[Id] = [t5].[Id]
+    WHERE [t4].[MaumarEntity11818_Name] IS NOT NULL
+) AS [t3] ON [t].[Id] = [t3].[Id]
+GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
             }
 
             using (var context = contextFactory.CreateContext())
             {
+
+                ClearLog();
                 var query = (from e in context.Set<MyContext11818.Entity11818>()
                              join a in context.Set<MyContext11818.AnotherEntity11818>()
                                  on e.Id equals a.Id into grouping
@@ -2889,21 +2890,21 @@ GROUP BY [t2].[AnotherEntity11818_Name], [t5].[MaumarEntity11818_Name]");
                 Assert.Null(query);
 
                 AssertSql(
-                @"SELECT TOP(1) [t2].[AnotherEntity11818_Name] AS [MyKey], [t5].[MaumarEntity11818_Name] AS [cnt]
+                    @"SELECT TOP(1) [t1].[AnotherEntity11818_Name] AS [MyKey], [t3].[MaumarEntity11818_Name] AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
     SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
-    INNER JOIN [Table] AS [t1] ON [t0].[Id] = [t1].[Id]
+    INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
     WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
-) AS [t2] ON [t].[Id] = [t2].[Id]
+) AS [t1] ON [t].[Id] = [t1].[Id]
 LEFT JOIN (
-    SELECT [t3].[Id], [t3].[MaumarEntity11818_Name]
-    FROM [Table] AS [t3]
-    INNER JOIN [Table] AS [t4] ON [t3].[Id] = [t4].[Id]
-    WHERE [t3].[MaumarEntity11818_Name] IS NOT NULL
-) AS [t5] ON [t].[Id] = [t5].[Id]
-GROUP BY [t2].[AnotherEntity11818_Name], [t5].[MaumarEntity11818_Name]");
+    SELECT [t4].[Id], [t4].[MaumarEntity11818_Name]
+    FROM [Table] AS [t4]
+    INNER JOIN [Table] AS [t5] ON [t4].[Id] = [t5].[Id]
+    WHERE [t4].[MaumarEntity11818_Name] IS NOT NULL
+) AS [t3] ON [t].[Id] = [t3].[Id]
+GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
             }
         }
 
@@ -4715,14 +4716,14 @@ FROM [Posts] AS [p]");
             public void Seed()
             {
                 Add(new Blog7983
-                    {
-                        Posts = new List<Post7983>
+                {
+                    Posts = new List<Post7983>
                         {
                                 new Post7983 { Title = "First" },
                                 new Post7983 { Title = "Second" },
                                 new Post7983 { Title = "Third" }
                         }
-                    });
+                });
 
                 SaveChanges();
             }
@@ -5414,8 +5415,8 @@ ORDER BY [e].[Id], [t0].[Id], [t0].[Id0]");
             public void Seed()
             {
                 Add(new Entity11023
-                    {
-                        Values = new List<Value11023>
+                {
+                    Values = new List<Value11023>
                         {
                                 new Value11023
                                 {
@@ -5426,7 +5427,7 @@ ORDER BY [e].[Id], [t0].[Id], [t0].[Id0]");
                                     }
                                 }
                         }
-                    });
+                });
 
                 SaveChanges();
             }
@@ -5481,7 +5482,7 @@ CROSS JOIN (
     SELECT [t].[Id]
     FROM (
         SELECT NULL AS [empty]
-    ) AS [empty]
+    ) AS [e]
     LEFT JOIN (
         SELECT [o].[Id]
         FROM [Organisations] AS [o]
@@ -5674,19 +5675,19 @@ ORDER BY [a].[Id], [a0].[Id], [t].[Id], [t].[Id0]");
                         }).ToList();
 
                 AssertSql(
-                    @"SELECT [a0].[Id], [a0].[ActivityTypeId], [a0].[DateTime], [a0].[Points], (
+                    @"SELECT [a].[Id], [a].[ActivityTypeId], [a].[DateTime], [a].[Points], (
     SELECT TOP(1) [c].[Id]
     FROM [CompetitionSeasons] AS [c]
-    WHERE ([c].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c].[EndDate])) AS [CompetitionSeasonId], COALESCE([a0].[Points], COALESCE((
-    SELECT TOP(1) [a].[Points]
-    FROM [ActivityTypePoints12456] AS [a]
-    INNER JOIN [CompetitionSeasons] AS [c0] ON [a].[CompetitionSeasonId] = [c0].[Id]
-    WHERE ([a1].[Id] = [a].[ActivityTypeId]) AND ([c0].[Id] = (
+    WHERE ([c].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c].[EndDate])) AS [CompetitionSeasonId], COALESCE([a].[Points], COALESCE((
+    SELECT TOP(1) [a1].[Points]
+    FROM [ActivityTypePoints12456] AS [a1]
+    INNER JOIN [CompetitionSeasons] AS [c0] ON [a1].[CompetitionSeasonId] = [c0].[Id]
+    WHERE ([a0].[Id] = [a1].[ActivityTypeId]) AND ([c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c1].[EndDate])))), 0)) AS [Points]
-FROM [Activities] AS [a0]
-INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
+        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate])))), 0)) AS [Points]
+FROM [Activities] AS [a]
+INNER JOIN [ActivityType12456] AS [a0] ON [a].[ActivityTypeId] = [a0].[Id]");
             }
         }
 
@@ -5779,22 +5780,22 @@ INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
                     .SingleAsync();
 
                 AssertSql(
-                    @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[IsPastTradeDeadline]
+                    @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0] AS [Id], [t1].[Id1] AS [Id], [t1].[IsPastTradeDeadline]
 FROM (
     SELECT TOP(2) [t].[Id]
     FROM [Trades] AS [t]
 ) AS [t0]
 LEFT JOIN (
-    SELECT [d0].[Id], [d1].[Id] AS [Id0], [d2].[Id] AS [Id1], CASE
+    SELECT [d].[Id], [d0].[Id] AS [Id0], [d1].[Id] AS [Id1], CASE
         WHEN COALESCE((
-            SELECT MAX([d].[GameNumber])
-            FROM [DbGame] AS [d]
-            WHERE [d2].[Id] IS NOT NULL AND ([d2].[Id] = [d].[SeasonId])), 0) > 10 THEN CAST(1 AS bit)
+            SELECT MAX([d2].[GameNumber])
+            FROM [DbGame] AS [d2]
+            WHERE [d1].[Id] IS NOT NULL AND ([d1].[Id] = [d2].[SeasonId])), 0) > 10 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
-    END AS [IsPastTradeDeadline], [d0].[DbTradeId]
-    FROM [DbTradeAsset] AS [d0]
-    INNER JOIN [DbContract] AS [d1] ON [d0].[ContractId] = [d1].[Id]
-    LEFT JOIN [DbSeason] AS [d2] ON [d1].[SeasonId] = [d2].[Id]
+    END AS [IsPastTradeDeadline], [d].[DbTradeId]
+    FROM [DbTradeAsset] AS [d]
+    INNER JOIN [DbContract] AS [d0] ON [d].[ContractId] = [d0].[Id]
+    LEFT JOIN [DbSeason] AS [d1] ON [d0].[SeasonId] = [d1].[Id]
 ) AS [t1] ON [t0].[Id] = [t1].[DbTradeId]
 ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1]");
             }
@@ -7729,23 +7730,23 @@ ORDER BY [u].[Id] DESC");
                 Assert.Equal(20, aggregate.FirstValueObject.SecondValueObjects[0].ThirdValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
 
                 AssertSql(
-                    @"SELECT [t].[Id], [t3].[Id], [t3].[AggregateId], [t3].[Id0], [t3].[AnyValue], [t3].[SecondValueObjectId], [t3].[Id1], [t3].[SecondValueObjectId0], [t3].[Id00], [t3].[AnyValue0], [t3].[ThirdValueObjectId]
+                    @"SELECT [t].[Id], [t2].[Id], [t2].[AggregateId], [t2].[Id0], [t2].[AnyValue], [t2].[SecondValueObjectId], [t2].[Id1], [t2].[SecondValueObjectId0], [t2].[Id00], [t2].[AnyValue0], [t2].[ThirdValueObjectId]
 FROM (
     SELECT TOP(1) [a].[Id]
     FROM [Aggregates] AS [a]
     ORDER BY [a].[Id] DESC
 ) AS [t]
 LEFT JOIN (
-    SELECT [s].[Id], [s].[AggregateId], [f].[Id] AS [Id0], [f].[AnyValue], [f].[SecondValueObjectId], [t2].[Id] AS [Id1], [t2].[SecondValueObjectId] AS [SecondValueObjectId0], [t2].[Id0] AS [Id00], [t2].[AnyValue] AS [AnyValue0], [t2].[ThirdValueObjectId]
+    SELECT [s].[Id], [s].[AggregateId], [f].[Id] AS [Id0], [f].[AnyValue], [f].[SecondValueObjectId], [t1].[Id] AS [Id1], [t1].[SecondValueObjectId] AS [SecondValueObjectId0], [t1].[Id0] AS [Id00], [t1].[AnyValue] AS [AnyValue0], [t1].[ThirdValueObjectId]
     FROM [SecondValueObjects] AS [s]
     LEFT JOIN [FourthFifthValueObjects] AS [f] ON [s].[Id] = [f].[SecondValueObjectId]
     LEFT JOIN (
-        SELECT [t0].[Id], [t0].[SecondValueObjectId], [t1].[Id] AS [Id0], [t1].[AnyValue], [t1].[ThirdValueObjectId]
+        SELECT [t0].[Id], [t0].[SecondValueObjectId], [t3].[Id] AS [Id0], [t3].[AnyValue], [t3].[ThirdValueObjectId]
         FROM [ThirdValueObjects] AS [t0]
-        LEFT JOIN [ThirdFifthValueObjects] AS [t1] ON [t0].[Id] = [t1].[ThirdValueObjectId]
-    ) AS [t2] ON [s].[Id] = [t2].[SecondValueObjectId]
-) AS [t3] ON [t].[Id] = [t3].[AggregateId]
-ORDER BY [t].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1], [t3].[Id00]");
+        LEFT JOIN [ThirdFifthValueObjects] AS [t3] ON [t0].[Id] = [t3].[ThirdValueObjectId]
+    ) AS [t1] ON [s].[Id] = [t1].[SecondValueObjectId]
+) AS [t2] ON [t].[Id] = [t2].[AggregateId]
+ORDER BY [t].[Id] DESC, [t2].[Id], [t2].[Id0], [t2].[Id1], [t2].[Id00]");
             }
         }
 
@@ -9195,7 +9196,7 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'" });
 
         class SingleThreadSynchronizationContext22841 : SynchronizationContext, IDisposable
         {
-            private CancellationTokenSource _cancellationTokenSource;
+            private readonly CancellationTokenSource _cancellationTokenSource;
             readonly BlockingCollection<(SendOrPostCallback callback, object state)> _tasks = new();
             internal Thread Thread { get; }
 
@@ -9289,6 +9290,122 @@ ORDER BY [i].[_Position];");
                 public int Id { get; set; }
                 [Column(TypeName = "sql_variant")]
                 public object Value { get; set; }
+            }
+        }
+
+        #endregion
+
+        #region Issue23674
+
+        [ConditionalFact]
+        public virtual async Task Walking_back_include_tree_is_not_allowed_1()
+        {
+            var contextFactory = await InitializeAsync<MyContext23674>();
+
+            using (var context = contextFactory.CreateContext())
+            {
+                var query = context.Set<Principal23674>()
+                    .Include(p => p.ManyDependents)
+                    .ThenInclude(m => m.Principal.SingleDependent);
+
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.NavigationBaseIncludeIgnored.ToString(),
+                        CoreResources.LogNavigationBaseIncludeIgnored(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage("ManyDependent23674.Principal"),
+                        "CoreEventId.NavigationBaseIncludeIgnored"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => query.ToList()).Message);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Walking_back_include_tree_is_not_allowed_2()
+        {
+            var contextFactory = await InitializeAsync<MyContext23674>();
+
+            using (var context = contextFactory.CreateContext())
+            {
+                var query = context.Set<Principal23674>().Include(p => p.SingleDependent.Principal.ManyDependents);
+
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.NavigationBaseIncludeIgnored.ToString(),
+                        CoreResources.LogNavigationBaseIncludeIgnored(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage("SingleDependent23674.Principal"),
+                        "CoreEventId.NavigationBaseIncludeIgnored"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => query.ToList()).Message);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Walking_back_include_tree_is_not_allowed_3()
+        {
+            var contextFactory = await InitializeAsync<MyContext23674>();
+
+            using (var context = contextFactory.CreateContext())
+            {
+                // This does not warn because after round-tripping from one-to-many from dependent side, the number of dependents could be larger.
+                var query = context.Set<ManyDependent23674>()
+                    .Include(p => p.Principal.ManyDependents)
+                    .ThenInclude(m => m.SingleDependent)
+                    .ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Walking_back_include_tree_is_not_allowed_4()
+        {
+            var contextFactory = await InitializeAsync<MyContext23674>();
+
+            using (var context = contextFactory.CreateContext())
+            {
+                var query = context.Set<SingleDependent23674>().Include(p => p.ManyDependent.SingleDependent.Principal);
+
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.NavigationBaseIncludeIgnored.ToString(),
+                        CoreResources.LogNavigationBaseIncludeIgnored(new TestLogger<TestLoggingDefinitions>())
+                            .GenerateMessage("ManyDependent23674.SingleDependent"),
+                        "CoreEventId.NavigationBaseIncludeIgnored"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => query.ToList()).Message);
+            }
+        }
+
+        private class Principal23674
+        {
+            public int Id { get; set; }
+            public List<ManyDependent23674> ManyDependents { get; set; }
+            public SingleDependent23674 SingleDependent { get; set; }
+        }
+
+        private class ManyDependent23674
+        {
+            public int Id { get; set; }
+            public Principal23674 Principal { get; set; }
+            public SingleDependent23674 SingleDependent { get; set; }
+        }
+        private class SingleDependent23674
+        {
+            public int Id { get; set; }
+            public Principal23674 Principal { get; set; }
+            public int PrincipalId { get; set; }
+            public int ManyDependentId { get; set; }
+            public ManyDependent23674 ManyDependent { get; set; }
+        }
+
+        private class MyContext23674 : DbContext
+        {
+            public MyContext23674(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Principal23674>();
             }
         }
 

@@ -6,14 +6,11 @@ using System.Collections;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
+        public CollectionEntry(InternalEntityEntry internalEntry, string name)
             : base(internalEntry, name, collection: true)
         {
             LocalDetectChanges();
@@ -51,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public CollectionEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
+        public CollectionEntry(InternalEntityEntry internalEntry, INavigation navigation)
             : base(internalEntry, navigation)
         {
             LocalDetectChanges();
@@ -86,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual IEnumerable? CurrentValue
         {
             get => (IEnumerable?)base.CurrentValue;
-            [param: CanBeNull] set => base.CurrentValue = value;
+            set => base.CurrentValue = value;
         }
 
         /// <summary>
@@ -263,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <value> An entry for an entity that this navigation targets. </value>
-        public virtual EntityEntry? FindEntry([NotNull] object entity)
+        public virtual EntityEntry? FindEntry(object entity)
         {
             var entry = GetInternalTargetEntry(entity);
             return entry == null
@@ -278,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalEntityEntry? GetInternalTargetEntry([NotNull] object entity)
+        protected virtual InternalEntityEntry? GetInternalTargetEntry(object entity)
             => CurrentValue == null
                 || !Metadata.GetCollectionAccessor()!.Contains(InternalEntry.Entity, entity)
                     ? null

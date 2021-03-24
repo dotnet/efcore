@@ -3,13 +3,10 @@
 
 using System;
 using System.ComponentModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -32,10 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public CollectionCollectionBuilder(
-            [NotNull] IMutableEntityType leftEntityType,
-            [NotNull] IMutableEntityType rightEntityType,
-            [NotNull] IMutableSkipNavigation leftNavigation,
-            [NotNull] IMutableSkipNavigation rightNavigation)
+            IMutableEntityType leftEntityType,
+            IMutableEntityType rightEntityType,
+            IMutableSkipNavigation leftNavigation,
+            IMutableSkipNavigation rightNavigation)
         {
             Check.DebugAssert(((IConventionEntityType)leftEntityType).IsInModel, "Not in model");
             Check.DebugAssert(((IConventionEntityType)rightEntityType).IsInModel, "Not in model");
@@ -92,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureJoinEntityType"> The configuration of the join entity type. </param>
         /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] Action<EntityTypeBuilder> configureJoinEntityType)
+            Action<EntityTypeBuilder> configureJoinEntityType)
         {
             Check.DebugAssert(LeftNavigation.JoinEntityType != null, "LeftNavigation.JoinEntityType is null");
             Check.DebugAssert(RightNavigation.JoinEntityType != null, "RightNavigation.JoinEntityType is null");
@@ -114,9 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureLeft"> The configuration for the relationship to the left entity type. </param>
         /// <returns> The builder for the join entity type. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] Type joinEntityType,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
+            Type joinEntityType,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
         {
             Check.NotNull(joinEntityType, nameof(joinEntityType));
             Check.NotNull(configureRight, nameof(configureRight));
@@ -163,10 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureLeft"> The configuration for the relationship to the left entity type. </param>
         /// <returns> The builder for the join entity type. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] string joinEntityName,
-            [NotNull] Type joinEntityType,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
+            string joinEntityName,
+            Type joinEntityType,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
         {
             Check.NotEmpty(joinEntityName, nameof(joinEntityName));
             Check.NotNull(joinEntityType, nameof(joinEntityType));
@@ -228,10 +225,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureJoinEntityType"> The configuration of the join entity type. </param>
         /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] Type joinEntityType,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
-            [NotNull] Action<EntityTypeBuilder> configureJoinEntityType)
+            Type joinEntityType,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
+            Action<EntityTypeBuilder> configureJoinEntityType)
         {
             Check.NotNull(joinEntityType, nameof(joinEntityType));
             Check.NotNull(configureRight, nameof(configureRight));
@@ -254,11 +251,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureJoinEntityType"> The configuration of the join entity type. </param>
         /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] string joinEntityName,
-            [NotNull] Type joinEntityType,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
-            [NotNull] Action<EntityTypeBuilder> configureJoinEntityType)
+            string joinEntityName,
+            Type joinEntityType,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
+            Action<EntityTypeBuilder> configureJoinEntityType)
         {
             Check.NotEmpty(joinEntityName, nameof(joinEntityName));
             Check.NotNull(joinEntityType, nameof(joinEntityType));
@@ -279,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual void Using([NotNull] IMutableForeignKey rightForeignKey, [NotNull] IMutableForeignKey leftForeignKey)
+        protected virtual void Using(IMutableForeignKey rightForeignKey, IMutableForeignKey leftForeignKey)
         {
             var leftBuilder = ((SkipNavigation)LeftNavigation).Builder;
             var rightBuilder = ((SkipNavigation)RightNavigation).Builder;

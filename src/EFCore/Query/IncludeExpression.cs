@@ -3,12 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -31,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="navigationExpression"> An expression to get included navigation element. </param>
         /// <param name="navigation"> The navigation for this include operation. </param>
         public IncludeExpression(
-            [NotNull] Expression entityExpression,
-            [NotNull] Expression navigationExpression,
-            [NotNull] INavigationBase navigation)
+            Expression entityExpression,
+            Expression navigationExpression,
+            INavigationBase navigation)
             : this(entityExpression, navigationExpression, navigation, setLoaded: true)
         {
         }
@@ -46,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public IncludeExpression(
-            [NotNull] Expression entityExpression,
-            [NotNull] Expression navigationExpression,
-            [NotNull] INavigationBase navigation,
+            Expression entityExpression,
+            Expression navigationExpression,
+            INavigationBase navigation,
             bool setLoaded)
         {
             Check.NotNull(entityExpression, nameof(entityExpression));
@@ -111,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityExpression"> The <see cref="EntityExpression" /> property of the result. </param>
         /// <param name="navigationExpression"> The <see cref="NavigationExpression" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual IncludeExpression Update([NotNull] Expression entityExpression, [NotNull] Expression navigationExpression)
+        public virtual IncludeExpression Update(Expression entityExpression, Expression navigationExpression)
         {
             Check.NotNull(entityExpression, nameof(entityExpression));
             Check.NotNull(navigationExpression, nameof(navigationExpression));

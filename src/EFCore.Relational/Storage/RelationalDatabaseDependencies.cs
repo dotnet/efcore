@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -57,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalDatabaseDependencies(
-            [NotNull] ICommandBatchPreparer batchPreparer,
-            [NotNull] IBatchExecutor batchExecutor,
-            [NotNull] IRelationalConnection connection)
+            ICommandBatchPreparer batchPreparer,
+            IBatchExecutor batchExecutor,
+            IRelationalConnection connection)
         {
             Check.NotNull(batchPreparer, nameof(batchPreparer));
             Check.NotNull(batchExecutor, nameof(batchExecutor));
@@ -73,16 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The <see cref="ICommandBatchPreparer" /> to be used.
         /// </summary>
-        public ICommandBatchPreparer BatchPreparer { get; [param: NotNull] init; }
+        public ICommandBatchPreparer BatchPreparer { get; init; }
 
         /// <summary>
         ///     The <see cref="IBatchExecutor" /> to be used.
         /// </summary>
-        public IBatchExecutor BatchExecutor { get; [param: NotNull] init; }
+        public IBatchExecutor BatchExecutor { get; init; }
 
         /// <summary>
         ///     The <see cref="IRelationalConnection" /> to be used.
         /// </summary>
-        public IRelationalConnection Connection { get; [param: NotNull] init; }
+        public IRelationalConnection Connection { get; init; }
     }
 }

@@ -5,15 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
@@ -46,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CommandBatchPreparer([NotNull] CommandBatchPreparerDependencies dependencies)
+        public CommandBatchPreparer(CommandBatchPreparerDependencies dependencies)
         {
             _modificationCommandBatchFactory = dependencies.ModificationCommandBatchFactory;
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
@@ -162,9 +159,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IEnumerable<ModificationCommand> CreateModificationCommands(
-            [NotNull] IList<IUpdateEntry> entries,
-            [NotNull] IUpdateAdapter updateAdapter,
-            [NotNull] Func<string> generateParameterName)
+            IList<IUpdateEntry> entries,
+            IUpdateAdapter updateAdapter,
+            Func<string> generateParameterName)
         {
             var commands = new List<ModificationCommand>();
             Dictionary<(string Name, string? Schema), SharedTableEntryMap<ModificationCommand>>? sharedTablesCommandsMap =
@@ -280,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IReadOnlyList<List<ModificationCommand>> TopologicalSort([NotNull] IEnumerable<ModificationCommand> commands)
+        protected virtual IReadOnlyList<List<ModificationCommand>> TopologicalSort(IEnumerable<ModificationCommand> commands)
         {
             var modificationCommandGraph = new Multigraph<ModificationCommand, IAnnotatable>();
             modificationCommandGraph.AddVertices(commands);
@@ -625,14 +622,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
-        private static void AddMatchingPredecessorEdge(
-            Dictionary<IKeyValueIndex, List<ModificationCommand>> predecessorsMap,
-            IKeyValueIndex dependentKeyValue,
+        private static void AddMatchingPredecessorEdge<T>(
+            Dictionary<T, List<ModificationCommand>> predecessorsMap,
+            T keyValue,
             Multigraph<ModificationCommand, IAnnotatable> commandGraph,
             ModificationCommand command,
             IAnnotatable edge)
+            where T: notnull
         {
-            if (predecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
+            if (predecessorsMap.TryGetValue(keyValue, out var predecessorCommands))
             {
                 foreach (var predecessor in predecessorCommands)
                 {
@@ -647,7 +645,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private void AddUniqueValueEdges(Multigraph<ModificationCommand, IAnnotatable> commandGraph)
         {
             Dictionary<IIndex, Dictionary<object[], ModificationCommand>>? indexPredecessorsMap = null;
-            var keyPredecessorsMap = new Dictionary<IKeyValueIndex, List<ModificationCommand>>();
+            var keyPredecessorsMap = new Dictionary<(IKey, IKeyValueIndex), List<ModificationCommand>>();
             foreach (var command in commandGraph.Vertices)
             {
                 if (command.EntityState != EntityState.Modified
@@ -697,10 +695,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         if (principalKeyValue != null)
                         {
-                            if (!keyPredecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
+                            if (!keyPredecessorsMap.TryGetValue((key, principalKeyValue), out var predecessorCommands))
                             {
                                 predecessorCommands = new List<ModificationCommand>();
-                                keyPredecessorsMap.Add(principalKeyValue, predecessorCommands);
+                                keyPredecessorsMap.Add((key, principalKeyValue), predecessorCommands);
                             }
 
                             predecessorCommands.Add(command);
@@ -761,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             if (principalKeyValue != null)
                             {
                                 AddMatchingPredecessorEdge(
-                                    keyPredecessorsMap, principalKeyValue, commandGraph, command, key);
+                                    keyPredecessorsMap, (key, principalKeyValue), commandGraph, command, key);
                             }
                         }
                     }

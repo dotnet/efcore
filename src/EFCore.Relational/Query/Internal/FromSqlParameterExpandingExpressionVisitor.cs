@@ -4,16 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -43,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public FromSqlParameterExpandingExpressionVisitor(
-            [NotNull] RelationalParameterBasedSqlProcessorDependencies dependencies)
+            RelationalParameterBasedSqlProcessorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -61,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SelectExpression Expand(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object?> parameterValues,
+            SelectExpression selectExpression,
+            IReadOnlyDictionary<string, object?> parameterValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -85,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [return: CA.NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
         {
             if (expression is FromSqlExpression fromSql)

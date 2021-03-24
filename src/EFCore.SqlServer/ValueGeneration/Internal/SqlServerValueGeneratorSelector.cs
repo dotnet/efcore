@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -10,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
 {
@@ -43,11 +40,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerValueGeneratorSelector(
-            [NotNull] ValueGeneratorSelectorDependencies dependencies,
-            [NotNull] ISqlServerSequenceValueGeneratorFactory sequenceFactory,
-            [NotNull] ISqlServerConnection connection,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            ValueGeneratorSelectorDependencies dependencies,
+            ISqlServerSequenceValueGeneratorFactory sequenceFactory,
+            ISqlServerConnection connection,
+            IRawSqlCommandBuilder rawSqlCommandBuilder,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
             : base(dependencies)
         {
             _sequenceFactory = sequenceFactory;

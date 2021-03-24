@@ -3,11 +3,8 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -30,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="escapeChar"> An optional escape character to use in LIKE. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public LikeExpression(
-            [NotNull] SqlExpression match,
-            [NotNull] SqlExpression pattern,
-            [CanBeNull] SqlExpression? escapeChar,
-            [CanBeNull] RelationalTypeMapping? typeMapping)
+            SqlExpression match,
+            SqlExpression pattern,
+            SqlExpression? escapeChar,
+            RelationalTypeMapping? typeMapping)
             : base(typeof(bool), typeMapping)
         {
             Check.NotNull(match, nameof(match));
@@ -80,9 +77,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="escapeChar"> The <see cref="EscapeChar" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual LikeExpression Update(
-            [NotNull] SqlExpression match,
-            [NotNull] SqlExpression pattern,
-            [CanBeNull] SqlExpression? escapeChar)
+            SqlExpression match,
+            SqlExpression pattern,
+            SqlExpression? escapeChar)
         {
             Check.NotNull(match, nameof(match));
             Check.NotNull(pattern, nameof(pattern));

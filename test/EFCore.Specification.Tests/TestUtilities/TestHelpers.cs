@@ -127,12 +127,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IServiceProvider CreateContextServices(IServiceCollection customServices)
             => ((IInfrastructure<IServiceProvider>)CreateContext(customServices)).Instance;
 
-        public IModel Finalize(ModelBuilder modelBuilder, bool skipValidation = false)
+        public IModel Finalize(ModelBuilder modelBuilder, bool designTime = false, bool skipValidation = false)
         {
             var contextServices = CreateContextServices();
 
             var modelRuntimeInitializer = contextServices.GetRequiredService<IModelRuntimeInitializer>();
-            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), skipValidation
+            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), designTime, skipValidation
                 ? null
                 : new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>(LoggingDefinitions));
         }

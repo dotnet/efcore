@@ -5,14 +5,11 @@ using System;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -53,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Called by a derived class constructor when implementing the <see cref="Clone" /> method.
         /// </summary>
         /// <param name="copyFrom"> The instance that is being cloned. </param>
-        protected RelationalOptionsExtension([NotNull] RelationalOptionsExtension copyFrom)
+        protected RelationalOptionsExtension(RelationalOptionsExtension copyFrom)
         {
             Check.NotNull(copyFrom, nameof(copyFrom));
 
@@ -94,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="connectionString"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual RelationalOptionsExtension WithConnectionString([CanBeNull] string? connectionString)
+        public virtual RelationalOptionsExtension WithConnectionString(string? connectionString)
         {
             Check.NullButNotEmpty(connectionString, nameof(connectionString));
 
@@ -118,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="connection"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual RelationalOptionsExtension WithConnection([CanBeNull] DbConnection? connection)
+        public virtual RelationalOptionsExtension WithConnection(DbConnection? connection)
         {
             var clone = Clone();
 
@@ -266,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="migrationsAssembly"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual RelationalOptionsExtension WithMigrationsAssembly([CanBeNull] string? migrationsAssembly)
+        public virtual RelationalOptionsExtension WithMigrationsAssembly(string? migrationsAssembly)
         {
             var clone = Clone();
 
@@ -287,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="migrationsHistoryTableName"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual RelationalOptionsExtension WithMigrationsHistoryTableName([CanBeNull] string? migrationsHistoryTableName)
+        public virtual RelationalOptionsExtension WithMigrationsHistoryTableName(string? migrationsHistoryTableName)
         {
             var clone = Clone();
 
@@ -308,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="migrationsHistoryTableSchema"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual RelationalOptionsExtension WithMigrationsHistoryTableSchema([CanBeNull] string? migrationsHistoryTableSchema)
+        public virtual RelationalOptionsExtension WithMigrationsHistoryTableSchema(string? migrationsHistoryTableSchema)
         {
             var clone = Clone();
 
@@ -331,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="executionStrategyFactory"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual RelationalOptionsExtension WithExecutionStrategyFactory(
-            [CanBeNull] Func<ExecutionStrategyDependencies, IExecutionStrategy>? executionStrategyFactory)
+            Func<ExecutionStrategyDependencies, IExecutionStrategy>? executionStrategyFactory)
         {
             var clone = Clone();
 
@@ -347,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="options"> The context options to look in. </param>
         /// <returns> The extension. </returns>
-        public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)
+        public static RelationalOptionsExtension Extract(IDbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
 
@@ -393,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="coreOptionsExtension"> The core options extension. </param>
         /// <returns> The new core options extension. </returns>
-        public static CoreOptionsExtension WithDefaultWarningConfiguration([NotNull] CoreOptionsExtension coreOptionsExtension)
+        public static CoreOptionsExtension WithDefaultWarningConfiguration(CoreOptionsExtension coreOptionsExtension)
             => coreOptionsExtension.WithWarningsConfiguration(coreOptionsExtension.WarningsConfiguration
                 .TryWithExplicit(RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw)
                 .TryWithExplicit(RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable, WarningBehavior.Throw)

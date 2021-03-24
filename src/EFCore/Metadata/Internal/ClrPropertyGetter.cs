@@ -3,9 +3,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -28,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ClrPropertyGetter([NotNull] Func<TEntity, TValue> getter, [NotNull] Func<TEntity, bool> hasDefaultValue)
+        public ClrPropertyGetter(Func<TEntity, TValue> getter, Func<TEntity, bool> hasDefaultValue)
         {
             _getter = getter;
             _hasDefaultValue = hasDefaultValue;

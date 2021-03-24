@@ -6,7 +6,6 @@ using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -15,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 {
@@ -48,9 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteRelationalConnection(
-            [NotNull] RelationalConnectionDependencies dependencies,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+            RelationalConnectionDependencies dependencies,
+            IRawSqlCommandBuilder rawSqlCommandBuilder,
+            IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
             : base(dependencies)
         {
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));

@@ -3,14 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -34,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="ForeignKeyIndexConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public ForeignKeyIndexConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ForeignKeyIndexConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -321,9 +318,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <returns> The created index. </returns>
         protected virtual IConventionIndex? CreateIndex(
-            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            IReadOnlyList<IConventionProperty> properties,
             bool unique,
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder)
+            IConventionEntityTypeBuilder entityTypeBuilder)
         {
             foreach (var key in entityTypeBuilder.Metadata.GetKeys())
             {
@@ -359,9 +356,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="coveringIndexUnique"> Whether the existing index is unique. </param>
         /// <returns> <see langword="true" /> if the existing index covers the given properties. </returns>
         protected virtual bool AreIndexedBy(
-            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            IReadOnlyList<IConventionProperty> properties,
             bool unique,
-            [NotNull] IReadOnlyList<IConventionProperty> coveringIndexProperties,
+            IReadOnlyList<IConventionProperty> coveringIndexProperties,
             bool coveringIndexUnique)
             => (!unique && coveringIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
                 || (unique && coveringIndexUnique && coveringIndexProperties.SequenceEqual(properties));

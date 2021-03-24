@@ -11,12 +11,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -44,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public BufferedDataReader([NotNull] DbDataReader reader, bool detailedErrorsEnabled)
+        public BufferedDataReader(DbDataReader reader, bool detailedErrorsEnabled)
         {
             _underlyingReader = reader;
             _detailedErrorsEnabled = detailedErrorsEnabled;
@@ -169,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual BufferedDataReader Initialize([NotNull] IReadOnlyList<ReaderColumn> columns)
+        public virtual BufferedDataReader Initialize(IReadOnlyList<ReaderColumn> columns)
         {
             if (_underlyingReader == null)
             {
@@ -203,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<BufferedDataReader> InitializeAsync(
-            [NotNull] IReadOnlyList<ReaderColumn> columns,
+            IReadOnlyList<ReaderColumn> columns,
             CancellationToken cancellationToken)
         {
             if (_underlyingReader == null)
@@ -239,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsSupportedValueType([NotNull] Type type)
+        public static bool IsSupportedValueType(Type type)
             => type == typeof(int)
                 || type == typeof(bool)
                 || type == typeof(Guid)
@@ -898,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 => Task.FromResult(Read());
 #pragma warning restore IDE0060 // Remove unused parameter
 
-            public BufferedDataRecord Initialize([NotNull] DbDataReader reader, [NotNull] IReadOnlyList<ReaderColumn> columns)
+            public BufferedDataRecord Initialize(DbDataReader reader, IReadOnlyList<ReaderColumn> columns)
             {
                 _underlyingReader = reader;
                 _columns = columns;
@@ -924,8 +921,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public async Task<BufferedDataRecord> InitializeAsync(
-                [NotNull] DbDataReader reader,
-                [NotNull] IReadOnlyList<ReaderColumn> columns,
+                DbDataReader reader,
+                IReadOnlyList<ReaderColumn> columns,
                 CancellationToken cancellationToken)
             {
                 _underlyingReader = reader;

@@ -4,9 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -23,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="serviceProviders"> The <see cref="IServiceProvider" />s. </param>
         public ServiceProvidersEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] ICollection<IServiceProvider> serviceProviders)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            ICollection<IServiceProvider> serviceProviders)
             : base(eventDefinition, messageGenerator)
         {
             ServiceProviders = serviceProviders;

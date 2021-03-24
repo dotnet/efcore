@@ -8728,7 +8728,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#24440")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_after_distinct_3_levels_without_original_identifiers(bool async)
         {

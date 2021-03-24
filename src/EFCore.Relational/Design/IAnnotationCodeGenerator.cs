@@ -3,11 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -23,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="annotations"> The annotations from which to filter the ignored ones. </param>
         /// <returns> The filtered annotations. </returns>
-        IEnumerable<IAnnotation> FilterIgnoredAnnotations([NotNull] IEnumerable<IAnnotation> annotations);
+        IEnumerable<IAnnotation> FilterIgnoredAnnotations(IEnumerable<IAnnotation> annotations);
 
         /// <summary>
         ///     Removes annotation whose configuration is already applied by convention, and do not need to be
@@ -31,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="model"> The model to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to remove the conventional ones. </param>
-        void RemoveAnnotationsHandledByConventions([NotNull] IModel model, [NotNull] IDictionary<string, IAnnotation> annotations) { }
+        void RemoveAnnotationsHandledByConventions(IModel model, IDictionary<string, IAnnotation> annotations) { }
 
         /// <summary>
         ///     Removes annotation whose configuration is already applied by convention, and do not need to be
@@ -39,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="entity"> The entity to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to remove the conventional ones. </param>
-        void RemoveAnnotationsHandledByConventions([NotNull] IEntityType entity, [NotNull] IDictionary<string, IAnnotation> annotations) { }
+        void RemoveAnnotationsHandledByConventions(IEntityType entity, IDictionary<string, IAnnotation> annotations) { }
 
         /// <summary>
         ///     Removes annotation whose configuration is already applied by convention, and do not need to be
@@ -47,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="property"> The property to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to remove the conventional ones. </param>
-        void RemoveAnnotationsHandledByConventions([NotNull] IProperty property, [NotNull] IDictionary<string, IAnnotation> annotations) { }
+        void RemoveAnnotationsHandledByConventions(IProperty property, IDictionary<string, IAnnotation> annotations) { }
 
         /// <summary>
         ///     Removes annotation whose configuration is already applied by convention, and do not need to be
@@ -55,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="key"> The key to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to remove the conventional ones. </param>
-        void RemoveAnnotationsHandledByConventions([NotNull] IKey key, [NotNull] IDictionary<string, IAnnotation> annotations) { }
+        void RemoveAnnotationsHandledByConventions(IKey key, IDictionary<string, IAnnotation> annotations) { }
 
         /// <summary>
         ///     Removes annotation whose configuration is already applied by convention, and do not need to be
@@ -63,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="foreignKey"> The foreign key to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to remove the conventional ones. </param>
-        void RemoveAnnotationsHandledByConventions([NotNull] IForeignKey foreignKey, [NotNull] IDictionary<string, IAnnotation> annotations)
+        void RemoveAnnotationsHandledByConventions(IForeignKey foreignKey, IDictionary<string, IAnnotation> annotations)
         {
         }
 
@@ -73,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="index"> The index to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to remove the conventional ones. </param>
-        void RemoveAnnotationsHandledByConventions([NotNull] IIndex index, [NotNull] IDictionary<string, IAnnotation> annotations) { }
+        void RemoveAnnotationsHandledByConventions(IIndex index, IDictionary<string, IAnnotation> annotations) { }
 
         /// <summary>
         ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
@@ -82,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="model"> The model to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            [NotNull] IModel model,
-            [NotNull] IDictionary<string, IAnnotation> annotations)
+            IModel model,
+            IDictionary<string, IAnnotation> annotations)
             => Array.Empty<MethodCallCodeFragment>();
 
         /// <summary>
@@ -93,8 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="entityType"> The entity type to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            [NotNull] IEntityType entityType,
-            [NotNull] IDictionary<string, IAnnotation> annotations)
+            IEntityType entityType,
+            IDictionary<string, IAnnotation> annotations)
             => Array.Empty<MethodCallCodeFragment>();
 
         /// <summary>
@@ -104,8 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="property"> The property to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            [NotNull] IProperty property,
-            [NotNull] IDictionary<string, IAnnotation> annotations)
+            IProperty property,
+            IDictionary<string, IAnnotation> annotations)
             => Array.Empty<MethodCallCodeFragment>();
 
         /// <summary>
@@ -115,8 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="key"> The key to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            [NotNull] IKey key,
-            [NotNull] IDictionary<string, IAnnotation> annotations)
+            IKey key,
+            IDictionary<string, IAnnotation> annotations)
             => Array.Empty<MethodCallCodeFragment>();
 
         /// <summary>
@@ -126,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="foreignKey"> The foreign key to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] IDictionary<string, IAnnotation> annotations)
+            IForeignKey foreignKey,
+            IDictionary<string, IAnnotation> annotations)
             => Array.Empty<MethodCallCodeFragment>();
 
         /// <summary>
@@ -137,8 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="navigation"> The navigation to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            [NotNull] INavigation navigation,
-            [NotNull] IDictionary<string, IAnnotation> annotations)
+            INavigation navigation,
+            IDictionary<string, IAnnotation> annotations)
             => Array.Empty<MethodCallCodeFragment>();
 
         /// <summary>
@@ -148,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="navigation"> The skip navigation to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            [NotNull] ISkipNavigation navigation,
-            [NotNull] IDictionary<string, IAnnotation> annotations)
+            ISkipNavigation navigation,
+            IDictionary<string, IAnnotation> annotations)
             => Array.Empty<MethodCallCodeFragment>();
 
         /// <summary>
@@ -159,8 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="index"> The index to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-            [NotNull] IIndex index,
-            [NotNull] IDictionary<string, IAnnotation> annotations)
+            IIndex index,
+            IDictionary<string, IAnnotation> annotations)
             => Array.Empty<MethodCallCodeFragment>();
 
         /// <summary>
@@ -170,8 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="entityType"> The entity type to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
-            [NotNull] IEntityType entityType,
-            [NotNull] IDictionary<string, IAnnotation> annotations)
+            IEntityType entityType,
+            IDictionary<string, IAnnotation> annotations)
             => Array.Empty<AttributeCodeFragment>();
 
         /// <summary>
@@ -181,8 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="property"> The property to which the annotations are applied. </param>
         /// <param name="annotations"> The set of annotations from which to generate fluent API calls. </param>
         IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributes(
-            [NotNull] IProperty property,
-            [NotNull] IDictionary<string, IAnnotation> annotations)
+            IProperty property,
+            IDictionary<string, IAnnotation> annotations)
             => Array.Empty<AttributeCodeFragment>();
     }
 }
