@@ -26,6 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor = new();
 
+        private bool _visitedTopLevelProjection = false;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -116,11 +118,38 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (visitedExpression == null)
             {
+                // only verify type on top level
                 if (method.IsGenericMethod
-                    && method.GetGenericMethodDefinition() == QueryableMethods.Select)
+                    && !_visitedTopLevelProjection)
                 {
-                    var selector = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
-                    VerifyReturnType(selector.Body, selector.Parameters[0]);
+                    var selectorArgumentIndex = default(int?);
+
+                    if (method.GetGenericMethodDefinition() == QueryableMethods.Select)
+                    {
+                        selectorArgumentIndex = 1;
+                    }
+                    else if (method.GetGenericMethodDefinition() == QueryableMethods.SelectManyWithCollectionSelector)
+                    {
+                        selectorArgumentIndex = 2;
+                    }
+                    else if (method.GetGenericMethodDefinition() == QueryableMethods.Join
+                        || method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin)
+                    {
+                        selectorArgumentIndex = 4;
+                    }
+
+                    if (method.GetGenericMethodDefinition() == QueryableMethods.SelectManyWithoutCollectionSelector)
+                    {
+                        // for SelectMany without collection selector, the result is already typed as IEnumerable<T>, so no validation is needed
+                        _visitedTopLevelProjection = true;
+                    }
+
+                    if (selectorArgumentIndex != null)
+                    {
+                        _visitedTopLevelProjection = true;
+                        var selector = methodCallExpression.Arguments[selectorArgumentIndex.Value].UnwrapLambdaFromQuote();
+                        VerifyReturnType(selector.Body, selector.Parameters.ToArray());
+                    }
                 }
 
                 visitedExpression = base.VisitMethodCall(methodCallExpression);
@@ -136,25 +165,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return visitedExpression;
         }
 
-        private void VerifyReturnType(Expression expression, ParameterExpression lambdaParameter)
+        private void VerifyReturnType(Expression expression, ParameterExpression[] lambdaParameters)
         {
             switch (expression)
             {
                 case NewExpression newExpression:
                     foreach (var argument in newExpression.Arguments)
                     {
-                        VerifyReturnType(argument, lambdaParameter);
+                        VerifyReturnType(argument, lambdaParameters);
                     }
 
                     break;
 
                 case MemberInitExpression memberInitExpression:
-                    VerifyReturnType(memberInitExpression.NewExpression, lambdaParameter);
+                    VerifyReturnType(memberInitExpression.NewExpression, lambdaParameters);
                     foreach (var memberBinding in memberInitExpression.Bindings)
                     {
                         if (memberBinding is MemberAssignment memberAssignment)
                         {
-                            VerifyReturnType(memberAssignment.Expression, lambdaParameter);
+                            VerifyReturnType(memberAssignment.Expression, lambdaParameters);
                         }
                     }
 
@@ -166,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         throw new InvalidOperationException(
                             CoreStrings.QueryInvalidMaterializationType(
-                                new ExpressionPrinter().Print(Expression.Lambda(expression, lambdaParameter)),
+                                new ExpressionPrinter().Print(Expression.Lambda(expression, lambdaParameters)),
                                 expression.Type.ShortDisplayName()));
                     }
 

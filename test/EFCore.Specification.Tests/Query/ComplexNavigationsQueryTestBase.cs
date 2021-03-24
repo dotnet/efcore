@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -5877,7 +5878,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => (e.Foo, e.Bar, e.Baz));
         }
 
-        [ConditionalTheory(Skip = "issue #23302")]
+        [ConditionalTheory(Skip = "issue #23303")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Queryable_in_subquery_works_when_final_projection_is_List(bool async)
         {
@@ -5932,6 +5933,68 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select inner,
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_query_with_let_collection_SelectMany(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>()
+                      where l1.Name.StartsWith("L1 0")
+                      let inner = from i in ss.Set<Level1>()
+                                  where i.Id == l1.Id && i.Id > 5
+                                  select i
+                      from die in inner.DefaultIfEmpty()
+                      select die ?? l1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_without_collection_selector_returning_queryable(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().SelectMany(x => ss.Set<Level2>().Where(l2 => l2.Id < 10)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_projecting_queryable_followed_by_SelectMany(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Select(x => ss.Set<Level2>().Where(l2 => l2.Id < 10)).SelectMany(x => x));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_with_result_selector_returning_queryable_throws_validation_error(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>()
+                      join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id
+                      select ss.Set<Level3>().Where(x => x.Id < 5));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_projecting_queryable_followed_by_Join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Select(x => ss.Set<Level2>().Where(l2 => l2.Id < 10)).Join(ss.Set<Level3>(), o => 7, i => i.Id, (o, i) => i));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_projecting_queryable_in_anonymous_projection_followed_by_Join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Select(x => new { Subquery = ss.Set<Level2>().Where(l2 => l2.Id < 10) }).Join(ss.Set<Level3>(), o => 7, i => i.Id, (o, i) => i));
         }
 
         [ConditionalTheory]

@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -510,6 +511,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool async)
         {
             return AssertTranslationFailed(() => base.Complex_query_with_optional_navigations_and_client_side_evaluation(async));
+        }
+
+        public override async Task Join_with_result_selector_returning_queryable_throws_validation_error(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                base.Join_with_result_selector_returning_queryable_throws_validation_error(async))).Message;
+
+            Assert.Equal(CoreStrings.QueryInvalidMaterializationType(@"(l1, l2) => DbSet<Level1>()
+    .Select(t => t.OneToOne_Required_PK1)
+    .Where(t => t != null)
+    .Select(t => t.OneToOne_Required_PK2)
+    .Where(t => t != null)
+    .Where(x => x.Id < 5)", typeof(IQueryable<Level3>).DisplayName(false)), message);
         }
 
         protected virtual bool CanExecuteQueryString
