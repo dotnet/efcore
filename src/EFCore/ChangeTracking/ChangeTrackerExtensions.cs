@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
             this ChangeTracker changeTracker,
-            ChangeTrackerDebugStringOptions options,
+            ChangeTrackerDebugStringOptions options = ChangeTrackerDebugStringOptions.LongDefault,
             int indent = 0)
         {
             var builder = new StringBuilder();
