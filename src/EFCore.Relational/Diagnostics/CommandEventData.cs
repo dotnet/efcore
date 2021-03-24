@@ -30,6 +30,47 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async"> Indicates whether or not the command was executed asynchronously. </param>
         /// <param name="logParameterValues"> Indicates whether or not the application allows logging of parameter values. </param>
         /// <param name="startTime"> The start time of this event. </param>
+        public CommandEventData(
+            [NotNull] EventDefinitionBase eventDefinition,
+            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
+            [NotNull] DbConnection connection,
+            [NotNull] DbCommand command,
+            [CanBeNull] DbContext? context,
+            DbCommandMethod executeMethod,
+            Guid commandId,
+            Guid connectionId,
+            bool async,
+            bool logParameterValues,
+            DateTimeOffset startTime)
+            : base(
+                eventDefinition,
+                messageGenerator,
+                connection,
+                context,
+                executeMethod,
+                commandId,
+                connectionId,
+                async,
+                startTime)
+        {
+            Command = command;
+            LogParameterValues = logParameterValues;
+        }
+
+        /// <summary>
+        ///     Constructs the event payload.
+        /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
+        /// <param name="connection"> The <see cref="DbConnection" /> being used. </param>
+        /// <param name="command"> The <see cref="DbCommand" />. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
+        /// <param name="executeMethod"> The <see cref="DbCommand" /> method. </param>
+        /// <param name="commandId"> A correlation ID that identifies the <see cref="DbCommand" /> instance being used. </param>
+        /// <param name="connectionId"> A correlation ID that identifies the <see cref="DbConnection" /> instance being used. </param>
+        /// <param name="async"> Indicates whether or not the command was executed asynchronously. </param>
+        /// <param name="logParameterValues"> Indicates whether or not the application allows logging of parameter values. </param>
+        /// <param name="startTime"> The start time of this event. </param>
         /// <param name="commandSource">Source of the command.</param>
         public CommandEventData(
             [NotNull] EventDefinitionBase eventDefinition,
@@ -44,19 +85,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool logParameterValues,
             DateTimeOffset startTime,
             CommandSource commandSource)
-            : base(
+            : this(
                 eventDefinition,
                 messageGenerator,
                 connection,
+                command,
                 context,
                 executeMethod,
                 commandId,
                 connectionId,
                 async,
+                logParameterValues,
                 startTime)
         {
-            Command = command;
-            LogParameterValues = logParameterValues;
             CommandSource = commandSource;
         }
 
