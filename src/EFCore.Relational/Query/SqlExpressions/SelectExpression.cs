@@ -1190,11 +1190,23 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             select1._projectionMapping = new Dictionary<ProjectionMember, Expression>(_projectionMapping);
             _projectionMapping.Clear();
 
+            // Remap tableReferences in select1
+            foreach (var tableReference in select1._tableReferences)
+            {
+                tableReference.UpdateTableReference(this, select1);
+            }
+
+            var tableReferenceUpdatingExpressionVisitor = new TableReferenceUpdatingExpressionVisitor(this, select1);
+            tableReferenceUpdatingExpressionVisitor.Visit(select1);
+
             select1._identifier.AddRange(_identifier);
             _identifier.Clear();
             var outerIdentifiers = select1._identifier.Count == select2._identifier.Count
                 ? new ColumnExpression?[select1._identifier.Count]
                 : Array.Empty<ColumnExpression?>();
+            var entityProjectionIdentifiers = new List<ColumnExpression>();
+            var entityProjectionValueComparers = new List<ValueComparer>();
+            var otherExpressions = new List<SqlExpression>();
 
             if (select1.Orderings.Count != 0
                 || select1.Limit != null
@@ -1306,14 +1318,34 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             outerIdentifiers = Array.Empty<ColumnExpression>();
                         }
                     }
+
+                    otherExpressions.Add(outerProjection);
                 }
             }
 
+            // We should apply _identifiers only when it is distinct and actual select expression had identifiers.
             if (distinct
-                && outerIdentifiers.Length > 0
-                && outerIdentifiers.All(e => e != null))
+                && outerIdentifiers.Length > 0)
             {
-                _identifier.AddRange(outerIdentifiers.Zip(select1._identifier, (c, i) => (c!, i.Comparer)));
+                // If we find matching identifier in outer level then we just use them.
+                if (outerIdentifiers.All(e => e != null))
+                {
+                    _identifier.AddRange(outerIdentifiers.Zip(select1._identifier, (c, i) => (c!, i.Comparer)));
+                }
+                else
+                {
+                    _identifier.Clear();
+                    if (otherExpressions.Count == 0)
+                    {
+                        // If there are no other expressions then we can use all entityProjectionIdentifiers
+                        _identifier.AddRange(entityProjectionIdentifiers.Zip(entityProjectionValueComparers));
+                    }
+                    else if (otherExpressions.All(e => e is ColumnExpression))
+                    {
+                        _identifier.AddRange(entityProjectionIdentifiers.Zip(entityProjectionValueComparers));
+                        _identifier.AddRange(otherExpressions.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                    }
+                }
             }
 
             void HandleEntityProjection(
@@ -1377,8 +1409,22 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     discriminatorExpression = new ConcreteColumnExpression(innerProjection, tableReferenceExpression);
                 }
 
-                _projectionMapping[projectionMember] = new EntityProjectionExpression(
-                    projection1.EntityType, propertyExpressions, discriminatorExpression);
+                var entityProjection = new EntityProjectionExpression(projection1.EntityType, propertyExpressions, discriminatorExpression);
+
+                if (outerIdentifiers.Length > 0)
+                {
+                    var primaryKey = entityProjection.EntityType.FindPrimaryKey();
+                    // If there are any existing identifier then all entity projection must have a key
+                    // else keyless entity would have wiped identifier when generating join.
+                    Check.DebugAssert(primaryKey != null, "primary key is null.");
+                    foreach (var property in primaryKey.Properties)
+                    {
+                        entityProjectionIdentifiers.Add(entityProjection.BindProperty(property));
+                        entityProjectionValueComparers.Add(property.GetKeyValueComparer());
+                    }
+                }
+
+                _projectionMapping[projectionMember] = entityProjection;
             }
 
             string GenerateUniqueColumnAlias(string baseAlias)
@@ -2830,6 +2876,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 Offset = (SqlExpression?)visitor.Visit(Offset);
                 Limit = (SqlExpression?)visitor.Visit(Limit);
+
+                if (visitor is SqlRemappingVisitor)
+                {
+                    // We have to traverse pending collections for remapping so that columns from outer are updated.
+                    var pendingCollections = _pendingCollections.ToList();
+                    _pendingCollections.Clear();
+                    _pendingCollections.AddRange(pendingCollections.Select(e => (SelectExpression)visitor.Visit(e)!));
+                }
 
                 return this;
             }

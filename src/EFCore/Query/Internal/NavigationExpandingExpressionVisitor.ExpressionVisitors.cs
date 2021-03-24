@@ -538,6 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return ExpandInclude(ownedNavigationReference, ownedNavigationReference.EntityReference);
 
                     case MaterializeCollectionNavigationExpression _:
+                    case IncludeExpression _:
                         return extensionExpression;
                 }
 
