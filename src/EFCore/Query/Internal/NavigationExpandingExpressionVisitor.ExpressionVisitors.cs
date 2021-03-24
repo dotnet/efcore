@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,9 +13,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -624,7 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private bool ReconstructAnonymousType(
                 Expression currentRoot,
                 NewExpression newExpression,
-                [CA.NotNullWhen(true)] out Expression? replacement)
+                [NotNullWhen(true)] out Expression? replacement)
             {
                 replacement = null;
                 var changed = false;
@@ -707,6 +705,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (!navigationBase.IsCollection
                         && previousNavigation?.Inverse == navigationBase)
                     {
+                        // This skips one-to-one navigations which are pointing to each other.
+                        if (!navigationBase.IsEagerLoaded)
+                        {
+                            _logger.NavigationBaseIncludeIgnored(navigationBase);
+                        }
+
                         continue;
                     }
 
@@ -739,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         var subquery = materializeCollectionNavigation.Subquery;
                         if (!_ignoreAutoIncludes
                             && navigationBase is INavigation
-                            && navigationBase.Inverse != null
+                            && navigationBase.Inverse is INavigation inverseNavigation
                             && subquery is MethodCallExpression subqueryMethodCallExpression
                             && subqueryMethodCallExpression.Method.IsGenericMethod)
                         {
@@ -756,7 +760,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                             if (innerEntityReference != null)
                             {
-                                innerEntityReference.IncludePaths.Remove(navigationBase.Inverse);
+                                // This skips inverse navigation of a collection navigation if they are pointing to each other.
+                                // Not a skip navigation
+                                if (innerEntityReference.IncludePaths.ContainsKey(inverseNavigation)
+                                    && !inverseNavigation.IsEagerLoaded)
+                                {
+                                    _logger.NavigationBaseIncludeIgnored(inverseNavigation);
+                                }
+
+                                innerEntityReference.IncludePaths.Remove(inverseNavigation);
                             }
                         }
 
@@ -910,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _applyIncludes = applyIncludes;
             }
 
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is NavigationExpansionExpression navigationExpansionExpression)
@@ -936,7 +948,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class ReducingExpressionVisitor : ExpressionVisitor
         {
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 switch (expression)
@@ -1004,7 +1016,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class EntityReferenceOptionalMarkingExpressionVisitor : ExpressionVisitor
         {
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is EntityReference entityReference)
@@ -1090,7 +1102,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ExpressionType nodeType,
                 Expression left,
                 Expression right,
-                [CA.NotNullWhen(true)] out Expression? result)
+                [NotNullWhen(true)] out Expression? result)
             {
                 result = null;
                 var leftNavigationData = ProcessNavigationPath(left) as NavigationDataExpression;

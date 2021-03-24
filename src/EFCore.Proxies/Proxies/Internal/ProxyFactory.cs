@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using IInterceptor = Castle.DynamicProxy.IInterceptor;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
     /// <summary>

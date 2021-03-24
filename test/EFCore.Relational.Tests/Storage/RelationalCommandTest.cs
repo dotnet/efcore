@@ -8,7 +8,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -881,7 +880,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             private class ThrowingRelationalReader : RelationalDataReader
             {
-                public ThrowingRelationalReader([NotNull] IRelationalCommand relationalCommand)
+                public ThrowingRelationalReader(IRelationalCommand relationalCommand)
                     : base(relationalCommand)
                 {
                 }

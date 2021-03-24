@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 {
@@ -32,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CurrentDbContext([NotNull] DbContext context)
+        public CurrentDbContext(DbContext context)
         {
             Context = context;
         }

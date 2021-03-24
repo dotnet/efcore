@@ -1733,7 +1733,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 Assert.Equal(!useScope, result == null);
 
-                result = fk.HasPrincipalToDependent(Order.OrderDetailsProperty, ConfigurationSource.Explicit);
+                result = fk.SetPrincipalToDependent(Order.OrderDetailsProperty, ConfigurationSource.Explicit);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -1926,7 +1926,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                Assert.NotNull(relationshipBuilder.Metadata.SetDependentToPrincipal((string)null, ConfigurationSource.Convention));
+                var result = relationshipBuilder.Metadata.SetDependentToPrincipal((string)null, ConfigurationSource.Convention);
+
+                Assert.Equal(!useScope, result == null);
             }
 
             if (useScope)

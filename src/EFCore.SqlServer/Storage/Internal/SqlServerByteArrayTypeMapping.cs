@@ -6,12 +6,9 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -34,10 +31,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerByteArrayTypeMapping(
-            [CanBeNull] string? storeType = null,
+            string? storeType = null,
             int? size = null,
             bool fixedLength = false,
-            [CanBeNull] ValueComparer? comparer = null,
+            ValueComparer? comparer = null,
             SqlDbType? sqlDbType = null,
             StoreTypePostfix? storeTypePostfix = null)
             : this(

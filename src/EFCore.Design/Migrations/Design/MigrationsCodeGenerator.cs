@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Initializes a new instance of the <see cref="MigrationsCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        protected MigrationsCodeGenerator([NotNull] MigrationsCodeGeneratorDependencies dependencies)
+        protected MigrationsCodeGenerator(MigrationsCodeGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -96,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="operations"> The operations. </param>
         /// <returns> The namespaces. </returns>
-        protected virtual IEnumerable<string> GetNamespaces([NotNull] IEnumerable<MigrationOperation> operations)
+        protected virtual IEnumerable<string> GetNamespaces(IEnumerable<MigrationOperation> operations)
             => operations.OfType<ColumnOperation>().SelectMany(GetColumnNamespaces)
                 .Concat(operations.OfType<CreateTableOperation>().SelectMany(o => o.Columns).SelectMany(GetColumnNamespaces))
                 .Concat(
@@ -177,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The namespaces. </returns>
-        protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
+        protected virtual IEnumerable<string> GetNamespaces(IModel model)
             => model.GetEntityTypes().SelectMany(
                     e => e.GetDeclaredProperties()
                         .SelectMany(p => (FindValueConverter(p)?.ProviderClrType ?? p.ClrType).GetNamespaces()))

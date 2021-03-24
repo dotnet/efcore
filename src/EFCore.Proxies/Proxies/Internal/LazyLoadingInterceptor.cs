@@ -4,11 +4,8 @@
 using System;
 using System.Reflection;
 using Castle.DynamicProxy;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
@@ -36,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public LazyLoadingInterceptor(
-            [NotNull] IEntityType entityType,
-            [NotNull] ILazyLoader loader)
+            IEntityType entityType,
+            ILazyLoader loader)
         {
             _entityType = entityType;
             _loader = loader;

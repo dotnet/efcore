@@ -3,9 +3,6 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -38,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder? HasEntityTypes(
-            [NotNull] IConventionEntityType principalEntityType,
-            [NotNull] IConventionEntityType dependentEntityType,
+            IConventionEntityType principalEntityType,
+            IConventionEntityType dependentEntityType,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -54,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     be moved to a base type of one of the participating entity types.
         /// </returns>
         bool CanSetEntityTypes(
-            [NotNull] IConventionEntityType principalEntityType,
-            [NotNull] IConventionEntityType dependentEntityType,
+            IConventionEntityType principalEntityType,
+            IConventionEntityType dependentEntityType,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -68,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the principal and dependent entity types can be switched. </returns>
         bool CanInvert(
-            [CanBeNull] IReadOnlyList<IConventionProperty>? newForeignKeyProperties,
+            IReadOnlyList<IConventionProperty>? newForeignKeyProperties,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -81,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder? HasForeignKey(
-            [CanBeNull] IReadOnlyList<string>? propertyNames,
+            IReadOnlyList<string>? propertyNames,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -94,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder? HasForeignKey(
-            [CanBeNull] IReadOnlyList<IConventionProperty>? properties,
+            IReadOnlyList<IConventionProperty>? properties,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -104,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The properties to use as the foreign key for this relationship. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be set as the foreign key. </returns>
-        bool CanSetForeignKey([CanBeNull] IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
+        bool CanSetForeignKey(IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given properties can be set as the foreign key for this relationship
@@ -113,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="properties"> The properties to use as the foreign key for this relationship. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be set as the foreign key. </returns>
-        bool CanSetForeignKey([CanBeNull] IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation = false);
+        bool CanSetForeignKey(IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the properties that this relationship targets.
@@ -125,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder? HasPrincipalKey(
-            [CanBeNull] IReadOnlyList<string>? propertyNames,
+            IReadOnlyList<string>? propertyNames,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -138,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder? HasPrincipalKey(
-            [CanBeNull] IReadOnlyList<IConventionProperty>? properties,
+            IReadOnlyList<IConventionProperty>? properties,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -148,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyNames"> The properties for this relationship to target. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be set as the target. </returns>
-        bool CanSetPrincipalKey([CanBeNull] IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
+        bool CanSetPrincipalKey(IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given properties can be set as the target for this relationship
@@ -157,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="properties"> The properties for this relationship to target. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be set as the target. </returns>
-        bool CanSetPrincipalKey([CanBeNull] IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation = false);
+        bool CanSetPrincipalKey(IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the property with the given name as a navigation property used by this relationship.
@@ -172,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder? HasNavigation(
-            [CanBeNull] string? name,
+            string? name,
             bool pointsToPrincipal,
             bool fromDataAnnotation = false);
 
@@ -189,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder? HasNavigation(
-            [CanBeNull] MemberInfo? property,
+            MemberInfo? property,
             bool pointsToPrincipal,
             bool fromDataAnnotation = false);
 
@@ -210,8 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder? HasNavigations(
-            [CanBeNull] string? navigationToPrincipalName,
-            [CanBeNull] string? navigationToDependentName,
+            string? navigationToPrincipalName,
+            string? navigationToDependentName,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -231,8 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <see langword="null" /> otherwise.
         /// </returns>
         IConventionForeignKeyBuilder? HasNavigations(
-            [CanBeNull] MemberInfo? navigationToPrincipal,
-            [CanBeNull] MemberInfo? navigationToDependent,
+            MemberInfo? navigationToPrincipal,
+            MemberInfo? navigationToDependent,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -246,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given property can be used as a navigation. </returns>
         bool CanSetNavigation(
-            [CanBeNull] string? name,
+            string? name,
             bool pointsToPrincipal,
             bool fromDataAnnotation = false);
 
@@ -261,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given property can be used as a navigation. </returns>
         bool CanSetNavigation(
-            [CanBeNull] MemberInfo? property,
+            MemberInfo? property,
             bool pointsToPrincipal,
             bool fromDataAnnotation = false);
 
@@ -280,8 +277,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be used as navigations. </returns>
         bool CanSetNavigations(
-            [CanBeNull] string? navigationToPrincipalName,
-            [CanBeNull] string? navigationToDependentName,
+            string? navigationToPrincipalName,
+            string? navigationToDependentName,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -299,8 +296,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given properties can be used as navigations. </returns>
         bool CanSetNavigations(
-            [CanBeNull] MemberInfo? navigationToPrincipal,
-            [CanBeNull] MemberInfo? navigationToDependent,
+            MemberInfo? navigationToPrincipal,
+            MemberInfo? navigationToDependent,
             bool fromDataAnnotation = false);
 
         /// <summary>

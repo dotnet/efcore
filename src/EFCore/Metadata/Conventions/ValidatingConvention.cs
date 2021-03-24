@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -19,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="ValidatingConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public ValidatingConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ValidatingConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }

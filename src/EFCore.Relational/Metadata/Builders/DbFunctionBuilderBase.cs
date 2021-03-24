@@ -3,13 +3,10 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected DbFunctionBuilderBase([NotNull] IMutableDbFunction function)
+        protected DbFunctionBuilderBase(IMutableDbFunction function)
         {
             Check.NotNull(function, nameof(function));
 
@@ -58,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="name"> The name of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilderBase HasName([NotNull] string name)
+        public virtual DbFunctionBuilderBase HasName(string name)
         {
             Builder.HasName(name, ConfigurationSource.Explicit);
 
@@ -70,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilderBase HasSchema([CanBeNull] string? schema)
+        public virtual DbFunctionBuilderBase HasSchema(string? schema)
         {
             Builder.HasSchema(schema, ConfigurationSource.Explicit);
 
@@ -95,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="name"> The parameter name. </param>
         /// <returns> The builder to use for further parameter configuration. </returns>
-        public virtual DbFunctionParameterBuilder HasParameter([NotNull] string name)
+        public virtual DbFunctionParameterBuilder HasParameter(string name)
             => new(Builder.HasParameter(name, ConfigurationSource.Explicit).Metadata);
 
         #region Hidden System.Object members

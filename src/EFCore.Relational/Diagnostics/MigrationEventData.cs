@@ -3,10 +3,7 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -28,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The <see cref="Migration" /> being processed.
         /// </param>
         public MigrationEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IMigrator migrator,
-            [NotNull] Migration migration)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IMigrator migrator,
+            Migration migration)
             : base(eventDefinition, messageGenerator, migrator)
         {
             Migration = migration;

@@ -5,14 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -35,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="NavigationAttributeConventionBase{TAttribute}" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        protected NavigationAttributeConventionBase([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        protected NavigationAttributeConventionBase(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -287,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private Type? FindCandidateNavigationWithAttributePropertyType([NotNull] PropertyInfo propertyInfo)
+        private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo)
         {
             var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
             return targetClrType == null
@@ -304,8 +301,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <typeparam name="TCustomAttribute"> The attribute type to look for. </typeparam>
         /// <returns> The attributes applied to the given navigation. </returns>
         protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
-            [NotNull] IConventionEntityType entityType,
-            [NotNull] IConventionNavigation navigation)
+            IConventionEntityType entityType,
+            IConventionNavigation navigation)
             where TCustomAttribute : Attribute
             => GetAttributes<TCustomAttribute>(entityType, navigation.GetIdentifyingMemberInfo());
 
@@ -317,14 +314,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <typeparam name="TCustomAttribute"> The attribute type to look for. </typeparam>
         /// <returns> The attributes applied to the given skip navigation. </returns>
         protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
-            [NotNull] IConventionEntityType entityType,
-            [NotNull] IConventionSkipNavigation skipNavigation)
+            IConventionEntityType entityType,
+            IConventionSkipNavigation skipNavigation)
             where TCustomAttribute : Attribute
             => GetAttributes<TCustomAttribute>(entityType, skipNavigation.GetIdentifyingMemberInfo());
 
         private static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
-            [NotNull] IConventionEntityType entityType,
-            [CanBeNull] MemberInfo? memberInfo)
+            IConventionEntityType entityType,
+            MemberInfo? memberInfo)
             where TCustomAttribute : Attribute
         {
             if (memberInfo == null)
@@ -346,11 +343,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="attribute"> The attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeAdded(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [NotNull] MemberInfo navigationMemberInfo,
-            [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute,
-            [NotNull] IConventionContext<IConventionEntityTypeBuilder> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            MemberInfo navigationMemberInfo,
+            Type targetClrType,
+            TAttribute attribute,
+            IConventionContext<IConventionEntityTypeBuilder> context)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -363,12 +360,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="attribute"> The attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeIgnored(
-            [NotNull] IConventionModelBuilder modelBuilder,
-            [NotNull] Type type,
-            [NotNull] MemberInfo navigationMemberInfo,
-            [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute,
-            [NotNull] IConventionContext<string> context)
+            IConventionModelBuilder modelBuilder,
+            Type type,
+            MemberInfo navigationMemberInfo,
+            Type targetClrType,
+            TAttribute attribute,
+            IConventionContext<string> context)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -381,12 +378,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="attribute"> The attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeRemoved(
-            [NotNull] IConventionModelBuilder modelBuilder,
-            [NotNull] Type type,
-            [NotNull] MemberInfo navigationMemberInfo,
-            [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute,
-            [NotNull] IConventionContext<IConventionEntityType> context)
+            IConventionModelBuilder modelBuilder,
+            Type type,
+            MemberInfo navigationMemberInfo,
+            Type targetClrType,
+            TAttribute attribute,
+            IConventionContext<IConventionEntityType> context)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -400,13 +397,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="attribute"> The attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] IConventionEntityType? newBaseType,
-            [CanBeNull] IConventionEntityType? oldBaseType,
-            [NotNull] MemberInfo navigationMemberInfo,
-            [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute,
-            [NotNull] IConventionContext<IConventionEntityType> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
+            MemberInfo navigationMemberInfo,
+            Type targetClrType,
+            TAttribute attribute,
+            IConventionContext<IConventionEntityType> context)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -416,9 +413,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="attribute"> The attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessNavigationAdded(
-            [NotNull] IConventionNavigationBuilder navigationBuilder,
-            [NotNull] TAttribute attribute,
-            [NotNull] IConventionContext<IConventionNavigationBuilder> context)
+            IConventionNavigationBuilder navigationBuilder,
+            TAttribute attribute,
+            IConventionContext<IConventionNavigationBuilder> context)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -428,9 +425,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="attribute"> The attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessSkipNavigationAdded(
-            [NotNull] IConventionSkipNavigationBuilder skipNavigationBuilder,
-            [NotNull] TAttribute attribute,
-            [NotNull] IConventionContext<IConventionSkipNavigationBuilder> context)
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
+            TAttribute attribute,
+            IConventionContext<IConventionSkipNavigationBuilder> context)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -442,11 +439,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="attribute"> The attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeMemberIgnored(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [NotNull] MemberInfo navigationMemberInfo,
-            [NotNull] Type targetClrType,
-            [NotNull] TAttribute attribute,
-            [NotNull] IConventionContext<string> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            MemberInfo navigationMemberInfo,
+            Type targetClrType,
+            TAttribute attribute,
+            IConventionContext<string> context)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -457,10 +454,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="principalToDependentAttributes"> The attributes on the principal to dependent navigation. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessForeignKeyPrincipalEndChanged(
-            [NotNull] IConventionForeignKeyBuilder relationshipBuilder,
-            [CanBeNull] IEnumerable<TAttribute>? dependentToPrincipalAttributes,
-            [CanBeNull] IEnumerable<TAttribute>? principalToDependentAttributes,
-            [NotNull] IConventionContext<IConventionForeignKeyBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IEnumerable<TAttribute>? dependentToPrincipalAttributes,
+            IEnumerable<TAttribute>? principalToDependentAttributes,
+            IConventionContext<IConventionForeignKeyBuilder> context)
             => throw new NotSupportedException();
     }
 }

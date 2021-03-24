@@ -4,11 +4,8 @@
 using System;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -32,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public RelationalSqlGenerationHelper([NotNull] RelationalSqlGenerationHelperDependencies dependencies)
+        public RelationalSqlGenerationHelper(RelationalSqlGenerationHelperDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
         }
@@ -108,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        public virtual string EscapeIdentifier([NotNull] string identifier)
+        public virtual string EscapeIdentifier(string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("\"", "\"\"");
 
         /// <summary>
@@ -116,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="identifier">The identifier to be escaped.</param>
-        public virtual void EscapeIdentifier([NotNull] StringBuilder builder, [NotNull] string identifier)
+        public virtual void EscapeIdentifier(StringBuilder builder, string identifier)
         {
             Check.NotEmpty(identifier, nameof(identifier));
 

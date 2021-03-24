@@ -6,11 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -59,9 +56,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="hashCodeExpression"> The associated hash code generator. </param>
         /// <param name="snapshotExpression"> The snapshot expression. </param>
         protected ValueComparer(
-            [NotNull] LambdaExpression equalsExpression,
-            [NotNull] LambdaExpression hashCodeExpression,
-            [NotNull] LambdaExpression snapshotExpression)
+            LambdaExpression equalsExpression,
+            LambdaExpression hashCodeExpression,
+            LambdaExpression snapshotExpression)
         {
             Check.NotNull(equalsExpression, nameof(equalsExpression));
             Check.NotNull(hashCodeExpression, nameof(hashCodeExpression));
@@ -105,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="instance"> The instance. </param>
         /// <returns> The snapshot. </returns>
-        public abstract object? Snapshot([CanBeNull] object? instance);
+        public abstract object? Snapshot(object? instance);
 
         /// <summary>
         ///     The comparison expression.
@@ -138,8 +135,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="rightExpression"> The new right expression. </param>
         /// <returns> The body of the lambda with left and right parameters replaced.</returns>
         public virtual Expression ExtractEqualsBody(
-            [NotNull] Expression leftExpression,
-            [NotNull] Expression rightExpression)
+            Expression leftExpression,
+            Expression rightExpression)
         {
             Check.NotNull(leftExpression, nameof(leftExpression));
             Check.NotNull(rightExpression, nameof(rightExpression));
@@ -158,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="expression"> The new expression. </param>
         /// <returns> The body of the lambda with the parameter replaced.</returns>
-        public virtual Expression ExtractHashCodeBody([NotNull] Expression expression)
+        public virtual Expression ExtractHashCodeBody(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -174,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="expression"> The new expression. </param>
         /// <returns> The body of the lambda with the parameter replaced.</returns>
-        public virtual Expression ExtractSnapshotBody([NotNull] Expression expression)
+        public virtual Expression ExtractSnapshotBody(Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -193,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     implements it. This is usually used when byte arrays act as keys.
         /// </param>
         /// <returns> The <see cref="ValueComparer{T}" />. </returns>
-        public static ValueComparer CreateDefault([NotNull] Type type, bool favorStructuralComparisons)
+        public static ValueComparer CreateDefault(Type type, bool favorStructuralComparisons)
         {
             var nonNullabletype = type.UnwrapNullableType();
 

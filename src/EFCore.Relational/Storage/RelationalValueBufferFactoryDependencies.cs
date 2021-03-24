@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -62,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalValueBufferFactoryDependencies(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] ICoreSingletonOptions coreOptions)
+            IRelationalTypeMappingSource typeMappingSource,
+            ICoreSingletonOptions coreOptions)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(coreOptions, nameof(coreOptions));
@@ -75,11 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the type mapping source.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     Gets core options.
         /// </summary>
-        public ICoreSingletonOptions CoreOptions { get; [param: NotNull] init; }
+        public ICoreSingletonOptions CoreOptions { get; init; }
     }
 }

@@ -5,14 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -27,10 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class EntityProjectionExpression : Expression
     {
-        private readonly IDictionary<IProperty, ColumnExpression> _propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
-
-        private readonly IDictionary<INavigation, EntityShaperExpression> _ownedNavigationMap
-            = new Dictionary<INavigation, EntityShaperExpression>();
+        private readonly IReadOnlyDictionary<IProperty, ColumnExpression> _propertyExpressionMap;
+        private readonly Dictionary<INavigation, EntityShaperExpression> _ownedNavigationMap = new();
 
         /// <summary>
         ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
@@ -39,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerTable"> The table from which entity columns are being projected out. </param>
         /// <param name="nullable"> A bool value indicating whether this entity instance can be null. </param>
         [Obsolete("Use the constructor which takes populated column expressions map.", error: true)]
-        public EntityProjectionExpression([NotNull] IEntityType entityType, [NotNull] TableExpressionBase innerTable, bool nullable)
+        public EntityProjectionExpression(IEntityType entityType, TableExpressionBase innerTable, bool nullable)
         {
             throw new NotSupportedException("Obsolete: Use the constructor which takes populated column expressions map.");
         }
@@ -51,9 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="propertyExpressionMap"> A dictionary of column expressions corresponding to properties of the entity type. </param>
         /// <param name="discriminatorExpression"> A <see cref="SqlExpression" /> to generate discriminator for each concrete entity type in hierarchy. </param>
         public EntityProjectionExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] IDictionary<IProperty, ColumnExpression> propertyExpressionMap,
-            [CanBeNull] SqlExpression? discriminatorExpression = null)
+            IEntityType entityType,
+            IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
+            SqlExpression? discriminatorExpression = null)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyExpressionMap, nameof(propertyExpressionMap));
@@ -125,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="derivedType"> A derived entity type which should be projected. </param>
         /// <returns> A new entity projection expression which has the derived type being projected. </returns>
-        public virtual EntityProjectionExpression UpdateEntityType([NotNull] IEntityType derivedType)
+        public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
         {
             Check.NotNull(derivedType, nameof(derivedType));
 
@@ -166,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="property"> A property to bind. </param>
         /// <returns> A column which is a SQL representation of the property. </returns>
-        public virtual ColumnExpression BindProperty([NotNull] IProperty property)
+        public virtual ColumnExpression BindProperty(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -185,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="navigation"> A navigation to add binding for. </param>
         /// <param name="entityShaper"> An entity shaper expression for the target type. </param>
-        public virtual void AddNavigationBinding([NotNull] INavigation navigation, [NotNull] EntityShaperExpression entityShaper)
+        public virtual void AddNavigationBinding(INavigation navigation, EntityShaperExpression entityShaper)
         {
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(entityShaper, nameof(entityShaper));
@@ -206,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="navigation"> A navigation to bind. </param>
         /// <returns> An entity shaper expression for the target entity type of the navigation. </returns>
-        public virtual EntityShaperExpression? BindNavigation([NotNull] INavigation navigation)
+        public virtual EntityShaperExpression? BindNavigation(INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
 

@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -31,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             int? scale = null,
             bool? unicode = null,
             bool? fixedLength = null,
-            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
+            Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
             : base(size, precision, scale, unicode, valueGeneratorFactory)
         {
             IsFixedLength = fixedLength;

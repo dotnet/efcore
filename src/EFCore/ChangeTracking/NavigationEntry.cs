@@ -6,13 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -35,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected NavigationEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name, bool collection)
+        protected NavigationEntry(InternalEntityEntry internalEntry, string name, bool collection)
             : this(internalEntry, GetNavigation(internalEntry, name, collection))
         {
         }
@@ -47,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected NavigationEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigationBase navigation)
+        protected NavigationEntry(InternalEntityEntry internalEntry, INavigationBase navigation)
             : base(internalEntry, navigation)
         {
         }

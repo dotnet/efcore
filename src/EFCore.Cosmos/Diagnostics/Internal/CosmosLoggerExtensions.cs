@@ -6,14 +6,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
@@ -33,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ExecutingSqlQuery(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] string containerId,
-            [CanBeNull] string? partitionKey,
-            [NotNull] CosmosSqlQuery cosmosSqlQuery)
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            string containerId,
+            string? partitionKey,
+            CosmosSqlQuery cosmosSqlQuery)
         {
             var definition = CosmosResources.LogExecutingSqlQuery(diagnostics);
 
@@ -87,10 +84,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ExecutingReadItem(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] string containerId,
-            [CanBeNull] string? partitionKey,
-            [NotNull] string resourceId)
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            string containerId,
+            string? partitionKey,
+            string resourceId)
         {
             var definition = CosmosResources.LogExecutingReadItem(diagnostics);
 

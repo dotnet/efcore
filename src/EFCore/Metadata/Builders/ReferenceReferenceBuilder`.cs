@@ -3,13 +3,10 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -30,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceReferenceBuilder(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType declaringEntityType,
+            IMutableEntityType relatedEntityType,
+            IMutableForeignKey foreignKey)
             : base(declaringEntityType, relatedEntityType, foreignKey)
         {
         }
@@ -45,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected ReferenceReferenceBuilder(
-            [NotNull] InternalForeignKeyBuilder builder,
-            [NotNull] ReferenceReferenceBuilder oldBuilder,
+            InternalForeignKeyBuilder builder,
+            ReferenceReferenceBuilder oldBuilder,
             bool inverted = false,
             bool foreignKeySet = false,
             bool principalKeySet = false,
@@ -63,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation(
-            [NotNull] string annotation,
-            [NotNull] object value)
+            string annotation,
+            object? value)
             => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)base.HasAnnotation(annotation, value);
 
         /// <summary>
@@ -94,8 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
-            [NotNull] string dependentEntityTypeName,
-            [NotNull] params string[] foreignKeyPropertyNames)
+            string dependentEntityTypeName,
+            params string[] foreignKeyPropertyNames)
             => new(
                 HasForeignKeyBuilder(
                     ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName)))!,
@@ -132,8 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(
-            [NotNull] Type dependentEntityType,
-            [NotNull] params string[] foreignKeyPropertyNames)
+            Type dependentEntityType,
+            params string[] foreignKeyPropertyNames)
             => new(
                 HasForeignKeyBuilder(
                     ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType)))!,
@@ -170,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
-            [NotNull] params string[] foreignKeyPropertyNames)
+            params string[] foreignKeyPropertyNames)
             where TDependentEntity : class
             => HasForeignKey(typeof(TDependentEntity), foreignKeyPropertyNames);
 
@@ -208,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
-            [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+            Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
             where TDependentEntity : class
             => new(
                 HasForeignKeyBuilder(
@@ -232,8 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-            [NotNull] string principalEntityTypeName,
-            [NotNull] params string[] keyPropertyNames)
+            string principalEntityTypeName,
+            params string[] keyPropertyNames)
             => new(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName)))!,
@@ -256,8 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
-            [NotNull] Type principalEntityType,
-            [NotNull] params string[] keyPropertyNames)
+            Type principalEntityType,
+            params string[] keyPropertyNames)
             => new(
                 HasPrincipalKeyBuilder(
                     ResolveEntityType(Check.NotNull(principalEntityType, nameof(principalEntityType)))!,
@@ -280,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
-            [NotNull] params string[] keyPropertyNames)
+            params string[] keyPropertyNames)
             where TPrincipalEntity : class
             => HasPrincipalKey(typeof(TPrincipalEntity), keyPropertyNames);
 
@@ -310,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
-            [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
+            Expression<Func<TPrincipalEntity, object?>> keyExpression)
             where TPrincipalEntity : class
             => new(
                 HasPrincipalKeyBuilder(

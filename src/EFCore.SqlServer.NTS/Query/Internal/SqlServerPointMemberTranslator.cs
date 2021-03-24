@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     internal class SqlServerPointMemberTranslator : IMemberTranslator

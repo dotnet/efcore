@@ -3,15 +3,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
@@ -37,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryStore(
-            [NotNull] IInMemoryTableFactory tableFactory,
+            IInMemoryTableFactory tableFactory,
             bool useNameMatching)
         {
             _tableFactory = tableFactory;
@@ -71,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public virtual bool EnsureCreated(
             IUpdateAdapterFactory updateAdapterFactory,
+            IModel designModel,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             lock (_lock)
@@ -83,11 +81,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                     var updateAdapter = updateAdapterFactory.CreateStandalone();
                     var entries = new List<IUpdateEntry>();
-                    foreach (var entityType in updateAdapter.Model.GetEntityTypes())
+                    foreach (var entityType in designModel.GetEntityTypes())
                     {
+                        IEntityType? targetEntityType = null;
                         foreach (var targetSeed in entityType.GetSeedData())
                         {
-                            var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                            targetEntityType ??= updateAdapter.Model.FindEntityType(entityType.Name)!;
+                            var entry = updateAdapter.CreateEntry(targetSeed, targetEntityType);
                             entry.EntityState = EntityState.Added;
                             entries.Add(entry);
                         }

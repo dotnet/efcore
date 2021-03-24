@@ -4,10 +4,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalSkipNavigationBuilder([NotNull] SkipNavigation metadata, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalSkipNavigationBuilder(SkipNavigation metadata, InternalModelBuilder modelBuilder)
             : base(metadata, modelBuilder)
         {
         }
@@ -36,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalSkipNavigationBuilder? HasField([CanBeNull] string? fieldName, ConfigurationSource configurationSource)
+        public new virtual InternalSkipNavigationBuilder? HasField(string? fieldName, ConfigurationSource configurationSource)
             => (InternalSkipNavigationBuilder?)base.HasField(fieldName, configurationSource);
 
         /// <summary>
@@ -45,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalSkipNavigationBuilder? HasField([CanBeNull] FieldInfo? fieldInfo, ConfigurationSource configurationSource)
+        public new virtual InternalSkipNavigationBuilder? HasField(FieldInfo? fieldInfo, ConfigurationSource configurationSource)
             => (InternalSkipNavigationBuilder?)base.HasField(fieldInfo, configurationSource);
 
         /// <summary>
@@ -66,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalSkipNavigationBuilder? HasForeignKey(
-            [CanBeNull] ForeignKey? foreignKey,
+            ForeignKey? foreignKey,
             ConfigurationSource configurationSource)
         {
             if (!CanSetForeignKey(foreignKey, configurationSource))
@@ -106,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetForeignKey([CanBeNull] ForeignKey? foreignKey, ConfigurationSource? configurationSource)
+        public virtual bool CanSetForeignKey(ForeignKey? foreignKey, ConfigurationSource? configurationSource)
         {
             if (!configurationSource.Overrides(Metadata.GetForeignKeyConfigurationSource()))
             {
@@ -141,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalSkipNavigationBuilder? HasInverse(
-            [CanBeNull] SkipNavigation? inverse,
+            SkipNavigation? inverse,
             ConfigurationSource configurationSource)
         {
             if (!CanSetInverse(inverse, configurationSource))
@@ -180,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetInverse(
-            [CanBeNull] SkipNavigation? inverse,
+            SkipNavigation? inverse,
             ConfigurationSource? configurationSource)
         {
             if (!configurationSource.Overrides(Metadata.GetInverseConfigurationSource())
@@ -209,9 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalSkipNavigationBuilder? Attach(
-            [CanBeNull] InternalEntityTypeBuilder? entityTypeBuilder = null,
-            [CanBeNull] EntityType? targetEntityType = null,
-            [CanBeNull] InternalSkipNavigationBuilder? inverseBuilder = null)
+            InternalEntityTypeBuilder? entityTypeBuilder = null,
+            EntityType? targetEntityType = null,
+            InternalSkipNavigationBuilder? inverseBuilder = null)
         {
             if (entityTypeBuilder is null)
             {

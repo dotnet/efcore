@@ -6,13 +6,10 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -37,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="Database" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected Database([NotNull] DatabaseDependencies dependencies)
+        protected Database(DatabaseDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

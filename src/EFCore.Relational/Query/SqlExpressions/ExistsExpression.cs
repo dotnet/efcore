@@ -3,11 +3,8 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -29,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="negated"> A value indicating if the existence check is negated. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public ExistsExpression(
-            [NotNull] SelectExpression subquery,
+            SelectExpression subquery,
             bool negated,
-            [CanBeNull] RelationalTypeMapping? typeMapping)
+            RelationalTypeMapping? typeMapping)
             : base(typeof(bool), typeMapping)
         {
             Check.NotNull(subquery, nameof(subquery));
@@ -64,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual ExistsExpression Update([NotNull] SelectExpression subquery)
+        public virtual ExistsExpression Update(SelectExpression subquery)
         {
             Check.NotNull(subquery, nameof(subquery));
 

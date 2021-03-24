@@ -6,12 +6,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -64,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly added annotation. </returns>
-        public virtual Annotation AddAnnotation([NotNull] string name, [CanBeNull] object? value)
+        public virtual Annotation AddAnnotation(string name, object? value)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -79,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="annotation"> The annotation to be added. </param>
         /// <returns> The added annotation. </returns>
-        protected virtual Annotation AddAnnotation([NotNull] string name, [NotNull] Annotation annotation)
+        protected virtual Annotation AddAnnotation(string name, Annotation annotation)
         {
             if (FindAnnotation(name) != null)
             {
@@ -95,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds annotations to this object.
         /// </summary>
         /// <param name="annotations"> The annotations to be added. </param>
-        public virtual void AddAnnotations([NotNull] IEnumerable<IAnnotation> annotations)
+        public virtual void AddAnnotations(IEnumerable<IAnnotation> annotations)
             => AddAnnotations(this, annotations);
 
         /// <summary>
@@ -104,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        internal static void AddAnnotations([NotNull] AnnotatableBase annotatable, [NotNull] IEnumerable<IAnnotation> annotations)
+        internal static void AddAnnotations(AnnotatableBase annotatable, IEnumerable<IAnnotation> annotations)
         {
             foreach (var annotation in annotations)
             {
@@ -116,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds annotations to this object.
         /// </summary>
         /// <param name="annotations"> The annotations to be added. </param>
-        public virtual void AddAnnotations([NotNull] IReadOnlyDictionary<string, object?> annotations)
+        public virtual void AddAnnotations(IReadOnlyDictionary<string, object?> annotations)
             => AddAnnotations(this, annotations.Select(a => CreateAnnotation(a.Key, a.Value)));
 
         /// <summary>
@@ -125,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
-        public virtual void SetAnnotation([NotNull] string name, [CanBeNull] object? value)
+        public virtual void SetAnnotation(string name, object? value)
         {
             var oldAnnotation = FindAnnotation(name);
             if (oldAnnotation != null
@@ -146,9 +143,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="oldAnnotation"> The annotation being replaced. </param>
         /// <returns> The annotation that was set. </returns>
         protected virtual Annotation? SetAnnotation(
-            [NotNull] string name,
-            [NotNull] Annotation annotation,
-            [CanBeNull] Annotation? oldAnnotation)
+            string name,
+            Annotation annotation,
+            Annotation? oldAnnotation)
         {
             EnsureMutable();
 
@@ -170,9 +167,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected virtual Annotation? OnAnnotationSet(
-            [NotNull] string name,
-            [CanBeNull] Annotation? annotation,
-            [CanBeNull] Annotation? oldAnnotation)
+            string name,
+            Annotation? annotation,
+            Annotation? oldAnnotation)
             => annotation;
 
         /// <summary>
@@ -182,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        public virtual Annotation? FindAnnotation([NotNull] string name)
+        public virtual Annotation? FindAnnotation(string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -198,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="annotationName"> The key of the annotation to find. </param>
         /// <returns> The annotation with the specified name. </returns>
-        public virtual Annotation GetAnnotation([NotNull] string annotationName)
+        public virtual Annotation GetAnnotation(string annotationName)
             => (Annotation)GetAnnotation(this, annotationName);
 
         /// <summary>
@@ -207,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        internal static IAnnotation GetAnnotation([NotNull] IReadOnlyAnnotatable annotatable, [NotNull] string annotationName)
+        internal static IAnnotation GetAnnotation(IReadOnlyAnnotatable annotatable, string annotationName)
         {
             Check.NotEmpty(annotationName, nameof(annotationName));
 
@@ -225,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        public virtual Annotation? RemoveAnnotation([NotNull] string name)
+        public virtual Annotation? RemoveAnnotation(string name)
         {
             Check.NotNull(name, nameof(name));
             EnsureMutable();
@@ -256,11 +253,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The value of the existing annotation if an annotation with the specified name already exists.
         ///     Otherwise, <see langword="null" />.
         /// </returns>
-        public virtual object? this[[NotNull] string name]
+        public virtual object? this[string name]
         {
             get => FindAnnotation(name)?.Value;
 
-            [param: CanBeNull]
             set
             {
                 Check.NotEmpty(name, nameof(name));
@@ -282,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly created annotation. </returns>
-        protected virtual Annotation CreateAnnotation([NotNull] string name, [CanBeNull] object? value)
+        protected virtual Annotation CreateAnnotation(string name, object? value)
             => new(name, value);
 
         /// <summary>
@@ -299,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly added annotation. </returns>
-        public virtual Annotation AddRuntimeAnnotation([NotNull] string name, [CanBeNull] object? value)
+        public virtual Annotation AddRuntimeAnnotation(string name, object? value)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -314,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="annotation"> The annotation to be added. </param>
         /// <returns> The added annotation. </returns>
-        protected virtual Annotation AddRuntimeAnnotation([NotNull] string name, [NotNull] Annotation annotation)
+        protected virtual Annotation AddRuntimeAnnotation(string name, Annotation annotation)
             => GetOrCreateRuntimeAnnotations().TryAdd(name, annotation)
                 ? annotation
                 : throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name, ToString()));
@@ -323,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds runtime annotations to this object.
         /// </summary>
         /// <param name="annotations"> The annotations to be added. </param>
-        public virtual void AddRuntimeAnnotations([NotNull] IEnumerable<Annotation> annotations)
+        public virtual void AddRuntimeAnnotations(IEnumerable<Annotation> annotations)
         {
             foreach (var annotation in annotations)
             {
@@ -335,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds runtime annotations to this object.
         /// </summary>
         /// <param name="annotations"> The annotations to be added. </param>
-        public virtual void AddRuntimeAnnotations([NotNull] IReadOnlyDictionary<string, object?> annotations)
+        public virtual void AddRuntimeAnnotations(IReadOnlyDictionary<string, object?> annotations)
             => AddRuntimeAnnotations(annotations.Select(a => CreateRuntimeAnnotation(a.Key, a.Value)));
 
         /// <summary>
@@ -344,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
-        public virtual Annotation SetRuntimeAnnotation([NotNull] string name, [CanBeNull] object? value)
+        public virtual Annotation SetRuntimeAnnotation(string name, object? value)
             => GetOrCreateRuntimeAnnotations().AddOrUpdate(name,
                 static (n, a) => a.Annotatable.CreateRuntimeAnnotation(n, a.Value),
                 static (n, oldAnnotation, a) =>
@@ -360,9 +356,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="oldAnnotation"> The annotation being replaced. </param>
         /// <returns> The annotation that was set. </returns>
         protected virtual Annotation SetRuntimeAnnotation(
-            [NotNull] string name,
-            [NotNull] Annotation annotation,
-            [CanBeNull] Annotation? oldAnnotation)
+            string name,
+            Annotation annotation,
+            Annotation? oldAnnotation)
         {
             GetOrCreateRuntimeAnnotations()[name] = annotation;
 
@@ -395,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        public virtual Annotation? FindRuntimeAnnotation([NotNull] string name)
+        public virtual Annotation? FindRuntimeAnnotation(string name)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -411,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        public virtual Annotation? RemoveRuntimeAnnotation([NotNull] string name)
+        public virtual Annotation? RemoveRuntimeAnnotation(string name)
         {
             Check.NotNull(name, nameof(name));
             EnsureReadOnly();
@@ -432,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly created annotation. </returns>
-        protected virtual Annotation CreateRuntimeAnnotation([NotNull] string name, [CanBeNull] object? value)
+        protected virtual Annotation CreateRuntimeAnnotation(string name, object? value)
             => new Annotation(name, value);
 
         private ConcurrentDictionary<string, Annotation> GetOrCreateRuntimeAnnotations()

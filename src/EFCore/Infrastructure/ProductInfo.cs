@@ -3,8 +3,6 @@
 
 using System.Reflection;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>

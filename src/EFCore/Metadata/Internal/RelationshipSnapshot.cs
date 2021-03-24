@@ -3,9 +3,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -24,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public RelationshipSnapshot(
-            [NotNull] InternalForeignKeyBuilder relationship,
-            [CanBeNull] EntityType.Snapshot? ownedEntityTypeSnapshot,
-            [CanBeNull] List<(SkipNavigation, ConfigurationSource)>? referencingSkipNavigations)
+            InternalForeignKeyBuilder relationship,
+            EntityType.Snapshot? ownedEntityTypeSnapshot,
+            List<(SkipNavigation, ConfigurationSource)>? referencingSkipNavigations)
         {
             Relationship = relationship;
             OwnedEntityTypeSnapshot = ownedEntityTypeSnapshot;
@@ -66,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalForeignKeyBuilder? Attach([CanBeNull] InternalEntityTypeBuilder? entityTypeBuilder = null)
+        public virtual InternalForeignKeyBuilder? Attach(InternalEntityTypeBuilder? entityTypeBuilder = null)
         {
             entityTypeBuilder ??= Relationship.Metadata.DeclaringEntityType.Builder;
 

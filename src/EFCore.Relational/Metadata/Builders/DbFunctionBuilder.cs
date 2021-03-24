@@ -3,11 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -23,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public DbFunctionBuilder([NotNull] IMutableDbFunction function)
+        public DbFunctionBuilder(IMutableDbFunction function)
             : base(function)
         {
         }
@@ -33,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="name"> The name of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual DbFunctionBuilder HasName([NotNull] string name)
+        public new virtual DbFunctionBuilder HasName(string name)
             => (DbFunctionBuilder)base.HasName(name);
 
         /// <summary>
@@ -41,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual DbFunctionBuilder HasSchema([CanBeNull] string? schema)
+        public new virtual DbFunctionBuilder HasSchema(string? schema)
             => (DbFunctionBuilder)base.HasSchema(schema);
 
         /// <summary>
@@ -69,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="storeType"> The return store type of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilder HasStoreType([CanBeNull] string? storeType)
+        public virtual DbFunctionBuilder HasStoreType(string? storeType)
         {
             Builder.HasStoreType(storeType, ConfigurationSource.Explicit);
 
@@ -89,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="translation"> The translation to use. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyList<SqlExpression>, SqlExpression> translation)
+        public virtual DbFunctionBuilder HasTranslation(Func<IReadOnlyList<SqlExpression>, SqlExpression> translation)
         {
             Builder.HasTranslation(translation, ConfigurationSource.Explicit);
 

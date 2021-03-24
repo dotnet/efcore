@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -27,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CompositeRelationalParameter(
-            [NotNull] string invariantName,
-            [NotNull] IReadOnlyList<IRelationalParameter> relationalParameters)
+            string invariantName,
+            IReadOnlyList<IRelationalParameter> relationalParameters)
             : base(invariantName)
         {
             Check.NotNull(relationalParameters, nameof(relationalParameters));

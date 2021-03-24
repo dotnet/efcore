@@ -6,8 +6,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     /// <summary>
@@ -38,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [UsedImplicitly]
-        public AnonymousObject([NotNull] object[] values)
+        public AnonymousObject(object[] values)
             => _values = values;
 
         /// <summary>

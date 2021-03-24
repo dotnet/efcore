@@ -1,11 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -22,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         [EntityFrameworkInternal]
         public EntityTrackedEventArgs(
-            [NotNull] InternalEntityEntry internalEntityEntry,
+            InternalEntityEntry internalEntityEntry,
             bool fromQuery)
             : base(internalEntityEntry)
         {

@@ -3,20 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -37,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="expression"> The expression. </param>
         /// <param name="characterLimit"> An optional limit to the number of characters included. Additional output will be truncated. </param>
         /// <returns> The printable representation. </returns>
-        public static string Print([NotNull] this Expression expression, int? characterLimit = null)
+        public static string Print(this Expression expression, int? characterLimit = null)
             => new ExpressionPrinter().Print(Check.NotNull(expression, nameof(expression)), characterLimit);
 
         /// <summary>
@@ -47,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="member"> The <see cref="MemberInfo"></see> that describes the field or property to be accessed. </param>
         /// <returns> The <see cref="MemberExpression"></see> that results from calling the appropriate factory method. </returns>
         public static MemberExpression MakeMemberAccess(
-            [CanBeNull] this Expression? expression,
-            [NotNull] MemberInfo member)
+            this Expression? expression,
+            MemberInfo member)
         {
             var memberDeclaringClrType = member.DeclaringType;
             if (expression != null
@@ -68,8 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="valueExpression"> The value that will be assigned. </param>
         /// <returns> The <see cref="BinaryExpression" /> representing the assignment binding. </returns>
         public static Expression Assign(
-            [NotNull] this MemberExpression memberExpression,
-            [NotNull] Expression valueExpression)
+            this MemberExpression memberExpression,
+            Expression valueExpression)
         {
             if (memberExpression.Member is FieldInfo fieldInfo
                 && fieldInfo.IsInitOnly)
@@ -86,7 +83,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static readonly Type _assignBinaryExpressionType
-            // TODO-Nullable: Somethings are unexplainable
             = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression", throwOnError: true)!;
 
         /// <summary>
@@ -98,9 +94,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="propertyName"> The accessed property name. </param>
         /// <returns> <see langword="true" /> if the method-call was for <see cref="EF.Property{TProperty}" />; <see langword="false" /> otherwise. </returns>
         public static bool TryGetEFPropertyArguments(
-            [NotNull] this MethodCallExpression methodCallExpression,
-            [CA.NotNullWhen(true)] out Expression? entityExpression,
-            [CA.NotNullWhen(true)] out string? propertyName)
+            this MethodCallExpression methodCallExpression,
+            [NotNullWhen(true)] out Expression? entityExpression,
+            [NotNullWhen(true)] out string? propertyName)
         {
             if (methodCallExpression.Method.IsEFPropertyMethod()
                 && methodCallExpression.Arguments[1] is ConstantExpression propertyNameExpression)
@@ -124,10 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="propertyName"> The accessed property name. </param>
         /// <returns> <see langword="true" /> if the method-call was for indexer; <see langword="false" /> otherwise. </returns>
         public static bool TryGetIndexerArguments(
-            [NotNull] this MethodCallExpression methodCallExpression,
-            [NotNull] IModel model,
-            [CA.NotNullWhen(true)] out Expression? entityExpression,
-            [CA.NotNullWhen(true)] out string? propertyName)
+            this MethodCallExpression methodCallExpression,
+            IModel model,
+            [NotNullWhen(true)] out Expression? entityExpression,
+            [NotNullWhen(true)] out string? propertyName)
         {
             if (model.IsIndexerMethod(methodCallExpression.Method)
                 && methodCallExpression.Arguments[0] is ConstantExpression propertyNameExpression)
@@ -152,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="propertyAccessExpression"> The expression. </param>
         /// <returns> The <see cref="PropertyInfo" />. </returns>
-        public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
+        public static PropertyInfo GetPropertyAccess(this LambdaExpression propertyAccessExpression)
             => GetInternalMemberAccess<PropertyInfo>(propertyAccessExpression);
 
         /// <summary>
@@ -165,10 +161,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="memberAccessExpression"> The expression. </param>
         /// <returns> The <see cref="MemberInfo" />. </returns>
-        public static MemberInfo GetMemberAccess([NotNull] this LambdaExpression memberAccessExpression)
+        public static MemberInfo GetMemberAccess(this LambdaExpression memberAccessExpression)
             => GetInternalMemberAccess<MemberInfo>(memberAccessExpression);
 
-        private static TMemberInfo GetInternalMemberAccess<TMemberInfo>([NotNull] this LambdaExpression memberAccessExpression)
+        private static TMemberInfo GetInternalMemberAccess<TMemberInfo>(this LambdaExpression memberAccessExpression)
             where TMemberInfo : MemberInfo
         {
             Check.DebugAssert(
@@ -225,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="propertyAccessExpression"> The expression. </param>
         /// <returns> The list of referenced properties. </returns>
-        public static IReadOnlyList<PropertyInfo> GetPropertyAccessList([NotNull] this LambdaExpression propertyAccessExpression)
+        public static IReadOnlyList<PropertyInfo> GetPropertyAccessList(this LambdaExpression propertyAccessExpression)
         {
             Check.NotNull(propertyAccessExpression, nameof(propertyAccessExpression));
 
@@ -264,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="memberAccessExpression"> The expression. </param>
         /// <returns> The list of referenced members. </returns>
-        public static IReadOnlyList<MemberInfo> GetMemberAccessList([NotNull] this LambdaExpression memberAccessExpression)
+        public static IReadOnlyList<MemberInfo> GetMemberAccessList(this LambdaExpression memberAccessExpression)
         {
             Check.NotNull(memberAccessExpression, nameof(memberAccessExpression));
 
@@ -296,10 +292,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="property"> The IPropertyBase being read if any. </param>
         /// <returns> An expression to read the value. </returns>
         public static Expression CreateValueBufferReadValueExpression(
-            [NotNull] this Expression valueBuffer,
-            [NotNull] Type type,
+            this Expression valueBuffer,
+            Type type,
             int index,
-            [CanBeNull] IPropertyBase? property)
+            IPropertyBase? property)
             => Expression.Call(
                 ValueBufferTryReadValueMethod.MakeGenericMethod(type),
                 valueBuffer,
@@ -342,8 +338,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="makeNullable"> A value indicating if the key values should be read nullable. </param>
         /// <returns> An expression to read the key values. </returns>
         public static Expression CreateKeyValuesExpression(
-            [NotNull] this Expression target,
-            [NotNull] IReadOnlyList<IProperty> properties,
+            this Expression target,
+            IReadOnlyList<IProperty> properties,
             bool makeNullable = false)
             => properties.Count == 1
                 ? target.CreateEFPropertyExpression(properties[0], makeNullable)
@@ -366,8 +362,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="makeNullable"> A value indicating if the value can be nullable. </param>
         /// <returns> An expression to access EF property on given expression. </returns>
         public static Expression CreateEFPropertyExpression(
-            [NotNull] this Expression target,
-            [NotNull] IPropertyBase property,
+            this Expression target,
+            IPropertyBase property,
             bool makeNullable = true)
             // No shadow entities in runtime
             => CreateEFPropertyExpression(target, property.DeclaringType.ClrType, property.ClrType, property.Name, makeNullable);

@@ -4,12 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -30,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IReadOnlyEntityType.FindEntityType")]
-        public static IReadOnlyEntityType? FindEntityType([NotNull] this IModel model, [NotNull] Type type)
+        public static IReadOnlyEntityType? FindEntityType(this IModel model, Type type)
             => model.FindEntityType(Check.NotNull(type, nameof(type)));
 
         /// <summary>
@@ -41,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IReadOnlyEntityType.FindEntityTypes")]
-        public static IEnumerable<IReadOnlyEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] Type type)
+        public static IEnumerable<IReadOnlyEntityType> GetEntityTypes(this IModel model, Type type)
             => model.FindEntityTypes(type);
 
         /// <summary>
@@ -52,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use FindEntityTypes(Type) or FindEntityType(string)")]
-        public static IReadOnlyCollection<IReadOnlyEntityType> GetEntityTypes([NotNull] this IModel model, [NotNull] string name)
+        public static IReadOnlyCollection<IReadOnlyEntityType> GetEntityTypes(this IModel model, string name)
             => ((Model)model).GetEntityTypes(name);
 
         /// <summary>
@@ -63,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the model contains a corresponding entity type with a defining navigation. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IsShared(Type)")]
-        public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] Type type)
+        public static bool HasEntityTypeWithDefiningNavigation(this IModel model, Type type)
             => model.IsShared(type);
 
         /// <summary>
@@ -74,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the model contains a corresponding entity type with a defining navigation. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use FindEntityType(string)?.HasSharedClrType")]
-        public static bool HasEntityTypeWithDefiningNavigation([NotNull] this IModel model, [NotNull] string name)
+        public static bool HasEntityTypeWithDefiningNavigation(this IModel model, string name)
             => model.FindEntityType(name)?.HasSharedClrType ?? false;
     }
 }

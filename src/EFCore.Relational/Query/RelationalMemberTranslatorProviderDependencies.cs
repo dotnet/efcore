@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -56,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalMemberTranslatorProviderDependencies(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IEnumerable<IMemberTranslatorPlugin> plugins)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IEnumerable<IMemberTranslatorPlugin> plugins)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
             Check.NotNull(plugins, nameof(plugins));
@@ -69,11 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The expression factory..
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 
         /// <summary>
         ///     Registered plugins.
         /// </summary>
-        public IEnumerable<IMemberTranslatorPlugin> Plugins { get; [param: NotNull] init; }
+        public IEnumerable<IMemberTranslatorPlugin> Plugins { get; init; }
     }
 }

@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -34,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public RelationalQueryContextFactory(
-            [NotNull] QueryContextDependencies dependencies,
-            [NotNull] RelationalQueryContextDependencies relationalDependencies)
+            QueryContextDependencies dependencies,
+            RelationalQueryContextDependencies relationalDependencies)
         {
             _dependencies = dependencies;
             _relationalDependencies = relationalDependencies;

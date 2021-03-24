@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ProjectionExpression([NotNull] Expression expression, [NotNull] string alias)
+        public ProjectionExpression(Expression expression, string alias)
         {
             Expression = expression;
             Alias = alias;
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ProjectionExpression Update([NotNull] Expression expression)
+        public virtual ProjectionExpression Update(Expression expression)
             => expression != Expression
                 ? new ProjectionExpression(expression, Alias)
                 : this;

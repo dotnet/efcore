@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     <see cref="Migration.Down(MigrationBuilder)" />.
         /// </param>
         /// <returns> <see langword="true" /> if SQL Server is being used; <see langword="false" /> otherwise. </returns>
-        public static bool IsSqlServer([NotNull] this MigrationBuilder migrationBuilder)
+        public static bool IsSqlServer(this MigrationBuilder migrationBuilder)
             => string.Equals(
                 migrationBuilder.ActiveProvider,
                 typeof(SqlServerOptionsExtension).Assembly.GetName().Name,

@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -60,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual void SetDataReader(
             int collectionId,
-            [NotNull] RelationalDataReader relationalDataReader)
+            RelationalDataReader relationalDataReader)
         {
             while (DataReaders.Count <= collectionId)
             {
@@ -78,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual void SetSplitQueryCollectionContext(
             int collectionId,
-            [NotNull] SplitQueryCollectionContext splitQueryCollectionContext)
+            SplitQueryCollectionContext splitQueryCollectionContext)
         {
             while (Collections.Count <= collectionId)
             {

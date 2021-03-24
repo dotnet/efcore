@@ -3,9 +3,6 @@
 
 using System;
 using System.Runtime.Serialization;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -26,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="RetryLimitExceededException" /> class with a specified error message.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        public RetryLimitExceededException([NotNull] string message)
+        public RetryLimitExceededException(string message)
             : base(message)
         {
         }
@@ -36,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
         /// <param name="innerException">The exception that is the cause of the current exception.</param>
-        public RetryLimitExceededException([NotNull] string message, [NotNull] Exception innerException)
+        public RetryLimitExceededException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
@@ -46,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="info"> The serialization info. </param>
         /// <param name="context"> The streaming context being used. </param>
-        public RetryLimitExceededException([NotNull] SerializationInfo info, StreamingContext context)
+        public RetryLimitExceededException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

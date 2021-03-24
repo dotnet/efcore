@@ -3,12 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Update;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -31,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CurrentProviderValueComparer(
-            [NotNull] IPropertyBase property,
-            [NotNull] ValueConverter<TModel, TProvider> converter)
+            IPropertyBase property,
+            ValueConverter<TModel, TProvider> converter)
         {
             _property = property;
             _converter = converter.ConvertToProviderExpression.Compile();

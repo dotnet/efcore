@@ -4,8 +4,6 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -14,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface ICheckConstraint : IReadOnlyCheckConstraint, IAnnotatable
     {
         /// <summary>
-        ///     Gets the <see cref="IEntityType" /> in which this check constraint is defined.
+        ///     Gets the entity type on which this check constraint is defined.
         /// </summary>
         new IEntityType EntityType { get; }
 
@@ -30,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="options"> Options for generating the string. </param>
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
-        string ToDebugString(MetadataDebugStringOptions options, int indent = 0)
+        string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
         {
             var builder = new StringBuilder();
             var indentString = new string(' ', indent);

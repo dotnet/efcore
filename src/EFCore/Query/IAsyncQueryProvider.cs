@@ -4,10 +4,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -27,6 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Executes the strongly-typed query represented by a specified expression tree asynchronously.
         /// </summary>
-        TResult ExecuteAsync<TResult>([NotNull] Expression expression, CancellationToken cancellationToken = default);
+        TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default);
     }
 }

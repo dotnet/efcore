@@ -3,13 +3,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -30,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Initializes a new instance of this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public MigrationsAnnotationProvider([NotNull] MigrationsAnnotationProviderDependencies dependencies)
+        public MigrationsAnnotationProvider(MigrationsAnnotationProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
         }

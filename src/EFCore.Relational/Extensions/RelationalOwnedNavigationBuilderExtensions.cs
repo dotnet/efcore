@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -25,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
         /// <returns> A builder to further configure the navigation. </returns>
         public static OwnedNavigationBuilder HasCheckConstraint(
-            [NotNull] this OwnedNavigationBuilder ownedNavigationBuilder,
-            [NotNull] string name,
-            [CanBeNull] string? sql)
+            this OwnedNavigationBuilder ownedNavigationBuilder,
+            string name,
+            string? sql)
         {
             Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NotEmpty(name, nameof(name));
@@ -65,9 +62,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
         /// <returns> A builder to further configure the navigation. </returns>
         public static OwnedNavigationBuilder<TEntity, TDependentEntity> HasCheckConstraint<TEntity, TDependentEntity>(
-            [NotNull] this OwnedNavigationBuilder<TEntity, TDependentEntity> ownedNavigationBuilder,
-            [NotNull] string name,
-            [CanBeNull] string? sql)
+            this OwnedNavigationBuilder<TEntity, TDependentEntity> ownedNavigationBuilder,
+            string name,
+            string? sql)
             where TEntity : class
             where TDependentEntity : class
             => (OwnedNavigationBuilder<TEntity, TDependentEntity>)

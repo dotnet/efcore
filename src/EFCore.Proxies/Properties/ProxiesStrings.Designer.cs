@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The type '{dictionaryType}' used for shared entity type '{entityType}' is not suitable for use as a change-tracking proxy because its indexer property is not virtual. Consider using an implementation of '{interfaceType}' that allows overriding of the indexer.
         /// </summary>
-        public static string DictionaryCannotBeProxied([CanBeNull] object? dictionaryType, [CanBeNull] object? entityType, [CanBeNull] object? interfaceType)
+        public static string DictionaryCannotBeProxied(object? dictionaryType, object? entityType, object? interfaceType)
             => string.Format(
                 GetString("DictionaryCannotBeProxied", nameof(dictionaryType), nameof(entityType), nameof(interfaceType)),
                 dictionaryType, entityType, interfaceType);
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The type '{clrType}' is configured as a shared-type entity type, but the entity type name is not known. Ensure that CreateProxy is called on a DbSet created specifically for the shared-type entity type through use of a 'DbContext.Set' overload that accepts an entity type name.
         /// </summary>
-        public static string EntityTypeNotFoundShared([CanBeNull] object? clrType)
+        public static string EntityTypeNotFoundShared(object? clrType)
             => string.Format(
                 GetString("EntityTypeNotFoundShared", nameof(clrType)),
                 clrType);
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     Cannot create a proxy for '{typeName}' because it is mapped to multiple owned entity types. Proxy creation is not supported for owned types used more than once in the model.
         /// </summary>
         [Obsolete]
-        public static string EntityTypeNotFoundWeak([CanBeNull] object? typeName)
+        public static string EntityTypeNotFoundWeak(object? typeName)
             => string.Format(
                 GetString("EntityTypeNotFoundWeak", nameof(typeName)),
                 typeName);
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Property '{property}' on entity type '{entityType}' is mapped without a CLR property. 'UseChangeTrackingProxies' requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. 'UseLazyLoadingProxies' requires only the navigation properties be virtual.
         /// </summary>
-        public static string FieldProperty([CanBeNull] object? property, [CanBeNull] object? entityType)
+        public static string FieldProperty(object? property, object? entityType)
             => string.Format(
                 GetString("FieldProperty", nameof(property), nameof(entityType)),
                 property, entityType);
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Entity type '{entityType}' is sealed. 'UseChangeTrackingProxies' requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. 'UseLazyLoadingProxies' requires only the navigation properties be virtual.
         /// </summary>
-        public static string ItsASeal([CanBeNull] object? entityType)
+        public static string ItsASeal(object? entityType)
             => string.Format(
                 GetString("ItsASeal", nameof(entityType)),
                 entityType);
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The mapped indexer property on entity type '{entityType}' is not virtual. 'UseChangeTrackingProxies' requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. 'UseLazyLoadingProxies' requires only the navigation properties be virtual.
         /// </summary>
-        public static string NonVirtualIndexerProperty([CanBeNull] object? entityType)
+        public static string NonVirtualIndexerProperty(object? entityType)
             => string.Format(
                 GetString("NonVirtualIndexerProperty", nameof(entityType)),
                 entityType);
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Property '{1_entityType}.{0_property}' is not virtual. 'UseChangeTrackingProxies' requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. 'UseLazyLoadingProxies' requires only the navigation properties be virtual.
         /// </summary>
-        public static string NonVirtualProperty([CanBeNull] object? property, [CanBeNull] object? entityType)
+        public static string NonVirtualProperty(object? property, object? entityType)
             => string.Format(
                 GetString("NonVirtualProperty", "0_property", "1_entityType"),
                 property, entityType);
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeTrackingProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.
         /// </summary>
-        public static string ProxiesNotEnabled([CanBeNull] object? entityType)
+        public static string ProxiesNotEnabled(object? entityType)
             => string.Format(
                 GetString("ProxiesNotEnabled", nameof(entityType)),
                 entityType);

@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
 {
     /// <summary>

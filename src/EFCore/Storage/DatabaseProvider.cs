@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -36,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="DatabaseProvider{TOptionsExtension}" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public DatabaseProvider([NotNull] DatabaseProviderDependencies dependencies)
+        public DatabaseProvider(DatabaseProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
         }

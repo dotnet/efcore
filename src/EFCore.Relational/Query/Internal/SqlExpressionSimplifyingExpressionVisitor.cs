@@ -3,15 +3,12 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -32,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlExpressionSimplifyingExpressionVisitor([NotNull] ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
+        public SqlExpressionSimplifyingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
             _useRelationalNulls = useRelationalNulls;
@@ -73,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitExtension(extensionExpression);
         }
 
-        private bool IsCompareTo([CA.NotNullWhen(true)] CaseExpression? caseExpression)
+        private bool IsCompareTo([NotNullWhen(true)] CaseExpression? caseExpression)
         {
             if (caseExpression != null
                 && caseExpression.Operand == null
@@ -393,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private bool TryGetInExressionCandidateInfo(
             SqlExpression sqlExpression,
-            [CA.MaybeNullWhen(false)] out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType) candidateInfo)
+            [MaybeNullWhen(false)] out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType) candidateInfo)
         {
             if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
                 && sqlUnaryExpression.OperatorType == ExpressionType.Not)

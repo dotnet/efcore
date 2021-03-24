@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -28,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         /// <param name="eventData"> The event to log. </param>
-        void Log([NotNull] EventData eventData);
+        void Log(EventData eventData);
 
         /// <summary>
         ///     Determines whether or not the given event should be logged.

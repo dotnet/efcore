@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -27,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity types found. </returns>
         [DebuggerStepThrough]
         [Obsolete("Use IConventionEntityType.FindEntityTypes")]
-        public static IEnumerable<IConventionEntityType> GetEntityTypes([NotNull] this IConventionModel model, [NotNull] Type type)
+        public static IEnumerable<IConventionEntityType> GetEntityTypes(this IConventionModel model, Type type)
             => model.FindEntityTypes(type);
 
         /// <summary>
@@ -39,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         [Obsolete("Use FindEntityTypes(Type) or FindEntityType(string)")]
         public static IReadOnlyCollection<IConventionEntityType> GetEntityTypes(
-            [NotNull] this IConventionModel model,
-            [NotNull] string name)
+            this IConventionModel model,
+            string name)
             => ((Model)model).GetEntityTypes(name);
     }
 }

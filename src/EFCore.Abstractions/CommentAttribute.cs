@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Initializes a new instance of the <see cref="CommentAttribute" /> class.
         /// </summary>
         /// <param name="comment"> The comment. </param>
-        public CommentAttribute([NotNull] string comment)
+        public CommentAttribute(string comment)
         {
             Check.NotEmpty(comment, nameof(comment));
 

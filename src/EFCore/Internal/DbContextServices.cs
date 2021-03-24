@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private IDbContextOptions? _contextOptions;
         private ICurrentDbContext? _currentContext;
         private IModel? _model;
+        private IModel? _designTimeModel;
         private bool _inOnModelCreating;
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private static string BuildDatabaseNamesString(IEnumerable<IDatabaseProvider> available)
             => string.Join(", ", available.Select(e => "'" + e.Name + "'"));
 
-        private IModel CreateModel(IModel? modelFromOptions)
+        private IModel CreateModel(bool designTime)
         {
             if (_inOnModelCreating)
             {
@@ -82,9 +83,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 _inOnModelCreating = true;
 
                 var dependencies = _scopedProvider!.GetRequiredService<ModelCreationDependencies>();
+                var modelFromOptions = CoreOptions?.Model;
                 return modelFromOptions == null
-                    ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies)
-                    : dependencies.ModelRuntimeInitializer.Initialize(modelFromOptions, dependencies.ValidationLogger);
+                    || (designTime && modelFromOptions is not Metadata.Internal.Model)
+                    ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
+                    : dependencies.ModelRuntimeInitializer.Initialize(modelFromOptions, designTime, dependencies.ValidationLogger);
             }
             finally
             {
@@ -108,7 +111,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IModel Model
-            => _model ??= CreateModel(CoreOptions?.Model);
+            => _model ??= CreateModel(designTime: false);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IModel DesignTimeModel
+            => _designTimeModel ??= CreateModel(designTime: true);
 
         private CoreOptionsExtension? CoreOptions
             => _contextOptions?.FindExtension<CoreOptionsExtension>();

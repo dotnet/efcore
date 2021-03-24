@@ -5,11 +5,8 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using Castle.DynamicProxy;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
@@ -33,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public PropertyChangedInterceptor(
-            [NotNull] IEntityType entityType,
+            IEntityType entityType,
             bool checkEquality)
             : base(entityType)
         {

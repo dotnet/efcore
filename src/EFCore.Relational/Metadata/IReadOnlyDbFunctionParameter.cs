@@ -6,12 +6,10 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a <see cref="IReadOnlyDbFunction" /> parameter.
+    ///     Represents a function parameter.
     /// </summary>
     public interface IReadOnlyDbFunctionParameter : IReadOnlyAnnotatable
     {
@@ -36,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string? StoreType { get; }
 
         /// <summary>
-        ///     Gets the value which indicates whether parameter propagates nullability, meaning if it's value is null the database function itself
-        ///     returns null.
+        ///     Gets the value which indicates whether the parameter propagates nullability,
+        ///     meaning if it's value is <see langword="null"/> the database function itself returns <see langword="null"/>.
         /// </summary>
         bool PropagatesNullability { get; }
 
@@ -58,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="options"> Options for generating the string. </param>
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
-        string ToDebugString(MetadataDebugStringOptions options, int indent = 0)
+        string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
         {
             var builder = new StringBuilder();
             var indentString = new string(' ', indent);

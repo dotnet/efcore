@@ -870,7 +870,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var contextServices = InMemoryTestHelpers.Instance.CreateContextServices();
                 var modelRuntimeInitializer = contextServices.GetRequiredService<IModelRuntimeInitializer>();
 
-                model = modelRuntimeInitializer.Initialize(model, new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
+                model = modelRuntimeInitializer.Initialize(
+                    model, designTime: false, new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>());
 
                 Assert.Null(failMessage);
             }

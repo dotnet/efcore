@@ -4,13 +4,10 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -36,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="logger"> The query logger to use. </param>
         /// <returns> A SQL translation of the <see cref="MethodCallExpression" />. </returns>
         SqlExpression? Translate(
-            [NotNull] IModel model,
-            [CanBeNull] SqlExpression? instance,
-            [NotNull] MethodInfo method,
-            [NotNull] IReadOnlyList<SqlExpression> arguments,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger);
+            IModel model,
+            SqlExpression? instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger);
     }
 }

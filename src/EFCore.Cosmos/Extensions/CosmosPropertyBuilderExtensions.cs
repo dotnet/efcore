@@ -1,12 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -24,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the property. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder ToJsonProperty(
-            [NotNull] this PropertyBuilder propertyBuilder,
-            [NotNull] string name)
+            this PropertyBuilder propertyBuilder,
+            string name)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(name, nameof(name));
@@ -43,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the property. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> ToJsonProperty<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
-            [NotNull] string name)
+            this PropertyBuilder<TProperty> propertyBuilder,
+            string name)
             => (PropertyBuilder<TProperty>)ToJsonProperty((PropertyBuilder)propertyBuilder, name);
 
         /// <summary>
@@ -63,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionPropertyBuilder? ToJsonProperty(
-            [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string? name,
+            this IConventionPropertyBuilder propertyBuilder,
+            string? name,
             bool fromDataAnnotation = false)
         {
             if (!propertyBuilder.CanSetJsonProperty(name, fromDataAnnotation))
@@ -85,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the property name can be set. </returns>
         public static bool CanSetJsonProperty(
-            [NotNull] this IConventionPropertyBuilder propertyBuilder,
-            [CanBeNull] string? name,
+            this IConventionPropertyBuilder propertyBuilder,
+            string? name,
             bool fromDataAnnotation = false)
             => propertyBuilder.CanSetAnnotation(CosmosAnnotationNames.PropertyName, name, fromDataAnnotation);
 
@@ -95,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static PropertyBuilder IsETagConcurrency([NotNull] this PropertyBuilder propertyBuilder)
+        public static PropertyBuilder IsETagConcurrency(this PropertyBuilder propertyBuilder)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             propertyBuilder
@@ -112,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> IsETagConcurrency<TProperty>(
-            [NotNull] this PropertyBuilder<TProperty> propertyBuilder)
+            this PropertyBuilder<TProperty> propertyBuilder)
             => (PropertyBuilder<TProperty>)IsETagConcurrency((PropertyBuilder)propertyBuilder);
     }
 }

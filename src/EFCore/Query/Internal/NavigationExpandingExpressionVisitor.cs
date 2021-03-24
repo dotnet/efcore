@@ -6,16 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -76,9 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public NavigationExpandingExpressionVisitor(
-            [NotNull] QueryTranslationPreprocessor queryTranslationPreprocessor,
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
+            QueryTranslationPreprocessor queryTranslationPreprocessor,
+            QueryCompilationContext queryCompilationContext,
+            IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {
             _queryTranslationPreprocessor = queryTranslationPreprocessor;
             _queryCompilationContext = queryCompilationContext;
@@ -109,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Expand([NotNull] Expression query)
+        public virtual Expression Expand(Expression query)
         {
             var result = Visit(query);
             result = new PendingSelectorExpandingExpressionVisitor(this, applyIncludes: true).Visit(result);
@@ -1615,8 +1611,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private NavigationExpansionExpression CreateNavigationExpansionExpression(
-            [NotNull] Expression sourceExpression,
-            [NotNull] IEntityType entityType)
+            Expression sourceExpression,
+            IEntityType entityType)
         {
             var entityReference = new EntityReference(entityType);
             PopulateEagerLoadedNavigations(entityReference.IncludePaths);

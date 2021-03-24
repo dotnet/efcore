@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -32,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The logger category name.
         /// </summary>
         /// <param name="loggerCategory"> The category. </param>
-        public static implicit operator string([NotNull] LoggerCategory<T> loggerCategory)
+        public static implicit operator string(LoggerCategory<T> loggerCategory)
             => loggerCategory.ToString();
 
         private static string ToName(Type loggerCategoryType)

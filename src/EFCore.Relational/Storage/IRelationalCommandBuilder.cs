@@ -2,9 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -29,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="parameter"> The parameter. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        IRelationalCommandBuilder AddParameter([NotNull] IRelationalParameter parameter);
+        IRelationalCommandBuilder AddParameter(IRelationalParameter parameter);
 
         /// <summary>
         ///     The source for <see cref="RelationalTypeMapping" />s to use.
@@ -47,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="value"> The object to be written. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        IRelationalCommandBuilder Append([NotNull] string value);
+        IRelationalCommandBuilder Append(string value);
 
         /// <summary>
         ///     Appends a blank line to the command text.

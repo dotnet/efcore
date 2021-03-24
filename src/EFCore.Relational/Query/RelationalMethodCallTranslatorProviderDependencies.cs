@@ -2,13 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -57,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalMethodCallTranslatorProviderDependencies(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IEnumerable<IMethodCallTranslatorPlugin> plugins,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IEnumerable<IMethodCallTranslatorPlugin> plugins,
+            IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
             Check.NotNull(plugins, nameof(plugins));
@@ -73,16 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The expression factory..
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; [param: NotNull] init; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 
         /// <summary>
         ///     Registered plugins.
         /// </summary>
-        public IEnumerable<IMethodCallTranslatorPlugin> Plugins { get; [param: NotNull] init; }
+        public IEnumerable<IMethodCallTranslatorPlugin> Plugins { get; init; }
 
         /// <summary>
         ///     Relational Type Mapping Source.
         /// </summary>
-        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; [param: NotNull] init; }
+        public IRelationalTypeMappingSource RelationalTypeMappingSource { get; init; }
     }
 }

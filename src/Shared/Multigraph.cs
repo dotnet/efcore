@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 #nullable enable
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public IEnumerable<TEdge> Edges
             => _successorMap.Values.SelectMany(s => s.Values).SelectMany(e => e).Distinct();
 
-        public IEnumerable<TEdge> GetEdges([NotNull] TVertex from, [NotNull] TVertex to)
+        public IEnumerable<TEdge> GetEdges(TVertex from, TVertex to)
         {
             if (_successorMap.TryGetValue(from, out var successorSet))
             {
@@ -34,13 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return Enumerable.Empty<TEdge>();
         }
 
-        public void AddVertex([NotNull] TVertex vertex)
+        public void AddVertex(TVertex vertex)
             => _vertices.Add(vertex);
 
-        public void AddVertices([NotNull] IEnumerable<TVertex> vertices)
+        public void AddVertices(IEnumerable<TVertex> vertices)
             => _vertices.UnionWith(vertices);
 
-        public void AddEdge([NotNull] TVertex from, [NotNull] TVertex to, [CanBeNull] TEdge edge)
+        public void AddEdge(TVertex from, TVertex to, TEdge edge)
         {
 #if DEBUG
             if (!_vertices.Contains(from))
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             predecessors.Add(from);
         }
 
-        public void AddEdges([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] IEnumerable<TEdge> edges)
+        public void AddEdges(TVertex from, TVertex to, IEnumerable<TEdge> edges)
         {
 #if DEBUG
             if (!_vertices.Contains(from))
@@ -125,16 +124,16 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             => TopologicalSort(null, null);
 
         public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge)
+            Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge)
             => TopologicalSort(tryBreakEdge, null);
 
         public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+            Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
             => TopologicalSort(null, formatCycle);
 
         public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? tryBreakEdge,
-            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
+            Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? tryBreakEdge,
+            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
             Func<string, string>? formatException = null)
         {
             var sortedQueue = new List<TVertex>();
@@ -291,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             => BatchingTopologicalSort(null);
 
         public IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
-            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle)
+            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle)
         {
             var currentRootsQueue = new List<TVertex>();
             var predecessorCounts = new Dictionary<TVertex, int>();

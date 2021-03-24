@@ -6,15 +6,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 {
@@ -60,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected CosmosOptionsExtension([NotNull] CosmosOptionsExtension copyFrom)
+        protected CosmosOptionsExtension(CosmosOptionsExtension copyFrom)
         {
             _accountEndpoint = copyFrom._accountEndpoint;
             _accountKey = copyFrom._accountKey;
@@ -103,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithAccountEndpoint([CanBeNull] string? accountEndpoint)
+        public virtual CosmosOptionsExtension WithAccountEndpoint(string? accountEndpoint)
         {
             if (_connectionString != null)
             {
@@ -132,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithAccountKey([CanBeNull] string? accountKey)
+        public virtual CosmosOptionsExtension WithAccountKey(string? accountKey)
         {
             if (accountKey is not null && _connectionString is not null)
             {
@@ -161,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithConnectionString([CanBeNull] string? connectionString)
+        public virtual CosmosOptionsExtension WithConnectionString(string? connectionString)
         {
             if (connectionString is not null && (_accountEndpoint != null || _accountKey != null))
             {
@@ -190,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithDatabaseName([NotNull] string database)
+        public virtual CosmosOptionsExtension WithDatabaseName(string database)
         {
             var clone = Clone();
 
@@ -214,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithRegion([CanBeNull] string? region)
+        public virtual CosmosOptionsExtension WithRegion(string? region)
         {
             var clone = Clone();
 
@@ -291,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithWebProxy([CanBeNull] IWebProxy? proxy)
+        public virtual CosmosOptionsExtension WithWebProxy(IWebProxy? proxy)
         {
             var clone = Clone();
 
@@ -482,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         /// <param name="executionStrategyFactory"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual CosmosOptionsExtension WithExecutionStrategyFactory(
-            [CanBeNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> executionStrategyFactory)
+            Func<ExecutionStrategyDependencies, IExecutionStrategy>? executionStrategyFactory)
         {
             var clone = Clone();
 

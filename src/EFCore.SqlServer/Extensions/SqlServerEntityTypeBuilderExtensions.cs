@@ -1,12 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -23,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder IsMemoryOptimized(
-            [NotNull] this EntityTypeBuilder entityTypeBuilder,
+            this EntityTypeBuilder entityTypeBuilder,
             bool memoryOptimized = true)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
@@ -41,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> IsMemoryOptimized<TEntity>(
-            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            this EntityTypeBuilder<TEntity> entityTypeBuilder,
             bool memoryOptimized = true)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)IsMemoryOptimized((EntityTypeBuilder)entityTypeBuilder, memoryOptimized);
@@ -53,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder IsMemoryOptimized(
-            [NotNull] this OwnedNavigationBuilder collectionOwnershipBuilder,
+            this OwnedNavigationBuilder collectionOwnershipBuilder,
             bool memoryOptimized = true)
         {
             Check.NotNull(collectionOwnershipBuilder, nameof(collectionOwnershipBuilder));
@@ -72,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder<TEntity, TRelatedEntity> IsMemoryOptimized<TEntity, TRelatedEntity>(
-            [NotNull] this OwnedNavigationBuilder<TEntity, TRelatedEntity> collectionOwnershipBuilder,
+            this OwnedNavigationBuilder<TEntity, TRelatedEntity> collectionOwnershipBuilder,
             bool memoryOptimized = true)
             where TEntity : class
             where TRelatedEntity : class
@@ -90,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionEntityTypeBuilder? IsMemoryOptimized(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            this IConventionEntityTypeBuilder entityTypeBuilder,
             bool? memoryOptimized,
             bool fromDataAnnotation = false)
         {
@@ -111,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the mapped table can be configured as memory-optimized. </returns>
         public static bool CanSetIsMemoryOptimized(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
+            this IConventionEntityTypeBuilder entityTypeBuilder,
             bool? memoryOptimized,
             bool fromDataAnnotation = false)
         {

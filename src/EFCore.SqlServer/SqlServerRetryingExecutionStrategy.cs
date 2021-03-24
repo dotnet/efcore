@@ -3,12 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -36,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="context"> The context on which the operations will be invoked. </param>
         public SqlServerRetryingExecutionStrategy(
-            [NotNull] DbContext context)
+            DbContext context)
             : this(context, DefaultMaxRetryCount)
         {
         }
@@ -51,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="dependencies"> Parameter object containing service dependencies. </param>
         public SqlServerRetryingExecutionStrategy(
-            [NotNull] ExecutionStrategyDependencies dependencies)
+            ExecutionStrategyDependencies dependencies)
             : this(dependencies, DefaultMaxRetryCount)
         {
         }
@@ -67,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="context"> The context on which the operations will be invoked. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         public SqlServerRetryingExecutionStrategy(
-            [NotNull] DbContext context,
+            DbContext context,
             int maxRetryCount)
             : this(context, maxRetryCount, DefaultMaxDelay, errorNumbersToAdd: null)
         {
@@ -84,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="dependencies"> Parameter object containing service dependencies. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         public SqlServerRetryingExecutionStrategy(
-            [NotNull] ExecutionStrategyDependencies dependencies,
+            ExecutionStrategyDependencies dependencies,
             int maxRetryCount)
             : this(dependencies, maxRetryCount, DefaultMaxDelay, errorNumbersToAdd: null)
         {
@@ -98,10 +95,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
         public SqlServerRetryingExecutionStrategy(
-            [NotNull] DbContext context,
+            DbContext context,
             int maxRetryCount,
             TimeSpan maxRetryDelay,
-            [CanBeNull] ICollection<int>? errorNumbersToAdd)
+            ICollection<int>? errorNumbersToAdd)
             : base(
                 context,
                 maxRetryCount,
@@ -116,10 +113,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
         public SqlServerRetryingExecutionStrategy(
-            [NotNull] ExecutionStrategyDependencies dependencies,
+            ExecutionStrategyDependencies dependencies,
             int maxRetryCount,
             TimeSpan maxRetryDelay,
-            [CanBeNull] ICollection<int>? errorNumbersToAdd)
+            ICollection<int>? errorNumbersToAdd)
             : base(dependencies, maxRetryCount, maxRetryDelay)
             => _additionalErrorNumbers = errorNumbersToAdd;
 

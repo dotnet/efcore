@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -35,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _memberChain = new List<MemberInfo>();
         }
 
-        private ProjectionMember([NotNull] IList<MemberInfo> memberChain)
+        private ProjectionMember(IList<MemberInfo> memberChain)
         {
             Check.NotNull(memberChain, nameof(memberChain));
 
@@ -47,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="member"> The MemberInfo to append. </param>
         /// <returns> A new projection member with given member info appended to existing chain. </returns>
-        public ProjectionMember Append([NotNull] MemberInfo member)
+        public ProjectionMember Append(MemberInfo member)
         {
             Check.NotNull(member, nameof(member));
 
@@ -62,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="member"> The MemberInfo to prepend. </param>
         /// <returns> A new projection member with given member info prepended to existing chain. </returns>
-        public ProjectionMember Prepend([NotNull] MemberInfo member)
+        public ProjectionMember Prepend(MemberInfo member)
         {
             Check.NotNull(member, nameof(member));
 

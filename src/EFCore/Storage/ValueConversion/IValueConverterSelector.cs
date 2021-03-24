@@ -3,10 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -33,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="providerClrType"> The store type to target, or null for any. </param>
         /// <returns> The converters available. </returns>
         IEnumerable<ValueConverterInfo> Select(
-            [NotNull] Type modelClrType,
-            [CanBeNull] Type? providerClrType = null);
+            Type modelClrType,
+            Type? providerClrType = null);
     }
 }

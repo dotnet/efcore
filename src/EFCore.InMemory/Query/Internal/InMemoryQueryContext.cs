@@ -3,13 +3,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -30,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<ValueBuffer> GetValueBuffers([NotNull] IEntityType entityType)
+        public virtual IEnumerable<ValueBuffer> GetValueBuffers(IEntityType entityType)
         {
             if (!_valueBuffersCache.TryGetValue(entityType, out var valueBuffers))
             {
@@ -52,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryQueryContext(
-            [NotNull] QueryContextDependencies dependencies,
-            [NotNull] IInMemoryStore store)
+            QueryContextDependencies dependencies,
+            IInMemoryStore store)
             : base(dependencies)
             => Store = store;
 

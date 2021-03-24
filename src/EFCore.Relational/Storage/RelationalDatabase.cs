@@ -5,12 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -37,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dependencies"> Parameter object containing dependencies for the base of this service. </param>
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
         public RelationalDatabase(
-            [NotNull] DatabaseDependencies dependencies,
-            [NotNull] RelationalDatabaseDependencies relationalDependencies)
+            DatabaseDependencies dependencies,
+            RelationalDatabaseDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));

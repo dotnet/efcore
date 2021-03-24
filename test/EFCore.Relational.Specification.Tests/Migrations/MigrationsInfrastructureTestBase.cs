@@ -307,12 +307,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected virtual void DiffSnapshot(ModelSnapshot snapshot, DbContext context)
         {
             var sourceModel = context.GetService<IModelRuntimeInitializer>().Initialize(
-                ((IMutableModel)snapshot.Model).FinalizeModel(), validationLogger: null);
+                ((IMutableModel)snapshot.Model).FinalizeModel(), designTime: true, validationLogger: null);
 
             var modelDiffer = context.GetService<IMigrationsModelDiffer>();
             var operations = modelDiffer.GetDifferences(
                 sourceModel.GetRelationalModel(),
-                context.Model.GetRelationalModel());
+                context.DesignTimeModel.GetRelationalModel());
 
             Assert.Equal(0, operations.Count);
         }

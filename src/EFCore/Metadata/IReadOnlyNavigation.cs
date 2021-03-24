@@ -7,8 +7,6 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -114,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="options"> Options for generating the string. </param>
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
-        string ToDebugString(MetadataDebugStringOptions options, int indent = 0)
+        string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
         {
             var builder = new StringBuilder();
             var indentString = new string(' ', indent);
@@ -165,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
-                && ((Annotatable)this).IsReadOnly)
+                && ((AnnotatableBase)this).IsReadOnly)
             {
                 var indexes = ((INavigation)this).GetPropertyIndexes();
                 builder.Append(" ").Append(indexes.Index);

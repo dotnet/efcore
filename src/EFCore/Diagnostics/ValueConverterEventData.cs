@@ -3,10 +3,7 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -24,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="mappingClrType"> The CLR type. </param>
         /// <param name="valueConverter"> The <see cref="ValueConverter" />. </param>
         public ValueConverterEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] Type mappingClrType,
-            [NotNull] ValueConverter valueConverter)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            Type mappingClrType,
+            ValueConverter valueConverter)
             : base(eventDefinition, messageGenerator)
         {
             MappingClrType = mappingClrType;

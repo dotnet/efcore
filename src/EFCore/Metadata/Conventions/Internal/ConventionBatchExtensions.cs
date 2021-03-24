@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -25,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         [DebuggerStepThrough]
         public static InternalForeignKeyBuilder? Run(
-            [NotNull] this IConventionBatch batch,
-            [NotNull] InternalForeignKeyBuilder relationshipBuilder)
+            this IConventionBatch batch,
+            InternalForeignKeyBuilder relationshipBuilder)
             => (InternalForeignKeyBuilder?)batch.Run(relationshipBuilder.Metadata)?.Builder;
     }
 }

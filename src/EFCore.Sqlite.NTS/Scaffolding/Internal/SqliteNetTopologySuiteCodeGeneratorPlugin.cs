@@ -4,8 +4,6 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 {
     /// <summary>

@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -18,6 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="keyBuilder"> The builder for the key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        void ProcessKeyAdded([NotNull] IConventionKeyBuilder keyBuilder, [NotNull] IConventionContext<IConventionKeyBuilder> context);
+        void ProcessKeyAdded(IConventionKeyBuilder keyBuilder, IConventionContext<IConventionKeyBuilder> context);
     }
 }

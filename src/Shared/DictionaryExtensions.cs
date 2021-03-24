@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 #nullable enable
 
@@ -14,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     internal static class DictionaryExtensions
     {
         public static TValue GetOrAddNew<TKey, TValue>(
-            [NotNull] this IDictionary<TKey, TValue> source,
-            [NotNull] TKey key)
+            this IDictionary<TKey, TValue> source,
+            TKey key)
             where TValue : new()
         {
             if (!source.TryGetValue(key, out var value))
@@ -28,19 +27,19 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public static TValue? Find<TKey, TValue>(
-            [NotNull] this IReadOnlyDictionary<TKey, TValue> source,
-            [NotNull] TKey key)
+            this IReadOnlyDictionary<TKey, TValue> source,
+            TKey key)
             => !source.TryGetValue(key, out var value) ? default : value;
 
         public static void Remove<TKey, TValue>(
-            [NotNull] this IDictionary<TKey, TValue> source,
-            [NotNull] Func<TKey, TValue, bool> predicate)
+            this IDictionary<TKey, TValue> source,
+            Func<TKey, TValue, bool> predicate)
             => source.Remove((k, v, p) => p!(k, v), predicate);
 
         public static void Remove<TKey, TValue, TState>(
-            [NotNull] this IDictionary<TKey, TValue> source,
-            [NotNull] Func<TKey, TValue, TState?, bool> predicate,
-            [CanBeNull] TState? state)
+            this IDictionary<TKey, TValue> source,
+            Func<TKey, TValue, TState?, bool> predicate,
+            TState? state)
         {
             var found = false;
             var firstRemovedKey = default(TKey);

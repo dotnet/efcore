@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -34,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosShapedQueryCompilingExpressionVisitor(
-            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            [NotNull] CosmosQueryCompilationContext cosmosQueryCompilationContext,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            CosmosQueryCompilationContext cosmosQueryCompilationContext,
+            ISqlExpressionFactory sqlExpressionFactory,
+            IQuerySqlGeneratorFactory querySqlGeneratorFactory)
             : base(dependencies, cosmosQueryCompilationContext)
         {
             _sqlExpressionFactory = sqlExpressionFactory;

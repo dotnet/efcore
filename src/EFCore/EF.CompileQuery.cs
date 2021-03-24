@@ -6,11 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -24,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, IEnumerable<TResult>> CompileQuery<TContext, TResult>(
-            [NotNull] Expression<Func<TContext, DbSet<TResult>>> queryExpression)
+            Expression<Func<TContext, DbSet<TResult>>> queryExpression)
             where TContext : DbContext
             where TResult : class
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, IEnumerable<TResult>> CompileQuery<TContext, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -50,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, IEnumerable<TResult>> CompileQuery<TContext, TResult>(
-            [NotNull] Expression<Func<TContext, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -62,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TResult> CompileQuery<TContext, TResult>(
-            [NotNull] Expression<Func<TContext, TResult>> queryExpression)
+            Expression<Func<TContext, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -76,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, IEnumerable<TResult>> CompileQuery<TContext, TParam1, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -89,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, IEnumerable<TResult>> CompileQuery<TContext, TParam1, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -102,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TResult> CompileQuery<TContext, TParam1, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -117,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, IEnumerable<TResult>> CompileQuery<TContext, TParam1, TParam2, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -131,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, IEnumerable<TResult>> CompileQuery<TContext, TParam1, TParam2, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -145,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TResult> CompileQuery<TContext, TParam1, TParam2, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -162,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -178,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -193,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TResult> CompileQuery<TContext, TParam1, TParam2, TParam3, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -211,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -228,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -245,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -264,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -282,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -300,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -320,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -339,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -358,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -379,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -399,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -419,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -441,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -462,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -483,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -506,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -528,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -550,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -574,7 +571,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -597,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -620,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -645,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -669,7 +666,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -693,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -719,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -744,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -769,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -796,7 +793,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -822,7 +819,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -848,7 +845,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -876,7 +873,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -903,7 +900,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -930,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
 
@@ -959,7 +956,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, TResult, TProperty>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, IIncludableQueryable<TResult, TProperty>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, IIncludableQueryable<TResult, TProperty>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -987,7 +984,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, IEnumerable<TResult>> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, IQueryable<TResult>>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, IEnumerable<TResult>>(queryExpression).Execute;
 
@@ -1015,7 +1012,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
         public static Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, TResult> CompileQuery<
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, TResult>(
-            [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, TResult>> queryExpression)
+            Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10, TParam11, TParam12, TParam13, TParam14, TParam15, TResult>> queryExpression)
             where TContext : DbContext
             => new CompiledQuery<TContext, TResult>(queryExpression).Execute;
     }

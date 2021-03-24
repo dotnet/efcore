@@ -4,12 +4,9 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -26,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="query"> The query that will provide the underlying data for the entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToInMemoryQuery<TEntity>(
-            [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            [NotNull] Expression<Func<IQueryable<TEntity>>> query)
+            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            Expression<Func<IQueryable<TEntity>>> query)
             where TEntity : class
         {
             Check.NotNull(query, nameof(query));
@@ -47,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionEntityTypeBuilder? ToInMemoryQuery(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] LambdaExpression? query,
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            LambdaExpression? query,
             bool fromDataAnnotation = false)
         {
             if (CanSetInMemoryQuery(entityTypeBuilder, query, fromDataAnnotation))
@@ -69,8 +66,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given in-memory query can be set. </returns>
         public static bool CanSetInMemoryQuery(
-            [NotNull] this IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] LambdaExpression? query,
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            LambdaExpression? query,
             bool fromDataAnnotation = false)
 #pragma warning disable EF1001 // Internal EF Core API usage.
 #pragma warning disable CS0612 // Type or member is obsolete

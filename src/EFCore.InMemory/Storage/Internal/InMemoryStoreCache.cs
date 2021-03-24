@@ -3,10 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
@@ -29,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryStoreCache(
-            [NotNull] IInMemoryTableFactory tableFactory,
-            [CanBeNull] IInMemorySingletonOptions? options)
+            IInMemoryTableFactory tableFactory,
+            IInMemorySingletonOptions? options)
         {
             _tableFactory = tableFactory;
 

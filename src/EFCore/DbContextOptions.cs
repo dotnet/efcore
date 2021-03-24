@@ -3,12 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -26,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="extensions"> The extensions that store the configured options. </param>
         protected DbContextOptions(
-            [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
+            IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
         {
             Check.NotNull(extensions, nameof(extensions));
 
@@ -72,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TExtension"> The type of extension to be added. </typeparam>
         /// <param name="extension"> The extension to be added. </param>
         /// <returns> The new options instance with the given extension added. </returns>
-        public abstract DbContextOptions WithExtension<TExtension>([NotNull] TExtension extension)
+        public abstract DbContextOptions WithExtension<TExtension>(TExtension extension)
             where TExtension : class, IDbContextOptionsExtension;
 
         private readonly IReadOnlyDictionary<Type, IDbContextOptionsExtension> _extensions;

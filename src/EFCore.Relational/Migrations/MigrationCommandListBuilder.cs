@@ -3,11 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -27,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="dependencies"> Dependencies needed for SQL generations. </param>
         public MigrationCommandListBuilder(
-            [NotNull] MigrationsSqlGeneratorDependencies dependencies)
+            MigrationsSqlGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -72,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="o"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual MigrationCommandListBuilder Append([NotNull] string o)
+        public virtual MigrationCommandListBuilder Append(string o)
         {
             Check.NotNull(o, nameof(o));
 
@@ -97,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual MigrationCommandListBuilder AppendLine([NotNull] string value)
+        public virtual MigrationCommandListBuilder AppendLine(string value)
         {
             Check.NotNull(value, nameof(value));
 
@@ -113,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual MigrationCommandListBuilder AppendLines([NotNull] string value)
+        public virtual MigrationCommandListBuilder AppendLines(string value)
         {
             Check.NotNull(value, nameof(value));
 

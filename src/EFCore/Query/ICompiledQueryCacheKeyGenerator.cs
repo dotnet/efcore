@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -28,6 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="query"> The query to generate a cache key for. </param>
         /// <param name="async"> <see langword="true" /> if the query will be executed asynchronously. </param>
         /// <returns> An object representing a query cache key. </returns>
-        object GenerateCacheKey([NotNull] Expression query, bool async);
+        object GenerateCacheKey(Expression query, bool async);
     }
 }

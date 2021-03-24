@@ -5,14 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -41,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         protected SlimPropertyBase(
-            [NotNull] string name,
-            [CanBeNull] PropertyInfo? propertyInfo,
-            [CanBeNull] FieldInfo? fieldInfo,
+            string name,
+            PropertyInfo? propertyInfo,
+            FieldInfo? fieldInfo,
             PropertyAccessMode propertyAccessMode)
         {
             Name = name;

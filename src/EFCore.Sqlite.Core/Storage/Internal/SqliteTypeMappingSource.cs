@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 {
@@ -112,8 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteTypeMappingSource(
-            [NotNull] TypeMappingSourceDependencies dependencies,
-            [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies)
+            TypeMappingSourceDependencies dependencies,
+            RelationalTypeMappingSourceDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
         {
         }
@@ -124,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsSpatialiteType([NotNull] string columnType)
+        public static bool IsSpatialiteType(string columnType)
             => _spatialiteTypes.Contains(columnType);
 
         /// <summary>

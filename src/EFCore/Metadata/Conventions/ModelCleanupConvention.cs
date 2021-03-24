@@ -3,13 +3,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -22,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="ModelCleanupConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public ModelCleanupConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ModelCleanupConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -103,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             private readonly IConventionModel _model;
 
-            public GraphAdapter([NotNull] IConventionModel model)
+            public GraphAdapter(IConventionModel model)
             {
                 _model = model;
             }

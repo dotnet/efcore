@@ -8,11 +8,8 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -65,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Initializes a new instance of the <see cref="ValueConverterSelector" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public ValueConverterSelector([NotNull] ValueConverterSelectorDependencies dependencies)
+        public ValueConverterSelector(ValueConverterSelectorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Metadata;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>

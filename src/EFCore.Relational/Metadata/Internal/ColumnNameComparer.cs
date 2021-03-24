@@ -3,9 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ColumnNameComparer([NotNull] Table table)
+        public ColumnNameComparer(Table table)
         {
             _table = table;
         }

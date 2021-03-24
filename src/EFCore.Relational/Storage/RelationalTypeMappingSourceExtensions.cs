@@ -2,13 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -24,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value"> The object to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMappingForValue(
-            [CanBeNull] this IRelationalTypeMappingSource? typeMappingSource,
-            [CanBeNull] object? value)
+            this IRelationalTypeMappingSource? typeMappingSource,
+            object? value)
             => value == null
                 || value == DBNull.Value
                 || typeMappingSource == null
@@ -39,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="property"> The property to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMapping(
-            [NotNull] this IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] IProperty property)
+            this IRelationalTypeMappingSource typeMappingSource,
+            IProperty property)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(property, nameof(property));
@@ -66,8 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="clrType"> The type to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMapping(
-            [NotNull] this IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] Type clrType)
+            this IRelationalTypeMappingSource typeMappingSource,
+            Type clrType)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(clrType, nameof(clrType));
@@ -93,8 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="typeName"> The type to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMapping(
-            [NotNull] this IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] string typeName)
+            this IRelationalTypeMappingSource typeMappingSource,
+            string typeName)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             // Note: Empty string is allowed for store type name because SQLite

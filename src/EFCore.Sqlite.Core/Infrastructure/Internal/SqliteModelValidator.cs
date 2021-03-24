@@ -3,14 +3,11 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
 {
@@ -36,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteModelValidator(
-            [NotNull] ModelValidatorDependencies dependencies,
-            [NotNull] RelationalModelValidatorDependencies relationalDependencies)
+            ModelValidatorDependencies dependencies,
+            RelationalModelValidatorDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
         {
         }
@@ -63,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateNoSchemas(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes().Where(e => e.GetSchema() != null))
             {
@@ -79,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateNoSequences(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var sequence in model.GetSequences())
             {

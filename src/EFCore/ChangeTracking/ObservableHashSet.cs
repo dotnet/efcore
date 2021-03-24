@@ -7,9 +7,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -41,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     comparing values in the set, or null to use the default <see cref="IEqualityComparer{T}" />
         ///     implementation for the set type.
         /// </param>
-        public ObservableHashSet([NotNull] IEqualityComparer<T> comparer)
+        public ObservableHashSet(IEqualityComparer<T> comparer)
         {
             _set = new HashSet<T>(comparer);
         }
@@ -53,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     number of elements copied.
         /// </summary>
         /// <param name="collection"> The collection whose elements are copied to the new set. </param>
-        public ObservableHashSet([NotNull] IEnumerable<T> collection)
+        public ObservableHashSet(IEnumerable<T> collection)
             : this(collection, EqualityComparer<T>.Default)
         {
         }
@@ -70,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     comparing values in the set, or null to use the default <see cref="IEqualityComparer{T}" />
         ///     implementation for the set type.
         /// </param>
-        public ObservableHashSet([NotNull] IEnumerable<T> collection, [NotNull] IEqualityComparer<T> comparer)
+        public ObservableHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
             _set = new HashSet<T>(collection, comparer);
         }
@@ -390,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The one-dimensional array that is the destination of the elements copied from
         ///     the hash set. The array must have zero-based indexing.
         /// </param>
-        public virtual void CopyTo([NotNull] T[] array)
+        public virtual void CopyTo(T[] array)
             => _set.CopyTo(array);
 
         /// <summary>
@@ -402,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </param>
         /// <param name="arrayIndex"> The zero-based index in array at which copying begins. </param>
         /// <param name="count"> The number of elements to copy to array. </param>
-        public virtual void CopyTo([NotNull] T[] array, int arrayIndex, int count)
+        public virtual void CopyTo(T[] array, int arrayIndex, int count)
             => _set.CopyTo(array, arrayIndex, count);
 
         /// <summary>
@@ -413,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="Predicate{T}" /> delegate that defines the conditions of the elements to remove.
         /// </param>
         /// <returns> The number of elements that were removed from the hash set. </returns>
-        public virtual int RemoveWhere([NotNull] Predicate<T> match)
+        public virtual int RemoveWhere(Predicate<T> match)
         {
             var copy = new HashSet<T>(_set, _set.Comparer);
 
@@ -454,14 +451,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Raises the <see cref="PropertyChanged" /> event.
         /// </summary>
         /// <param name="e"> Details of the property that changed. </param>
-        protected virtual void OnPropertyChanged([NotNull] PropertyChangedEventArgs e)
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
             => PropertyChanged?.Invoke(this, e);
 
         /// <summary>
         ///     Raises the <see cref="PropertyChanging" /> event.
         /// </summary>
         /// <param name="e"> Details of the property that is changing. </param>
-        protected virtual void OnPropertyChanging([NotNull] PropertyChangingEventArgs e)
+        protected virtual void OnPropertyChanging(PropertyChangingEventArgs e)
             => PropertyChanging?.Invoke(this, e);
 
         private void OnCountPropertyChanged()
@@ -480,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Raises the <see cref="CollectionChanged" /> event.
         /// </summary>
         /// <param name="e"> Details of the change. </param>
-        protected virtual void OnCollectionChanged([NotNull] NotifyCollectionChangedEventArgs e)
+        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
             => CollectionChanged?.Invoke(this, e);
     }
 

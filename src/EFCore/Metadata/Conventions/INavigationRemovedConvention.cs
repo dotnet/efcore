@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -23,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="memberInfo"> The member used for by the navigation. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessNavigationRemoved(
-            [NotNull] IConventionEntityTypeBuilder sourceEntityTypeBuilder,
-            [NotNull] IConventionEntityTypeBuilder targetEntityTypeBuilder,
-            [NotNull] string navigationName,
-            [CanBeNull] MemberInfo? memberInfo,
-            [NotNull] IConventionContext<string> context);
+            IConventionEntityTypeBuilder sourceEntityTypeBuilder,
+            IConventionEntityTypeBuilder targetEntityTypeBuilder,
+            string navigationName,
+            MemberInfo? memberInfo,
+            IConventionContext<string> context);
     }
 }

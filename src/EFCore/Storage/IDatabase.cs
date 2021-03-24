@@ -6,12 +6,9 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -37,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="entries"> Entries representing the changes to be persisted. </param>
         /// <returns> The number of state entries persisted to the database. </returns>
-        int SaveChanges([NotNull] IList<IUpdateEntry> entries);
+        int SaveChanges(IList<IUpdateEntry> entries);
 
         /// <summary>
         ///     Asynchronously persists changes from the supplied entries to the database.
@@ -50,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<int> SaveChangesAsync(
-            [NotNull] IList<IUpdateEntry> entries,
+            IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -60,6 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="query"> The query to compile. </param>
         /// <param name="async"> A value indicating whether this is an async query. </param>
         /// <returns> A <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of the query. </returns>
-        Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query, bool async);
+        Func<QueryContext, TResult> CompileQuery<TResult>(Expression query, bool async);
     }
 }

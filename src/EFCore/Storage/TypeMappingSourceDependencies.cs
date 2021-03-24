@@ -2,13 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -58,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public TypeMappingSourceDependencies(
-            [NotNull] IValueConverterSelector valueConverterSelector,
-            [NotNull] IEnumerable<ITypeMappingSourcePlugin> plugins)
+            IValueConverterSelector valueConverterSelector,
+            IEnumerable<ITypeMappingSourcePlugin> plugins)
         {
             Check.NotNull(valueConverterSelector, nameof(valueConverterSelector));
             Check.NotNull(plugins, nameof(plugins));
@@ -71,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The registry of known <see cref="ValueConverter" />s.
         /// </summary>
-        public IValueConverterSelector ValueConverterSelector { get; [param: NotNull] init; }
+        public IValueConverterSelector ValueConverterSelector { get; init; }
 
         /// <summary>
         ///     Gets the plugins.
         /// </summary>
-        public IEnumerable<ITypeMappingSourcePlugin> Plugins { get; [param: NotNull] init; }
+        public IEnumerable<ITypeMappingSourcePlugin> Plugins { get; init; }
     }
 }

@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -20,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableValuedFunctionBuilder([NotNull] IMutableDbFunction function)
+        public TableValuedFunctionBuilder(IMutableDbFunction function)
             : base(function)
         {
         }
@@ -30,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="name"> The name of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual TableValuedFunctionBuilder HasName([NotNull] string name)
+        public new virtual TableValuedFunctionBuilder HasName(string name)
             => (TableValuedFunctionBuilder)base.HasName(name);
 
         /// <summary>
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual TableValuedFunctionBuilder HasSchema([CanBeNull] string? schema)
+        public new virtual TableValuedFunctionBuilder HasSchema(string? schema)
             => (TableValuedFunctionBuilder)base.HasSchema(schema);
     }
 }

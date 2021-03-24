@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="table"> A table source to join with. </param>
         /// <param name="joinPredicate"> A predicate to use for the join. </param>
-        protected PredicateJoinExpressionBase([NotNull] TableExpressionBase table, [NotNull] SqlExpression joinPredicate)
+        protected PredicateJoinExpressionBase(TableExpressionBase table, SqlExpression joinPredicate)
             : base(table)
         {
             Check.NotNull(joinPredicate, nameof(joinPredicate));

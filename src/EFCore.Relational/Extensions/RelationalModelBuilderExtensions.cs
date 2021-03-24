@@ -4,14 +4,11 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -29,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema">The schema of the sequence. </param>
         /// <returns> A builder to further configure the sequence. </returns>
         public static SequenceBuilder HasSequence(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] string name,
-            [CanBeNull] string? schema = null)
+            this ModelBuilder modelBuilder,
+            string name,
+            string? schema = null)
             => new(
                 HasSequence(
                     Check.NotNull(modelBuilder, nameof(modelBuilder)).Model,
@@ -47,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] string name,
-            [NotNull] Action<SequenceBuilder> builderAction)
+            this ModelBuilder modelBuilder,
+            string name,
+            Action<SequenceBuilder> builderAction)
             => modelBuilder.HasSequence(name, null, builderAction);
 
         /// <summary>
@@ -61,10 +58,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] string name,
-            [CanBeNull] string? schema,
-            [NotNull] Action<SequenceBuilder> builderAction)
+            this ModelBuilder modelBuilder,
+            string name,
+            string? schema,
+            Action<SequenceBuilder> builderAction)
         {
             Check.NotNull(builderAction, nameof(builderAction));
 
@@ -82,10 +79,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema">The schema of the sequence. </param>
         /// <returns> A builder to further configure the sequence. </returns>
         public static SequenceBuilder HasSequence(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] Type type,
-            [NotNull] string name,
-            [CanBeNull] string? schema = null)
+            this ModelBuilder modelBuilder,
+            Type type,
+            string name,
+            string? schema = null)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(type, nameof(type));
@@ -105,10 +102,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] Type type,
-            [NotNull] string name,
-            [NotNull] Action<SequenceBuilder> builderAction)
+            this ModelBuilder modelBuilder,
+            Type type,
+            string name,
+            Action<SequenceBuilder> builderAction)
             => modelBuilder.HasSequence(type, name, null, builderAction);
 
         /// <summary>
@@ -121,11 +118,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] Type type,
-            [NotNull] string name,
-            [CanBeNull] string? schema,
-            [NotNull] Action<SequenceBuilder> builderAction)
+            this ModelBuilder modelBuilder,
+            Type type,
+            string name,
+            string? schema,
+            Action<SequenceBuilder> builderAction)
         {
             Check.NotNull(builderAction, nameof(builderAction));
 
@@ -143,9 +140,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema">The schema of the sequence. </param>
         /// <returns> A builder to further configure the sequence. </returns>
         public static SequenceBuilder HasSequence<T>(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] string name,
-            [CanBeNull] string? schema = null)
+            this ModelBuilder modelBuilder,
+            string name,
+            string? schema = null)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
 
@@ -164,9 +161,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence<T>(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] string name,
-            [NotNull] Action<SequenceBuilder> builderAction)
+            this ModelBuilder modelBuilder,
+            string name,
+            Action<SequenceBuilder> builderAction)
             => modelBuilder.HasSequence<T>(name, null, builderAction);
 
         /// <summary>
@@ -179,10 +176,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasSequence<T>(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] string name,
-            [CanBeNull] string? schema,
-            [NotNull] Action<SequenceBuilder> builderAction)
+            this ModelBuilder modelBuilder,
+            string name,
+            string? schema,
+            Action<SequenceBuilder> builderAction)
         {
             Check.NotNull(builderAction, nameof(builderAction));
 
@@ -200,9 +197,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> A builder to further configure the sequence. </returns>
         public static IConventionSequenceBuilder HasSequence(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [NotNull] string name,
-            [CanBeNull] string? schema = null,
+            this IConventionModelBuilder modelBuilder,
+            string name,
+            string? schema = null,
             bool fromDataAnnotation = false)
             => HasSequence(
                 (IMutableModel)Check.NotNull(modelBuilder, nameof(modelBuilder)).Metadata,
@@ -219,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            var sequence = Sequence.FindSequence(model, name, schema);
+            var sequence = (Sequence?)Sequence.FindSequence(model, name, schema);
             if (sequence != null)
             {
                 sequence.UpdateConfigurationSource(configurationSource);
@@ -236,8 +233,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="methodInfo"> The methodInfo this dbFunction uses. </param>
         /// <returns> A builder to further configure the function. </returns>
         public static DbFunctionBuilder HasDbFunction(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] MethodInfo methodInfo)
+            this ModelBuilder modelBuilder,
+            MethodInfo methodInfo)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(methodInfo, nameof(methodInfo));
@@ -262,8 +259,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="expression"> The method this dbFunction uses. </param>
         /// <returns> A builder to further configure the function. </returns>
         public static DbFunctionBuilder HasDbFunction<TResult>(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] Expression<Func<TResult>> expression)
+            this ModelBuilder modelBuilder,
+            Expression<Func<TResult>> expression)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(expression, nameof(expression));
@@ -286,9 +283,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
         /// <returns> A builder to further configure the function. </returns>
         public static ModelBuilder HasDbFunction(
-            [NotNull] this ModelBuilder modelBuilder,
-            [NotNull] MethodInfo methodInfo,
-            [NotNull] Action<DbFunctionBuilder> builderAction)
+            this ModelBuilder modelBuilder,
+            MethodInfo methodInfo,
+            Action<DbFunctionBuilder> builderAction)
         {
             Check.NotNull(builderAction, nameof(builderAction));
 
@@ -305,8 +302,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> A builder to further configure the function. </returns>
         public static IConventionDbFunctionBuilder HasDbFunction(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [NotNull] MethodInfo methodInfo,
+            this IConventionModelBuilder modelBuilder,
+            MethodInfo methodInfo,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -335,9 +332,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> A builder to further configure the function. </returns>
         public static IConventionDbFunctionBuilder HasDbFunction(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? name,
-            [NotNull] Type returnType,
+            this IConventionModelBuilder modelBuilder,
+            string? name,
+            Type returnType,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -365,8 +362,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema"> The default schema. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder HasDefaultSchema(
-            [NotNull] this ModelBuilder modelBuilder,
-            [CanBeNull] string? schema)
+            this ModelBuilder modelBuilder,
+            string? schema)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(schema, nameof(schema));
@@ -388,8 +385,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder? HasDefaultSchema(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? schema,
+            this IConventionModelBuilder modelBuilder,
+            string? schema,
             bool fromDataAnnotation = false)
         {
             if (modelBuilder.CanSetDefaultSchema(schema, fromDataAnnotation))
@@ -410,8 +407,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given schema can be set as default. </returns>
         public static bool CanSetDefaultSchema(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? schema,
+            this IConventionModelBuilder modelBuilder,
+            string? schema,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -431,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder? HasMaxIdentifierLength(
-            [NotNull] this IConventionModelBuilder modelBuilder,
+            this IConventionModelBuilder modelBuilder,
             int? length,
             bool fromDataAnnotation = false)
         {
@@ -453,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the maximum length allowed for store identifiers can be set. </returns>
         public static bool CanSetMaxIdentifierLength(
-            [NotNull] this IConventionModelBuilder modelBuilder,
+            this IConventionModelBuilder modelBuilder,
             int? length,
             bool fromDataAnnotation = false)
         {
@@ -469,8 +466,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="collation"> The collation. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder UseCollation(
-            [NotNull] this ModelBuilder modelBuilder,
-            [CanBeNull] string? collation)
+            this ModelBuilder modelBuilder,
+            string? collation)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(collation, nameof(collation));
@@ -491,8 +488,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="null" /> otherwise.
         /// </returns>
         public static IConventionModelBuilder? UseCollation(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? collation,
+            this IConventionModelBuilder modelBuilder,
+            string? collation,
             bool fromDataAnnotation = false)
         {
             if (modelBuilder.CanSetCollation(collation, fromDataAnnotation))
@@ -513,8 +510,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given collation can be set as default. </returns>
         public static bool CanSetCollation(
-            [NotNull] this IConventionModelBuilder modelBuilder,
-            [CanBeNull] string? collation,
+            this IConventionModelBuilder modelBuilder,
+            string? collation,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));

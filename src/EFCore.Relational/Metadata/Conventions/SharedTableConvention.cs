@@ -5,13 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -26,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public SharedTableConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             Dependencies = dependencies;
         }
@@ -304,8 +301,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
-            [NotNull] IReadOnlyKey key,
-            [NotNull] IReadOnlyKey duplicateKey,
+            IReadOnlyKey key,
+            IReadOnlyKey duplicateKey,
             in StoreObjectIdentifier storeObject)
             => key.AreCompatible(duplicateKey, storeObject, shouldThrow: false);
 
@@ -374,8 +371,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
-            [NotNull] IReadOnlyIndex index,
-            [NotNull] IReadOnlyIndex duplicateIndex,
+            IReadOnlyIndex index,
+            IReadOnlyIndex duplicateIndex,
             in StoreObjectIdentifier storeObject)
             => index.AreCompatible(duplicateIndex, storeObject, shouldThrow: false);
 
@@ -465,8 +462,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
-            [NotNull] IReadOnlyForeignKey foreignKey,
-            [NotNull] IReadOnlyForeignKey duplicateForeignKey,
+            IReadOnlyForeignKey foreignKey,
+            IReadOnlyForeignKey duplicateForeignKey,
             in StoreObjectIdentifier storeObject)
             => foreignKey.AreCompatible(duplicateForeignKey, storeObject, shouldThrow: false);
 

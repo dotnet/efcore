@@ -4,15 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -42,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerPolygonMemberTranslator(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            IRelationalTypeMappingSource typeMappingSource,
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;

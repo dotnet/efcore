@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 
 #nullable disable
@@ -16,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly ReadItemExpression _readItemExpression;
 
             public CosmosProjectionBindingRemovingReadItemExpressionVisitor(
-                [NotNull] ReadItemExpression readItemExpression,
-                [NotNull] ParameterExpression jObjectParameter,
+                ReadItemExpression readItemExpression,
+                ParameterExpression jObjectParameter,
                 bool trackQueryResults)
                 : base(jObjectParameter, trackQueryResults)
             {

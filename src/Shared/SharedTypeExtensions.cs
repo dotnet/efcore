@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using JetBrains.Annotations;
 
 #nullable enable
 
@@ -258,8 +257,6 @@ namespace System
             return sequenceType;
         }
 
-#nullable enable
-
         public static Type? TryGetSequenceType(this Type type)
             => type.TryGetElementType(typeof(IEnumerable<>))
                 ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
@@ -289,8 +286,6 @@ namespace System
 
             return singleImplementation?.GenericTypeArguments.FirstOrDefault();
         }
-
-#nullable disable
 
         public static bool IsCompatibleWith(this Type propertyType, Type fieldType)
         {
@@ -335,74 +330,79 @@ namespace System
 
         public static IEnumerable<Type> GetBaseTypes(this Type type)
         {
-            type = type.BaseType;
+            var currentType = type.BaseType;
 
-            while (type != null)
+            while (currentType != null)
             {
-                yield return type;
+                yield return currentType;
 
-                type = type.BaseType;
+                currentType = currentType.BaseType;
             }
         }
 
         public static IEnumerable<Type> GetTypesInHierarchy(this Type type)
         {
-            while (type != null)
-            {
-                yield return type;
+            var currentType = type;
 
-                type = type.BaseType;
+            while (currentType != null)
+            {
+                yield return currentType;
+
+                currentType = currentType.BaseType;
             }
         }
 
-        public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[] types)
+        public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[]? types)
         {
             types ??= Array.Empty<Type>();
 
             return type.GetTypeInfo().DeclaredConstructors
                 .SingleOrDefault(
                     c => !c.IsStatic
-                        && c.GetParameters().Select(p => p.ParameterType).SequenceEqual(types));
+                        && c.GetParameters().Select(p => p.ParameterType).SequenceEqual(types))!;
         }
 
         public static IEnumerable<PropertyInfo> GetPropertiesInHierarchy(this Type type, string name)
         {
+            var currentType = type;
             do
             {
-                var typeInfo = type.GetTypeInfo();
+                var typeInfo = currentType.GetTypeInfo();
                 foreach (var propertyInfo in typeInfo.DeclaredProperties)
                 {
                     if (propertyInfo.Name.Equals(name, StringComparison.Ordinal)
-                        && !(propertyInfo.GetMethod ?? propertyInfo.SetMethod).IsStatic)
+                        && !(propertyInfo.GetMethod ?? propertyInfo.SetMethod)!.IsStatic)
                     {
                         yield return propertyInfo;
                     }
                 }
 
-                type = typeInfo.BaseType;
+                currentType = typeInfo.BaseType;
             }
-            while (type != null);
+            while (currentType != null);
         }
 
         // Looking up the members through the whole hierarchy allows to find inherited private members.
         public static IEnumerable<MemberInfo> GetMembersInHierarchy(this Type type)
         {
+            var currentType = type;
+
             do
             {
                 // Do the whole hierarchy for properties first since looking for fields is slower.
-                foreach (var propertyInfo in type.GetRuntimeProperties().Where(pi => !(pi.GetMethod ?? pi.SetMethod).IsStatic))
+                foreach (var propertyInfo in currentType.GetRuntimeProperties().Where(pi => !(pi.GetMethod ?? pi.SetMethod)!.IsStatic))
                 {
                     yield return propertyInfo;
                 }
 
-                foreach (var fieldInfo in type.GetRuntimeFields().Where(f => !f.IsStatic))
+                foreach (var fieldInfo in currentType.GetRuntimeFields().Where(f => !f.IsStatic))
                 {
                     yield return fieldInfo;
                 }
 
-                type = type.BaseType;
+                currentType = currentType.BaseType;
             }
-            while (type != null);
+            while (currentType != null);
         }
 
         public static IEnumerable<MemberInfo> GetMembersInHierarchy(this Type type, string name)
@@ -429,7 +429,7 @@ namespace System
 #pragma warning restore IDE0034 // Simplify 'default' expression
         };
 
-        public static object GetDefaultValue(this Type type)
+        public static object? GetDefaultValue(this Type type)
         {
             if (!type.IsValueType)
             {
@@ -457,7 +457,7 @@ namespace System
             }
             catch (ReflectionTypeLoadException ex)
             {
-                return ex.Types.Where(t => t != null).Select(IntrospectionExtensions.GetTypeInfo);
+                return ex.Types.Where(t => t != null).Select(IntrospectionExtensions.GetTypeInfo!);
             }
         }
 
@@ -478,7 +478,7 @@ namespace System
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string DisplayName([NotNull] this Type type, bool fullName = true)
+        public static string DisplayName(this Type type, bool fullName = true)
         {
             var stringBuilder = new StringBuilder();
             ProcessType(stringBuilder, type, fullName);
@@ -511,7 +511,7 @@ namespace System
             var innerType = type;
             while (innerType.IsArray)
             {
-                innerType = innerType.GetElementType();
+                innerType = innerType.GetElementType()!;
             }
 
             ProcessType(builder, innerType, fullName);
@@ -521,19 +521,19 @@ namespace System
                 builder.Append('[');
                 builder.Append(',', type.GetArrayRank() - 1);
                 builder.Append(']');
-                type = type.GetElementType();
+                type = type.GetElementType()!;
             }
         }
 
         private static void ProcessGenericType(StringBuilder builder, Type type, Type[] genericArguments, int length, bool fullName)
         {
-            var offset = type.IsNested ? type.DeclaringType.GetGenericArguments().Length : 0;
+            var offset = type.IsNested ? type.DeclaringType!.GetGenericArguments().Length : 0;
 
             if (fullName)
             {
                 if (type.IsNested)
                 {
-                    ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName);
+                    ProcessGenericType(builder, type.DeclaringType!, genericArguments, offset, fullName);
                     builder.Append('+');
                 }
                 else
@@ -571,14 +571,14 @@ namespace System
             builder.Append('>');
         }
 
-        public static IEnumerable<string> GetNamespaces([NotNull] this Type type)
+        public static IEnumerable<string> GetNamespaces(this Type type)
         {
             if (_builtInTypeNames.ContainsKey(type))
             {
                 yield break;
             }
 
-            yield return type.Namespace;
+            yield return type.Namespace!;
 
             if (type.IsGenericType)
             {
@@ -594,10 +594,10 @@ namespace System
 
         public static ConstantExpression GetDefaultValueConstant(this Type type)
             => (ConstantExpression)_generateDefaultValueConstantMethod
-                .MakeGenericMethod(type).Invoke(null, Array.Empty<object>());
+                .MakeGenericMethod(type).Invoke(null, Array.Empty<object>())!;
 
         private static readonly MethodInfo _generateDefaultValueConstantMethod =
-            typeof(SharedTypeExtensions).GetTypeInfo().GetDeclaredMethod(nameof(GenerateDefaultValueConstant));
+            typeof(SharedTypeExtensions).GetTypeInfo().GetDeclaredMethod(nameof(GenerateDefaultValueConstant))!;
 
         private static ConstantExpression GenerateDefaultValueConstant<TDefault>()
             => Expression.Constant(default(TDefault), typeof(TDefault));

@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -25,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public PropertyAccessors(
-            [NotNull] Delegate currentValueGetter,
-            [NotNull] Delegate preStoreGeneratedCurrentValueGetter,
-            [CanBeNull] Delegate? originalValueGetter,
-            [NotNull] Delegate relationshipSnapshotGetter,
-            [CanBeNull] Func<ValueBuffer, object>? valueBufferGetter)
+            Delegate currentValueGetter,
+            Delegate preStoreGeneratedCurrentValueGetter,
+            Delegate? originalValueGetter,
+            Delegate relationshipSnapshotGetter,
+            Func<ValueBuffer, object>? valueBufferGetter)
         {
             CurrentValueGetter = currentValueGetter;
             PreStoreGeneratedCurrentValueGetter = preStoreGeneratedCurrentValueGetter;

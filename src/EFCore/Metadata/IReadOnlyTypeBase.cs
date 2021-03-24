@@ -7,8 +7,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -39,17 +37,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         Type ClrType { get; }
 
         /// <summary>
-        ///     Gets whether this entity type can share its ClrType with other entities.
+        ///     Gets a value indicating whether this entity type can share its <seealso cref="ClrType"/> with other entities.
         /// </summary>
         bool HasSharedClrType { get; }
 
         /// <summary>
-        ///     Gets whether this entity type has an indexer which is able to contain arbitrary properties.
+        ///     Gets a value indicating whether this entity type has an indexer which is able to contain arbitrary properties
+        ///     and a method that can be used to determine whether a given indexer property contains a value.
         /// </summary>
         bool IsPropertyBag { get; }
 
         /// <summary>
-        ///     Returns a value indicating whether this entity type represents an abstract type.
+        ///     Gets a value indicating whether this entity type represents an abstract type.
         /// </summary>
         /// <returns> <see langword="true" /> if the type is abstract, <see langword="false" /> otherwise. </returns>
         [DebuggerStepThrough]

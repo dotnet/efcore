@@ -2,13 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -62,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public ModelValidatorDependencies(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IMemberClassifier memberClassifier)
+            ITypeMappingSource typeMappingSource,
+            IMemberClassifier memberClassifier)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(memberClassifier, nameof(memberClassifier));
@@ -78,12 +75,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The type mapper.
         /// </summary>
         [Obsolete("The model now contains this dependency")]
-        public ITypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+        public ITypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     The member classifier.
         /// </summary>
         [EntityFrameworkInternal]
-        public IMemberClassifier MemberClassifier { get; [param: NotNull] init; }
+        public IMemberClassifier MemberClassifier { get; init; }
     }
 }

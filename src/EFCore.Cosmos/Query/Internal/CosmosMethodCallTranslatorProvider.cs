@@ -4,12 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -31,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosMethodCallTranslatorProvider(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IEnumerable<IMethodCallTranslatorPlugin> plugins)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IEnumerable<IMethodCallTranslatorPlugin> plugins)
         {
             _plugins.AddRange(plugins.SelectMany(p => p.Translators));
 
@@ -79,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void AddTranslators([NotNull] IEnumerable<IMethodCallTranslator> translators)
+        protected virtual void AddTranslators(IEnumerable<IMethodCallTranslator> translators)
             => _translators.InsertRange(0, translators);
     }
 }

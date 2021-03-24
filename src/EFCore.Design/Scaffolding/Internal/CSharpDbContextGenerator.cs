@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -39,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpDbContextGenerator(
-            [NotNull] IProviderConfigurationCodeGenerator providerConfigurationCodeGenerator,
-            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
-            [NotNull] ICSharpHelper cSharpHelper)
+            IProviderConfigurationCodeGenerator providerConfigurationCodeGenerator,
+            IAnnotationCodeGenerator annotationCodeGenerator,
+            ICSharpHelper cSharpHelper)
         {
             Check.NotNull(providerConfigurationCodeGenerator, nameof(providerConfigurationCodeGenerator));
             Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
@@ -119,9 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateClass(
-            [NotNull] IModel model,
-            [NotNull] string contextName,
-            [NotNull] string connectionString,
+            IModel model,
+            string contextName,
+            string connectionString,
             bool useDataAnnotations,
             bool suppressConnectionStringWarning,
             bool suppressOnConfiguring)
@@ -207,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateOnConfiguring(
-            [NotNull] string connectionString,
+            string connectionString,
             bool suppressConnectionStringWarning)
         {
             Check.NotNull(connectionString, nameof(connectionString));
@@ -260,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateOnModelCreating(
-            [NotNull] IModel model,
+            IModel model,
             bool useDataAnnotations)
         {
             Check.NotNull(model, nameof(model));

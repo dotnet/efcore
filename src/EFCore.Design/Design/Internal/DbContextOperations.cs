@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -38,10 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DbContextOperations(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [CanBeNull] string[]? args)
+            IOperationReporter reporter,
+            Assembly assembly,
+            Assembly startupAssembly,
+            string[]? args)
             : this(reporter, assembly, startupAssembly, args, new AppServiceProviderFactory(startupAssembly, reporter))
         {
         }
@@ -53,11 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected DbContextOperations(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [CanBeNull] string[]? args,
-            [NotNull] AppServiceProviderFactory appServicesFactory)
+            IOperationReporter reporter,
+            Assembly assembly,
+            Assembly startupAssembly,
+            string[]? args,
+            AppServiceProviderFactory appServicesFactory)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
@@ -76,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void DropDatabase([CanBeNull] string? contextType)
+        public virtual void DropDatabase(string? contextType)
         {
             using var context = CreateContext(contextType);
             var connection = context.Database.GetDbConnection();
@@ -97,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string ScriptDbContext([CanBeNull] string? contextType)
+        public virtual string ScriptDbContext(string? contextType)
         {
             using var context = CreateContext(contextType);
             return context.Database.GenerateCreateScript();
@@ -109,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DbContext CreateContext([CanBeNull] string? contextType)
+        public virtual DbContext CreateContext(string? contextType)
             => CreateContext(FindContextType(contextType).Value);
 
         private DbContext CreateContext(Func<DbContext> factory)
@@ -138,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type GetContextType([CanBeNull] string? name)
+        public virtual Type GetContextType(string? name)
             => FindContextType(name).Key;
 
         private IDictionary<Type, Func<DbContext>> FindContextTypes()
@@ -225,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ContextInfo GetContextInfo([CanBeNull] string? contextType)
+        public virtual ContextInfo GetContextInfo(string? contextType)
         {
             using var context = CreateContext(contextType);
             var info = new ContextInfo();

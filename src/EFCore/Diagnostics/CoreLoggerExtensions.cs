@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -20,8 +19,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Logging;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -45,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The context in use. </param>
         /// <param name="exception"> The exception that caused this event. </param>
         public static void SaveChangesFailed(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] DbContext context,
-            [NotNull] Exception exception)
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            DbContext context,
+            Exception exception)
         {
             var definition = CoreResources.LogExceptionDuringSaveChanges(diagnostics);
 
@@ -81,9 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> for the async result. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task SaveChangesFailedAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] DbContext context,
-            [NotNull] Exception exception,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            DbContext context,
+            Exception exception,
             CancellationToken cancellationToken = default)
         {
             var definition = CoreResources.LogExceptionDuringSaveChanges(diagnostics);
@@ -133,9 +130,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The context in use. </param>
         /// <param name="exception"> The exception that caused this event. </param>
         public static void OptimisticConcurrencyException(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] DbContext context,
-            [NotNull] Exception exception)
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            DbContext context,
+            Exception exception)
         {
             var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
 
@@ -166,9 +163,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> A <see cref="Task" /> for the async result. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task OptimisticConcurrencyExceptionAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] DbContext context,
-            [NotNull] Exception exception,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            DbContext context,
+            Exception exception,
             CancellationToken cancellationToken = default)
         {
             var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
@@ -219,9 +216,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="dependent1"> The first dependent type. </param>
         /// <param name="dependent2"> The second dependent type. </param>
         public static void DuplicateDependentEntityTypeInstanceWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] IEntityType dependent1,
-            [NotNull] IEntityType dependent2)
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            IEntityType dependent1,
+            IEntityType dependent2)
         {
             var definition = CoreResources.LogDuplicateDependentEntityTypeInstance(diagnostics);
 
@@ -256,9 +253,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="contextType"> The <see cref="DbContext" /> type being used. </param>
         /// <param name="exception"> The exception that caused this failure. </param>
         public static void QueryIterationFailed(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] Type contextType,
-            [NotNull] Exception exception)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            Type contextType,
+            Exception exception)
         {
             var definition = CoreResources.LogExceptionDuringQueryIteration(diagnostics);
 
@@ -296,9 +293,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="expressionPrinter"> Used to create a human-readable representation of the expression tree. </param>
         /// <param name="queryExpression"> The query expression tree. </param>
         public static void QueryCompilationStarting(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] ExpressionPrinter expressionPrinter,
-            [NotNull] Expression queryExpression)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            ExpressionPrinter expressionPrinter,
+            Expression queryExpression)
         {
             var definition = CoreResources.LogQueryCompilationStarting(diagnostics);
 
@@ -331,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         public static void FirstWithoutOrderByAndFilterWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
             var definition = CoreResources.LogFirstWithoutOrderByAndFilter(diagnostics);
 
@@ -361,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         public static void RowLimitingOperationWithoutOrderByWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
             var definition = CoreResources.LogRowLimitingOperationWithoutOrderBy(diagnostics);
 
@@ -391,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         public static void DistinctAfterOrderByWithoutRowLimitingOperatorWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
             var definition = CoreResources.LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(diagnostics);
 
@@ -422,8 +419,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="navigation"> The navigation being included. </param>
         public static void NavigationBaseIncluded(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] INavigationBase navigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            INavigationBase navigation)
         {
             var definition = CoreResources.LogNavigationBaseIncluded(diagnostics);
 
@@ -451,15 +448,49 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.NavigationBaseIncludeIgnored" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="navigation"> The navigation being included. </param>
+        public static void NavigationBaseIncludeIgnored(
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            INavigationBase navigation)
+        {
+            var definition = CoreResources.LogNavigationBaseIncludeIgnored(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, navigation.DeclaringEntityType.ShortName() + "." + navigation.Name);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new NavigationBaseEventData(
+                    definition,
+                    NavigationBaseIncludeIgnored,
+                    navigation);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string NavigationBaseIncludeIgnored(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (NavigationBaseEventData)payload;
+            return d.GenerateMessage(p.NavigationBase.DeclaringEntityType.ShortName() + "." + p.NavigationBase.Name);
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.QueryExecutionPlanned" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="expressionPrinter"> Used to create a human-readable representation of the expression tree. </param>
         /// <param name="queryExecutorExpression"> The query expression tree. </param>
         public static void QueryExecutionPlanned(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] ExpressionPrinter expressionPrinter,
-            [NotNull] Expression queryExecutorExpression)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            ExpressionPrinter expressionPrinter,
+            Expression queryExecutorExpression)
         {
             var definition = CoreResources.LogQueryExecutionPlanned(diagnostics);
 
@@ -493,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <typeparam name="TLoggerCategory"> The logger category for which to log the warning. </typeparam>
         public static void SensitiveDataLoggingEnabledWarning<TLoggerCategory>(
-            [NotNull] this IDiagnosticsLogger<TLoggerCategory> diagnostics)
+            this IDiagnosticsLogger<TLoggerCategory> diagnostics)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
             var definition = CoreResources.LogSensitiveDataLoggingEnabled(diagnostics);
@@ -519,8 +550,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///// <param name="diagnostics"> The diagnostics logger to use. </param>
         ///// <param name="includeResultOperator"> The result operator for the Include. </param>
         //public static void IncludeIgnoredWarning(
-        //    [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-        //    [NotNull] IncludeResultOperator includeResultOperator)
+        //    this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        //    IncludeResultOperator includeResultOperator)
         //{
         //    var definition = CoreResources.LogIgnoredInclude(diagnostics);
 
@@ -557,8 +588,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="navigation"> The navigation being used. </param>
         public static void PossibleUnintendedCollectionNavigationNullComparisonWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] INavigation navigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            INavigation navigation)
         {
             var definition = CoreResources.LogPossibleUnintendedCollectionNavigationNullComparison(diagnostics);
 
@@ -594,9 +625,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="left"> The left side expression. </param>
         /// <param name="right"> The right side expression. </param>
         public static void PossibleUnintendedReferenceComparisonWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] Expression left,
-            [NotNull] Expression right)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            Expression left,
+            Expression right)
         {
             var definition = CoreResources.LogPossibleUnintendedReferenceComparison(diagnostics);
 
@@ -634,9 +665,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <param name="navigationName"> The navigation name which was not found in the model. </param>
         public static void InvalidIncludePathError(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] string navigationChain,
-            [NotNull] string navigationName)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            string navigationChain,
+            string navigationName)
         {
             var definition = CoreResources.LogInvalidIncludePath(diagnostics);
             if (diagnostics.ShouldLog(definition))
@@ -670,8 +701,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="serviceProvider"> The service provider. </param>
         public static void ServiceProviderCreated(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-            [NotNull] IServiceProvider serviceProvider)
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            IServiceProvider serviceProvider)
         {
             var definition = CoreResources.LogServiceProviderCreated(diagnostics);
 
@@ -697,8 +728,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="serviceProviders"> The service providers that have been created. </param>
         public static void ManyServiceProvidersCreatedWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-            [NotNull] ICollection<IServiceProvider> serviceProviders)
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            ICollection<IServiceProvider> serviceProviders)
         {
             var definition = CoreResources.LogManyServiceProvidersCreated(diagnostics);
 
@@ -725,9 +756,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="newDebugInfo"> Debug information for the new service providers. </param>
         /// <param name="cachedDebugInfos"> Debug information for existing service providers. </param>
         public static void ServiceProviderDebugInfo(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-            [NotNull] IDictionary<string, string> newDebugInfo,
-            [NotNull] IList<IDictionary<string, string>> cachedDebugInfos)
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            IDictionary<string, string> newDebugInfo,
+            IList<IDictionary<string, string>> cachedDebugInfos)
         {
             var definition = CoreResources.LogServiceProviderDebugInfo(diagnostics);
 
@@ -806,9 +837,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The context being used. </param>
         /// <param name="contextOptions"> The context options being used. </param>
         public static void ContextInitialized(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-            [NotNull] DbContext context,
-            [NotNull] DbContextOptions contextOptions)
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            DbContext context,
+            DbContextOptions contextOptions)
         {
             var definition = CoreResources.LogContextInitialized(diagnostics);
 
@@ -853,8 +884,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="delay"> The delay that before the next retry. </param>
         /// <param name="async"> Indicates whether execution is asynchronous or not. </param>
         public static void ExecutionStrategyRetrying(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-            [NotNull] IReadOnlyList<Exception> exceptionsEncountered,
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            IReadOnlyList<Exception> exceptionsEncountered,
             TimeSpan delay,
             bool async)
         {
@@ -898,10 +929,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="entityType"> The entity type. </param>
         /// <param name="navigationName"> The name of the navigation property. </param>
         public static void LazyLoadOnDisposedContextWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-            [NotNull] DbContext context,
-            [NotNull] object entityType,
-            [NotNull] string navigationName)
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            DbContext context,
+            object entityType,
+            string navigationName)
         {
             var definition = CoreResources.LogLazyLoadOnDisposedContext(diagnostics);
 
@@ -938,10 +969,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="entityType"> The entity type. </param>
         /// <param name="navigationName"> The name of the navigation property. </param>
         public static void NavigationLazyLoading(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-            [NotNull] DbContext context,
-            [NotNull] object entityType,
-            [NotNull] string navigationName)
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            DbContext context,
+            object entityType,
+            string navigationName)
         {
             var definition = CoreResources.LogNavigationLazyLoading(diagnostics);
 
@@ -978,10 +1009,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="entityType"> The entity type. </param>
         /// <param name="navigationName"> The name of the navigation property. </param>
         public static void DetachedLazyLoadingWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-            [NotNull] DbContext context,
-            [NotNull] object entityType,
-            [NotNull] string navigationName)
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            DbContext context,
+            object entityType,
+            string navigationName)
         {
             var definition = CoreResources.LogDetachedLazyLoading(diagnostics);
 
@@ -1016,8 +1047,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="serviceProvider"> The service provider used. </param>
         public static void RedundantAddServicesCallWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-            [NotNull] IServiceProvider serviceProvider)
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            IServiceProvider serviceProvider)
         {
             var definition = CoreResources.LogRedundantAddServicesCall(diagnostics);
 
@@ -1043,8 +1074,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="property"> The property. </param>
         public static void ShadowPropertyCreated(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IProperty property)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IProperty property)
         {
             var definition = CoreResources.LogShadowPropertyCreated(diagnostics);
 
@@ -1077,8 +1108,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="property"> The property. </param>
         public static void CollectionWithoutComparer(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IProperty property)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IProperty property)
         {
             var definition = CoreResources.LogCollectionWithoutComparer(diagnostics);
 
@@ -1112,9 +1143,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="redundantIndex"> The redundant index. </param>
         /// <param name="otherIndex"> The other index. </param>
         public static void RedundantIndexRemoved(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyList<IReadOnlyPropertyBase> redundantIndex,
-            [NotNull] IReadOnlyList<IReadOnlyPropertyBase> otherIndex)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyList<IReadOnlyPropertyBase> redundantIndex,
+            IReadOnlyList<IReadOnlyPropertyBase> otherIndex)
         {
             var definition = CoreResources.LogRedundantIndexRemoved(diagnostics);
 
@@ -1155,8 +1186,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="redundantForeignKey"> The redundant foreign key. </param>
         public static void RedundantForeignKeyWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IForeignKey redundantForeignKey)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IForeignKey redundantForeignKey)
         {
             var definition = CoreResources.LogRedundantForeignKey(diagnostics);
 
@@ -1203,11 +1234,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="foreignKeyProperties"> The properties that make up the foreign key. </param>
         /// <param name="principalKeyProperties"> The corresponding keys on the principal side. </param>
         public static void IncompatibleMatchingForeignKeyProperties(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] string dependentToPrincipalNavigationSpecification,
-            [NotNull] string principalToDependentNavigationSpecification,
-            [NotNull] IReadOnlyList<IReadOnlyPropertyBase> foreignKeyProperties,
-            [NotNull] IReadOnlyList<IReadOnlyPropertyBase> principalKeyProperties)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            string dependentToPrincipalNavigationSpecification,
+            string principalToDependentNavigationSpecification,
+            IReadOnlyList<IReadOnlyPropertyBase> foreignKeyProperties,
+            IReadOnlyList<IReadOnlyPropertyBase> principalKeyProperties)
         {
             var definition = CoreResources.LogIncompatibleMatchingForeignKeyProperties(diagnostics);
 
@@ -1252,8 +1283,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="foreignKey"> The foreign key. </param>
         public static void AmbiguousEndRequiredWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IForeignKey foreignKey)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IForeignKey foreignKey)
         {
             var definition = CoreResources.LogAmbiguousEndRequired(diagnostics);
 
@@ -1292,8 +1323,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="navigation"> The navigation property. </param>
         [Obsolete]
         public static void RequiredAttributeInverted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] INavigation navigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            INavigation navigation)
         {
             var definition = CoreResources.LogRequiredAttributeInverted(diagnostics);
 
@@ -1328,8 +1359,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="navigation"> The navigation property. </param>
         [Obsolete]
         public static void NonNullableInverted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] INavigation navigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            INavigation navigation)
         {
             var definition = CoreResources.LogNonNullableInverted(diagnostics);
 
@@ -1365,9 +1396,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="secondNavigation"> The second navigation property. </param>
         [Obsolete]
         public static void RequiredAttributeOnBothNavigations(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyNavigation firstNavigation,
-            [NotNull] IReadOnlyNavigation secondNavigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyNavigation firstNavigation,
+            IReadOnlyNavigation secondNavigation)
         {
             var definition = CoreResources.LogRequiredAttributeOnBothNavigations(diagnostics);
 
@@ -1415,9 +1446,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="secondNavigation"> The second navigation property. </param>
         [Obsolete]
         public static void NonNullableReferenceOnBothNavigations(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyNavigation firstNavigation,
-            [NotNull] IReadOnlyNavigation secondNavigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyNavigation firstNavigation,
+            IReadOnlyNavigation secondNavigation)
         {
             var definition = CoreResources.LogNonNullableReferenceOnBothNavigations(diagnostics);
 
@@ -1464,8 +1495,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="navigation"> The navigation property. </param>
         [Obsolete]
         public static void RequiredAttributeOnDependent(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] INavigation navigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            INavigation navigation)
         {
             var definition = CoreResources.LogRequiredAttributeOnDependent(diagnostics);
 
@@ -1502,8 +1533,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="navigation"> The navigation property. </param>
         [Obsolete]
         public static void NonNullableReferenceOnDependent(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] INavigation navigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            INavigation navigation)
         {
             var definition = CoreResources.LogNonNullableReferenceOnDependent(diagnostics);
 
@@ -1540,8 +1571,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="navigation"> The navigation property. </param>
         public static void RequiredAttributeOnCollection(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyNavigation navigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyNavigation navigation)
         {
             var definition = CoreResources.LogRequiredAttributeOnCollection(diagnostics);
 
@@ -1574,8 +1605,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="navigation"> The navigation property. </param>
         public static void RequiredAttributeOnSkipNavigation(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlySkipNavigation navigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlySkipNavigation navigation)
         {
             var definition = CoreResources.LogRequiredAttributeOnSkipNavigation(diagnostics);
 
@@ -1608,8 +1639,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="foreignKey"> The foreign key. </param>
         public static void ConflictingShadowForeignKeysWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyForeignKey foreignKey)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyForeignKey foreignKey)
         {
             var definition = CoreResources.LogConflictingShadowForeignKeys(diagnostics);
 
@@ -1651,9 +1682,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="firstProperty"> The first property. </param>
         /// <param name="secondProperty"> The second property. </param>
         public static void MultiplePrimaryKeyCandidates(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyProperty firstProperty,
-            [NotNull] IReadOnlyProperty secondProperty)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyProperty firstProperty,
+            IReadOnlyProperty secondProperty)
         {
             var definition = CoreResources.LogMultiplePrimaryKeyCandidates(diagnostics);
 
@@ -1697,9 +1728,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="firstPropertyCollection"> The first set of properties. </param>
         /// <param name="secondPropertyCollection"> The second set of properties. </param>
         public static void MultipleNavigationProperties(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IEnumerable<Tuple<MemberInfo?, Type>> firstPropertyCollection,
-            [NotNull] IEnumerable<Tuple<MemberInfo?, Type>> secondPropertyCollection)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IEnumerable<Tuple<MemberInfo?, Type>> firstPropertyCollection,
+            IEnumerable<Tuple<MemberInfo?, Type>> secondPropertyCollection)
         {
             var definition = CoreResources.LogMultipleNavigationProperties(diagnostics);
 
@@ -1744,10 +1775,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="inverseNavigation"> The inverse navigation property. </param>
         /// <param name="targetType"> The target type. </param>
         public static void MultipleInversePropertiesSameTargetWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IEnumerable<Tuple<MemberInfo?, Type>> conflictingNavigations,
-            [NotNull] MemberInfo inverseNavigation,
-            [NotNull] Type targetType)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IEnumerable<Tuple<MemberInfo?, Type>> conflictingNavigations,
+            MemberInfo inverseNavigation,
+            Type targetType)
         {
             var definition = CoreResources.LogMultipleInversePropertiesSameTarget(diagnostics);
 
@@ -1792,12 +1823,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="definingNavigation"> The defining navigation property. </param>
         [Obsolete]
         public static void NonDefiningInverseNavigationWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IEntityType declaringType,
-            [NotNull] MemberInfo navigation,
-            [NotNull] IEntityType targetType,
-            [NotNull] MemberInfo inverseNavigation,
-            [NotNull] MemberInfo definingNavigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IEntityType declaringType,
+            MemberInfo navigation,
+            IEntityType targetType,
+            MemberInfo inverseNavigation,
+            MemberInfo definingNavigation)
         {
             var definition = CoreResources.LogNonDefiningInverseNavigation(diagnostics);
 
@@ -1853,12 +1884,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="inverseNavigation"> The inverse navigation property. </param>
         /// <param name="ownershipNavigation"> The ownership navigation property. </param>
         public static void NonOwnershipInverseNavigationWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyEntityType declaringType,
-            [NotNull] MemberInfo navigation,
-            [NotNull] IReadOnlyEntityType targetType,
-            [NotNull] MemberInfo inverseNavigation,
-            [NotNull] MemberInfo ownershipNavigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyEntityType declaringType,
+            MemberInfo navigation,
+            IReadOnlyEntityType targetType,
+            MemberInfo inverseNavigation,
+            MemberInfo ownershipNavigation)
         {
             var definition = CoreResources.LogNonOwnershipInverseNavigation(diagnostics);
 
@@ -1913,11 +1944,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="firstProperty"> The first property. </param>
         /// <param name="secondProperty"> The second property. </param>
         public static void ForeignKeyAttributesOnBothPropertiesWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyNavigation firstNavigation,
-            [NotNull] IReadOnlyNavigation secondNavigation,
-            [NotNull] MemberInfo firstProperty,
-            [NotNull] MemberInfo secondProperty)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyNavigation firstNavigation,
+            IReadOnlyNavigation secondNavigation,
+            MemberInfo firstProperty,
+            MemberInfo secondProperty)
         {
             var definition = CoreResources.LogForeignKeyAttributesOnBothProperties(diagnostics);
 
@@ -1979,9 +2010,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="firstNavigation"> The first navigation property. </param>
         /// <param name="secondNavigation"> The second navigation property. </param>
         public static void ForeignKeyAttributesOnBothNavigationsWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyNavigation firstNavigation,
-            [NotNull] IReadOnlyNavigation secondNavigation)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyNavigation firstNavigation,
+            IReadOnlyNavigation secondNavigation)
         {
             var definition = CoreResources.LogForeignKeyAttributesOnBothNavigations(diagnostics);
 
@@ -2027,9 +2058,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="navigation"> The navigation property. </param>
         /// <param name="property"> The property. </param>
         public static void ConflictingForeignKeyAttributesOnNavigationAndPropertyWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyNavigation navigation,
-            [NotNull] MemberInfo property)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyNavigation navigation,
+            MemberInfo property)
         {
             var definition = CoreResources.LogConflictingForeignKeyAttributesOnNavigationAndProperty(diagnostics);
 
@@ -2076,8 +2107,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="context"> The context being used. </param>
         public static void DetectChangesStarting(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] DbContext context)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            DbContext context)
         {
             var definition = CoreResources.LogDetectChangesStarting(diagnostics);
 
@@ -2110,8 +2141,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="context"> The context being used. </param>
         public static void DetectChangesCompleted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] DbContext context)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            DbContext context)
         {
             var definition = CoreResources.LogDetectChangesCompleted(diagnostics);
 
@@ -2147,11 +2178,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="oldValue"> The old value. </param>
         /// <param name="newValue"> The new value. </param>
         public static void PropertyChangeDetected(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] IProperty property,
-            [CanBeNull] object? oldValue,
-            [CanBeNull] object? newValue)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            IProperty property,
+            object? oldValue,
+            object? newValue)
         {
             var definition = CoreResources.LogPropertyChangeDetected(diagnostics);
 
@@ -2192,11 +2223,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="oldValue"> The old value. </param>
         /// <param name="newValue"> The new value. </param>
         public static void PropertyChangeDetectedSensitive(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] IProperty property,
-            [CanBeNull] object? oldValue,
-            [CanBeNull] object? newValue)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            IProperty property,
+            object? oldValue,
+            object? newValue)
         {
             var definition = CoreResources.LogPropertyChangeDetectedSensitive(diagnostics);
 
@@ -2246,11 +2277,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="oldValue"> The old value. </param>
         /// <param name="newValue"> the new value. </param>
         public static void ForeignKeyChangeDetected(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] IProperty property,
-            [CanBeNull] object? oldValue,
-            [CanBeNull] object? newValue)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            IProperty property,
+            object? oldValue,
+            object? newValue)
         {
             var definition = CoreResources.LogForeignKeyChangeDetected(diagnostics);
 
@@ -2294,11 +2325,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="oldValue"> The old value. </param>
         /// <param name="newValue"> The new value. </param>
         public static void ForeignKeyChangeDetectedSensitive(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] IProperty property,
-            [CanBeNull] object? oldValue,
-            [CanBeNull] object? newValue)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            IProperty property,
+            object? oldValue,
+            object? newValue)
         {
             var definition = CoreResources.LogForeignKeyChangeDetectedSensitive(diagnostics);
 
@@ -2348,11 +2379,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="added"> The added values. </param>
         /// <param name="removed"> The removed values. </param>
         public static void CollectionChangeDetected(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] INavigation navigation,
-            [NotNull] ISet<object> added,
-            [NotNull] ISet<object> removed)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            INavigation navigation,
+            ISet<object> added,
+            ISet<object> removed)
         {
             var definition = CoreResources.LogCollectionChangeDetected(diagnostics);
 
@@ -2400,11 +2431,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="added"> The added values. </param>
         /// <param name="removed"> The removed values. </param>
         public static void CollectionChangeDetectedSensitive(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] INavigation navigation,
-            [NotNull] ISet<object> added,
-            [NotNull] ISet<object> removed)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            INavigation navigation,
+            ISet<object> added,
+            ISet<object> removed)
         {
             var definition = CoreResources.LogCollectionChangeDetectedSensitive(diagnostics);
 
@@ -2454,11 +2485,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="added"> The added values. </param>
         /// <param name="removed"> The removed values. </param>
         public static void SkipCollectionChangeDetected(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] ISkipNavigation navigation,
-            [NotNull] ISet<object> added,
-            [NotNull] ISet<object> removed)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            ISkipNavigation navigation,
+            ISet<object> added,
+            ISet<object> removed)
         {
             var definition = CoreResources.LogSkipCollectionChangeDetected(diagnostics);
 
@@ -2506,11 +2537,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="added"> The added values. </param>
         /// <param name="removed"> The removed values. </param>
         public static void SkipCollectionChangeDetectedSensitive(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] ISkipNavigation navigation,
-            [NotNull] ISet<object> added,
-            [NotNull] ISet<object> removed)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            ISkipNavigation navigation,
+            ISet<object> added,
+            ISet<object> removed)
         {
             var definition = CoreResources.LogSkipCollectionChangeDetectedSensitive(diagnostics);
 
@@ -2560,11 +2591,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="oldValue"> The old value. </param>
         /// <param name="newValue"> The new value. </param>
         public static void ReferenceChangeDetected(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] INavigation navigation,
-            [CanBeNull] object? oldValue,
-            [CanBeNull] object? newValue)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            INavigation navigation,
+            object? oldValue,
+            object? newValue)
         {
             var definition = CoreResources.LogReferenceChangeDetected(diagnostics);
 
@@ -2605,11 +2636,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="oldValue"> The old value. </param>
         /// <param name="newValue"> The new value. </param>
         public static void ReferenceChangeDetectedSensitive(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] INavigation navigation,
-            [CanBeNull] object? oldValue,
-            [CanBeNull] object? newValue)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            INavigation navigation,
+            object? oldValue,
+            object? newValue)
         {
             var definition = CoreResources.LogReferenceChangeDetectedSensitive(diagnostics);
 
@@ -2652,8 +2683,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="internalEntityEntry"> The internal entity entry. </param>
         public static void StartedTracking(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry)
         {
             var definition = CoreResources.LogStartedTracking(diagnostics);
 
@@ -2691,8 +2722,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="internalEntityEntry"> The internal entity entry. </param>
         public static void StartedTrackingSensitive(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry)
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry)
         {
             var definition = CoreResources.LogStartedTrackingSensitive(diagnostics);
 
@@ -2734,8 +2765,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="oldState"> The old value. </param>
         /// <param name="newState"> The new value. </param>
         public static void StateChanged(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
             EntityState oldState,
             EntityState newState)
         {
@@ -2783,8 +2814,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="oldState"> The old state. </param>
         /// <param name="newState"> The new state. </param>
         public static void StateChangedSensitive(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
             EntityState oldState,
             EntityState newState)
         {
@@ -2835,10 +2866,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="value"> The value generated. </param>
         /// <param name="temporary"> Indicates whether or not the value is a temporary or permanent value. </param>
         public static void ValueGenerated(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] IProperty property,
-            [CanBeNull] object? value,
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            IProperty property,
+            object? value,
             bool temporary)
         {
             var definition = temporary
@@ -2886,10 +2917,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="value"> The value generated. </param>
         /// <param name="temporary"> Indicates whether or not the value is a temporary or permanent value. </param>
         public static void ValueGeneratedSensitive(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] IProperty property,
-            [CanBeNull] object? value,
+            this IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> diagnostics,
+            InternalEntityEntry internalEntityEntry,
+            IProperty property,
+            object? value,
             bool temporary)
         {
             var definition = temporary
@@ -2938,9 +2969,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="internalParentEntry"> The parent internal entity entry. </param>
         /// <param name="state"> The target state. </param>
         public static void CascadeDelete(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] InternalEntityEntry internalChildEntry,
-            [NotNull] InternalEntityEntry internalParentEntry,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            InternalEntityEntry internalChildEntry,
+            InternalEntityEntry internalParentEntry,
             EntityState state)
         {
             var definition = CoreResources.LogCascadeDelete(diagnostics);
@@ -2985,9 +3016,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="internalParentEntry"> The parent internal entity entry. </param>
         /// <param name="state"> The target state. </param>
         public static void CascadeDeleteSensitive(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] InternalEntityEntry internalChildEntry,
-            [NotNull] InternalEntityEntry internalParentEntry,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            InternalEntityEntry internalChildEntry,
+            InternalEntityEntry internalParentEntry,
             EntityState state)
         {
             var definition = CoreResources.LogCascadeDeleteSensitive(diagnostics);
@@ -3036,9 +3067,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="parentEntityType"> The parent entity type. </param>
         /// <param name="state"> The target state. </param>
         public static void CascadeDeleteOrphan(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] InternalEntityEntry internalChildEntry,
-            [NotNull] IEntityType parentEntityType,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            InternalEntityEntry internalChildEntry,
+            IEntityType parentEntityType,
             EntityState state)
         {
             var definition = CoreResources.LogCascadeDeleteOrphan(diagnostics);
@@ -3083,9 +3114,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="parentEntityType"> The parent entity type. </param>
         /// <param name="state"> The target state. </param>
         public static void CascadeDeleteOrphanSensitive(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] InternalEntityEntry internalChildEntry,
-            [NotNull] IEntityType parentEntityType,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            InternalEntityEntry internalChildEntry,
+            IEntityType parentEntityType,
             EntityState state)
         {
             var definition = CoreResources.LogCascadeDeleteOrphanSensitive(diagnostics);
@@ -3131,8 +3162,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The context being used. </param>
         /// <returns> The, possibly intercepted, result. </returns>
         public static InterceptionResult<int> SaveChangesStarting(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] DbContext context)
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            DbContext context)
         {
             var definition = CoreResources.LogSaveChangesStarting(diagnostics);
 
@@ -3167,8 +3198,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> The, possibly intercepted, result. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult<int>> SaveChangesStartingAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            DbContext context,
             CancellationToken cancellationToken = default)
         {
             var definition = CoreResources.LogSaveChangesStarting(diagnostics);
@@ -3216,8 +3247,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="entitiesSavedCount"> The number of entities saved. </param>
         /// <returns> The, possibly intercepted, result. </returns>
         public static int SaveChangesCompleted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            DbContext context,
             int entitiesSavedCount)
         {
             var definition = CoreResources.LogSaveChangesCompleted(diagnostics);
@@ -3254,8 +3285,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <returns> The, possibly intercepted, result. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<int> SaveChangesCompletedAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            DbContext context,
             int entitiesSavedCount,
             CancellationToken cancellationToken = default)
         {
@@ -3308,8 +3339,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="context"> The context being used. </param>
         public static void ContextDisposed(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-            [NotNull] DbContext context)
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            DbContext context)
         {
             var definition = CoreResources.LogContextDisposed(diagnostics);
 
@@ -3342,8 +3373,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="property"> The property which is being defined as part of a key. </param>
         public static void ConflictingKeylessAndKeyAttributesWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
-            [NotNull] IReadOnlyProperty property)
+            this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            IReadOnlyProperty property)
         {
             var definition = CoreResources.LogConflictingKeylessAndKeyAttributes(diagnostics);
 
@@ -3378,8 +3409,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="foreignKey"> Foreign key which is used in the incorrectly setup navigation. </param>
         public static void PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IForeignKey foreignKey)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IForeignKey foreignKey)
         {
             var definition = CoreResources.LogPossibleIncorrectRequiredNavigationWithQueryFilterInteraction(diagnostics);
 

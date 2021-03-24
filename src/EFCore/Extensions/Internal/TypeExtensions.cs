@@ -5,9 +5,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using JetBrains.Annotations;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -26,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsDefaultValue([NotNull] this Type type, [CanBeNull] object? value)
+        public static bool IsDefaultValue(this Type type, object? value)
             => (value?.Equals(type.GetDefaultValue()) != false);
 
         /// <summary>
@@ -35,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static FieldInfo? GetFieldInfo([NotNull] this Type type, [NotNull] string fieldName)
+        public static FieldInfo? GetFieldInfo(this Type type, string fieldName)
             => type.GetRuntimeFields().FirstOrDefault(f => f.Name == fieldName && !f.IsStatic);
 
         /// <summary>
@@ -44,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string GenerateParameterName([NotNull] this Type type)
+        public static string GenerateParameterName(this Type type)
         {
             var sb = new StringBuilder();
             var removeLowerCase = sb.Append(type.Name.Where(char.IsUpper).ToArray()).ToString();
@@ -58,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static PropertyInfo? FindIndexerProperty([NotNull] this Type type)
+        public static PropertyInfo? FindIndexerProperty(this Type type)
         {
             var defaultPropertyAttribute = type.GetCustomAttributes<DefaultMemberAttribute>().FirstOrDefault();
 

@@ -3,10 +3,7 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -31,6 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Type? FindCandidateNavigationPropertyType([NotNull] MemberInfo memberInfo);
+        Type? FindCandidateNavigationPropertyType(MemberInfo memberInfo);
     }
 }

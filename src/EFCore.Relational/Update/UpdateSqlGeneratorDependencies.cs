@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
@@ -63,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         [EntityFrameworkInternal]
         public UpdateSqlGeneratorDependencies(
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            ISqlGenerationHelper sqlGenerationHelper,
+            IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
@@ -76,11 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Helpers for generating update SQL.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; init; }
 
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
     }
 }

@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -19,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessEntityTypeAdded(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [NotNull] IConventionContext<IConventionEntityTypeBuilder> context);
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionContext<IConventionEntityTypeBuilder> context);
     }
 }

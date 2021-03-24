@@ -3,11 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The foreign key property. </param>
         /// <returns> The list of all associated principal properties including the given property. </returns>
         [Obsolete("Use IMutableProperty.GetPrincipals")]
-        public static IReadOnlyList<IMutableProperty> FindPrincipals([NotNull] this IMutableProperty property)
+        public static IReadOnlyList<IMutableProperty> FindPrincipals(this IMutableProperty property)
             => property.GetPrincipals();
 
         /// <summary>
@@ -34,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
-        public static void SetKeyValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer? comparer)
+        public static void SetKeyValueComparer(this IMutableProperty property, ValueComparer? comparer)
             => property.SetValueComparer(comparer);
 
         /// <summary>
@@ -43,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         [Obsolete("Use SetValueComparer. Only a single value comparer is allowed for a given property.")]
-        public static void SetStructuralValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer? comparer)
+        public static void SetStructuralValueComparer(this IMutableProperty property, ValueComparer? comparer)
             => property.SetValueComparer(comparer);
     }
 }

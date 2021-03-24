@@ -4,12 +4,10 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -29,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public SlimServiceProperty(
-            [NotNull] string name,
-            [CanBeNull] PropertyInfo? propertyInfo,
-            [CanBeNull] FieldInfo? fieldInfo,
-            [NotNull] SlimEntityType declaringEntityType,
+            string name,
+            PropertyInfo? propertyInfo,
+            FieldInfo? fieldInfo,
+            SlimEntityType declaringEntityType,
             PropertyAccessMode propertyAccessMode)
             : base(name, propertyInfo, fieldInfo, propertyAccessMode)
         {
@@ -65,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 });
 
             [DebuggerStepThrough]
-            [param: NotNull]
             set => _parameterBinding = value;
         }
 
@@ -101,5 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [DebuggerStepThrough]
             get => DeclaringEntityType;
         }
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        PropertyAccessMode IReadOnlyPropertyBase.GetPropertyAccessMode()
+            => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
+                ?? PropertyAccessMode.PreferField);
     }
 }

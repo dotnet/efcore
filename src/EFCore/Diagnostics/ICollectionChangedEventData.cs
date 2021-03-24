@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>

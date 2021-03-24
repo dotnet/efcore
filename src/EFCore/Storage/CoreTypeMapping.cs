@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -12,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -42,11 +39,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// <param name="keyComparer"> Supports custom comparisons between keys--e.g. PK to FK comparison. </param>
             /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
             public CoreTypeMappingParameters(
-                [NotNull] Type clrType,
-                [CanBeNull] ValueConverter? converter = null,
-                [CanBeNull] ValueComparer? comparer = null,
-                [CanBeNull] ValueComparer? keyComparer = null,
-                [CanBeNull] Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
+                Type clrType,
+                ValueConverter? converter = null,
+                ValueComparer? comparer = null,
+                ValueComparer? keyComparer = null,
+                Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
             {
                 Check.NotNull(clrType, nameof(clrType));
 
@@ -69,12 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [Obsolete(
                 "Use overload without 'structuralComparer'. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
             public CoreTypeMappingParameters(
-                [NotNull] Type clrType,
-                [CanBeNull] ValueConverter? converter,
-                [CanBeNull] ValueComparer? comparer,
-                [CanBeNull] ValueComparer? keyComparer,
-                [CanBeNull] ValueComparer? structuralComparer,
-                [CanBeNull] Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory)
+                Type clrType,
+                ValueConverter? converter,
+                ValueComparer? comparer,
+                ValueComparer? keyComparer,
+                ValueComparer? structuralComparer,
+                Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory)
             {
                 Check.NotNull(clrType, nameof(clrType));
 
@@ -124,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             /// </summary>
             /// <param name="converter"> The converter. </param>
             /// <returns> The new parameter object. </returns>
-            public CoreTypeMappingParameters WithComposedConverter([CanBeNull] ValueConverter? converter)
+            public CoreTypeMappingParameters WithComposedConverter(ValueConverter? converter)
                 => new(
                     ClrType,
                     converter == null ? Converter : converter.ComposeWith(Converter),
@@ -221,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
-        public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter? converter);
+        public abstract CoreTypeMapping Clone(ValueConverter? converter);
 
         /// <summary>
         ///     Creates a an expression tree that can be used to generate code for the literal value.
@@ -230,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="value"> The value for which a literal is needed. </param>
         /// <returns> An expression tree that can be used to generate code for the literal value. </returns>
-        public virtual Expression GenerateCodeLiteral([NotNull] object value)
+        public virtual Expression GenerateCodeLiteral(object value)
             => throw new NotSupportedException(CoreStrings.LiteralGenerationNotSupported(ClrType.ShortDisplayName()));
     }
 }

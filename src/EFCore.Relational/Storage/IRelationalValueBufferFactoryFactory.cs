@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -32,6 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="types"> Types and mapping for the values to be read. </param>
         /// <returns> The newly created <see cref="IRelationalValueBufferFactoryFactory" />. </returns>
-        IRelationalValueBufferFactory Create([NotNull] IReadOnlyList<TypeMaterializationInfo> types);
+        IRelationalValueBufferFactory Create(IReadOnlyList<TypeMaterializationInfo> types);
     }
 }

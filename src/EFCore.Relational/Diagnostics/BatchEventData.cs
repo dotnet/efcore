@@ -4,10 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Update;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -25,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="entries"> The entries being updated. </param>
         /// <param name="commandCount"> The command count. </param>
         public BatchEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IEnumerable<IUpdateEntry> entries,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IEnumerable<IUpdateEntry> entries,
             int commandCount)
             : base(eventDefinition, messageGenerator)
         {

@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -24,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new instance of the <see cref="CrossApplyExpression" /> class.
         /// </summary>
         /// <param name="table"> A table source to CROSS APPLY with. </param>
-        public CrossApplyExpression([NotNull] TableExpressionBase table)
+        public CrossApplyExpression(TableExpressionBase table)
             : base(table)
         {
         }
@@ -43,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="table"> The <see cref="P:Table" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual CrossApplyExpression Update([NotNull] TableExpressionBase table)
+        public virtual CrossApplyExpression Update(TableExpressionBase table)
         {
             Check.NotNull(table, nameof(table));
 

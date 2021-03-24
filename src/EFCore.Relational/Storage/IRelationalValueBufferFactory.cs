@@ -2,9 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -26,6 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="dataReader"> The reader to create a value buffer for. </param>
         /// <returns> The newly created value buffer. </returns>
-        ValueBuffer Create([NotNull] DbDataReader dataReader);
+        ValueBuffer Create(DbDataReader dataReader);
     }
 }

@@ -4,13 +4,10 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -38,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         protected ValueConverter(
-            [NotNull] LambdaExpression convertToProviderExpression,
-            [NotNull] LambdaExpression convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            LambdaExpression convertToProviderExpression,
+            LambdaExpression convertFromProviderExpression,
+            ConverterMappingHints? mappingHints = null)
         {
             Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression));
             Check.NotNull(convertFromProviderExpression, nameof(convertFromProviderExpression));
@@ -100,9 +97,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="supportedTypes"> The types that are supported. </param>
         /// <returns> The given type. </returns>
         protected static Type CheckTypeSupported(
-            [NotNull] Type type,
-            [NotNull] Type converterType,
-            [NotNull] params Type[] supportedTypes)
+            Type type,
+            Type converterType,
+            params Type[] supportedTypes)
         {
             Check.NotNull(type, nameof(type));
             Check.NotNull(converterType, nameof(converterType));
@@ -127,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="secondConverter"> The second converter. </param>
         /// <returns> The composed converter. </returns>
         public virtual ValueConverter ComposeWith(
-            [CanBeNull] ValueConverter? secondConverter)
+            ValueConverter? secondConverter)
         {
             if (secondConverter == null)
             {

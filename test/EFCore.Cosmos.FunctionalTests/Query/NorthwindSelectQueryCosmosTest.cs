@@ -1278,6 +1278,12 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))
 ORDER BY c[""OrderID""]");
         }
 
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Collection_include_over_result_of_single_non_scalar(bool async)
+        {
+            return base.Collection_include_over_result_of_single_non_scalar(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

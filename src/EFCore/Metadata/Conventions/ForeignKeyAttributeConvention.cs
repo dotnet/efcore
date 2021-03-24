@@ -13,8 +13,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -32,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="ForeignKeyAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public ForeignKeyAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ForeignKeyAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -374,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return candidateProperty;
         }
 
-        private Type? FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
+        private Type? FindCandidateNavigationPropertyType(PropertyInfo propertyInfo)
             => Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
         private bool IsNavigationToSharedType(IConventionModel model, PropertyInfo propertyInfo)

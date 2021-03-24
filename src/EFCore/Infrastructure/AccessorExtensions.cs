@@ -3,11 +3,8 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -44,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="accessor"> The object exposing the service provider. </param>
         /// <returns> The requested service. </returns>
         [DebuggerStepThrough]
-        public static TService GetService<TService>([NotNull] this IInfrastructure<IServiceProvider> accessor)
+        public static TService GetService<TService>(this IInfrastructure<IServiceProvider> accessor)
             where TService : class
             => InfrastructureExtensions.GetService<TService>(Check.NotNull(accessor, nameof(accessor)));
 
@@ -65,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="accessor"> The object that exposes the property. </param>
         /// <returns> The object assigned to the property. </returns>
         [DebuggerStepThrough]
-        public static T GetInfrastructure<T>([NotNull] this IInfrastructure<T> accessor)
+        public static T GetInfrastructure<T>(this IInfrastructure<T> accessor)
             => Check.NotNull(accessor, nameof(accessor)).Instance;
     }
 }

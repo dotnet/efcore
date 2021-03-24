@@ -4,10 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -25,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="queryExpression"> The <see cref="Expression" />. </param>
         /// <param name="expressionPrinter"> An <see cref="ExpressionPrinter" /> that can be used to render the <see cref="Expression" />. </param>
         public QueryExpressionEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] Expression queryExpression,
-            [NotNull] ExpressionPrinter expressionPrinter)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            Expression queryExpression,
+            ExpressionPrinter expressionPrinter)
             : base(eventDefinition, messageGenerator)
         {
             Expression = queryExpression;

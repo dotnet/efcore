@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -28,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public StringTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
@@ -63,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        protected virtual string EscapeSqlLiteral([NotNull] string literal)
+        protected virtual string EscapeSqlLiteral(string literal)
             => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
 
         /// <summary>

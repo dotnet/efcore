@@ -3,10 +3,7 @@
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -37,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="context"> The current <see cref="DbContext" /> instance being used. </param>
         public MaterializationContext(
             in ValueBuffer valueBuffer,
-            [NotNull] DbContext context)
+            DbContext context)
         {
             Check.DebugAssert(context != null, "context is null"); // Hot path
 

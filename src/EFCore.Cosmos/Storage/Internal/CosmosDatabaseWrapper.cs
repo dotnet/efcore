@@ -7,7 +7,6 @@ using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -20,8 +19,6 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -53,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosDatabaseWrapper(
-            [NotNull] DatabaseDependencies dependencies,
-            [NotNull] ICosmosClientWrapper cosmosClient,
-            [NotNull] ILoggingOptions loggingOptions)
+            DatabaseDependencies dependencies,
+            ICosmosClientWrapper cosmosClient,
+            ILoggingOptions loggingOptions)
             : base(dependencies)
         {
             _cosmosClient = cosmosClient;
@@ -342,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DocumentSource GetDocumentSource([NotNull] IEntityType entityType)
+        public virtual DocumentSource GetDocumentSource(IEntityType entityType)
         {
             if (!_documentCollections.TryGetValue(entityType, out var documentSource))
             {

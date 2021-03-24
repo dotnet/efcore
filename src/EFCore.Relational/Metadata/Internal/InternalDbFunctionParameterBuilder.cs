@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 {
@@ -30,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public InternalDbFunctionParameterBuilder([NotNull] DbFunctionParameter parameter, [NotNull] IConventionModelBuilder modelBuilder)
+        public InternalDbFunctionParameterBuilder(DbFunctionParameter parameter, IConventionModelBuilder modelBuilder)
             : base(parameter, modelBuilder)
         {
         }
@@ -42,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionDbFunctionParameterBuilder? HasStoreType(
-            [CanBeNull] string? storeType,
+            string? storeType,
             ConfigurationSource configurationSource)
         {
             if (CanSetStoreType(storeType, configurationSource))
@@ -60,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetStoreType([CanBeNull] string? storeType, ConfigurationSource configurationSource)
+        public virtual bool CanSetStoreType(string? storeType, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetStoreTypeConfigurationSource())
                 || Metadata.StoreType == storeType;
 
@@ -71,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IConventionDbFunctionParameterBuilder? HasTypeMapping(
-            [CanBeNull] RelationalTypeMapping? typeMapping,
+            RelationalTypeMapping? typeMapping,
             ConfigurationSource configurationSource)
         {
             if (CanSetTypeMapping(typeMapping, configurationSource))
@@ -89,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetTypeMapping([CanBeNull] RelationalTypeMapping? typeMapping, ConfigurationSource configurationSource)
+        public virtual bool CanSetTypeMapping(RelationalTypeMapping? typeMapping, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetTypeMappingConfigurationSource())
                 || Metadata.TypeMapping == typeMapping;
 

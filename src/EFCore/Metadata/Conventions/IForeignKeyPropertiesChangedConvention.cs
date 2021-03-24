@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -22,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="oldPrincipalKey"> The old principal key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessForeignKeyPropertiesChanged(
-            [NotNull] IConventionForeignKeyBuilder relationshipBuilder,
-            [NotNull] IReadOnlyList<IConventionProperty> oldDependentProperties,
-            [NotNull] IConventionKey oldPrincipalKey,
-            [NotNull] IConventionContext<IReadOnlyList<IConventionProperty>> context);
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IReadOnlyList<IConventionProperty> oldDependentProperties,
+            IConventionKey oldPrincipalKey,
+            IConventionContext<IReadOnlyList<IConventionProperty>> context);
     }
 }

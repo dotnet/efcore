@@ -5,8 +5,6 @@ using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>

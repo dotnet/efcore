@@ -4,9 +4,6 @@
 using System;
 using System.Globalization;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 {
@@ -25,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public StringCharConverter(
-            [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
-            [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            Expression<Func<TModel, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TModel>> convertFromProviderExpression,
+            ConverterMappingHints? mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }

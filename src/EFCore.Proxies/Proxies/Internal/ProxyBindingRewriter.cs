@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -13,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
@@ -47,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ProxyBindingRewriter(
-            [NotNull] IProxyFactory proxyFactory,
-            [CanBeNull] ProxiesOptionsExtension? options,
-            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
-            [NotNull] ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
+            IProxyFactory proxyFactory,
+            ProxiesOptionsExtension? options,
+            LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
+            ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
         {
             _proxyFactory = proxyFactory;
             _options = options;

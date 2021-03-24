@@ -5,12 +5,9 @@ using System;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {
@@ -29,12 +26,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerTransaction(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            ISqlGenerationHelper sqlGenerationHelper)
             : base(connection, transaction, transactionId, logger, transactionOwned, sqlGenerationHelper)
         {
         }

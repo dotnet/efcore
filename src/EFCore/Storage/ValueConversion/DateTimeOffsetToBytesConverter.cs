@@ -3,9 +3,6 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeOffsetToBytesConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
+        public DateTimeOffsetToBytesConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 v => ToBytes(v),
                 v => v == null ? default : FromBytes(v),

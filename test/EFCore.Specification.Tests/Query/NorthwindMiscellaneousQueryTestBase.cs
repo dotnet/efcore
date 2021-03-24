@@ -6529,5 +6529,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
+
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_after_DefaultIfEmpty(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.City == "Seattle").DefaultIfEmpty()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(e => new
+                    {
+                        e.Orders
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e.Orders, a.Orders),
+                entryCount: 14);
+        }
     }
 }

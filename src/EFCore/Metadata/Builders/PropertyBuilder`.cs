@@ -3,14 +3,11 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -32,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public PropertyBuilder([NotNull] IMutableProperty property)
+        public PropertyBuilder(IMutableProperty property)
             : base(property)
         {
         }
@@ -44,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public new virtual PropertyBuilder<TProperty> HasAnnotation(string annotation, object? value)
             => (PropertyBuilder<TProperty>)base.HasAnnotation(annotation, value);
 
         /// <summary>
@@ -158,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="valueGeneratorType"> A type that inherits from <see cref="ValueGenerator" />. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasValueGenerator([CanBeNull] Type? valueGeneratorType)
+        public new virtual PropertyBuilder<TProperty> HasValueGenerator(Type? valueGeneratorType)
             => (PropertyBuilder<TProperty>)base.HasValueGenerator(valueGeneratorType);
 
         /// <summary>
@@ -183,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="factory"> A delegate that will be used to create value generator instances. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasValueGenerator([NotNull] Func<IProperty, IEntityType, ValueGenerator> factory)
+        public new virtual PropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory)
             => (PropertyBuilder<TProperty>)base.HasValueGenerator(factory);
 
         /// <summary>
@@ -260,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldName"> The field name. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasField([NotNull] string fieldName)
+        public new virtual PropertyBuilder<TProperty> HasField(string fieldName)
             => (PropertyBuilder<TProperty>)base.HasField(fieldName);
 
         /// <summary>
@@ -278,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="providerClrType"> The type to convert to and from. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasConversion([CanBeNull] Type? providerClrType)
+        public new virtual PropertyBuilder<TProperty> HasConversion(Type? providerClrType)
             => (PropertyBuilder<TProperty>)base.HasConversion(providerClrType);
 
         /// <summary>
@@ -290,8 +287,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="convertFromProviderExpression"> An expression to convert objects when reading data from the store. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual PropertyBuilder<TProperty> HasConversion<TProvider>(
-            [NotNull] Expression<Func<TProperty, TProvider>> convertToProviderExpression,
-            [NotNull] Expression<Func<TProvider, TProperty>> convertFromProviderExpression)
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression)
             => HasConversion(
                 new ValueConverter<TProperty, TProvider>(
                     Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression)),
@@ -304,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TProvider"> The store type generated by the converter. </typeparam>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder<TProperty> HasConversion<TProvider>([CanBeNull] ValueConverter<TProperty, TProvider>? converter)
+        public virtual PropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider>? converter)
             => HasConversion((ValueConverter?)converter);
 
         /// <summary>
@@ -313,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasConversion([CanBeNull] ValueConverter? converter)
+        public new virtual PropertyBuilder<TProperty> HasConversion(ValueConverter? converter)
             => (PropertyBuilder<TProperty>)base.HasConversion(converter);
 
         /// <summary>
@@ -323,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TProvider"> The type to convert to and from. </typeparam>
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasConversion<TProvider>([CanBeNull] ValueComparer? valueComparer)
+        public new virtual PropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer)
             => (PropertyBuilder<TProperty>)base.HasConversion<TProvider>(valueComparer);
 
         /// <summary>
@@ -334,8 +331,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> HasConversion(
-            [CanBeNull] Type? providerClrType,
-            [CanBeNull] ValueComparer? valueComparer)
+            Type? providerClrType,
+            ValueComparer? valueComparer)
             => (PropertyBuilder<TProperty>)base.HasConversion(providerClrType, valueComparer);
 
         /// <summary>
@@ -348,9 +345,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual PropertyBuilder<TProperty> HasConversion<TProvider>(
-            [NotNull] Expression<Func<TProperty, TProvider>> convertToProviderExpression,
-            [NotNull] Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
-            [CanBeNull] ValueComparer? valueComparer)
+            Expression<Func<TProperty, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
+            ValueComparer? valueComparer)
             => HasConversion(
                 new ValueConverter<TProperty, TProvider>(
                     Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression)),
@@ -366,8 +363,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual PropertyBuilder<TProperty> HasConversion<TProvider>(
-            [CanBeNull] ValueConverter<TProperty, TProvider>? converter,
-            [CanBeNull] ValueComparer? valueComparer)
+            ValueConverter<TProperty, TProvider>? converter,
+            ValueComparer? valueComparer)
             => HasConversion((ValueConverter?)converter, valueComparer);
 
         /// <summary>
@@ -378,8 +375,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> HasConversion(
-            [CanBeNull] ValueConverter? converter,
-            [CanBeNull] ValueComparer? valueComparer)
+            ValueConverter? converter,
+            ValueComparer? valueComparer)
             => (PropertyBuilder<TProperty>)base.HasConversion(converter, valueComparer);
 
         /// <summary>

@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -22,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="type"> The ignored entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessEntityTypeIgnored(
-            [NotNull] IConventionModelBuilder modelBuilder,
-            [NotNull] string name,
-            [CanBeNull] Type? type,
-            [NotNull] IConventionContext<string> context);
+            IConventionModelBuilder modelBuilder,
+            string name,
+            Type? type,
+            IConventionContext<string> context);
     }
 }

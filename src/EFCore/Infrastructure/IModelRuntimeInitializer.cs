@@ -1,12 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -32,10 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Validates and initializes the given model with runtime dependencies.
         /// </summary>
         /// <param name="model"> The model to initialize. </param>
-        /// <param name="validationLogger"> The validation logger. </param>
+        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
+        /// <param name="validationLogger">
+        ///     The validation logger. If <see langword="null"/> is provided validation will not be performed.
+        ///     </param>
         /// <returns> The initialized model. </returns>
         IModel Initialize(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger);
+            IModel model,
+            bool designTime = true,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger = null);
     }
 }

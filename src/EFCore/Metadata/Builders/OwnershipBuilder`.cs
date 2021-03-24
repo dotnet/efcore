@@ -3,13 +3,10 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -30,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public OwnershipBuilder(
-            [NotNull] IMutableEntityType principalEntityType,
-            [NotNull] IMutableEntityType dependentEntityType,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType principalEntityType,
+            IMutableEntityType dependentEntityType,
+            IMutableForeignKey foreignKey)
             : base(principalEntityType, dependentEntityType, foreignKey)
         {
         }
@@ -45,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected OwnershipBuilder(
-            [NotNull] InternalForeignKeyBuilder builder,
-            [NotNull] OwnershipBuilder oldBuilder,
+            InternalForeignKeyBuilder builder,
+            OwnershipBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -62,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasAnnotation(
-            [NotNull] string annotation,
-            [NotNull] object value)
+            string annotation,
+            object? value)
             => (OwnershipBuilder<TEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
 
         /// <summary>
@@ -89,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
-            [NotNull] params string[] foreignKeyPropertyNames)
+            params string[] foreignKeyPropertyNames)
         {
             Builder = Builder.HasForeignKey(
                 Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
@@ -131,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual OwnershipBuilder<TEntity, TDependentEntity> HasForeignKey(
-            [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+            Expression<Func<TDependentEntity, object?>> foreignKeyExpression)
         {
             Builder = Builder.HasForeignKey(
                 Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetMemberAccessList(),
@@ -152,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual OwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
-            [NotNull] params string[] keyPropertyNames)
+            params string[] keyPropertyNames)
         {
             Builder = Builder.HasPrincipalKey(
                 Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
@@ -181,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual OwnershipBuilder<TEntity, TDependentEntity> HasPrincipalKey(
-            [NotNull] Expression<Func<TEntity, object>> keyExpression)
+            Expression<Func<TEntity, object?>> keyExpression)
         {
             Builder = Builder.HasPrincipalKey(
                 Check.NotNull(keyExpression, nameof(keyExpression)).GetMemberAccessList(),

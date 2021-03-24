@@ -4,13 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -39,13 +36,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="elementType"> The clr type of individual elements in the collection. </param>
         public RelationalSplitCollectionShaperExpression(
             int collectionId,
-            [NotNull] Expression parentIdentifier,
-            [NotNull] Expression childIdentifier,
-            [NotNull] IReadOnlyList<ValueComparer> identifierValueComparers,
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] Expression innerShaper,
-            [CanBeNull] INavigationBase? navigation,
-            [NotNull] Type elementType)
+            Expression parentIdentifier,
+            Expression childIdentifier,
+            IReadOnlyList<ValueComparer> identifierValueComparers,
+            SelectExpression selectExpression,
+            Expression innerShaper,
+            INavigationBase? navigation,
+            Type elementType)
         {
             Check.NotNull(parentIdentifier, nameof(parentIdentifier));
             Check.NotNull(childIdentifier, nameof(childIdentifier));
@@ -134,10 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerShaper"> The <see cref="InnerShaper" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual RelationalSplitCollectionShaperExpression Update(
-            [NotNull] Expression parentIdentifier,
-            [NotNull] Expression childIdentifier,
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] Expression innerShaper)
+            Expression parentIdentifier,
+            Expression childIdentifier,
+            SelectExpression selectExpression,
+            Expression innerShaper)
         {
             Check.NotNull(parentIdentifier, nameof(parentIdentifier));
             Check.NotNull(childIdentifier, nameof(childIdentifier));

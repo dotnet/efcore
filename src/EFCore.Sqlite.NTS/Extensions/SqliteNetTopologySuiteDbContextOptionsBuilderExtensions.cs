@@ -1,12 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -22,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="optionsBuilder"> The build being used to configure SQLite. </param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static SqliteDbContextOptionsBuilder UseNetTopologySuite(
-            [NotNull] this SqliteDbContextOptionsBuilder optionsBuilder)
+            this SqliteDbContextOptionsBuilder optionsBuilder)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 

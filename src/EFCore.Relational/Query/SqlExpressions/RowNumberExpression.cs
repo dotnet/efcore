@@ -5,11 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -31,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="orderings"> A list of ordering expressions to order by. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public RowNumberExpression(
-            [CanBeNull] IReadOnlyList<SqlExpression>? partitions,
-            [NotNull] IReadOnlyList<OrderingExpression> orderings,
-            [CanBeNull] RelationalTypeMapping? typeMapping)
+            IReadOnlyList<SqlExpression>? partitions,
+            IReadOnlyList<OrderingExpression> orderings,
+            RelationalTypeMapping? typeMapping)
             : base(typeof(long), typeMapping)
         {
             Check.NotEmpty(orderings, nameof(orderings));
@@ -87,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="orderings"> The <see cref="Orderings" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual RowNumberExpression Update(
-            [CanBeNull] IReadOnlyList<SqlExpression>? partitions,
-            [NotNull] IReadOnlyList<OrderingExpression> orderings)
+            IReadOnlyList<SqlExpression>? partitions,
+            IReadOnlyList<OrderingExpression> orderings)
         {
             Check.NotNull(orderings, nameof(orderings));
 

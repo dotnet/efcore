@@ -4,12 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -27,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public TableBase([NotNull] string name, [CanBeNull] string? schema, [NotNull] RelationalModel model)
+        public TableBase(string name, string? schema, RelationalModel model)
         {
             Schema = schema;
             Name = name;
@@ -70,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedSet<ITableMappingBase> EntityTypeMappings { get; }
+        public virtual SortedSet<TableMappingBase> EntityTypeMappings { get; }
             = new(TableMappingBaseComparer.Instance);
 
         /// <summary>
@@ -79,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<string, IColumnBase> Columns { get; [param: NotNull] protected set; }
+        public virtual SortedDictionary<string, ColumnBase> Columns { get; protected set; }
             = new(StringComparer.Ordinal);
 
         /// <inheritdoc />
@@ -100,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? RowInternalForeignKeys { get; [param: NotNull] set; }
+        [DisallowNull]
+        public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? RowInternalForeignKeys { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -108,11 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? ReferencingRowInternalForeignKeys
-        {
-            get;
-            [param: NotNull] set;
-        }
+        public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? ReferencingRowInternalForeignKeys { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -120,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Dictionary<IEntityType, bool>? OptionalEntityTypes { get; [param: NotNull] set; }
+        [DisallowNull]
+        public virtual Dictionary<IEntityType, bool>? OptionalEntityTypes { get; set; }
 
         /// <inheritdoc />
         public virtual bool IsOptional(IEntityType entityType)

@@ -1,10 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -18,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="successful"><see langword="true" /> if the operation succeeded.</param>
         /// <param name="result">The result of the operation if successful.</param>
-        public ExecutionResult(bool successful, [CanBeNull] TResult result)
+        public ExecutionResult(bool successful, TResult result)
         {
             IsSuccessful = successful;
             Result = result;

@@ -75,6 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IClrCollectionAccessor GetCollectionAccessor()
                 => throw new NotImplementedException();
 
+            public PropertyAccessMode GetPropertyAccessMode()
+                => throw new NotImplementedException();
+
             public Type CollectionType { get; }
         }
 

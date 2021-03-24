@@ -3,10 +3,7 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -25,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="otherValueGenerationStrategy"> The other value generation strategy. </param>
         /// <param name="property"> The property. </param>
         public ConflictingValueGenerationStrategiesEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
             SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy,
-            [NotNull] string otherValueGenerationStrategy,
-            [NotNull] IReadOnlyProperty property)
+            string otherValueGenerationStrategy,
+            IReadOnlyProperty property)
             : base(eventDefinition, messageGenerator)
         {
             SqlServerValueGenerationStrategy = sqlServerValueGenerationStrategy;

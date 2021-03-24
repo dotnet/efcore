@@ -11,8 +11,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -30,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CompiledAsyncTaskQuery([NotNull] LambdaExpression queryExpression)
+        public CompiledAsyncTaskQuery(LambdaExpression queryExpression)
             : base(queryExpression)
         {
         }
@@ -43,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         var typeArgumentsList = parameterCount == 0
             ? ""
             : "<" + string.Join(", ", Enumerable.Range(1, parameterCount).Select(e => "TParam" + e)) + ">";
-        var parameterList = string.Join("", Enumerable.Range(1, parameterCount).Select(e => $", [CanBeNull] TParam{e} param{e}"));
+        var parameterList = string.Join("", Enumerable.Range(1, parameterCount).Select(e => $", TParam{e} param{e}"));
         var argumentList = string.Join("", Enumerable.Range(1, parameterCount).Select(e => $", param{e}"));
 #>
         /// <summary>
@@ -53,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<#= typeArgumentsList #>(
-            [NotNull] TContext context<#= parameterList #>)
+            TContext context<#= parameterList #>)
             => ExecuteCore(context<#= argumentList #>);
 
 <# if (parameterCount < 15) { #>
@@ -64,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<#= typeArgumentsList #>(
-            [NotNull] TContext context<#= parameterList #>, CancellationToken cancellationToken)
+            TContext context<#= parameterList #>, CancellationToken cancellationToken)
             => ExecuteCore(context, cancellationToken<#= argumentList #>);
 
 <# } #>

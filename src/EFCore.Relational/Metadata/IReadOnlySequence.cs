@@ -5,8 +5,6 @@ using System;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -25,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         string? Schema { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IReadOnlyModel" /> in which this sequence is defined.
+        ///     Gets the model in which this sequence is defined.
         /// </summary>
         IReadOnlyModel Model { get; }
 
@@ -78,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="options"> Options for generating the string. </param>
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
-        string ToDebugString(MetadataDebugStringOptions options, int indent = 0)
+        string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
         {
             var builder = new StringBuilder();
             var indentString = new string(' ', indent);

@@ -4,10 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -25,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="firstPropertyCollection"> The first property collection. </param>
         /// <param name="secondPropertyCollection"> The second property collection. </param>
         public TwoPropertyBaseCollectionsEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IReadOnlyList<IReadOnlyPropertyBase> firstPropertyCollection,
-            [NotNull] IReadOnlyList<IReadOnlyPropertyBase> secondPropertyCollection)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IReadOnlyList<IReadOnlyPropertyBase> firstPropertyCollection,
+            IReadOnlyList<IReadOnlyPropertyBase> secondPropertyCollection)
             : base(eventDefinition, messageGenerator)
         {
             FirstPropertyCollection = firstPropertyCollection;

@@ -2,9 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -21,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public BytesToStringConverter(
-            [CanBeNull] ConverterMappingHints? mappingHints = null)
+            ConverterMappingHints? mappingHints = null)
             : base(
                 // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
                 v => v == null ? null! : Convert.ToBase64String(v),

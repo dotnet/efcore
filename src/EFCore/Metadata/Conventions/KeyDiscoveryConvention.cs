@@ -4,13 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -47,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="KeyDiscoveryConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public KeyDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public KeyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -61,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Discovers primary key candidates and configures the primary key if found.
         /// </summary>
         /// <param name="entityTypeBuilder"> The entity type builder. </param>
-        protected virtual void TryConfigurePrimaryKey([NotNull] IConventionEntityTypeBuilder entityTypeBuilder)
+        protected virtual void TryConfigurePrimaryKey(IConventionEntityTypeBuilder entityTypeBuilder)
         {
             var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType != null
@@ -159,8 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="keyProperties"> The properties that will be used to configure the key. </param>
         /// <param name="entityType"> The entity type being configured. </param>
         protected virtual void ProcessKeyProperties(
-            [NotNull] IList<IConventionProperty> keyProperties,
-            [NotNull] IConventionEntityType entityType)
+            IList<IConventionProperty> keyProperties,
+            IConventionEntityType entityType)
         {
         }
 
@@ -171,8 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="candidateProperties"> The properties to consider. </param>
         /// <returns> The properties that should be used for the primary key. </returns>
         public static IEnumerable<IConventionProperty> DiscoverKeyProperties(
-            [NotNull] IConventionEntityType entityType,
-            [NotNull] IEnumerable<IConventionProperty> candidateProperties)
+            IConventionEntityType entityType,
+            IEnumerable<IConventionProperty> candidateProperties)
         {
             Check.NotNull(entityType, nameof(entityType));
 

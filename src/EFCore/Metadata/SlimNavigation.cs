@@ -4,12 +4,9 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -30,11 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public SlimNavigation(
-            [NotNull] string name,
-            [NotNull] Type clrType,
-            [CanBeNull] PropertyInfo? propertyInfo,
-            [CanBeNull] FieldInfo? fieldInfo,
-            [NotNull] SlimForeignKey foreignKey,
+            string name,
+            Type clrType,
+            PropertyInfo? propertyInfo,
+            FieldInfo? fieldInfo,
+            SlimForeignKey foreignKey,
             PropertyAccessMode propertyAccessMode,
             bool eagerLoaded)
             : base(name, propertyInfo, fieldInfo, propertyAccessMode)

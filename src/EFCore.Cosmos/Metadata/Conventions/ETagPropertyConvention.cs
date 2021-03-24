@@ -4,8 +4,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
 {
     /// <summary>

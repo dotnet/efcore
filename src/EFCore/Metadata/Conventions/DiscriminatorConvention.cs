@@ -3,11 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -20,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="DiscriminatorConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public DiscriminatorConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public DiscriminatorConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -116,8 +113,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="entityTypes"> The entity types to configure. </param>
         /// <param name="discriminatorBuilder"> The discriminator builder. </param>
         protected virtual void SetDefaultDiscriminatorValues(
-            [NotNull] IEnumerable<IConventionEntityType> entityTypes,
-            [NotNull] IConventionDiscriminatorBuilder discriminatorBuilder)
+            IEnumerable<IConventionEntityType> entityTypes,
+            IConventionDiscriminatorBuilder discriminatorBuilder)
         {
             foreach (var entityType in entityTypes)
             {

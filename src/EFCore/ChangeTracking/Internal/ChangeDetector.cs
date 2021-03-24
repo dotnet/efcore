@@ -5,15 +5,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -44,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ChangeDetector(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
-            [NotNull] ILoggingOptions loggingOptions)
+            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+            ILoggingOptions loggingOptions)
         {
             _logger = logger;
             _loggingOptions = loggingOptions;

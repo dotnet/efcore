@@ -5,12 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -30,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public RelationalModel([NotNull] IModel model)
+        public RelationalModel(IModel model)
         {
             Model = model;
         }
@@ -122,8 +119,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IModel Add(
-            [NotNull] IModel model,
-            [CanBeNull] IRelationalAnnotationProvider? relationalAnnotationProvider)
+            IModel model,
+            IRelationalAnnotationProvider? relationalAnnotationProvider)
+        {
+            model.AddRuntimeAnnotation(RelationalAnnotationNames.RelationalModel, Create(model, relationalAnnotationProvider));
+            return model;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static IRelationalModel Create(
+            IModel model,
+            IRelationalAnnotationProvider? relationalAnnotationProvider)
         {
             var databaseModel = new RelationalModel(model);
 
@@ -169,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         constraint.AddAnnotations(relationalAnnotationProvider.For(constraint));
                     }
 
-                    foreach (CheckConstraint checkConstraint in ((ITable)table).CheckConstraints)
+                    foreach (var checkConstraint in ((ITable)table).CheckConstraints)
                     {
-                        checkConstraint.AddAnnotations(relationalAnnotationProvider.For(checkConstraint));
+                        ((AnnotatableBase)checkConstraint).AddAnnotations(relationalAnnotationProvider.For(checkConstraint));
                     }
 
                     table.AddAnnotations(relationalAnnotationProvider.For(table));
@@ -221,17 +232,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (relationalAnnotationProvider != null)
             {
-                foreach (Sequence sequence in ((IRelationalModel)databaseModel).Sequences)
+                foreach (var sequence in ((IRelationalModel)databaseModel).Sequences)
                 {
-                    sequence.AddAnnotations(relationalAnnotationProvider.For(sequence));
+                    ((AnnotatableBase)sequence).AddAnnotations(relationalAnnotationProvider.For(sequence));
                 }
 
                 databaseModel.AddAnnotations(relationalAnnotationProvider.For(databaseModel));
             }
 
             databaseModel._isReadOnly = true;
-            model.AddRuntimeAnnotation(RelationalAnnotationNames.RelationalModel, databaseModel);
-            return model;
+            return databaseModel;
         }
 
         private static void AddDefaultMappings(RelationalModel databaseModel, IEntityType entityType)
@@ -614,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     break;
                 }
 
-                var dbFunction = (DbFunction)model.FindDbFunction(mappedFunctionName)!;
+                var dbFunction = (IRuntimeDbFunction)model.FindDbFunction(mappedFunctionName)!;
                 var functionMapping = CreateFunctionMapping(entityType, mappedType, dbFunction, databaseModel, @default: true);
 
                 mappedType = mappedType.BaseType;
@@ -640,7 +650,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static void AddTVFs(RelationalModel relationalModel)
         {
             var model = relationalModel.Model;
-            foreach (DbFunction function in model.GetDbFunctions())
+            foreach (IRuntimeDbFunction function in model.GetDbFunctions())
             {
                 var entityType = function.IsScalar
                     ? null
@@ -673,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static FunctionMapping CreateFunctionMapping(
             IEntityType entityType,
             IEntityType mappedType,
-            DbFunction dbFunction,
+            IRuntimeDbFunction dbFunction,
             RelationalModel model,
             bool @default)
         {
@@ -725,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return functionMapping;
         }
 
-        private static StoreFunction GetOrCreateStoreFunction(DbFunction dbFunction, RelationalModel model)
+        private static StoreFunction GetOrCreateStoreFunction(IRuntimeDbFunction dbFunction, RelationalModel model)
         {
             var storeFunction = (StoreFunction?)dbFunction.StoreFunction;
             if (storeFunction == null)

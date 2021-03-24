@@ -4,9 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Net.NetworkInformation;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -24,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public PhysicalAddressToStringConverter([CanBeNull] ConverterMappingHints? mappingHints = null)
+        public PhysicalAddressToStringConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 ToString(),
                 ToPhysicalAddress(),

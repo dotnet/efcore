@@ -3,13 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -31,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SimpleNullableDependentKeyValueFactory(
-            [NotNull] IProperty property,
-            [NotNull] PropertyAccessors propertyAccessors)
+            IProperty property,
+            PropertyAccessors propertyAccessors)
         {
             _propertyAccessors = propertyAccessors;
             EqualityComparer = property.CreateKeyEqualityComparer<TKey>();

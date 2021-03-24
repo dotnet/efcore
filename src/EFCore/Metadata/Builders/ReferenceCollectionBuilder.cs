@@ -3,13 +3,10 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -32,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceCollectionBuilder(
-            [NotNull] IMutableEntityType principalEntityType,
-            [NotNull] IMutableEntityType dependentEntityType,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType principalEntityType,
+            IMutableEntityType dependentEntityType,
+            IMutableForeignKey foreignKey)
             : base(principalEntityType, dependentEntityType, foreignKey)
         {
         }
@@ -47,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected ReferenceCollectionBuilder(
-            [NotNull] InternalForeignKeyBuilder builder,
-            [NotNull] ReferenceCollectionBuilder oldBuilder,
+            InternalForeignKeyBuilder builder,
+            ReferenceCollectionBuilder oldBuilder,
             bool foreignKeySet = false,
             bool principalKeySet = false,
             bool requiredSet = false)
@@ -64,10 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public virtual ReferenceCollectionBuilder HasAnnotation(string annotation, object? value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotNull(value, nameof(value));
 
             Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -96,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder HasForeignKey([NotNull] params string[] foreignKeyPropertyNames)
+        public virtual ReferenceCollectionBuilder HasForeignKey(params string[] foreignKeyPropertyNames)
             => new(
                 HasForeignKeyBuilder(Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
@@ -109,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
+        protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder(IReadOnlyList<string> foreignKeyPropertyNames)
             => Builder.HasForeignKey(foreignKeyPropertyNames, (EntityType)DependentEntityType, ConfigurationSource.Explicit)!;
 
         /// <summary>
@@ -119,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder([NotNull] IReadOnlyList<MemberInfo> foreignKeyMembers)
+        protected virtual InternalForeignKeyBuilder HasForeignKeyBuilder(IReadOnlyList<MemberInfo> foreignKeyMembers)
             => Builder.HasForeignKey(foreignKeyMembers, (EntityType)DependentEntityType, ConfigurationSource.Explicit)!;
 
         /// <summary>
@@ -130,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="keyPropertyNames"> The name(s) of the referenced key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder HasPrincipalKey([NotNull] params string[] keyPropertyNames)
+        public virtual ReferenceCollectionBuilder HasPrincipalKey(params string[] keyPropertyNames)
             => new(
                 HasPrincipalKeyBuilder(Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
@@ -143,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<string> keyPropertyNames)
+        protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder(IReadOnlyList<string> keyPropertyNames)
             => Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit)!;
 
         /// <summary>
@@ -153,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder([NotNull] IReadOnlyList<MemberInfo> keyMembers)
+        protected virtual InternalForeignKeyBuilder HasPrincipalKeyBuilder(IReadOnlyList<MemberInfo> keyMembers)
             => Builder.HasPrincipalKey(keyMembers, ConfigurationSource.Explicit)!;
 
         /// <summary>

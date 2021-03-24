@@ -4,10 +4,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -28,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="keySelector"> An expression representing key selector for the grouping element. </param>
         /// <param name="elementSelector"> An expression representing element selector for the grouping element. </param>
         public GroupByShaperExpression(
-            [NotNull] Expression keySelector,
-            [NotNull] Expression elementSelector)
+            Expression keySelector,
+            Expression elementSelector)
         {
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(elementSelector, nameof(elementSelector));
@@ -74,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="keySelector"> The <see cref="KeySelector" /> property of the result. </param>
         /// <param name="elementSelector"> The <see cref="ElementSelector" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual GroupByShaperExpression Update([NotNull] Expression keySelector, [NotNull] Expression elementSelector)
+        public virtual GroupByShaperExpression Update(Expression keySelector, Expression elementSelector)
         {
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(elementSelector, nameof(elementSelector));

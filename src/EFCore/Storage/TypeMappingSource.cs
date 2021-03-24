@@ -5,12 +5,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 #pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -38,14 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected TypeMappingSource([NotNull] TypeMappingSourceDependencies dependencies)
+        protected TypeMappingSource(TypeMappingSourceDependencies dependencies)
             : base(dependencies)
         {
         }
 
         private CoreTypeMapping? FindMappingWithConversion(
             in TypeMappingInfo mappingInfo,
-            [CanBeNull] IReadOnlyList<IProperty>? principals)
+            IReadOnlyList<IProperty>? principals)
         {
             Type? providerClrType = null;
             ValueConverter? customConverter = null;

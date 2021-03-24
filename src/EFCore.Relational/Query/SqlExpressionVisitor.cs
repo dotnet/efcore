@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -128,202 +125,202 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="caseExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitCase([NotNull] CaseExpression caseExpression);
+        protected abstract Expression VisitCase(CaseExpression caseExpression);
 
         /// <summary>
         ///     Visits the children of the collate expression.
         /// </summary>
         /// <param name="collateExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitCollate([NotNull] CollateExpression collateExpression);
+        protected abstract Expression VisitCollate(CollateExpression collateExpression);
 
         /// <summary>
         ///     Visits the children of the column expression.
         /// </summary>
         /// <param name="columnExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitColumn([NotNull] ColumnExpression columnExpression);
+        protected abstract Expression VisitColumn(ColumnExpression columnExpression);
 
         /// <summary>
         ///     Visits the children of the cross apply expression.
         /// </summary>
         /// <param name="crossApplyExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitCrossApply([NotNull] CrossApplyExpression crossApplyExpression);
+        protected abstract Expression VisitCrossApply(CrossApplyExpression crossApplyExpression);
 
         /// <summary>
         ///     Visits the children of the cross join expression.
         /// </summary>
         /// <param name="crossJoinExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitCrossJoin([NotNull] CrossJoinExpression crossJoinExpression);
+        protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
 
         /// <summary>
         ///     Visits the children of the distinct expression.
         /// </summary>
         /// <param name="distinctExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitDistinct([NotNull] DistinctExpression distinctExpression);
+        protected abstract Expression VisitDistinct(DistinctExpression distinctExpression);
 
         /// <summary>
         ///     Visits the children of the except expression.
         /// </summary>
         /// <param name="exceptExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitExcept([NotNull] ExceptExpression exceptExpression);
+        protected abstract Expression VisitExcept(ExceptExpression exceptExpression);
 
         /// <summary>
         ///     Visits the children of the exists expression.
         /// </summary>
         /// <param name="existsExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitExists([NotNull] ExistsExpression existsExpression);
+        protected abstract Expression VisitExists(ExistsExpression existsExpression);
 
         /// <summary>
         ///     Visits the children of the from sql expression.
         /// </summary>
         /// <param name="fromSqlExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitFromSql([NotNull] FromSqlExpression fromSqlExpression);
+        protected abstract Expression VisitFromSql(FromSqlExpression fromSqlExpression);
 
         /// <summary>
         ///     Visits the children of the in expression.
         /// </summary>
         /// <param name="inExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitIn([NotNull] InExpression inExpression);
+        protected abstract Expression VisitIn(InExpression inExpression);
 
         /// <summary>
         ///     Visits the children of the intersect expression.
         /// </summary>
         /// <param name="intersectExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitIntersect([NotNull] IntersectExpression intersectExpression);
+        protected abstract Expression VisitIntersect(IntersectExpression intersectExpression);
 
         /// <summary>
         ///     Visits the children of the like expression.
         /// </summary>
         /// <param name="likeExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitLike([NotNull] LikeExpression likeExpression);
+        protected abstract Expression VisitLike(LikeExpression likeExpression);
 
         /// <summary>
         ///     Visits the children of the inner join expression.
         /// </summary>
         /// <param name="innerJoinExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitInnerJoin([NotNull] InnerJoinExpression innerJoinExpression);
+        protected abstract Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression);
 
         /// <summary>
         ///     Visits the children of the left join expression.
         /// </summary>
         /// <param name="leftJoinExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitLeftJoin([NotNull] LeftJoinExpression leftJoinExpression);
+        protected abstract Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression);
 
         /// <summary>
         ///     Visits the children of the ordering expression.
         /// </summary>
         /// <param name="orderingExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitOrdering([NotNull] OrderingExpression orderingExpression);
+        protected abstract Expression VisitOrdering(OrderingExpression orderingExpression);
 
         /// <summary>
         ///     Visits the children of the outer apply expression.
         /// </summary>
         /// <param name="outerApplyExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitOuterApply([NotNull] OuterApplyExpression outerApplyExpression);
+        protected abstract Expression VisitOuterApply(OuterApplyExpression outerApplyExpression);
 
         /// <summary>
         ///     Visits the children of the projection expression.
         /// </summary>
         /// <param name="projectionExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitProjection([NotNull] ProjectionExpression projectionExpression);
+        protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);
 
         /// <summary>
         ///     Visits the children of the table valued function expression.
         /// </summary>
         /// <param name="tableValuedFunctionExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitTableValuedFunction([NotNull] TableValuedFunctionExpression tableValuedFunctionExpression);
+        protected abstract Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression);
 
         /// <summary>
         ///     Visits the children of the row number expression.
         /// </summary>
         /// <param name="rowNumberExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitRowNumber([NotNull] RowNumberExpression rowNumberExpression);
+        protected abstract Expression VisitRowNumber(RowNumberExpression rowNumberExpression);
 
         /// <summary>
         ///     Visits the children of the scalar subquery expression.
         /// </summary>
         /// <param name="scalarSubqueryExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitScalarSubquery([NotNull] ScalarSubqueryExpression scalarSubqueryExpression);
+        protected abstract Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression);
 
         /// <summary>
         ///     Visits the children of the select expression.
         /// </summary>
         /// <param name="selectExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitSelect([NotNull] SelectExpression selectExpression);
+        protected abstract Expression VisitSelect(SelectExpression selectExpression);
 
         /// <summary>
         ///     Visits the children of the sql binary expression.
         /// </summary>
         /// <param name="sqlBinaryExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitSqlBinary([NotNull] SqlBinaryExpression sqlBinaryExpression);
+        protected abstract Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression);
 
         /// <summary>
         ///     Visits the children of the sql constant expression.
         /// </summary>
         /// <param name="sqlConstantExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitSqlConstant([NotNull] SqlConstantExpression sqlConstantExpression);
+        protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
 
         /// <summary>
         ///     Visits the children of the sql fragent expression.
         /// </summary>
         /// <param name="sqlFragmentExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitSqlFragment([NotNull] SqlFragmentExpression sqlFragmentExpression);
+        protected abstract Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression);
 
         /// <summary>
         ///     Visits the children of the sql function expression.
         /// </summary>
         /// <param name="sqlFunctionExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitSqlFunction([NotNull] SqlFunctionExpression sqlFunctionExpression);
+        protected abstract Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression);
 
         /// <summary>
         ///     Visits the children of the sql parameter expression.
         /// </summary>
         /// <param name="sqlParameterExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitSqlParameter([NotNull] SqlParameterExpression sqlParameterExpression);
+        protected abstract Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression);
 
         /// <summary>
         ///     Visits the children of the sql unary expression.
         /// </summary>
         /// <param name="sqlUnaryExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitSqlUnary([NotNull] SqlUnaryExpression sqlUnaryExpression);
+        protected abstract Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression);
 
         /// <summary>
         ///     Visits the children of the table expression.
         /// </summary>
         /// <param name="tableExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitTable([NotNull] TableExpression tableExpression);
+        protected abstract Expression VisitTable(TableExpression tableExpression);
 
         /// <summary>
         ///     Visits the children of the union expression.
         /// </summary>
         /// <param name="unionExpression"> The expression to visit. </param>
         /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
-        protected abstract Expression VisitUnion([NotNull] UnionExpression unionExpression);
+        protected abstract Expression VisitUnion(UnionExpression unionExpression);
     }
 }

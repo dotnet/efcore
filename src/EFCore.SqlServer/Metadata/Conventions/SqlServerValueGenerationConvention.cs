@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -26,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public SqlServerValueGenerationConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
         {
         }
@@ -81,14 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
-        public static new ValueGenerated? GetValueGenerated([NotNull] IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+        public static new ValueGenerated? GetValueGenerated(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
             => RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
                 ?? (property.GetValueGenerationStrategy(storeObject) != SqlServerValueGenerationStrategy.None
                     ? ValueGenerated.OnAdd
                     : (ValueGenerated?)null);
 
         private ValueGenerated? GetValueGenerated(
-            [NotNull] IReadOnlyProperty property,
+            IReadOnlyProperty property,
             in StoreObjectIdentifier storeObject,
             ITypeMappingSource typeMappingSource)
             => RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)

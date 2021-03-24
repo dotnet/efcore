@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -35,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public RelationalCommandBuilder(
-            [NotNull] RelationalCommandBuilderDependencies dependencies)
+            RelationalCommandBuilderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -27,6 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="expression"> The expression. </param>
         /// <returns> <see langword="true" /> if the expression can be evaluated; <see langword="false" /> otherwise. </returns>
-        bool IsEvaluatableExpression([NotNull] Expression expression);
+        bool IsEvaluatableExpression(Expression expression);
     }
 }

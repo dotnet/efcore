@@ -5,12 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -29,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlFunctionExpression(
-            [NotNull] string name,
-            [NotNull] IEnumerable<SqlExpression> arguments,
-            [NotNull] Type type,
-            [CanBeNull] CoreTypeMapping? typeMapping)
+            string name,
+            IEnumerable<SqlExpression> arguments,
+            Type type,
+            CoreTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
             Name = name;
@@ -88,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlFunctionExpression ApplyTypeMapping([CanBeNull] CoreTypeMapping? typeMapping)
+        public virtual SqlFunctionExpression ApplyTypeMapping(CoreTypeMapping? typeMapping)
             => new(Name, Arguments, Type, typeMapping ?? TypeMapping);
 
         /// <summary>
@@ -97,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlFunctionExpression Update([NotNull] IReadOnlyList<SqlExpression> arguments)
+        public virtual SqlFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
             => !arguments.SequenceEqual(Arguments)
                 ? new SqlFunctionExpression(Name, arguments, Type, TypeMapping)
                 : this;

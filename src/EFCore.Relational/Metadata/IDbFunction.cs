@@ -4,13 +4,10 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a relational database function in an <see cref="IModel" /> in
-    ///     the a form that can be mutated while the model is being built.
+    ///     Represents a relational database function in a model.
     /// </summary>
     public interface IDbFunction : IReadOnlyDbFunction, IAnnotatable
     {

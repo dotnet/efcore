@@ -746,6 +746,10 @@
     <value>DetectChanges starting for '{contextType}'.</value>
     <comment>Debug CoreEventId.DetectChangesStarting string?</comment>
   </data>
+  <data name="LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning" xml:space="preserve">
+    <value>The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.</value>
+    <comment>Warning CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning</comment>
+  </data>
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
     <value>The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.</value>
     <comment>Warning CoreEventId.DuplicateDependentEntityTypeInstanceWarning string string</comment>
@@ -765,10 +769,6 @@
   <data name="LogFirstWithoutOrderByAndFilter" xml:space="preserve">
     <value>The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.</value>
     <comment>Warning CoreEventId.FirstWithoutOrderByAndFilterWarning</comment>
-  </data>
-  <data name="LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning" xml:space="preserve">
-    <value>The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.</value>
-    <comment>Warning CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning</comment>
   </data>
   <data name="LogForeignKeyAttributesOnBothNavigations" xml:space="preserve">
     <value>Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships since the [ForeignKey] attribute was specified on navigations on both sides.</value>
@@ -817,6 +817,10 @@
   <data name="LogNavigationBaseIncluded" xml:space="preserve">
     <value>Including navigation: '{navigation}'.</value>
     <comment>Debug CoreEventId.NavigationBaseIncluded string</comment>
+  </data>
+  <data name="LogNavigationBaseIncludeIgnored" xml:space="preserve">
+    <value>The navigation '{navigation}' was ignored from 'Include' in the query since the fix-up will automatically populate it. If any further navigations are specified in 'Include' afterwards then they will be ignored. Walking back include tree is not allowed.</value>
+    <comment>Error CoreEventId.NavigationBaseIncludeIgnored string</comment>
   </data>
   <data name="LogNavigationLazyLoading" xml:space="preserve">
     <value>The navigation '{1_entityType}.{0_navigation}' is being lazy-loaded.</value>

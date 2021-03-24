@@ -5,13 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -44,10 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public MigrationsAssembly(
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDbContextOptions options,
-            [NotNull] IMigrationsIdGenerator idGenerator,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> logger)
+            ICurrentDbContext currentContext,
+            IDbContextOptions options,
+            IMigrationsIdGenerator idGenerator,
+            IDiagnosticsLogger<DbLoggerCategory.Migrations> logger)
         {
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(options, nameof(options));

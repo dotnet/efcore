@@ -4,14 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -60,10 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public SqlBinaryExpression(
             ExpressionType operatorType,
-            [NotNull] SqlExpression left,
-            [NotNull] SqlExpression right,
-            [NotNull] Type type,
-            [CanBeNull] CoreTypeMapping? typeMapping)
+            SqlExpression left,
+            SqlExpression right,
+            Type type,
+            CoreTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
             Check.NotNull(left, nameof(left));
@@ -121,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlBinaryExpression Update([NotNull] SqlExpression left, [NotNull] SqlExpression right)
+        public virtual SqlBinaryExpression Update(SqlExpression left, SqlExpression right)
             => left != Left || right != Right
                 ? new SqlBinaryExpression(OperatorType, left, right, Type, TypeMapping)
                 : this;

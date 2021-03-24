@@ -4,10 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -70,6 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="interceptors"> The interceptors to combine. </param>
         /// <returns> The combined interceptor. </returns>
-        protected abstract TInterceptor CreateChain([NotNull] IEnumerable<TInterceptor> interceptors);
+        protected abstract TInterceptor CreateChain(IEnumerable<TInterceptor> interceptors);
     }
 }
