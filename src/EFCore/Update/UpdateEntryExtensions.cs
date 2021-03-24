@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
             this IUpdateEntry updateEntry,
-            ChangeTrackerDebugStringOptions options,
+            ChangeTrackerDebugStringOptions options = ChangeTrackerDebugStringOptions.LongDefault,
             int indent = 0)
         {
             var builder = new StringBuilder();
