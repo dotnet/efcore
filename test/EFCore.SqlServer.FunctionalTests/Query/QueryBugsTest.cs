@@ -9422,7 +9422,6 @@ ORDER BY [i].[_Position];");
                 {
                     w.Log(SqlServerEventId.ByteIdentityColumnWarning);
                     w.Log(SqlServerEventId.DecimalTypeKeyWarning);
-                    w.Throw(CoreEventId.NavigationBaseIncludeIgnored);
                 });
 
         protected override TestStore CreateTestStore()
