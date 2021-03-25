@@ -576,6 +576,48 @@ FROM [Orders] AS [o0]
 GROUP BY [o0].[CustomerID]");
         }
 
+        public override async Task Union_on_entity_with_correlated_collection(bool async)
+        {
+            await base.Union_on_entity_with_correlated_collection(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+    WHERE [c].[City] = N'Seatte'
+    UNION
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+    WHERE [o0].[OrderID] < 10250
+) AS [t]
+LEFT JOIN [Orders] AS [o1] ON [t].[CustomerID] = [o1].[CustomerID]
+ORDER BY [t].[CustomerID], [o1].[OrderID]");
+        }
+
+        public override async Task Union_on_entity_plus_other_column_with_correlated_collection(bool async)
+        {
+            await base.Union_on_entity_plus_other_column_with_correlated_collection(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderDate], [t].[CustomerID], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+    WHERE [c].[City] = N'Seatte'
+    UNION
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+    WHERE [o0].[OrderID] < 10250
+) AS [t]
+LEFT JOIN [Orders] AS [o1] ON [t].[CustomerID] = [o1].[CustomerID]
+ORDER BY [t].[CustomerID], [t].[OrderDate], [o1].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -2168,6 +2168,8 @@ namespace Microsoft.EntityFrameworkCore.Query
               });
         }
 
+        private static string ClientMethod(string s) => s;
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task VisitLambda_should_not_be_visited_trivially(bool async)
@@ -2246,6 +2248,74 @@ namespace Microsoft.EntityFrameworkCore.Query
               entryCount: 235);
         }
 
-        private static string ClientMethod(string s) => s;
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
+        {
+            return AssertQuery(
+              async,
+              ss =>
+               ss.Set<Customer>().Include(c => c.Orders)
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .OrderBy(e => e.CustomerID)
+                    .Select(c => new
+                    {
+                        Customer = c.Orders.Select(o => c)
+                    })
+                    .Take(10),
+              assertOrder: true,
+              elementAsserter: (e, a) =>
+              {
+                  AssertCollection(e.Customer, a.Customer,
+                      elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Customer>(i => i.Orders)));
+              },
+              entryCount: 70);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_on_top_level_and_on_collection_projection_with_outer_apply(bool async)
+        {
+            return AssertFirstOrDefault(
+              async,
+              ss =>
+               ss.Set<Order>()
+                    .Where(o => o.CustomerID.StartsWith("F"))
+                    .Select(o => new Order
+                    {
+                        OrderID = o.OrderID,
+                        OrderDate = o.OrderDate,
+                        OrderDetails = o.OrderDetails.Select(e => new OrderDetail
+                        {
+                            OrderID = e.OrderID,
+                            Product = e.Product,
+                            UnitPrice = e.UnitPrice
+                        })
+                        .OrderByDescending(e => e.OrderID)
+                        .Skip(0)
+                        .Take(10)
+                        .ToList()
+                    }),
+              entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_on_correlated_collection_in_first(bool async)
+        {
+            return AssertFirstOrDefault(
+              async,
+              ss =>
+               ss.Set<Customer>()
+                    .Where(o => o.CustomerID.StartsWith("F"))
+                    .OrderBy(e => e.CustomerID)
+                    .Select(o => new
+                    {
+                        Orders = o.Orders.OrderBy(a => a.OrderDate).Take(1)
+                            .Select(e => new { Title = e.CustomerID == e.Customer.CustomerID ? "A" : "B" }).ToList()
+                    }),
+              asserter: (e, a) => AssertCollection(e.Orders, a.Orders, ordered: true,
+                elementAsserter: (ee, aa) => AssertEqual(ee.Title, aa.Title)));
+        }
     }
 }

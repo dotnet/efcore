@@ -1744,6 +1744,86 @@ WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t0].[OrderID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID], [o2].[OrderID], [o2].[ProductID]");
         }
 
+        public override async Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
+        {
+            await base.Collection_projection_selecting_outer_element_followed_by_take(async);
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT [t].[CustomerID], [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region], [t0].[OrderID], [t0].[OrderID0], [t0].[CustomerID0], [t0].[EmployeeID], [t0].[OrderDate]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+    ORDER BY [c].[CustomerID]
+) AS [t]
+OUTER APPLY (
+    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [t1].[OrderID] AS [OrderID0], [t1].[CustomerID] AS [CustomerID0], [t1].[EmployeeID], [t1].[OrderDate]
+    FROM [Orders] AS [o]
+    OUTER APPLY (
+        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+        FROM [Orders] AS [o0]
+        WHERE [t].[CustomerID] = [o0].[CustomerID]
+    ) AS [t1]
+    WHERE [t].[CustomerID] = [o].[CustomerID]
+) AS [t0]
+ORDER BY [t].[CustomerID], [t0].[OrderID], [t0].[OrderID0]");
+        }
+
+        public override async Task Take_on_top_level_and_on_collection_projection_with_outer_apply(bool async)
+        {
+            await base.Take_on_top_level_and_on_collection_projection_with_outer_apply(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderID], [t].[OrderDate], [t0].[OrderID], [t0].[ProductID], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice], [t0].[UnitsInStock], [t0].[UnitPrice0] AS [UnitPrice], [t0].[ProductID0]
+FROM (
+    SELECT TOP(1) [o].[OrderID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'F%')
+) AS [t]
+OUTER APPLY (
+    SELECT [t1].[OrderID], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock], [t1].[UnitPrice] AS [UnitPrice0], [t1].[ProductID] AS [ProductID0]
+    FROM (
+        SELECT [o0].[OrderID], [o0].[ProductID], [o0].[UnitPrice]
+        FROM [Order Details] AS [o0]
+        WHERE [t].[OrderID] = [o0].[OrderID]
+        ORDER BY [o0].[OrderID] DESC
+        OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY
+    ) AS [t1]
+    INNER JOIN [Products] AS [p] ON [t1].[ProductID] = [p].[ProductID]
+) AS [t0]
+ORDER BY [t].[OrderID], [t0].[OrderID] DESC, [t0].[ProductID0], [t0].[ProductID]");
+        }
+
+        public override async Task Take_on_correlated_collection_in_first(bool async)
+        {
+            await base.Take_on_correlated_collection_in_first(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [t0].[Title], [t0].[OrderID], [t0].[CustomerID]
+FROM (
+    SELECT TOP(1) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+    ORDER BY [c].[CustomerID]
+) AS [t]
+OUTER APPLY (
+    SELECT CASE
+        WHEN ([t1].[CustomerID] = [c0].[CustomerID]) OR ([t1].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL) THEN N'A'
+        ELSE N'B'
+    END AS [Title], [t1].[OrderID], [c0].[CustomerID], [t1].[OrderDate]
+    FROM (
+        SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [t].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderDate]
+    ) AS [t1]
+    LEFT JOIN [Customers] AS [c0] ON [t1].[CustomerID] = [c0].[CustomerID]
+) AS [t0]
+ORDER BY [t].[CustomerID], [t0].[OrderDate], [t0].[OrderID], [t0].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
