@@ -111,6 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         /// Source of the command.
         /// </summary>
-        public CommandSource CommandSource { get; }
+        public virtual CommandSource CommandSource { get; }
     }
 }
