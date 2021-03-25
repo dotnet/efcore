@@ -2542,6 +2542,45 @@ OUTER APPLY (
 ORDER BY [t].[City], [t0].[ProductID], [t1].[ProductID]");
         }
 
+        public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_does_not_change(bool async)
+        {
+            await base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_does_not_change(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    GROUP BY [c].[CustomerID]
+    HAVING [c].[CustomerID] LIKE N'F%'
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes(bool async)
+        {
+            await base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'F%')
+) AS [t]
+LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
+ORDER BY [t].[CustomerID], [o0].[OrderID]");
+        }
+
+        public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(bool async)
+        {
+            await base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(async);
+
+            //AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

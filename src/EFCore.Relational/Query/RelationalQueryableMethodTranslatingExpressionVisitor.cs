@@ -1441,8 +1441,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                             || (entityType.FindDiscriminatorProperty() == null
                                 && navigation.DeclaringEntityType.IsStrictlyDerivedFrom(entityShaperExpression.EntityType));
 
-                        innerShaper = _selectExpression.GenerateWeakEntityShaper(
+                        var entityProjection = _selectExpression.GenerateWeakEntityProjectionExpression(
                             targetEntityType, table, identifyingColumn.Name, identifyingColumn.Table, principalNullable);
+
+                        if (entityProjection != null)
+                        {
+                            innerShaper = new RelationalEntityShaperExpression(targetEntityType, entityProjection, principalNullable);
+                        }
                     }
 
                     if (innerShaper == null)
@@ -1475,8 +1480,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate);
                         var leftJoinTable = ((LeftJoinExpression)_selectExpression.Tables.Last()).Table;
 
-                        innerShaper = _selectExpression.GenerateWeakEntityShaper(
-                            targetEntityType, table, null, leftJoinTable, makeNullable: true)!;
+                        innerShaper = new RelationalEntityShaperExpression(
+                            targetEntityType,
+                            _selectExpression.GenerateWeakEntityProjectionExpression(
+                                targetEntityType, table, null, leftJoinTable, nullable: true)!,
+                            nullable: true);
                     }
 
                     entityProjectionExpression.AddNavigationBinding(navigation, innerShaper);

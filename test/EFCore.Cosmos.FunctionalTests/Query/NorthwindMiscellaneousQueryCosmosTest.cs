@@ -3929,6 +3929,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Select_DTO_constructor_distinct_with_navigation_translated_to_server();
         }
 
+        [ConditionalFact(Skip = "Issue #17246")]
+        public override void Select_DTO_constructor_distinct_with_collection_projection_translated_to_server()
+        {
+            base.Select_DTO_constructor_distinct_with_collection_projection_translated_to_server();
+        }
+
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Select_Property_when_shadow_unconstrained_generic_method(bool async)
         {

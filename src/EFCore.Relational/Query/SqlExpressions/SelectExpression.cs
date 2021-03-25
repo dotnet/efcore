@@ -1279,7 +1279,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var innerProjection2 = new ProjectionExpression(innerColumn2, alias);
                 select1._projection.Add(innerProjection1);
                 select2._projection.Add(innerProjection2);
-                var outerProjection = new ColumnExpression(innerProjection1, tableReferenceExpression);
+                var outerProjection = new ConcreteColumnExpression(innerProjection1, tableReferenceExpression);
 
                 if (IsNullableProjection(innerProjection1)
                     || IsNullableProjection(innerProjection2))
@@ -1337,7 +1337,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     var innerProjection = new ProjectionExpression(column1, alias);
                     select1._projection.Add(innerProjection);
                     select2._projection.Add(new ProjectionExpression(column2, alias));
-                    var outerExpression = new ColumnExpression(innerProjection, tableReferenceExpression);
+                    var outerExpression = new ConcreteColumnExpression(innerProjection, tableReferenceExpression);
                     if (column1.IsNullable
                         || column2.IsNullable)
                     {
@@ -1374,7 +1374,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     var innerProjection = new ProjectionExpression(projection1.DiscriminatorExpression, alias);
                     select1._projection.Add(innerProjection);
                     select2._projection.Add(new ProjectionExpression(projection2.DiscriminatorExpression, alias));
-                    discriminatorExpression = new ColumnExpression(innerProjection, tableReferenceExpression);
+                    discriminatorExpression = new ConcreteColumnExpression(innerProjection, tableReferenceExpression);
                 }
 
                 _projectionMapping[projectionMember] = new EntityProjectionExpression(
@@ -1477,8 +1477,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        internal RelationalEntityShaperExpression? GenerateWeakEntityShaper(
-            IEntityType entityType, ITableBase table, string? columnName, TableExpressionBase tableExpressionBase, bool makeNullable = true)
+        public EntityProjectionExpression? GenerateWeakEntityProjectionExpression(
+            IEntityType entityType, ITableBase table, string? columnName, TableExpressionBase tableExpressionBase, bool nullable = true)
         {
             if (columnName == null)
             {
@@ -1486,18 +1486,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var propertyExpressions = GetPropertyExpressionsFromJoinedTable(
                     entityType, table, FindTableReference(this, tableExpressionBase));
 
-                return new RelationalEntityShaperExpression(
-                    entityType, new EntityProjectionExpression(entityType, propertyExpressions), makeNullable);
+                return new EntityProjectionExpression(entityType, propertyExpressions);
             }
             else
             {
                 var propertyExpressions = GetPropertyExpressionFromSameTable(
-                    entityType, table, this, tableExpressionBase, columnName, makeNullable);
+                    entityType, table, this, tableExpressionBase, columnName, nullable);
 
                 return propertyExpressions == null
                     ? null
-                    : new RelationalEntityShaperExpression(
-                    entityType, new EntityProjectionExpression(entityType, propertyExpressions), makeNullable);
+                    : new EntityProjectionExpression(entityType, propertyExpressions);
             }
 
             static TableReferenceExpression FindTableReference(SelectExpression selectExpression, TableExpressionBase tableExpression)
@@ -1531,7 +1529,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
                         .SelectMany(t => t.GetDeclaredProperties()))
                     {
-                        propertyExpressions[property] = new ColumnExpression(
+                        propertyExpressions[property] = new ConcreteColumnExpression(
                             property, table.FindColumn(property)!, tableReferenceExpression, nullable || !property.IsPrimaryKey());
                     }
 
@@ -1555,7 +1553,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     var tableReferenceExpression = FindTableReference(selectExpression, subquery);
                     foreach (var item in subqueryPropertyExpressions)
                     {
-                        newPropertyExpressions[item.Key] = new ColumnExpression(
+                        newPropertyExpressions[item.Key] = new ConcreteColumnExpression(
                             subquery.Projection[subquery.AddToProjection(item.Value)], tableReferenceExpression);
                     }
 
@@ -1575,7 +1573,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
                     .SelectMany(t => t.GetDeclaredProperties()))
                 {
-                    propertyExpressions[property] = new ColumnExpression(
+                    propertyExpressions[property] = new ConcreteColumnExpression(
                         property, table.FindColumn(property)!, tableReferenceExpression, nullable: true);
                 }
 
@@ -2727,16 +2725,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
                 .SelectMany(t => t.GetDeclaredProperties());
 
-        private static ColumnExpression CreateColumnExpression(
+        private static ConcreteColumnExpression CreateColumnExpression(
             IProperty property, ITableBase table, TableReferenceExpression tableExpression, bool nullable)
             => new(property, table.FindColumn(property)!, tableExpression, nullable);
 
-        private ColumnExpression GenerateOuterColumn(
+        private ConcreteColumnExpression GenerateOuterColumn(
             TableReferenceExpression tableReferenceExpression, SqlExpression projection, string? alias = null)
         {
             var index = AddToProjection(projection, alias);
 
-            return new ColumnExpression(_projection[index], tableReferenceExpression);
+            return new ConcreteColumnExpression(_projection[index], tableReferenceExpression);
         }
 
         private bool ContainsTableReference(ColumnExpression column)

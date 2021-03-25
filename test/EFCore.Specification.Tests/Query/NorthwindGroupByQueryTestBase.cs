@@ -3104,6 +3104,78 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_does_not_change(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .GroupBy(e => e.CustomerID)
+                    .Where(g => g.Key.StartsWith("F"))
+                    .Select(e => e.Key)
+                    .Select(c => new
+                    {
+                        c,
+                        Orders = ss.Set<Order>().Where(o => o.CustomerID == c).ToList()
+                    }),
+                elementSorter: e => e.c,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.c, a.c);
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(e => e.CustomerID)
+                    .Where(g => g.Key.StartsWith("F"))
+                    .Select(e => e.Key)
+                    .Select(c => new
+                    {
+                        c,
+                        Orders = ss.Set<Order>().Where(o => o.CustomerID == c).ToList()
+                    }),
+                elementSorter: e => e.c,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.c, a.c);
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(e => e.CustomerID + "A")
+                    .Where(g => g.Key.StartsWith("F"))
+                    .Select(e => e.Key)
+                    .Select(c => new
+                    {
+                        c,
+                        Orders = ss.Set<Order>().Where(o => o.CustomerID + "A" == c).ToList()
+                    }),
+                elementSorter: e => e.c,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.c, a.c);
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 63);
+        }
+
         #endregion
     }
 }
