@@ -33,6 +33,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly FloatTypeMapping _real
             = new SqlServerFloatTypeMapping("real");
 
+        private readonly FloatTypeMapping _realAlias
+            = new SqlServerFloatTypeMapping("placeholder", storeTypePostfix: StoreTypePostfix.None);
+
         private readonly ByteTypeMapping _byte
             = new SqlServerByteTypeMapping("tinyint", DbType.Byte);
 
@@ -104,19 +107,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private readonly SqlServerDateTimeTypeMapping _datetime2
             = new("datetime2", DbType.DateTime2);
 
+        private readonly SqlServerDateTimeTypeMapping _datetime2Alias
+            = new("placeholder", DbType.DateTime2, StoreTypePostfix.None);
+
         private readonly DoubleTypeMapping _double
             = new SqlServerDoubleTypeMapping("float");
 
+        private readonly DoubleTypeMapping _doubleAlias
+            = new SqlServerDoubleTypeMapping("placeholder", storeTypePostfix: StoreTypePostfix.None);
+
         private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffset
-#pragma warning disable CS8620 // TODO: Follow up. Possibly dotnet/roslyn#50311
-            = new("datetimeoffset");
-#pragma warning restore CS8620
+            = new("datetimeoffset", DbType.DateTimeOffset);
+
+        private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffsetAlias
+            = new("placeholder", DbType.DateTimeOffset, StoreTypePostfix.None);
 
         private readonly GuidTypeMapping _uniqueidentifier
             = new("uniqueidentifier", DbType.Guid);
 
         private readonly DecimalTypeMapping _decimal
             = new SqlServerDecimalTypeMapping("decimal");
+
+        private readonly DecimalTypeMapping _decimalAlias
+            = new SqlServerDecimalTypeMapping("placeholder", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly DecimalTypeMapping _decimal182
             = new SqlServerDecimalTypeMapping("decimal(18, 2)", precision: 18, scale: 2);
@@ -131,6 +144,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
+
+        private readonly Dictionary<Type, RelationalTypeMapping> _clrNoFacetTypeMappings;
 
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
 
@@ -160,6 +175,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     { typeof(float), _real },
                     { typeof(decimal), _decimal182 },
                     { typeof(TimeSpan), _time }
+                };
+
+            _clrNoFacetTypeMappings
+                = new Dictionary<Type, RelationalTypeMapping>
+                {
+                    { typeof(DateTime), _datetime2Alias },
+                    { typeof(double), _doubleAlias },
+                    { typeof(DateTimeOffset), _datetimeoffsetAlias },
+                    { typeof(float), _realAlias },
+                    { typeof(decimal), _decimalAlias }
                 };
 
             _storeTypeMappings
@@ -256,6 +281,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                             ? mapping
                             : null;
                 }
+
+                if (clrType != null
+                    && _clrNoFacetTypeMappings.TryGetValue(clrType, out mapping))
+                {
+                    return mapping;
+                }
             }
 
             if (clrType != null)
@@ -277,7 +308,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         size = isFixedLength ? maxSize : (int?)null;
                     }
 
-                    if (size == null)
+                    if (size == null
+                        && storeTypeName == null)
                     {
                         return isAnsi
                             ? isFixedLength
@@ -291,7 +323,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     return new SqlServerStringTypeMapping(
                         unicode: !isAnsi,
                         size: size,
-                        fixedLength: isFixedLength);
+                        fixedLength: isFixedLength,
+                        storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None);
                 }
 
                 if (clrType == typeof(byte[]))
@@ -311,7 +344,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
                     return size == null
                         ? _variableLengthMaxBinary
-                        : new SqlServerByteArrayTypeMapping(size: size, fixedLength: isFixedLength);
+                        : new SqlServerByteArrayTypeMapping(
+                            size: size,
+                            fixedLength: isFixedLength,
+                            storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None);
                 }
             }
 
