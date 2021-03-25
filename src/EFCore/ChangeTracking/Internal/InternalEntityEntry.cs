@@ -1188,6 +1188,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                     var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
                                     _storeGeneratedValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
                                 }
+
                                 break;
                             case CurrentValueType.Temporary:
                                 if (!_temporaryValues.IsEmpty)
@@ -1196,6 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                     var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
                                     _temporaryValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
                                 }
+
                                 break;
                         }
                     }
@@ -1742,8 +1744,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             _stateData.FlagProperty(navigation.GetIndex(), PropertyFlag.IsLoaded, isFlagged: loaded);
 
-            var lazyLoaderProperty = EntityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == typeof(ILazyLoader));
-            if (lazyLoaderProperty != null)
+            foreach (var lazyLoaderProperty in EntityType.GetServiceProperties().Where(p => p.ClrType == typeof(ILazyLoader)))
             {
                 ((ILazyLoader?)this[lazyLoaderProperty])?.SetLoaded(Entity, navigation.Name, loaded);
             }

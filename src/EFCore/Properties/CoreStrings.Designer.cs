@@ -99,14 +99,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityTypeNavigationSpecification, otherEntityType);
 
         /// <summary>
-        ///     The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because there is another property of the same type. Ignore one of the properties using the [NotMapped] attribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
-        /// </summary>
-        public static string AmbiguousServiceProperty(object? property, object? serviceType, object? entityType)
-            => string.Format(
-                GetString("AmbiguousServiceProperty", nameof(property), nameof(serviceType), nameof(entityType)),
-                property, serviceType, entityType);
-
-        /// <summary>
         ///     The shared type entity type '{entityType}' cannot be added to the model because its name is the same as the CLR type name. This usually indicates an error, either add it as a non-shared entity type or choose a different name.
         /// </summary>
         public static string AmbiguousSharedTypeEntityTypeName(object? entityType)
@@ -728,14 +720,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicatePropertyInKey", nameof(propertyList), nameof(property)),
                 propertyList, property);
-
-        /// <summary>
-        ///     The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.
-        /// </summary>
-        public static string DuplicateServicePropertyType(object? property, object? serviceType, object? entityType, object? duplicateName, object? duplicateEntityType)
-            => string.Format(
-                GetString("DuplicateServicePropertyType", nameof(property), nameof(serviceType), nameof(entityType), nameof(duplicateName), nameof(duplicateEntityType)),
-                property, serviceType, entityType, duplicateName, duplicateEntityType);
 
         /// <summary>
         ///     Cannot translate '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.

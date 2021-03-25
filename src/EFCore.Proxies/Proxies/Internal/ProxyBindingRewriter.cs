@@ -186,7 +186,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         }
 
         private InstantiationBinding UpdateConstructorBindings(
-            IConventionEntityType entityType, Type proxyType, InstantiationBinding binding)
+            IConventionEntityType entityType,
+            Type proxyType,
+            InstantiationBinding binding)
         {
             if (_options?.UseLazyLoadingProxies == true)
             {
@@ -212,31 +214,29 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 }
 
                 return new FactoryMethodBinding(
-                        _proxyFactory,
-                        _createLazyLoadingProxyMethod,
-                        new List<ParameterBinding>
-                        {
-                            new ContextParameterBinding(typeof(DbContext)),
-                            new EntityTypeParameterBinding(),
-                            new DependencyInjectionParameterBinding(
-                                typeof(ILazyLoader), typeof(ILazyLoader), (IPropertyBase)serviceProperty),
-                            new ObjectArrayParameterBinding(binding.ParameterBindings)
-                        },
-                        proxyType);
+                    _proxyFactory,
+                    _createLazyLoadingProxyMethod,
+                    new List<ParameterBinding>
+                    {
+                        new ContextParameterBinding(typeof(DbContext)),
+                        new EntityTypeParameterBinding(),
+                        new DependencyInjectionParameterBinding(
+                            typeof(ILazyLoader), typeof(ILazyLoader), new[] { (IPropertyBase)serviceProperty }),
+                        new ObjectArrayParameterBinding(binding.ParameterBindings)
+                    },
+                    proxyType);
             }
-            else
-            {
-                return new FactoryMethodBinding(
-                        _proxyFactory,
-                        _createProxyMethod,
-                        new List<ParameterBinding>
-                        {
-                            new ContextParameterBinding(typeof(DbContext)),
-                            new EntityTypeParameterBinding(),
-                            new ObjectArrayParameterBinding(binding.ParameterBindings)
-                        },
-                        proxyType);
-            }
+
+            return new FactoryMethodBinding(
+                _proxyFactory,
+                _createProxyMethod,
+                new List<ParameterBinding>
+                {
+                    new ContextParameterBinding(typeof(DbContext)),
+                    new EntityTypeParameterBinding(),
+                    new ObjectArrayParameterBinding(binding.ParameterBindings)
+                },
+                proxyType);
         }
     }
 }

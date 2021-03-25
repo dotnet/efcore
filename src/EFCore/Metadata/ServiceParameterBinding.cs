@@ -24,15 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="parameterType"> The parameter CLR type. </param>
         /// <param name="serviceType"> The service or metadata CLR type. </param>
-        /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
+        /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> instances, or null. </param>
         protected ServiceParameterBinding(
             Type parameterType,
             Type serviceType,
-            IPropertyBase? serviceProperty = null)
-            : base(
-                parameterType, serviceProperty != null
-                    ? new[] { serviceProperty }
-                    : Array.Empty<IPropertyBase>())
+            IPropertyBase[]? serviceProperties = null)
+            : base(parameterType, serviceProperties)
         {
             Check.NotNull(serviceType, nameof(serviceType));
 

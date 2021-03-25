@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             (entityType.FindProperty(property.Name)
                 ?? entityType.FindServiceProperty(property.Name)
                 ?? entityType.FindNavigation(property.Name)
-                ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToList());
+                ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToArray());
 
         private InstantiationBinding? Create(InstantiationBinding? instantiationBinding, SlimEntityType entityType)
             => instantiationBinding?.With(instantiationBinding.ParameterBindings.Select(binding => Create(binding, entityType)).ToList());

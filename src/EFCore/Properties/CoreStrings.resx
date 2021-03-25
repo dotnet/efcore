@@ -144,9 +144,6 @@
   <data name="AmbiguousOwnedNavigation" xml:space="preserve">
     <value>Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the [NotMapped] attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
   </data>
-  <data name="AmbiguousServiceProperty" xml:space="preserve">
-    <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because there is another property of the same type. Ignore one of the properties using the [NotMapped] attribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
-  </data>
   <data name="AmbiguousSharedTypeEntityTypeName" xml:space="preserve">
     <value>The shared type entity type '{entityType}' cannot be added to the model because its name is the same as the CLR type name. This usually indicates an error, either add it as a non-shared entity type or choose a different name.</value>
   </data>
@@ -388,9 +385,6 @@
   </data>
   <data name="DuplicatePropertyInKey" xml:space="preserve">
     <value>The properties {propertyList} cannot be used for a key, because they contain a duplicate: '{property}'.</value>
-  </data>
-  <data name="DuplicateServicePropertyType" xml:space="preserve">
-    <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="EntityEqualityOnCompositeKeyEntitySubqueryNotSupported" xml:space="preserve">
     <value>Cannot translate '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.</value>

@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -17,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="EntityTypeParameterBinding" /> instance for the given service type.
         /// </summary>
-        /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
-        public EntityTypeParameterBinding(IPropertyBase? serviceProperty = null)
-            : base(typeof(IEntityType), typeof(IEntityType), serviceProperty)
+        /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> objects, or <see langword="null" />. </param>
+        public EntityTypeParameterBinding(IPropertyBase[]? serviceProperties = null)
+            : base(typeof(IEntityType), typeof(IEntityType), serviceProperties)
         {
         }
 
@@ -40,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="consumedProperties"> The new consumed properties. </param>
         /// <returns> A copy with replaced consumed properties. </returns>
-        public override ParameterBinding With(IReadOnlyList<IPropertyBase> consumedProperties)
-            => new EntityTypeParameterBinding(consumedProperties.SingleOrDefault());
+        public override ParameterBinding With(IPropertyBase[] consumedProperties)
+            => new EntityTypeParameterBinding(consumedProperties);
     }
 }

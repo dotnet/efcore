@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -20,11 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates a new <see cref="ServiceParameterBinding" /> instance for the given service type.
         /// </summary>
         /// <param name="contextType"> The <see cref="DbContext" /> CLR type. </param>
-        /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or <see langword="null" />. </param>
+        /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> objects, or <see langword="null" />. </param>
         public ContextParameterBinding(
             Type contextType,
-            IPropertyBase? serviceProperty = null)
-            : base(contextType, contextType, serviceProperty)
+            IPropertyBase[]? serviceProperties = null)
+            : base(contextType, contextType, serviceProperties)
         {
         }
 
@@ -57,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="consumedProperties"> The new consumed properties. </param>
         /// <returns> A copy with replaced consumed properties. </returns>
-        public override ParameterBinding With(IReadOnlyList<IPropertyBase> consumedProperties)
-            => new ContextParameterBinding(ParameterType, consumedProperties.SingleOrDefault());
+        public override ParameterBinding With(IPropertyBase[] consumedProperties)
+            => new ContextParameterBinding(ParameterType, consumedProperties);
     }
 }
