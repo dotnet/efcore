@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="consumedProperties"> The new consumed properties. </param>
         /// <returns> A copy with replaced consumed properties. </returns>
-        public override ParameterBinding With(IReadOnlyList<IPropertyBase> consumedProperties)
-            => new DependencyInjectionMethodParameterBinding(ParameterType, ServiceType, Method, consumedProperties.SingleOrDefault());
+        public override ParameterBinding With(IPropertyBase[] consumedProperties)
+            => new DependencyInjectionMethodParameterBinding(ParameterType, ServiceType, Method, consumedProperties);
     }
 }

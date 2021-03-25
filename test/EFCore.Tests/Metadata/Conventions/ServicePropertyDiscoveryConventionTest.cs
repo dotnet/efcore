@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             using (var context = new ServicePropertiesContext())
             {
                 var entityTypes = context.Model.GetEntityTypes().ToList();
-                Assert.Equal(10, entityTypes.Count);
+                Assert.Equal(13, entityTypes.Count);
 
                 foreach (var entityType in entityTypes)
                 {
@@ -93,9 +93,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 foreach (var entry in context.ChangeTracker.Entries())
                 {
                     var clrType = entry.Metadata.ClrType;
-                    while (clrType!.BaseType != typeof(object))
+
+                    if (!clrType.Name.StartsWith("PrivateWithDuplicates", StringComparison.Ordinal))
                     {
-                        clrType = clrType.BaseType;
+                        while (clrType!.BaseType != typeof(object))
+                        {
+                            clrType = clrType.BaseType;
+                        }
                     }
 
                     if (clrType == typeof(PublicUnmappedBaseSuper))
@@ -246,6 +250,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             public DbSet<PublicMappedBaseSub> PublicMappedBaseSubs
                 => Set<PublicMappedBaseSub>();
+
+            public DbSet<PrivateWithDuplicatesBase> PrivateWithDuplicatesBases
+                => Set<PrivateWithDuplicatesBase>();
+
+            public DbSet<PrivateWithDuplicatesSuper> PrivateWithDuplicatesSupers
+                => Set<PrivateWithDuplicatesSuper>();
+
+            public DbSet<PrivateWithDuplicatesSub> PrivateWithDuplicatesSubs
+                => Set<PrivateWithDuplicatesSub>();
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -411,6 +424,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         protected class PublicMappedBaseSub : PublicMappedBaseSuper
         {
+        }
+
+        protected class PrivateWithDuplicatesBase
+        {
+            public int Id { get; set; }
+            private DbContext? Context { get; set; }
+            private DbContext? Context2 { get; set; }
+            private IEntityType? EntityType { get; set; }
+            private IEntityType? EntityType2 { get; set; }
+            private ILazyLoader? ALazyLoader { get; set; }
+            private ILazyLoader? ALazyLoader2 { get; set; }
+            private Action<object, string>? LazyLoader { get; set; }
+        }
+
+        protected class PrivateWithDuplicatesSuper : PrivateWithDuplicatesBase
+        {
+            private DbContext? Context { get; set; }
+            private DbContext? Context2 { get; set; }
+            private IEntityType? EntityType { get; set; }
+            private IEntityType? EntityType2 { get; set; }
+            private ILazyLoader? ALazyLoader { get; set; }
+            private ILazyLoader? ALazyLoader2 { get; set; }
+            private Action<object, string>? LazyLoader { get; set; }
+        }
+
+        protected class PrivateWithDuplicatesSub : PrivateWithDuplicatesSuper
+        {
+            private DbContext? Context { get; set; }
+            private DbContext? Context2 { get; set; }
+            private IEntityType? EntityType { get; set; }
+            private IEntityType? EntityType2 { get; set; }
+            private ILazyLoader? ALazyLoader { get; set; }
+            private ILazyLoader? ALazyLoader2 { get; set; }
+            private Action<object, string>? LazyLoader { get; set; }
         }
     }
 }

@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -40,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="consumedProperties"> The new consumed properties. </param>
         /// <returns> A copy with replaced consumed properties. </returns>
-        public override ParameterBinding With(IReadOnlyList<IPropertyBase> consumedProperties)
-            => new EntityTypeParameterBinding(consumedProperties.SingleOrDefault());
+        public override ParameterBinding With(IPropertyBase[] consumedProperties)
+            => new EntityTypeParameterBinding(consumedProperties);
     }
 }

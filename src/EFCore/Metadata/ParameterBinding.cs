@@ -52,6 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="consumedProperties"> The new consumed properties. </param>
         /// <returns> A copy with replaced consumed properties. </returns>
-        public abstract ParameterBinding With(IReadOnlyList<IPropertyBase> consumedProperties);
+        public abstract ParameterBinding With(IPropertyBase[] consumedProperties);
     }
 }
