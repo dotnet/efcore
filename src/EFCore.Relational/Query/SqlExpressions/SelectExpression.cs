@@ -2887,6 +2887,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 return this;
             }
+
             var changed = false;
 
             var newProjections = _projection;
@@ -3095,7 +3096,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 projectionMapping[kvp.Key] = kvp.Value;
             }
 
-            return new SelectExpression(alias, projections.ToList(), tables.ToList(), _tableReferences.ToList(), groupBy.ToList(), orderings.ToList())
+            var newTableReferences = _tableReferences.ToList();
+            var newSelectExpression = new SelectExpression(
+                alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList())
             {
                 _projectionMapping = projectionMapping,
                 Predicate = predicate,
@@ -3105,6 +3108,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 IsDistinct = distinct,
                 Tags = Tags
             };
+
+            // We don't copy identifiers because when we are doing reconstruction pending collections are already applied.
+            // We don't visit pending collection with TableReferenceUpdatingExpressionVisitor for same reason.
+
+            // Remap tableReferences in new select expression
+            foreach (var tableReference in newTableReferences)
+            {
+                tableReference.UpdateTableReference(this, newSelectExpression);
+            }
+
+            var tableReferenceUpdatingExpressionVisitor = new TableReferenceUpdatingExpressionVisitor(this, newSelectExpression);
+            tableReferenceUpdatingExpressionVisitor.Visit(newSelectExpression);
+
+            return newSelectExpression;
         }
 
         /// <summary>
@@ -3136,22 +3153,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(groupBy, nameof(groupBy));
             Check.NotNull(orderings, nameof(orderings));
 
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>(_projectionMapping.Count);
-            foreach (var kvp in _projectionMapping)
-            {
-                projectionMapping[kvp.Key] = kvp.Value;
-            }
-
-            return new SelectExpression(Alias, projections.ToList(), tables.ToList(), _tableReferences.ToList(), groupBy.ToList(), orderings.ToList())
-            {
-                _projectionMapping = projectionMapping,
-                Predicate = predicate,
-                Having = having,
-                Offset = offset,
-                Limit = limit,
-                IsDistinct = IsDistinct,
-                Tags = Tags
-            };
+#pragma warning disable CS0618 // Type or member is obsolete
+            return Update(projections, tables, predicate, groupBy, having, orderings, limit, offset, IsDistinct, Alias);
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <inheritdoc />
