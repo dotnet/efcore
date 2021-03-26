@@ -187,6 +187,9 @@
   <data name="CannotBeNullablePK" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.</value>
   </data>
+  <data name="CannotConvertEnumValue" xml:space="preserve">
+    <value>Cannot convert string value '{value}' from the database to any value in the mapped '{enumType}' enum.</value>
+  </data>
   <data name="CannotConvertQueryableToEnumerableMethod" xml:space="preserve">
     <value>Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
   </data>
