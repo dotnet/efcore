@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private readonly IInMemoryStore _store;
         private readonly IUpdateAdapterFactory _updateAdapterFactory;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Update> _updateLogger;
-        private readonly Func<IModel> _getDesignModel;
+        private readonly IDesignTimeModel _designTimeModel;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             DatabaseDependencies dependencies,
             IInMemoryStoreCache storeCache,
             IDbContextOptions options,
-            ICurrentDbContext context,
+            IDesignTimeModel designTimeModel,
             IUpdateAdapterFactory updateAdapterFactory,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
             : base(dependencies)
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             Check.NotNull(updateLogger, nameof(updateLogger));
 
             _store = storeCache.GetStore(options);
-            _getDesignModel = () => context.Context.DesignTimeModel;
+            _designTimeModel = designTimeModel;
             _updateAdapterFactory = updateAdapterFactory;
             _updateLogger = updateLogger;
         }
@@ -98,6 +98,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool EnsureDatabaseCreated()
-            => _store.EnsureCreated(_updateAdapterFactory, _getDesignModel(), _updateLogger);
+            => _store.EnsureCreated(_updateAdapterFactory, _designTimeModel.Model, _updateLogger);
     }
 }

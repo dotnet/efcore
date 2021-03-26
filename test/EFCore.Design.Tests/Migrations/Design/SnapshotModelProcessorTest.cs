@@ -203,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var processor = new SnapshotModelProcessor(reporter, modelRuntimeInitializer);
             var model = processor.Process(snapshot.Model);
 
-            var differences = differ.GetDifferences(model.GetRelationalModel(), context.DesignTimeModel.GetRelationalModel());
+            var differences = differ.GetDifferences(model.GetRelationalModel(),
+                context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
 
             Assert.Empty(differences);
         }
