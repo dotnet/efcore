@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -35,6 +36,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> The cloned configuration. </returns>
         protected virtual DbContextOptionsBuilder OptionsBuilder { get; }
+
+        /// <summary>
+        ///     <para>
+        ///         Enables nullability check for all properties across all entities within the in-memory database.
+        ///     </para>
+        /// </summary>
+        /// <param name="nullabilityCheckEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual InMemoryDbContextOptionsBuilder EnableNullabilityCheck(bool nullabilityCheckEnabled = true)
+        {
+            var extension = OptionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
+                ?? new InMemoryOptionsExtension();
+
+            extension = extension.WithNullabilityCheckEnabled(nullabilityCheckEnabled);
+
+            ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
+
+            return this;
+        }
 
         #region Hidden System.Object members
 
