@@ -2985,7 +2985,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The property '{1_entityType}.{0_property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+        ///     The property '{entityType}.{property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
         /// </summary>
         public static EventDefinition<string, string> LogCollectionWithoutComparer(IDiagnosticsLogger logger)
         {
@@ -3485,7 +3485,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Unable to find navigation '{1_navigation}' specified in string based include path '{0_navigationChain}'.
+        ///     Unable to find navigation '{navigation}' specified in string based include path '{navigationChain}'.
         /// </summary>
         public static EventDefinition<object, object> LogInvalidIncludePath(IDiagnosticsLogger logger)
         {
@@ -3510,7 +3510,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An attempt was made to lazy-load navigation '{1_entityType}.{0_navigation}' after the associated DbContext was disposed.
+        ///     An attempt was made to lazy-load navigation '{entityType}.{navigation}' after the associated DbContext was disposed.
         /// </summary>
         public static EventDefinition<string, string> LogLazyLoadOnDisposedContext(IDiagnosticsLogger logger)
         {
@@ -3685,7 +3685,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The navigation '{1_entityType}.{0_navigation}' is being lazy-loaded.
+        ///     The navigation '{entityType}.{navigation}' is being lazy-loaded.
         /// </summary>
         public static EventDefinition<string, string> LogNavigationLazyLoading(IDiagnosticsLogger logger)
         {
@@ -4442,7 +4442,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The property '{1_entityType}.{0_property}' was created in shadow state because there are no eligible CLR members with a matching name.
+        ///     The property '{entityType}.{property}' was created in shadow state because there are no eligible CLR members with a matching name.
         /// </summary>
         public static EventDefinition<string, string> LogShadowPropertyCreated(IDiagnosticsLogger logger)
         {
