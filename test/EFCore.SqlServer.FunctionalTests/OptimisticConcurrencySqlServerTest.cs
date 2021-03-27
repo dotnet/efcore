@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -16,6 +17,26 @@ namespace Microsoft.EntityFrameworkCore
         public OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fixture)
             : base(fixture)
         {
+        }
+
+        [ConditionalFact]
+        public async Task ULong_row_version_can_handle_empty_array_from_the_database()
+        {
+            await using var context = CreateF1Context();
+
+            await context
+                .Set<F1ULongSqlServerFixture.OptimisticParent>()
+                .Select(
+                    x => new
+                    {
+                        x.Id,
+                        Child = new
+                        {
+                            Id = x.OptionalChild == null ? Guid.Empty : x.OptionalChild.Id,
+                            Version = x.OptionalChild == null ? 0 : x.OptionalChild.Version
+                        }
+                    }
+                ).ToArrayAsync();
         }
     }
 
