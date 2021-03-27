@@ -705,7 +705,7 @@
     <comment>Debug CoreEventId.CollectionChangeDetected int int string string string</comment>
   </data>
   <data name="LogCollectionWithoutComparer" xml:space="preserve">
-    <value>The property '{1_entityType}.{0_property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.</value>
+    <value>The property '{entityType}.{property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.</value>
     <comment>Warning CoreEventId.CollectionWithoutComparer string string</comment>
   </data>
   <data name="LogConflictingForeignKeyAttributesOnNavigationAndProperty" xml:space="preserve">
@@ -785,11 +785,11 @@
     <comment>Debug CoreEventId.IncompatibleMatchingForeignKeyProperties string string string string</comment>
   </data>
   <data name="LogInvalidIncludePath" xml:space="preserve">
-    <value>Unable to find navigation '{1_navigation}' specified in string based include path '{0_navigationChain}'.</value>
+    <value>Unable to find navigation '{navigation}' specified in string based include path '{navigationChain}'.</value>
     <comment>Error CoreEventId.InvalidIncludePathError object object</comment>
   </data>
   <data name="LogLazyLoadOnDisposedContext" xml:space="preserve">
-    <value>An attempt was made to lazy-load navigation '{1_entityType}.{0_navigation}' after the associated DbContext was disposed.</value>
+    <value>An attempt was made to lazy-load navigation '{entityType}.{navigation}' after the associated DbContext was disposed.</value>
     <comment>Warning CoreEventId.LazyLoadOnDisposedContextWarning string string</comment>
   </data>
   <data name="LogManyServiceProvidersCreated" xml:space="preserve">
@@ -817,7 +817,7 @@
     <comment>Error CoreEventId.NavigationBaseIncludeIgnored string</comment>
   </data>
   <data name="LogNavigationLazyLoading" xml:space="preserve">
-    <value>The navigation '{1_entityType}.{0_navigation}' is being lazy-loaded.</value>
+    <value>The navigation '{entityType}.{navigation}' is being lazy-loaded.</value>
     <comment>Debug CoreEventId.NavigationLazyLoading string string</comment>
   </data>
   <data name="LogNonDefiningInverseNavigation" xml:space="preserve">
@@ -937,7 +937,7 @@
     <comment>Debug CoreEventId.ServiceProviderDebugInfo string</comment>
   </data>
   <data name="LogShadowPropertyCreated" xml:space="preserve">
-    <value>The property '{1_entityType}.{0_property}' was created in shadow state because there are no eligible CLR members with a matching name.</value>
+    <value>The property '{entityType}.{property}' was created in shadow state because there are no eligible CLR members with a matching name.</value>
     <comment>Debug CoreEventId.ShadowPropertyCreated string string</comment>
   </data>
   <data name="LogSkipCollectionChangeDetected" xml:space="preserve">

@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                     CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
-                        .GenerateMessage("Nav", "WarningAsErrorEntity"),
+                        .GenerateMessage("WarningAsErrorEntity", "Nav"),
                     "CoreEventId.LazyLoadOnDisposedContextWarning"),
                 Assert.Throws<InvalidOperationException>(
                     () => entity.Nav).Message);
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l => l.Message
                     == CoreResources
                         .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
-                        .GenerateMessage("Nav", "WarningAsErrorEntity"));
+                        .GenerateMessage("WarningAsErrorEntity", "Nav"));
 
             Assert.Equal(LogLevel.Warning, log.Level);
         }
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l => l.Message
                     == CoreResources
                         .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
-                        .GenerateMessage("Nav", "WarningAsErrorEntity"));
+                        .GenerateMessage("WarningAsErrorEntity", "Nav"));
 
             Assert.Equal(LogLevel.Debug, log.Level);
         }
@@ -213,14 +213,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Contains(
                     CoreResources.LogNavigationLazyLoading(new TestLogger<InMemoryLoggingDefinitions>())
-                        .GenerateMessage("Nav", "WarningAsErrorEntity"),
+                        .GenerateMessage("WarningAsErrorEntity", "Nav"),
                     loggerFactory.Log.Select(l => l.Message));
 
                 loggerFactory.Clear();
                 Assert.NotNull(entity.Nav);
                 Assert.DoesNotContain(
                     CoreResources.LogNavigationLazyLoading(new TestLogger<InMemoryLoggingDefinitions>())
-                        .GenerateMessage("Nav", "WarningAsErrorEntity"),
+                        .GenerateMessage("WarningAsErrorEntity", "Nav"),
                     loggerFactory.Log.Select(l => l.Message));
             }
         }

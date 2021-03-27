@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Children", "MotherProxy"),
+                                .GenerateMessage("MotherProxy", "Children"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Children).Message);
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Parent", "ChildProxy"),
+                                .GenerateMessage("ChildProxy", "Parent"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => child.Parent).Message);
@@ -424,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Parent", "SingleProxy"),
+                                .GenerateMessage("SingleProxy", "Parent"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => single.Parent).Message);
@@ -501,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Single", "MotherProxy"),
+                                .GenerateMessage("MotherProxy", "Single"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Single).Message);

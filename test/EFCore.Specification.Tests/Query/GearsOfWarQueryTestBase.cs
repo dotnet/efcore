@@ -3649,7 +3649,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Contains(
                 CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
-                    .GenerateMessage("Reports.Foo", "Foo"), message);
+                    .GenerateMessage("Foo", "Reports.Foo"), message);
         }
 
         [ConditionalTheory]

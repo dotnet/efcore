@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Contains(
                 CoreResources.LogInvalidIncludePath(new TestLogger<TestLoggingDefinitions>())
-                    .GenerateMessage("Customer.CustomerID", "CustomerID"),
+                    .GenerateMessage("CustomerID", "Customer.CustomerID"),
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,
