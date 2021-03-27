@@ -210,6 +210,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
+        ///     Cannot convert string value '{value}' from the database to any value in the mapped '{enumType}' enum.
+        /// </summary>
+        public static string CannotConvertEnumValue(object? value, object? enumType)
+            => string.Format(
+                GetString("CannotConvertEnumValue", nameof(value), nameof(enumType)),
+                value, enumType);
+
+        /// <summary>
         ///     Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.
         /// </summary>
         public static string CannotConvertQueryableToEnumerableMethod
