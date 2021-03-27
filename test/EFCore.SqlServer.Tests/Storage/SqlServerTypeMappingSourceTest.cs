@@ -15,7 +15,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class SqlServerTypeMapperTest : RelationalTypeMapperTestBase
+    public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     {
         [ConditionalFact]
         public void Does_simple_SQL_Server_mappings_to_DDL_types()

@@ -69,6 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Type parameterType,
             string parameterName)
             => new EntityTypeParameterBinding(
-                (IPropertyBase?)entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == parameterType));
+                entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => p.ClrType == parameterType).ToArray());
     }
 }

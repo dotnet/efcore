@@ -324,6 +324,62 @@ LEFT JOIN (
 ORDER BY [l].[Id], [t].[Id], [t].[Name], [t].[FK], [t0].[Id], [t0].[Id0]");
         }
 
+        public override async Task Take_Select_collection_Take(bool async)
+        {
+            await base.Take_Select_collection_Take(async);
+
+            AssertSql(
+                @"@__p_0='1'
+
+SELECT [t].[Id], [t].[Name], [t0].[Id], [t0].[Name], [t0].[Level1Id], [t0].[Level2Id], [t0].[Id0], [t0].[Date], [t0].[Name0], [t0].[Id00]
+FROM (
+    SELECT TOP(@__p_0) [l].[Id], [l].[Name]
+    FROM [Level1] AS [l]
+    ORDER BY [l].[Id]
+) AS [t]
+OUTER APPLY (
+    SELECT [t1].[Id], [t1].[Level2_Name] AS [Name], [t1].[OneToMany_Required_Inverse2Id] AS [Level1Id], [t1].[Level1_Required_Id] AS [Level2Id], [l1].[Id] AS [Id0], [l1].[Date], [l1].[Name] AS [Name0], [t1].[Id0] AS [Id00]
+    FROM (
+        SELECT TOP(3) [l0].[Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id], [l2].[Id] AS [Id0]
+        FROM [Level1] AS [l0]
+        INNER JOIN [Level1] AS [l2] ON [l0].[Id] = [l2].[Id]
+        WHERE ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToOne_Required_PK_Date] IS NOT NULL)) AND ([t].[Id] = [l0].[OneToMany_Required_Inverse2Id])
+        ORDER BY [l0].[Id]
+    ) AS [t1]
+    INNER JOIN [Level1] AS [l1] ON [t1].[Level1_Required_Id] = [l1].[Id]
+) AS [t0]
+ORDER BY [t].[Id], [t0].[Id], [t0].[Id00], [t0].[Id0]");
+        }
+
+        public override async Task Skip_Take_Select_collection_Skip_Take(bool async)
+        {
+            await base.Skip_Take_Select_collection_Skip_Take(async);
+
+            AssertSql(
+                @"@__p_0='1'
+
+SELECT [t].[Id], [t].[Name], [t0].[Id], [t0].[Name], [t0].[Level1Id], [t0].[Level2Id], [t0].[Id0], [t0].[Date], [t0].[Name0], [t0].[Id00]
+FROM (
+    SELECT [l].[Id], [l].[Name]
+    FROM [Level1] AS [l]
+    ORDER BY [l].[Id]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+) AS [t]
+OUTER APPLY (
+    SELECT [t1].[Id], [t1].[Level2_Name] AS [Name], [t1].[OneToMany_Required_Inverse2Id] AS [Level1Id], [t1].[Level1_Required_Id] AS [Level2Id], [l1].[Id] AS [Id0], [l1].[Date], [l1].[Name] AS [Name0], [t1].[Id0] AS [Id00]
+    FROM (
+        SELECT [l0].[Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id], [l2].[Id] AS [Id0]
+        FROM [Level1] AS [l0]
+        INNER JOIN [Level1] AS [l2] ON [l0].[Id] = [l2].[Id]
+        WHERE ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToOne_Required_PK_Date] IS NOT NULL)) AND ([t].[Id] = [l0].[OneToMany_Required_Inverse2Id])
+        ORDER BY [l0].[Id]
+        OFFSET 1 ROWS FETCH NEXT 3 ROWS ONLY
+    ) AS [t1]
+    INNER JOIN [Level1] AS [l1] ON [t1].[Level1_Required_Id] = [l1].[Id]
+) AS [t0]
+ORDER BY [t].[Id], [t0].[Id], [t0].[Id00], [t0].[Id0]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

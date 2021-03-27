@@ -155,15 +155,15 @@ namespace Microsoft.EntityFrameworkCore
 
             var context = new ModelContext(model);
 
-            Assert.NotSame(context.Model, context.DesignTimeModel);
+            Assert.NotSame(context.Model, context.GetService<IDesignTimeModel>().Model);
             Assert.Same(model, context.Model);
-            Assert.NotSame(model, context.DesignTimeModel);
+            Assert.NotSame(model, context.GetService<IDesignTimeModel>().Model);
 
             var designTimeContext = new ModelContext(designTimeModel);
 
-            Assert.NotSame(context.Model, designTimeContext.DesignTimeModel);
+            Assert.NotSame(context.Model, designTimeContext.GetService<IDesignTimeModel>().Model);
             Assert.NotSame(model, designTimeContext.Model);
-            Assert.Same(designTimeModel, designTimeContext.DesignTimeModel);
+            Assert.Same(designTimeModel, designTimeContext.GetService<IDesignTimeModel>().Model);
         }
 
         private class ModelContext : DbContext

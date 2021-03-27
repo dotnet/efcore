@@ -241,6 +241,24 @@ FROM ""Orders"" AS ""o""");
             return base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(async);
         }
 
+        public override async Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Collection_projection_selecting_outer_element_followed_by_take(async))).Message);
+
+        public override async Task Take_on_top_level_and_on_collection_projection_with_outer_apply(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Take_on_top_level_and_on_collection_projection_with_outer_apply(async))).Message);
+
+        public override async Task Take_on_correlated_collection_in_first(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Take_on_correlated_collection_in_first(async))).Message);
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

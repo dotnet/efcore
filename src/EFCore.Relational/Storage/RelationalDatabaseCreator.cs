@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -143,10 +145,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The generated commands. </returns>
         protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands(
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
-            => Dependencies.MigrationsSqlGenerator.Generate(
-                Dependencies.ModelDiffer.GetDifferences(null, Dependencies.CurrentContext.Context.DesignTimeModel.GetRelationalModel()),
-                Dependencies.CurrentContext.Context.DesignTimeModel,
+        {
+            var model = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>().Model;
+            return Dependencies.MigrationsSqlGenerator.Generate(
+                Dependencies.ModelDiffer.GetDifferences(null, model.GetRelationalModel()),
+                model,
                 options);
+        }
 
         /// <summary>
         ///     Determines whether the database contains any tables. No attempt is made to determine if

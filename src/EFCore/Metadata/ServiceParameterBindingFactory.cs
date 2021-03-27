@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return new DependencyInjectionParameterBinding(
                 _serviceType,
                 _serviceType,
-                (IPropertyBase?)entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == _serviceType));
+                entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => p.ClrType == _serviceType).ToArray());
         }
     }
 }

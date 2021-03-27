@@ -2873,7 +2873,6 @@ GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
 
             using (var context = contextFactory.CreateContext())
             {
-
                 ClearLog();
                 var query = (from e in context.Set<MyContext11818.Entity11818>()
                              join a in context.Set<MyContext11818.AnotherEntity11818>()
@@ -8378,8 +8377,8 @@ FROM [CycleC] AS [c]");
                 var result = context.Blogs.Select(
                     e => new
                     {
-                        Id = e.Id,
-                        Title = e.Title,
+                        e.Id,
+                        e.Title,
                         FirstPostName = e.Posts.Where(i => i.Name.Contains("2")).ToList()
                     }).ToList();
 
@@ -8400,8 +8399,8 @@ ORDER BY [b].[Id], [t].[Id]");
                 var result = context.Blogs.Select(
                     e => new
                     {
-                        Id = e.Id,
-                        Title = e.Title,
+                        e.Id,
+                        e.Title,
                         FirstPostName = e.Posts.OrderBy(i => i.Id).FirstOrDefault().Name
                     }).ToList();
 
@@ -9406,6 +9405,619 @@ ORDER BY [i].[_Position];");
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Principal23674>();
+            }
+        }
+
+        #endregion
+
+        #region Issue23676
+
+        [ConditionalFact]
+        public virtual async Task Projection_with_multiple_includes_and_subquery_with_set_operation()
+        {
+            var contextFactory = await InitializeAsync<MyContext23676>();
+
+            using var context = contextFactory.CreateContext();
+            var id = 1;
+            var person = await context.Persons
+                            .Include(p => p.Images)
+                            .Include(p => p.Actor)
+                            .ThenInclude(a => a.Movies)
+                            .ThenInclude(p => p.Movie)
+                            .Include(p => p.Director)
+                            .ThenInclude(a => a.Movies)
+                            .ThenInclude(p => p.Movie)
+                            .Select(x => new
+                            {
+                                x.Id,
+                                x.Name,
+                                x.Surname,
+                                x.Birthday,
+                                x.Hometown,
+                                x.Bio,
+                                x.AvatarUrl,
+
+                                Images = x.Images
+                                    .Select(i => new
+                                    {
+                                        i.Id,
+                                        i.ImageUrl,
+                                        i.Height,
+                                        i.Width
+                                    }).ToList(),
+
+                                KnownByFilms = x.Actor.Movies
+                                    .Select(m => m.Movie)
+                                    .Union(x.Director.Movies
+                                    .Select(m => m.Movie))
+                                    .Select(m => new
+                                    {
+                                        m.Id,
+                                        m.Name,
+                                        m.PosterUrl,
+                                        m.Rating
+                                    }).ToList()
+
+                            })
+                            .FirstOrDefaultAsync(x => x.Id == id);
+
+            // Verify the valid generated SQL
+            AssertSql(
+                @"@__id_0='1'
+
+SELECT [t].[Id], [t].[Name], [t].[Surname], [t].[Birthday], [t].[Hometown], [t].[Bio], [t].[AvatarUrl], [t].[Id0], [t].[Id1], [p0].[Id], [p0].[ImageUrl], [p0].[Height], [p0].[Width], [t0].[Id], [t0].[Name], [t0].[PosterUrl], [t0].[Rating]
+FROM (
+    SELECT TOP(1) [p].[Id], [p].[Name], [p].[Surname], [p].[Birthday], [p].[Hometown], [p].[Bio], [p].[AvatarUrl], [a].[Id] AS [Id0], [d].[Id] AS [Id1]
+    FROM [Persons] AS [p]
+    LEFT JOIN [ActorEntity] AS [a] ON [p].[Id] = [a].[PersonId]
+    LEFT JOIN [DirectorEntity] AS [d] ON [p].[Id] = [d].[PersonId]
+    WHERE [p].[Id] = @__id_0
+) AS [t]
+LEFT JOIN [PersonImageEntity] AS [p0] ON [t].[Id] = [p0].[PersonId]
+OUTER APPLY (
+    SELECT [m0].[Id], [m0].[Budget], [m0].[Description], [m0].[DurationInMins], [m0].[Name], [m0].[PosterUrl], [m0].[Rating], [m0].[ReleaseDate], [m0].[Revenue]
+    FROM [MovieActorEntity] AS [m]
+    INNER JOIN [MovieEntity] AS [m0] ON [m].[MovieId] = [m0].[Id]
+    WHERE [t].[Id0] IS NOT NULL AND ([t].[Id0] = [m].[ActorId])
+    UNION
+    SELECT [m2].[Id], [m2].[Budget], [m2].[Description], [m2].[DurationInMins], [m2].[Name], [m2].[PosterUrl], [m2].[Rating], [m2].[ReleaseDate], [m2].[Revenue]
+    FROM [MovieDirectorEntity] AS [m1]
+    INNER JOIN [MovieEntity] AS [m2] ON [m1].[MovieId] = [m2].[Id]
+    WHERE [t].[Id1] IS NOT NULL AND ([t].[Id1] = [m1].[DirectorId])
+) AS [t0]
+ORDER BY [t].[Id], [t].[Id0], [t].[Id1], [p0].[Id], [t0].[Id]");
+        }
+
+        private class PersonEntity
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string Surname { get; set; }
+            public DateTime Birthday { get; set; }
+            public string Hometown { get; set; }
+            public string Bio { get; set; }
+            public string AvatarUrl { get; set; }
+
+            public ActorEntity Actor { get; set; }
+            public DirectorEntity Director { get; set; }
+            public IList<PersonImageEntity> Images { get; set; } = new List<PersonImageEntity>();
+        }
+        private class PersonImageEntity
+        {
+            public int Id { get; set; }
+            public string ImageUrl { get; set; }
+            public int Height { get; set; }
+            public int Width { get; set; }
+            public PersonEntity Person { get; set; }
+        }
+
+        private class ActorEntity
+        {
+            public int Id { get; set; }
+            public int PersonId { get; set; }
+            public PersonEntity Person { get; set; }
+
+            public IList<MovieActorEntity> Movies { get; set; } = new List<MovieActorEntity>();
+        }
+
+        private class MovieActorEntity
+        {
+            public int Id { get; set; }
+            public int ActorId { get; set; }
+            public ActorEntity Actor { get; set; }
+
+            public int MovieId { get; set; }
+            public MovieEntity Movie { get; set; }
+
+            public string RoleInFilm { get; set; }
+
+            public int Order { get; set; }
+        }
+
+        private class DirectorEntity
+        {
+            public int Id { get; set; }
+            public int PersonId { get; set; }
+            public PersonEntity Person { get; set; }
+
+            public IList<MovieDirectorEntity> Movies { get; set; } = new List<MovieDirectorEntity>();
+        }
+
+        private class MovieDirectorEntity
+        {
+            public int Id { get; set; }
+            public int DirectorId { get; set; }
+            public DirectorEntity Director { get; set; }
+
+            public int MovieId { get; set; }
+            public MovieEntity Movie { get; set; }
+        }
+
+        private class MovieEntity
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public double Rating { get; set; }
+            public string Description { get; set; }
+            public DateTime ReleaseDate { get; set; }
+            public int DurationInMins { get; set; }
+            public int Budget { get; set; }
+            public int Revenue { get; set; }
+            public string PosterUrl { get; set; }
+
+            public IList<MovieDirectorEntity> Directors { get; set; } = new List<MovieDirectorEntity>();
+            public IList<MovieActorEntity> Actors { get; set; } = new List<MovieActorEntity>();
+        }
+
+        private class MyContext23676 : DbContext
+        {
+            public MyContext23676(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<PersonEntity> Persons { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        #endregion
+
+        #region Issue19947
+
+        [ConditionalFact]
+        public virtual async Task Multiple_select_many_in_projection()
+        {
+            var contextFactory = await InitializeAsync<MyContext19947>();
+
+            using var context = contextFactory.CreateContext();
+            var query = context.Users.Select(captain => new
+            {
+                CaptainRateDtos = captain.Cars
+                    .SelectMany(car0 => car0.Taxis)
+                    .OrderByDescending(taxi => taxi.DateArrived).Take(12)
+                    .Select(taxi => new
+                    {
+                        Rate = taxi.UserRate.Value,
+                        UserRateText = taxi.UserTextRate,
+                        UserId = taxi.UserEUser.Id,
+                    }).ToList(),
+
+                ReportCount = captain.Cars
+                    .SelectMany(car1 => car1.Taxis).Count(taxi0 => taxi0.ReportText != ""),
+            }).SingleOrDefault();
+
+            // Verify the valid generated SQL
+            AssertSql(
+                @"SELECT [t0].[c], [t0].[Id], [t1].[Rate], [t1].[UserRateText], [t1].[UserId], [t1].[Id], [t1].[Id0]
+FROM (
+    SELECT TOP(2) (
+        SELECT COUNT(*)
+        FROM [Cars] AS [c]
+        INNER JOIN [Taxis] AS [t] ON [c].[Id] = [t].[CarId]
+        WHERE ([u].[Id] = [c].[EUserId]) AND (([t].[ReportText] <> N'') OR [t].[ReportText] IS NULL)) AS [c], [u].[Id]
+    FROM [Users] AS [u]
+) AS [t0]
+OUTER APPLY (
+    SELECT [t2].[UserRate] AS [Rate], [t2].[UserTextRate] AS [UserRateText], [u0].[Id] AS [UserId], [t2].[Id], [t2].[Id0], [t2].[DateArrived]
+    FROM (
+        SELECT TOP(12) [c0].[Id], [t3].[Id] AS [Id0], [t3].[DateArrived], [t3].[UserEUserId], [t3].[UserRate], [t3].[UserTextRate]
+        FROM [Cars] AS [c0]
+        INNER JOIN [Taxis] AS [t3] ON [c0].[Id] = [t3].[CarId]
+        WHERE [t0].[Id] = [c0].[EUserId]
+        ORDER BY [t3].[DateArrived] DESC
+    ) AS [t2]
+    LEFT JOIN [Users] AS [u0] ON [t2].[UserEUserId] = [u0].[Id]
+) AS [t1]
+ORDER BY [t0].[Id], [t1].[DateArrived] DESC, [t1].[Id], [t1].[Id0], [t1].[UserId]");
+        }
+
+        [ConditionalFact]
+        public virtual async Task Single_select_many_in_projection_with_take()
+        {
+            var contextFactory = await InitializeAsync<MyContext19947>();
+
+            using var context = contextFactory.CreateContext();
+            var query = context.Users.Select(captain => new
+            {
+                CaptainRateDtos = captain.Cars
+                    .SelectMany(car0 => car0.Taxis)
+                    .OrderByDescending(taxi => taxi.DateArrived).Take(12)
+                    .Select(taxi => new
+                    {
+                        Rate = taxi.UserRate.Value,
+                        UserRateText = taxi.UserTextRate,
+                        UserId = taxi.UserEUser.Id,
+                    }).ToList()
+            }).SingleOrDefault();
+
+            // Verify the valid generated SQL
+            AssertSql(
+                @"SELECT [t].[Id], [t0].[Rate], [t0].[UserRateText], [t0].[UserId], [t0].[Id], [t0].[Id0]
+FROM (
+    SELECT TOP(2) [u].[Id]
+    FROM [Users] AS [u]
+) AS [t]
+OUTER APPLY (
+    SELECT [t1].[UserRate] AS [Rate], [t1].[UserTextRate] AS [UserRateText], [u0].[Id] AS [UserId], [t1].[Id], [t1].[Id0], [t1].[DateArrived]
+    FROM (
+        SELECT TOP(12) [c].[Id], [t2].[Id] AS [Id0], [t2].[DateArrived], [t2].[UserEUserId], [t2].[UserRate], [t2].[UserTextRate]
+        FROM [Cars] AS [c]
+        INNER JOIN [Taxis] AS [t2] ON [c].[Id] = [t2].[CarId]
+        WHERE [t].[Id] = [c].[EUserId]
+        ORDER BY [t2].[DateArrived] DESC
+    ) AS [t1]
+    LEFT JOIN [Users] AS [u0] ON [t1].[UserEUserId] = [u0].[Id]
+) AS [t0]
+ORDER BY [t].[Id], [t0].[DateArrived] DESC, [t0].[Id], [t0].[Id0], [t0].[UserId]");
+        }
+
+        private class EUser
+        {
+            public int Id { get; set; }
+
+            public ICollection<Car> Cars { get; set; }
+        }
+
+        private class Taxi
+        {
+            public int Id { get; set; }
+            public DateTime? DateArrived { get; set; }
+            public int? UserRate { get; set; }
+            public string UserTextRate { get; set; }
+            public string ReportText { get; set; }
+            public EUser UserEUser { get; set; }
+        }
+
+        private class Car
+        {
+            public int Id { get; set; }
+            public ICollection<Taxi> Taxis { get; set; }
+        }
+
+        private class MyContext19947 : DbContext
+        {
+            public MyContext19947(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<EUser> Users { get; set; }
+            public DbSet<Car> Cars { get; set; }
+            public DbSet<Taxi> Taxis { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+        }
+
+        #endregion
+
+        #region Issue20813
+
+        [ConditionalFact]
+        public virtual async Task SelectMany_and_collection_in_projection_in_FirstOrDefault()
+        {
+            var contextFactory = await InitializeAsync<MyContext20813>();
+
+            using var context = contextFactory.CreateContext();
+            var referenceId = "a";
+            var customerId = new Guid("1115c816-6c4c-4016-94df-d8b60a22ffa1");
+            var query = context.Orders
+                .Where(o => o.ExternalReferenceId == referenceId && o.CustomerId == customerId)
+                .Select(o => new
+                {
+                    IdentityDocuments = o.IdentityDocuments.Select(id => new
+                    {
+                        Images = o.IdentityDocuments
+                            .SelectMany(id => id.Images)
+                            .Select(i => new
+                            {
+                                Image = i.Image
+                            }),
+                    })
+                }).SingleOrDefault();
+
+            // Verify the valid generated SQL
+            AssertSql(
+                @"@__referenceId_0='a' (Size = 4000)
+@__customerId_1='1115c816-6c4c-4016-94df-d8b60a22ffa1'
+
+SELECT [t].[Id], [t0].[Id], [t0].[Image], [t0].[Id0], [t0].[Id00]
+FROM (
+    SELECT TOP(2) [o].[Id]
+    FROM [Orders] AS [o]
+    WHERE ([o].[ExternalReferenceId] = @__referenceId_0) AND ([o].[CustomerId] = @__customerId_1)
+) AS [t]
+OUTER APPLY (
+    SELECT [i].[Id], [t1].[Image], [t1].[Id] AS [Id0], [t1].[Id0] AS [Id00]
+    FROM [IdentityDocument] AS [i]
+    OUTER APPLY (
+        SELECT [i1].[Image], [i0].[Id], [i1].[Id] AS [Id0]
+        FROM [IdentityDocument] AS [i0]
+        INNER JOIN [IdentityDocumentImage] AS [i1] ON [i0].[Id] = [i1].[IdentityDocumentId]
+        WHERE [t].[Id] = [i0].[OrderId]
+    ) AS [t1]
+    WHERE [t].[Id] = [i].[OrderId]
+) AS [t0]
+ORDER BY [t].[Id], [t0].[Id], [t0].[Id0], [t0].[Id00]");
+        }
+
+        private class Order
+        {
+            private ICollection<IdentityDocument> _identityDocuments;
+
+            public Guid Id { get; set; }
+
+            public Guid CustomerId { get; set; }
+
+            public string ExternalReferenceId { get; set; }
+
+            public ICollection<IdentityDocument> IdentityDocuments
+            {
+                get => _identityDocuments = _identityDocuments ?? new Collection<IdentityDocument>();
+                set => _identityDocuments = value;
+            }
+        }
+
+        private class IdentityDocument
+        {
+            private ICollection<IdentityDocumentImage> _images;
+
+            public Guid Id { get; set; }
+
+            [ForeignKey(nameof(Order))]
+            public Guid OrderId { get; set; }
+
+            public Order Order { get; set; }
+
+            public ICollection<IdentityDocumentImage> Images
+            {
+                get => _images = _images ?? new Collection<IdentityDocumentImage>();
+                set => _images = value;
+            }
+        }
+
+        private class IdentityDocumentImage
+        {
+            public Guid Id { get; set; }
+
+            [ForeignKey(nameof(IdentityDocument))]
+            public Guid IdentityDocumentId { get; set; }
+
+            public byte[] Image { get; set; }
+
+            public IdentityDocument IdentityDocument { get; set; }
+        }
+
+        private class MyContext20813 : DbContext
+        {
+            public MyContext20813(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Order> Orders { get; set; }
+        }
+
+        #endregion
+
+        #region Issue18738
+
+        [ConditionalFact]
+        public virtual async Task Set_operation_in_pending_collection()
+        {
+            var contextFactory = await InitializeAsync<MyContext18738>();
+
+            using var context = contextFactory.CreateContext();
+            var resultCollection = context.StudentGameMapper
+                .OrderBy(s => s.Id)
+                .Select(s => new StudentGameResult
+                {
+                    SportsList = (
+                             from inDoorSports in context.InDoorSports
+                             where inDoorSports.Id == s.InCategoryId
+                             select inDoorSports.Name)
+                         .Union(
+                             from outDoorSports in context.OutDoorSports
+                             where outDoorSports.Id == s.OutCategoryId
+                             select outDoorSports.Name)
+                         .ToList()
+                })
+                .Take(5)  // Without this line the query works
+                .ToList();
+
+            // Verify the valid generated SQL
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT [t].[Id], [t0].[Name]
+FROM (
+    SELECT TOP(@__p_0) [s].[Id], [s].[InCategoryId], [s].[OutCategoryId]
+    FROM [StudentGameMapper] AS [s]
+    ORDER BY [s].[Id]
+) AS [t]
+OUTER APPLY (
+    SELECT [i].[Name]
+    FROM [InDoorSports] AS [i]
+    WHERE [i].[Id] = [t].[InCategoryId]
+    UNION
+    SELECT [o].[Name]
+    FROM [OutDoorSports] AS [o]
+    WHERE [o].[Id] = [t].[OutCategoryId]
+) AS [t0]
+ORDER BY [t].[Id], [t0].[Name]");
+        }
+
+        private class StudentGameMapper
+        {
+            public int Id { get; set; }
+            public int InCategoryId { get; set; }
+            public int OutCategoryId { get; set; }
+        }
+
+        private class InDoorSports
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class OutDoorSports
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        private class StudentGameResult
+        {
+            public int GroupId { get; set; }
+            public int StudentId { get; set; }
+            public List<string> SportsList { get; set; }
+        }
+
+        private class MyContext18738 : DbContext
+        {
+            public MyContext18738(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<StudentGameMapper> StudentGameMapper { get; set; }
+            public DbSet<InDoorSports> InDoorSports { get; set; }
+            public DbSet<OutDoorSports> OutDoorSports { get; set; }
+        }
+
+        #endregion
+
+        #region Issue24216
+
+        [ConditionalFact]
+        public virtual async Task Subquery_take_SelectMany_with_TVF()
+        {
+            var contextFactory = await InitializeAsync<MyContext24216>();
+
+            using var context = contextFactory.CreateContext();
+
+            context.Database.ExecuteSqlRaw(
+                @"create function [dbo].[GetPersonStatusAsOf] (@personId bigint, @timestamp datetime2)
+                    returns @personStatus table
+                                    (
+                                        Id bigint not null,
+                                        PersonId bigint not null,
+                                        GenderId bigint not null,
+                                        StatusMessage nvarchar(max)
+                                    )
+                                    as
+                                    begin
+                                        insert into @personStatus
+                                        select [m].[Id], [m].[PersonId], [m].[PersonId], null
+                                        from [Message] as [m]
+                                        where [m].[PersonId] = @personId and [m].[TimeStamp] = @timestamp
+                                        return
+                                    end");
+
+            ClearLog();
+
+            var q = from m in context.Message
+                    orderby m.Id
+                    select m;
+
+            var q2 =
+                from m in q.Take(10)
+                from asof in context.GetPersonStatusAsOf(m.PersonId, m.Timestamp)
+                select new
+                {
+                    Gender = (from g in context.Gender where g.Id == asof.GenderId select g.Description).Single()
+                };
+
+            q2.ToList();
+
+            // Verify the valid generated SQL
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT (
+    SELECT TOP(1) [g0].[Description]
+    FROM [Gender] AS [g0]
+    WHERE [g0].[Id] = [g].[GenderId]) AS [Gender]
+FROM (
+    SELECT TOP(@__p_0) [m].[Id], [m].[PersonId], [m].[Timestamp]
+    FROM [Message] AS [m]
+    ORDER BY [m].[Id]
+) AS [t]
+CROSS APPLY [dbo].[GetPersonStatusAsOf]([t].[PersonId], [t].[Timestamp]) AS [g]
+ORDER BY [t].[Id]");
+        }
+
+        private class Gender
+        {
+            public long Id { get; set; }
+
+            public string Description { get; set; }
+        }
+
+        private class Message
+        {
+            public long Id { get; set; }
+
+            public long PersonId { get; set; }
+
+            public DateTime Timestamp { get; set; }
+        }
+
+        private class PersonStatus
+        {
+            public long Id { get; set; }
+
+            public long PersonId { get; set; }
+
+            public long GenderId { get; set; }
+
+            public string StatusMessage { get; set; }
+        }
+
+        private class MyContext24216 : DbContext
+        {
+            public MyContext24216(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Gender> Gender { get; set; }
+
+            public DbSet<Message> Message { get; set; }
+
+            public IQueryable<PersonStatus> GetPersonStatusAsOf(long personId, DateTime asOf)
+                => FromExpression(() => GetPersonStatusAsOf(personId, asOf));
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.HasDbFunction(typeof(MyContext24216).GetMethod(nameof(GetPersonStatusAsOf),
+                    new[] { typeof(long), typeof(DateTime) }));
             }
         }
 

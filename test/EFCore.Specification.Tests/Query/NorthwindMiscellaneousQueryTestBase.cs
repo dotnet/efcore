@@ -1440,6 +1440,40 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact(Skip = "Issue#24478")]
+        public virtual void Select_DTO_constructor_distinct_with_collection_projection_translated_to_server()
+        {
+            using var context = CreateContext();
+            var actual = context.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new { A = new OrderCountDTO(o.CustomerID), o.CustomerID })
+                .Distinct()
+                .Select(e => new
+                {
+                    e.A,
+                    Orders = context.Set<Order>().Where(o => o.CustomerID == e.CustomerID).ToList()
+                })
+                .ToList().OrderBy(e => e.A.Id).ToList();
+
+            var expected = Fixture.GetExpectedData().Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new { A = new OrderCountDTO(o.CustomerID), o.CustomerID })
+                .Distinct()
+                .Select(e => new
+                {
+                    e.A,
+                    Orders = Fixture.GetExpectedData().Set<Order>().Where(o => o.CustomerID == e.CustomerID).ToList()
+                })
+                .ToList().OrderBy(e => e.A.Id).ToList();
+
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
+            {
+                Assert.Equal(expected[i].A.Id, actual[i].A.Id);
+                Assert.True(expected[i].Orders?.SequenceEqual(actual[i].Orders) ?? true);
+            }
+        }
+
         [ConditionalFact]
         public virtual void Select_DTO_with_member_init_distinct_translated_to_server()
         {

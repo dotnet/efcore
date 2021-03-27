@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -194,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         when _subquery.ContainsTableReference(columnExpression):
                         var index = _subquery.AddToProjection(columnExpression);
                         var projectionExpression = _subquery._projection[index];
-                        return new ColumnExpression(projectionExpression, _tableReferenceExpression);
+                        return new ConcreteColumnExpression(projectionExpression, _tableReferenceExpression);
 
                     default:
                         return base.Visit(expression);
@@ -296,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
-                if (expression is ColumnExpression columnExpression)
+                if (expression is ConcreteColumnExpression columnExpression)
                 {
                     columnExpression.UpdateTableReference(_oldSelect, _newSelect);
                 }
@@ -337,6 +339,135 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 return base.Visit(expression);
             }
+        }
+
+        private sealed class TableReferenceExpression : Expression
+        {
+            private SelectExpression _selectExpression;
+
+            public TableReferenceExpression(SelectExpression selectExpression, string alias)
+            {
+                _selectExpression = selectExpression;
+                Alias = alias;
+            }
+
+            public TableExpressionBase Table
+                => _selectExpression.Tables.Single(
+                    e => string.Equals((e as JoinExpressionBase)?.Table.Alias ?? e.Alias, Alias, StringComparison.OrdinalIgnoreCase));
+
+            public string Alias { get; internal set; }
+
+            public override Type Type => typeof(object);
+
+            public override ExpressionType NodeType => ExpressionType.Extension;
+            public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
+            {
+                if (ReferenceEquals(oldSelect, _selectExpression))
+                {
+                    _selectExpression = newSelect;
+                }
+            }
+
+            /// <inheritdoc />
+            public override bool Equals(object? obj)
+                => obj != null
+                    && (ReferenceEquals(this, obj)
+                        || obj is TableReferenceExpression tableReferenceExpression
+                        && Equals(tableReferenceExpression));
+
+            // Since table reference is owned by SelectExpression, the select expression should be the same reference if they are matching.
+            // That means we also don't need to compute the hashcode for it.
+            // This allows us to break the cycle in computation when traversing this graph.
+            private bool Equals(TableReferenceExpression tableReferenceExpression)
+                => string.Equals(Alias, tableReferenceExpression.Alias, StringComparison.OrdinalIgnoreCase)
+                    && ReferenceEquals(_selectExpression, tableReferenceExpression._selectExpression);
+
+            /// <inheritdoc />
+            public override int GetHashCode()
+                => Alias.GetHashCode();
+        }
+
+        private sealed class ConcreteColumnExpression : ColumnExpression
+        {
+            private readonly TableReferenceExpression _table;
+
+            public ConcreteColumnExpression(IProperty property, IColumnBase column, TableReferenceExpression table, bool nullable)
+                : this(
+                    column.Name,
+                    table,
+                    property.ClrType.UnwrapNullableType(),
+                    column.PropertyMappings.First(m => m.Property == property).TypeMapping,
+                    nullable || column.IsNullable)
+            {
+            }
+
+            public ConcreteColumnExpression(ProjectionExpression subqueryProjection, TableReferenceExpression table)
+                : this(
+                    subqueryProjection.Alias, table,
+                    subqueryProjection.Type, subqueryProjection.Expression.TypeMapping!,
+                    IsNullableProjection(subqueryProjection))
+            {
+            }
+
+            private static bool IsNullableProjection(ProjectionExpression projectionExpression)
+                => projectionExpression.Expression switch
+                {
+                    ColumnExpression columnExpression => columnExpression.IsNullable,
+                    SqlConstantExpression sqlConstantExpression => sqlConstantExpression.Value == null,
+                    _ => true,
+                };
+
+            private ConcreteColumnExpression(
+                string name, TableReferenceExpression table, Type type, RelationalTypeMapping typeMapping, bool nullable)
+                : base(type, typeMapping)
+            {
+                Check.NotEmpty(name, nameof(name));
+                Check.NotNull(table, nameof(table));
+                Check.NotEmpty(table.Alias, $"{nameof(table)}.{nameof(table.Alias)}");
+
+                Name = name;
+                _table = table;
+                IsNullable = nullable;
+            }
+
+            public override string Name { get; }
+
+            public override TableExpressionBase Table => _table.Table;
+
+            public override string TableAlias => _table.Alias;
+
+            public override bool IsNullable { get; }
+
+            /// <inheritdoc />
+            protected override Expression VisitChildren(ExpressionVisitor visitor)
+            {
+                Check.NotNull(visitor, nameof(visitor));
+
+                return this;
+            }
+
+            public override ConcreteColumnExpression MakeNullable()
+                => new(Name, _table, Type, TypeMapping!, true);
+
+            public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
+                => _table.UpdateTableReference(oldSelect, newSelect);
+
+            /// <inheritdoc />
+            public override bool Equals(object? obj)
+                => obj != null
+                    && (ReferenceEquals(this, obj)
+                        || obj is ConcreteColumnExpression concreteColumnExpression
+                        && Equals(concreteColumnExpression));
+
+            private bool Equals(ConcreteColumnExpression concreteColumnExpression)
+                => base.Equals(concreteColumnExpression)
+                    && Name == concreteColumnExpression.Name
+                    && _table.Equals(concreteColumnExpression._table)
+                    && IsNullable == concreteColumnExpression.IsNullable;
+
+            /// <inheritdoc />
+            public override int GetHashCode()
+                => HashCode.Combine(base.GetHashCode(), Name, _table, IsNullable);
         }
     }
 }

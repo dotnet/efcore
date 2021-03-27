@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var modelDiffer = context.GetService<IMigrationsModelDiffer>();
             var operations = modelDiffer.GetDifferences(
                 sourceModel.GetRelationalModel(),
-                context.DesignTimeModel.GetRelationalModel());
+                context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
 
             Assert.Equal(0, operations.Count);
         }

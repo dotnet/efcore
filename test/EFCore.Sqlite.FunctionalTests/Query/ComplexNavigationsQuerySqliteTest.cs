@@ -94,5 +94,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Complex_query_with_let_collection_projection_FirstOrDefault(async))).Message);
+
+        public override async Task Take_Select_collection_Take(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Take_Select_collection_Take(async))).Message);
+
+        public override async Task Skip_Take_Select_collection_Skip_Take(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Skip_Take_Select_collection_Skip_Take(async))).Message);
     }
 }

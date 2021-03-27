@@ -6093,5 +6093,81 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.Property, a.Property);
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_Select_collection_Take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().OrderBy(l1 => l1.Id).Take(1)
+                    .Select(l1 => new
+                    {
+                        Id = l1.Id,
+                        Name = l1.Name,
+                        Level2s = l1.OneToMany_Required1.OrderBy(l2 => l2.Id).Take(3)
+                            .Select(l2 => new
+                            {
+                                Id = l2.Id,
+                                Name = l2.Name,
+                                Level1Id = EF.Property<int>(l2, "OneToMany_Required_Inverse2Id"),
+                                Level2Id = l2.Level1_Required_Id,
+                                Level2 = l2.OneToOne_Required_FK_Inverse2
+                            })
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    Assert.Equal(e.Name, a.Name);
+                    AssertCollection(e.Level2s, a.Level2s, ordered: true,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.Level1Id, aa.Level1Id);
+                            Assert.Equal(ee.Level2Id, aa.Level2Id);
+                            AssertEqual(ee.Level2, aa.Level2);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_Take_Select_collection_Skip_Take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().OrderBy(l1 => l1.Id).Skip(1).Take(1)
+                    .Select(l1 => new
+                    {
+                        Id = l1.Id,
+                        Name = l1.Name,
+                        Level2s = l1.OneToMany_Required1.OrderBy(l2 => l2.Id).Skip(1).Take(3)
+                            .Select(l2 => new
+                            {
+                                Id = l2.Id,
+                                Name = l2.Name,
+                                Level1Id = EF.Property<int>(l2, "OneToMany_Required_Inverse2Id"),
+                                Level2Id = l2.Level1_Required_Id,
+                                Level2 = l2.OneToOne_Required_FK_Inverse2
+                            })
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    Assert.Equal(e.Name, a.Name);
+                    AssertCollection(e.Level2s, a.Level2s, ordered: true,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.Level1Id, aa.Level1Id);
+                            Assert.Equal(ee.Level2Id, aa.Level2Id);
+                            AssertEqual(ee.Level2, aa.Level2);
+                        });
+                });
+        }
     }
 }
