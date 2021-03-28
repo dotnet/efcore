@@ -39,19 +39,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool async,
             bool logParameterValues,
             DateTimeOffset startTime)
-            : base(
+            : this(
                 eventDefinition,
                 messageGenerator,
                 connection,
+                command,
                 context,
                 executeMethod,
                 commandId,
                 connectionId,
                 async,
-                startTime)
+                logParameterValues,
+                startTime,
+                CommandSource.Unknown)
         {
-            Command = command;
-            LogParameterValues = logParameterValues;
         }
 
         /// <summary>
@@ -82,20 +83,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool logParameterValues,
             DateTimeOffset startTime,
             CommandSource commandSource)
-            : this(
+            : base(
                 eventDefinition,
                 messageGenerator,
                 connection,
-                command,
                 context,
                 executeMethod,
                 commandId,
                 connectionId,
                 async,
-                logParameterValues,
-                startTime)
+                startTime,
+                commandSource)
         {
-            CommandSource = commandSource;
+            Command = command;
+            LogParameterValues = logParameterValues;
         }
 
         /// <summary>
@@ -107,10 +108,5 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Indicates whether or not the application allows logging of parameter values.
         /// </summary>
         public virtual bool LogParameterValues { get; }
-
-        /// <summary>
-        /// Source of the command.
-        /// </summary>
-        public virtual CommandSource CommandSource { get; }
     }
 }

@@ -623,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var startTime = DateTimeOffset.UtcNow;
             _stopwatch.Restart();
 
-            var interceptionResult = logger?.CommandCreating(connection, commandMethod, context, commandId, connectionId, startTime)
+            var interceptionResult = logger?.CommandCreating(connection, commandMethod, context, commandId, connectionId, startTime, parameterObject.CommandSource)
                 ?? default;
 
             var command = interceptionResult.HasResult

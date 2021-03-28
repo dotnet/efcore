@@ -51,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
+        /// <param name="commandSource">Source of the command.</param>
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<DbCommand> CommandCreating(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
@@ -59,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DbContext? context,
             Guid commandId,
             Guid connectionId,
-            DateTimeOffset startTime)
+            DateTimeOffset startTime,
+            CommandSource commandSource)
         {
             var definition = RelationalResources.LogCommandCreating(diagnostics);
 
@@ -77,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     connectionId,
                     false,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -99,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             bool async,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             EventDefinition<string> definition,
             bool diagnosticSourceEnabled,
             bool simpleLogEnabled)
@@ -112,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 commandId,
                 connectionId,
                 async,
-                startTime);
+                startTime,
+                commandSource);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
