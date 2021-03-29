@@ -60,12 +60,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual IServiceCollection CreateServiceCollection(DbContext context)
         {
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddDbContextDesignTimeServices(context);
+            var services = new ServiceCollection();
             var provider = context.GetService<IDatabaseProvider>().Name;
-            ConfigureProviderServices(provider, services);
+
+            services.AddDbContextDesignTimeServices(context);
             ConfigureReferencedServices(services, provider);
+            ConfigureProviderServices(provider, services);
+            services.AddEntityFrameworkDesignTimeServices(_reporter);
             ConfigureUserServices(services);
             return services;
         }
@@ -87,10 +88,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual IServiceCollection CreateServiceCollection(string provider)
         {
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices(_reporter, GetApplicationServices);
-            ConfigureProviderServices(provider, services, throwOnError: true);
+            var services = new ServiceCollection();
+
             ConfigureReferencedServices(services, provider);
+            ConfigureProviderServices(provider, services, throwOnError: true);
+            services.AddEntityFrameworkDesignTimeServices(_reporter, GetApplicationServices);
             ConfigureUserServices(services);
             return services;
         }

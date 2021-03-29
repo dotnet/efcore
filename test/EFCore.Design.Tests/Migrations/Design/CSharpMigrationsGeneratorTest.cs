@@ -980,7 +980,7 @@ namespace MyNamespace
             var testAssembly = typeof(CSharpMigrationsGeneratorTest).Assembly;
             var reporter = new TestOperationReporter();
             return new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
-                .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
+                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
                 .BuildServiceProvider()
                 .GetRequiredService<IMigrationsCodeGenerator>();
         }
