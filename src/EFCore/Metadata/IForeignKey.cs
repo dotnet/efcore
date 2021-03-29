@@ -88,5 +88,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <typeparam name="TKey"> The type of key instances. </typeparam>
         /// <returns> A new factory. </returns>
         IDependentKeyValueFactory<TKey>? GetDependentKeyValueFactory<TKey>();
+
+        /// <summary>
+        ///     Finds the list of properties of this foreign key that are not also properties of another foreign key, if possible,
+        ///     otherwise returns all properties.
+        /// </summary>
+        /// <param name="fkProperties"> The foreign key properties. </param>
+        /// <param name="pkProperties"> The principal key properties. </param>
+        void GetPropertiesWithMinimalOverlap(
+            out IReadOnlyList<IProperty> fkProperties,
+            out IReadOnlyList<IProperty> pkProperties)
+        {
+            fkProperties = Properties;
+            pkProperties = PrincipalKey.Properties;
+
+            var count = fkProperties.Count;
+            if (count == 1)
+            {
+                return;
+            }
+            
+            for (var i = 0; i < count; i++)
+            {
+                var dependentProperty = Properties[i];
+
+                if (dependentProperty.GetContainingForeignKeys().Count() > 1)
+                {
+                    if (ReferenceEquals(fkProperties, Properties))
+                    {
+                        fkProperties = Properties.ToList();
+                        pkProperties = PrincipalKey.Properties.ToList();
+                    }
+                    
+                    ((List<IProperty>)fkProperties).Remove(dependentProperty);
+                    ((List<IProperty>)pkProperties).Remove(PrincipalKey.Properties[i]);
+                }
+            }
+        }
     }
 }

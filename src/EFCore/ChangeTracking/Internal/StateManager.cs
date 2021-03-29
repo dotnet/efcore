@@ -1029,7 +1029,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
                         else if (!principalIsDetached)
                         {
-                            foreach (var dependentProperty in fk.Properties)
+                            fk.GetPropertiesWithMinimalOverlap(out var fkProperties, out _);
+
+                            foreach (var dependentProperty in fkProperties)
                             {
                                 dependent.SetProperty(
                                     dependentProperty, null, isMaterialization: false, setModified: true, isCascadeDelete: true);
