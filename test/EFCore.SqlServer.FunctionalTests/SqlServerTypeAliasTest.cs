@@ -52,7 +52,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
                 Assert.Equal("binaryAlias", GetColumnType(aliasEntityType!, nameof(TypeAliasEntity.BinaryAlias)));
                 Assert.Equal("stringAlias", GetColumnType(aliasEntityType!, nameof(TypeAliasEntity.StringAlias)));
 
-                var facetedAliasEntityType = model.FindEntityType(typeof(TypeAliasEntity));
+                var facetedAliasEntityType = model.FindEntityType(typeof(TypeAliasEntityWithFacets));
                 Assert.Equal("datetimeAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DateTimeAlias)));
                 Assert.Equal("datetimeoffsetAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DateTimeOffsetAlias)));
                 Assert.Equal("decimalAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DecimalAlias)));
