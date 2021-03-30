@@ -184,10 +184,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                if (newValue == null)
-                {
-                    entry.SetIsLoaded(navigation, loaded: false);
-                }
+                entry.SetIsLoaded(navigation, loaded: newValue != null);
             }
             finally
             {
