@@ -26,6 +26,34 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
+        [ConditionalFact]
+        public virtual void Detected_principal_reference_navigation_changes_are_detected_and_marked_loaded()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var parent = context.Set<Parent>().Single();
+
+            var single = context.CreateProxy<Single>();
+            parent.Single = single;
+
+            Assert.Same(single, parent.Single);
+            Assert.True(context.Entry(parent).Reference(e => e.Single).IsLoaded);
+        }
+
+        [ConditionalFact]
+        public virtual void Detected_dependent_reference_navigation_changes_are_detected_and_marked_loaded()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var single = context.Set<Single>().Single();
+
+            var parent = context.CreateProxy<Parent>();
+            single.Parent = parent;
+
+            Assert.Same(parent, single.Parent);
+            Assert.True(context.Entry(single).Reference(e => e.Parent).IsLoaded);
+        }
+
         [ConditionalTheory] // Issue #13138
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
