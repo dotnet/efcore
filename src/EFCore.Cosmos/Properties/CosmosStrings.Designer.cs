@@ -329,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                     static logger => new EventDefinition<string, string, string?>(
                         logger.Options,
                         CosmosEventId.ExecutingReadItem,
-                        LogLevel.Debug,
+                        LogLevel.Information,
                         "CosmosEventId.ExecutingReadItem",
                         level => LoggerMessage.Define<string, string, string?>(
                             level,
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                     static logger => new EventDefinition<string, string?, string, string, string>(
                         logger.Options,
                         CosmosEventId.ExecutingSqlQuery,
-                        LogLevel.Debug,
+                        LogLevel.Information,
                         "CosmosEventId.ExecutingSqlQuery",
                         level => LoggerMessage.Define<string, string?, string, string, string>(
                             level,
