@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         * _[property name]
     ///         * m_[camel-cased property name]
     ///         * m_[property name]
+    ///         * [property name]_
     ///     </para>
     ///     <para>
     ///         The field type must be of a type that's assignable to or from the property type.
@@ -181,6 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 match = TryMatch(sortedFields, "_", "", propertyName, propertyBase, match, entityClrType, propertyName);
                 match = TryMatch(sortedFields, "m_", camelPrefix, camelizedSuffix, propertyBase, match, entityClrType, propertyName);
                 match = TryMatch(sortedFields, "m_", "", propertyName, propertyBase, match, entityClrType, propertyName);
+                match = TryMatch(sortedFields, "", camelPrefix + camelizedSuffix, "_", propertyBase, match, entityClrType, propertyName);
             }
 
             return match;
