@@ -1066,6 +1066,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Name = name,
                 NewName = newName
             };
+
             Operations.Add(operation);
 
             return new OperationBuilder<RenameIndexOperation>(operation);

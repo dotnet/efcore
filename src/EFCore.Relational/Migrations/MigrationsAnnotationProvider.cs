@@ -71,5 +71,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <inheritdoc />
         public virtual IEnumerable<IAnnotation> ForRemove(ICheckConstraint checkConstraint)
             => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> ForRename(ITable table)
+            => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> ForRename(IColumn column)
+            => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> ForRename(ITableIndex index)
+            => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> ForRename(ISequence sequence)
+            => Enumerable.Empty<IAnnotation>();
     }
 }

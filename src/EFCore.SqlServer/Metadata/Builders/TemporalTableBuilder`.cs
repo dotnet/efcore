@@ -1,7 +1,6 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -13,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-    public class TableBuilder<TEntity> : TableBuilder
+    public class TemporalTableBuilder<TEntity> : TemporalTableBuilder
         where TEntity : class
     {
         /// <summary>
@@ -23,25 +22,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableBuilder(string? name, string? schema, EntityTypeBuilder<TEntity> entityTypeBuilder)
-            : base(name, schema, entityTypeBuilder)
+        public TemporalTableBuilder(EntityTypeBuilder<TEntity> entityTypeBuilder)
+            : base(entityTypeBuilder)
         {
         }
 
         /// <summary>
-        ///     The entity type builder for the entity being configured.
+        ///     Configures a history table for the entity mapped to a temporal table.
         /// </summary>
-        public new virtual EntityTypeBuilder<TEntity> EntityTypeBuilder
-        {
-            [DebuggerStepThrough] get => (EntityTypeBuilder<TEntity>)base.EntityTypeBuilder;
-        }
-
-        /// <summary>
-        ///     Configures the table to be ignored by migrations.
-        /// </summary>
-        /// <param name="excluded"> A value indicating whether the table should be managed by migrations. </param>
+        /// <param name="name"> The name of the history table. </param>
+        /// <param name="schema"> The schema of the history table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual TableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
-            => (TableBuilder<TEntity>)base.ExcludeFromMigrations(excluded);
+        public new virtual TemporalTableBuilder<TEntity> WithHistoryTable(string name, string? schema = null)
+            => (TemporalTableBuilder<TEntity>)base.WithHistoryTable(name, schema);
     }
 }

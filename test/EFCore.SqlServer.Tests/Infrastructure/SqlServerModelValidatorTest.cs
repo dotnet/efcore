@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -658,6 +659,156 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        [ConditionalFact]
+        public void Temporal_can_only_be_specified_on_root_entities()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal());
+
+            VerifyError(SqlServerStrings.TemporalOnlyOnRoot(nameof(Dog)), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_enitty_must_have_period_start()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal());
+            modelBuilder.Entity<Dog>().Metadata.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodStartPropertyName);
+
+            VerifyError(SqlServerStrings.TemporalMustDefinePeriodProperties(nameof(Dog)), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_enitty_must_have_period_end()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal());
+            modelBuilder.Entity<Dog>().Metadata.RemoveAnnotation(SqlServerAnnotationNames.TemporalPeriodEndPropertyName);
+
+            VerifyError(SqlServerStrings.TemporalMustDefinePeriodProperties(nameof(Dog)), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_enitty_without_expected_period_start_property()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
+            modelBuilder.Entity<Dog>().Metadata.RemoveProperty("Start");
+
+            VerifyError(SqlServerStrings.TemporalExpectedPeriodPropertyNotFound(nameof(Dog), "Start"), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_period_property_must_be_in_shadow_state()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Human>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("DateOfBirth")));
+
+            VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeInShadowState(nameof(Human), "DateOfBirth"), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_period_property_must_non_nullable_datetime()
+        {
+            var modelBuilder1 = CreateConventionalModelBuilder();
+            modelBuilder1.Entity<Dog>().Property(typeof(DateTime?), "Start");
+            modelBuilder1.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
+
+            VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder1);
+
+            var modelBuilder2 = CreateConventionalModelBuilder();
+            modelBuilder2.Entity<Dog>().Property(typeof(int), "Start");
+            modelBuilder2.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
+
+            VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeNonNullableDateTime(nameof(Dog), "Start", nameof(DateTime)), modelBuilder2);
+        }
+
+        [ConditionalFact]
+        public void Temporal_period_property_must_be_mapped_to_datetime2()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start").HasColumnType("datetime");
+            modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
+
+            VerifyError(SqlServerStrings.TemporalPeriodPropertyMustBeMappedToDatetime2(nameof(Dog), "Start", "datetime2"), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_all_properties_mapped_to_period_column_must_have_value_generated_OnAddOrUpdate()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start2").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate();
+            modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start3").HasColumnName("StartColumn");
+            modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start").HasColumnName("StartColumn")));
+
+            VerifyError(SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
+                nameof(Dog), "Start3", nameof(ValueGenerated.OnAddOrUpdate)), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_all_properties_mapped_to_period_column_cant_have_default_values()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start2").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate();
+            modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start3").HasColumnName("StartColumn").ValueGeneratedOnAddOrUpdate().HasDefaultValue(DateTime.MinValue);
+            modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start").HasColumnName("StartColumn")));
+
+            VerifyError(SqlServerStrings.TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(
+                nameof(Dog), "Start3"), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_period_property_cant_have_default_value()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Dog>().Property(typeof(DateTime), "Start").HasDefaultValue(new DateTime(2000, 1, 1));
+            modelBuilder.Entity<Dog>().ToTable(tb => tb.IsTemporal(ttb => ttb.HasPeriodStart("Start")));
+
+            VerifyError(SqlServerStrings.TemporalPeriodPropertyCantHaveDefaultValue(nameof(Dog), "Start"), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_doesnt_work_on_TPH()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>().ToTable(tb => tb.IsTemporal());
+            modelBuilder.Entity<Dog>().ToTable("Dogs");
+            modelBuilder.Entity<Cat>().ToTable("Cats");
+
+            VerifyError(SqlServerStrings.TemporalOnlySupportedForTPH(nameof(Animal)), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public void Temporal_doesnt_work_on_table_splitting()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Splitting1>().ToTable("Splitting", tb => tb.IsTemporal());
+            modelBuilder.Entity<Splitting2>().ToTable("Splitting", tb => tb.IsTemporal());
+            modelBuilder.Entity<Splitting1>().HasOne(x => x.Details).WithOne().HasForeignKey<Splitting2>(x => x.Id);
+
+            VerifyError(SqlServerStrings.TemporalNotSupportedForTableSplitting("Splitting"), modelBuilder);
+        }
+
+        public class Human
+        {
+            public int Id { get; set; }
+            public DateTime DateOfBirth { get; set; }
+        }
+
+        public class Splitting1
+        {
+            public int Id { get; set; }
+            public Splitting2 Details { get; set; }
+        }
+
+        public class Splitting2
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public DateTime Detail { get; set; }
         }
 
         private class Cheese

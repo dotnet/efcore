@@ -1,8 +1,7 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -13,8 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class TableBuilder
+    public class TemporalPeriodPropertyBuilder
     {
+        private readonly EntityTypeBuilder _entityTypeBuilder;
+        private readonly string _periodPropertyName;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -22,24 +24,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
+        public TemporalPeriodPropertyBuilder(EntityTypeBuilder entityTypeBuilder, string periodPropertyName)
         {
-            EntityTypeBuilder = entityTypeBuilder;
+            _entityTypeBuilder = entityTypeBuilder;
+            _periodPropertyName = periodPropertyName;
         }
 
         /// <summary>
-        ///     The entity type builder for the entity being configured.
+        ///     Configures the column name the period property maps to.
         /// </summary>
-        public virtual EntityTypeBuilder EntityTypeBuilder { get; }
-
-        /// <summary>
-        ///     Configures the table to be ignored by migrations.
-        /// </summary>
-        /// <param name="excluded"> A value indicating whether the table should be managed by migrations. </param>
+        /// <param name="name"> The name of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TableBuilder ExcludeFromMigrations(bool excluded = true)
+        public virtual TemporalPeriodPropertyBuilder HasColumnName(string name)
         {
-            EntityTypeBuilder.Metadata.SetIsTableExcludedFromMigrations(excluded);
+            _entityTypeBuilder.Metadata.GetProperty(_periodPropertyName).SetColumnName(name);
 
             return this;
         }

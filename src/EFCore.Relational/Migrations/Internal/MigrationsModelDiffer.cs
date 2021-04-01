@@ -429,7 +429,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IRelationalModel? target)
         {
             var targetMigrationsAnnotations = target?.GetAnnotations().ToList();
-
             if (source == null)
             {
                 if (targetMigrationsAnnotations?.Count > 0)
@@ -603,13 +602,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (source.Schema != target.Schema
                 || source.Name != target.Name)
             {
-                yield return new RenameTableOperation
+                var renameTableOperation = new RenameTableOperation
                 {
                     Schema = source.Schema,
                     Name = source.Name,
                     NewSchema = target.Schema,
                     NewName = target.Name
                 };
+
+                renameTableOperation.AddAnnotations(MigrationsAnnotations.ForRename(source));
+
+                yield return renameTableOperation;
             }
 
             var sourceMigrationsAnnotations = source.GetAnnotations();
@@ -983,13 +986,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (source.Name != target.Name)
             {
-                yield return new RenameColumnOperation
+                var renameColumnOperation = new RenameColumnOperation
                 {
                     Schema = table.Schema,
                     Table = table.Name,
                     Name = source.Name,
                     NewName = target.Name
                 };
+
+                renameColumnOperation.AddAnnotations(MigrationsAnnotations.ForRename(source));
+
+                yield return renameColumnOperation;
             }
 
             var sourceTypeMapping = sourceMapping.TypeMapping;
@@ -1400,13 +1407,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (sourceName != targetName)
             {
-                yield return new RenameIndexOperation
+                var renameIndexOperation = new RenameIndexOperation
                 {
                     Schema = targetTable.Schema,
                     Table = targetTable.Name,
                     Name = sourceName,
                     NewName = targetName
                 };
+
+                renameIndexOperation.AddAnnotations(MigrationsAnnotations.ForRename(source));
+
+                yield return renameIndexOperation;
             }
         }
 
@@ -1550,13 +1561,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if (source.Schema != target.Schema
                 || source.Name != target.Name)
             {
-                yield return new RenameSequenceOperation
+                var renameSequenceOperation = new RenameSequenceOperation
                 {
                     Schema = source.Schema,
                     Name = source.Name,
                     NewSchema = target.Schema,
                     NewName = target.Name
                 };
+
+                renameSequenceOperation.AddAnnotations(MigrationsAnnotations.ForRename(source));
+
+                yield return renameSequenceOperation;
             }
 
             if (source.StartValue != target.StartValue)

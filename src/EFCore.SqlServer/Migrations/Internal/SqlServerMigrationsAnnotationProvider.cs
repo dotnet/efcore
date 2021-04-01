@@ -44,5 +44,78 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// <inheritdoc />
         public override IEnumerable<IAnnotation> ForRemove(ITable table)
             => table.GetAnnotations();
+
+        /// <inheritdoc />
+        public override IEnumerable<IAnnotation> ForRemove(IUniqueConstraint constraint)
+        {
+            if (constraint.Table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
+
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalPeriodStartColumnName,
+                    constraint.Table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
+
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalPeriodEndColumnName,
+                    constraint.Table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalHistoryTableName,
+                    constraint.Table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalHistoryTableSchema,
+                    constraint.Table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
+            }
+        }
+
+        /// <inheritdoc />
+        public override IEnumerable<IAnnotation> ForRemove(IColumn column)
+        {
+            if (column.Table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
+
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalHistoryTableName,
+                    column.Table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalHistoryTableSchema,
+                    column.Table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
+
+                if (column[SqlServerAnnotationNames.TemporalPeriodStartColumnName] is string periodStartColumnName)
+                {
+                    yield return new Annotation(
+                        SqlServerAnnotationNames.TemporalPeriodStartColumnName,
+                        periodStartColumnName);
+                }
+
+                if (column[SqlServerAnnotationNames.TemporalPeriodEndColumnName] is string periodEndColumnName)
+                {
+                    yield return new Annotation(
+                        SqlServerAnnotationNames.TemporalPeriodEndColumnName,
+                        periodEndColumnName);
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public override IEnumerable<IAnnotation> ForRename(ITable table)
+        {
+            if (table[SqlServerAnnotationNames.IsTemporal] as bool? == true)
+            {
+                yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
+
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalHistoryTableName,
+                    table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+                yield return new Annotation(
+                    SqlServerAnnotationNames.TemporalHistoryTableSchema,
+                    table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
+            }
+        }
     }
 }

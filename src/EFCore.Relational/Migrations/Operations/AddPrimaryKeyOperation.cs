@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 Name = primaryKey.Name,
                 Columns = primaryKey.Columns.Select(c => c.Name).ToArray()
             };
+
             operation.AddAnnotations(primaryKey.GetAnnotations());
 
             return operation;

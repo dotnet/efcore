@@ -1793,6 +1793,65 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
+        [ConditionalFact]
+        public virtual void Temporal_table_information_is_stored_in_snapshot()
+        {
+            Test(
+                builder => builder.Entity<EntityWithStringProperty>().ToTable(tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.WithHistoryTable("HistoryTable");
+                    ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
+                    ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
+                })),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>(""End"")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType(""datetime2"")
+                        .HasColumnName(""PeriodEnd"");
+
+                    b.Property<string>(""Name"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.Property<DateTime>(""Start"")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType(""datetime2"")
+                        .HasColumnName(""PeriodStart"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithStringProperty"");
+
+                    b
+                        .ToTable(tb => tb.IsTemporal(ttb =>
+{
+    ttb.WithHistoryTable(""HistoryTable"");
+    ttb.HasPeriodStart(""Start"").HasColumnName(""PeriodStart"");
+    ttb.HasPeriodEnd(""End"").HasColumnName(""PeriodEnd"");
+}
+));
+                });", usingSystem: true),
+                o =>
+                {
+                    var temporalEntity = o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty");
+                    var annotations = temporalEntity.GetAnnotations().ToList();
+
+                    Assert.Equal(6, annotations.Count);
+                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && a.Value as bool? == true);
+                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.TemporalHistoryTableName && a.Value as string == "HistoryTable");
+                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName && a.Value as string == "Start");
+                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && a.Value as string == "End");
+                });
+        }
+
         #endregion
 
         #region Owned types

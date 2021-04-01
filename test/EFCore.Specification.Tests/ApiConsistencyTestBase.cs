@@ -481,7 +481,10 @@ namespace Microsoft.EntityFrameworkCore
                             ? method.Name[3..]
                             : method.Name.StartsWith("To", StringComparison.Ordinal)
                                 ? method.Name[2..]
-                                : method.Name);
+                                : method.Name.StartsWith("With", StringComparison.Ordinal)
+                                    ? method.Name[4..]
+                                    : method.Name);
+
                 if (!methodLookup.TryGetValue(expectedName, out var canSetMethod))
                 {
                     return $"{declaringType.Name} expected to have a {expectedName} method";
