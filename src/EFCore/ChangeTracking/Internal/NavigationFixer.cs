@@ -158,8 +158,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         if (inverse != null
                             && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
                             && (entry.EntityType.GetNavigations().All(
-                                    n => n == navigation
-                                        || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
+                                n => n == navigation
+                                    || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                         {
                             SetNavigation(oldTargetEntry, inverse, null, fromQuery: false);
                         }
@@ -1202,8 +1202,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             var hasOnlyKeyProperties = true;
-            foreignKey.GetPropertiesWithMinimalOverlap(out var dependentProperties, out var principalProperties);
-            
+            foreignKey.GetPropertiesWithMinimalOverlapIfPossible(out var dependentProperties, out var principalProperties);
+
             if (principalEntry != null
                 && principalEntry.EntityState != EntityState.Detached)
             {

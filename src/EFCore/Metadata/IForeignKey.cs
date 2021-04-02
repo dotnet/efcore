@@ -90,39 +90,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IDependentKeyValueFactory<TKey>? GetDependentKeyValueFactory<TKey>();
 
         /// <summary>
-        ///     Finds the list of properties of this foreign key that are not also properties of another foreign key, if possible,
-        ///     otherwise returns all properties.
+        ///     <para>
+        ///         Finds the foreign key properties (and their associated principal key properties) of this foreign key where those
+        ///         properties are not overlapping with any other foreign key, or all properties of the foreign key if there is not
+        ///         a smaller set of non-overlapping properties.
+        ///     </para>
+        ///     <para>
+        ///         This is the full list of key properties for
+        ///         - For non-composite keys
+        ///         - Composite keys with no overlap
+        ///         - Composite keys where all properties overlap
+        ///     </para>
         /// </summary>
-        /// <param name="fkProperties"> The foreign key properties. </param>
-        /// <param name="pkProperties"> The principal key properties. </param>
-        void GetPropertiesWithMinimalOverlap(
-            out IReadOnlyList<IProperty> fkProperties,
-            out IReadOnlyList<IProperty> pkProperties)
+        /// <param name="foreignKeyProperties"> The foreign key properties. </param>
+        /// <param name="principalKeyProperties"> The corresponding principal key properties. </param>
+        void GetPropertiesWithMinimalOverlapIfPossible(
+            out IReadOnlyList<IProperty> foreignKeyProperties,
+            out IReadOnlyList<IProperty> principalKeyProperties)
         {
-            fkProperties = Properties;
-            pkProperties = PrincipalKey.Properties;
+            foreignKeyProperties = Properties;
+            principalKeyProperties = PrincipalKey.Properties;
 
-            var count = fkProperties.Count;
+            var count = foreignKeyProperties.Count;
             if (count == 1)
             {
                 return;
             }
-            
+
             for (var i = 0; i < count; i++)
             {
                 var dependentProperty = Properties[i];
 
                 if (dependentProperty.GetContainingForeignKeys().Count() > 1)
                 {
-                    if (ReferenceEquals(fkProperties, Properties))
+                    if (ReferenceEquals(foreignKeyProperties, Properties))
                     {
-                        fkProperties = Properties.ToList();
-                        pkProperties = PrincipalKey.Properties.ToList();
+                        foreignKeyProperties = Properties.ToList();
+                        principalKeyProperties = PrincipalKey.Properties.ToList();
                     }
-                    
-                    ((List<IProperty>)fkProperties).Remove(dependentProperty);
-                    ((List<IProperty>)pkProperties).Remove(PrincipalKey.Properties[i]);
+
+                    ((List<IProperty>)foreignKeyProperties).Remove(dependentProperty);
+                    ((List<IProperty>)principalKeyProperties).Remove(PrincipalKey.Properties[i]);
                 }
+            }
+
+            if (!foreignKeyProperties.Any())
+            {
+                foreignKeyProperties = Properties;
+                principalKeyProperties = PrincipalKey.Properties;
             }
         }
     }

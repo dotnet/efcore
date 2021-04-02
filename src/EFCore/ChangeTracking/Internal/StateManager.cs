@@ -178,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Model => _model;
+        public virtual IModel Model
+            => _model;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -675,7 +676,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task ResetStateAsync(CancellationToken cancellationToken = default)
         {
             ResetState();
@@ -887,6 +888,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             return ((IEnumerable<object>)navigationValue)
+                // ReSharper disable once RedundantEnumerableCastCall
                 .Select(v => TryGetEntry(v, foreignKey.DeclaringEntityType)).Where(e => e != null).Cast<IUpdateEntry>();
         }
 
@@ -1029,7 +1031,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
                         else if (!principalIsDetached)
                         {
-                            fk.GetPropertiesWithMinimalOverlap(out var fkProperties, out _);
+                            fk.GetPropertiesWithMinimalOverlapIfPossible(out var fkProperties, out _);
 
                             foreach (var dependentProperty in fkProperties)
                             {
@@ -1127,9 +1129,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
             => Context.Database.AutoTransactionsEnabled
                 ? Dependencies.ExecutionStrategyFactory.Create().Execute(
-                        (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
-                        (_, t) => SaveChanges(t.StateManager, t.AcceptAllChangesOnSuccess),
-                        null)
+                    (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
+                    (_, t) => SaveChanges(t.StateManager, t.AcceptAllChangesOnSuccess),
+                    null)
                 : SaveChanges(this, acceptAllChangesOnSuccess);
 
         private static int SaveChanges(StateManager stateManager, bool acceptAllChangesOnSuccess)
