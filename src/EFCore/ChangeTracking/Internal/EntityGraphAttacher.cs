@@ -47,13 +47,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState targetState,
             EntityState storeGeneratedWithKeySetTargetState,
             bool forceStateWhenUnknownKey)
-            => _graphIterator.TraverseGraph(
+        {
+            _graphIterator.TraverseGraph(
                 new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
                     rootEntry,
                     (targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey),
                     null,
                     null),
                 PaintAction);
+            
+            rootEntry.StateManager.CompleteAttachGraph();
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -61,13 +65,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Task AttachGraphAsync(
+        public virtual async Task AttachGraphAsync(
             InternalEntityEntry rootEntry,
             EntityState targetState,
             EntityState storeGeneratedWithKeySetTargetState,
             bool forceStateWhenUnknownKey,
             CancellationToken cancellationToken = default)
-            => _graphIterator.TraverseGraphAsync(
+        {
+            await _graphIterator.TraverseGraphAsync(
                 new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
                     rootEntry,
                     (targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey),
@@ -75,6 +80,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     null),
                 PaintActionAsync,
                 cancellationToken);
+
+            rootEntry.StateManager.CompleteAttachGraph();
+        }
 
         private static bool PaintAction(
             EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node)

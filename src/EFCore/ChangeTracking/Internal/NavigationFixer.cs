@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class NavigationFixer : INavigationFixer
     {
+        private IList<Action>? _danglingJoinEntities;
         private readonly IChangeDetector _changeDetector;
         private readonly IEntityGraphAttacher _attacher;
         private bool _inFixup;
@@ -44,6 +46,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             _changeDetector = changeDetector;
             _attacher = attacher;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void CompleteAttachGraph()
+        {
+            if (_danglingJoinEntities != null)
+            {
+                foreach (var synthesize in _danglingJoinEntities)
+                {
+                    synthesize();
+                }
+
+                _danglingJoinEntities = null;
+            }
         }
 
         /// <summary>
@@ -287,7 +308,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            FindOrCreateJoinEntry(entry, newTargetEntry, skipNavigation, fromQuery: false, setModified: true);
+                            FindOrCreateJoinEntry(
+                                entry, newTargetEntry, skipNavigation, fromQuery: false, setModified: true, synthesize: true);
 
                             Check.DebugAssert(
                                 skipNavigation.Inverse.IsCollection,
@@ -903,47 +925,45 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private InternalEntityEntry FindOrCreateJoinEntry(
+        private void FindOrCreateJoinEntry(
             InternalEntityEntry entry,
             InternalEntityEntry otherEntry,
             ISkipNavigation skipNavigation,
             bool fromQuery,
-            bool setModified)
+            bool setModified,
+            bool synthesize = false)
         {
             var joinEntry = FindJoinEntry(entry, otherEntry, skipNavigation);
-
-            if (joinEntry == null)
+            if (joinEntry != null)
+            {
+                SetForeignKeyProperties(joinEntry, entry, skipNavigation.ForeignKey, setModified, fromQuery);
+                SetForeignKeyProperties(joinEntry, otherEntry, skipNavigation.Inverse.ForeignKey, setModified, fromQuery);
+            }
+            else if (synthesize)
             {
                 var joinEntityType = skipNavigation.JoinEntityType;
                 var joinEntity = joinEntityType.GetInstanceFactory()(
                     new MaterializationContext(ValueBuffer.Empty, entry.StateManager.Context));
 
                 joinEntry = entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
+
+                SetForeignKeyProperties(joinEntry, entry, skipNavigation.ForeignKey, setModified, fromQuery);
+                SetForeignKeyProperties(joinEntry, otherEntry, skipNavigation.Inverse.ForeignKey, setModified, fromQuery);
+
+                joinEntry.SetEntityState(
+                    setModified
+                    || entry.EntityState == EntityState.Added
+                    || otherEntry.EntityState == EntityState.Added
+                        ? EntityState.Added
+                        : EntityState.Unchanged);
             }
-
-            SetForeignKeyProperties(joinEntry, entry, skipNavigation.ForeignKey, setModified, fromQuery);
-            SetForeignKeyProperties(joinEntry, otherEntry, skipNavigation.Inverse.ForeignKey, setModified, fromQuery);
-
-            if (joinEntry.EntityState == EntityState.Detached)
+            else
             {
-                try
-                {
-                    _inFixup = false;
-
-                    joinEntry.SetEntityState(
-                        setModified
-                        || entry.EntityState == EntityState.Added
-                        || otherEntry.EntityState == EntityState.Added
-                            ? EntityState.Added
-                            : EntityState.Unchanged);
-                }
-                finally
-                {
-                    _inFixup = true;
-                }
+                _danglingJoinEntities ??= new List<Action>();
+            
+                _danglingJoinEntities.Add(
+                    () => FindOrCreateJoinEntry(entry, otherEntry, skipNavigation, fromQuery, setModified, synthesize: true));
             }
-
-            return joinEntry;
         }
 
         private static InternalEntityEntry? FindJoinEntry(

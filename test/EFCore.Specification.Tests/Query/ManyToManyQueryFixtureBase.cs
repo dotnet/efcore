@@ -202,8 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .HasMany(e => e.TwoSkip)
                 .WithMany(e => e.OneSkip)
                 .UsingEntity<JoinOneToTwo>(
-                    r => r.HasOne<EntityTwo>().WithMany().HasForeignKey(e => e.TwoId),
-                    l => l.HasOne<EntityOne>().WithMany().HasForeignKey(e => e.OneId));
+                    r => r.HasOne(e => e.Two).WithMany().HasForeignKey(e => e.TwoId),
+                    l => l.HasOne(e => e.One).WithMany().HasForeignKey(e => e.OneId));
 
             // Nav:6 Payload:Yes Join:Concrete Extra:None
             modelBuilder.Entity<EntityOne>()
