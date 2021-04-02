@@ -312,8 +312,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Append(".");
             }
 
+            var name = tableValuedFunctionExpression.StoreFunction.IsBuiltIn
+                ? tableValuedFunctionExpression.StoreFunction.Name
+                : _sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Name);
+
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Name))
+                .Append(name)
                 .Append("(");
 
             GenerateList(tableValuedFunctionExpression.Arguments, e => Visit(e));
