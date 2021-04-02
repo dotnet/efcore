@@ -87,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IndexPropertiesBothMappedAndNotMappedToTable,
             IndexPropertiesMappedToNonOverlappingTables,
             ForeignKeyPropertiesMappedToUnrelatedTables,
+            OptionalDependentWithoutIdentifyingPropertyWarning,
 
             // Update events
             BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
@@ -722,6 +723,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ForeignKeyPropertiesMappedToUnrelatedTables = MakeValidationId(Id.ForeignKeyPropertiesMappedToUnrelatedTables);
+
+        /// <summary>
+        ///     <para>
+        ///         A foreign key specifies properties which don't map to the related tables.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId OptionalDependentWithoutIdentifyingPropertyWarning
+            = MakeValidationId(Id.OptionalDependentWithoutIdentifyingPropertyWarning);
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
 

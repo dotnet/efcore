@@ -68,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
     public interface IContactDetails
     {
+        bool Active { get; set; }
         string Email { get; set; }
 
         IPhone HomePhone { get; set; }

@@ -317,6 +317,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
         public class ContactDetails : NotificationEntity, IContactDetails
         {
+            private bool _active;
             private string _email;
             private IPhone _homePhone;
             private IPhone _workPhone;
@@ -327,6 +328,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 HomePhone = new Phone();
                 WorkPhone = new Phone();
                 MobilePhone = new Phone();
+            }
+
+            public bool Active
+            {
+                get => _active;
+                set => SetWithNotify(value, ref _active);
             }
 
             public string Email

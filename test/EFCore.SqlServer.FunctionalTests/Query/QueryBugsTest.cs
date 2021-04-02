@@ -3604,6 +3604,7 @@ FROM [Prices] AS [p]");
             [Owned]
             public class MasterChangeInfo12170
             {
+                public bool Exists { get; set; }
                 public virtual OptionalChangePoint12170 RemovedPoint { get; set; }
             }
 
@@ -10026,34 +10027,24 @@ ORDER BY [t].[Id]");
         #region Issue23198
 
         [ConditionalFact]
-        public virtual async Task An_optional_dependent_without_any_columns_act_like_required_dependent()
+        public virtual void An_optional_dependent_without_any_columns_and_nested_dependent_throws()
         {
-            var contextFactory = await InitializeAsync<MyContext23198>(
-                seed: ctx =>
-                {
-                    ctx.Add(new AnAggregateRoot { Id = "1" });
-                    ctx.SaveChanges();
-                });
-            using var context = contextFactory.CreateContext();
+            using var context = new MyContext23198();
 
-            var result = context.Set<AnAggregateRoot>().ToList();
-
-            var root = Assert.Single(result);
-
-            Assert.NotNull(root.AnOwnedTypeWithOwnedProperties);
-            Assert.Null(root.AnOwnedTypeWithOwnedProperties.AnOwnedTypeWithPrimitiveProperties1);
-            Assert.Null(root.AnOwnedTypeWithOwnedProperties.AnOwnedTypeWithPrimitiveProperties2);
-
-            AssertSql(
-                @"SELECT [a].[Id], [a].[AnOwnedTypeWithOwnedProperties_AnOwnedTypeWithPrimitiveProperties1_Name], [a].[AnOwnedTypeWithOwnedProperties_AnOwnedTypeWithPrimitiveProperties2_Name]
-FROM [AnAggregateRoot] AS [a]");
+            Assert.Equal(
+                RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty(nameof(AnOwnedTypeWithOwnedProperties)),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         private class MyContext23198 : DbContext
         {
-            public MyContext23198(DbContextOptions options)
-                : base(options)
+            public MyContext23198()
             {
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder.UseSqlServer();
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
