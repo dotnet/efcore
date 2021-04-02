@@ -613,6 +613,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public EntityState ChangingState;
             public EntityState ChangedState;
 
+            public void ResetAttachGraph()
+            {
+            }
+
             public void CompleteAttachGraph()
             {
             }

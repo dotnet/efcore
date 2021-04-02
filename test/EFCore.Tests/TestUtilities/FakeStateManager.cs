@@ -166,6 +166,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IEnumerable<Tuple<INavigationBase, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear)
             => throw new NotImplementedException();
 
+        public void ResetAttachGraph()
+            => throw new NotImplementedException();
+
         public void CompleteAttachGraph()
             => throw new NotImplementedException();
 

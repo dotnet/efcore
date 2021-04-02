@@ -48,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState storeGeneratedWithKeySetTargetState,
             bool forceStateWhenUnknownKey)
         {
+            rootEntry.StateManager.ResetAttachGraph();
+
             _graphIterator.TraverseGraph(
                 new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
                     rootEntry,
@@ -72,6 +74,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool forceStateWhenUnknownKey,
             CancellationToken cancellationToken = default)
         {
+            rootEntry.StateManager.ResetAttachGraph();
+
             await _graphIterator.TraverseGraphAsync(
                 new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
                     rootEntry,
