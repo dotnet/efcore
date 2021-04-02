@@ -10023,6 +10023,74 @@ ORDER BY [t].[Id]");
 
         #endregion
 
+        #region Issue23198
+
+        [ConditionalFact]
+        public virtual async Task An_optional_dependent_without_any_columns_act_like_required_dependent()
+        {
+            var contextFactory = await InitializeAsync<MyContext23198>(
+                seed: ctx =>
+                {
+                    ctx.Add(new AnAggregateRoot { Id = "1" });
+                    ctx.SaveChanges();
+                });
+            using var context = contextFactory.CreateContext();
+
+            var result = context.Set<AnAggregateRoot>().ToList();
+
+            var root = Assert.Single(result);
+
+            Assert.NotNull(root.AnOwnedTypeWithOwnedProperties);
+            Assert.Null(root.AnOwnedTypeWithOwnedProperties.AnOwnedTypeWithPrimitiveProperties1);
+            Assert.Null(root.AnOwnedTypeWithOwnedProperties.AnOwnedTypeWithPrimitiveProperties2);
+
+            AssertSql(
+                @"SELECT [a].[Id], [a].[AnOwnedTypeWithOwnedProperties_AnOwnedTypeWithPrimitiveProperties1_Name], [a].[AnOwnedTypeWithOwnedProperties_AnOwnedTypeWithPrimitiveProperties2_Name]
+FROM [AnAggregateRoot] AS [a]");
+        }
+
+        private class MyContext23198 : DbContext
+        {
+            public MyContext23198(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<AnAggregateRoot>().OwnsOne(e => e.AnOwnedTypeWithOwnedProperties,
+                    b =>
+                    {
+                        b.OwnsOne(e => e.AnOwnedTypeWithPrimitiveProperties1);
+                        b.OwnsOne(e => e.AnOwnedTypeWithPrimitiveProperties2);
+                    });
+            }
+        }
+
+        public class AnAggregateRoot
+        {
+            public string Id { get; set; }
+            public AnOwnedTypeWithOwnedProperties AnOwnedTypeWithOwnedProperties { get; set; }
+        }
+
+        public class AnOwnedTypeWithOwnedProperties
+        {
+            public AnOwnedTypeWithPrimitiveProperties1 AnOwnedTypeWithPrimitiveProperties1 { get; set; }
+            public AnOwnedTypeWithPrimitiveProperties2 AnOwnedTypeWithPrimitiveProperties2 { get; set; }
+        }
+
+        public class AnOwnedTypeWithPrimitiveProperties1
+        {
+            public string Name { get; set; }
+        }
+
+        public class AnOwnedTypeWithPrimitiveProperties2
+        {
+            public string Name { get; set; }
+        }
+
+        #endregion
+
         protected override string StoreName => "QueryBugsTest";
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
