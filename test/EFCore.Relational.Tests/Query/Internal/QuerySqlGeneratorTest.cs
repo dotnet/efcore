@@ -54,7 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             generator.GetCommand(selectExpression);
             var commandText = generator.Sql.Build().CommandText;
 
-            Assert.Equal(sql, commandText);
+            // Transform new lines for Unix platforms.
+            var expected = sql.Replace("\r\n", Environment.NewLine);
+
+            Assert.Equal(expected, commandText);
         }
 
         private DummyQuerySqlGenerator CreateDummyQuerySqlGenerator()
