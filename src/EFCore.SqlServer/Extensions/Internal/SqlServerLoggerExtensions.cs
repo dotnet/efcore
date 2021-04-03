@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -24,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void DecimalTypeKeyWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IProperty property)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IProperty property)
         {
             var definition = SqlServerResources.LogDecimalTypeKey(diagnostics);
 
@@ -61,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void DecimalTypeDefaultWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IProperty property)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IProperty property)
         {
             var definition = SqlServerResources.LogDefaultDecimalTypeColumn(diagnostics);
 
@@ -98,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ByteIdentityColumnWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IProperty property)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IProperty property)
         {
             var definition = SqlServerResources.LogByteIdentityColumn(diagnostics);
 
@@ -135,10 +134,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ConflictingValueGenerationStrategiesWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
             SqlServerValueGenerationStrategy sqlServerValueGenerationStrategy,
-            [NotNull] string otherValueGenerationStrategy,
-            [NotNull] IProperty property)
+            string otherValueGenerationStrategy,
+            IReadOnlyProperty property)
         {
             var definition = SqlServerResources.LogConflictingValueGenerationStrategies(diagnostics);
 
@@ -180,18 +179,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ColumnFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string tableName,
-            [NotNull] string columnName,
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string tableName,
+            string columnName,
             int ordinal,
-            [NotNull] string dataTypeName,
+            string dataTypeName,
             int maxLength,
             int precision,
             int scale,
             bool nullable,
             bool identity,
-            [CanBeNull] string defaultValue,
-            [CanBeNull] string computedValue,
+            string? defaultValue,
+            string? computedValue,
             bool? stored)
         {
             var definition = SqlServerResources.LogFoundColumn(diagnostics);
@@ -228,11 +227,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ForeignKeyFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string foreignKeyName,
-            [NotNull] string tableName,
-            [NotNull] string principalTableName,
-            [NotNull] string onDeleteAction)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string foreignKeyName,
+            string tableName,
+            string principalTableName,
+            string onDeleteAction)
         {
             var definition = SqlServerResources.LogFoundForeignKey(diagnostics);
 
@@ -251,8 +250,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void DefaultSchemaFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string schemaName)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string schemaName)
         {
             var definition = SqlServerResources.LogFoundDefaultSchema(diagnostics);
 
@@ -271,9 +270,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void TypeAliasFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string typeAliasName,
-            [NotNull] string systemTypeName)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string typeAliasName,
+            string systemTypeName)
         {
             var definition = SqlServerResources.LogFoundTypeAlias(diagnostics);
 
@@ -292,9 +291,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void PrimaryKeyFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string primaryKeyName,
-            [NotNull] string tableName)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string primaryKeyName,
+            string tableName)
         {
             var definition = SqlServerResources.LogFoundPrimaryKey(diagnostics);
 
@@ -313,9 +312,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void UniqueConstraintFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string uniqueConstraintName,
-            [NotNull] string tableName)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string uniqueConstraintName,
+            string tableName)
         {
             var definition = SqlServerResources.LogFoundUniqueConstraint(diagnostics);
 
@@ -334,9 +333,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void IndexFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string indexName,
-            [NotNull] string tableName,
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string indexName,
+            string tableName,
             bool unique)
         {
             var definition = SqlServerResources.LogFoundIndex(diagnostics);
@@ -356,10 +355,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ForeignKeyReferencesMissingPrincipalTableWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string foreignKeyName,
-            [CanBeNull] string tableName,
-            [CanBeNull] string principalTableName)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string? foreignKeyName,
+            string? tableName,
+            string? principalTableName)
         {
             var definition = SqlServerResources.LogPrincipalTableNotInSelectionSet(diagnostics);
 
@@ -378,11 +377,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ForeignKeyPrincipalColumnMissingWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string foreignKeyName,
-            [NotNull] string tableName,
-            [NotNull] string principalColumnName,
-            [NotNull] string principalTableName)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string foreignKeyName,
+            string tableName,
+            string principalColumnName,
+            string principalTableName)
         {
             var definition = SqlServerResources.LogPrincipalColumnNotFound(diagnostics);
 
@@ -401,8 +400,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void MissingSchemaWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string schemaName)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string? schemaName)
         {
             var definition = SqlServerResources.LogMissingSchema(diagnostics);
 
@@ -421,8 +420,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void MissingTableWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [CanBeNull] string tableName)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string? tableName)
         {
             var definition = SqlServerResources.LogMissingTable(diagnostics);
 
@@ -441,9 +440,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void SequenceFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string sequenceName,
-            [NotNull] string sequenceTypeName,
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string sequenceName,
+            string sequenceTypeName,
             bool cyclic,
             int increment,
             long start,
@@ -478,8 +477,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void TableFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string tableName)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string tableName)
         {
             var definition = SqlServerResources.LogFoundTable(diagnostics);
 
@@ -498,9 +497,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ReflexiveConstraintIgnored(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-            [NotNull] string foreignKeyName,
-            [NotNull] string tableName)
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string foreignKeyName,
+            string tableName)
         {
             var definition = SqlServerResources.LogReflexiveConstraintIgnored(diagnostics);
 
@@ -517,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         public static void SavepointsDisabledBecauseOfMARS(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics)
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics)
         {
             var definition = SqlServerResources.LogSavepointsDisabledBecauseOfMARS(diagnostics);
 

@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
+using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -36,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="name">The name of the function in the database.</param>
         /// <param name="schema">The schema of the function in the database.</param>
-        public DbFunctionAttribute([NotNull] string name, [CanBeNull] string? schema = null)
+        public DbFunctionAttribute(string name, string? schema = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -47,10 +45,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
+        [CA.DisallowNull]
         public virtual string? Name
         {
             get => _name;
-            [param: NotNull]
             set
             {
                 Check.NotEmpty(value, nameof(value));
@@ -65,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual string? Schema
         {
             get => _schema;
-            [param: CanBeNull] set => _schema = value;
+            set => _schema = value;
         }
 
         /// <summary>

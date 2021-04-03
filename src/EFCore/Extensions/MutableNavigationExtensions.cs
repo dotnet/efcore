@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -13,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="IMutableNavigation" />.
     /// </summary>
+    [Obsolete("Use IMutableNavigation")]
     public static class MutableNavigationExtensions
     {
         /// <summary>
@@ -24,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The inverse navigation, or <see langword="null" /> if none is defined.
         /// </returns>
         [Obsolete("Use IMutableNavigation.Inverse")]
-        public static IMutableNavigation? FindInverse([NotNull] this IMutableNavigation navigation)
+        public static IMutableNavigation? FindInverse(this IMutableNavigation navigation)
             => navigation.Inverse;
 
         /// <summary>
@@ -34,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigation"> The navigation property to find the target entity type of. </param>
         /// <returns> The target entity type. </returns>
         [Obsolete("Use IMutableNavigation.TargetEntityType")]
-        public static IMutableEntityType GetTargetType([NotNull] this IMutableNavigation navigation)
+        public static IMutableEntityType GetTargetType(this IMutableNavigation navigation)
             => navigation.TargetEntityType;
     }
 }

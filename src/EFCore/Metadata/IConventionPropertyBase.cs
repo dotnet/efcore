@@ -3,10 +3,7 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -16,10 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IPropertyBase" /> represents a read-only view of the same metadata.
+    ///         Once the model is built, <see cref="IReadOnlyPropertyBase" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionPropertyBase : IPropertyBase, IConventionAnnotatable
+    public interface IConventionPropertyBase : IReadOnlyPropertyBase, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the type that this property belongs to.
@@ -40,13 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         By default, the backing field, if one is found or has been specified, is used when
         ///         new objects are constructed, typically when entities are queried from the database.
         ///         Properties are used for all other accesses. This can be changed by calling
-        ///         <see cref="ConventionPropertyBaseExtensions.SetPropertyAccessMode" />.
+        ///         <see cref="SetPropertyAccessMode" />.
         ///     </para>
         /// </summary>
         /// <param name="fieldInfo"> The <see cref="FieldInfo" /> for the underlying CLR field to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new <see cref="FieldInfo" />. </returns>
-        FieldInfo? SetFieldInfo([CanBeNull] FieldInfo? fieldInfo, bool fromDataAnnotation = false);
+        FieldInfo? SetFieldInfo(FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     <para>
@@ -56,13 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         By default, the backing field, if one is found or has been specified, is used when
         ///         new objects are constructed, typically when entities are queried from the database.
         ///         Properties are used for all other accesses. This can be changed by calling
-        ///         <see cref="ConventionPropertyBaseExtensions.SetPropertyAccessMode" />.
+        ///         <see cref="SetPropertyAccessMode" />.
         ///     </para>
         /// </summary>
         /// <param name="fieldInfo"> The <see cref="FieldInfo" /> for the underlying CLR field to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         [Obsolete("Use SetFieldInfo")]
-        void SetField([CanBeNull] FieldInfo? fieldInfo, bool fromDataAnnotation = false)
+        void SetField(FieldInfo? fieldInfo, bool fromDataAnnotation = false)
             => SetFieldInfo(fieldInfo, fromDataAnnotation);
 
         /// <summary>
@@ -80,20 +77,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         By default, the backing field, if one is found or has been specified, is used when
         ///         new objects are constructed, typically when entities are queried from the database.
         ///         Properties are used for all other accesses. This can be changed by calling
-        ///         <see cref="ConventionPropertyBaseExtensions.SetPropertyAccessMode" />.
+        ///         <see cref="SetPropertyAccessMode" />.
         ///     </para>
         /// </summary>
         /// <param name="fieldName"> The name of the field to use. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new <see cref="FieldInfo" />. </returns>
-        FieldInfo? SetField([CanBeNull] string? fieldName, bool fromDataAnnotation = false)
-            => this.AsPropertyBase()
-                .SetField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        FieldInfo? SetField(string? fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IPropertyBase.FieldInfo" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.FieldInfo" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IPropertyBase.FieldInfo" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyPropertyBase.FieldInfo" />. </returns>
         ConfigurationSource? GetFieldInfoConfigurationSource();
+
+        /// <summary>
+        ///     Sets the <see cref="PropertyAccessMode" /> to use for this property.
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        PropertyAccessMode? SetPropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.GetPropertyAccessMode" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="IReadOnlyPropertyBase.GetPropertyAccessMode" />. </returns>
+        ConfigurationSource? GetPropertyAccessModeConfigurationSource();
     }
 }

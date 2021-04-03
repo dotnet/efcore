@@ -695,7 +695,7 @@ WHERE DATEDIFF(week, NULL, [o].[OrderDate]) = 5");
             AssertSql(
                 @"SELECT CAST(ISDATE([o].[CustomerID]) AS bit)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
+WHERE CAST(ISDATE([o].[CustomerID]) AS bit) = CAST(0 AS bit)");
         }
 
         [ConditionalTheory]
@@ -739,6 +739,73 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(
 
             Assert.Equal(
                 CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.IsDate)),
+                exIsDate.Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsNumeric_not_valid(bool async)
+        {
+            await AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => !EF.Functions.IsNumeric(o.OrderDate.Value.ToString()))
+                    .Select(o => EF.Functions.IsNumeric(o.OrderDate.Value.ToString())),
+                ss => ss.Set<Order>().Select(c => false));
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) = 1 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Orders] AS [o]
+WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsNummeric_valid(bool async)
+        {
+            await AssertQueryScalar(
+                async,
+                ss => ss.Set<OrderDetail>()
+                    .Where(o => EF.Functions.IsNumeric(o.UnitPrice.ToString()))
+                    .Select(o => EF.Functions.IsNumeric(o.UnitPrice.ToString())),
+                ss => ss.Set<OrderDetail>().Select(o => true));
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Order Details] AS [o]
+WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsNumeric_join_fields(bool async)
+        {
+            await AssertCount(
+                async,
+                ss => ss.Set<Order>(),
+                ss => ss.Set<Order>(),
+                c => EF.Functions.IsNumeric(c.CustomerID + c.OrderID),
+                c => false);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))) = 1");
+        }
+
+        [ConditionalFact]
+        public void IsNumeric_should_throw_on_client_eval()
+        {
+            var exIsDate = Assert.Throws<InvalidOperationException>(() => EF.Functions.IsNumeric("#ISNUMERIC#"));
+
+            Assert.Equal(
+                CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.IsNumeric)),
                 exIsDate.Message);
         }
 
@@ -1147,6 +1214,26 @@ WHERE @__lenght_0 < DATALENGTH([o].[OrderDate])");
 FROM [Orders] AS [o]
 WHERE CAST(DATALENGTH(N'foo') AS int) = 3");
             }
+        }
+
+        public override async Task Random_return_less_than_1(bool async)
+        {
+            await base.Random_return_less_than_1(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE RAND() < 1.0E0");
+        }
+
+        public override async Task Random_return_greater_than_0(bool async)
+        {
+            await base.Random_return_greater_than_0(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE RAND() >= 0.0E0");
         }
 
         private void AssertSql(params string[] expected)

@@ -4,10 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -26,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlQueryMapping(
-            [NotNull] IEntityType entityType,
-            [NotNull] SqlQuery sqlQuery,
+            IEntityType entityType,
+            SqlQuery sqlQuery,
             bool includesDerivedTypes)
             : base(entityType, sqlQuery, includesDerivedTypes)
         {
@@ -47,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString()
-            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+            => ((ISqlQueryMapping)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
         IEnumerable<ISqlQueryColumnMapping> ISqlQueryMapping.ColumnMappings

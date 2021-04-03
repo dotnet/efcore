@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -18,29 +17,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; set; }
 
         /// <summary>
         ///     The table to which the constraint should be added.
         /// </summary>
-        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Table { get; set; } = null!;
 
         /// <summary>
         ///     The name of the constraint.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; set; } = null!;
 
         /// <summary>
         ///     The ordered-list of column names for the columns that make up the constraint.
         /// </summary>
-        public virtual string[] Columns { get; [param: NotNull] set; }
+        public virtual string[] Columns { get; set; } = null!;
 
         /// <summary>
         ///     Creates a new <see cref="AddUniqueConstraintOperation" /> from the specified unique constraint.
         /// </summary>
         /// <param name="uniqueConstraint"> The unique constraint. </param>
         /// <returns> The operation. </returns>
-        public static AddUniqueConstraintOperation CreateFrom([NotNull] IUniqueConstraint uniqueConstraint)
+        public static AddUniqueConstraintOperation CreateFrom(IUniqueConstraint uniqueConstraint)
         {
             Check.NotNull(uniqueConstraint, nameof(uniqueConstraint));
 

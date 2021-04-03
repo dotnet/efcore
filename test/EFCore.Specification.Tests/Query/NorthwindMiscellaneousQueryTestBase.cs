@@ -141,9 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             public IQueryable<T> Find()
-            {
-                return _context.Set<T>().AsQueryable();
-            }
+                => _context.Set<T>();
         }
 
         [ConditionalFact]
@@ -1439,6 +1437,40 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(expected[i].Id, actual[i].Id);
                 Assert.Equal(expected[i].Count, actual[i].Count);
+            }
+        }
+
+        [ConditionalFact(Skip = "Issue#24478")]
+        public virtual void Select_DTO_constructor_distinct_with_collection_projection_translated_to_server()
+        {
+            using var context = CreateContext();
+            var actual = context.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new { A = new OrderCountDTO(o.CustomerID), o.CustomerID })
+                .Distinct()
+                .Select(e => new
+                {
+                    e.A,
+                    Orders = context.Set<Order>().Where(o => o.CustomerID == e.CustomerID).ToList()
+                })
+                .ToList().OrderBy(e => e.A.Id).ToList();
+
+            var expected = Fixture.GetExpectedData().Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new { A = new OrderCountDTO(o.CustomerID), o.CustomerID })
+                .Distinct()
+                .Select(e => new
+                {
+                    e.A,
+                    Orders = Fixture.GetExpectedData().Set<Order>().Where(o => o.CustomerID == e.CustomerID).ToList()
+                })
+                .ToList().OrderBy(e => e.A.Id).ToList();
+
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
+            {
+                Assert.Equal(expected[i].A.Id, actual[i].A.Id);
+                Assert.True(expected[i].Orders?.SequenceEqual(actual[i].Orders) ?? true);
             }
         }
 
@@ -6449,6 +6481,106 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             Assert.Equal(91, context.ChangeTracker.Entries().Count());
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(
+                        c => new
+                        {
+                            Key = c.CustomerID,
+                            Subquery = c.Orders
+                                .Select(o => new { First = o.OrderID, Second = o.OrderDate })
+                                .Distinct().ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.First,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.First, aa.First);
+                            Assert.Equal(ee.Second, aa.Second);
+                        });
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(
+                        c => new
+                        {
+                            Key = c.CustomerID,
+                            Subquery = c.Orders
+                                .Select(o => new { First = o.OrderID, Second = o.OrderDate, Third = o.Customer.City })
+                                .Distinct().ToList()
+                        }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(
+                        e.Subquery,
+                        a.Subquery,
+                        elementSorter: ee => ee.First,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            Assert.Equal(ee.First, aa.First);
+                            Assert.Equal(ee.Second, aa.Second);
+                            Assert.Equal(ee.Third, aa.Third);
+                        });
+                });
+
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_nested_collection_with_distinct(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(
+                        c => c.Orders.Any()
+                            ? c.Orders.Select(o => o.CustomerID).Distinct().ToArray()
+                            : Array.Empty<string>()),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_after_DefaultIfEmpty(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.City == "Seattle").DefaultIfEmpty()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(e => new
+                    {
+                        e.Orders
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e.Orders, a.Orders),
+                entryCount: 14);
         }
     }
 }

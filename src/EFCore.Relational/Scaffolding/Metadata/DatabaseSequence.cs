@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
@@ -14,22 +13,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The database that contains the sequence.
         /// </summary>
-        public virtual DatabaseModel Database { get; [param: NotNull] set; }
+        public virtual DatabaseModel Database { get; set; } = null!;
 
         /// <summary>
         ///     The sequence name.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; set; } = null!;
 
         /// <summary>
         ///     The schema that contains the sequence, or <see langword="null" /> to use the default schema.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; set; }
 
         /// <summary>
         ///     The database/store type of the sequence, or <see langword="null" /> if not set.
         /// </summary>
-        public virtual string StoreType { get; [param: CanBeNull] set; }
+        public virtual string? StoreType { get; set; }
 
         /// <summary>
         ///     The start value for the sequence, or <see langword="null" /> if not set.

@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -27,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="expressions"> Expressions to search for to find the type mapping. </param>
         /// <returns> A relational type mapping inferred from the expressions. </returns>
-        public static RelationalTypeMapping? InferTypeMapping([NotNull] params SqlExpression[] expressions)
+        public static RelationalTypeMapping? InferTypeMapping(params SqlExpression[] expressions)
         {
             Check.NotNull(expressions, nameof(expressions));
 

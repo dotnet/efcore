@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -22,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="operation">A delegate representing an executable operation that doesn't return any results.</param>
         public static void Execute(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Action operation)
+            this IExecutionStrategy strategy,
+            Action operation)
         {
             Check.NotNull(operation, nameof(operation));
 
@@ -45,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The return type of <paramref name="operation" />.</typeparam>
         /// <returns>The result from the operation.</returns>
         public static TResult Execute<TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<TResult> operation)
+            this IExecutionStrategy strategy,
+            Func<TResult> operation)
         {
             Check.NotNull(operation, nameof(operation));
 
@@ -61,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="operation">A delegate representing an executable operation that doesn't return any results.</param>
         /// <typeparam name="TState">The type of the state.</typeparam>
         public static void Execute<TState>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Action<TState> operation)
+            this IExecutionStrategy strategy,
+            TState state,
+            Action<TState> operation)
         {
             Check.NotNull(operation, nameof(operation));
 
@@ -86,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         public static Task ExecuteAsync(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<Task> operation)
+            this IExecutionStrategy strategy,
+            Func<Task> operation)
         {
             Check.NotNull(operation, nameof(operation));
 
@@ -113,9 +112,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ExecuteAsync(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<CancellationToken, Task> operation,
+            this IExecutionStrategy strategy,
+            Func<CancellationToken, Task> operation,
             CancellationToken cancellationToken)
         {
             Check.NotNull(operation, nameof(operation));
@@ -144,8 +144,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         public static Task<TResult> ExecuteAsync<TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<Task<TResult>> operation)
+            this IExecutionStrategy strategy,
+            Func<Task<TResult>> operation)
         {
             Check.NotNull(operation, nameof(operation));
 
@@ -171,9 +171,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteAsync<TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<CancellationToken, Task<TResult>> operation,
+            this IExecutionStrategy strategy,
+            Func<CancellationToken, Task<TResult>> operation,
             CancellationToken cancellationToken)
         {
             Check.NotNull(operation, nameof(operation));
@@ -194,9 +195,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         public static Task ExecuteAsync<TState>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, Task> operation)
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, Task> operation)
         {
             Check.NotNull(operation, nameof(operation));
 
@@ -224,10 +225,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ExecuteAsync<TState>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, CancellationToken, Task> operation,
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, CancellationToken, Task> operation,
             CancellationToken cancellationToken)
         {
             Check.NotNull(operation, nameof(operation));
@@ -258,9 +260,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
         public static Task<TResult> ExecuteAsync<TState, TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, Task<TResult>> operation)
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, Task<TResult>> operation)
         {
             Check.NotNull(operation, nameof(operation));
 
@@ -280,9 +282,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The return type of <paramref name="operation" />.</typeparam>
         /// <returns>The result from the operation.</returns>
         public static TResult Execute<TState, TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, TResult> operation)
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, TResult> operation)
             => strategy.Execute(state, operation, verifySucceeded: null);
 
         /// <summary>
@@ -306,10 +308,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     first time or after retrying transient failures). If the task fails with a non-transient error or
         ///     the retry limit is reached, the returned task will become faulted and the exception must be observed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteAsync<TState, TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, CancellationToken, Task<TResult>> operation,
             CancellationToken cancellationToken)
             => strategy.ExecuteAsync(state, operation, verifySucceeded: null, cancellationToken: cancellationToken);
 
@@ -329,14 +332,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static TResult Execute<TState, TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, TResult> operation,
-            [CanBeNull] Func<TState, ExecutionResult<TResult>> verifySucceeded)
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, TResult> operation,
+            Func<TState, ExecutionResult<TResult>>? verifySucceeded)
             => Check.NotNull(strategy, nameof(strategy)).Execute(
                 state,
                 (c, s) => operation(s),
-                verifySucceeded == null ? (Func<DbContext, TState, ExecutionResult<TResult>>)null : (c, s) => verifySucceeded(s));
+                verifySucceeded == null ? (Func<DbContext, TState, ExecutionResult<TResult>>?)null : (c, s) => verifySucceeded(s));
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
@@ -361,17 +364,18 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteAsync<TState, TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
-            [CanBeNull] Func<TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, CancellationToken, Task<TResult>> operation,
+            Func<TState, CancellationToken, Task<ExecutionResult<TResult>>>? verifySucceeded,
             CancellationToken cancellationToken = default)
             => Check.NotNull(strategy, nameof(strategy)).ExecuteAsync(
                 state,
                 (c, s, ct) => operation(s, ct),
                 verifySucceeded == null
-                    ? (Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>)null
+                    ? (Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>>?)null
                     : (c, s, ct) => verifySucceeded(s, ct), cancellationToken);
 
         /// <summary>
@@ -390,10 +394,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static void ExecuteInTransaction(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Action operation,
-            [NotNull] Func<bool> verifySucceeded)
-            => strategy.ExecuteInTransaction<object>(null, s => operation(), s => verifySucceeded());
+            this IExecutionStrategy strategy,
+            Action operation,
+            Func<bool> verifySucceeded)
+            => strategy.ExecuteInTransaction<object?>(null, s => operation(), s => verifySucceeded());
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -416,10 +420,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static Task ExecuteInTransactionAsync(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<Task> operation,
-            [NotNull] Func<Task<bool>> verifySucceeded)
-            => strategy.ExecuteInTransactionAsync<object>(null, (s, ct) => operation(), (s, ct) => verifySucceeded());
+            this IExecutionStrategy strategy,
+            Func<Task> operation,
+            Func<Task<bool>> verifySucceeded)
+            => strategy.ExecuteInTransactionAsync<object?>(null, (s, ct) => operation(), (s, ct) => verifySucceeded());
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -445,12 +449,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ExecuteInTransactionAsync(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<CancellationToken, Task> operation,
-            [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
+            this IExecutionStrategy strategy,
+            Func<CancellationToken, Task> operation,
+            Func<CancellationToken, Task<bool>> verifySucceeded,
             CancellationToken cancellationToken = default)
-            => strategy.ExecuteInTransactionAsync<object>(
+            => strategy.ExecuteInTransactionAsync<object?>(
                 null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
 
         /// <summary>
@@ -471,10 +476,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static TResult ExecuteInTransaction<TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<TResult> operation,
-            [NotNull] Func<bool> verifySucceeded)
-            => strategy.ExecuteInTransaction<object, TResult>(null, s => operation(), s => verifySucceeded());
+            this IExecutionStrategy strategy,
+            Func<TResult> operation,
+            Func<bool> verifySucceeded)
+            => strategy.ExecuteInTransaction<object?, TResult>(null, s => operation(), s => verifySucceeded());
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
@@ -501,12 +506,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [NotNull] Func<CancellationToken, Task<TResult>> operation,
-            [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
+            this IExecutionStrategy strategy,
+            Func<CancellationToken, Task<TResult>> operation,
+            Func<CancellationToken, Task<bool>> verifySucceeded,
             CancellationToken cancellationToken = default)
-            => strategy.ExecuteInTransactionAsync<object, TResult>(
+            => strategy.ExecuteInTransactionAsync<object?, TResult>(
                 null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
 
         /// <summary>
@@ -527,10 +533,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static void ExecuteInTransaction<TState>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Action<TState> operation,
-            [NotNull] Func<TState, bool> verifySucceeded)
+            this IExecutionStrategy strategy,
+            TState state,
+            Action<TState> operation,
+            Func<TState, bool> verifySucceeded)
             => strategy.ExecuteInTransaction(
                 state, s =>
                 {
@@ -564,11 +570,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ExecuteInTransactionAsync<TState>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, CancellationToken, Task> operation,
-            [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, CancellationToken, Task> operation,
+            Func<TState, CancellationToken, Task<bool>> verifySucceeded,
             CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync(
                 state, async (s, ct) =>
@@ -597,10 +604,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static TResult ExecuteInTransaction<TState, TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, TResult> operation,
-            [NotNull] Func<TState, bool> verifySucceeded)
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, TResult> operation,
+            Func<TState, bool> verifySucceeded)
             => ExecuteInTransaction(
                 strategy,
                 state,
@@ -633,11 +640,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TState, TResult>(
-            [NotNull] this IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
-            [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
+            this IExecutionStrategy strategy,
+            TState state,
+            Func<TState, CancellationToken, Task<TResult>> operation,
+            Func<TState, CancellationToken, Task<bool>> verifySucceeded,
             CancellationToken cancellationToken = default)
             => ExecuteInTransactionAsync(
                 strategy,
@@ -666,11 +674,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
         public static TResult ExecuteInTransaction<TState, TResult>(
-            [NotNull] IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, TResult> operation,
-            [NotNull] Func<TState, bool> verifySucceeded,
-            [NotNull] Func<DbContext, IDbContextTransaction> beginTransaction)
+            IExecutionStrategy strategy,
+            TState state,
+            Func<TState, TResult> operation,
+            Func<TState, bool> verifySucceeded,
+            Func<DbContext, IDbContextTransaction> beginTransaction)
             => strategy.Execute(
                 new ExecutionState<TState, TResult>(
                     Check.NotNull(operation, nameof(operation)), Check.NotNull(verifySucceeded, nameof(verifySucceeded)), state),
@@ -716,12 +724,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task<TResult> ExecuteInTransactionAsync<TState, TResult>(
-            [NotNull] IExecutionStrategy strategy,
-            [CanBeNull] TState state,
-            [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
-            [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
-            [NotNull] Func<DbContext, CancellationToken, Task<IDbContextTransaction>> beginTransaction,
+            IExecutionStrategy strategy,
+            TState state,
+            Func<TState, CancellationToken, Task<TResult>> operation,
+            Func<TState, CancellationToken, Task<bool>> verifySucceeded,
+            Func<DbContext, CancellationToken, Task<IDbContextTransaction>> beginTransaction,
             CancellationToken cancellationToken = default)
             => strategy.ExecuteAsync(
                 new ExecutionStateAsync<TState, TResult>(
@@ -752,6 +761,7 @@ namespace Microsoft.EntityFrameworkCore
                 Operation = operation;
                 VerifySucceeded = verifySucceeded;
                 State = state;
+                Result = default!;
             }
 
             public Func<TState, TResult> Operation { get; }
@@ -771,6 +781,7 @@ namespace Microsoft.EntityFrameworkCore
                 Operation = operation;
                 VerifySucceeded = verifySucceeded;
                 State = state;
+                Result = default!;
             }
 
             public Func<TState, CancellationToken, Task<TResult>> Operation { get; }

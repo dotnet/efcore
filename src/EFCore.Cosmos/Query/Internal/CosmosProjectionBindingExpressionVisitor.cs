@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -38,13 +40,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
 
-        private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
+        private readonly Stack<ProjectionMember> _projectionMembers = new();
 
         private readonly IDictionary<ParameterExpression, CollectionShaperExpression> _collectionShaperMapping
             = new Dictionary<ParameterExpression, CollectionShaperExpression>();
 
         private readonly Stack<INavigation> _includedNavigations
-            = new Stack<INavigation>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosProjectionBindingExpressionVisitor(
-            [NotNull] IModel model,
-            [NotNull] CosmosSqlTranslatingExpressionVisitor sqlTranslator)
+            IModel model,
+            CosmosSqlTranslatingExpressionVisitor sqlTranslator)
         {
             _model = model;
             _sqlTranslator = sqlTranslator;
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Translate([NotNull] SelectExpression selectExpression, [NotNull] Expression expression)
+        public virtual Expression Translate(SelectExpression selectExpression, Expression expression)
         {
             _selectExpression = selectExpression;
             _clientEval = false;

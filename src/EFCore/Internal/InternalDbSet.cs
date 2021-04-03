@@ -8,12 +8,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -34,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         where TEntity : class
     {
         private readonly DbContext _context;
-        private readonly string _entityTypeName;
-        private IEntityType _entityType;
-        private EntityQueryable<TEntity> _entityQueryable;
-        private LocalView<TEntity> _localView;
+        private readonly string? _entityTypeName;
+        private IEntityType? _entityType;
+        private EntityQueryable<TEntity>? _entityQueryable;
+        private LocalView<TEntity>? _localView;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalDbSet([NotNull] DbContext context, [CanBeNull] string entityTypeName)
+        public InternalDbSet(DbContext context, string? entityTypeName)
         {
             Check.NotNull(context, nameof(context));
 
@@ -76,23 +76,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 if (_entityType == null)
                 {
-                    if (_context.Model.HasEntityTypeWithDefiningNavigation(typeof(TEntity)))
-                    {
-                        throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(typeof(TEntity).ShortDisplayName()));
-                    }
-
                     if (_context.Model.IsShared(typeof(TEntity)))
                     {
                         throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(typeof(TEntity).ShortDisplayName()));
                     }
 
-                    throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
+                    var findSameTypeName = _context.Model.FindSameTypeNameWithDifferentNamespace(typeof(TEntity));
+                    //if the same name exists in your entity types we will show you the full namespace of the type
+                    if (!string.IsNullOrEmpty(findSameTypeName))
+                    {
+                        throw new InvalidOperationException(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(TEntity).DisplayName(), findSameTypeName));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
+                    }
                 }
 
                 if (_entityType.IsOwned())
                 {
                     var message = CoreStrings.InvalidSetTypeOwned(
-                        _entityType.DisplayName(), _entityType.FindOwnership().PrincipalEntityType.DisplayName());
+                        _entityType.DisplayName(), _entityType.FindOwnership()!.PrincipalEntityType.DisplayName());
                     _entityType = null;
 
                     throw new InvalidOperationException(message);
@@ -134,12 +138,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return NonCapturingLazyInitializer.EnsureInitialized(
                     ref _entityQueryable,
                     this,
-                    internalSet => internalSet.CreateEntityQueryable());
+                    static internalSet => internalSet.CreateEntityQueryable());
             }
         }
 
         private EntityQueryable<TEntity> CreateEntityQueryable()
-            => new EntityQueryable<TEntity>(_context.GetDependencies().QueryProvider, EntityType);
+            => new(_context.GetDependencies().QueryProvider, EntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -168,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override TEntity Find(params object[] keyValues)
+        public override TEntity? Find(params object?[]? keyValues)
             => Finder.Find(keyValues);
 
         /// <summary>
@@ -177,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override ValueTask<TEntity> FindAsync(params object[] keyValues)
+        public override ValueTask<TEntity?> FindAsync(params object?[]? keyValues)
             => Finder.FindAsync(keyValues);
 
         /// <summary>
@@ -186,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override ValueTask<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken)
+        public override ValueTask<TEntity?> FindAsync(object?[]? keyValues, CancellationToken cancellationToken)
             => Finder.FindAsync(keyValues, cancellationToken);
 
         /// <summary>
@@ -520,6 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
             ((IResettableService)this).ResetState();
@@ -528,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges(TEntity entity)
-            => new EntityEntry<TEntity>(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
+            => new(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
 
         private void SetEntityStates(IEnumerable<TEntity> entities, EntityState entityState)
         {

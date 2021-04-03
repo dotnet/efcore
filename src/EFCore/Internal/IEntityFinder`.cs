@@ -4,7 +4,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        new TEntity Find([CanBeNull] object[] keyValues);
+        new TEntity? Find(object?[]? keyValues);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        new ValueTask<TEntity> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken = default);
+        new ValueTask<TEntity?> FindAsync(object?[]? keyValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,6 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        new IQueryable<TEntity> Query([NotNull] INavigation navigation, [NotNull] InternalEntityEntry entry);
+        new IQueryable<TEntity> Query(INavigation navigation, InternalEntityEntry entry);
     }
 }

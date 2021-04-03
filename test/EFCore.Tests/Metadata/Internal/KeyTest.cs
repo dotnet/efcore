@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -14,28 +12,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class KeyTest
     {
         [ConditionalFact]
-        public void Use_of_custom_IKey_throws()
+        public void Throws_when_model_is_readonly()
         {
-            var key = new FakeKey();
+            var model = CreateModel();
+            var entityType = model.AddEntityType("E");
+            var property = entityType.AddProperty("P", typeof(int));
+            var key = entityType.AddKey(new[] { property });
+
+            model.FinalizeModel();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IKey), nameof(FakeKey)),
-                Assert.Throws<NotSupportedException>(() => key.AsKey()).Message);
-        }
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.AddKey(new[] { property })).Message);
 
-        private class FakeKey : IKey
-        {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
-            public IReadOnlyList<IProperty> Properties { get; }
-            public IEntityType DeclaringEntityType { get; }
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.RemoveKey(key)).Message);
         }
 
         [ConditionalFact]

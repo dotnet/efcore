@@ -3,15 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -1602,24 +1602,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Action<ModelBuilder> buildTargetAction,
             Action<DatabaseModel> asserter)
         {
+            var context = CreateContext();
+            var modelDiffer = context.GetService<IMigrationsModelDiffer>();
+            var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
+
             // Build the source and target models. Add current/latest product version if one wasn't set.
             var sourceModelBuilder = CreateConventionlessModelBuilder();
             buildCommonAction(sourceModelBuilder);
             buildSourceAction(sourceModelBuilder);
-            var sourceModel = sourceModelBuilder.FinalizeModel();
+            var sourceModel = modelRuntimeInitializer.Initialize(sourceModelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
 
             var targetModelBuilder = CreateConventionlessModelBuilder();
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
-            var targetModel = targetModelBuilder.FinalizeModel();
 
-            var context = CreateContext();
-            var serviceProvider = ((IInfrastructure<IServiceProvider>)context).Instance;
-            var modelDiffer = serviceProvider.GetRequiredService<IMigrationsModelDiffer>();
+            var targetModel = modelRuntimeInitializer.Initialize(targetModelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
 
             var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
 
             return Test(sourceModel, targetModel, operations, asserter);
+        }
+
+        protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
+        {
+            var options = new LoggingOptions();
+            options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(sensitiveDataLoggingEnabled).Options);
+            return new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
+                Fixture.TestSqlLoggerFactory,
+                options,
+                new DiagnosticListener("Fake"),
+                Fixture.TestHelpers.LoggingDefinitions,
+                new NullDbContextLogger());
         }
 
         protected virtual Task Test(
@@ -1640,7 +1653,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 sourceModelBuilder.Model.SetProductVersion(ProductInfo.GetVersion());
             }
 
-            var sourceModel = sourceModelBuilder.FinalizeModel();
+            var context = CreateContext();
+            var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
+            var sourceModel = modelRuntimeInitializer.Initialize(sourceModelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
 
             return Test(sourceModel, targetModel: null, operations, asserter);
         }
@@ -1712,17 +1727,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 => (TestSqlLoggerFactory)ListLoggerFactory;
         }
 
-        protected virtual ModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)
-        {
-            var conventionSet = new ConventionSet();
-
-            var dependencies = Fixture.TestHelpers.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
-            var relationalDependencies = Fixture.TestHelpers.CreateContextServices()
-                .GetRequiredService<RelationalConventionSetBuilderDependencies>();
-            conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
-            conventionSet.ModelFinalizedConventions.Add(new RelationalModelConvention(dependencies, relationalDependencies));
-
-            return new ModelBuilder(conventionSet);
-        }
+        protected virtual ModelBuilder CreateConventionlessModelBuilder()
+            => new ModelBuilder(new ConventionSet());
     }
 }

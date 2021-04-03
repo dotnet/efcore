@@ -17,17 +17,17 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     internal class RootCommand : CommandBase
     {
-        private CommandLineApplication _command;
-        private CommandOption _project;
-        private CommandOption _startupProject;
-        private CommandOption _framework;
-        private CommandOption _configuration;
-        private CommandOption _runtime;
-        private CommandOption _msbuildprojectextensionspath;
-        private CommandOption _noBuild;
-        private CommandOption _help;
-        private IList<string> _args;
-        private IList<string> _applicationArgs;
+        private CommandLineApplication? _command;
+        private CommandOption? _project;
+        private CommandOption? _startupProject;
+        private CommandOption? _framework;
+        private CommandOption? _configuration;
+        private CommandOption? _runtime;
+        private CommandOption? _msbuildprojectextensionspath;
+        private CommandOption? _noBuild;
+        private CommandOption? _help;
+        private IList<string>? _args;
+        private IList<string>? _applicationArgs;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -58,29 +58,29 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         protected override int Execute(string[] _)
         {
-            var commands = _args.TakeWhile(a => a[0] != '-').ToList();
-            if (_help.HasValue()
+            var commands = _args!.TakeWhile(a => a[0] != '-').ToList();
+            if (_help!.HasValue()
                 || ShouldHelp(commands))
             {
                 return ShowHelp(_help.HasValue(), commands);
             }
 
             var (projectFile, startupProjectFile) = ResolveProjects(
-                _project.Value(),
-                _startupProject.Value());
+                _project!.Value(),
+                _startupProject!.Value());
 
             Reporter.WriteVerbose(Resources.UsingProject(projectFile));
             Reporter.WriteVerbose(Resources.UsingStartupProject(startupProjectFile));
 
-            var project = Project.FromFile(projectFile, _msbuildprojectextensionspath.Value());
+            var project = Project.FromFile(projectFile, _msbuildprojectextensionspath!.Value());
             var startupProject = Project.FromFile(
                 startupProjectFile,
                 _msbuildprojectextensionspath.Value(),
-                _framework.Value(),
-                _configuration.Value(),
-                _runtime.Value());
+                _framework!.Value(),
+                _configuration!.Value(),
+                _runtime!.Value());
 
-            if (!_noBuild.HasValue())
+            if (!_noBuild!.HasValue())
             {
                 Reporter.WriteInformation(Resources.BuildStarted);
                 startupProject.Build();
@@ -91,12 +91,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
             var args = new List<string>();
 
             var toolsPath = Path.Combine(
-                Path.GetDirectoryName(typeof(Program).Assembly.Location),
+                Path.GetDirectoryName(typeof(Program).Assembly.Location)!,
                 "tools");
 
-            var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir, startupProject.OutputPath));
-            var targetPath = Path.Combine(targetDir, project.TargetFileName);
-            var startupTargetPath = Path.Combine(targetDir, startupProject.TargetFileName);
+            var targetDir = Path.GetFullPath(Path.Combine(startupProject.ProjectDir!, startupProject.OutputPath!));
+            var targetPath = Path.Combine(targetDir, project.TargetFileName!);
+            var startupTargetPath = Path.Combine(targetDir, startupProject.TargetFileName!);
             var depsFile = Path.Combine(
                 targetDir,
                 startupProject.AssemblyName + ".deps.json");
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 startupProject.AssemblyName + ".runtimeconfig.json");
             var projectAssetsFile = startupProject.ProjectAssetsFile;
 
-            var targetFramework = new FrameworkName(startupProject.TargetFrameworkMoniker);
+            var targetFramework = new FrameworkName(startupProject.TargetFrameworkMoniker!);
             if (targetFramework.Identifier == ".NETFramework")
             {
                 executable = Path.Combine(
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     args.Add("--runtimeconfig");
                     args.Add(runtimeConfig);
                 }
-                else if (startupProject.RuntimeFrameworkVersion.Length != 0)
+                else if (startupProject.RuntimeFrameworkVersion!.Length != 0)
                 {
                     args.Add("--fx-version");
                     args.Add(startupProject.RuntimeFrameworkVersion);
@@ -166,15 +166,17 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     Resources.UnsupportedFramework(startupProject.ProjectName, targetFramework.Identifier));
             }
 
-            args.AddRange(_args);
+            args.AddRange(_args!);
             args.Add("--assembly");
             args.Add(targetPath);
             args.Add("--startup-assembly");
             args.Add(startupTargetPath);
             args.Add("--project-dir");
-            args.Add(project.ProjectDir);
+            args.Add(project.ProjectDir!);
+            args.Add("--root-namespace");
+            args.Add(project.RootNamespace!);
             args.Add("--language");
-            args.Add(project.Language);
+            args.Add(project.Language!);
             args.Add("--working-dir");
             args.Add(Directory.GetCurrentDirectory());
 
@@ -193,24 +195,18 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 args.Add("--prefix-output");
             }
 
-            if (project.RootNamespace.Length != 0)
-            {
-                args.Add("--root-namespace");
-                args.Add(project.RootNamespace);
-            }
-
-            if (_applicationArgs.Any())
+            if (_applicationArgs!.Any())
             {
                 args.Add("--");
-                args.AddRange(_applicationArgs);
+                args.AddRange(_applicationArgs!);
             }
 
             return Exe.Run(executable, args, startupProject.ProjectDir);
         }
 
         private static (string, string) ResolveProjects(
-            string projectPath,
-            string startupProjectPath)
+            string? projectPath,
+            string? startupProjectPath)
         {
             var projects = ResolveProjects(projectPath);
             var startupProjects = ResolveProjects(startupProjectPath);
@@ -264,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             return (projects[0], startupProjects[0]);
         }
 
-        private static List<string> ResolveProjects(string path)
+        private static List<string> ResolveProjects(string? path)
         {
             if (path == null)
             {
@@ -283,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
 
         private static string GetVersion()
-            => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
                 .InformationalVersion;
 
         private static bool ShouldHelp(IReadOnlyList<string> commands)
@@ -295,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         private int ShowHelp(bool help, IEnumerable<string> commands)
         {
-            var app = new CommandLineApplication { Name = _command.Name };
+            var app = new CommandLineApplication { Name = _command!.Name };
 
             new EFCommand().Configure(app);
 

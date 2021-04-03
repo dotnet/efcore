@@ -8,7 +8,6 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -41,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteDatabaseModelFactory(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
+            IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
@@ -272,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             }
         }
 
-        private string FilterClrDefaults(string dataType, bool notNull, string defaultValue)
+        private string? FilterClrDefaults(string dataType, bool notNull, string defaultValue)
         {
             if (string.Equals(defaultValue, "null", StringComparison.OrdinalIgnoreCase))
             {
@@ -281,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
             if (notNull
                 && defaultValue == "0"
-                && _typeMappingSource.FindMapping(dataType).ClrType.IsNumeric())
+                && _typeMappingSource.FindMapping(dataType)?.ClrType.IsNumeric() == true)
             {
                 return null;
             }
@@ -304,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             parameter.Value = table.Name;
             command.Parameters.Add(parameter);
 
-            var name = (string)command.ExecuteScalar();
+            var name = (string?)command.ExecuteScalar();
             if (name == null)
             {
                 GetRowidPrimaryKey(connection, table);
@@ -513,6 +512,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 var principalTable = tables.FirstOrDefault(t => t.Name == principalTableName)
                     ?? tables.FirstOrDefault(
                         t => t.Name!.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+
+                _logger.ForeignKeyFound(table.Name, id, principalTableName, onDelete);
+
+                if (principalTable == null)
+                {
+                    _logger.ForeignKeyReferencesMissingTableWarning(id.ToString(), table.Name, principalTableName);
+                    continue;
+                }
+
                 var foreignKey = new DatabaseForeignKey
                 {
                     Table = table,
@@ -520,14 +528,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     PrincipalTable = principalTable,
                     OnDelete = ConvertToReferentialAction(onDelete)
                 };
-
-                _logger.ForeignKeyFound(table.Name, id, principalTableName, onDelete);
-
-                if (foreignKey.PrincipalTable == null)
-                {
-                    _logger.ForeignKeyReferencesMissingTableWarning(id.ToString(), table.Name, principalTableName);
-                    continue;
-                }
 
                 using var command2 = connection.CreateCommand();
                 command2.CommandText = new StringBuilder()
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                         Check.DebugAssert(column != null, "column is null.");
 
                         var principalColumnName = reader2.IsDBNull(2) ? null : reader2.GetString(2);
-                        DatabaseColumn principalColumn = null;
+                        DatabaseColumn? principalColumn = null;
                         if (principalColumnName != null)
                         {
                             principalColumn =
@@ -568,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                                 ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
                                     c => c.Name!.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
                         }
-                        else if (principalTable.PrimaryKey != null)
+                        else if (principalTable?.PrimaryKey != null)
                         {
                             var seq = reader2.GetInt32(0);
                             principalColumn = principalTable.PrimaryKey.Columns[seq];

@@ -4,10 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -22,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="parameterBindings"> The parameter bindings to use. </param>
         protected InstantiationBinding(
-            [NotNull] IReadOnlyList<ParameterBinding> parameterBindings)
+            IReadOnlyList<ParameterBinding> parameterBindings)
         {
             Check.NotNull(parameterBindings, nameof(parameterBindings));
 
@@ -47,5 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The type that will be created from the expression tree created for this binding.
         /// </summary>
         public abstract Type RuntimeType { get; }
+
+        /// <summary>
+        ///     Creates a copy that contains the given parameter bindings.
+        /// </summary>
+        /// <param name="parameterBindings"> The new parameter bindings. </param>
+        /// <returns> A copy with replaced parameter bindings. </returns>
+        public abstract InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings);
     }
 }

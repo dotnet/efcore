@@ -152,6 +152,8 @@ MaxLengthDataTypes.ByteArray9000 ---> [nullable nvarchar] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MaxLengthDataTypes.String3 ---> [nullable varbinary] [MaxLength = 3]
 MaxLengthDataTypes.String9000 ---> [nullable varbinary] [MaxLength = -1]
+StringEnclosure.Id ---> [int] [Precision = 10 Scale = 0]
+StringEnclosure.Value ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 StringKeyDataType.Id ---> [varbinary] [MaxLength = 900]
@@ -195,7 +197,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 => true;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base

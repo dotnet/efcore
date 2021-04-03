@@ -3,8 +3,6 @@
 
 using System;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -224,5 +222,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for the annotation that contains table-specific facet overrides.
         /// </summary>
         public const string RelationalOverrides = Prefix + "RelationalOverrides";
+
+        /// <summary>
+        ///     The name for relational model dependencies annotation.
+        /// </summary>
+        public const string ModelDependencies = Prefix + "ModelDependencies";
     }
 }

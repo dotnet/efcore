@@ -5,13 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -23,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteRegexMethodTranslator : IMethodCallTranslator
     {
-        private readonly static MethodInfo _regexIsMatchMethodInfo
+        private static readonly MethodInfo _regexIsMatchMethodInfo
             = typeof(Regex).GetRequiredRuntimeMethod(nameof(Regex.IsMatch), new Type[] { typeof(string), typeof(string) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -34,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteRegexMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteRegexMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
 

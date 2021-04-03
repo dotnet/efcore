@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private readonly bool _ignoreEntryCount;
         private const bool ProceduralQueryGeneration = false;
-        private readonly List<string> _includePath = new List<string>();
+        private readonly List<string> _includePath = new();
         private readonly ISetSource _expectedData;
 
         public QueryAsserter(

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerSequenceValueGeneratorFactory(
-            [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
+            ISqlServerUpdateSqlGenerator sqlGenerator)
         {
             _sqlGenerator = sqlGenerator;
         }

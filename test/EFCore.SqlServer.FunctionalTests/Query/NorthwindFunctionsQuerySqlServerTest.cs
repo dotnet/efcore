@@ -638,9 +638,9 @@ WHERE [o].[OrderID] <= @__orderId_0");
             await base.Where_math_abs1(async);
 
             AssertSql(
-                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE ABS([o].[ProductID]) > 10");
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ABS([p].[ProductID]) > 10");
         }
 
         public override async Task Where_math_abs2(bool async)
@@ -650,7 +650,7 @@ WHERE ABS([o].[ProductID]) > 10");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ABS([o].[Quantity]) > CAST(10 AS smallint)");
+WHERE ([o].[UnitPrice] < 7.0) AND (ABS([o].[Quantity]) > CAST(10 AS smallint))");
         }
 
         public override async Task Where_math_abs3(bool async)
@@ -660,7 +660,7 @@ WHERE ABS([o].[Quantity]) > CAST(10 AS smallint)");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ABS([o].[UnitPrice]) > 10.0");
+WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ABS([o].[UnitPrice]) > 10.0)");
         }
 
         public override async Task Where_math_abs_uncorrelated(bool async)
@@ -670,7 +670,7 @@ WHERE ABS([o].[UnitPrice]) > 10.0");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE 10 < [o].[ProductID]");
+WHERE ([o].[UnitPrice] < 7.0) AND (10 < [o].[ProductID])");
         }
 
         public override async Task Where_math_ceiling1(bool async)
@@ -680,7 +680,7 @@ WHERE 10 < [o].[ProductID]");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE CEILING(CAST([o].[Discount] AS float)) > 0.0E0");
+WHERE ([o].[UnitPrice] < 7.0) AND (CEILING(CAST([o].[Discount] AS float)) > 0.0E0)");
         }
 
         public override async Task Where_math_ceiling2(bool async)
@@ -690,7 +690,7 @@ WHERE CEILING(CAST([o].[Discount] AS float)) > 0.0E0");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE CEILING([o].[UnitPrice]) > 10.0");
+WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (CEILING([o].[UnitPrice]) > 10.0)");
         }
 
         public override async Task Where_math_floor(bool async)
@@ -700,7 +700,7 @@ WHERE CEILING([o].[UnitPrice]) > 10.0");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE FLOOR([o].[UnitPrice]) > 10.0");
+WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (FLOOR([o].[UnitPrice]) > 10.0)");
         }
 
         public override async Task Where_math_power(bool async)
@@ -720,7 +720,7 @@ WHERE POWER(CAST([o].[Discount] AS float), 2.0E0) > 0.05000000074505806E0");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ROUND([o].[UnitPrice], 0) > 10.0");
+WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ROUND([o].[UnitPrice], 0) > 10.0)");
         }
 
         public override async Task Select_math_round_int(bool async)
@@ -760,7 +760,7 @@ WHERE ROUND([o].[UnitPrice], 2) > 100.0");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ROUND([o].[UnitPrice], 0, 1) > 10.0");
+WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ROUND([o].[UnitPrice], 0, 1) > 10.0)");
         }
 
         public override async Task Where_math_exp(bool async)
@@ -906,8 +906,8 @@ WHERE ([o].[OrderID] = 11077) AND (SIGN([o].[Discount]) > 0)");
             await base.Where_guid_newguid(async);
 
             AssertSql(
-                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
 WHERE NEWID() <> '00000000-0000-0000-0000-000000000000'");
         }
 

@@ -1,12 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -19,12 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="INavigation" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionNavigation : INavigation, IConventionNavigationBase
+    public interface IConventionNavigation : IReadOnlyNavigation, IConventionNavigationBase
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this navigation.
         /// </summary>
-        new IConventionNavigationBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the property has been removed from the model. </exception>
+        new IConventionNavigationBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the type that this navigation property belongs to.
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
-            get => (IConventionEntityType)((INavigationBase)this).DeclaringEntityType;
+            get => (IConventionEntityType)((IReadOnlyNavigationBase)this).DeclaringEntityType;
         }
 
         /// <summary>
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType TargetEntityType
         {
             [DebuggerStepThrough]
-            get => (IConventionEntityType)((INavigationBase)this).TargetEntityType;
+            get => (IConventionEntityType)((IReadOnlyNavigationBase)this).TargetEntityType;
         }
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionForeignKey ForeignKey
         {
             [DebuggerStepThrough]
-            get => (IConventionForeignKey)((INavigation)this).ForeignKey;
+            get => (IConventionForeignKey)((IReadOnlyNavigation)this).ForeignKey;
         }
 
         /// <summary>
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionNavigation? Inverse
         {
             [DebuggerStepThrough]
-            get => (IConventionNavigation?)((INavigation)this).Inverse;
+            get => (IConventionNavigation?)((IReadOnlyNavigation)this).Inverse;
         }
 
         /// <summary>
@@ -80,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new inverse navigation. </returns>
-        IConventionNavigation? SetInverse([CanBeNull] string? inverseName, bool fromDataAnnotation = false);
+        IConventionNavigation? SetInverse(string? inverseName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the inverse navigation.
@@ -91,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The new inverse navigation. </returns>
-        IConventionNavigation? SetInverse([CanBeNull] MemberInfo? inverse, bool fromDataAnnotation = false);
+        IConventionNavigation? SetInverse(MemberInfo? inverse, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="Inverse" />.

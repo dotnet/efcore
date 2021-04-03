@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     /// </summary>
     public class KeyValueIndexFactorySource : IKeyValueIndexFactorySource
     {
-        private readonly ConcurrentDictionary<IKey, IKeyValueIndexFactory> _factories
-            = new ConcurrentDictionary<IKey, IKeyValueIndexFactory>();
+        private readonly ConcurrentDictionary<IKey, IKeyValueIndexFactory> _factories = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,14 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IKeyValueIndexFactory Create([NotNull] IKey key)
+        public virtual IKeyValueIndexFactory Create(IKey key)
             => (IKeyValueIndexFactory)typeof(KeyValueIndexFactorySource).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateFactory))
+                .GetDeclaredMethod(nameof(CreateFactory))!
                 .MakeGenericMethod(key.GetKeyType())
-                .Invoke(null, new object[] { key });
+                .Invoke(null, new object[] { key })!;
 
         [UsedImplicitly]
-        private static IKeyValueIndexFactory CreateFactory<TKey>(IKey key)
+        private static IKeyValueIndexFactory CreateFactory<TKey>(IKey key) where TKey : notnull
             => new KeyValueIndexFactory<TKey>(key.GetPrincipalKeyValueFactory<TKey>());
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
@@ -20,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="operations"> The operations. </param>
         /// <param name="builder"> The builder code is added to. </param>
         void Generate(
-            [NotNull] string builderName,
-            [NotNull] IReadOnlyList<MigrationOperation> operations,
-            [NotNull] IndentedStringBuilder builder);
+            string builderName,
+            IReadOnlyList<MigrationOperation> operations,
+            IndentedStringBuilder builder);
     }
 }

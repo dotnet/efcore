@@ -7,13 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -27,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly QueryCompilationContext _queryCompilationContext;
 
-        private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
-            = new SelectManyVerifyingExpressionVisitor();
+        private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -36,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public QueryableMethodNormalizingExpressionVisitor([NotNull] QueryCompilationContext queryCompilationContext)
+        public QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext queryCompilationContext)
         {
             Check.NotNull(queryCompilationContext, nameof(Query));
 
@@ -83,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && method.GetGenericMethodDefinition() is MethodInfo genericMethod
                 && (genericMethod == EntityFrameworkQueryableExtensions.IncludeMethodInfo
                     || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterEnumerableMethodInfo
-                    || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo))
+                    || genericMethod == EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo
+                    || genericMethod == EntityFrameworkQueryableExtensions.NotQuiteIncludeMethodInfo))
             {
                 var includeLambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
                 if (includeLambda.ReturnType.IsGenericType
@@ -635,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private sealed class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
         {
-            private readonly List<ParameterExpression> _allowedParameters = new List<ParameterExpression>();
+            private readonly List<ParameterExpression> _allowedParameters = new();
             private readonly ISet<string> _allowedMethods = new HashSet<string> { nameof(Queryable.Where), nameof(Queryable.AsQueryable) };
 
             private ParameterExpression? _rootParameter;

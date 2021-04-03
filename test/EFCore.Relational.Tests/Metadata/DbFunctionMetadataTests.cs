@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class DbFunctionMetadataTests
     {
-        public class Foo
+        protected class Foo
         {
             public int I { get; set; }
             public int J { get; set; }
         }
 
-        public class MyNonDbContext
+        protected class MyNonDbContext
         {
             public int NonStatic()
             {
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
-        public class MyBaseContext : DbContext
+        protected class MyBaseContext : DbContext
         {
             public static readonly string[] FunctionNames =
             {
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 => throw new Exception();
         }
 
-        public class MyDerivedContext : MyBaseContext
+        protected class MyDerivedContext : MyBaseContext
         {
             public static new readonly string[] FunctionNames =
             {
@@ -325,15 +325,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public virtual void Finds_DbFunctions_on_DbContext()
         {
-            var context = new MyDerivedContext();
-            var modelBuilder = GetModelBuilder(context);
-
-            modelBuilder.FinalizeModel();
+            var model = RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>()
+                .Initialize(GetModelBuilder(new MyDerivedContext()).FinalizeModel(), designTime: false, validationLogger: null);
 
             foreach (var function in MyBaseContext.FunctionNames)
             {
                 Assert.NotNull(
-                    modelBuilder.Model.FindDbFunction(
+                    model.FindDbFunction(
                         typeof(MyBaseContext).GetMethod(
                             function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
             }
@@ -341,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             foreach (var function in MyDerivedContext.FunctionNames)
             {
                 Assert.NotNull(
-                    modelBuilder.Model.FindDbFunction(
+                    model.FindDbFunction(
                         typeof(MyDerivedContext).GetMethod(
                             function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
             }
@@ -681,7 +679,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var functionName = modelBuilder.HasDbFunction(queryableNoParams).Metadata.ModelName;
 
-            var model = modelBuilder.FinalizeModel();
+            var model = RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>()
+                .Initialize(modelBuilder.FinalizeModel(), designTime: false, validationLogger: null);
 
             var function = model.FindDbFunction(functionName);
             var entityType = model.FindEntityType(typeof(Foo));
@@ -863,17 +862,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         private ModelBuilder GetModelBuilder(DbContext dbContext = null)
         {
+            if (dbContext == null)
+            {
+                return RelationalTestHelpers.Instance.CreateConventionBuilder();
+            }
+
             var conventionSet = new ConventionSet();
 
-            var dependencies = CreateDependencies()
-                .With(new CurrentDbContext(dbContext ?? new DbContext(new DbContextOptions<DbContext>())));
+            var dependencies = CreateDependencies().With(new CurrentDbContext(dbContext));
             var relationalDependencies = CreateRelationalDependencies();
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(dependencies, relationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
-            conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(dependencies, relationalDependencies));
             conventionSet.ModelFinalizingConventions.Add(new TableValuedDbFunctionConvention(dependencies, relationalDependencies));
-            conventionSet.ModelFinalizedConventions.Add(new RelationalModelConvention(dependencies, relationalDependencies));
 
             return new ModelBuilder(conventionSet);
         }

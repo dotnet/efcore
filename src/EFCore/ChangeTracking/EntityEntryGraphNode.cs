@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
     {
         private readonly InternalEntityEntry _entry;
-        private readonly InternalEntityEntry _sourceEntry;
+        private readonly InternalEntityEntry? _sourceEntry;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [DebuggerStepThrough]
         [EntityFrameworkInternal]
         public EntityEntryGraphNode(
-            [NotNull] InternalEntityEntry entry,
-            [CanBeNull] InternalEntityEntry sourceEntry,
-            [CanBeNull] INavigationBase inboundNavigation)
+            InternalEntityEntry entry,
+            InternalEntityEntry? sourceEntry,
+            INavigationBase? inboundNavigation)
         {
             Check.NotNull(entry, nameof(entry));
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
         ///     </para>
         /// </summary>
-        public virtual EntityEntry SourceEntry
+        public virtual EntityEntry? SourceEntry
             => _sourceEntry == null ? null : new EntityEntry(_sourceEntry);
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
         ///     </para>
         /// </summary>
-        public virtual INavigationBase InboundNavigation { get; }
+        public virtual INavigationBase? InboundNavigation { get; }
 
         /// <summary>
         ///     <para>
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         public virtual EntityEntry Entry
-            => new EntityEntry(_entry);
+            => new(_entry);
 
         /// <summary>
         ///     <para>
@@ -100,9 +100,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="reachedVia"> The navigation property that is being traversed to reach the new node. </param>
         /// <returns> The newly created node. </returns>
         public virtual EntityEntryGraphNode CreateNode(
-            [NotNull] EntityEntryGraphNode currentNode,
-            [NotNull] InternalEntityEntry internalEntityEntry,
-            [NotNull] INavigationBase reachedVia)
+            EntityEntryGraphNode currentNode,
+            InternalEntityEntry internalEntityEntry,
+            INavigationBase reachedVia)
         {
             Check.NotNull(currentNode, nameof(currentNode));
             Check.NotNull(internalEntityEntry, nameof(internalEntityEntry));

@@ -5,9 +5,7 @@ using System;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
@@ -17,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </summary>
     public class HiLoValueGeneratorState : IDisposable
     {
-        private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _semaphoreSlim = new(1);
         private HiLoValue _currentValue;
         private readonly int _blockSize;
 
@@ -47,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     A function to get the next low value if needed.
         /// </param>
         /// <returns> The value to be assigned to a property. </returns>
-        public virtual TValue Next<TValue>([NotNull] Func<long> getNewLowValue)
+        public virtual TValue Next<TValue>(Func<long> getNewLowValue)
         {
             Check.NotNull(getNewLowValue, nameof(getNewLowValue));
 
@@ -92,8 +90,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The value to be assigned to a property. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async ValueTask<TValue> NextAsync<TValue>(
-            [NotNull] Func<CancellationToken, Task<long>> getNewLowValue,
+            Func<CancellationToken, Task<long>> getNewLowValue,
             CancellationToken cancellationToken = default)
         {
             Check.NotNull(getNewLowValue, nameof(getNewLowValue));
@@ -160,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             public long High { get; }
 
             public HiLoValue NextValue()
-                => new HiLoValue(Low + 1, High);
+                => new(Low + 1, High);
         }
 
         /// <summary>

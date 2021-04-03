@@ -1,11 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -24,27 +22,57 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ColumnMappingBase(
-            [NotNull] IProperty property,
-            [NotNull] ColumnBase column,
-            [NotNull] RelationalTypeMapping typeMapping,
-            [NotNull] TableMappingBase tableMapping)
+            IProperty property,
+            ColumnBase column,
+            TableMappingBase tableMapping)
         {
             Property = property;
             Column = column;
-            TypeMapping = typeMapping;
             TableMapping = tableMapping;
         }
 
         /// <inheritdoc />
         public virtual IProperty Property { get; }
 
-        /// <inheritdoc />
-        public virtual IColumnBase Column { get; }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ColumnBase Column { get; }
 
         /// <inheritdoc />
-        public virtual RelationalTypeMapping TypeMapping { get; }
+        public virtual RelationalTypeMapping TypeMapping => Property.GetRelationalTypeMapping();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual TableMappingBase TableMapping { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override bool IsReadOnly => TableMapping.IsReadOnly;
 
         /// <inheritdoc />
-        public virtual ITableMappingBase TableMapping { get; }
+        IColumnBase IColumnMappingBase.Column
+        {
+            [DebuggerStepThrough]
+            get => Column;
+        }
+
+        /// <inheritdoc />
+        ITableMappingBase IColumnMappingBase.TableMapping
+        {
+            [DebuggerStepThrough]
+            get => TableMapping;
+        }
     }
 }

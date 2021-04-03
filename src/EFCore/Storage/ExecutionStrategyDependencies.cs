@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -55,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public ExecutionStrategyDependencies(
-            [NotNull] ICurrentDbContext currentContext,
-            [CanBeNull] IDbContextOptions options,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+            ICurrentDbContext currentContext,
+            IDbContextOptions options,
+            IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
         {
             Check.NotNull(currentContext, nameof(currentContext));
 
@@ -69,16 +68,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The options for the current <see cref="DbContext" /> instance.
         /// </summary>
-        public IDbContextOptions Options { get; [param: CanBeNull] init; }
+        public IDbContextOptions Options { get; init; }
 
         /// <summary>
         ///     Indirection to the current <see cref="DbContext" /> instance.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; [param: NotNull] init; }
+        public ICurrentDbContext CurrentContext { get; init; }
 
         /// <summary>
         ///     The logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Infrastructure> Logger { get; [param: CanBeNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Infrastructure> Logger { get; init; }
     }
 }

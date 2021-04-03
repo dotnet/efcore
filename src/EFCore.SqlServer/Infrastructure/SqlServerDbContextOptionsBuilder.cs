@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Initializes a new instance of the <see cref="SqlServerDbContextOptionsBuilder" /> class.
         /// </summary>
         /// <param name="optionsBuilder"> The options builder. </param>
-        public SqlServerDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
+        public SqlServerDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
             : base(optionsBuilder)
         {
         }
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(
             int maxRetryCount,
             TimeSpan maxRetryDelay,
-            [CanBeNull] ICollection<int> errorNumbersToAdd)
+            ICollection<int>? errorNumbersToAdd)
             => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, maxRetryCount, maxRetryDelay, errorNumbersToAdd));
     }
 }

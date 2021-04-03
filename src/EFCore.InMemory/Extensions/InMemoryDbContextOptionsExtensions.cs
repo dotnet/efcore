@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
@@ -34,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] string databaseName,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            string databaseName,
+            Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
                 (DbContextOptionsBuilder)optionsBuilder, databaseName, inMemoryOptionsAction);
@@ -56,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseInMemoryDatabase(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] string databaseName,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            string databaseName,
+            Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
             => UseInMemoryDatabase(optionsBuilder, databaseName, null, inMemoryOptionsAction);
 
         /// <summary>
@@ -80,10 +79,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] string databaseName,
-            [CanBeNull] InMemoryDatabaseRoot databaseRoot,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            string databaseName,
+            InMemoryDatabaseRoot? databaseRoot,
+            Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
                 (DbContextOptionsBuilder)optionsBuilder, databaseName, databaseRoot, inMemoryOptionsAction);
@@ -106,10 +105,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseInMemoryDatabase(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] string databaseName,
-            [CanBeNull] InMemoryDatabaseRoot databaseRoot,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            string databaseName,
+            InMemoryDatabaseRoot? databaseRoot,
+            Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(databaseName, nameof(databaseName));
@@ -131,48 +130,6 @@ namespace Microsoft.EntityFrameworkCore
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             inMemoryOptionsAction?.Invoke(new InMemoryDbContextOptionsBuilder(optionsBuilder));
-
-            return optionsBuilder;
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Enables nullability check for all properties across all entities within the in-memory database.
-        ///     </para>
-        /// </summary>
-        /// <typeparam name="TContext"> The type of context being configured. </typeparam>
-        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
-        /// <param name="nullabilityCheckEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static DbContextOptionsBuilder<TContext> EnableNullabilityCheck<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            bool nullabilityCheckEnabled = true)
-            where TContext : DbContext
-            => (DbContextOptionsBuilder<TContext>)EnableNullabilityCheck(
-                (DbContextOptionsBuilder)optionsBuilder, nullabilityCheckEnabled);
-
-        /// <summary>
-        ///     <para>
-        ///         Enables nullability check for all properties across all entities within the in-memory database.
-        ///     </para>
-        /// </summary>
-        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
-        /// <param name="nullabilityCheckEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static DbContextOptionsBuilder EnableNullabilityCheck(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            bool nullabilityCheckEnabled = true)
-        {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
-            var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
-                ?? new InMemoryOptionsExtension();
-
-            extension = extension.WithNullabilityCheckEnabled(nullabilityCheckEnabled);
-
-            ConfigureWarnings(optionsBuilder);
-
-            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
             return optionsBuilder;
         }

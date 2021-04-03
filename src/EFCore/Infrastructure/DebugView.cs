@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -25,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="toShortDebugString"> Delegate to create the short debug string. </param>
         /// <param name="toLongDebugString"> Delegate to create the long debug string. </param>
         public DebugView(
-            [NotNull] Func<string> toShortDebugString,
-            [NotNull] Func<string> toLongDebugString)
+            Func<string> toShortDebugString,
+            Func<string> toLongDebugString)
         {
             _toShortDebugString = toShortDebugString;
             _toLongDebugString = toLongDebugString;

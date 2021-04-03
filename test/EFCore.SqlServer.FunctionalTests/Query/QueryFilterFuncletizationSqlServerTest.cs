@@ -194,20 +194,20 @@ WHERE ([c].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = CAST
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE ([s].[IsDeleted] <> CAST(1 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [s].[IsModerated]))",
+WHERE ([s].[IsDeleted] = CAST(0 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [s].[IsModerated]))",
                 //
                 @"@__ef_filter__p_0='False'
 @__ef_filter__IsModerated_1='False' (Nullable = true)
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE ([s].[IsDeleted] <> CAST(1 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [s].[IsModerated]))",
+WHERE ([s].[IsDeleted] = CAST(0 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [s].[IsModerated]))",
                 //
                 @"@__ef_filter__p_0='True'
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE ([s].[IsDeleted] <> CAST(1 AS bit)) AND (@__ef_filter__p_0 = CAST(1 AS bit))");
+WHERE ([s].[IsDeleted] = CAST(0 AS bit)) AND (@__ef_filter__p_0 = CAST(1 AS bit))");
         }
 
         public override void EntityTypeConfiguration_DbContext_field_is_parameterized()

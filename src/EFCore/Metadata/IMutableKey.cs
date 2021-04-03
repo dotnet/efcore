@@ -2,8 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-
-#nullable enable
+using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -16,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IKey" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableKey : IMutableAnnotatable, IKey
+    public interface IMutableKey : IReadOnlyKey, IMutableAnnotatable
     {
         /// <summary>
         ///     Gets the properties that make up the key.
@@ -29,5 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     may be defined on a base type).
         /// </summary>
         new IMutableEntityType DeclaringEntityType { get; }
+
+        /// <summary>
+        ///     Gets all foreign keys that target a given primary or alternate key.
+        /// </summary>
+        /// <returns> The foreign keys that reference the given key. </returns>
+        new IEnumerable<IMutableForeignKey> GetReferencingForeignKeys()
+            => ((IReadOnlyKey)this).GetReferencingForeignKeys().Cast<IMutableForeignKey>();
     }
 }

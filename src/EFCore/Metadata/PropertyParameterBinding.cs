@@ -1,12 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -20,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates a new <see cref="PropertyParameterBinding" /> instance for the given <see cref="IProperty" />.
         /// </summary>
         /// <param name="property"> The property to bind. </param>
-        public PropertyParameterBinding([NotNull] IProperty property)
+        public PropertyParameterBinding(IProperty property)
             : base(property.ClrType, property)
         {
         }
@@ -38,5 +36,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return Expression.Call(bindingInfo.MaterializationContextExpression, MaterializationContext.GetValueBufferMethod)
                 .CreateValueBufferReadValueExpression(property.ClrType, bindingInfo.GetValueBufferIndex(property), property);
         }
+
+        /// <summary>
+        ///     Creates a copy that contains the given consumed properties.
+        /// </summary>
+        /// <param name="consumedProperties"> The new consumed properties. </param>
+        /// <returns> A copy with replaced consumed properties. </returns>
+        public override ParameterBinding With(IPropertyBase[] consumedProperties)
+            => new PropertyParameterBinding((IProperty)consumedProperties.Single());
     }
 }

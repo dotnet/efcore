@@ -1,15 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         A <see cref="IPropertyBase" /> in the Entity Framework model that represents an
+    ///         A <see cref="IReadOnlyPropertyBase" /> in the Entity Framework model that represents an
     ///         injected service from the <see cref="DbContext" />.
     ///     </para>
     ///     <para>
@@ -17,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IServiceProperty" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableServiceProperty : IServiceProperty, IMutablePropertyBase
+    public interface IMutableServiceProperty : IReadOnlyServiceProperty, IMutablePropertyBase
     {
         /// <summary>
         ///     Gets the type that this property belongs to.
@@ -27,6 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets <see cref="ServiceParameterBinding" /> for this property.
         /// </summary>
-        new ServiceParameterBinding? ParameterBinding { get; [param: CanBeNull] set; }
+        new ServiceParameterBinding? ParameterBinding { get; set; }
     }
 }

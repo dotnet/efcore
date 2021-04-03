@@ -9,10 +9,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public static class DataGenerator
     {
-        private static readonly ConcurrentDictionary<Type, object[]> Values = new ConcurrentDictionary<Type, object[]>();
-
-        private static readonly ConcurrentDictionary<int, object[][]> _boolCombinations
-            = new ConcurrentDictionary<int, object[][]>();
+        private static readonly ConcurrentDictionary<Type, object[]> Values = new();
+        private static readonly ConcurrentDictionary<int, object[][]> _boolCombinations = new();
 
         public static object[][] GetBoolCombinations(int length)
             => _boolCombinations.GetOrAdd(length, l => GetCombinations(Values[typeof(bool)], l));

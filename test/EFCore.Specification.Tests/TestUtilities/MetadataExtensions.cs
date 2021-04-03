@@ -28,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public static IModel Clone(this IModel model)
+        public static IReadOnlyModel Clone(this IReadOnlyModel model)
         {
             IMutableModel modelClone = new Model();
-            var clonedEntityTypes = new Dictionary<IEntityType, IMutableEntityType>();
+            var clonedEntityTypes = new Dictionary<IReadOnlyEntityType, IMutableEntityType>();
             foreach (var entityType in model.GetEntityTypes())
             {
                 var clrType = entityType.ClrType;
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return modelClone;
         }
 
-        private static void CloneProperties(IEntityType sourceEntityType, IMutableEntityType targetEntityType)
+        private static void CloneProperties(IReadOnlyEntityType sourceEntityType, IMutableEntityType targetEntityType)
         {
             foreach (var property in sourceEntityType.GetDeclaredProperties())
             {
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        private static void CloneKeys(IEntityType sourceEntityType, IMutableEntityType targetEntityType)
+        private static void CloneKeys(IReadOnlyEntityType sourceEntityType, IMutableEntityType targetEntityType)
         {
             foreach (var key in sourceEntityType.GetDeclaredKeys())
             {
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        private static void CloneIndexes(IEntityType sourceEntityType, IMutableEntityType targetEntityType)
+        private static void CloneIndexes(IReadOnlyEntityType sourceEntityType, IMutableEntityType targetEntityType)
         {
             foreach (var index in sourceEntityType.GetDeclaredIndexes())
             {
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        private static void CloneForeignKeys(IEntityType sourceEntityType, IMutableEntityType targetEntityType)
+        private static void CloneForeignKeys(IReadOnlyEntityType sourceEntityType, IMutableEntityType targetEntityType)
         {
             foreach (var foreignKey in sourceEntityType.GetDeclaredForeignKeys())
             {
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        private static void CloneNavigations(IEntityType sourceEntityType, IMutableEntityType targetEntityType)
+        private static void CloneNavigations(IReadOnlyEntityType sourceEntityType, IMutableEntityType targetEntityType)
         {
             foreach (var navigation in sourceEntityType.GetDeclaredNavigations())
             {

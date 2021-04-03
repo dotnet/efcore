@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -22,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="left"> The left SqlExpression. </param>
         /// <param name="right"> The right SqlExpression. </param>
         public TwoSqlExpressionsEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] SqlExpression left,
-            [NotNull] SqlExpression right)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            SqlExpression left,
+            SqlExpression right)
             : base(eventDefinition, messageGenerator)
         {
             Left = left;

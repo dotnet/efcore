@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Design
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="fragment"> The method call. </param>
         /// <returns> The fragment. </returns>
-        string Fragment([NotNull] MethodCallCodeFragment fragment);
+        string Fragment(MethodCallCodeFragment fragment);
 
         /// <summary>
         ///     Generates a valid C# identifier from the specified string unique to the scope.
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="name"> The base identifier name. </param>
         /// <param name="scope"> A list of in-scope identifiers. </param>
         /// <returns> The identifier. </returns>
-        string Identifier([NotNull] string name, [CanBeNull] ICollection<string> scope = null);
+        string Identifier(string name, ICollection<string>? scope = null);
 
         /// <summary>
         ///     Generates a property accessor lambda.
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="properties"> The property names. </param>
         /// <param name="lambdaIdentifier"> The identifier to use for parameter in the lambda. </param>
         /// <returns> The lambda. </returns>
-        string Lambda([NotNull] IReadOnlyList<string> properties, [CanBeNull] string lambdaIdentifier = null);
+        string Lambda(IReadOnlyList<string> properties, string? lambdaIdentifier = null);
 
         /// <summary>
         ///     Generates a property accessor lambda.
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="properties"> The properties. </param>
         /// <param name="lambdaIdentifier"> The identifier to use for parameter in the lambda. </param>
         /// <returns> The lambda. </returns>
-        string Lambda([NotNull] IEnumerable<IProperty> properties, [CanBeNull] string lambdaIdentifier = null)
+        string Lambda(IEnumerable<IProperty> properties, string? lambdaIdentifier = null)
             => Lambda(properties.Select(p => p.Name).ToList(), lambdaIdentifier);
 
         /// <summary>
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="values"> The multidimensional array. </param>
         /// <returns> The literal. </returns>
-        string Literal([NotNull] object[,] values);
+        string Literal(object?[,] values);
 
         /// <summary>
         ///     Generates a nullable literal.
@@ -116,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="value"> The value. </param>
         /// <returns> The literal. </returns>
-        string Literal([NotNull] Enum value);
+        string Literal(Enum value);
 
         /// <summary>
         ///     Generates a float literal.
@@ -165,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="value"> The value. </param>
         /// <returns> The literal. </returns>
-        string Literal([NotNull] string value);
+        string Literal(string value);
 
         /// <summary>
         ///     Generates a TimeSpan literal.
@@ -201,27 +200,27 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="values"> The object array. </param>
         /// <param name="vertical"> A value indicating whether to layout the literal vertically. </param>
         /// <returns> The literal. </returns>
-        string Literal<T>([NotNull] T[] values, bool vertical = false);
+        string Literal<T>(T[] values, bool vertical = false);
 
         /// <summary>
         ///     Generates a valid C# namespace from the specified parts.
         /// </summary>
         /// <param name="name"> The base parts of the namespace. </param>
         /// <returns> The namespace. </returns>
-        string Namespace([NotNull] params string[] name);
+        string Namespace(params string[] name);
 
         /// <summary>
         ///     Generates a C# type reference.
         /// </summary>
         /// <param name="type"> The type to reference. </param>
         /// <returns> The reference. </returns>
-        string Reference([NotNull] Type type);
+        string Reference(Type type);
 
         /// <summary>
         ///     Generates a literal for a type not known at compile time.
         /// </summary>
         /// <param name="value"> The value. </param>
         /// <returns> The literal. </returns>
-        string UnknownLiteral([CanBeNull] object value);
+        string UnknownLiteral(object? value);
     }
 }

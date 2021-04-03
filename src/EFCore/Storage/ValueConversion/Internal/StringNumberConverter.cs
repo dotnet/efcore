@@ -4,7 +4,6 @@
 using System;
 using System.Globalization;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 {
@@ -23,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        protected static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 64);
+        protected static readonly ConverterMappingHints _defaultHints = new(size: 64);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public StringNumberConverter(
-            [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
-            [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            Expression<Func<TModel, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TModel>> convertFromProviderExpression,
+            ConverterMappingHints? mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }
@@ -59,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 
             var tryParseMethod = type.GetMethod(
                 nameof(int.TryParse),
-                new[] { typeof(string), typeof(NumberStyles), typeof(IFormatProvider), type.MakeByRefType() });
+                new[] { typeof(string), typeof(NumberStyles), typeof(IFormatProvider), type.MakeByRefType() })!;
 
             var parsedVariable = Expression.Variable(type, "parsed");
             var param = Expression.Parameter(typeof(string), "v");
@@ -99,8 +97,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
                 typeof(uint), typeof(ulong), typeof(ushort), typeof(sbyte),
                 typeof(decimal), typeof(float), typeof(double));
 
+            // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
             return v => v == null
-                ? null
+                ? null!
                 : string.Format(
                     CultureInfo.InvariantCulture,
                     type == typeof(float) || type == typeof(double) ? "{0:R}" : "{0}",

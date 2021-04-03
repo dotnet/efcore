@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -74,32 +73,32 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public abstract void UseProviderOptions(DbContextOptionsBuilder optionsBuilder);
 
         public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)
-            => new DbContext(CreateOptions(model, serviceProvider));
+            => new(CreateOptions(model, serviceProvider));
 
         public DbContext CreateContext(IServiceProvider serviceProvider, DbContextOptions options)
-            => new DbContext(new DbContextOptionsBuilder(options).UseInternalServiceProvider(serviceProvider).Options);
+            => new(new DbContextOptionsBuilder(options).UseInternalServiceProvider(serviceProvider).Options);
 
         public DbContext CreateContext(IServiceProvider serviceProvider)
-            => new DbContext(CreateOptions(serviceProvider));
+            => new(CreateOptions(serviceProvider));
 
         public DbContext CreateContext(IModel model)
-            => new DbContext(CreateOptions(model, CreateServiceProvider()));
+            => new(CreateOptions(model, CreateServiceProvider()));
 
         public DbContext CreateContext(DbContextOptions options)
-            => new DbContext(new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider()).Options);
+            => new(new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider()).Options);
 
         public DbContext CreateContext()
-            => new DbContext(CreateOptions(CreateServiceProvider()));
+            => new(CreateOptions(CreateServiceProvider()));
 
         public DbContext CreateContext(IServiceCollection customServices, IModel model)
-            => new DbContext(CreateOptions(model, CreateServiceProvider(customServices)));
+            => new(CreateOptions(model, CreateServiceProvider(customServices)));
 
         public DbContext CreateContext(IServiceCollection customServices, DbContextOptions options)
-            => new DbContext(
+            => new(
                 new DbContextOptionsBuilder(options).UseInternalServiceProvider(CreateServiceProvider(customServices)).Options);
 
         public DbContext CreateContext(IServiceCollection customServices)
-            => new DbContext(CreateOptions(CreateServiceProvider(customServices)));
+            => new(CreateOptions(CreateServiceProvider(customServices)));
 
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, IModel model)
             => ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider, model)).Instance;
@@ -128,26 +127,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IServiceProvider CreateContextServices(IServiceCollection customServices)
             => ((IInfrastructure<IServiceProvider>)CreateContext(customServices)).Instance;
 
-        public IMutableModel BuildModelFor<TEntity>()
-            where TEntity : class
+        public IModel Finalize(ModelBuilder modelBuilder, bool designTime = false, bool skipValidation = false)
         {
-            var builder = CreateConventionBuilder();
-            builder.Entity<TEntity>();
-            return builder.Model;
+            var contextServices = CreateContextServices();
+
+            var modelRuntimeInitializer = contextServices.GetRequiredService<IModelRuntimeInitializer>();
+            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), designTime, skipValidation
+                ? null
+                : new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>(LoggingDefinitions));
         }
 
-        public ModelBuilder CreateConventionBuilder(bool skipValidation = false)
-        {
-            var conventionSet = CreateConventionSetBuilder().CreateConventionSet();
-
-            if (skipValidation)
-            {
-                // Use public API to remove convention, issue #214
-                ConventionSet.Remove(conventionSet.ModelFinalizedConventions, typeof(ValidatingConvention));
-            }
-
-            return new ModelBuilder(conventionSet);
-        }
+        public ModelBuilder CreateConventionBuilder()
+            => new ModelBuilder(CreateConventionSetBuilder().CreateConventionSet());
 
         public virtual IConventionSetBuilder CreateConventionSetBuilder()
             => CreateContextServices().GetRequiredService<IConventionSetBuilder>();

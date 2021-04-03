@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -56,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public QuerySqlGeneratorDependencies(
-            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
+            ISqlGenerationHelper sqlGenerationHelper)
         {
             Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
@@ -69,11 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The command-builder factory.
         /// </summary>
-        public IRelationalCommandBuilderFactory RelationalCommandBuilderFactory { get; [param: NotNull] init; }
+        public IRelationalCommandBuilderFactory RelationalCommandBuilderFactory { get; init; }
 
         /// <summary>
         ///     SQL generation helpers.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; [param: NotNull] init; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; init; }
     }
 }

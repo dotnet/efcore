@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -24,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryGroupByShaperExpression(
-            [NotNull] Expression keySelector,
-            [NotNull] Expression elementSelector,
-            [NotNull] ParameterExpression groupingParameter,
-            [NotNull] ParameterExpression valueBufferParameter)
+            Expression keySelector,
+            Expression elementSelector,
+            ParameterExpression groupingParameter,
+            ParameterExpression valueBufferParameter)
             : base(keySelector, elementSelector)
         {
             GroupingParameter = groupingParameter;

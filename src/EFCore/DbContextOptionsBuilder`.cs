@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     a given <see cref="DbContextOptions" />.
         /// </summary>
         /// <param name="options"> The options to be configured. </param>
-        public DbContextOptionsBuilder([NotNull] DbContextOptions<TContext> options)
+        public DbContextOptionsBuilder(DbContextOptions<TContext> options)
             : base(options)
         {
         }
@@ -60,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseModel([NotNull] IModel model)
+        public new virtual DbContextOptionsBuilder<TContext> UseModel(IModel model)
             => (DbContextOptionsBuilder<TContext>)base.UseModel(model);
 
         /// <summary>
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="loggerFactory"> The logger factory to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
+        public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory(ILoggerFactory? loggerFactory)
             => (DbContextOptionsBuilder<TContext>)base.UseLoggerFactory(loggerFactory);
 
         /// <summary>
@@ -109,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> action,
+            Action<string> action,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
             => (DbContextOptionsBuilder<TContext>)base.LogTo(action, minimumLevel, options);
@@ -138,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> action,
-            [NotNull] IEnumerable<EventId> events,
+            Action<string> action,
+            IEnumerable<EventId> events,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
             => (DbContextOptionsBuilder<TContext>)base.LogTo(action, events, minimumLevel, options);
@@ -168,8 +167,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> action,
-            [NotNull] IEnumerable<string> categories,
+            Action<string> action,
+            IEnumerable<string> categories,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
             => (DbContextOptionsBuilder<TContext>)base.LogTo(action, categories, minimumLevel, options);
@@ -195,8 +194,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> action,
-            [NotNull] Func<EventId, LogLevel, bool> filter,
+            Action<string> action,
+            Func<EventId, LogLevel, bool> filter,
             DbContextLoggerOptions? options = null)
             => (DbContextOptionsBuilder<TContext>)base.LogTo(action, filter, options);
 
@@ -220,9 +219,31 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         // Filter comes first, logger second, otherwise it's hard to get the correct overload to resolve
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Func<EventId, LogLevel, bool> filter,
-            [NotNull] Action<EventData> logger)
+            Func<EventId, LogLevel, bool> filter,
+            Action<EventData> logger)
             => (DbContextOptionsBuilder<TContext>)base.LogTo(filter, logger);
+
+        /// <summary>
+        ///     <para>
+        ///         Disables concurrency detection, which detects many cases of erroneous concurrent usage of a <see cref="DbContext" />
+        ///         instance and causes an informative exception to be thrown. This provides a minor performance improvement, but if a
+        ///         <see cref="DbContext" /> instance is used concurrently, the behavior will be undefined and the program may fail in
+        ///         unpredictable ways.
+        ///     </para>
+        ///     <para>
+        ///         Only disable concurrency detection after confirming that the performance gains are considerable, and the application has
+        ///         been thoroughly tested against concurrency bugs.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+        ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+        ///         so that EF will manage the service providers and can create new instances as required.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> DisableConcurrencyDetection(bool concurrencyDetectionDisabled = true)
+            => (DbContextOptionsBuilder<TContext>)base.DisableConcurrencyDetection(concurrencyDetectionDisabled);
 
         /// <summary>
         ///     <para>
@@ -263,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="memoryCache"> The memory cache to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
+        public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache(IMemoryCache? memoryCache)
             => (DbContextOptionsBuilder<TContext>)base.UseMemoryCache(memoryCache);
 
         /// <summary>
@@ -285,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+        public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider(IServiceProvider? serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseInternalServiceProvider(serviceProvider);
 
         /// <summary>
@@ -294,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseApplicationServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+        public new virtual DbContextOptionsBuilder<TContext> UseApplicationServiceProvider(IServiceProvider? serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseApplicationServiceProvider(serviceProvider);
 
         /// <summary>
@@ -382,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> ConfigureWarnings(
-            [NotNull] Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
+            Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
             => (DbContextOptionsBuilder<TContext>)base.ConfigureWarnings(warningsConfigurationBuilderAction);
 
         /// <summary>
@@ -460,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="interceptors"> The interceptors to add. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors([NotNull] IEnumerable<IInterceptor> interceptors)
+        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors(IEnumerable<IInterceptor> interceptors)
             => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
 
         /// <summary>
@@ -484,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="interceptors"> The interceptors to add. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors([NotNull] params IInterceptor[] interceptors)
+        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors(params IInterceptor[] interceptors)
             => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
     }
 }

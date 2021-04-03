@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
+        public PropertyEntry(InternalEntityEntry internalEntry, string name)
             : this(internalEntry, internalEntry.EntityType.GetProperty(name))
         {
         }
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] IProperty property)
+        public PropertyEntry(InternalEntityEntry internalEntry, IProperty property)
             : base(internalEntry, property)
         {
         }
@@ -87,10 +86,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     useful in disconnected scenarios where entities are retrieved with one context instance and
         ///     saved with a different context instance.
         /// </summary>
-        public virtual object OriginalValue
+        public virtual object? OriginalValue
         {
             get => InternalEntry.GetOriginalValue(Metadata);
-            [param: CanBeNull] set => InternalEntry.SetOriginalValue(Metadata, value);
+            set => InternalEntry.SetOriginalValue(Metadata, value);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public class BoolToStringConverterTest
     {
         private static readonly BoolToStringConverter _boolToTrueFalse
-            = new BoolToStringConverter("False", "True");
+            = new("False", "True");
 
         [ConditionalFact]
         public void Can_convert_bools_to_true_false_strings()
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private static readonly BoolToStringConverter _boolToYn
-            = new BoolToStringConverter("N", "Y");
+            = new("N", "Y");
 
         [ConditionalFact]
         public void Can_convert_bools_to_Y_N_strings()

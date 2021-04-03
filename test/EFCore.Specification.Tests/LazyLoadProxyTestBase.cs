@@ -26,6 +26,34 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
+        [ConditionalFact]
+        public virtual void Detected_principal_reference_navigation_changes_are_detected_and_marked_loaded()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var parent = context.Set<Parent>().Single();
+
+            var single = context.CreateProxy<Single>();
+            parent.Single = single;
+
+            Assert.Same(single, parent.Single);
+            Assert.True(context.Entry(parent).Reference(e => e.Single).IsLoaded);
+        }
+
+        [ConditionalFact]
+        public virtual void Detected_dependent_reference_navigation_changes_are_detected_and_marked_loaded()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var single = context.Set<Single>().Single();
+
+            var parent = context.CreateProxy<Parent>();
+            single.Parent = parent;
+
+            Assert.Same(parent, single.Parent);
+            Assert.True(context.Entry(single).Reference(e => e.Parent).IsLoaded);
+        }
+
         [ConditionalTheory] // Issue #13138
         [InlineData(EntityState.Unchanged)]
         [InlineData(EntityState.Modified)]
@@ -272,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Children", "MotherProxy"),
+                                .GenerateMessage("MotherProxy", "Children"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Children).Message);
@@ -347,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Parent", "ChildProxy"),
+                                .GenerateMessage("ChildProxy", "Parent"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => child.Parent).Message);
@@ -424,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Parent", "SingleProxy"),
+                                .GenerateMessage("SingleProxy", "Parent"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => single.Parent).Message);
@@ -501,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Single", "MotherProxy"),
+                                .GenerateMessage("MotherProxy", "Single"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Single).Message);
@@ -2389,7 +2417,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public static FirstName Create(string firstName)
             {
-                return new FirstName(firstName);
+                return new(firstName);
             }
         }
 
@@ -2408,7 +2436,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public static LastName Create(string lastName)
             {
-                return new LastName(lastName);
+                return new(lastName);
             }
         }
 
@@ -2940,15 +2968,15 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Id = 707,
                         AlternateId = "Root",
-                        Children = new List<Child> { new Child { Id = 11 }, new Child { Id = 12 } },
+                        Children = new List<Child> { new() { Id = 11 }, new() { Id = 12 } },
                         SinglePkToPk = new SinglePkToPk { Id = 707 },
                         Single = new Single { Id = 21 },
-                        ChildrenAk = new List<ChildAk> { new ChildAk { Id = 31 }, new ChildAk { Id = 32 } },
+                        ChildrenAk = new List<ChildAk> { new() { Id = 31 }, new() { Id = 32 } },
                         SingleAk = new SingleAk { Id = 42 },
-                        ChildrenShadowFk = new List<ChildShadowFk> { new ChildShadowFk { Id = 51 }, new ChildShadowFk { Id = 52 } },
+                        ChildrenShadowFk = new List<ChildShadowFk> { new() { Id = 51 }, new() { Id = 52 } },
                         SingleShadowFk = new SingleShadowFk { Id = 62 },
                         ChildrenCompositeKey =
-                            new List<ChildCompositeKey> { new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 } },
+                            new List<ChildCompositeKey> { new() { Id = 51 }, new() { Id = 52 } },
                         SingleCompositeKey = new SingleCompositeKey { Id = 62 },
                         WithRecursiveProperty = new WithRecursiveProperty { Id = 8086 }
                     });
@@ -3023,7 +3051,7 @@ namespace Microsoft.EntityFrameworkCore
                     new NonVirtualOneToManyOwner
                     {
                         Id = 300,
-                        Addresses = new List<OwnedAddress> { new OwnedAddress { Street = "4 Privet Drive", PostalCode = "SURREY" } }
+                        Addresses = new List<OwnedAddress> { new() { Street = "4 Privet Drive", PostalCode = "SURREY" } }
                     });
 
                 context.Add(
@@ -3032,9 +3060,9 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 400,
                         Addresses = new List<OwnedAddress>
                         {
-                            new OwnedAddress { Street = "The Ministry", PostalCode = "MAG1C" },
-                            new OwnedAddress { Street = "Diagon Alley", PostalCode = "WC2H 0AW" },
-                            new OwnedAddress { Street = "Shell Cottage", PostalCode = "THE SEA" }
+                            new() { Street = "The Ministry", PostalCode = "MAG1C" },
+                            new() { Street = "Diagon Alley", PostalCode = "WC2H 0AW" },
+                            new() { Street = "Shell Cottage", PostalCode = "THE SEA" }
                         }
                     });
 
@@ -3042,7 +3070,7 @@ namespace Microsoft.EntityFrameworkCore
                     new ExplicitLazyLoadNonVirtualOneToManyOwner
                     {
                         Id = 500,
-                        Addresses = new List<OwnedAddress> { new OwnedAddress { Street = "Spinner's End", PostalCode = "BE WA1R" } }
+                        Addresses = new List<OwnedAddress> { new() { Street = "Spinner's End", PostalCode = "BE WA1R" } }
                     });
 
                 context.Add(
@@ -3051,7 +3079,7 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 600,
                         Addresses = new List<OwnedAddress>
                         {
-                            new OwnedAddress { Street = "12 Grimmauld Place", PostalCode = "L0N D0N" }
+                            new() { Street = "12 Grimmauld Place", PostalCode = "L0N D0N" }
                         }
                     });
 

@@ -1,10 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -22,6 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
         /// </summary>
         /// <param name="expressionPrinter"> The expression printer to use. </param>
-        void Print([NotNull] ExpressionPrinter expressionPrinter);
+        void Print(ExpressionPrinter expressionPrinter);
     }
 }

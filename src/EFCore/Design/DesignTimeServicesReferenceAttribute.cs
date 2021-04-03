@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     The assembly-qualified name of the type that can be used to add additional design time services to a <see cref="ServiceCollection" />.
         ///     This type should implement <see cref="IDesignTimeServices" />.
         /// </param>
-        public DesignTimeServicesReferenceAttribute([NotNull] string typeName)
+        public DesignTimeServicesReferenceAttribute(string typeName)
             : this(typeName, forProvider: null)
         {
         }
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     The name of the provider for which these services should be added. If null, the services will be added
         ///     for all providers.
         /// </param>
-        public DesignTimeServicesReferenceAttribute([NotNull] string typeName, [CanBeNull] string forProvider)
+        public DesignTimeServicesReferenceAttribute(string typeName, string? forProvider)
         {
             Check.NotEmpty(typeName, nameof(typeName));
 
@@ -61,6 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Gets the name of the provider for which these services should be added. If null, the services will be
         ///     added for all providers.
         /// </summary>
-        public string ForProvider { get; }
+        public string? ForProvider { get; }
     }
 }

@@ -3,15 +3,12 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -24,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly bool _useRelationalNulls;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,9 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlExpressionSimplifyingExpressionVisitor([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqlExpressionSimplifyingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
+            _useRelationalNulls = useRelationalNulls;
         }
 
         /// <summary>
@@ -71,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitExtension(extensionExpression);
         }
 
-        private bool IsCompareTo([CA.NotNullWhen(true)] CaseExpression? caseExpression)
+        private bool IsCompareTo([NotNullWhen(true)] CaseExpression? caseExpression)
         {
             if (caseExpression != null
                 && caseExpression.Operand == null
@@ -264,6 +263,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             leftValue = leftCandidateInfo.ConstantValue;
                             rightValue = rightCandidateInfo.ConstantValue;
 
+                            // for relational nulls we can't combine comparisons that contain null
+                            // a != 1 && a != null would be converted to a NOT IN (1, null), which never returns any results
+                            // we need to keep it in the original form so that a != null gets converted to a IS NOT NULL instead
+                            // for c# null semantics it's fine because null semantics visitor extracts null back into proper null checks
+                            if (_useRelationalNulls && (leftValue == null || rightValue == null))
+                            {
+                                return sqlBinaryExpression.Update(left, right);
+                            }
+
                             resultArray = ConstructCollection(leftValue, rightValue);
                         }
                         else if (leftConstantIsEnumerable && rightConstantIsEnumerable)
@@ -283,6 +291,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             rightValue = leftConstantIsEnumerable
                                 ? rightCandidateInfo.ConstantValue
                                 : leftCandidateInfo.ConstantValue;
+
+                            if (_useRelationalNulls && rightValue == null)
+                            {
+                                return sqlBinaryExpression.Update(left, right);
+                            }
 
                             resultArray = AddToCollection((IEnumerable)leftValue, rightValue);
                         }
@@ -313,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private List<object> ConstructCollection(object left, object right)
-            => new List<object> { left, right };
+            => new() { left, right };
 
         private List<object> AddToCollection(IEnumerable collection, object newElement)
         {
@@ -377,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private bool TryGetInExressionCandidateInfo(
             SqlExpression sqlExpression,
-            [CA.MaybeNullWhen(false)] out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType) candidateInfo)
+            [MaybeNullWhen(false)] out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType) candidateInfo)
         {
             if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
                 && sqlUnaryExpression.OperatorType == ExpressionType.Not)

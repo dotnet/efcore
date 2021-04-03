@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -24,12 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="querySql"> The SQL representing the query. </param>
         /// <param name="logSensitiveData"> Indicates whether or not the application allows logging of sensitive data. </param>
         public CosmosQueryEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
-            [NotNull] IReadOnlyList<(string Name, object Value)> parameters,
-            [NotNull] string querySql,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            string containerId,
+            string? partitionKey,
+            IReadOnlyList<(string Name, object? Value)> parameters,
+            string querySql,
             bool logSensitiveData)
             : base(eventDefinition, messageGenerator)
         {
@@ -48,12 +47,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The key of the Cosmos partition that the query is using.
         /// </summary>
-        public virtual string PartitionKey { get; }
+        public virtual string? PartitionKey { get; }
 
         /// <summary>
         ///     Name/values for each parameter in the Cosmos Query.
         /// </summary>
-        public virtual IReadOnlyList<(string Name, object Value)> Parameters { get; }
+        public virtual IReadOnlyList<(string Name, object? Value)> Parameters { get; }
 
         /// <summary>
         ///     The SQL representing the query.

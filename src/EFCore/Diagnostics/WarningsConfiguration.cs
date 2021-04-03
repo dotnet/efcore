@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -22,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class WarningsConfiguration
     {
-        private Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)> _explicitBehaviors
-            = new Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>();
+        private Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>? _explicitBehaviors = new();
 
         private WarningBehavior _defaultBehavior = WarningBehavior.Log;
 
@@ -40,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Called by a derived class constructor when implementing the <see cref="Clone" /> method.
         /// </summary>
         /// <param name="copyFrom"> The instance that is being cloned. </param>
-        protected WarningsConfiguration([NotNull] WarningsConfiguration copyFrom)
+        protected WarningsConfiguration(WarningsConfiguration copyFrom)
         {
             _defaultBehavior = copyFrom._defaultBehavior;
             _explicitBehaviors = copyFrom._explicitBehaviors;
@@ -51,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <returns> A clone of this instance, which can be modified before being returned as immutable. </returns>
         protected virtual WarningsConfiguration Clone()
-            => new WarningsConfiguration(this);
+            => new(this);
 
         /// <summary>
         ///     The option set from the <see cref="DefaultBehavior" /> method.
@@ -83,12 +80,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="warningBehavior"> The behavior to set. </param>
         /// <returns> A new instance with the behaviors set. </returns>
         public virtual WarningsConfiguration WithExplicit(
-            [NotNull] IEnumerable<EventId> eventIds,
+            IEnumerable<EventId> eventIds,
             WarningBehavior warningBehavior)
         {
             var clone = Clone();
 
-            clone._explicitBehaviors = new Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>(_explicitBehaviors);
+            clone._explicitBehaviors = _explicitBehaviors is null ? new() : new(_explicitBehaviors);
 
             foreach (var eventId in eventIds)
             {
@@ -114,11 +111,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventsAndLevels"> The event IDs and corresponding log levels to set. </param>
         /// <returns> A new instance with the behaviors set. </returns>
         public virtual WarningsConfiguration WithExplicit(
-            [NotNull] IEnumerable<(EventId Id, LogLevel Level)> eventsAndLevels)
+            IEnumerable<(EventId Id, LogLevel Level)> eventsAndLevels)
         {
             var clone = Clone();
 
-            clone._explicitBehaviors = new Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>(_explicitBehaviors);
+            clone._explicitBehaviors = _explicitBehaviors is null ? new() : new(_explicitBehaviors);
 
             foreach (var (id, level) in eventsAndLevels)
             {
@@ -133,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     if no explicit behavior has been set.
         /// </summary>
         public virtual WarningBehavior? GetBehavior(EventId eventId)
-            => _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
+            => _explicitBehaviors is not null && _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
                 ? warningBehavior.Behavior
                 : null;
 
@@ -143,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <returns> The <see cref="LogLevel" /> set for the given event ID. </returns>
         public virtual LogLevel? GetLevel(EventId eventId)
-            => _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
+            => _explicitBehaviors is not null && _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
                 ? warningBehavior.Level
                 : null;
 
@@ -156,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="warningBehavior"> The behavior to set. </param>
         /// <returns> A new instance with the behavior set, or this instance if a behavior was already set. </returns>
         public virtual WarningsConfiguration TryWithExplicit(EventId eventId, WarningBehavior warningBehavior)
-            => _explicitBehaviors.ContainsKey(eventId.Id)
+            => _explicitBehaviors is not null && _explicitBehaviors.ContainsKey(eventId.Id)
                 ? this
                 : WithExplicit(new[] { eventId }, warningBehavior);
 
@@ -173,13 +170,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (_explicitBehaviors != null)
                 {
-                    IEnumerable<KeyValuePair<int, (WarningBehavior? Behavior, LogLevel? Level)>> explicitBehaviors = _explicitBehaviors;
-
-                    explicitBehaviors = _explicitBehaviors.OrderBy(b => b.Key);
-
-                    hashCode = explicitBehaviors.Aggregate(
-                        hashCode,
-                        (t, e) => (t * 397) ^ (((long)e.Value.GetHashCode() * 3163) ^ (long)e.Key.GetHashCode()));
+                    hashCode = _explicitBehaviors
+                        .OrderBy(b => b.Key)
+                        .Aggregate(
+                            hashCode,
+                            (t, e) => (t * 397) ^ (((long)e.Value.GetHashCode() * 3163) ^ (long)e.Key.GetHashCode()));
                 }
 
                 _serviceProviderHash = hashCode;

@@ -16,14 +16,16 @@ namespace Microsoft.EntityFrameworkCore
         {
             IMutableModel model = new Model();
 
-            model.GetEntityTypeErrors().Add("ET", "FAIL!");
+            Assert.Empty(model.GetEntityTypeErrors().Values);
+
+            model.GetOrCreateEntityTypeErrors().Add("ET", "FAIL!");
             Assert.Equal("FAIL!", model.GetEntityTypeErrors()["ET"]);
 
             model.SetEntityTypeErrors(new Dictionary<string, string>());
             Assert.Empty(model.GetEntityTypeErrors().Values);
 
-            model.GetEntityTypeErrors()["ET"] = "FAIL 2!";
-            model.GetEntityTypeErrors().Clear();
+            model.GetOrCreateEntityTypeErrors()["ET"] = "FAIL 2!";
+            model.GetOrCreateEntityTypeErrors().Clear();
             Assert.Empty(model.GetEntityTypeErrors().Values);
         }
 

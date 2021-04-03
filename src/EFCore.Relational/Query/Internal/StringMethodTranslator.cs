@@ -4,12 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -24,8 +21,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static readonly MethodInfo _isNullOrEmptyMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) });
 
-        private static readonly MethodInfo _concatMethodInfo
+        private static readonly MethodInfo _concatMethodInfoTwoArgs
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) });
+
+        private static readonly MethodInfo _concatMethodInfoThreeArgs
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string), typeof(string) });
+
+        private static readonly MethodInfo _concatMethodInfoFourArgs
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string), typeof(string), typeof(string) });
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -35,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public StringMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public StringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -67,11 +70,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _sqlExpressionFactory.Constant(string.Empty)));
             }
 
-            if (Equals(method, _concatMethodInfo))
+            if (Equals(method, _concatMethodInfoTwoArgs))
             {
                 return _sqlExpressionFactory.Add(
                     arguments[0],
                     arguments[1]);
+            }
+
+            if (Equals(method, _concatMethodInfoThreeArgs))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    _sqlExpressionFactory.Add(
+                        arguments[1],
+                        arguments[2]));
+            }
+
+            if(Equals(method, _concatMethodInfoFourArgs))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    _sqlExpressionFactory.Add(
+                        arguments[1],
+                        _sqlExpressionFactory.Add(
+                            arguments[2],
+                            arguments[3])));
             }
 
             return null;

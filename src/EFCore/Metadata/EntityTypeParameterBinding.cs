@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -18,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="EntityTypeParameterBinding" /> instance for the given service type.
         /// </summary>
-        /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
-        public EntityTypeParameterBinding([CanBeNull] IPropertyBase? serviceProperty = null)
-            : base(typeof(IEntityType), typeof(IEntityType), serviceProperty)
+        /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> objects, or <see langword="null" />. </param>
+        public EntityTypeParameterBinding(IPropertyBase[]? serviceProperties = null)
+            : base(typeof(IEntityType), typeof(IEntityType), serviceProperties)
         {
         }
 
@@ -35,5 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Expression materializationExpression,
             Expression entityTypeExpression)
             => Check.NotNull(entityTypeExpression, nameof(entityTypeExpression));
+
+        /// <summary>
+        ///     Creates a copy that contains the given consumed properties.
+        /// </summary>
+        /// <param name="consumedProperties"> The new consumed properties. </param>
+        /// <returns> A copy with replaced consumed properties. </returns>
+        public override ParameterBinding With(IPropertyBase[] consumedProperties)
+            => new EntityTypeParameterBinding(consumedProperties);
     }
 }

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
     public class InjectStringFunctionExpressionMutator : ExpressionMutator
     {
-        private readonly ExpressionFinder _expressionFinder = new ExpressionFinder();
+        private readonly ExpressionFinder _expressionFinder = new();
 
         public InjectStringFunctionExpressionMutator(DbContext context)
             : base(context)
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             private bool _insideLambda;
             private bool _insideEFProperty;
 
-            public List<Expression> FoundExpressions { get; } = new List<Expression>();
+            public List<Expression> FoundExpressions { get; } = new();
 
             public override Expression Visit(Expression node)
             {

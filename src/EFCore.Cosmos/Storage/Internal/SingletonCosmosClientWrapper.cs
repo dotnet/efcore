@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -27,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     {
         private static readonly string _userAgent = " Microsoft.EntityFrameworkCore.Cosmos/" + ProductInfo.GetVersion();
         private readonly CosmosClientOptions _options;
-        private readonly string _endpoint;
-        private readonly string _key;
-        private readonly string _connectionString;
-        private CosmosClient _client;
+        private readonly string? _endpoint;
+        private readonly string? _key;
+        private readonly string? _connectionString;
+        private CosmosClient? _client;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SingletonCosmosClientWrapper([NotNull] ICosmosSingletonOptions options)
+        public SingletonCosmosClientWrapper(ICosmosSingletonOptions options)
         {
             _endpoint = options.AccountEndpoint;
             _key = options.AccountKey;

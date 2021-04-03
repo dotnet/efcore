@@ -3,7 +3,6 @@
 
 using System;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     Initializes a new instance of the <see cref="RelationalTransactionFactory" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public SqlServerTransactionFactory([NotNull] RelationalTransactionFactoryDependencies dependencies)
+        public SqlServerTransactionFactory(RelationalTransactionFactoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

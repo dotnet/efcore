@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.Data.Sqlite.Properties;
 
@@ -27,6 +28,8 @@ namespace Microsoft.Data.Sqlite
         private const string PasswordKeyword = "Password";
         private const string ForeignKeysKeyword = "Foreign Keys";
         private const string RecursiveTriggersKeyword = "Recursive Triggers";
+        private const string DefaultTimeoutKeyword = "Default Timeout";
+        private const string CommandTimeoutKeyword = "Command Timeout";
 
         private enum Keywords
         {
@@ -35,7 +38,8 @@ namespace Microsoft.Data.Sqlite
             Cache,
             Password,
             ForeignKeys,
-            RecursiveTriggers
+            RecursiveTriggers,
+            DefaultTimeout
         }
 
         private static readonly IReadOnlyList<string> _validKeywords;
@@ -47,19 +51,21 @@ namespace Microsoft.Data.Sqlite
         private string _password = string.Empty;
         private bool? _foreignKeys;
         private bool _recursiveTriggers;
+        private int _defaultTimeout = 30;
 
         static SqliteConnectionStringBuilder()
         {
-            var validKeywords = new string[6];
+            var validKeywords = new string[7];
             validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
             validKeywords[(int)Keywords.Mode] = ModeKeyword;
             validKeywords[(int)Keywords.Cache] = CacheKeyword;
             validKeywords[(int)Keywords.Password] = PasswordKeyword;
             validKeywords[(int)Keywords.ForeignKeys] = ForeignKeysKeyword;
             validKeywords[(int)Keywords.RecursiveTriggers] = RecursiveTriggersKeyword;
+            validKeywords[(int)Keywords.DefaultTimeout] = DefaultTimeoutKeyword;
             _validKeywords = validKeywords;
 
-            _keywords = new Dictionary<string, Keywords>(8, StringComparer.OrdinalIgnoreCase)
+            _keywords = new Dictionary<string, Keywords>(10, StringComparer.OrdinalIgnoreCase)
             {
                 [DataSourceKeyword] = Keywords.DataSource,
                 [ModeKeyword] = Keywords.Mode,
@@ -67,10 +73,12 @@ namespace Microsoft.Data.Sqlite
                 [PasswordKeyword] = Keywords.Password,
                 [ForeignKeysKeyword] = Keywords.ForeignKeys,
                 [RecursiveTriggersKeyword] = Keywords.RecursiveTriggers,
+                [DefaultTimeoutKeyword] = Keywords.DefaultTimeout,
 
                 // aliases
                 [FilenameKeyword] = Keywords.DataSource,
-                [DataSourceNoSpaceKeyword] = Keywords.DataSource
+                [DataSourceNoSpaceKeyword] = Keywords.DataSource,
+                [CommandTimeoutKeyword] = Keywords.DefaultTimeout
             };
         }
 
@@ -87,17 +95,18 @@ namespace Microsoft.Data.Sqlite
         /// <param name="connectionString">
         ///     The initial connection string the builder will represent. Can be null.
         /// </param>
-        public SqliteConnectionStringBuilder(string connectionString)
+        public SqliteConnectionStringBuilder(string? connectionString)
             => ConnectionString = connectionString;
 
         /// <summary>
         ///     Gets or sets the database file.
         /// </summary>
         /// <value>The database file.</value>
+        [AllowNull]
         public virtual string DataSource
         {
             get => _dataSource;
-            set => base[DataSourceKeyword] = _dataSource = value;
+            set => base[DataSourceKeyword] = _dataSource = value ?? string.Empty;
         }
 
         /// <summary>
@@ -125,13 +134,13 @@ namespace Microsoft.Data.Sqlite
         {
             get
             {
-                var values = new object[_validKeywords.Count];
+                var values = new object?[_validKeywords.Count];
                 for (var i = 0; i < _validKeywords.Count; i++)
                 {
                     values[i] = GetAt((Keywords)i);
                 }
 
-                return new ReadOnlyCollection<object>(values);
+                return new ReadOnlyCollection<object?>(values);
             }
         }
 
@@ -151,10 +160,11 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <value>The encryption key.</value>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/encryption">Encryption</seealso>
+        [AllowNull]
         public string Password
         {
             get => _password;
-            set => base[PasswordKeyword] = _password = value;
+            set => base[PasswordKeyword] = _password = value ?? string.Empty;
         }
 
         /// <summary>
@@ -183,13 +193,25 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        ///     Gets or sets the default <see cref="SqliteConnection.DefaultTimeout" /> value.
+        /// </summary>
+        /// <value>The default <see cref="SqliteConnection.DefaultTimeout" /> value.</value>
+        public int DefaultTimeout
+        {
+            get => _defaultTimeout;
+            set => base[DefaultTimeoutKeyword] = _defaultTimeout = value;
+        }
+
+        /// <summary>
         ///     Gets or sets the value associated with the specified key.
         /// </summary>
         /// <param name="keyword">The key.</param>
         /// <returns>The value.</returns>
-        public override object this[string keyword]
+        public override object? this[string keyword]
         {
+#pragma warning disable CS8764 // NB: this["Foreign Keys"] may return null
             get => GetAt(GetIndex(keyword));
+#pragma warning restore CS8764
             set
             {
                 if (value == null)
@@ -223,6 +245,10 @@ namespace Microsoft.Data.Sqlite
 
                     case Keywords.RecursiveTriggers:
                         RecursiveTriggers = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
+                        return;
+
+                    case Keywords.DefaultTimeout:
+                        DefaultTimeout = Convert.ToInt32(value);
                         return;
 
                     default:
@@ -329,7 +355,9 @@ namespace Microsoft.Data.Sqlite
         /// <param name="keyword">The key.</param>
         /// <param name="value">The value.</param>
         /// <returns><see langword="true" /> if the key was used; otherwise, <see langword="false" />. </returns>
-        public override bool TryGetValue(string keyword, out object value)
+#pragma warning disable CS8765 // NB: TryGetValue("Foreign Keys", out value) returns true, but value may be null
+        public override bool TryGetValue(string keyword, out object? value)
+#pragma warning restore CS8765
         {
             if (!_keywords.TryGetValue(keyword, out var index))
             {
@@ -343,7 +371,7 @@ namespace Microsoft.Data.Sqlite
             return true;
         }
 
-        private object GetAt(Keywords index)
+        private object? GetAt(Keywords index)
         {
             switch (index)
             {
@@ -364,6 +392,9 @@ namespace Microsoft.Data.Sqlite
 
                 case Keywords.RecursiveTriggers:
                     return RecursiveTriggers;
+
+                case Keywords.DefaultTimeout:
+                    return DefaultTimeout;
 
                 default:
                     Debug.Assert(false, "Unexpected keyword: " + index);
@@ -402,6 +433,10 @@ namespace Microsoft.Data.Sqlite
 
                 case Keywords.RecursiveTriggers:
                     _recursiveTriggers = false;
+                    return;
+
+                case Keywords.DefaultTimeout:
+                    _defaultTimeout = 30;
                     return;
 
                 default:

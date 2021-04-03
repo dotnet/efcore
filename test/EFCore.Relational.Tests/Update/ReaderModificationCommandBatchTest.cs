@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -483,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -594,10 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 => ShouldValidateSql;
 
             protected override void UpdateCachedCommandText(int commandIndex)
-            {
-                CachedCommandText ??= new StringBuilder();
-                CachedCommandText.Append(".");
-            }
+                => CachedCommandText.Append(".");
 
             public void UpdateCachedCommandTextBase(int commandIndex)
                 => base.UpdateCachedCommandText(commandIndex);
@@ -628,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
-            => new FakeRelationalConnection(options ?? CreateOptions());
+            => new(options ?? CreateOptions());
 
         public static IDbContextOptions CreateOptions(RelationalOptionsExtension optionsExtension = null)
         {

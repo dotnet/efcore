@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore.Storage;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public class OptimisticConcurrencyCosmosTest : OptimisticConcurrencyTestBase<F1CosmosFixture>
+    public class OptimisticConcurrencyCosmosTest : OptimisticConcurrencyTestBase<F1CosmosFixture<byte[]>, byte[]>
     {
-        public OptimisticConcurrencyCosmosTest(F1CosmosFixture fixture)
+        public OptimisticConcurrencyCosmosTest(F1CosmosFixture<byte[]> fixture)
             : base(fixture)
         {
             fixture.Reseed();
@@ -44,11 +44,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public override Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
             => Task.CompletedTask;
 
+        public override Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
+            => Task.CompletedTask;
+
+        public override Task Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
+            => Task.CompletedTask;
+
         protected override IDbContextTransaction BeginTransaction(DatabaseFacade facade) => new FakeDbContextTransaction();
 
         private class FakeDbContextTransaction : IDbContextTransaction
         {
-            public Guid TransactionId => new Guid();
+            public Guid TransactionId => new();
 
             public void Commit()
             {

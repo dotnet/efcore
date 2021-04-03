@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json.Linq;
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        bool CreateContainerIfNotExists([NotNull] string containerId, [NotNull] string partitionKey);
+        bool CreateContainerIfNotExists(string containerId, string partitionKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         Task<bool> CreateContainerIfNotExistsAsync(
-            [NotNull] string containerId,
-            [NotNull] string partitionKey,
+            string containerId,
+            string partitionKey,
             CancellationToken cancellationToken = default);
         
         /// <summary>
@@ -76,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        bool CreateItem([NotNull] string containerId, [NotNull] JToken document, [NotNull] IUpdateEntry entry);
+        bool CreateItem(string containerId, JToken document, IUpdateEntry entry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,10 +84,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         bool ReplaceItem(
-            [NotNull] string collectionId,
-            [NotNull] string documentId,
-            [NotNull] JObject document,
-            [NotNull] IUpdateEntry entry);
+            string collectionId,
+            string documentId,
+            JObject document,
+            IUpdateEntry entry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -97,9 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         bool DeleteItem(
-            [NotNull] string containerId,
-            [NotNull] string documentId,
-            [NotNull] IUpdateEntry entry);
+            string containerId,
+            string documentId,
+            IUpdateEntry entry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -108,9 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         Task<bool> CreateItemAsync(
-            [NotNull] string containerId,
-            [NotNull] JToken document,
-            [NotNull] IUpdateEntry updateEntry,
+            string containerId,
+            JToken document,
+            IUpdateEntry updateEntry,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -120,10 +119,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         Task<bool> ReplaceItemAsync(
-            [NotNull] string collectionId,
-            [NotNull] string documentId,
-            [NotNull] JObject document,
-            [NotNull] IUpdateEntry updateEntry,
+            string collectionId,
+            string documentId,
+            JObject document,
+            IUpdateEntry updateEntry,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -133,9 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         Task<bool> DeleteItemAsync(
-            [NotNull] string containerId,
-            [NotNull] string documentId,
-            [NotNull] IUpdateEntry entry,
+            string containerId,
+            string documentId,
+            IUpdateEntry entry,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -144,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        FeedIterator CreateQuery([NotNull] string containerId, [NotNull] string partitionKey, [NotNull] CosmosSqlQuery query);
+        FeedIterator CreateQuery(string containerId, string? partitionKey, CosmosSqlQuery query);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -153,9 +152,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         JObject ExecuteReadItem(
-            [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
-            [NotNull] string resourceId);
+            string containerId,
+            string? partitionKey,
+            string resourceId);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -164,9 +163,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         Task<JObject> ExecuteReadItemAsync(
-            [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
-            [NotNull] string resourceId,
+            string containerId,
+            string? partitionKey,
+            string resourceId,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -176,9 +175,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IEnumerable<JObject> ExecuteSqlQuery(
-            [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
-            [NotNull] CosmosSqlQuery query);
+            string containerId,
+            string? partitionKey,
+            CosmosSqlQuery query);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -187,8 +186,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
-            [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
-            [NotNull] CosmosSqlQuery query);
+            string containerId,
+            string? partitionKey,
+            CosmosSqlQuery query);
     }
 }

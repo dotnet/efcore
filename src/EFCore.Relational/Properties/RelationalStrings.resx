@@ -162,6 +162,7 @@
   </data>
   <data name="DatabaseModelMissing" xml:space="preserve">
     <value>The database model hasn't been initialized. The model needs to be finalized and processed with 'RelationalModelConvention' before the database model can be accessed.</value>
+    <comment>Obsolete</comment>
   </data>
   <data name="DataOperationNoProperty" xml:space="preserve">
     <value>There is no property mapped to the column '{table}.{column}' which is used in a data operation. Either add a property mapped to this column, or specify the column types in the data operation.</value>
@@ -217,6 +218,9 @@
   <data name="DerivedTypeTable" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be mapped to a table because it is derived from '{baseType}'. Only base entity types can be mapped to a table.</value>
     <comment>Obsolete</comment>
+  </data>
+  <data name="DistinctOnCollectionNotSupported" xml:space="preserve">
+    <value>Using 'Distinct' operation on a projection containing a collection is not supported.</value>
   </data>
   <data name="DuplicateCheckConstraint" xml:space="preserve">
     <value>The check constraint '{checkConstraint}' cannot be added to the entity type '{entityType}' because another check constraint with the same name already exists.</value>
@@ -520,11 +524,11 @@
   </data>
   <data name="LogNamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.</value>
-    <comment>Information RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string string string</comment>
+    <comment>Information RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string? string string</comment>
   </data>
   <data name="LogNamedIndexPropertiesBothMappedAndNotMappedToTable" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. All of the properties must be mapped for the index to be created in the database.</value>
-    <comment>Error RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable string string string string</comment>
+    <comment>Error RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable string? string string string</comment>
   </data>
   <data name="LogNamedIndexPropertiesMappedToNonOverlappingTables" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}. The property '{propertyName1}' is mapped to table(s) {tables1}, whereas the property '{propertyName2}' is mapped to table(s) {tables2}. All index properties must map to at least one common table.</value>
@@ -608,14 +612,17 @@
   <data name="MethodOnNonTPHRootNotSupported" xml:space="preserve">
     <value>Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>
+  <data name="MigrationDownMissing" xml:space="preserve">
+    <value>The 'Down' method for this migration has not been implemented. Both the 'Up' abd 'Down' methods must be implemented to support reverting migrations.</value>
+  </data>
   <data name="MigrationNotFound" xml:space="preserve">
     <value>The migration '{migrationName}' was not found.</value>
   </data>
+  <data name="MigrationSqlGenerationMissing" xml:space="preserve">
+    <value>SQL generation for the operation '{operation}' is not supported by the current database provider. Database providers must implement the appropriate method in 'MigrationsSqlGenerator' to support this operation.</value>
+  </data>
   <data name="MissingConcurrencyColumn" xml:space="preserve">
     <value>Entity type '{entityType}' doesn't contain a property mapped to the store-generated concurrency token column '{missingColumn}' which is used by another entity type sharing the table '{table}'. Add a store-generated property to '{entityType}' which is mapped to the same column; it may be in shadow state.</value>
-  </data>
-  <data name="MissingIdentifyingProjectionInDistinctGroupBySubquery" xml:space="preserve">
-    <value>Unable to translate a collection subquery in a projection since it uses 'Distinct' or 'Group By' operations and doesn't project key columns of all tables required to generate results on the client side. Missing column: {column}. Either add column(s) to the projection or rewrite the query to not use the 'GroupBy'/'Distinct' operation.</value>
   </data>
   <data name="MissingOrderingInSelectExpression" xml:space="preserve">
     <value>'Reverse' could not be translated to the server because there is no ordering on the server side.</value>

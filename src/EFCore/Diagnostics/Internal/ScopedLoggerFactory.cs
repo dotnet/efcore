@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ScopedLoggerFactory(
-            [NotNull] ILoggerFactory loggerFactory,
+            ILoggerFactory loggerFactory,
             bool dispose)
         {
             _underlyingFactory = loggerFactory;
@@ -41,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static ScopedLoggerFactory Create(
-            [NotNull] IServiceProvider internalServiceProvider,
-            [CanBeNull] IDbContextOptions contextOptions)
+            IServiceProvider internalServiceProvider,
+            IDbContextOptions? contextOptions)
         {
             var coreOptions
                 = (contextOptions ?? internalServiceProvider.GetService<IDbContextOptions>())

@@ -572,6 +572,15 @@ WHERE [o].[OrderID] > 10500");
 FROM [Orders] AS [o]");
         }
 
+        public override async Task GroupBy_constant_with_where_on_grouping_with_aggregate_operators(bool async)
+        {
+            await base.GroupBy_constant_with_where_on_grouping_with_aggregate_operators(async);
+
+            AssertSql(
+                @"SELECT MIN([o].[OrderDate]) AS [Min], MAX([o].[OrderDate]) AS [Max], COALESCE(SUM([o].[OrderID]), 0) AS [Sum], AVG(CAST([o].[OrderID] AS float)) AS [Average]
+FROM [Orders] AS [o]");
+        }
+
         public override async Task GroupBy_param_Select_Sum_Min_Key_Max_Avg(bool async)
         {
             await base.GroupBy_param_Select_Sum_Min_Key_Max_Avg(async);
@@ -2506,6 +2515,70 @@ UNION
 SELECT [o].[CustomerID], 1 AS [Sequence]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(bool async)
+        {
+            await base.Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(async);
+
+            AssertSql(
+                @"SELECT [t].[City], [t0].[ProductID], [t1].[c], [t1].[ProductID]
+FROM (
+    SELECT DISTINCT [c].[City]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+    WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')
+) AS [t]
+OUTER APPLY (
+    SELECT [p].[ProductID]
+    FROM [Products] AS [p]
+    GROUP BY [p].[ProductID]
+) AS [t0]
+OUTER APPLY (
+    SELECT COUNT(*) AS [c], [p0].[ProductID]
+    FROM [Products] AS [p0]
+    GROUP BY [p0].[ProductID]
+) AS [t1]
+ORDER BY [t].[City], [t0].[ProductID], [t1].[ProductID]");
+        }
+
+        public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_does_not_change(bool async)
+        {
+            await base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_does_not_change(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    GROUP BY [c].[CustomerID]
+    HAVING [c].[CustomerID] LIKE N'F%'
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes(bool async)
+        {
+            await base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'F%')
+) AS [t]
+LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
+ORDER BY [t].[CustomerID], [o0].[OrderID]");
+        }
+
+        public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(bool async)
+        {
+            await base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(async);
+
+            //AssertSql(" ");
         }
 
         private void AssertSql(params string[] expected)

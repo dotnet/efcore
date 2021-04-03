@@ -13,11 +13,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     public static class XunitTestCaseExtensions
     {
-        private static readonly ConcurrentDictionary<string, List<IAttributeInfo>> _typeAttributes
-            = new ConcurrentDictionary<string, List<IAttributeInfo>>();
-
-        private static readonly ConcurrentDictionary<string, List<IAttributeInfo>> _assemblyAttributes
-            = new ConcurrentDictionary<string, List<IAttributeInfo>>();
+        private static readonly ConcurrentDictionary<string, List<IAttributeInfo>> _typeAttributes = new();
+        private static readonly ConcurrentDictionary<string, List<IAttributeInfo>> _assemblyAttributes = new();
 
         public static async ValueTask<bool> TrySkipAsync(XunitTestCase testCase, IMessageBus messageBus)
         {

@@ -12,7 +12,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -54,10 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<DbCommand> CommandCreating(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
             DbCommandMethod commandMethod,
-            [CanBeNull] DbContext context,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime)
@@ -94,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static CommandCorrelatedEventData BroadcastCommandCreating(
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbConnection connection,
-            DbContext context,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
@@ -152,11 +151,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The duration of the command creation. </param>
         /// <returns> An intercepted result. </returns>
         public static DbCommand CommandCreated(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
             DbCommandMethod commandMethod,
-            [CanBeNull] DbContext context,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
@@ -197,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbConnection connection,
             DbCommand command,
-            DbContext context,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
@@ -258,10 +257,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<DbDataReader> CommandReaderExecuting(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime)
@@ -308,10 +307,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<object> CommandScalarExecuting(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime)
@@ -358,10 +357,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <returns> An intercepted result. </returns>
         public static InterceptionResult<int> CommandNonQueryExecuting(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime)
@@ -406,13 +405,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult<DbDataReader>> CommandReaderExecutingAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
@@ -458,13 +458,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult<object>> CommandScalarExecutingAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
@@ -510,13 +511,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandId"> The correlation ID associated with the given <see cref="DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult<int>> CommandNonQueryExecutingAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
@@ -556,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbConnection connection,
             DbCommand command,
-            DbContext context,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
@@ -633,13 +635,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static DbDataReader CommandReaderExecuted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
-            [CanBeNull] DbDataReader methodResult,
+            DbDataReader methodResult,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -688,14 +690,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        public static object CommandScalarExecuted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+        public static object? CommandScalarExecuted(
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
-            [CanBeNull] object methodResult,
+            object? methodResult,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -745,10 +747,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static int CommandNonQueryExecuted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             int methodResult,
@@ -799,16 +801,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<DbDataReader> CommandReaderExecutedAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
-            [CanBeNull] DbDataReader methodResult,
+            DbDataReader methodResult,
             DateTimeOffset startTime,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
@@ -857,16 +860,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        public static ValueTask<object> CommandScalarExecutedAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public static ValueTask<object?> CommandScalarExecutedAsync(
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
-            [CanBeNull] object methodResult,
+            object? methodResult,
             DateTimeOffset startTime,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
@@ -900,7 +904,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            return new ValueTask<object>(methodResult);
+            return new ValueTask<object?>(methodResult);
         }
 
         /// <summary>
@@ -915,13 +919,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="methodResult"> The return value from the underlying method execution. </param>
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The duration of the command execution, not including consuming results. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<int> CommandNonQueryExecutedAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             int methodResult,
@@ -965,11 +970,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbConnection connection,
             DbCommand command,
-            DbContext context,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
-            object methodResult,
+            object? methodResult,
             bool async,
             DateTimeOffset startTime,
             TimeSpan duration,
@@ -1043,14 +1048,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The amount of time that passed until the exception was raised. </param>
         public static void CommandError(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
-            [NotNull] Exception exception,
+            Exception exception,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -1113,17 +1118,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="exception"> The exception that caused this failure. </param>
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The amount of time that passed until the exception was raised. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task CommandErrorAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
-            [NotNull] Exception exception,
+            Exception exception,
             DateTimeOffset startTime,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
@@ -1164,7 +1170,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbConnection connection,
             DbCommand command,
-            DbContext context,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
@@ -1217,8 +1223,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static InterceptionResult ConnectionOpening(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
             DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogOpeningConnection(diagnostics);
@@ -1252,11 +1258,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> ConnectionOpeningAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
             DateTimeOffset startTime,
             CancellationToken cancellationToken)
         {
@@ -1338,8 +1345,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was opened. </param>
         public static void ConnectionOpened(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -1371,11 +1378,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was opened. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ConnectionOpenedAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
             DateTimeOffset startTime,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
@@ -1461,8 +1469,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static InterceptionResult ConnectionClosing(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
             DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogClosingConnection(diagnostics);
@@ -1498,8 +1506,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static ValueTask<InterceptionResult> ConnectionClosingAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
             DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogClosingConnection(diagnostics);
@@ -1580,8 +1588,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was closed. </param>
         public static void ConnectionClosed(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -1615,8 +1623,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The amount of time before the connection was closed. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task ConnectionClosedAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -1703,9 +1711,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The elapsed time before the operation failed. </param>
         /// <param name="logErrorAsDebug"> A flag indicating the exception is being handled and so it should be logged at Debug level. </param>
         public static void ConnectionError(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] Exception exception,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            Exception exception,
             DateTimeOffset startTime,
             TimeSpan duration,
             bool logErrorAsDebug)
@@ -1743,12 +1751,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time before the operation failed. </param>
         /// <param name="logErrorAsDebug"> A flag indicating the exception is being handled and so it should be logged at Debug level. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ConnectionErrorAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] Exception exception,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
+            IRelationalConnection connection,
+            Exception exception,
             DateTimeOffset startTime,
             TimeSpan duration,
             bool logErrorAsDebug,
@@ -1842,8 +1851,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static InterceptionResult<DbTransaction> TransactionStarting(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
             IsolationLevel isolationLevel,
             Guid transactionId,
             DateTimeOffset startTime)
@@ -1883,11 +1892,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="isolationLevel"> The transaction isolation level. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
             IsolationLevel isolationLevel,
             Guid transactionId,
             DateTimeOffset startTime,
@@ -1976,9 +1986,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The amount of time before the connection was opened. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static DbTransaction TransactionStarted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             TimeSpan duration)
@@ -2020,12 +2030,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was opened. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<DbTransaction> TransactionStartedAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             TimeSpan duration,
@@ -2115,9 +2126,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static DbTransaction TransactionUsed(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime)
         {
@@ -2128,7 +2139,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
                 definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = BroadcasstTransactionUsed(
+                var eventData = BroadcastTransactionUsed(
                     diagnostics,
                     connection,
                     transaction,
@@ -2156,12 +2167,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<DbTransaction> TransactionUsedAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
@@ -2173,7 +2185,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             if (diagnostics.NeedsEventData<IDbTransactionInterceptor>(
                 definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = BroadcasstTransactionUsed(
+                var eventData = BroadcastTransactionUsed(
                     diagnostics,
                     connection,
                     transaction,
@@ -2193,7 +2205,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             return new ValueTask<DbTransaction>(transaction);
         }
 
-        private static TransactionEventData BroadcasstTransactionUsed(
+        private static TransactionEventData BroadcastTransactionUsed(
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
             DbTransaction transaction,
@@ -2216,7 +2228,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnosticSourceEnabled)
             {
-                diagnostics.DiagnosticSource.Write(definition.EventId.Name, eventData);
+                diagnostics.DiagnosticSource.Write(definition.EventId.Name!, eventData);
             }
 
             if (simpleLogEnabled)
@@ -2240,10 +2252,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string TransactionUsed(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string>)definition;
+            var d = (EventDefinition<string?>)definition;
             var p = (TransactionEventData)payload;
             return d.GenerateMessage(
-                p.Transaction.IsolationLevel.ToString("G"));
+                p.Transaction?.IsolationLevel.ToString("G"));
         }
 
         /// <summary>
@@ -2256,9 +2268,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static InterceptionResult TransactionCommitting(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime)
         {
@@ -2297,12 +2309,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> TransactionCommittingAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
@@ -2380,9 +2393,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
         public static void TransactionCommitted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             TimeSpan duration)
@@ -2419,12 +2432,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task TransactionCommittedAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             TimeSpan duration,
@@ -2506,9 +2520,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
         public static void TransactionRolledBack(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             TimeSpan duration)
@@ -2545,12 +2559,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task TransactionRolledBackAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             TimeSpan duration,
@@ -2632,9 +2647,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static InterceptionResult TransactionRollingBack(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime)
         {
@@ -2673,12 +2688,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> TransactionRollingBackAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
@@ -2756,9 +2772,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static InterceptionResult CreatingTransactionSavepoint(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime)
         {
@@ -2797,12 +2813,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> CreatingTransactionSavepointAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
@@ -2879,9 +2896,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         public static void CreatedTransactionSavepoint(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime)
         {
@@ -2915,12 +2932,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task CreatedTransactionSavepointAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
@@ -2998,9 +3016,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static InterceptionResult RollingBackToTransactionSavepoint(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime)
         {
@@ -3039,12 +3057,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> RollingBackToTransactionSavepointAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
@@ -3121,9 +3140,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         public static void RolledBackToTransactionSavepoint(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime)
         {
@@ -3157,12 +3176,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task RolledBackToTransactionSavepointAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
@@ -3240,9 +3260,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static InterceptionResult ReleasingTransactionSavepoint(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime)
         {
@@ -3281,12 +3301,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static ValueTask<InterceptionResult> ReleasingTransactionSavepointAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
@@ -3363,9 +3384,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         public static void ReleasedTransactionSavepoint(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime)
         {
@@ -3399,12 +3420,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transaction"> The transaction. </param>
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task ReleasedTransactionSavepointAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
@@ -3481,9 +3503,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         public static void TransactionDisposed(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
             DateTimeOffset startTime)
         {
@@ -3522,12 +3544,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
         public static void TransactionError(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
-            [NotNull] string action,
-            [NotNull] Exception exception,
+            string action,
+            Exception exception,
             DateTimeOffset startTime,
             TimeSpan duration)
         {
@@ -3567,15 +3589,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="exception"> The exception that represents the error. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public static Task TransactionErrorAsync(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
-            [NotNull] string action,
-            [NotNull] Exception exception,
+            string action,
+            Exception exception,
             DateTimeOffset startTime,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
@@ -3660,8 +3683,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         public static void AmbientTransactionWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
             DateTimeOffset startTime)
         {
             var definition = RelationalResources.LogAmbientTransaction(diagnostics);
@@ -3693,9 +3716,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="transaction"> The transaction. </param>
         public static void AmbientTransactionEnlisted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] Transaction transaction)
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            Transaction transaction)
         {
             var definition = RelationalResources.LogAmbientTransactionEnlisted(diagnostics);
 
@@ -3731,9 +3754,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="transaction"> The transaction. </param>
         public static void ExplicitTransactionEnlisted(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] Transaction transaction)
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            IRelationalConnection connection,
+            Transaction transaction)
         {
             var definition = RelationalResources.LogExplicitTransactionEnlisted(diagnostics);
 
@@ -3776,10 +3799,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
         public static InterceptionResult DataReaderDisposing(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbCommand command,
-            [NotNull] DbDataReader dataReader,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            IRelationalConnection connection,
+            DbCommand command,
+            DbDataReader dataReader,
             Guid commandId,
             int recordsAffected,
             int readCount,
@@ -3827,9 +3850,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="migrator"> The migrator. </param>
         /// <param name="connection"> The connection. </param>
         public static void MigrateUsingConnection(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
-            [NotNull] IMigrator migrator,
-            [NotNull] IRelationalConnection connection)
+            this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            IMigrator migrator,
+            IRelationalConnection connection)
         {
             var definition = RelationalResources.LogMigrating(diagnostics);
 
@@ -3869,9 +3892,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="migrator"> The migrator. </param>
         /// <param name="migration"> The migration. </param>
         public static void MigrationReverting(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
-            [NotNull] IMigrator migrator,
-            [NotNull] Migration migration)
+            this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            IMigrator migrator,
+            Migration migration)
         {
             var definition = RelationalResources.LogRevertingMigration(diagnostics);
 
@@ -3906,9 +3929,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="migrator"> The migrator. </param>
         /// <param name="migration"> The migration. </param>
         public static void MigrationApplying(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
-            [NotNull] IMigrator migrator,
-            [NotNull] Migration migration)
+            this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            IMigrator migrator,
+            Migration migration)
         {
             var definition = RelationalResources.LogApplyingMigration(diagnostics);
 
@@ -3946,11 +3969,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="toMigration"> The ending migration name. </param>
         /// <param name="idempotent"> Indicates whether or not an idempotent script is being generated. </param>
         public static void MigrationGeneratingDownScript(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
-            [NotNull] IMigrator migrator,
-            [NotNull] Migration migration,
-            [CanBeNull] string fromMigration,
-            [CanBeNull] string toMigration,
+            this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            IMigrator migrator,
+            Migration migration,
+            string? fromMigration,
+            string? toMigration,
             bool idempotent)
         {
             var definition = RelationalResources.LogGeneratingDown(diagnostics);
@@ -3992,11 +4015,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="toMigration"> The ending migration name. </param>
         /// <param name="idempotent"> Indicates whether or not an idempotent script is being generated. </param>
         public static void MigrationGeneratingUpScript(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
-            [NotNull] IMigrator migrator,
-            [NotNull] Migration migration,
-            [CanBeNull] string fromMigration,
-            [CanBeNull] string toMigration,
+            this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            IMigrator migrator,
+            Migration migration,
+            string? fromMigration,
+            string? toMigration,
             bool idempotent)
         {
             var definition = RelationalResources.LogGeneratingUp(diagnostics);
@@ -4034,8 +4057,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="migrator"> The migrator. </param>
         public static void MigrationsNotApplied(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
-            [NotNull] IMigrator migrator)
+            this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            IMigrator migrator)
         {
             var definition = RelationalResources.LogNoMigrationsApplied(diagnostics);
 
@@ -4062,15 +4085,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="migrator"> The migrator. </param>
         /// <param name="migrationsAssembly"> The assembly in which migrations are stored. </param>
         public static void MigrationsNotFound(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
-            [NotNull] IMigrator migrator,
-            [NotNull] IMigrationsAssembly migrationsAssembly)
+            this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            IMigrator migrator,
+            IMigrationsAssembly migrationsAssembly)
         {
             var definition = RelationalResources.LogNoMigrationsFound(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, migrationsAssembly.Assembly.GetName().Name);
+                definition.Log(diagnostics, migrationsAssembly.Assembly.GetName().Name!);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -4089,7 +4112,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string>)definition;
             var p = (MigrationAssemblyEventData)payload;
-            return d.GenerateMessage(p.MigrationsAssembly.Assembly.GetName().Name);
+            return d.GenerateMessage(p.MigrationsAssembly.Assembly.GetName().Name!);
         }
 
         /// <summary>
@@ -4098,8 +4121,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="migrationType"> Info for the migration type. </param>
         public static void MigrationAttributeMissingWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
-            [NotNull] TypeInfo migrationType)
+            this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            TypeInfo migrationType)
         {
             var definition = RelationalResources.LogMigrationAttributeMissingWarning(diagnostics);
 
@@ -4133,9 +4156,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="left"> The left SQL expression of the Equals. </param>
         /// <param name="right"> The right SQL expression of the Equals. </param>
         public static void QueryPossibleUnintendedUseOfEqualsWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
-            [NotNull] SqlExpression left,
-            [NotNull] SqlExpression right)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            SqlExpression left,
+            SqlExpression right)
         {
             var definition = RelationalResources.LogPossibleUnintendedUseOfEquals(diagnostics);
 
@@ -4169,7 +4192,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         [Obsolete]
         public static void QueryPossibleExceptionWithAggregateOperatorWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
             var definition = RelationalResources.LogQueryPossibleExceptionWithAggregateOperatorWarning(diagnostics);
 
@@ -4193,7 +4216,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         public static void MultipleCollectionIncludeWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics)
         {
             var definition = RelationalResources.LogMultipleCollectionIncludeWarning(diagnostics);
 
@@ -4218,8 +4241,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="property"> The property. </param>
         public static void ModelValidationKeyDefaultValueWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IProperty property)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IProperty property)
         {
             var definition = RelationalResources.LogKeyHasDefaultValue(diagnostics);
 
@@ -4254,8 +4277,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="property"> The property. </param>
         public static void BoolWithDefaultWarning(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IProperty property)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IProperty property)
         {
             var definition = RelationalResources.LogBoolWithDefaultWarning(diagnostics);
 
@@ -4289,8 +4312,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="entries"> The entries for entities in the batch. </param>
         /// <param name="commandCount"> The number of commands. </param>
         public static void BatchReadyForExecution(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] IEnumerable<IUpdateEntry> entries,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            IEnumerable<IUpdateEntry> entries,
             int commandCount)
         {
             var definition = RelationalResources.LogBatchReadyForExecution(diagnostics);
@@ -4327,8 +4350,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandCount"> The number of commands. </param>
         /// <param name="minBatchSize"> The minimum batch size. </param>
         public static void BatchSmallerThanMinBatchSize(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] IEnumerable<IUpdateEntry> entries,
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            IEnumerable<IUpdateEntry> entries,
             int commandCount,
             int minBatchSize)
         {
@@ -4366,9 +4389,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="entityType"> The entity type on which the index is defined. </param>
         /// <param name="index"> The index on the entity type. </param>
         public static void AllIndexPropertiesNotToMappedToAnyTable(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IEntityType entityType,
-            [NotNull] IIndex index)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IEntityType entityType,
+            IIndex index)
         {
             if (index.Name == null)
             {
@@ -4432,7 +4455,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string NamedIndexAllPropertiesNotToMappedToAnyTable(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string>)definition;
+            var d = (EventDefinition<string?, string, string>)definition;
             var p = (IndexEventData)payload;
             return d.GenerateMessage(
                 p.Name,
@@ -4448,10 +4471,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="index"> The index on the entity type. </param>
         /// <param name="unmappedPropertyName"> The name of the property which is not mapped. </param>
         public static void IndexPropertiesBothMappedAndNotMappedToTable(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IEntityType entityType,
-            [NotNull] IIndex index,
-            [NotNull] string unmappedPropertyName)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IEntityType entityType,
+            IIndex index,
+            string unmappedPropertyName)
         {
             if (index.Name == null)
             {
@@ -4520,7 +4543,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string NamedIndexPropertiesBothMappedAndNotMappedToTable(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string, string>)definition;
+            var d = (EventDefinition<string?, string, string, string>)definition;
             var p = (IndexWithPropertyEventData)payload;
             return d.GenerateMessage(
                 p.Name,
@@ -4540,13 +4563,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="property2Name"> The second property name which is invalid. </param>
         /// <param name="tablesMappedToProperty2"> The tables mapped to the second property. </param>
         public static void IndexPropertiesMappedToNonOverlappingTables(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IEntityType entityType,
-            [NotNull] IIndex index,
-            [NotNull] string property1Name,
-            [NotNull] List<(string Table, string Schema)> tablesMappedToProperty1,
-            [NotNull] string property2Name,
-            [NotNull] List<(string Table, string Schema)> tablesMappedToProperty2)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IEntityType entityType,
+            IIndex index,
+            string property1Name,
+            List<(string Table, string? Schema)> tablesMappedToProperty1,
+            string property2Name,
+            List<(string Table, string? Schema)> tablesMappedToProperty2)
         {
             if (index.Name == null)
             {
@@ -4656,8 +4679,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="foreignKey"> The foreign key. </param>
         public static void ForeignKeyPropertiesMappedToUnrelatedTables(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
-            [NotNull] IForeignKey foreignKey)
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IForeignKey foreignKey)
         {
             var definition = RelationalResources.LogForeignKeyPropertiesMappedToUnrelatedTables(diagnostics);
 
@@ -4713,9 +4736,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="contextType"> The <see cref="DbContext" /> type being used. </param>
         /// <param name="exception"> The exception that caused this failure. </param>
         public static void BatchExecutorFailedToRollbackToSavepoint(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] Type contextType,
-            [NotNull] Exception exception)
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            Type contextType,
+            Exception exception)
         {
             var definition = RelationalResources.LogBatchExecutorFailedToRollbackToSavepoint(diagnostics);
 
@@ -4743,9 +4766,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="contextType"> The <see cref="DbContext" /> type being used. </param>
         /// <param name="exception"> The exception that caused this failure. </param>
         public static void BatchExecutorFailedToReleaseSavepoint(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] Type contextType,
-            [NotNull] Exception exception)
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            Type contextType,
+            Exception exception)
         {
             var definition = RelationalResources.LogBatchExecutorFailedToReleaseSavepoint(diagnostics);
 

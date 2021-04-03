@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public UriToStringConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public UriToStringConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 ToString(),
                 ToUri(),
@@ -31,6 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(Uri), typeof(string), i => new UriToStringConverter(i.MappingHints));
+            = new(typeof(Uri), typeof(string), i => new UriToStringConverter(i.MappingHints));
     }
 }

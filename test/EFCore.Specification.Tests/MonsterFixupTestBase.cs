@@ -519,11 +519,17 @@ namespace Microsoft.EntityFrameworkCore
                 var productReview2 = context.ProductReviews.Single(e => e.Review.StartsWith("Good"));
                 var productReview3 = context.ProductReviews.Single(e => e.Review.StartsWith("Eeky"));
 
-                // Issue #16428
-                var productPhotos = context.ProductPhotos.ToList();
-                var productPhoto1 = productPhotos.Single(e => e.Photo[0] == 101);
-                var productPhoto2 = productPhotos.Single(e => e.Photo[0] == 103);
-                var productPhoto3 = productPhotos.Single(e => e.Photo[0] == 105);
+                // See issue#16428
+                var sqlite = context.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
+                var productPhoto1 = sqlite
+                    ? context.ProductPhotos.ToList().Single(e => e.Photo[0] == 101)
+                    : context.ProductPhotos.Single(e => e.Photo[0] == 101);
+                var productPhoto2 = sqlite
+                    ? context.ProductPhotos.ToList().Single(e => e.Photo[0] == 103)
+                    : context.ProductPhotos.Single(e => e.Photo[0] == 103);
+                var productPhoto3 = sqlite
+                    ? context.ProductPhotos.ToList().Single(e => e.Photo[0] == 105)
+                    : context.ProductPhotos.Single(e => e.Photo[0] == 105);
 
                 var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
                 var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
@@ -834,10 +840,19 @@ namespace Microsoft.EntityFrameworkCore
                 new[] { "Better than Tarqies!", "Eeky says yes!", "Good with maple syrup." },
                 context.ProductReviews.Select(c => c.Review).OrderBy(n => n));
 
-            // Issue #16428
-            Assert.Equal(
-                new[] { "101", "103", "105" },
-                context.ProductPhotos.ToList().Select(c => c.Photo.First().ToString()).OrderBy(n => n));
+            // See issue#16428
+            if (context.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            {
+                Assert.Equal(
+                    new[] { "101", "103", "105" },
+                    context.ProductPhotos.ToList().Select(c => c.Photo.First().ToString()).OrderBy(n => n));
+            }
+            else
+            {
+                Assert.Equal(
+                    new[] { "101", "103", "105" },
+                    context.ProductPhotos.Select(c => c.Photo.First().ToString()).OrderBy(n => n));
+            }
 
             Assert.Equal(
                 new[] { "Waffle Style", "What does the waffle say?" },
@@ -847,7 +862,6 @@ namespace Microsoft.EntityFrameworkCore
                 new[] { "Ants By Boris", "Trading As Trent" },
                 context.Suppliers.Select(c => c.Name).OrderBy(n => n));
 
-            // Issue #16428
             Assert.Equal(
                 new[] { "201", "202" },
                 context.SupplierLogos.ToList().SelectMany(c => c.Logo).Select(l => l.ToString()).OrderBy(n => n));
@@ -1027,11 +1041,17 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(product1.ProductId, productReview2.ProductId);
             Assert.Equal(product2.ProductId, productReview3.ProductId);
 
-            // Issue #16428
-            var productPhotos = context.ProductPhotos.ToList();
-            var productPhoto1 = productPhotos.Single(e => e.Photo[0] == 101);
-            var productPhoto2 = productPhotos.Single(e => e.Photo[0] == 103);
-            var productPhoto3 = productPhotos.Single(e => e.Photo[0] == 105);
+            // See issue#16428
+            var sqlite = context.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
+            var productPhoto1 = sqlite
+                ? context.ProductPhotos.ToList().Single(e => e.Photo[0] == 101)
+                : context.ProductPhotos.Single(e => e.Photo[0] == 101);
+            var productPhoto2 = sqlite
+                ? context.ProductPhotos.ToList().Single(e => e.Photo[0] == 103)
+                : context.ProductPhotos.Single(e => e.Photo[0] == 103);
+            var productPhoto3 = sqlite
+                ? context.ProductPhotos.ToList().Single(e => e.Photo[0] == 105)
+                : context.ProductPhotos.Single(e => e.Photo[0] == 105);
 
             Assert.Equal(product1.ProductId, productPhoto1.ProductId);
             Assert.Equal(product1.ProductId, productPhoto2.ProductId);
@@ -1050,8 +1070,9 @@ namespace Microsoft.EntityFrameworkCore
             var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
             var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
 
-            // Issue #16428
-            var supplierLogo1 = context.SupplierLogos.ToList().Single(e => e.Logo[0] == 201);
+            var supplierLogo1 = sqlite
+                ? context.SupplierLogos.ToList().Single(e => e.Logo[0] == 201)
+                : context.SupplierLogos.Single(e => e.Logo[0] == 201);
 
             Assert.Equal(supplier1.SupplierId, supplierLogo1.SupplierId);
 
@@ -1293,11 +1314,17 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.True(product3.Reviews == null || product3.Reviews.Count == 0);
 
-            // Issue #16428
-            var productPhotos = context.ProductPhotos.ToList();
-            var productPhoto1 = productPhotos.Single(e => e.Photo[0] == 101);
-            var productPhoto2 = productPhotos.Single(e => e.Photo[0] == 103);
-            var productPhoto3 = productPhotos.Single(e => e.Photo[0] == 105);
+            // See issue#16428
+            var sqlite = context.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
+            var productPhoto1 = sqlite
+                ? context.ProductPhotos.ToList().Single(e => e.Photo[0] == 101)
+                : context.ProductPhotos.Single(e => e.Photo[0] == 101);
+            var productPhoto2 = sqlite
+                ? context.ProductPhotos.ToList().Single(e => e.Photo[0] == 103)
+                : context.ProductPhotos.Single(e => e.Photo[0] == 103);
+            var productPhoto3 = sqlite
+                ? context.ProductPhotos.ToList().Single(e => e.Photo[0] == 105)
+                : context.ProductPhotos.Single(e => e.Photo[0] == 105);
 
             Assert.Equal(
                 new[] { productPhoto1, productPhoto2 },
@@ -1327,8 +1354,9 @@ namespace Microsoft.EntityFrameworkCore
             var supplier1 = context.Suppliers.Single(e => e.Name.StartsWith("Trading"));
             var supplier2 = context.Suppliers.Single(e => e.Name.StartsWith("Ants"));
 
-            // Issue #16428
-            var supplierLogo1 = context.SupplierLogos.ToList().Single(e => e.Logo[0] == 201);
+            var supplierLogo1 = sqlite
+                ? context.SupplierLogos.ToList().Single(e => e.Logo[0] == 201)
+                : context.SupplierLogos.Single(e => e.Logo[0] == 201);
 
             Assert.Same(supplierLogo1, supplier1.Logo);
 

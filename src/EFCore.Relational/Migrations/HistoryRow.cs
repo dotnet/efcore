@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     The EF Core version, which is obtained from the <see cref="AssemblyInformationalVersionAttribute" />
         ///     of the EF Core assembly.
         /// </param>
-        public HistoryRow([NotNull] string migrationId, [NotNull] string productVersion)
+        public HistoryRow(string migrationId, string productVersion)
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
             Check.NotEmpty(productVersion, nameof(productVersion));

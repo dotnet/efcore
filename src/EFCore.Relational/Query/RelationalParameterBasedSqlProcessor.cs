@@ -2,12 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -28,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
         /// <param name="useRelationalNulls"> A bool value indicating if relational nulls should be used. </param>
         public RelationalParameterBasedSqlProcessor(
-            [NotNull] RelationalParameterBasedSqlProcessorDependencies dependencies,
+            RelationalParameterBasedSqlProcessorDependencies dependencies,
             bool useRelationalNulls)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -55,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="canCache"> A bool value indicating if the select expression can be cached. </param>
         /// <returns> An optimized select expression. </returns>
         public virtual SelectExpression Optimize(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object?> parametersValues,
+            SelectExpression selectExpression,
+            IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -81,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="canCache"> A bool value indicating if the select expression can be cached. </param>
         /// <returns> A processed select expression. </returns>
         protected virtual SelectExpression ProcessSqlNullability(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object?> parametersValues,
+            SelectExpression selectExpression,
+            IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -99,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="canCache"> A bool value indicating if the select expression can be cached. </param>
         /// <returns> A processed select expression. </returns>
         protected virtual SelectExpression ExpandFromSqlParameter(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object?> parametersValues,
+            SelectExpression selectExpression,
+            IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));

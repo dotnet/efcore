@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public ProviderCodeGeneratorDependencies([NotNull] IEnumerable<IProviderCodeGeneratorPlugin> plugins)
+        public ProviderCodeGeneratorDependencies(IEnumerable<IProviderCodeGeneratorPlugin> plugins)
         {
             Check.NotNull(plugins, nameof(plugins));
 
@@ -57,6 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Gets the plugins.
         /// </summary>
-        public IEnumerable<IProviderCodeGeneratorPlugin> Plugins { get; [param: NotNull] init; }
+        public IEnumerable<IProviderCodeGeneratorPlugin> Plugins { get; init; }
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="IndexAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public IndexAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public IndexAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -40,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (oldBaseType == null)
@@ -67,15 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityType entityType,
             bool shouldThrow)
         {
-            if (entityType.ClrType == null)
-            {
-                return;
-            }
-
             foreach (var indexAttribute in
                 entityType.ClrType.GetCustomAttributes<IndexAttribute>(true))
             {
-                IConventionIndexBuilder indexBuilder;
+                IConventionIndexBuilder? indexBuilder;
                 if (!shouldThrow)
                 {
                     var indexProperties = new List<IConventionProperty>();

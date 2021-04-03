@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -14,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
     internal static class NonCapturingLazyInitializer
     {
         public static TValue EnsureInitialized<TParam, TValue>(
-            [CanBeNull, CA.NotNull] ref TValue? target,
-            [NotNull] TParam param,
-            [NotNull] Func<TParam, TValue> valueFactory)
+            [NotNull] ref TValue? target,
+            TParam param,
+            Func<TParam, TValue> valueFactory)
             where TValue : class
         {
             var tmp = Volatile.Read(ref target);
@@ -32,10 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         public static TValue EnsureInitialized<TParam1, TParam2, TValue>(
-            [CanBeNull, CA.NotNull] ref TValue? target,
-            [NotNull] TParam1 param1,
-            [NotNull] TParam2 param2,
-            [NotNull] Func<TParam1, TParam2, TValue> valueFactory)
+            [NotNull] ref TValue? target,
+            TParam1 param1,
+            TParam2 param2,
+            Func<TParam1, TParam2, TValue> valueFactory)
             where TValue : class
         {
             var tmp = Volatile.Read(ref target);
@@ -50,9 +49,51 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return target;
         }
 
+        public static TValue EnsureInitialized<TParam1, TParam2, TParam3, TValue>(
+            [NotNull] ref TValue? target,
+            TParam1 param1,
+            TParam2 param2,
+            TParam3 param3,
+            Func<TParam1, TParam2, TParam3, TValue> valueFactory)
+            where TValue : class
+        {
+            var tmp = Volatile.Read(ref target);
+            if (tmp != null)
+            {
+                Check.DebugAssert(target != null, $"target was null in {nameof(EnsureInitialized)} after check");
+                return tmp;
+            }
+
+            Interlocked.CompareExchange(ref target, valueFactory(param1, param2, param3), null);
+
+            return target;
+        }
+
+        public static TValue EnsureInitialized<TParam, TValue>(
+            ref TValue target,
+            ref bool initialized,
+            TParam param,
+            Func<TParam, TValue> valueFactory)
+            where TValue : class?
+        {
+            var alreadyInitialized = Volatile.Read(ref initialized);
+            if (alreadyInitialized)
+            {
+                var value = Volatile.Read(ref target);
+                Check.DebugAssert(target != null, $"target was null in {nameof(EnsureInitialized)} after check");
+                Check.DebugAssert(value != null, $"value was null in {nameof(EnsureInitialized)} after check");
+                return value;
+            }
+
+            Volatile.Write(ref target, valueFactory(param));
+            Volatile.Write(ref initialized, true);
+
+            return target;
+        }
+
         public static TValue EnsureInitialized<TValue>(
-            [CanBeNull, CA.NotNull] ref TValue? target,
-            [NotNull] TValue value)
+            [NotNull] ref TValue? target,
+            TValue value)
             where TValue : class
         {
             var tmp = Volatile.Read(ref target);
@@ -68,9 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         public static TValue EnsureInitialized<TParam, TValue>(
-            [CanBeNull, CA.NotNull] ref TValue? target,
-            [NotNull] TParam param,
-            [NotNull] Action<TParam> valueFactory)
+            [NotNull] ref TValue? target,
+            TParam param,
+            Action<TParam> valueFactory)
             where TValue : class
         {
             var tmp = Volatile.Read(ref target);

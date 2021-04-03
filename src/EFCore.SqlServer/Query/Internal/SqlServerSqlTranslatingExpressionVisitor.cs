@@ -3,12 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -21,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
     {
         private static readonly HashSet<string?> _dateTimeDataTypes
-            = new HashSet<string?>
+            = new()
             {
                 "time",
                 "date",
@@ -31,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             };
 
         private static readonly HashSet<ExpressionType> _arithmeticOperatorTypes
-            = new HashSet<ExpressionType>
+            = new()
             {
                 ExpressionType.Add,
                 ExpressionType.Subtract,
@@ -47,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerSqlTranslatingExpressionVisitor(
-            [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
+            QueryCompilationContext queryCompilationContext,
+            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
         {
         }
@@ -63,6 +60,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
+
+            if (binaryExpression.NodeType == ExpressionType.ArrayIndex
+                && binaryExpression.Left.Type == typeof(byte[]))
+            {
+                var left = Visit(binaryExpression.Left);
+                var right = Visit(binaryExpression.Right);
+
+                if (left is SqlExpression leftSql
+                    && right is SqlExpression rightSql)
+                {
+                    return Dependencies.SqlExpressionFactory.Convert(
+                        Dependencies.SqlExpressionFactory.Function(
+                            "SUBSTRING",
+                            new SqlExpression[]
+                            {
+                                leftSql,
+                                Dependencies.SqlExpressionFactory.Add(
+                                    Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
+                                    Dependencies.SqlExpressionFactory.Constant(1)),
+                                Dependencies.SqlExpressionFactory.Constant(1)
+                            },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { true, true, true },
+                            typeof(byte[])),
+                        binaryExpression.Type);
+                }
+            }
 
             return !(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression)
                 ? QueryCompilationContext.NotTranslatedExpression

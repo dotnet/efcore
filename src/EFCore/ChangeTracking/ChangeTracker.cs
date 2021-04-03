@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public class ChangeTracker : IResettableService
     {
-        private readonly IModel _model;
+        private readonly IRuntimeModel _model;
         private QueryTrackingBehavior _queryTrackingBehavior;
         private readonly QueryTrackingBehavior _defaultQueryTrackingBehavior;
 
@@ -35,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         [EntityFrameworkInternal]
         public ChangeTracker(
-            [NotNull] DbContext context,
-            [NotNull] IStateManager stateManager,
-            [NotNull] IChangeDetector changeDetector,
-            [NotNull] IModel model,
-            [NotNull] IEntityEntryGraphIterator graphIterator)
+            DbContext context,
+            IStateManager stateManager,
+            IChangeDetector changeDetector,
+            IModel model,
+            IEntityEntryGraphIterator graphIterator)
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(stateManager, nameof(stateManager));
@@ -60,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             StateManager = stateManager;
             ChangeDetector = changeDetector;
-            _model = model;
+            _model = (IRuntimeModel)model;
             GraphIterator = graphIterator;
         }
 
@@ -231,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if (!((Model)_model).SkipDetectChanges)
+            if (!_model.SkipDetectChanges)
             {
                 ChangeDetector.DetectChanges(StateManager);
             }
@@ -271,8 +270,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the <see cref="EntityEntry.State" /> must be set.
         /// </param>
         public virtual void TrackGraph(
-            [NotNull] object rootEntity,
-            [NotNull] Action<EntityEntryGraphNode> callback)
+            object rootEntity,
+            Action<EntityEntryGraphNode> callback)
             => TrackGraph(
                 rootEntity,
                 callback,
@@ -283,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         return false;
                     }
 
-                    n.NodeState(n);
+                    n.NodeState!(n);
 
                     return n.Entry.State != EntityState.Detached;
                 });
@@ -320,9 +319,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </param>
         /// <typeparam name="TState"> The type of the state object. </typeparam>
         public virtual void TrackGraph<TState>(
-            [NotNull] object rootEntity,
-            [CanBeNull] TState state,
-            [NotNull] Func<EntityEntryGraphNode<TState>, bool> callback)
+            object rootEntity,
+            TState? state,
+            Func<EntityEntryGraphNode<TState>, bool> callback)
         {
             Check.NotNull(rootEntity, nameof(rootEntity));
             Check.NotNull(callback, nameof(callback));
@@ -441,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         public virtual DebugView DebugView
-            => new DebugView(
+            => new(
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
 
@@ -452,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -461,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

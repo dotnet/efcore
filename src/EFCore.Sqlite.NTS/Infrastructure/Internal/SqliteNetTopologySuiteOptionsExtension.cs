@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
     /// </summary>
     public class SqliteNetTopologySuiteOptionsExtension : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

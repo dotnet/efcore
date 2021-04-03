@@ -4,10 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -25,17 +22,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public StoreFunction([NotNull] DbFunction dbFunction, [NotNull] RelationalModel model)
+        public StoreFunction(IRuntimeDbFunction dbFunction, RelationalModel model)
             : base(dbFunction.Name, dbFunction.Schema, model)
         {
-            DbFunctions = new SortedDictionary<string, DbFunction> { { dbFunction.ModelName, dbFunction } };
+            DbFunctions = new SortedDictionary<string, IDbFunction> { { dbFunction.ModelName, dbFunction } };
             IsBuiltIn = dbFunction.IsBuiltIn;
             ReturnType = dbFunction.StoreType;
 
             Parameters = new StoreFunctionParameter[dbFunction.Parameters.Count];
             for (var i = 0; i < dbFunction.Parameters.Count; i++)
             {
-                Parameters[i] = new StoreFunctionParameter(this, dbFunction.Parameters[i]);
+                Parameters[i] = new StoreFunctionParameter(this, (IRuntimeDbFunctionParameter)dbFunction.Parameters[i]);
             }
 
             dbFunction.StoreFunction = this;
@@ -47,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SortedDictionary<string, DbFunction> DbFunctions { get; }
+        public virtual SortedDictionary<string, IDbFunction> DbFunctions { get; }
 
         /// <inheritdoc />
         public virtual bool IsBuiltIn { get; }
@@ -76,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString()
-            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+            => ((IStoreFunction)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <inheritdoc />
         IEnumerable<IFunctionMapping> IStoreFunction.EntityTypeMappings

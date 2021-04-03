@@ -1,15 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     Indicates how changes to the value of a property will be handled by Entity Framework change tracking
     ///     which in turn will determine whether the value set is sent to the database or not.
-    ///     Used with <see cref="PropertyExtensions.GetBeforeSaveBehavior" /> and
-    ///     <see cref="PropertyExtensions.GetAfterSaveBehavior" />
+    ///     Used with <see cref="IReadOnlyProperty.GetBeforeSaveBehavior" /> and
+    ///     <see cref="IReadOnlyProperty.GetAfterSaveBehavior" />
     /// </summary>
     public enum PropertySaveBehavior
     {

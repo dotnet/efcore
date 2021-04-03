@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Func<DbContext> GetContextCreator()
             => () => CreateContext();
 
-        private readonly Dictionary<(bool, string, string), ISetSource> _expectedDataCache = new Dictionary<(bool, string, string), ISetSource>();
+        private readonly Dictionary<(bool, string, string), ISetSource> _expectedDataCache = new();
 
         public virtual ISetSource GetExpectedData()
             => new NorthwindData();
@@ -111,6 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 c => c
                     .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning)
                     .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
+                    .Log(CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning)
                     .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning)
                     .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
     }

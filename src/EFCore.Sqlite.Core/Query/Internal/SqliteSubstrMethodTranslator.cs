@@ -1,10 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -21,10 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     public class SqliteSubstrMethodTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _methodInfo = typeof(SqliteDbFunctionsExtensions)
-            .GetMethod(nameof(SqliteDbFunctionsExtensions.Substr), new[] { typeof(DbFunctions), typeof(byte[]), typeof(int) });
+            .GetRequiredMethod(nameof(SqliteDbFunctionsExtensions.Substr), typeof(DbFunctions), typeof(byte[]), typeof(int));
 
         private static readonly MethodInfo _methodInfoWithLength = typeof(SqliteDbFunctionsExtensions)
-            .GetMethod(nameof(SqliteDbFunctionsExtensions.Substr), new[] { typeof(DbFunctions), typeof(byte[]), typeof(int), typeof(int) });
+            .GetRequiredMethod(
+                nameof(SqliteDbFunctionsExtensions.Substr), typeof(DbFunctions), typeof(byte[]), typeof(int), typeof(int));
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteSubstrMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteSubstrMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
             => _sqlExpressionFactory = Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
 
         /// <summary>
@@ -43,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="dependentEntry"> The dependent entry. </param>
         /// <param name="foreignKey"> The foreign key that defines the relationship. </param>
         /// <returns> The principal, or null if none was found. </returns>
-        IUpdateEntry FindPrincipal([NotNull] IUpdateEntry dependentEntry, [NotNull] IForeignKey foreignKey);
+        IUpdateEntry? FindPrincipal(IUpdateEntry dependentEntry, IForeignKey foreignKey);
 
         /// <summary>
         ///     Returns the dependents associated with the given principal and foreign key.
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="principalEntry"> The principal entry. </param>
         /// <param name="foreignKey"> The foreign key that defines the relationship. </param>
         /// <returns> The dependents. </returns>
-        IEnumerable<IUpdateEntry> GetDependents([NotNull] IUpdateEntry principalEntry, [NotNull] IForeignKey foreignKey);
+        IEnumerable<IUpdateEntry> GetDependents(IUpdateEntry principalEntry, IForeignKey foreignKey);
 
         /// <summary>
         ///     Finds the tracked entity for the given key values.
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="key"> The primary or alternate key to use. </param>
         /// <param name="keyValues"> The key values. </param>
         /// <returns> The entry for the found entity, or null if no entity with these key values is being tracked. </returns>
-        IUpdateEntry TryGetEntry([NotNull] IKey key, [NotNull] object[] keyValues);
+        IUpdateEntry? TryGetEntry(IKey key, object?[] keyValues);
 
         /// <summary>
         ///     All the entries currently being tracked.
@@ -109,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="entry"> The entry. </param>
         /// <param name="foreignKeys"> The foreign keys to consider when cascading. </param>
-        void CascadeDelete([NotNull] IUpdateEntry entry, [CanBeNull] IEnumerable<IForeignKey> foreignKeys = null);
+        void CascadeDelete(IUpdateEntry entry, IEnumerable<IForeignKey>? foreignKeys = null);
 
         /// <summary>
         ///     Gets all the entries that require inserts/updates/deletes in the database.
@@ -123,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="values"> A dictionary of property names to values. </param>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The created entry. </returns>
-        IUpdateEntry CreateEntry([NotNull] IDictionary<string, object> values, [NotNull] IEntityType entityType);
+        IUpdateEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType);
 
         /// <summary>
         ///     The model with which the data is associated.

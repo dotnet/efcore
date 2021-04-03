@@ -4,11 +4,8 @@
 using System;
 using System.Data.Common;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -28,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteQueryStringFactory([NotNull] IRelationalTypeMappingSource typeMapper)
+        public SqliteQueryStringFactory(IRelationalTypeMappingSource typeMapper)
         {
             _typeMapper = typeMapper;
         }

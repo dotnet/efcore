@@ -3,8 +3,6 @@
 
 using System.ComponentModel;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
@@ -17,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        internal static DbFunctions Instance { get; } = new DbFunctions();
+        internal static DbFunctions Instance { get; } = new();
 
         #region Hidden System.Object members
 

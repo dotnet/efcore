@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using CA = System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -17,11 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     internal static class Check
     {
         [ContractAnnotation("value:null => halt")]
-        public static T NotNull<T>([NoEnumeration, CA.AllowNull, CA.NotNull] T value, [InvokerParameterName] [NotNull] string parameterName)
+        [return: NotNull]
+        public static T NotNull<T>([NoEnumeration, AllowNull, NotNull] T value, [InvokerParameterName] string parameterName)
         {
-#pragma warning disable IDE0041 // Use 'is null' check
-            if (ReferenceEquals(value, null))
-#pragma warning restore IDE0041 // Use 'is null' check
+            if (value is null)
             {
                 NotEmpty(parameterName, nameof(parameterName));
 
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         [ContractAnnotation("value:null => halt")]
         public static IReadOnlyList<T> NotEmpty<T>(
-            [CA.NotNull] IReadOnlyList<T>? value, [InvokerParameterName] [NotNull] string parameterName)
+            [NotNull] IReadOnlyList<T>? value, [InvokerParameterName] string parameterName)
         {
             NotNull(value, parameterName);
 
@@ -48,27 +47,28 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ContractAnnotation("value:null => halt")]
-        public static string NotEmpty([CA.NotNull] string? value, [InvokerParameterName] [NotNull] string parameterName)
+        public static string NotEmpty([NotNull] string? value, [InvokerParameterName] string parameterName)
         {
             if (value is null)
             {
                 NotEmpty(parameterName, nameof(parameterName));
+
                 throw new ArgumentNullException(parameterName);
             }
 
             if (value.Trim().Length == 0)
             {
                 NotEmpty(parameterName, nameof(parameterName));
+
                 throw new ArgumentException(AbstractionsStrings.ArgumentIsEmpty(parameterName));
             }
 
             return value;
         }
 
-        public static string? NullButNotEmpty(string? value, [InvokerParameterName] [NotNull] string parameterName)
+        public static string? NullButNotEmpty(string? value, [InvokerParameterName] string parameterName)
         {
-            if (!(value is null)
-                && value.Length == 0)
+            if (value is not null && value.Length == 0)
             {
                 NotEmpty(parameterName, nameof(parameterName));
 
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public static IReadOnlyList<T> HasNoNulls<T>(
-            [CA.NotNull] IReadOnlyList<T>? value, [InvokerParameterName] [NotNull] string parameterName)
+            [NotNull] IReadOnlyList<T>? value, [InvokerParameterName] string parameterName)
             where T : class
         {
             NotNull(value, parameterName);
@@ -95,8 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public static IReadOnlyList<string> HasNoEmptyElements(
-            [CA.NotNull] IReadOnlyList<string>? value,
-            [InvokerParameterName] [NotNull] string parameterName)
+            [NotNull] IReadOnlyList<string>? value,
+            [InvokerParameterName] string parameterName)
         {
             NotNull(value, parameterName);
 
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [Conditional("DEBUG")]
-        public static void DebugAssert([CA.DoesNotReturnIf(false)] bool condition, string message)
+        public static void DebugAssert([DoesNotReturnIf(false)] bool condition, string message)
         {
             if (!condition)
             {

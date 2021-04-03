@@ -4,13 +4,10 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -30,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerByteArrayMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerByteArrayMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -70,6 +67,25 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         argumentsPropagateNullability: new[] { true, true },
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));
+            }
+
+            if (method.IsGenericMethod
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.FirstWithoutPredicate)
+                && arguments[0].Type == typeof(byte[]))
+            {
+                return _sqlExpressionFactory.Convert(
+                    _sqlExpressionFactory.Function(
+                        "SUBSTRING",
+                        new SqlExpression[]
+                        {
+                            arguments[0],
+                            _sqlExpressionFactory.Constant(1),
+                            _sqlExpressionFactory.Constant(1)
+                        },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true, true },
+                        typeof(byte[])),
+                    method.ReturnType);
             }
 
             return null;

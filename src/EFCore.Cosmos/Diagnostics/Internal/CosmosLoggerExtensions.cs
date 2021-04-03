@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -31,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ExecutingSqlQuery(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
-            [NotNull] CosmosSqlQuery cosmosSqlQuery)
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            string containerId,
+            string? partitionKey,
+            CosmosSqlQuery cosmosSqlQuery)
         {
             var definition = CosmosResources.LogExecutingSqlQuery(diagnostics);
 
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
 
         private static string ExecutingSqlQuery(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string, string, string>)definition;
+            var d = (EventDefinition<string, string?, string, string, string>)definition;
             var p = (CosmosQueryEventData)payload;
             return d.GenerateMessage(
                 p.ContainerId,
@@ -85,10 +84,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ExecutingReadItem(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
-            [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
-            [NotNull] string resourceId)
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            string containerId,
+            string? partitionKey,
+            string resourceId)
         {
             var definition = CosmosResources.LogExecutingReadItem(diagnostics);
 
@@ -114,12 +113,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         
         private static string ExecutingReadItem(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string>)definition;
+            var d = (EventDefinition<string, string, string?>)definition;
             var p = (CosmosReadItemEventData)payload;
             return d.GenerateMessage(p.LogSensitiveData ? p.ResourceId : "?", p.ContainerId, p.LogSensitiveData ? p.PartitionKey : "?");
         }
 
-        private static string FormatParameters(IReadOnlyList<(string Name, object Value)> parameters, bool shouldLogParameterValues)
+        private static string FormatParameters(IReadOnlyList<(string Name, object? Value)> parameters, bool shouldLogParameterValues)
             => FormatParameters(parameters.Select(p => new SqlParameter(p.Name, p.Value)).ToList(), shouldLogParameterValues);
 
         private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)
@@ -146,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             return builder.ToString();
         }
 
-        private static void FormatParameterValue(StringBuilder builder, object parameterValue)
+        private static void FormatParameterValue(StringBuilder builder, object? parameterValue)
         {
             if (parameterValue == null)
             {

@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -59,25 +59,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public ModelValidatorDependencies(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IMemberClassifier memberClassifier)
+            ITypeMappingSource typeMappingSource,
+            IMemberClassifier memberClassifier)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(memberClassifier, nameof(memberClassifier));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             TypeMappingSource = typeMappingSource;
+#pragma warning restore CS0618 // Type or member is obsolete
             MemberClassifier = memberClassifier;
         }
 
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public ITypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+        [Obsolete("The model now contains this dependency")]
+        public ITypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     The member classifier.
         /// </summary>
         [EntityFrameworkInternal]
-        public IMemberClassifier MemberClassifier { get; [param: NotNull] init; }
+        public IMemberClassifier MemberClassifier { get; init; }
     }
 }

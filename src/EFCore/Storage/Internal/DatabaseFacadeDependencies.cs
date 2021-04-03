@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -33,12 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DatabaseFacadeDependencies(
-            [NotNull] IDbContextTransactionManager transactionManager,
-            [NotNull] IDatabaseCreator databaseCreator,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
-            [NotNull] IEnumerable<IDatabaseProvider> databaseProviders,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
-            [NotNull] IConcurrencyDetector concurrencyDetector)
+            IDbContextTransactionManager transactionManager,
+            IDatabaseCreator databaseCreator,
+            IExecutionStrategyFactory executionStrategyFactory,
+            IEnumerable<IDatabaseProvider> databaseProviders,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
+            IConcurrencyDetector concurrencyDetector,
+            ICoreSingletonOptions coreOptions)
         {
             TransactionManager = transactionManager;
             DatabaseCreator = databaseCreator;
@@ -46,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             DatabaseProviders = databaseProviders;
             CommandLogger = commandLogger;
             ConcurrencyDetector = concurrencyDetector;
+            CoreOptions = coreOptions;
         }
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDbContextTransactionManager TransactionManager { get; [param: NotNull] init; }
+        public virtual IDbContextTransactionManager TransactionManager { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDatabaseCreator DatabaseCreator { get; [param: NotNull] init; }
+        public virtual IDatabaseCreator DatabaseCreator { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -70,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; [param: NotNull] init; }
+        public virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -78,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<IDatabaseProvider> DatabaseProviders { get; [param: NotNull] init; }
+        public virtual IEnumerable<IDatabaseProvider> DatabaseProviders { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; [param: NotNull] init; }
+        public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -94,6 +95,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConcurrencyDetector ConcurrencyDetector { get; [param: NotNull] init; }
+        public virtual IConcurrencyDetector ConcurrencyDetector { get; init; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ICoreSingletonOptions CoreOptions { get; init; }
     }
 }

@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -28,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterBindings"> The parameters to use. </param>
         /// <param name="runtimeType"> The CLR type of the instance created by the factory method. </param>
         public FactoryMethodBinding(
-            [NotNull] MethodInfo factoryMethod,
-            [NotNull] IReadOnlyList<ParameterBinding> parameterBindings,
-            [NotNull] Type runtimeType)
+            MethodInfo factoryMethod,
+            IReadOnlyList<ParameterBinding> parameterBindings,
+            Type runtimeType)
             : base(parameterBindings)
         {
             Check.NotNull(factoryMethod, nameof(factoryMethod));
@@ -48,10 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterBindings"> The parameters to use. </param>
         /// <param name="runtimeType"> The CLR type of the instance created by the factory method. </param>
         public FactoryMethodBinding(
-            [NotNull] object factoryInstance,
-            [NotNull] MethodInfo factoryMethod,
-            [NotNull] IReadOnlyList<ParameterBinding> parameterBindings,
-            [NotNull] Type runtimeType)
+            object factoryInstance,
+            MethodInfo factoryMethod,
+            IReadOnlyList<ParameterBinding> parameterBindings,
+            Type runtimeType)
             : this(factoryMethod, parameterBindings, runtimeType)
         {
             Check.NotNull(factoryInstance, nameof(factoryInstance));
@@ -90,5 +87,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The type that will be created from the expression tree created for this binding.
         /// </summary>
         public override Type RuntimeType { get; }
+
+        /// <summary>
+        ///     Creates a copy that contains the given parameter bindings.
+        /// </summary>
+        /// <param name="parameterBindings"> The new parameter bindings. </param>
+        /// <returns> A copy with replaced parameter bindings. </returns>
+        public override InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings)
+            => _factoryInstance == null
+            ? new FactoryMethodBinding(_factoryMethod, parameterBindings, RuntimeType)
+            : new FactoryMethodBinding(_factoryInstance, _factoryMethod, parameterBindings, RuntimeType);
     }
 }

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class SingletonOptionsInitializer : ISingletonOptionsInitializer
     {
         private volatile bool _isInitialized;
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     if (!_isInitialized)
                     {
-                        foreach (var singletonOptions in serviceProvider.GetService<IEnumerable<ISingletonOptions>>())
+                        foreach (var singletonOptions in serviceProvider.GetRequiredService<IEnumerable<ISingletonOptions>>())
                         {
                             singletonOptions.Initialize(options);
                         }
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             }
 
-            foreach (var singletonOptions in serviceProvider.GetService<IEnumerable<ISingletonOptions>>())
+            foreach (var singletonOptions in serviceProvider.GetRequiredService<IEnumerable<ISingletonOptions>>())
             {
                 singletonOptions.Validate(options);
             }

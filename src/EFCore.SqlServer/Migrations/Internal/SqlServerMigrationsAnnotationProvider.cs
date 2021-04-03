@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        public SqlServerMigrationsAnnotationProvider([NotNull] MigrationsAnnotationProviderDependencies dependencies)
+        public SqlServerMigrationsAnnotationProvider(MigrationsAnnotationProviderDependencies dependencies)
 #pragma warning restore EF1001 // Internal EF Core API usage.
             : base(dependencies)
         {

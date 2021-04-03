@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Initializes a new instance of the <see cref="SqliteDbContextOptionsBuilder" /> class.
         /// </summary>
         /// <param name="optionsBuilder"> The options builder. </param>
-        public SqliteDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
+        public SqliteDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
             : base(optionsBuilder)
         {
         }

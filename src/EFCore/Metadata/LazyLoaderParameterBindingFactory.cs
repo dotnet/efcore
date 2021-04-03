@@ -6,12 +6,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -35,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates a new <see cref="LazyLoaderParameterBindingFactory" /> instance.
         /// </summary>
         /// <param name="dependencies"> The service dependencies to use. </param>
-        public LazyLoaderParameterBindingFactory([NotNull] LazyLoaderParameterBindingFactoryDependencies dependencies)
+        public LazyLoaderParameterBindingFactory(LazyLoaderParameterBindingFactoryDependencies dependencies)
             : base(typeof(ILazyLoader))
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -83,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
             while (baseType != null);
 
-            return Bind(entityType, parameterType);
+            return Bind((IEntityType)entityType, parameterType);
         }
 
         /// <summary>
@@ -110,7 +107,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
             while (baseType != null);
 
-            return Bind(entityType, parameterType);
+            return Bind((IEntityType)entityType, parameterType);
+        }
+
+        /// <summary>
+        ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="parameterType"> The parameter type. </param>
+        /// <param name="parameterName"> The parameter name. </param>
+        /// <returns> The binding. </returns>
+        public override ParameterBinding Bind(
+            IReadOnlyEntityType entityType,
+            Type parameterType,
+            string parameterName)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(parameterType, nameof(parameterType));
+            Check.NotEmpty(parameterName, nameof(parameterName));
+
+            return Bind((IEntityType)entityType, parameterType);
         }
 
         private static ParameterBinding Bind(IEntityType entityType, Type parameterType)
@@ -118,18 +134,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ? new DependencyInjectionParameterBinding(
                     typeof(ILazyLoader),
                     typeof(ILazyLoader),
-                    entityType.GetServiceProperties().FirstOrDefault(p => IsLazyLoader(p.ClrType)))
+                    entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => IsLazyLoader(p.ClrType)).ToArray())
                 : parameterType == typeof(Action<object, string>)
                     ? new DependencyInjectionMethodParameterBinding(
                         typeof(Action<object, string>),
                         typeof(ILazyLoader),
                         _loadMethod,
-                        entityType.GetServiceProperties().FirstOrDefault(p => IsLazyLoaderMethod(p.ClrType, p.Name)))
+                        entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => IsLazyLoaderMethod(p.ClrType, p.Name)).ToArray())
                     : new DependencyInjectionMethodParameterBinding(
                         typeof(Func<object, CancellationToken, string, Task>),
                         typeof(ILazyLoader),
                         _loadAsyncMethod,
-                        entityType.GetServiceProperties().FirstOrDefault(p => IsLazyLoaderAsyncMethod(p.ClrType, p.Name)));
+                        entityType.GetServiceProperties().Cast<IPropertyBase>().Where(p => IsLazyLoaderAsyncMethod(p.ClrType, p.Name))
+                            .ToArray());
 
         private static bool IsLazyLoader(Type type)
             => type == typeof(ILazyLoader);

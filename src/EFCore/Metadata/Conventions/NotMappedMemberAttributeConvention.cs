@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="NotMappedMemberAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public NotMappedMemberAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public NotMappedMemberAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -44,21 +43,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             var entityType = entityTypeBuilder.Metadata;
-            if (!entityType.HasClrType)
-            {
-                return;
-            }
-
             var members = entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
                 .Concat(entityType.GetRuntimeFields().Values);
 
             foreach (var member in members)
             {
-                if (Attribute.IsDefined(member, typeof(NotMappedAttribute), inherit: true))
+                if (Attribute.IsDefined(member, typeof(NotMappedAttribute), inherit: true)
+                    && ShouldIgnore(member))
                 {
                     entityTypeBuilder.Ignore(member.GetSimpleMemberName(), fromDataAnnotation: true);
                 }
             }
         }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given CLR member should be ignored.
+        /// </summary>
+        /// <param name="memberInfo"> The member. </param>
+        /// <returns> <see langword="true"/> if the member should be ignored. </returns>
+        protected virtual bool ShouldIgnore(MemberInfo memberInfo)
+            => true;
     }
 }

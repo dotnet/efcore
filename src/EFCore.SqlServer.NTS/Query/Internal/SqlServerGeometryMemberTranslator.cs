@@ -4,15 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -59,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerGeometryMemberTranslator(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            IRelationalTypeMappingSource typeMappingSource,
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -110,30 +107,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 {
                     var whenClauses = new List<CaseWhenClause>
                     {
-                        new CaseWhenClause(
-                            _sqlExpressionFactory.Constant("Point"), _sqlExpressionFactory.Constant(OgcGeometryType.Point)),
-                        new CaseWhenClause(
-                            _sqlExpressionFactory.Constant("LineString"), _sqlExpressionFactory.Constant(OgcGeometryType.LineString)),
-                        new CaseWhenClause(
-                            _sqlExpressionFactory.Constant("Polygon"), _sqlExpressionFactory.Constant(OgcGeometryType.Polygon)),
-                        new CaseWhenClause(
-                            _sqlExpressionFactory.Constant("MultiPoint"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPoint)),
-                        new CaseWhenClause(
+                        new(_sqlExpressionFactory.Constant("Point"), _sqlExpressionFactory.Constant(OgcGeometryType.Point)),
+                        new(_sqlExpressionFactory.Constant("LineString"), _sqlExpressionFactory.Constant(OgcGeometryType.LineString)),
+                        new(_sqlExpressionFactory.Constant("Polygon"), _sqlExpressionFactory.Constant(OgcGeometryType.Polygon)),
+                        new(_sqlExpressionFactory.Constant("MultiPoint"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPoint)),
+                        new(
                             _sqlExpressionFactory.Constant("MultiLineString"),
                             _sqlExpressionFactory.Constant(OgcGeometryType.MultiLineString)),
-                        new CaseWhenClause(
-                            _sqlExpressionFactory.Constant("MultiPolygon"),
-                            _sqlExpressionFactory.Constant(OgcGeometryType.MultiPolygon)),
-                        new CaseWhenClause(
+                        new(_sqlExpressionFactory.Constant("MultiPolygon"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPolygon)),
+                        new(
                             _sqlExpressionFactory.Constant("GeometryCollection"),
                             _sqlExpressionFactory.Constant(OgcGeometryType.GeometryCollection)),
-                        new CaseWhenClause(
+                        new(
                             _sqlExpressionFactory.Constant("CircularString"),
                             _sqlExpressionFactory.Constant(OgcGeometryType.CircularString)),
-                        new CaseWhenClause(
+                        new(
                             _sqlExpressionFactory.Constant("CompoundCurve"),
                             _sqlExpressionFactory.Constant(OgcGeometryType.CompoundCurve)),
-                        new CaseWhenClause(
+                        new(
                             _sqlExpressionFactory.Constant("CurvePolygon"),
                             _sqlExpressionFactory.Constant(OgcGeometryType.CurvePolygon))
                     };

@@ -902,6 +902,63 @@ namespace TestNamespace
         }
 
         [ConditionalFact]
+        public void PrecisionAttribute_is_generated_for_property()
+        {
+            Test(
+                   modelBuilder => modelBuilder
+                       .Entity(
+                           "Entity",
+                           x =>
+                           {
+                               x.Property<int>("Id");
+                               x.Property<decimal>("A").HasPrecision(10);
+                               x.Property<decimal>("B").HasPrecision(14, 3);
+                               x.Property<DateTime>("C").HasPrecision(5);
+                               x.Property<DateTimeOffset>("D").HasPrecision(3);
+                           }),
+                   new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                   code =>
+                   {
+                       AssertFileContents(
+                           @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class Entity
+    {
+        [Key]
+        public int Id { get; set; }
+        [Precision(10)]
+        public decimal A { get; set; }
+        [Precision(14, 3)]
+        public decimal B { get; set; }
+        [Precision(5)]
+        public DateTime C { get; set; }
+        [Precision(3)]
+        public DateTimeOffset D { get; set; }
+    }
+}
+",
+                           code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
+                   },
+                   model =>
+                   {
+                       var entitType = model.FindEntityType("TestNamespace.Entity");
+                       Assert.Equal(10, entitType.GetProperty("A").GetPrecision());
+                       Assert.Equal(14, entitType.GetProperty("B").GetPrecision());
+                       Assert.Equal(3, entitType.GetProperty("B").GetScale());
+                       Assert.Equal(5, entitType.GetProperty("C").GetPrecision());
+                       Assert.Equal(3, entitType.GetProperty("D").GetPrecision());
+                   });
+        }
+
+        [ConditionalFact]
         public void Comments_are_generated()
         {
             Test(

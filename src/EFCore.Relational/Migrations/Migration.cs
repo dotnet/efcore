@@ -3,9 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -19,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         public const string InitialDatabase = "0";
 
-        private IModel _targetModel;
-        private List<MigrationOperation> _upOperations;
-        private List<MigrationOperation> _downOperations;
+        private IModel? _targetModel;
+        private List<MigrationOperation>? _upOperations;
+        private List<MigrationOperation>? _downOperations;
 
         /// <summary>
         ///     The <see cref="IModel" /> that the database will map to after the migration has been applied.
@@ -35,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var modelBuilder = new ModelBuilder();
                     BuildTargetModel(modelBuilder);
 
-                    return modelBuilder.Model;
+                    return (IModel)modelBuilder.Model;
                 }
 
                 return _targetModel ??= Create();
@@ -77,13 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         can be made to the database depending on the type of database being used.
         ///     </para>
         /// </summary>
-        public virtual string ActiveProvider { get; [param: NotNull] set; }
+        [DisallowNull]
+        public virtual string? ActiveProvider { get; set; }
 
         /// <summary>
         ///     Implemented to build the <see cref="TargetModel" />.
         /// </summary>
         /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> to use to build the model. </param>
-        protected virtual void BuildTargetModel([NotNull] ModelBuilder modelBuilder)
+        protected virtual void BuildTargetModel(ModelBuilder modelBuilder)
         {
         }
 
@@ -100,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     </para>
         /// </summary>
         /// <param name="migrationBuilder"> The <see cref="MigrationBuilder" /> that will build the operations. </param>
-        protected abstract void Up([NotNull] MigrationBuilder migrationBuilder);
+        protected abstract void Up(MigrationBuilder migrationBuilder);
 
         /// <summary>
         ///     <para>
@@ -117,10 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     </para>
         /// </summary>
         /// <param name="migrationBuilder"> The <see cref="MigrationBuilder" /> that will build the operations. </param>
-        protected virtual void Down([NotNull] MigrationBuilder migrationBuilder)
-        {
-            throw new NotImplementedException();
-        }
+        protected virtual void Down(MigrationBuilder migrationBuilder)
+            => throw new NotSupportedException(RelationalStrings.MigrationDownMissing);
 
         private List<MigrationOperation> BuildOperations(Action<MigrationBuilder> buildAction)
         {

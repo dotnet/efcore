@@ -7,12 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly IRelationalConnection _connection;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly ICurrentDbContext _currentContext;
-        private readonly IConventionSetBuilder _conventionSetBuilder;
+        private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Migrations> _logger;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
         private readonly string _activeProvider;
@@ -56,19 +53,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public Migrator(
-            [NotNull] IMigrationsAssembly migrationsAssembly,
-            [NotNull] IHistoryRepository historyRepository,
-            [NotNull] IDatabaseCreator databaseCreator,
-            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> logger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
-            [NotNull] IDatabaseProvider databaseProvider)
+            IMigrationsAssembly migrationsAssembly,
+            IHistoryRepository historyRepository,
+            IDatabaseCreator databaseCreator,
+            IMigrationsSqlGenerator migrationsSqlGenerator,
+            IRawSqlCommandBuilder rawSqlCommandBuilder,
+            IMigrationCommandExecutor migrationCommandExecutor,
+            IRelationalConnection connection,
+            ISqlGenerationHelper sqlGenerationHelper,
+            ICurrentDbContext currentContext,
+            IModelRuntimeInitializer modelRuntimeInitializer,
+            IDiagnosticsLogger<DbLoggerCategory.Migrations> logger,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
+            IDatabaseProvider databaseProvider)
         {
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
             Check.NotNull(historyRepository, nameof(historyRepository));
@@ -79,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(conventionSetBuilder, nameof(conventionSetBuilder));
+            Check.NotNull(modelRuntimeInitializer, nameof(modelRuntimeInitializer));
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(commandLogger, nameof(commandLogger));
             Check.NotNull(databaseProvider, nameof(databaseProvider));
@@ -93,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             _connection = connection;
             _sqlGenerationHelper = sqlGenerationHelper;
             _currentContext = currentContext;
-            _conventionSetBuilder = conventionSetBuilder;
+            _modelRuntimeInitializer = modelRuntimeInitializer;
             _logger = logger;
             _commandLogger = commandLogger;
             _activeProvider = databaseProvider.Name;
@@ -105,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Migrate(string targetMigration = null)
+        public virtual void Migrate(string? targetMigration = null)
         {
             _logger.MigrateUsingConnection(this, _connection);
 
@@ -142,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task MigrateAsync(
-            string targetMigration = null,
+            string? targetMigration = null,
             CancellationToken cancellationToken = default)
         {
             _logger.MigrateUsingConnection(this, _connection);
@@ -181,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private IEnumerable<Func<IReadOnlyList<MigrationCommand>>> GetMigrationCommandLists(
             IReadOnlyList<HistoryRow> appliedMigrationEntries,
-            string targetMigration = null)
+            string? targetMigration = null)
         {
             PopulateMigrations(
                 appliedMigrationEntries.Select(t => t.MigrationId),
@@ -230,11 +227,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void PopulateMigrations(
-            [NotNull] IEnumerable<string> appliedMigrationEntries,
-            [NotNull] string targetMigration,
-            [NotNull] out IReadOnlyList<Migration> migrationsToApply,
-            [NotNull] out IReadOnlyList<Migration> migrationsToRevert,
-            [NotNull] out Migration actualTargetMigration)
+            IEnumerable<string> appliedMigrationEntries,
+            string? targetMigration,
+            out IReadOnlyList<Migration> migrationsToApply,
+            out IReadOnlyList<Migration> migrationsToRevert,
+            out Migration? actualTargetMigration)
         {
             var appliedMigrations = new Dictionary<string, TypeInfo>();
             var unappliedMigrations = new Dictionary<string, TypeInfo>();
@@ -301,8 +298,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string GenerateScript(
-            string fromMigration = null,
-            string toMigration = null,
+            string? fromMigration = null,
+            string? toMigration = null,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             options |= MigrationsSqlGenerationOptions.Script;
@@ -462,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IReadOnlyList<MigrationCommand> GenerateUpSql(
-            [NotNull] Migration migration,
+            Migration migration,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             Check.NotNull(migration, nameof(migration));
@@ -483,8 +480,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual IReadOnlyList<MigrationCommand> GenerateDownSql(
-            [NotNull] Migration migration,
-            [CanBeNull] Migration previousMigration,
+            Migration migration,
+            Migration? previousMigration,
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
             Check.NotNull(migration, nameof(migration));
@@ -493,34 +490,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _historyRepository.GetDeleteScript(migration.GetId()));
 
             return _migrationsSqlGenerator
-                .Generate(migration.DownOperations, FinalizeModel(previousMigration?.TargetModel), options)
+                .Generate(migration.DownOperations, previousMigration == null ? null : FinalizeModel(previousMigration.TargetModel), options)
                 .Concat(new[] { new MigrationCommand(deleteCommand, _currentContext.Context, _commandLogger) })
                 .ToList();
         }
 
         private IModel FinalizeModel(IModel model)
         {
-            if (model is IConventionModel conventionModel)
+            if (model is IMutableModel mutableModel)
             {
-                var conventionSet = _conventionSetBuilder.CreateConventionSet();
-
-                var typeMappingConvention = conventionSet.ModelFinalizingConventions.OfType<TypeMappingConvention>().FirstOrDefault();
-                if (typeMappingConvention != null)
-                {
-                    typeMappingConvention.ProcessModelFinalizing(conventionModel.Builder, null);
-                }
-
-                var relationalModelConvention =
-                    conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().FirstOrDefault();
-                if (relationalModelConvention != null)
-                {
-                    relationalModelConvention.ProcessModelFinalized(conventionModel);
-                }
-
-                return conventionModel.FinalizeModel();
+                model = mutableModel.FinalizeModel();
             }
 
-            return model;
+            return _modelRuntimeInitializer.Initialize(model, designTime: true, validationLogger: null);
         }
     }
 }

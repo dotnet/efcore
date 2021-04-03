@@ -111,8 +111,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public TestSqlLogger(bool shouldLogCommands)
                 => _shouldLogCommands = shouldLogCommands;
 
-            public List<string> SqlStatements { get; } = new List<string>();
-            public List<string> Parameters { get; } = new List<string>();
+            public List<string> SqlStatements { get; } = new();
+            public List<string> Parameters { get; } = new();
 
             protected override void UnsafeClear()
             {

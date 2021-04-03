@@ -4,7 +4,6 @@
 using System;
 using System.ComponentModel;
 using System.Net;
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Initializes a new instance of the <see cref="CosmosDbContextOptionsBuilder" /> class.
         /// </summary>
         /// <param name="optionsBuilder"> The options builder. </param>
-        public CosmosDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
+        public CosmosDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
@@ -42,14 +41,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="getExecutionStrategy"> A function that returns a new instance of an execution strategy. </param>
         public virtual CosmosDbContextOptionsBuilder ExecutionStrategy(
-            [NotNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
+            Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
             => WithOption(e => e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
 
         /// <summary>
         ///     Configures the context to use the provided geo-replicated region.
         /// </summary>
         /// <param name="region"> Azure Cosmos DB region name. </param>
-        public virtual CosmosDbContextOptionsBuilder Region([NotNull] string region)
+        public virtual CosmosDbContextOptionsBuilder Region(string region)
             => WithOption(e => e.WithRegion(Check.NotNull(region, nameof(region))));
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Configures the proxy information used for web requests.
         /// </summary>
         /// <param name="proxy"> The proxy information used for web requests. </param>
-        public virtual CosmosDbContextOptionsBuilder WebProxy([NotNull] IWebProxy proxy)
+        public virtual CosmosDbContextOptionsBuilder WebProxy(IWebProxy proxy)
             => WithOption(e => e.WithWebProxy(Check.NotNull(proxy, nameof(proxy))));
 
         /// <summary>
@@ -135,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="setAction"> An action to set the option. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        protected virtual CosmosDbContextOptionsBuilder WithOption([NotNull] Func<CosmosOptionsExtension, CosmosOptionsExtension> setAction)
+        protected virtual CosmosDbContextOptionsBuilder WithOption(Func<CosmosOptionsExtension, CosmosOptionsExtension> setAction)
         {
             ((IDbContextOptionsBuilderInfrastructure)_optionsBuilder).AddOrUpdateExtension(
                 setAction(_optionsBuilder.Options.FindExtension<CosmosOptionsExtension>() ?? new CosmosOptionsExtension()));
@@ -150,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -159,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

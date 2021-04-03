@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -43,7 +42,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
         /// </returns>
-        public static IServiceCollection AddEntityFrameworkInMemoryDatabase([NotNull] this IServiceCollection serviceCollection)
+        public static IServiceCollection AddEntityFrameworkInMemoryDatabase(this IServiceCollection serviceCollection)
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
@@ -51,7 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<LoggingDefinitions, InMemoryLoggingDefinitions>()
                 .TryAdd<IDatabaseProvider, DatabaseProvider<InMemoryOptionsExtension>>()
                 .TryAdd<IValueGeneratorSelector, InMemoryValueGeneratorSelector>()
-                .TryAdd<IDatabase>(p => p.GetService<IInMemoryDatabase>())
+                .TryAdd<IDatabase>(p => p.GetRequiredService<IInMemoryDatabase>())
                 .TryAdd<IDbContextTransactionManager, InMemoryTransactionManager>()
                 .TryAdd<IDatabaseCreator, InMemoryDatabaseCreator>()
                 .TryAdd<IQueryContextFactory, InMemoryQueryContextFactory>()
@@ -60,7 +59,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<ITypeMappingSource, InMemoryTypeMappingSource>()
                 .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, InMemoryShapedQueryCompilingExpressionVisitorFactory>()
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, InMemoryQueryableMethodTranslatingExpressionVisitorFactory>()
-                .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetService<IInMemorySingletonOptions>())
+                .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetRequiredService<IInMemorySingletonOptions>())
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<IInMemorySingletonOptions, InMemorySingletonOptions>()

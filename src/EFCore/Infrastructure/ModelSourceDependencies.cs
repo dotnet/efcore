@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public ModelSourceDependencies(
-            [NotNull] IModelCustomizer modelCustomizer,
-            [NotNull] IModelCacheKeyFactory modelCacheKeyFactory,
-            [NotNull] IMemoryCache memoryCache)
+            IModelCustomizer modelCustomizer,
+            IModelCacheKeyFactory modelCacheKeyFactory,
+            IMemoryCache memoryCache)
         {
             Check.NotNull(modelCustomizer, nameof(modelCustomizer));
             Check.NotNull(modelCacheKeyFactory, nameof(modelCacheKeyFactory));
@@ -71,17 +70,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gets the <see cref="IModelCustomizer" /> that will perform additional configuration of the model
         ///     in addition to what is discovered by convention.
         /// </summary>
-        public IModelCustomizer ModelCustomizer { get; [param: NotNull] init; }
+        public IModelCustomizer ModelCustomizer { get; init; }
 
         /// <summary>
         ///     Gets the <see cref="IModelCacheKeyFactory" /> that will create keys used to store and lookup models
         ///     the model cache.
         /// </summary>
-        public IModelCacheKeyFactory ModelCacheKeyFactory { get; [param: NotNull] init; }
+        public IModelCacheKeyFactory ModelCacheKeyFactory { get; init; }
 
         /// <summary>
         ///     Gets the <see cref="IMemoryCache" /> that will be used to cache models.
         /// </summary>
-        public IMemoryCache MemoryCache { get; [param: NotNull] init; }
+        public IMemoryCache MemoryCache { get; init; }
     }
 }

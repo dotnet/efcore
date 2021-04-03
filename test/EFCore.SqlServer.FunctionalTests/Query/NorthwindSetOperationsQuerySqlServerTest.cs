@@ -386,14 +386,14 @@ WHERE [o0].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
     SELECT COUNT(*)
-    FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Orders]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]) AS [Orders]
 FROM [Customers] AS [c]
 UNION
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], (
     SELECT COUNT(*)
-    FROM [Orders] AS [o0]
-    WHERE [c0].[CustomerID] = [o0].[CustomerID]) AS [Orders]
+    FROM [Orders] AS [o]
+    WHERE [c0].[CustomerID] = [o].[CustomerID]) AS [Orders]
 FROM [Customers] AS [c0]");
         }
 
@@ -468,9 +468,23 @@ FROM [Customers] AS [c0]");
             }
 
             // Fix up right-side SQL as table aliases shift
-            rightSql = leftType == "ScalarSubquery"
-                ? rightSql.Replace("[o]", "[o1]").Replace("[o0]", "[o2]")
-                : rightSql.Replace("[o0]", "[o1]").Replace("[o]", "[o0]");
+            if (leftType == "ScalarSubquery")
+            {
+                if (rightType == "ScalarSubquery")
+                {
+                    leftSql = leftSql.Replace("[o0]", "[o2]");
+                    rightSql = rightSql.Replace("[o0]", "[o1]").Replace("[o]", "[o0]");
+                }
+                else
+                {
+                    leftSql = leftSql.Replace("[o0]", "[o1]");
+                    rightSql = rightSql.Replace("[o]", "[o0]");
+                }
+            }
+            else
+            {
+                rightSql = rightSql.Replace("[o0]", "[o1]").Replace("[o]", "[o0]");
+            }
 
             AssertSql(leftSql + Environment.NewLine + "UNION" + Environment.NewLine + rightSql);
 
@@ -497,9 +511,9 @@ FROM [Orders] AS [o]";
                     case "ScalarSubquery":
                         return @"SELECT (
     SELECT COUNT(*)
-    FROM [Order Details] AS [o]
-    WHERE [o0].[OrderID] = [o].[OrderID]){Alias}
-FROM [Orders] AS [o0]";
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]){Alias}
+FROM [Orders] AS [o]";
                     default:
                         throw new ArgumentException("Unexpected type: " + expressionType);
                 }
@@ -526,6 +540,82 @@ FROM (
     FROM [Customers] AS [c0]
     ORDER BY [c0].[ContactName]
 ) AS [t0]");
+        }
+
+        public override async Task Collection_projection_after_set_operation(bool async)
+        {
+            await base.Collection_projection_after_set_operation(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[City] = N'Seatte'
+    UNION
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'F%'
+) AS [t]
+LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Concat_with_one_side_being_GroupBy_aggregate(bool async)
+        {
+            await base.Concat_with_one_side_being_GroupBy_aggregate(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderDate]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [c].[City] = N'Seatte'
+UNION
+SELECT MAX([o0].[OrderDate]) AS [OrderDate]
+FROM [Orders] AS [o0]
+GROUP BY [o0].[CustomerID]");
+        }
+
+        public override async Task Union_on_entity_with_correlated_collection(bool async)
+        {
+            await base.Union_on_entity_with_correlated_collection(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+    WHERE [c].[City] = N'Seatte'
+    UNION
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+    WHERE [o0].[OrderID] < 10250
+) AS [t]
+LEFT JOIN [Orders] AS [o1] ON [t].[CustomerID] = [o1].[CustomerID]
+ORDER BY [t].[CustomerID], [o1].[OrderID]");
+        }
+
+        public override async Task Union_on_entity_plus_other_column_with_correlated_collection(bool async)
+        {
+            await base.Union_on_entity_plus_other_column_with_correlated_collection(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderDate], [t].[CustomerID], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+    WHERE [c].[City] = N'Seatte'
+    UNION
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
+    WHERE [o0].[OrderID] < 10250
+) AS [t]
+LEFT JOIN [Orders] AS [o1] ON [t].[CustomerID] = [o1].[CustomerID]
+ORDER BY [t].[CustomerID], [t].[OrderDate], [o1].[OrderID]");
         }
 
         private void AssertSql(params string[] expected)

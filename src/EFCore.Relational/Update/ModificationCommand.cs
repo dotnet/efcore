@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -25,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     public class ModificationCommand
     {
-        private readonly Func<string> _generateParameterName;
+        private readonly Func<string>? _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
-        private readonly IComparer<IUpdateEntry> _comparer;
-        private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
-        private IReadOnlyList<ColumnModification> _columnModifications;
+        private readonly IComparer<IUpdateEntry>? _comparer;
+        private readonly List<IUpdateEntry> _entries = new();
+        private IReadOnlyList<ColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
         private bool _mainEntryAdded;
 
@@ -42,11 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
         public ModificationCommand(
-            [NotNull] string name,
-            [CanBeNull] string schema,
-            [NotNull] Func<string> generateParameterName,
+            string name,
+            string? schema,
+            Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            [CanBeNull] IComparer<IUpdateEntry> comparer)
+            IComparer<IUpdateEntry>? comparer)
             : this(
                 Check.NotEmpty(name, nameof(name)),
                 schema,
@@ -67,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         public ModificationCommand(
-            [NotNull] string name,
-            [CanBeNull] string schema,
-            [CanBeNull] IReadOnlyList<ColumnModification> columnModifications,
+            string name,
+            string? schema,
+            IReadOnlyList<ColumnModification>? columnModifications,
             bool sensitiveLoggingEnabled)
         {
             Check.NotNull(name, nameof(name));
@@ -88,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The schema containing the table, or <see langword="null" /> to use the default schema.
         /// </summary>
-        public virtual string Schema { get; }
+        public virtual string? Schema { get; }
 
         /// <summary>
         ///     The <see cref="IUpdateEntry" />s that represent the entities that are mapped to the row
@@ -99,9 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         /// <summary>
         ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
-        ///     inserted (<see cref="EntityState.Added" />),
-        ///     updated (<see cref="EntityState.Modified" />),
-        ///     or deleted ((<see cref="EntityState.Deleted" />).
+        ///     inserted (<see cref="Microsoft.EntityFrameworkCore.EntityState.Added" />),
+        ///     updated (<see cref="Microsoft.EntityFrameworkCore.EntityState.Modified" />),
+        ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
         /// </summary>
         public virtual EntityState EntityState
         {
@@ -131,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual IReadOnlyList<ColumnModification> ColumnModifications
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _columnModifications, this, command => command.GenerateColumnModifications());
+                ref _columnModifications, this, static command => command.GenerateColumnModifications());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -169,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="entry"> The entry representing the entity to add. </param>
         /// <param name="mainEntry"> A value indicating whether this is the main entry for the row. </param>
-        public virtual void AddEntry([NotNull] IUpdateEntry entry, bool mainEntry)
+        public virtual void AddEntry(IUpdateEntry entry, bool mainEntry)
         {
             Check.NotNull(entry, nameof(entry));
 
@@ -185,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         throw new InvalidOperationException(
                             RelationalStrings.ModificationCommandInvalidEntityStateSensitive(
                                 entry.EntityType.DisplayName(),
-                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties),
                                 entry.EntityState));
                     }
 
@@ -240,10 +239,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingRowUpdateTypesSensitive(
                             entry.EntityType.DisplayName(),
-                            entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                            entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties),
                             entryState,
                             mainEntry.EntityType.DisplayName(),
-                            mainEntry.BuildCurrentValuesString(mainEntry.EntityType.FindPrimaryKey().Properties),
+                            mainEntry.BuildCurrentValuesString(mainEntry.EntityType.FindPrimaryKey()!.Properties),
                             mainEntryState));
                 }
 
@@ -262,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var adding = state == EntityState.Added;
             var updating = state == EntityState.Modified;
             var columnModifications = new List<ColumnModification>();
-            Dictionary<string, ColumnValuePropagator> sharedTableColumnMap = null;
+            Dictionary<string, ColumnValuePropagator>? sharedTableColumnMap = null;
 
             if (_entries.Count > 1
                 || (_entries.Count == 1 && _entries[0].SharedIdentityEntry != null))
@@ -315,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
                     var readValue = state != EntityState.Deleted && entry.IsStoreGenerated(property);
 
-                    ColumnValuePropagator columnPropagator = null;
+                    ColumnValuePropagator? columnPropagator = null;
                     sharedTableColumnMap?.TryGetValue(column.Name, out columnPropagator);
 
                     var writeValue = false;
@@ -346,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             entry,
                             property,
                             column,
-                            _generateParameterName,
+                            _generateParameterName!,
                             columnMapping.TypeMapping,
                             readValue,
                             writeValue,
@@ -375,9 +374,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             return columnModifications;
         }
 
-        private ITableMappingBase GetTableMapping(IEntityType entityType)
+        private ITableMappingBase? GetTableMapping(IEntityType entityType)
         {
-            ITableMappingBase tableMapping = null;
+            ITableMappingBase? tableMapping = null;
             foreach (var mapping in entityType.GetTableMappings())
             {
                 var table = ((ITableMappingBase)mapping).Table;
@@ -442,17 +441,17 @@ namespace Microsoft.EntityFrameworkCore.Update
                 return result;
             }
 
-            result += "(" + string.Join(", ", _columnModifications.Where(m => m.IsKey).Select(m => m.OriginalValue.ToString())) + ")";
+            result += "(" + string.Join(", ", _columnModifications.Where(m => m.IsKey).Select(m => m.OriginalValue?.ToString())) + ")";
             return result;
         }
 
         private sealed class ColumnValuePropagator
         {
             private bool _write;
-            private object _originalValue;
-            private object _currentValue;
+            private object? _originalValue;
+            private object? _currentValue;
 
-            public ColumnModification ColumnModification { get; set; }
+            public ColumnModification? ColumnModification { get; set; }
 
             public void RecordValue(IProperty property, IUpdateEntry entry)
             {

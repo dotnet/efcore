@@ -15,22 +15,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             using var executor = CreateExecutor(args);
 
             var sql = executor.ScriptMigration(
-                _from.Value,
-                _to.Value,
-                _idempotent.HasValue(),
-                _noTransactions.HasValue(),
-                Context.Value());
+                _from!.Value,
+                _to!.Value,
+                _idempotent!.HasValue(),
+                _noTransactions!.HasValue(),
+                Context!.Value());
 
-            if (!_output.HasValue())
+            if (!_output!.HasValue())
             {
                 Reporter.WriteData(sql);
             }
             else
             {
-                var output = _output.Value();
-                if (WorkingDir.HasValue())
+                var output = _output.Value()!;
+                if (WorkingDir!.HasValue())
                 {
-                    output = Path.Combine(WorkingDir.Value(), output);
+                    output = Path.Combine(WorkingDir.Value()!, output);
                 }
 
                 var directory = Path.GetDirectoryName(output);

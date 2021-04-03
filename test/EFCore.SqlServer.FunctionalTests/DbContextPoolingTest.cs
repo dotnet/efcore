@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -26,7 +27,41 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        private static IServiceProvider BuildServiceProvider<TContextService, TContext>(int poolSize = 32)
+        private static IServiceProvider BuildServiceProvider<TContextService, TContext>()
+            where TContextService : class
+            where TContext : DbContext, TContextService
+            => new ServiceCollection()
+                .AddDbContextPool<TContextService, TContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).AddDbContextPool<ISecondContext, SecondContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).BuildServiceProvider();
+
+        private static IServiceProvider BuildServiceProvider<TContext>()
+            where TContext : DbContext
+            => new ServiceCollection()
+                .AddDbContextPool<TContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).AddDbContextPool<SecondContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).BuildServiceProvider();
+
+        private static IServiceProvider BuildServiceProviderWithFactory<TContext>()
+            where TContext : DbContext
+            => new ServiceCollection()
+                .AddPooledDbContextFactory<TContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).AddDbContextPool<SecondContext>(
+                    ob =>
+                        ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false)).BuildServiceProvider();
+
+        private static IServiceProvider BuildServiceProvider<TContextService, TContext>(int poolSize)
             where TContextService : class
             where TContext : DbContext, TContextService
             => new ServiceCollection()
@@ -41,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
                             .EnableServiceProviderCaching(false),
                     poolSize).BuildServiceProvider();
 
-        private static IServiceProvider BuildServiceProvider<TContext>(int poolSize = 32)
+        private static IServiceProvider BuildServiceProvider<TContext>(int poolSize)
             where TContext : DbContext
             => new ServiceCollection()
                 .AddDbContextPool<TContext>(
@@ -56,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
                     poolSize)
                 .BuildServiceProvider();
 
-        private static IServiceProvider BuildServiceProviderWithFactory<TContext>(int poolSize = 32)
+        private static IServiceProvider BuildServiceProviderWithFactory<TContext>(int poolSize)
             where TContext : DbContext
             => new ServiceCollection()
                 .AddPooledDbContextFactory<TContext>(
@@ -98,6 +133,7 @@ namespace Microsoft.EntityFrameworkCore
                 ChangeTracker.AutoDetectChangesEnabled = false;
                 ChangeTracker.LazyLoadingEnabled = false;
                 Database.AutoTransactionsEnabled = false;
+                Database.AutoSavepointsEnabled = false;
                 ChangeTracker.CascadeDeleteTiming = CascadeTiming.Never;
                 ChangeTracker.DeleteOrphansTiming = CascadeTiming.Never;
             }
@@ -151,10 +187,102 @@ namespace Microsoft.EntityFrameworkCore
                 () => BuildServiceProvider<PooledContext>(poolSize: -1));
 
             Assert.Throws<ArgumentOutOfRangeException>(
+                () => BuildServiceProvider<IPooledContext, PooledContext>(poolSize: 0));
+
+            Assert.Throws<ArgumentOutOfRangeException>(
+                () => BuildServiceProvider<IPooledContext, PooledContext>(poolSize: -1));
+
+            Assert.Throws<ArgumentOutOfRangeException>(
                 () => BuildServiceProviderWithFactory<PooledContext>(poolSize: 0));
 
             Assert.Throws<ArgumentOutOfRangeException>(
                 () => BuildServiceProviderWithFactory<PooledContext>(poolSize: -1));
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size()
+        {
+            var serviceProvider = BuildServiceProvider<PooledContext>(poolSize: 64);
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                64,
+                scope.ServiceProvider
+                    .GetRequiredService<PooledContext>()
+                    .GetService<IDbContextOptions>()
+                    .FindExtension<CoreOptionsExtension>().MaxPoolSize);
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size_with_service_interface()
+        {
+            var serviceProvider = BuildServiceProvider<IPooledContext, PooledContext>(poolSize: 64);
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                64,
+                ((DbContext)scope.ServiceProvider
+                    .GetRequiredService<IPooledContext>())
+                .GetService<IDbContextOptions>()
+                .FindExtension<CoreOptionsExtension>().MaxPoolSize);
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size_with_factory()
+        {
+            var serviceProvider = BuildServiceProviderWithFactory<PooledContext>(poolSize: 64);
+
+            using var context = serviceProvider.GetRequiredService<IDbContextFactory<PooledContext>>().CreateDbContext();
+
+            Assert.Equal(
+                64,
+                context.GetService<IDbContextOptions>()
+                    .FindExtension<CoreOptionsExtension>().MaxPoolSize);
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size_default()
+        {
+            var serviceProvider = BuildServiceProvider<PooledContext>();
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                128,
+                scope.ServiceProvider
+                    .GetRequiredService<PooledContext>()
+                    .GetService<IDbContextOptions>()
+                    .FindExtension<CoreOptionsExtension>().MaxPoolSize);
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size_with_service_interface_default()
+        {
+            var serviceProvider = BuildServiceProvider<IPooledContext, PooledContext>();
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Equal(
+                128,
+                ((DbContext)scope.ServiceProvider
+                    .GetRequiredService<IPooledContext>())
+                .GetService<IDbContextOptions>()
+                .FindExtension<CoreOptionsExtension>().MaxPoolSize);
+        }
+
+        [ConditionalFact]
+        public void Validate_pool_size_with_factory_default()
+        {
+            var serviceProvider = BuildServiceProviderWithFactory<PooledContext>();
+
+            using var context = serviceProvider.GetRequiredService<IDbContextFactory<PooledContext>>().CreateDbContext();
+
+            Assert.Equal(
+                128,
+                context.GetService<IDbContextOptions>()
+                    .FindExtension<CoreOptionsExtension>().MaxPoolSize);
         }
 
         [ConditionalTheory]
@@ -539,6 +667,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
+            context1.Database.AutoSavepointsEnabled = true;
             context1.SavingChanges += (sender, args) => { };
             context1.SavedChanges += (sender, args) => { };
             context1.SaveChangesFailed += (sender, args) => { };
@@ -568,6 +697,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
             Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
             Assert.False(context2.Database.AutoTransactionsEnabled);
+            Assert.False(context2.Database.AutoSavepointsEnabled);
         }
 
         [ConditionalTheory]
@@ -585,6 +715,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
+            context1.Database.AutoSavepointsEnabled = true;
             context1.SavingChanges += (sender, args) => { };
             context1.SavedChanges += (sender, args) => { };
             context1.SaveChangesFailed += (sender, args) => { };
@@ -609,6 +740,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
             Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
             Assert.False(context2.Database.AutoTransactionsEnabled);
+            Assert.False(context2.Database.AutoSavepointsEnabled);
         }
 
         [ConditionalFact]
@@ -628,6 +760,7 @@ namespace Microsoft.EntityFrameworkCore
             context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
             context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context.Database.AutoTransactionsEnabled = true;
+            context.Database.AutoSavepointsEnabled = true;
             context.ChangeTracker.Tracked += ChangeTracker_OnTracked;
             context.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
             context.SavingChanges += (sender, args) => { };
@@ -642,6 +775,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(CascadeTiming.Immediate, context.ChangeTracker.CascadeDeleteTiming);
             Assert.Equal(CascadeTiming.Immediate, context.ChangeTracker.DeleteOrphansTiming);
             Assert.True(context.Database.AutoTransactionsEnabled);
+            Assert.True(context.Database.AutoSavepointsEnabled);
 
             Assert.False(_changeTracker_OnTracked);
             Assert.False(_changeTracker_OnStateChanged);
@@ -661,6 +795,7 @@ namespace Microsoft.EntityFrameworkCore
             => typeof(DbContext)
                 .GetField(eventName, BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance)
                 .GetValue(context);
+
         private bool _changeTracker_OnTracked;
 
         private void ChangeTracker_OnTracked(object sender, EntityTrackedEventArgs e)
@@ -687,6 +822,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.LazyLoadingEnabled = false;
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             context1.Database.AutoTransactionsEnabled = false;
+            context1.Database.AutoSavepointsEnabled = false;
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
 
@@ -705,6 +841,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
             Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
             Assert.True(context2.Database.AutoTransactionsEnabled);
+            Assert.True(context2.Database.AutoSavepointsEnabled);
         }
 
         [ConditionalTheory]
@@ -721,6 +858,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.LazyLoadingEnabled = false;
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             context1.Database.AutoTransactionsEnabled = false;
+            context1.Database.AutoSavepointsEnabled = false;
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
 
@@ -736,6 +874,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
             Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
             Assert.True(context2.Database.AutoTransactionsEnabled);
+            Assert.True(context2.Database.AutoSavepointsEnabled);
         }
 
         [ConditionalTheory]
@@ -1063,7 +1202,6 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
-        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
         public void Double_dispose_concurrency_test(bool useInterface)
         {
             var serviceProvider = useInterface
@@ -1091,7 +1229,6 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
         public async Task Concurrency_test(bool useInterface, bool async)
         {
             PooledContext.InstanceCount = 0;
@@ -1138,7 +1275,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private int _stopwatchStarted;
 
-        private readonly Stopwatch _stopwatch = new Stopwatch();
+        private readonly Stopwatch _stopwatch = new();
 
         private long _requests;
 

@@ -12,6 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Gets the programming language supported by this service.
         /// </summary>
         /// <value> The language. </value>
-        string Language { get; }
+        string? Language { get; }
     }
 }

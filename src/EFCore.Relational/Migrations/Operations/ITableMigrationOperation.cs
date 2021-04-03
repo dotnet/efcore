@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        string Schema { get; }
+        string? Schema { get; }
 
         /// <summary>
         ///     The table that contains the target of this operation.

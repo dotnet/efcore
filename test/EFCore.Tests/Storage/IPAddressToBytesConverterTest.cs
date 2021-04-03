@@ -10,8 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class IPAddressToBytesConverterTest
     {
-        private static readonly IPAddressToBytesConverter _ipAddressToBytes
-            = new IPAddressToBytesConverter();
+        private static readonly IPAddressToBytesConverter _ipAddressToBytes = new();
 
         [ConditionalTheory]
         [InlineData("255.255.255.255")]

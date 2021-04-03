@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -19,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static int GetColumnOrdinal([NotNull] this IProperty property)
+        public static int GetColumnOrdinal(this IReadOnlyProperty property)
             => (int?)property[ScaffoldingAnnotationNames.ColumnOrdinal] ?? -1;
 
         /// <summary>
@@ -28,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static void SetColumnOrdinal([NotNull] this IMutableProperty property, int? ordinal)
+        public static void SetColumnOrdinal(this IMutableProperty property, int? ordinal)
             => property.SetOrRemoveAnnotation(
                 ScaffoldingAnnotationNames.ColumnOrdinal,
                 ordinal);

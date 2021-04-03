@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     {
         private const int DefaultPoolSize = 32;
 
-        private readonly ConcurrentQueue<IDbContextPoolable> _pool = new ConcurrentQueue<IDbContextPoolable>();
+        private readonly ConcurrentQueue<IDbContextPoolable> _pool = new();
 
         private readonly Func<DbContext> _activator;
 
@@ -39,44 +38,31 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DbContextPool([NotNull] DbContextOptions<TContext> options)
+        public DbContextPool(DbContextOptions<TContext> options)
         {
             _maxSize = options.FindExtension<CoreOptionsExtension>()?.MaxPoolSize ?? DefaultPoolSize;
 
             options.Freeze();
 
             _activator = CreateActivator(options);
-
-            if (_activator == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.PoolingContextCtorError(typeof(TContext).ShortDisplayName()));
-            }
         }
 
         private static Func<DbContext> CreateActivator(DbContextOptions<TContext> options)
         {
-            var constructors
-                = typeof(TContext).GetTypeInfo().DeclaredConstructors
-                    .Where(c => !c.IsStatic && c.IsPublic)
-                    .ToArray();
+            var constructors = typeof(TContext).GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic && c.IsPublic).ToArray();
 
             if (constructors.Length == 1)
             {
                 var parameters = constructors[0].GetParameters();
-
                 if (parameters.Length == 1
                     && (parameters[0].ParameterType == typeof(DbContextOptions)
                         || parameters[0].ParameterType == typeof(DbContextOptions<TContext>)))
                 {
-                    return
-                        Expression.Lambda<Func<TContext>>(
-                                Expression.New(constructors[0], Expression.Constant(options)))
-                            .Compile();
+                    return Expression.Lambda<Func<TContext>>(Expression.New(constructors[0], Expression.Constant(options))).Compile();
                 }
             }
 
-            return null;
+            throw new InvalidOperationException(CoreStrings.PoolingContextCtorError(typeof(TContext).ShortDisplayName()));
         }
 
         /// <summary>

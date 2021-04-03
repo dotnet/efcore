@@ -4,14 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -33,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SearchConditionConvertingExpressionVisitor(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -74,22 +71,50 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         sqlExpression,
                         _sqlExpressionFactory.Constant(true));
 
-        // !(a == b) -> (a != b)
-        // !(a != b) -> (a == b)
+
         private SqlExpression SimplifyNegatedBinary(SqlExpression sqlExpression)
-            => sqlExpression is SqlUnaryExpression sqlUnaryExpression
+        {
+            if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
                 && sqlUnaryExpression.OperatorType == ExpressionType.Not
                 && sqlUnaryExpression.Type == typeof(bool)
                 && sqlUnaryExpression.Operand is SqlBinaryExpression sqlBinaryOperand
-                && (sqlBinaryOperand.OperatorType == ExpressionType.Equal || sqlBinaryOperand.OperatorType == ExpressionType.NotEqual)
-                    ? _sqlExpressionFactory.MakeBinary(
+                && (sqlBinaryOperand.OperatorType == ExpressionType.Equal || sqlBinaryOperand.OperatorType == ExpressionType.NotEqual))
+            {
+                if (sqlBinaryOperand.Left.Type == typeof(bool)
+                    && sqlBinaryOperand.Right.Type == typeof(bool)
+                    && (sqlBinaryOperand.Left is SqlConstantExpression
+                        || sqlBinaryOperand.Right is SqlConstantExpression))
+                {
+                    var constant = sqlBinaryOperand.Left as SqlConstantExpression ?? (SqlConstantExpression)sqlBinaryOperand.Right;
+                    if (sqlBinaryOperand.Left is SqlConstantExpression)
+                    {
+                        return _sqlExpressionFactory.MakeBinary(
+                            ExpressionType.Equal,
+                            _sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
+                            sqlBinaryOperand.Right,
+                            sqlBinaryOperand.TypeMapping)!;
+                    }
+                    else
+                    {
+                        return _sqlExpressionFactory.MakeBinary(
+                            ExpressionType.Equal,
+                            sqlBinaryOperand.Left,
+                            _sqlExpressionFactory.Constant(!(bool)constant.Value!, constant.TypeMapping),
+                            sqlBinaryOperand.TypeMapping)!;
+                    }
+                }
+
+                return _sqlExpressionFactory.MakeBinary(
                         sqlBinaryOperand.OperatorType == ExpressionType.Equal
                             ? ExpressionType.NotEqual
                             : ExpressionType.Equal,
                         sqlBinaryOperand.Left,
                         sqlBinaryOperand.Right,
-                        sqlBinaryOperand.TypeMapping)!
-                    : sqlExpression;
+                        sqlBinaryOperand.TypeMapping)!;
+            }
+
+            return sqlExpression;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

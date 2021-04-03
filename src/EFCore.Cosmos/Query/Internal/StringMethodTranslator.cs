@@ -5,11 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -30,6 +27,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
+        private static readonly MethodInfo _toLowerMethodInfo
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
+            
+        private static readonly MethodInfo _toUpperMethodInfo
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
+
+        private static readonly MethodInfo _trimStartMethodInfoWithoutArgs
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), Array.Empty<Type>());
+
+        private static readonly MethodInfo _trimEndMethodInfoWithoutArgs
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), Array.Empty<Type>());
+
+        private static readonly MethodInfo _trimMethodInfoWithoutArgs
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), Array.Empty<Type>());
+
+        private static readonly MethodInfo _trimStartMethodInfoWithCharArrayArg
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char[]) });
+
+        private static readonly MethodInfo _trimEndMethodInfoWithCharArrayArg
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char[]) });
+
+        private static readonly MethodInfo _trimMethodInfoWithCharArrayArg
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
+
+        private static readonly MethodInfo _substringMethodInfo
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
+
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
             = typeof(Enumerable).GetRuntimeMethods().Single(
                 m => m.Name == nameof(Enumerable.FirstOrDefault)
@@ -40,6 +64,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 m => m.Name == nameof(Enumerable.LastOrDefault)
                     && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
+        private static readonly MethodInfo _stringConcatWithTwoArguments =
+            typeof(String).GetRequiredRuntimeMethod(nameof(string.Concat),
+                new[] { typeof(string), typeof(string) });
+
+        private static readonly MethodInfo _stringConcatWithThreeArguments =
+            typeof(String).GetRequiredRuntimeMethod(nameof(string.Concat),
+                new[] { typeof(string), typeof(string), typeof(string) });
+
+        private static readonly MethodInfo _stringConcatWithFourArguments =
+            typeof(String).GetRequiredRuntimeMethod(nameof(string.Concat),
+                new[] { typeof(string), typeof(string), typeof(string), typeof(string) });
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
@@ -48,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public StringMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public StringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -73,34 +109,100 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 if (_containsMethodInfo.Equals(method))
                 {
-                    return TranslateSystemFunction("CONTAINS", instance, arguments[0], typeof(bool));
+                    return TranslateSystemFunction("CONTAINS", typeof(bool), instance, arguments[0]);
                 }
 
                 if (_startsWithMethodInfo.Equals(method))
                 {
-                    return TranslateSystemFunction("STARTSWITH", instance, arguments[0], typeof(bool));
+                    return TranslateSystemFunction("STARTSWITH", typeof(bool), instance, arguments[0]);
                 }
 
                 if (_endsWithMethodInfo.Equals(method))
                 {
-                    return TranslateSystemFunction("ENDSWITH", instance, arguments[0], typeof(bool));
+                    return TranslateSystemFunction("ENDSWITH", typeof(bool), instance, arguments[0]);
+                }
+
+                if (_toLowerMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("LOWER", method.ReturnType, instance);
+                }
+
+                if (_toUpperMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("UPPER", method.ReturnType, instance);
+                }
+
+                if (_trimStartMethodInfoWithoutArgs?.Equals(method) == true
+                    || (_trimStartMethodInfoWithCharArrayArg.Equals(method)
+                        // Cosmos DB LTRIM does not take arguments
+                        && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+                {
+                    return TranslateSystemFunction("LTRIM", method.ReturnType, instance);
+                }
+
+                if (_trimEndMethodInfoWithoutArgs?.Equals(method) == true
+                    || (_trimEndMethodInfoWithCharArrayArg.Equals(method)
+                        // Cosmos DB RTRIM does not take arguments
+                        && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+                {
+                    return TranslateSystemFunction("RTRIM", method.ReturnType, instance);
+                }
+
+                if (_trimMethodInfoWithoutArgs?.Equals(method) == true
+                    || (_trimMethodInfoWithCharArrayArg.Equals(method)
+                        // Cosmos DB TRIM does not take arguments
+                        && ((arguments[0] as SqlConstantExpression)?.Value as Array)?.Length == 0))
+                {
+                    return TranslateSystemFunction("TRIM", method.ReturnType, instance);
+                }
+
+                if (_substringMethodInfo.Equals(method))
+                {
+                    return TranslateSystemFunction("SUBSTRING", method.ReturnType, instance, arguments[0], arguments[1]);
                 }
             }
 
             if (_firstOrDefaultMethodInfoWithoutArgs.Equals(method))
             {
-                return TranslateSystemFunction("LEFT", arguments[0], _sqlExpressionFactory.Constant(1), typeof(char));
+                return TranslateSystemFunction("LEFT", typeof(char), arguments[0], _sqlExpressionFactory.Constant(1));
             }
 
             if (_lastOrDefaultMethodInfoWithoutArgs.Equals(method))
             {
-                return TranslateSystemFunction("RIGHT", arguments[0], _sqlExpressionFactory.Constant(1), typeof(char));
+                return TranslateSystemFunction("RIGHT", typeof(char), arguments[0], _sqlExpressionFactory.Constant(1));
+            }
+
+            if (_stringConcatWithTwoArguments.Equals(method))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    arguments[1]);
+            }
+
+            if (_stringConcatWithThreeArguments.Equals(method))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    _sqlExpressionFactory.Add(
+                        arguments[1],
+                        arguments[2]));
+            }
+
+            if (_stringConcatWithFourArguments.Equals(method))
+            {
+                return _sqlExpressionFactory.Add(
+                    arguments[0],
+                    _sqlExpressionFactory.Add(
+                        arguments[1],
+                        _sqlExpressionFactory.Add(
+                            arguments[2],
+                            arguments[3])));
             }
 
             return null;
         }
 
-        private SqlExpression TranslateSystemFunction(string function, SqlExpression instance, SqlExpression pattern, Type returnType)
-            => _sqlExpressionFactory.Function(function, new[] { instance, pattern }, returnType);
+        private SqlExpression TranslateSystemFunction(string function, Type returnType, params SqlExpression[] arguments)
+            => _sqlExpressionFactory.Function(function, arguments, returnType);
     }
 }

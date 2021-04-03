@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -89,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = new ChangeContext<ChangeValueEntity>();
 
-            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, context.Model.GetChangeTrackingStrategy());
+            Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications,
+                context.GetService<IDesignTimeModel>().Model.GetChangeTrackingStrategy());
         }
 
         [ConditionalFact]
@@ -398,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ChangeNonVirtualIndexer
         {
-            private readonly Dictionary<string, object> _keyValuePairs = new Dictionary<string, object>();
+            private readonly Dictionary<string, object> _keyValuePairs = new();
 
             public virtual int Id { get; set; }
 
@@ -411,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ChangeNonVirtualIndexerNotUsed
         {
-            private readonly Dictionary<string, object> _keyValuePairs = new Dictionary<string, object>();
+            private readonly Dictionary<string, object> _keyValuePairs = new();
 
             public virtual int Id { get; set; }
 

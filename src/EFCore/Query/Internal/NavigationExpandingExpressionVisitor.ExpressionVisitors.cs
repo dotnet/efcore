@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,9 +13,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -151,8 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 bool derivedTypeConversion)
             {
                 var targetType = navigation.TargetEntityType;
-                if (targetType.HasDefiningNavigation()
-                    || targetType.IsOwned())
+                if (targetType.IsOwned())
                 {
                     if (entityReference.ForeignKeyExpansionMap.TryGetValue(
                         (navigation.ForeignKey, navigation.IsOnDependent), out var ownedExpansion))
@@ -344,7 +341,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var collection = !foreignKey.IsUnique && !onDependent;
                 var targetType = onDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType;
 
-                Debug.Assert(!targetType.HasDefiningNavigation() && !targetType.IsOwned(), "Owned entity expanding foreign key.");
+                Debug.Assert(!targetType.IsOwned(), "Owned entity expanding foreign key.");
 
                 var innerQueryable = new QueryRootExpression(targetType);
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
@@ -541,6 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return ExpandInclude(ownedNavigationReference, ownedNavigationReference.EntityReference);
 
                     case MaterializeCollectionNavigationExpression _:
+                    case IncludeExpression _:
                         return extensionExpression;
                 }
 
@@ -625,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private bool ReconstructAnonymousType(
                 Expression currentRoot,
                 NewExpression newExpression,
-                [CA.NotNullWhen(true)] out Expression? replacement)
+                [NotNullWhen(true)] out Expression? replacement)
             {
                 replacement = null;
                 var changed = false;
@@ -708,6 +706,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (!navigationBase.IsCollection
                         && previousNavigation?.Inverse == navigationBase)
                     {
+                        // This skips one-to-one navigations which are pointing to each other.
+                        if (!navigationBase.IsEagerLoaded)
+                        {
+                            _logger.NavigationBaseIncludeIgnored(navigationBase);
+                        }
+
                         continue;
                     }
 
@@ -716,7 +720,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         && entityReference.EntityType.IsAssignableFrom(navigationBase.DeclaringEntityType))
                     {
                         converted = true;
-                        convertedRoot = Expression.Convert(root, navigationBase.DeclaringEntityType.ClrType!);
+                        convertedRoot = Expression.Convert(root, navigationBase.DeclaringEntityType.ClrType);
                     }
 
                     var included = navigationBase switch
@@ -740,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         var subquery = materializeCollectionNavigation.Subquery;
                         if (!_ignoreAutoIncludes
                             && navigationBase is INavigation
-                            && navigationBase.Inverse != null
+                            && navigationBase.Inverse is INavigation inverseNavigation
                             && subquery is MethodCallExpression subqueryMethodCallExpression
                             && subqueryMethodCallExpression.Method.IsGenericMethod)
                         {
@@ -757,7 +761,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                             if (innerEntityReference != null)
                             {
-                                innerEntityReference.IncludePaths.Remove(navigationBase.Inverse);
+                                // This skips inverse navigation of a collection navigation if they are pointing to each other.
+                                // Not a skip navigation
+                                if (innerEntityReference.IncludePaths.ContainsKey(inverseNavigation)
+                                    && !inverseNavigation.IsEagerLoaded)
+                                {
+                                    _logger.NavigationBaseIncludeIgnored(inverseNavigation);
+                                }
+
+                                innerEntityReference.IncludePaths.Remove(inverseNavigation);
                             }
                         }
 
@@ -847,7 +859,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                     }
 
-                    result = new IncludeExpression(result, included, navigationBase);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    result = new IncludeExpression(result, included, navigationBase, kvp.Value.SetLoaded);
+#pragma warning restore EF1001 // Internal EF Core API usage.
                 }
 
                 return result;
@@ -909,7 +923,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _applyIncludes = applyIncludes;
             }
 
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is NavigationExpansionExpression navigationExpansionExpression)
@@ -935,7 +949,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class ReducingExpressionVisitor : ExpressionVisitor
         {
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 switch (expression)
@@ -1003,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class EntityReferenceOptionalMarkingExpressionVisitor : ExpressionVisitor
         {
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression is EntityReference entityReference)
@@ -1089,7 +1103,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ExpressionType nodeType,
                 Expression left,
                 Expression right,
-                [CA.NotNullWhen(true)] out Expression? result)
+                [NotNullWhen(true)] out Expression? result)
             {
                 result = null;
                 var leftNavigationData = ProcessNavigationPath(left) as NavigationDataExpression;

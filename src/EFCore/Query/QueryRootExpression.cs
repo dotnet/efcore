@@ -4,12 +4,9 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -29,27 +26,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="asyncQueryProvider"> The query provider associated with this query root. </param>
         /// <param name="entityType"> The entity type this query root represents. </param>
-        public QueryRootExpression([NotNull] IAsyncQueryProvider asyncQueryProvider, [NotNull] IEntityType entityType)
+        public QueryRootExpression(IAsyncQueryProvider asyncQueryProvider, IEntityType entityType)
         {
             Check.NotNull(asyncQueryProvider, nameof(asyncQueryProvider));
             Check.NotNull(entityType, nameof(entityType));
 
             QueryProvider = asyncQueryProvider;
             EntityType = entityType;
-            Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType!);
+            Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
         }
 
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryRootExpression" /> class without any query provider.
         /// </summary>
         /// <param name="entityType"> The entity type this query root represents. </param>
-        public QueryRootExpression([NotNull] IEntityType entityType)
+        public QueryRootExpression(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
             EntityType = entityType;
             QueryProvider = null;
-            Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType!);
+            Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
         }
 
         /// <summary>
@@ -88,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
         /// </summary>
         /// <param name="expressionPrinter"> The expression printer to use. </param>
-        protected virtual void Print([NotNull] ExpressionPrinter expressionPrinter)
+        protected virtual void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 

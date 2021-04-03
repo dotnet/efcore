@@ -5,12 +5,10 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
@@ -31,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="partitionKey"> The partition key. </param>
         /// <returns> A new query with the set partition key. </returns>
         public static IQueryable<TEntity> WithPartitionKey<TEntity>(
-            [NotNull] this IQueryable<TEntity> source,
-            [NotNull][NotParameterized] string partitionKey)
+            this IQueryable<TEntity> source,
+            [NotParameterized] string partitionKey)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));

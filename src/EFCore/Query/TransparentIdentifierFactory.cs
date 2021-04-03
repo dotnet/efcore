@@ -5,8 +5,6 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
@@ -28,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="outerType"> The outer type of the transparent identifier. </param>
         /// <param name="innerType"> The inner type of the transparent identifier. </param>
         /// <returns> The created transparent identifier type. </returns>
-        public static Type Create([NotNull] Type outerType, [NotNull] Type innerType)
+        public static Type Create(Type outerType, Type innerType)
         {
             Check.NotNull(outerType, nameof(outerType));
             Check.NotNull(innerType, nameof(innerType));

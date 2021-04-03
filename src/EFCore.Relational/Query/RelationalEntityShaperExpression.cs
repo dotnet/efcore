@@ -6,15 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -36,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entityType"> The entity type to shape. </param>
         /// <param name="valueBufferExpression"> An expression of ValueBuffer to get values for properties of the entity. </param>
         /// <param name="nullable"> A bool value indicating whether this entity instance can be null. </param>
-        public RelationalEntityShaperExpression([NotNull] IEntityType entityType, [NotNull] Expression valueBufferExpression, bool nullable)
+        public RelationalEntityShaperExpression(IEntityType entityType, Expression valueBufferExpression, bool nullable)
             : base(entityType, valueBufferExpression, nullable, null)
         {
         }
@@ -52,10 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     materialize.
         /// </param>
         protected RelationalEntityShaperExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] Expression valueBufferExpression,
+            IEntityType entityType,
+            Expression valueBufferExpression,
             bool nullable,
-            [CanBeNull] LambdaExpression? materializationCondition)
+            LambdaExpression? materializationCondition)
             : base(entityType, valueBufferExpression, nullable, materializationCondition)
         {
         }
@@ -66,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(entityType, nameof(EntityType));
 
             LambdaExpression baseCondition;
-            if (entityType.GetDiscriminatorProperty() == null
+            if (entityType.FindDiscriminatorProperty() == null
                 && entityType.GetDirectlyDerivedTypes().Any())
             {
                 // TPT
@@ -120,12 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Aggregate((a, b) => AndAlso(a, b));
                     }
 
-                    var allNonSharedProperties = GetNonSharedProperties(table, entityType);
-                    if (allNonSharedProperties.Count != 0
-                        && allNonSharedProperties.All(p => p.IsNullable))
+                    var allNonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
+                    // We don't need condition for nullable property if there exist at least one required property which is non shared.
+                    if (allNonPrincipalSharedNonPkProperties.Count != 0
+                        && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
                     {
-                        var allNonSharedNullableProperties = allNonSharedProperties.Where(p => p.IsNullable).ToList();
-                        var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNullableProperties
+                        var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
                             .Select(
                                 p => NotEqual(
                                     valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
@@ -181,40 +178,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return valueBufferExpression != ValueBufferExpression
                 ? new RelationalEntityShaperExpression(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
                 : this;
-        }
-
-        private IReadOnlyList<IProperty> GetNonSharedProperties(ITableBase table, IEntityType entityType)
-        {
-            var nonSharedProperties = new List<IProperty>();
-            var principalEntityTypes = new HashSet<IEntityType>();
-            GetPrincipalEntityTypes(table, entityType, principalEntityTypes);
-            foreach (var property in entityType.GetProperties())
-            {
-                if (property.IsPrimaryKey())
-                {
-                    continue;
-                }
-
-                var propertyMappings = table.FindColumn(property)!.PropertyMappings;
-                if (propertyMappings.Count() > 1
-                    && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.EntityType)))
-                {
-                    continue;
-                }
-
-                nonSharedProperties.Add(property);
-            }
-
-            return nonSharedProperties;
-        }
-
-        private void GetPrincipalEntityTypes(ITableBase table, IEntityType entityType, HashSet<IEntityType> entityTypes)
-        {
-            foreach (var linkingFk in table.GetRowInternalForeignKeys(entityType))
-            {
-                entityTypes.Add(linkingFk.PrincipalEntityType);
-                GetPrincipalEntityTypes(table, linkingFk.PrincipalEntityType, entityTypes);
-            }
         }
     }
 }

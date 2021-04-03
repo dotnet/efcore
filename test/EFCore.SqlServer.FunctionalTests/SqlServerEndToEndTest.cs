@@ -330,6 +330,134 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public async Task Can_add_and_remove_entities_with_keys_of_different_type()
+        {
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var context = new CompositeKeysDbContext(options))
+            {
+                context.Database.EnsureCreatedResiliently();
+                var first = new Int32CompositeKeys
+                {
+                    Id1 = 1, Id2 = 2
+                };
+
+                context.Add(first);
+
+                var second = new Int64CompositeKeys
+                {
+                    Id1 = 1,
+                    Id2 = 2
+                };
+
+                context.Add(second);
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CompositeKeysDbContext(options))
+            {
+                var first = context.Set<Int32CompositeKeys>().Single();
+                context.Remove(first);
+
+                var second = context.Set<Int64CompositeKeys>().Single();
+                context.Remove(second);
+
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private class CompositeKeysDbContext : DbContext
+        {
+            public CompositeKeysDbContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Int32CompositeKeys>().HasKey(i => new { i.Id1, i.Id2 });
+                modelBuilder.Entity<Int64CompositeKeys>().HasKey(l => new { l.Id1, l.Id2 });
+            }
+        }
+
+        private class Int32CompositeKeys
+        {
+            public int Id1 { get; set; }
+            public int Id2 { get; set; }
+        }
+
+        private class Int64CompositeKeys
+        {
+            public long Id1 { get; set; }
+            public long Id2 { get; set; }
+        }
+
+        [ConditionalFact]
+        public void Can_insert_non_owner_principal_for_owned()
+        {
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var context = new FileContext(options))
+            {
+                context.Database.EnsureCreatedResiliently();
+
+                var category = new Category { };
+                context.Categories.Add(category);
+
+                context.SaveChanges();
+
+                var fileMetadata = new FileMetadata { };
+                context.FileMetadata.Add(fileMetadata);
+                category.Picture = new FileSource { FileId = fileMetadata.Id };
+
+                context.SaveChanges();
+            }
+        }
+
+        private class FileContext : DbContext
+        {
+            public FileContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<FileMetadata> FileMetadata { get; set; }
+            public DbSet<Category> Categories { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<Category>(builder =>
+                {
+                    builder.OwnsOne(x => x.Picture, fileSource =>
+                    {
+                        fileSource.HasOne<FileMetadata>().WithOne().HasForeignKey<FileSource>(x => x.FileId);
+                    });
+                });
+            }
+        }
+
+        private sealed class FileMetadata
+        {
+            public Guid Id { get; set; }
+        }
+
+        private sealed class Category
+        {
+            public Guid Id { get; set; }
+
+            public FileSource Picture { get; set; }
+        }
+
+        private sealed class FileSource
+        {
+            public Guid? FileId { get; set; }
+        }
+
+        [ConditionalFact]
         public async Task Can_insert_TPT_dependents_with_identity()
         {
             using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);

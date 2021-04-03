@@ -4,7 +4,6 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -30,15 +29,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The start time of this event. </param>
         /// <param name="duration"> The duration this event. </param>
         public CommandExecutedEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] DbConnection connection,
-            [NotNull] DbCommand command,
-            [CanBeNull] DbContext context,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbConnection connection,
+            DbCommand command,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,
-            [CanBeNull] object result,
+            object? result,
             bool async,
             bool logParameterValues,
             DateTimeOffset startTime,
@@ -61,6 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The result of executing the command.
         /// </summary>
-        public virtual object Result { get; }
+        public virtual object? Result { get; }
     }
 }

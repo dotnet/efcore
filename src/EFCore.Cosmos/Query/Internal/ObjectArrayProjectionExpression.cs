@@ -4,11 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable disable warnings
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -27,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ObjectArrayProjectionExpression(
-            [NotNull] INavigation navigation,
-            [NotNull] Expression accessExpression,
-            [CanBeNull] EntityProjectionExpression innerProjection = null)
+            INavigation navigation,
+            Expression accessExpression,
+            EntityProjectionExpression? innerProjection = null)
         {
             var targetType = navigation.TargetEntityType;
             Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
@@ -122,8 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ObjectArrayProjectionExpression Update(
-            [NotNull] Expression accessExpression,
-            [NotNull] EntityProjectionExpression innerProjection)
+            Expression accessExpression,
+            EntityProjectionExpression innerProjection)
             => accessExpression != AccessExpression || innerProjection != InnerProjection
                 ? new ObjectArrayProjectionExpression(Navigation, accessExpression, innerProjection)
                 : this;

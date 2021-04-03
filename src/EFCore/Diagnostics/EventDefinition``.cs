@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class EventDefinition<TParam1, TParam2> : EventDefinitionBase
     {
-        private readonly Action<ILogger, TParam1, TParam2, Exception> _logAction;
+        private readonly Action<ILogger, TParam1, TParam2, Exception?> _logAction;
 
         /// <summary>
         ///     Creates an event definition instance.
@@ -27,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <param name="logActionFunc"> Function to create a cached delegate for logging the event. </param>
         public EventDefinition(
-            [NotNull] ILoggingOptions loggingOptions,
+            ILoggingOptions loggingOptions,
             EventId eventId,
             LogLevel level,
-            [NotNull] string eventIdCode,
-            [NotNull] Func<LogLevel, Action<ILogger, TParam1, TParam2, Exception>> logActionFunc)
+            string eventIdCode,
+            Func<LogLevel, Action<ILogger, TParam1, TParam2, Exception?>> logActionFunc)
             : base(loggingOptions, eventId, level, eventIdCode)
         {
             Check.NotNull(logActionFunc, nameof(logActionFunc));
@@ -47,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="arg2"> The second message argument. </param>
         /// <returns> The message string. </returns>
         public virtual string GenerateMessage(
-            [CanBeNull] TParam1 arg1,
-            [CanBeNull] TParam2 arg2)
+            TParam1 arg1,
+            TParam2 arg2)
         {
             var extractor = new MessageExtractingLogger();
             _logAction(extractor, arg1, arg2, null);
@@ -63,9 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="arg1"> The first message argument. </param>
         /// <param name="arg2"> The second message argument. </param>
         public virtual void Log<TLoggerCategory>(
-            [NotNull] IDiagnosticsLogger<TLoggerCategory> logger,
-            [CanBeNull] TParam1 arg1,
-            [CanBeNull] TParam2 arg2)
+            IDiagnosticsLogger<TLoggerCategory> logger,
+            TParam1 arg1,
+            TParam2 arg2)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
             switch (WarningBehavior)

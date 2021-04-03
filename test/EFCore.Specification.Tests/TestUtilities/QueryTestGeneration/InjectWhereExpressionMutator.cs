@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 _mutator = mutator;
             }
 
-            public List<Expression> FoundExpressions { get; } = new List<Expression>();
+            public List<Expression> FoundExpressions { get; } = new();
 
             public override Expression Visit(Expression expression)
             {

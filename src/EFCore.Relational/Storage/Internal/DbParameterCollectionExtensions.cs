@@ -8,7 +8,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string FormatParameters(
-            [NotNull] this DbParameterCollection parameters,
+            this DbParameterCollection parameters,
             bool logParameterValues)
             => parameters
                 .Cast<DbParameter>()
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string FormatParameter([NotNull] this DbParameter parameter, bool logParameterValues)
+        public static string FormatParameter(this DbParameter parameter, bool logParameterValues)
             => FormatParameter(
                 parameter.ParameterName,
                 logParameterValues ? parameter.Value : "?",
@@ -59,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string FormatParameter(
-            [NotNull] string name,
-            [CanBeNull] object value,
+            string name,
+            object? value,
             bool hasValue,
             ParameterDirection direction,
             DbType dbType,
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             if (nullable
                 && value != null
-                && !clrType.IsNullableType())
+                && !clrType!.IsNullableType())
             {
                 builder.Append(" (Nullable = true)");
             }
@@ -90,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 if (!nullable
                     && hasValue
                     && (value == null
-                        || clrType.IsNullableType()))
+                        || clrType!.IsNullableType()))
                 {
                     builder.Append(" (Nullable = false)");
                 }
@@ -139,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return builder.ToString();
         }
 
-        private static void FormatParameterValue(StringBuilder builder, object parameterValue)
+        private static void FormatParameterValue(StringBuilder builder, object? parameterValue)
         {
             if (parameterValue == null
                 || parameterValue == DBNull.Value)
@@ -172,7 +171,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 {
                     var isNullProperty = parameterValue.GetType().GetRuntimeProperty("IsNull");
                     if (isNullProperty != null
-                        && (bool)isNullProperty.GetValue(parameterValue))
+                        && isNullProperty.GetValue(parameterValue) is bool isNull
+                        && isNull)
                     {
                         builder.Append("''");
                     }
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
-        private static bool ShouldShowDbType(bool hasValue, DbType dbType, Type type)
+        private static bool ShouldShowDbType(bool hasValue, DbType dbType, Type? type)
         {
             if (!hasValue
                 || type == null

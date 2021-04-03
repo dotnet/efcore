@@ -3,11 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -23,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly ParameterExpression _valueBufferParameter;
 
         private readonly IDictionary<Expression, ParameterExpression> _mapping = new Dictionary<Expression, ParameterExpression>();
-        private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
-        private readonly List<Expression> _expressions = new List<Expression>();
+        private readonly List<ParameterExpression> _variables = new();
+        private readonly List<Expression> _expressions = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ShaperExpressionProcessingExpressionVisitor(
-            [CanBeNull] InMemoryQueryExpression? queryExpression,
-            [NotNull] ParameterExpression valueBufferParameter)
+            InMemoryQueryExpression? queryExpression,
+            ParameterExpression valueBufferParameter)
         {
             _queryExpression = queryExpression;
             _valueBufferParameter = valueBufferParameter;
@@ -46,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Inject([NotNull] Expression expression)
+        public virtual Expression Inject(Expression expression)
         {
             var result = Visit(expression);
             _expressions.Add(result);
@@ -78,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     var key = GenerateKey((ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression);
                     if (!_mapping.TryGetValue(key, out var variable))
                     {
-                        variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType!);
+                        variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType);
                         _variables.Add(variable);
                         _expressions.Add(Expression.Assign(variable, entityShaperExpression));
                         _mapping[key] = variable;

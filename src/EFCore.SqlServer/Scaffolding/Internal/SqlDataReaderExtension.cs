@@ -2,8 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using JetBrains.Annotations;
-using CA = System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
@@ -21,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [return: CA.MaybeNull]
-        public static T GetValueOrDefault<T>([NotNull] this DbDataReader reader, [NotNull] string name)
+        [return: MaybeNull]
+        public static T GetValueOrDefault<T>(this DbDataReader reader, string name)
         {
             var idx = reader.GetOrdinal(name);
             return reader.IsDBNull(idx)
@@ -36,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [return: CA.MaybeNull]
-        public static T GetValueOrDefault<T>([NotNull] this DbDataRecord record, [NotNull] string name)
+        [return: MaybeNull]
+        public static T GetValueOrDefault<T>(this DbDataRecord record, string name)
         {
             var idx = record.GetOrdinal(name);
             return record.IsDBNull(idx)
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static T GetFieldValue<T>([NotNull] this DbDataRecord record, [NotNull] string name)
+        public static T GetFieldValue<T>(this DbDataRecord record, string name)
             => (T)record.GetValue(record.GetOrdinal(name));
     }
 }

@@ -7,7 +7,6 @@ using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -51,9 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosDatabaseWrapper(
-            [NotNull] DatabaseDependencies dependencies,
-            [NotNull] ICosmosClientWrapper cosmosClient,
-            [NotNull] ILoggingOptions loggingOptions)
+            DatabaseDependencies dependencies,
+            ICosmosClientWrapper cosmosClient,
+            ILoggingOptions loggingOptions)
             : base(dependencies)
         {
             _cosmosClient = cosmosClient;
@@ -198,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var entityType = entry.EntityType;
             var documentSource = GetDocumentSource(entityType);
-            var collectionId = documentSource.GetCollectionId();
+            var collectionId = documentSource.GetContainerId();
             var state = entry.EntityState;
 
             if (entry.SharedIdentityEntry != null)
@@ -242,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        var propertyName = entityType.GetDiscriminatorProperty()?.GetJsonPropertyName();
+                        var propertyName = entityType.FindDiscriminatorProperty()?.GetJsonPropertyName();
                         if (propertyName != null)
                         {
                             document[propertyName] =
@@ -265,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var entityType = entry.EntityType;
             var documentSource = GetDocumentSource(entityType);
-            var collectionId = documentSource.GetCollectionId();
+            var collectionId = documentSource.GetContainerId();
             var state = entry.EntityState;
 
             if (entry.SharedIdentityEntry != null)
@@ -310,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        var propertyName = entityType.GetDiscriminatorProperty()?.GetJsonPropertyName();
+                        var propertyName = entityType.FindDiscriminatorProperty()?.GetJsonPropertyName();
                         if (propertyName != null)
                         {
                             document[propertyName] =
@@ -340,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DocumentSource GetDocumentSource([NotNull] IEntityType entityType)
+        public virtual DocumentSource GetDocumentSource(IEntityType entityType)
         {
             if (!_documentCollections.TryGetValue(entityType, out var documentSource))
             {
@@ -356,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         private IUpdateEntry GetRootDocument(InternalEntityEntry entry)
         {
             var stateManager = entry.StateManager;
-            var ownership = entry.EntityType.FindOwnership();
+            var ownership = entry.EntityType.FindOwnership()!;
             var principal = stateManager.FindPrincipal(entry, ownership);
             if (principal == null)
             {
@@ -366,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         CosmosStrings.OrphanedNestedDocumentSensitive(
                             entry.EntityType.DisplayName(),
                             ownership.PrincipalEntityType.DisplayName(),
-                            entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties)));
+                            entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties)));
                 }
 
                 throw new InvalidOperationException(

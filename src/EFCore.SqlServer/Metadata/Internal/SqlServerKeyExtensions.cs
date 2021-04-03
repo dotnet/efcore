@@ -2,10 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -24,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatibleForSqlServer(
-            [NotNull] this IKey key,
-            [NotNull] IKey duplicateKey,
+            this IReadOnlyKey key,
+            IReadOnlyKey duplicateKey,
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {

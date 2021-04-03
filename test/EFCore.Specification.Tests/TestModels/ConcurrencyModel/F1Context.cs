@@ -31,10 +31,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
         {
             foreach (var engineSupplier in new List<EngineSupplier>
             {
-                new EngineSupplier { Name = "Mercedes" },
-                new EngineSupplier { Name = "Renault" },
-                new EngineSupplier { Name = "Ferrari" },
-                new EngineSupplier { Name = "Cosworth" }
+                new() { Name = "Mercedes" },
+                new() { Name = "Renault" },
+                new() { Name = "Ferrari" },
+                new() { Name = "Cosworth" }
             })
             {
                 context.Add(engineSupplier);
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 
             foreach (var team in new List<Team>
             {
-                new Team
+                new()
                 {
                     Id = Team.McLaren,
                     Name = "Vodafone McLaren Mercedes",
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 146,
                     FastestLaps = 140
                 },
-                new Team
+                new()
                 {
                     Id = Team.Mercedes,
                     Name = "Mercedes GP Petronas F1 Team",
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 8,
                     FastestLaps = 9
                 },
-                new Team
+                new()
                 {
                     Id = Team.RedBull,
                     Name = "Red Bull Racing",
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 16,
                     FastestLaps = 11
                 },
-                new Team
+                new()
                 {
                     Id = Team.Ferrari,
                     Name = "Scuderia Ferrari Marlboro",
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 203,
                     FastestLaps = 221
                 },
-                new Team
+                new()
                 {
                     Id = Team.Williams,
                     Name = "AT&T Williams",
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 125,
                     FastestLaps = 130
                 },
-                new Team
+                new()
                 {
                     Id = Team.Renault,
                     Name = "Renault F1 Team",
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 51,
                     FastestLaps = 31
                 },
-                new Team
+                new()
                 {
                     Id = Team.ForceIndia,
                     Name = "Force India F1 Team",
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 1,
                     FastestLaps = 1
                 },
-                new Team
+                new()
                 {
                     Id = Team.ToroRosso,
                     Name = "Scuderia Toro Rosso",
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 1,
                     FastestLaps = 0
                 },
-                new Team
+                new()
                 {
                     Id = Team.Lotus,
                     Name = "Lotus Racing",
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 102,
                     FastestLaps = 65
                 },
-                new Team
+                new()
                 {
                     Id = Team.Hispania,
                     Name = "Hispania Racing F1 Team (HRT)",
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Team
+                new()
                 {
                     Id = Team.Sauber,
                     Name = "BMW Sauber F1 Team",
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 1,
                     FastestLaps = 2
                 },
-                new Team
+                new()
                 {
                     Id = Team.Vickers,
                     Name = "Vickers Racing",
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 
             foreach (var driver in new List<Driver>
             {
-                new Driver
+                new()
                 {
                     Id = 1,
                     Name = "Jenson Button",
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 7,
                     FastestLaps = 3
                 },
-                new Driver
+                new()
                 {
                     Id = 2,
                     Name = "Lewis Hamilton",
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Driver
+                new()
                 {
                     Id = 4,
                     Name = "Michael Schumacher",
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 68,
                     FastestLaps = 76
                 },
-                new Driver
+                new()
                 {
                     Id = 5,
                     Name = "Nico Rosberg",
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 1,
                     FastestLaps = 2
                 },
-                new Driver
+                new()
                 {
                     Id = 7,
                     Name = "Sebastian Vettel",
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 12,
                     FastestLaps = 6
                 },
-                new Driver
+                new()
                 {
                     Id = 8,
                     Name = "Mark Webber",
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 12,
                     FastestLaps = 18
                 },
-                new Driver
+                new()
                 {
                     Id = 12,
                     Name = "Felipe Massa",
@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 15,
                     FastestLaps = 12
                 },
-                new Driver
+                new()
                 {
                     Id = 13,
                     Name = "Fernando Alonso",
@@ -490,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Driver
+                new()
                 {
                     Id = 17,
                     Name = "Rubens Barrichello",
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 14,
                     FastestLaps = 17
                 },
-                new Driver
+                new()
                 {
                     Id = 18,
                     Name = "Nico Hülkenberg",
@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Driver
+                new()
                 {
                     Id = 20,
                     Name = "Robert Kubica",
@@ -542,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 1,
                     FastestLaps = 1
                 },
-                new Driver
+                new()
                 {
                     Id = 21,
                     Name = "Vitaly Petrov",
@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Driver
+                new()
                 {
                     Id = 25,
                     Name = "Adrian Sutil",
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 1
                 },
-                new Driver
+                new()
                 {
                     Id = 26,
                     Name = "Vitantonio Liuzzi",
@@ -633,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Driver
+                new()
                 {
                     Id = 28,
                     Name = "Sébastien Buemi",
@@ -646,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Driver
+                new()
                 {
                     Id = 29,
                     Name = "Jaime Alguersuari",
@@ -685,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Driver
+                new()
                 {
                     Id = 32,
                     Name = "Jarno Trulli",
@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 4,
                     FastestLaps = 1
                 },
-                new Driver
+                new()
                 {
                     Id = 33,
                     Name = "Heikki Kovalainen",
@@ -724,7 +724,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Driver
+                new()
                 {
                     Id = 35,
                     Name = "Karun Chandhok",
@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Driver
+                new()
                 {
                     Id = 36,
                     Name = "Bruno Senna",
@@ -776,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 0
                 },
-                new Driver
+                new()
                 {
                     Id = 39,
                     Name = "Timo Glock",
@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                     Poles = 0,
                     FastestLaps = 1
                 },
-                new Driver
+                new()
                 {
                     Id = 40,
                     Name = "Lucas di Grassi",

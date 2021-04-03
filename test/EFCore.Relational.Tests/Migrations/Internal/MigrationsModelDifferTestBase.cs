@@ -78,6 +78,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 builderOptionsAction(targetOptionsBuilder);
             }
 
+            var modelRuntimeInitializer = TestHelpers.CreateContextServices().GetService<IModelRuntimeInitializer>();
+            sourceModel = modelRuntimeInitializer.Initialize(sourceModel, designTime: true, validationLogger: null);
+            targetModel = modelRuntimeInitializer.Initialize(targetModel, designTime: true, validationLogger: null);
+
             var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
 
             var operationsUp = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
@@ -90,6 +94,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var operationsDown = modelDiffer.GetDifferences(targetModel.GetRelationalModel(), sourceModel.GetRelationalModel());
                 assertActionDown(operationsDown);
             }
+
+            var noopOperations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), sourceModel.GetRelationalModel());
+            Assert.Empty(noopOperations);
+
+            noopOperations = modelDiffer.GetDifferences(targetModel.GetRelationalModel(), targetModel.GetRelationalModel());
+            Assert.Empty(noopOperations);
         }
 
         protected void AssertMultidimensionalArray<T>(T[,] values, params Action<T>[] assertions)
@@ -140,21 +150,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         protected virtual ModelBuilder CreateModelBuilder(bool skipConventions)
             => skipConventions
-                ? new ModelBuilder(CreateEmptyConventionSet())
-                : TestHelpers.CreateConventionBuilder(skipValidation: true);
-
-        private ConventionSet CreateEmptyConventionSet()
-        {
-            var conventions = new ConventionSet();
-            var conventionSetDependencies = TestHelpers.CreateContextServices()
-                .GetRequiredService<ProviderConventionSetBuilderDependencies>();
-            var relationalConventionSetDependencies = TestHelpers.CreateContextServices()
-                .GetRequiredService<RelationalConventionSetBuilderDependencies>();
-            conventions.ModelFinalizingConventions.Add(new TypeMappingConvention(conventionSetDependencies));
-            conventions.ModelFinalizedConventions.Add(
-                new RelationalModelConvention(conventionSetDependencies, relationalConventionSetDependencies));
-            return conventions;
-        }
+                ? new ModelBuilder(new ConventionSet())
+                : TestHelpers.CreateConventionBuilder();
 
         protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         {

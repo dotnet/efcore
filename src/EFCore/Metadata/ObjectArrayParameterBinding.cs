@@ -4,10 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     instances and combining them into one binding that will initialize an array of <see cref="object" />.
         /// </summary>
         /// <param name="bindings"> The binding to combine. </param>
-        public ObjectArrayParameterBinding([NotNull] IReadOnlyList<ParameterBinding> bindings)
+        public ObjectArrayParameterBinding(IReadOnlyList<ParameterBinding> bindings)
             : base(
                 typeof(object[]),
                 Check.NotNull(bindings, nameof(bindings)).SelectMany(b => b.ConsumedProperties).ToArray())
@@ -54,5 +51,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
                         return expression;
                     }));
+
+        /// <summary>
+        ///     Creates a copy that contains the given consumed properties.
+        /// </summary>
+        /// <param name="consumedProperties"> The new consumed properties. </param>
+        /// <returns> A copy with replaced consumed properties. </returns>
+        public override ParameterBinding With(IPropertyBase[] consumedProperties)
+        {
+            var newBindings = new List<ParameterBinding>(_bindings.Count);
+            var propertyCount = 0;
+            foreach (var binding in _bindings)
+            {
+                var newBinding = binding.With(consumedProperties.Skip(propertyCount).Take(binding.ConsumedProperties.Count).ToArray());
+                newBindings.Add(newBinding);
+                propertyCount += binding.ConsumedProperties.Count;
+            }
+
+            return new ObjectArrayParameterBinding(newBindings);
+        }
     }
 }

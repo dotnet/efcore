@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
-using CA = System.Diagnostics.CodeAnalysis;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -19,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
     {
         private readonly NullSafeAccessVerifyingExpressionVisitor _nullSafeAccessVerifyingExpressionVisitor
-            = new NullSafeAccessVerifyingExpressionVisitor();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -129,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return _nullSafeAccesses.Contains(result);
             }
 
-            [return: CA.NotNullIfNotNull("expression")]
+            [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
                 => expression == null || _nullSafeAccesses.Contains(expression)
                     ? expression

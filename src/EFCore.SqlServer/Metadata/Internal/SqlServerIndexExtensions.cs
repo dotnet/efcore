@@ -3,10 +3,7 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -25,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static bool AreCompatibleForSqlServer(
-            [NotNull] this IIndex index,
-            [NotNull] IIndex duplicateIndex,
+            this IReadOnlyIndex index,
+            IReadOnlyIndex duplicateIndex,
             in StoreObjectIdentifier storeObject,
             bool shouldThrow)
         {
@@ -107,22 +104,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return true;
 
-            static bool SameColumnNames(IIndex index, IIndex duplicateIndex, StoreObjectIdentifier storeObject)
-                => index.GetIncludeProperties().Select(
-                        p => index.DeclaringEntityType.FindProperty(p).GetColumnName(storeObject))
+            static bool SameColumnNames(IReadOnlyIndex index, IReadOnlyIndex duplicateIndex, StoreObjectIdentifier storeObject)
+                => index.GetIncludeProperties()!.Select(
+                        p => index.DeclaringEntityType.FindProperty(p)!.GetColumnName(storeObject))
                     .SequenceEqual(
-                        duplicateIndex.GetIncludeProperties().Select(
-                            p => duplicateIndex.DeclaringEntityType.FindProperty(p)
-                                .GetColumnName(storeObject)));
+                        duplicateIndex.GetIncludeProperties()!.Select(
+                            p => duplicateIndex.DeclaringEntityType.FindProperty(p)!.GetColumnName(storeObject)));
         }
 
-        private static string FormatInclude(IIndex index, StoreObjectIdentifier storeObject)
+        private static string FormatInclude(IReadOnlyIndex index, StoreObjectIdentifier storeObject)
             => index.GetIncludeProperties() == null
                 ? "{}"
                 : "{'"
                 + string.Join(
                     "', '",
-                    index.GetIncludeProperties().Select(
+                    index.GetIncludeProperties()!.Select(
                         p => index.DeclaringEntityType.FindProperty(p)
                             ?.GetColumnName(storeObject)))
                 + "'}";

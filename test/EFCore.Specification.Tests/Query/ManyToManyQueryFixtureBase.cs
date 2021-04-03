@@ -17,8 +17,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Func<DbContext> GetContextCreator()
             => () => CreateContext();
 
-        public virtual ISetSource GetExpectedData()
-            => new ManyToManyData();
+        private ManyToManyData _data;
+
+        public ISetSource GetExpectedData()
+        {
+            if (_data == null)
+            {
+                using var context = CreateContext();
+                _data = new ManyToManyData(context, false);
+                context.ChangeTracker.DetectChanges();
+                context.ChangeTracker.Clear();
+            }
+
+            return _data;
+        }
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>
@@ -329,7 +341,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        public virtual bool UseGeneratedKeys
+            => false;
+
         protected override void Seed(ManyToManyContext context)
-            => ManyToManyContext.Seed(context);
+        {
+            new ManyToManyData(context, UseGeneratedKeys);
+            context.SaveChanges();
+        }
     }
 }

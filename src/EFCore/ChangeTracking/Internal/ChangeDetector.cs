@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -42,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ChangeDetector(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
-            [NotNull] ILoggingOptions loggingOptions)
+            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+            ILoggingOptions loggingOptions)
         {
             _logger = logger;
             _loggingOptions = loggingOptions;
@@ -257,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void LogChangeDetected(InternalEntityEntry entry, IProperty property, object original, object current)
+        private void LogChangeDetected(InternalEntityEntry entry, IProperty property, object? original, object? current)
         {
             if (_loggingOptions.IsSensitiveDataLoggingEnabled)
             {
@@ -312,8 +311,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (navigationBase.IsCollection)
             {
-                var snapshotCollection = (IEnumerable)snapshotValue;
-                var currentCollection = (IEnumerable)currentValue;
+                var snapshotCollection = (IEnumerable?)snapshotValue;
+                var currentCollection = (IEnumerable?)currentValue;
 
                 var removed = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
                 if (snapshotCollection != null)
@@ -378,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     _logger.ReferenceChangeDetected(entry, navigation, snapshotValue, currentValue);
                 }
-                
+
                 stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
             }
         }

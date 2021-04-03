@@ -131,39 +131,39 @@
   </data>
   <data name="LogForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}' since principal table '{principalTableName}' was not found in the model. This usually happens when the principal table was not included in the selection set.</value>
-    <comment>Warning SqliteEventId.ForeignKeyReferencesMissingTableWarning string string string</comment>
+    <comment>Warning SqliteEventId.ForeignKeyReferencesMissingTableWarning string? string? string?</comment>
   </data>
   <data name="LogFoundColumn" xml:space="preserve">
     <value>Found column on table '{tableName}' with name: '{columnName}', data type: {dataType}, not nullable: {notNullable}, default value: {defaultValue}.</value>
-    <comment>Debug SqliteEventId.ColumnFound string string string bool string</comment>
+    <comment>Debug SqliteEventId.ColumnFound string? string? string? bool string?</comment>
   </data>
   <data name="LogFoundForeignKey" xml:space="preserve">
     <value>Found foreign key on table '{tableName}', id: {id}, principal table: {principalTableName}, delete action: {deleteAction}.</value>
-    <comment>Debug SqliteEventId.ForeignKeyFound string long string string</comment>
+    <comment>Debug SqliteEventId.ForeignKeyFound string? long string? string?</comment>
   </data>
   <data name="LogFoundIndex" xml:space="preserve">
     <value>Found index on table '{tableName}' with name '{indexName}', is unique: {isUnique}.</value>
-    <comment>Debug SqliteEventId.IndexFound string string bool?</comment>
+    <comment>Debug SqliteEventId.IndexFound string? string? bool?</comment>
   </data>
   <data name="LogFoundPrimaryKey" xml:space="preserve">
     <value>Found primary key on table '{tableName}' with name {primaryKeyName}.</value>
-    <comment>Debug SqliteEventId.PrimaryKeyFound string string</comment>
+    <comment>Debug SqliteEventId.PrimaryKeyFound string? string?</comment>
   </data>
   <data name="LogFoundTable" xml:space="preserve">
     <value>Found table with name: '{name}'.</value>
-    <comment>Debug SqliteEventId.TableFound string</comment>
+    <comment>Debug SqliteEventId.TableFound string?</comment>
   </data>
   <data name="LogFoundUniqueConstraint" xml:space="preserve">
     <value>Found unique constraint on table '{tableName}' with name: {uniqueConstraintName}.</value>
-    <comment>Debug SqliteEventId.UniqueConstraintFound string string</comment>
+    <comment>Debug SqliteEventId.UniqueConstraintFound string? string?</comment>
   </data>
   <data name="LogMissingTable" xml:space="preserve">
     <value>Unable to find a table in the database matching the selected table '{table}'.</value>
-    <comment>Warning SqliteEventId.MissingTableWarning string</comment>
+    <comment>Warning SqliteEventId.MissingTableWarning string?</comment>
   </data>
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.</value>
-    <comment>Warning SqliteEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
+    <comment>Warning SqliteEventId.ForeignKeyPrincipalColumnMissingWarning string? string? string? string?</comment>
   </data>
   <data name="LogSchemaConfigured" xml:space="preserve">
     <value>The entity type '{entityType}' is configured to use schema '{schema}', but SQLite does not support schemas. This configuration will be ignored by the SQLite provider.</value>

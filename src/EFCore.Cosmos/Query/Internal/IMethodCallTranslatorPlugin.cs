@@ -3,8 +3,6 @@
 
 using System.Collections.Generic;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>

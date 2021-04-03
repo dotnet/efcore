@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -17,12 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IKey" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionKey : IConventionAnnotatable, IKey
+    public interface IConventionKey : IReadOnlyKey, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this key.
         /// </summary>
-        new IConventionKeyBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the index has been removed from the model. </exception>
+        new IConventionKeyBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the properties that make up the key.
@@ -41,5 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The configuration source. </returns>
         ConfigurationSource GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets all foreign keys that target a given primary or alternate key.
+        /// </summary>
+        /// <returns> The foreign keys that reference the given key. </returns>
+        new IEnumerable<IConventionForeignKey> GetReferencingForeignKeys()
+            => ((IReadOnlyKey)this).GetReferencingForeignKeys().Cast<IConventionForeignKey>();
     }
 }

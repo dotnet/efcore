@@ -2,15 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -62,15 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public QueryCompilationContextDependencies(
-            [NotNull] IModel model,
-            [NotNull] IQueryTranslationPreprocessorFactory queryTranslationPreprocessorFactory,
-            [NotNull] IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
-            [NotNull] IQueryTranslationPostprocessorFactory queryTranslationPostprocessorFactory,
-            [NotNull] IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDbContextOptions contextOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            IModel model,
+            IQueryTranslationPreprocessorFactory queryTranslationPreprocessorFactory,
+            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
+            IQueryTranslationPostprocessorFactory queryTranslationPostprocessorFactory,
+            IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
+            IExecutionStrategyFactory executionStrategyFactory,
+            ICurrentDbContext currentContext,
+            IDbContextOptions contextOptions,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(queryTranslationPreprocessorFactory, nameof(queryTranslationPreprocessorFactory));
@@ -108,12 +105,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The model.
         /// </summary>
-        public IModel Model { get; [param: NotNull] init; }
+        public IModel Model { get; init; }
 
         /// <summary>
         ///     The query optimizer factory.
         /// </summary>
-        public IQueryTranslationPreprocessorFactory QueryTranslationPreprocessorFactory { get; [param: NotNull] init; }
+        public IQueryTranslationPreprocessorFactory QueryTranslationPreprocessorFactory { get; init; }
 
         /// <summary>
         ///     The queryable method-translating expression visitor factory.
@@ -121,18 +118,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IQueryableMethodTranslatingExpressionVisitorFactory QueryableMethodTranslatingExpressionVisitorFactory
         {
             get;
-            [param: NotNull] init;
+            init;
         }
 
         /// <summary>
         ///     The shaped-query optimizer factory
         /// </summary>
-        public IQueryTranslationPostprocessorFactory QueryTranslationPostprocessorFactory { get; [param: NotNull] init; }
+        public IQueryTranslationPostprocessorFactory QueryTranslationPostprocessorFactory { get; init; }
 
         /// <summary>
         ///     The shaped-query compiling expression visitor factory.
         /// </summary>
-        public IShapedQueryCompilingExpressionVisitorFactory ShapedQueryCompilingExpressionVisitorFactory { get; [param: NotNull] init; }
+        public IShapedQueryCompilingExpressionVisitorFactory ShapedQueryCompilingExpressionVisitorFactory { get; init; }
 
         /// <summary>
         ///     Whether the configured execution strategy can retry.
@@ -142,11 +139,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The context options.
         /// </summary>
-        public IDbContextOptions ContextOptions { get; [param: NotNull] init; }
+        public IDbContextOptions ContextOptions { get; init; }
 
         /// <summary>
         ///     The logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; [param: NotNull] init; }
+        public IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; init; }
     }
 }

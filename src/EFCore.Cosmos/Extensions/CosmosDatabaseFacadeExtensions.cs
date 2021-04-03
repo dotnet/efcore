@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The <see cref="CosmosClient" /> </returns>
-        public static CosmosClient GetCosmosClient([NotNull] this DatabaseFacade databaseFacade)
+        public static CosmosClient GetCosmosClient(this DatabaseFacade databaseFacade)
             => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
 
         private static TService GetService<TService>(IInfrastructure<IServiceProvider> databaseFacade)
@@ -54,9 +53,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> <see langword="true" /> if the Cosmos provider is being used. </returns>
-        public static bool IsCosmos([NotNull] this DatabaseFacade database)
-            => database.ProviderName.Equals(
-                typeof(CosmosOptionsExtension).Assembly.GetName().Name,
-                StringComparison.Ordinal);
+        public static bool IsCosmos(this DatabaseFacade database)
+            => database.ProviderName == typeof(CosmosOptionsExtension).Assembly.GetName().Name;
     }
 }

@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -59,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
         /// <returns> The table with a given name or <see langword="null" /> if no table with the given name is defined. </returns>
-        ITable? FindTable([NotNull] string name, [CanBeNull] string? schema);
+        ITable? FindTable(string name, string? schema);
 
         /// <summary>
         ///     Gets the view with the given name. Returns <see langword="null" /> if no view with the given name is defined.
@@ -67,14 +65,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the view. </param>
         /// <param name="schema"> The schema of the view. </param>
         /// <returns> The view with a given name or <see langword="null" /> if no view with the given name is defined. </returns>
-        IView? FindView([NotNull] string name, [CanBeNull] string? schema);
+        IView? FindView(string name, string? schema);
 
         /// <summary>
         ///     Gets the SQL query with the given name. Returns <see langword="null" /> if no SQL query with the given name is defined.
         /// </summary>
         /// <param name="name"> The name of the SQL query. </param>
         /// <returns> The SQL query with a given name or <see langword="null" /> if no SQL query with the given name is defined. </returns>
-        ISqlQuery? FindQuery([NotNull] string name);
+        ISqlQuery? FindQuery(string name);
 
         /// <summary>
         ///     Finds an <see cref="ISequence" /> with the given name.
@@ -85,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The <see cref="ISequence" /> or <see langword="null" /> if no sequence with the given name in
         ///     the given schema was found.
         /// </returns>
-        ISequence? FindSequence([NotNull] string name, [CanBeNull] string? schema)
+        ISequence? FindSequence(string name, string? schema)
             => Model.FindSequence(name, schema);
 
         /// <summary>
@@ -95,6 +93,63 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="schema"> The schema of the function. </param>
         /// <param name="parameters"> A list of parameter types. </param>
         /// <returns> The <see cref="IStoreFunction" /> or <see langword="null" /> if no function with the given name was defined. </returns>
-        IStoreFunction? FindFunction([NotNull] string name, [CanBeNull] string? schema, [NotNull] IReadOnlyList<string> parameters);
+        IStoreFunction? FindFunction(string name, string? schema, IReadOnlyList<string> parameters);
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a human-readable representation of the given metadata.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the returned string.
+        ///         It is designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        /// <param name="options"> Options for generating the string. </param>
+        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
+        /// <returns> A human-readable representation. </returns>
+        string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+        {
+            var builder = new StringBuilder();
+            var indentString = new string(' ', indent);
+
+            builder.Append(indentString).Append("RelationalModel: ");
+
+            if (Collation != null)
+            {
+                builder.AppendLine().Append(indentString).Append("Collation: " + Collation);
+            }
+
+            foreach (var table in Tables)
+            {
+                builder.AppendLine().Append(table.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var view in Views)
+            {
+                builder.AppendLine().Append(view.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var function in Functions)
+            {
+                builder.AppendLine().Append(function.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var query in Queries)
+            {
+                builder.AppendLine().Append(query.ToDebugString(options, indent + 2));
+            }
+
+            foreach (var sequence in Sequences)
+            {
+                builder.AppendLine().Append(sequence.ToDebugString(options, indent + 2));
+            }
+
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(AnnotationsToDebugString(indent));
+            }
+
+            return builder.ToString();
+        }
     }
 }

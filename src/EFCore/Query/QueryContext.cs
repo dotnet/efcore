@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -13,8 +12,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -43,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
         protected QueryContext(
-            [NotNull] QueryContextDependencies dependencies)
+            QueryContextDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -66,13 +63,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
         /// <param name="navigation"> The navigation property. </param>
-        public virtual void SetNavigationIsLoaded([NotNull] object entity, [NotNull] INavigationBase navigation)
+        public virtual void SetNavigationIsLoaded(object entity, INavigationBase navigation)
         {
             Check.NotNull(entity, nameof(entity));
             Check.NotNull(navigation, nameof(navigation));
 
             // InitializeStateManager will populate the field before calling here
-            _stateManager!.TryGetEntry(entity).SetIsLoaded(navigation);
+            _stateManager!.TryGetEntry(entity)!.SetIsLoaded(navigation);
         }
 
         /// <summary>
@@ -136,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void InitializeStateManager(bool standAlone = false)
         {
             Check.DebugAssert(
-                _stateManager == null, 
+                _stateManager == null,
                 "The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.");
 
             _stateManager = standAlone
@@ -151,9 +148,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual InternalEntityEntry TryGetEntry(
-            [NotNull] IKey key,
-            [NotNull] object[] keyValues,
+        public virtual InternalEntityEntry? TryGetEntry(
+            IKey key,
+            object[] keyValues,
             bool throwOnNullKey,
             out bool hasNullKey)
             // InitializeStateManager will populate the field before calling here
@@ -167,8 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public virtual InternalEntityEntry StartTracking(
-            [NotNull] IEntityType entityType,
-            [NotNull] object entity,
+            IEntityType entityType,
+            object entity,
             ValueBuffer valueBuffer)
             // InitializeStateManager will populate the field before calling here
             => _stateManager!.StartTrackingFromQuery(entityType, entity, valueBuffer);

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
@@ -78,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult{DbTransaction}.SuppressWithResult" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     If <see cref="InterceptionResult{DbTransaction}.HasResult" /> is false, the EF will continue as normal.
         ///     If <see cref="InterceptionResult{DbTransaction}.HasResult" /> is true, then EF will suppress the operation it
@@ -86,12 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
             DbConnection connection,
             TransactionStartingEventData eventData,
             InterceptionResult<DbTransaction> result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult<DbTransaction>>(result);
+            => new(result);
 
         /// <summary>
         ///     <para>
@@ -111,18 +113,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     <see cref="M:System.Data.Common.DbConnection.BeginTransactionAsync(System.Data.IsolationLevel,System.Threading.CancellationToken)" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A <see cref="Task" /> providing the result that EF will use.
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<DbTransaction> TransactionStartedAsync(
             DbConnection connection,
             TransactionEndEventData eventData,
             DbTransaction result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<DbTransaction>(result);
+            => new(result);
 
         /// <summary>
         ///     <para>
@@ -157,19 +160,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The <see cref="DbTransaction" /> that was passed to <see cref="M:RelationalDatabaseFacadeExtensions.UseTransactionAsync" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A <see cref="Task" />  containing the value that will be used as the effective value passed
         ///     to <see cref="M:RelationalDatabaseFacadeExtensions.UseTransactionAsync" />
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<DbTransaction> TransactionUsedAsync(
             DbConnection connection,
             TransactionEventData eventData,
             DbTransaction result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<DbTransaction>(result);
+            => new(result);
 
         /// <summary>
         ///     Called just before EF intends to call <see cref="DbTransaction.Commit" />.
@@ -218,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
@@ -226,20 +230,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<InterceptionResult> TransactionCommittingAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <summary>
         ///     Called immediately after EF calls <see cref="DbTransaction.CommitAsync" />.
         /// </summary>
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task TransactionCommittedAsync(
             DbTransaction transaction,
             TransactionEndEventData eventData,
@@ -293,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     interceptor suppressed execution by calling <see cref="InterceptionResult.Suppress" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is false, the EF will continue as normal.
         ///     If <see cref="InterceptionResult.IsSuppressed" /> is true, then EF will suppress the operation
@@ -301,20 +307,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<InterceptionResult> TransactionRollingBackAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <summary>
         ///     Called immediately after EF calls <see cref="DbTransaction.RollbackAsync(CancellationToken)" />.
         /// </summary>
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task TransactionRolledBackAsync(
             DbTransaction transaction,
             TransactionEndEventData eventData,
@@ -341,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <inheritdoc />
         public virtual Task CreatedSavepointAsync(
@@ -370,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <inheritdoc />
         public virtual Task RolledBackToSavepointAsync(
@@ -399,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionEventData eventData,
             InterceptionResult result,
             CancellationToken cancellationToken = default)
-            => new ValueTask<InterceptionResult>(result);
+            => new(result);
 
         /// <inheritdoc />
         public virtual Task ReleasedSavepointAsync(
@@ -424,8 +432,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
-        /// <param name="cancellationToken"> The cancellation token. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task TransactionFailedAsync(
             DbTransaction transaction,
             TransactionErrorEventData eventData,

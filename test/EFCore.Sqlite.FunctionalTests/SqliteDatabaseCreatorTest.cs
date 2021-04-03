@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private DbContext CreateContext(string connectionString)
-            => new DbContext(
+            => new(
                 new DbContextOptionsBuilder()
                     .UseSqlite(connectionString)
                     .UseInternalServiceProvider(

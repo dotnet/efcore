@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.Tracing;
 using System.Runtime.InteropServices;
 using System.Threading;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -19,23 +20,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private CacheInfo _compiledQueryCacheInfo;
 
         // ReSharper disable NotAccessedField.Local
-        private PollingCounter _activeDbContextsCounter;
-        private PollingCounter _totalQueriesCounter;
-        private IncrementingPollingCounter _queriesPerSecondCounter;
-        private PollingCounter _totalSaveChangesCounter;
-        private IncrementingPollingCounter _saveChangesPerSecondCounter;
-        private PollingCounter _compiledQueryCacheHitRateCounter;
-        private PollingCounter _totalExecutionStrategyOperationFailuresCounter;
-        private IncrementingPollingCounter _executionStrategyOperationFailuresPerSecondCounter;
-        private PollingCounter _totalOptimisticConcurrencyFailuresCounter;
-
-        private IncrementingPollingCounter _optimisticConcurrencyFailuresPerSecondCounter;
+        private PollingCounter? _activeDbContextsCounter;
+        private PollingCounter? _totalQueriesCounter;
+        private IncrementingPollingCounter? _queriesPerSecondCounter;
+        private PollingCounter? _totalSaveChangesCounter;
+        private IncrementingPollingCounter? _saveChangesPerSecondCounter;
+        private PollingCounter? _compiledQueryCacheHitRateCounter;
+        private PollingCounter? _totalExecutionStrategyOperationFailuresCounter;
+        private IncrementingPollingCounter? _executionStrategyOperationFailuresPerSecondCounter;
+        private PollingCounter? _totalOptimisticConcurrencyFailuresCounter;
+        private IncrementingPollingCounter? _optimisticConcurrencyFailuresPerSecondCounter;
         // ReSharper restore NotAccessedField.Local
 
         /// <summary>
         ///     The singleton instance of <see cref="EntityFrameworkEventSource" />.
         /// </summary>
-        public static readonly EntityFrameworkEventSource Log = new EntityFrameworkEventSource();
+        public static readonly EntityFrameworkEventSource Log = new();
 
         private EntityFrameworkEventSource()
             : base("Microsoft.EntityFrameworkCore")
@@ -155,6 +155,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 };
             }
         }
+
+        [UsedImplicitly]
+        private void ResetCacheInfo()
+            => _compiledQueryCacheInfo = new CacheInfo();
 
         [StructLayout(LayoutKind.Explicit)]
         private struct CacheInfo

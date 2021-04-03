@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
     public class LazyLoader : ILazyLoader
     {
         private bool _disposed;
-        private IDictionary<string, bool> _loadedStates;
+        private IDictionary<string, bool>? _loadedStates;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public LazyLoader(
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+            ICurrentDbContext currentContext,
+            IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
         {
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(logger, nameof(logger));
@@ -111,7 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         public virtual Task LoadAsync(
             object entity,
             CancellationToken cancellationToken = default,
-            // ReSharper disable once AssignNullToNotNullAttribute
             [CallerMemberName] string navigationName = "")
         {
             Check.NotNull(entity, nameof(entity));
@@ -122,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
                 : Task.CompletedTask;
         }
 
-        private bool ShouldLoad(object entity, string navigationName, out NavigationEntry navigationEntry)
+        private bool ShouldLoad(object entity, string navigationName, [NotNullWhen(true)] out NavigationEntry? navigationEntry)
         {
             if (_loadedStates != null
                 && _loadedStates.TryGetValue(navigationName, out var loaded)

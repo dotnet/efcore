@@ -21,7 +21,6 @@
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>nullable</WarningsNotAsErrors>
     <LangVersion>9.0</LangVersion>
     <DebugType>portable</DebugType>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
@@ -35,8 +34,4 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
   </PropertyGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="**\*.rd.xml" />
-  </ItemGroup>
 </Project>

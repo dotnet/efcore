@@ -5,44 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class NavigationTest
     {
-        [ConditionalFact]
-        public void Use_of_custom_INavigation_throws()
-        {
-            var navigation = new FakeNavigation();
-
-            Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_INavigation_throws), nameof(INavigation), nameof(FakeNavigation)),
-                Assert.Throws<NotSupportedException>(() => navigation.AsNavigation()).Message);
-        }
-
-        private class FakeNavigation : INavigation
-        {
-            public object this[string name]
-                => throw new NotImplementedException();
-
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
-
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
-
-            public string Name { get; }
-            public ITypeBase DeclaringType { get; }
-            public Type ClrType { get; }
-            public PropertyInfo PropertyInfo { get; }
-            public FieldInfo FieldInfo { get; }
-            public IEntityType DeclaringEntityType { get; }
-            public IForeignKey ForeignKey { get; }
-            public bool IsEagerLoaded { get; }
-        }
-
         [ConditionalFact]
         public void Can_create_navigation()
         {

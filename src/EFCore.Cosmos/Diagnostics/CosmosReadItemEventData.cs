@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -22,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="partitionKey"> The key of the Cosmos partition that the query is using. </param>
         /// <param name="logSensitiveData"> Indicates whether or not the application allows logging of sensitive data. </param>
         public CosmosReadItemEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] string resourceId,
-            [NotNull] string containerId,
-            [CanBeNull] string partitionKey,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            string resourceId,
+            string containerId,
+            string? partitionKey,
             bool logSensitiveData)
             : base(eventDefinition, messageGenerator)
         {
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The key of the Cosmos partition that the query is using.
         /// </summary>
-        public virtual string PartitionKey { get; }
+        public virtual string? PartitionKey { get; }
 
         /// <summary>
         ///     Indicates whether or not the application allows logging of sensitive data.

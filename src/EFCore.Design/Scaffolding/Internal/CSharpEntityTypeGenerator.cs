@@ -6,13 +6,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -38,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpEntityTypeGenerator(
-            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
-            [NotNull] ICSharpHelper cSharpHelper)
+            IAnnotationCodeGenerator annotationCodeGenerator,
+            ICSharpHelper cSharpHelper)
         {
             Check.NotNull(cSharpHelper, nameof(cSharpHelper));
 
@@ -53,10 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string WriteCode(IEntityType entityType, string @namespace, bool useDataAnnotations)
+        public virtual string WriteCode(IEntityType entityType, string? @namespace, bool useDataAnnotations)
         {
             Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(@namespace, nameof(@namespace));
 
             _sb = new IndentedStringBuilder();
             _useDataAnnotations = useDataAnnotations;
@@ -84,15 +81,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("#nullable disable");
 
             _sb.AppendLine();
-            _sb.AppendLine($"namespace {@namespace}");
-            _sb.AppendLine("{");
 
-            using (_sb.Indent())
+            if (!string.IsNullOrEmpty(@namespace))
             {
-                GenerateClass(entityType);
+                _sb.AppendLine($"namespace {@namespace}");
+                _sb.AppendLine("{");
+                _sb.IncrementIndent();
             }
 
-            _sb.AppendLine("}");
+            GenerateClass(entityType);
+
+            if (!string.IsNullOrEmpty(@namespace))
+            {
+                _sb.DecrementIndent();
+                _sb.AppendLine("}");
+            }
 
             return _sb.ToString();
         }
@@ -103,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateClass([NotNull] IEntityType entityType)
+        protected virtual void GenerateClass(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -134,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateEntityTypeDataAnnotations([NotNull] IEntityType entityType)
+        protected virtual void GenerateEntityTypeDataAnnotations(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -178,11 +181,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 var tableAttribute = new AttributeWriter(nameof(TableAttribute));
 
-                tableAttribute.AddParameter(_code.Literal(tableName));
+                tableAttribute.AddParameter(_code.Literal(tableName!));
 
                 if (schemaParameterNeeded)
                 {
-                    tableAttribute.AddParameter($"{nameof(TableAttribute.Schema)} = {_code.Literal(schema)}");
+                    tableAttribute.AddParameter($"{nameof(TableAttribute.Schema)} = {_code.Literal(schema!)}");
                 }
 
                 _sb.AppendLine(tableAttribute.ToString());
@@ -231,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateConstructor([NotNull] IEntityType entityType)
+        protected virtual void GenerateConstructor(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -261,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateProperties([NotNull] IEntityType entityType)
+        protected virtual void GenerateProperties(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -284,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GeneratePropertyDataAnnotations([NotNull] IProperty property)
+        protected virtual void GeneratePropertyDataAnnotations(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -293,6 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             GenerateColumnAttribute(property);
             GenerateMaxLengthAttribute(property);
             GenerateUnicodeAttribute(property);
+            GeneratePrecisionAttribute(property);
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(property.GetAnnotations())
@@ -390,13 +394,31 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
+        private void GeneratePrecisionAttribute(IProperty property)
+        {
+            var precision = property.GetPrecision();
+            if (precision.HasValue)
+            {
+                var precisionAttribute = new AttributeWriter(nameof(PrecisionAttribute));
+                precisionAttribute.AddParameter(_code.Literal(precision.Value));
+
+                var scale = property.GetScale();
+                if (scale.HasValue)
+                {
+                    precisionAttribute.AddParameter(_code.Literal(scale.Value));
+                }
+
+                _sb.AppendLine(precisionAttribute.ToString());
+            }
+        }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateNavigationProperties([NotNull] IEntityType entityType)
+        protected virtual void GenerateNavigationProperties(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -474,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateComment(string comment)
+        private void GenerateComment(string? comment)
         {
             if (!string.IsNullOrWhiteSpace(comment))
             {
@@ -492,16 +514,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private sealed class AttributeWriter
         {
             private readonly string _attributeName;
-            private readonly List<string> _parameters = new List<string>();
+            private readonly List<string> _parameters = new();
 
-            public AttributeWriter([NotNull] string attributeName)
+            public AttributeWriter(string attributeName)
             {
                 Check.NotEmpty(attributeName, nameof(attributeName));
 
                 _attributeName = attributeName;
             }
 
-            public void AddParameter([NotNull] string parameter)
+            public void AddParameter(string parameter)
             {
                 Check.NotEmpty(parameter, nameof(parameter));
 
@@ -515,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         : StripAttribute(_attributeName) + "(" + string.Join(", ", _parameters) + ")")
                     + "]";
 
-            private static string StripAttribute([NotNull] string attributeName)
+            private static string StripAttribute(string attributeName)
                 => attributeName.EndsWith("Attribute", StringComparison.Ordinal)
                     ? attributeName[..^9]
                     : attributeName;

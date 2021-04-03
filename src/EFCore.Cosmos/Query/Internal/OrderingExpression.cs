@@ -3,11 +3,8 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public OrderingExpression([NotNull] SqlExpression expression, bool ascending)
+        public OrderingExpression(SqlExpression expression, bool ascending)
         {
             Expression = expression;
             IsAscending = ascending;
@@ -84,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual OrderingExpression Update([NotNull] SqlExpression expression)
+        public virtual OrderingExpression Update(SqlExpression expression)
             => expression != Expression
                 ? new OrderingExpression(expression, IsAscending)
                 : this;

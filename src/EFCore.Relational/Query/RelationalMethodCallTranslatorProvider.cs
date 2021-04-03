@@ -6,15 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -31,15 +28,15 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class RelationalMethodCallTranslatorProvider : IMethodCallTranslatorProvider
     {
-        private readonly List<IMethodCallTranslator> _plugins = new List<IMethodCallTranslator>();
-        private readonly List<IMethodCallTranslator> _translators = new List<IMethodCallTranslator>();
+        private readonly List<IMethodCallTranslator> _plugins = new();
+        private readonly List<IMethodCallTranslator> _translators = new();
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalMethodCallTranslatorProvider" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        public RelationalMethodCallTranslatorProvider([NotNull] RelationalMethodCallTranslatorProviderDependencies dependencies)
+        public RelationalMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -58,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new EnumHasFlagTranslator(sqlExpressionFactory),
                     new GetValueOrDefaultTranslator(sqlExpressionFactory),
                     new ComparisonTranslator(sqlExpressionFactory),
-                    new ByteArraySequenceEqualTranslator(sqlExpressionFactory)
+                    new ByteArraySequenceEqualTranslator(sqlExpressionFactory),
+                    new RandomTranslator(sqlExpressionFactory)
                 });
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -87,17 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var argumentsPropagateNullability = dbFunction.Parameters.Select(p => p.PropagatesNullability);
 
-                if (dbFunction.IsBuiltIn)
-                {
-                    return _sqlExpressionFactory.Function(
-                        dbFunction.Name,
-                        arguments,
-                        dbFunction.IsNullable,
-                        argumentsPropagateNullability,
-                        method.ReturnType.UnwrapNullableType());
-                }
-
-                return dbFunction.Schema is null
+                return dbFunction.IsBuiltIn
                     ? _sqlExpressionFactory.Function(
                         dbFunction.Name,
                         arguments,
@@ -122,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Adds additional translators which will take priority over existing registered translators.
         /// </summary>
         /// <param name="translators"> Translators to add. </param>
-        protected virtual void AddTranslators([NotNull] IEnumerable<IMethodCallTranslator> translators)
+        protected virtual void AddTranslators(IEnumerable<IMethodCallTranslator> translators)
         {
             Check.NotNull(translators, nameof(translators));
 

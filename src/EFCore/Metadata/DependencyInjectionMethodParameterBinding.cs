@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -27,13 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="parameterType"> The parameter CLR type. </param>
         /// <param name="serviceType"> The service CLR types, as resolved from dependency injection </param>
         /// <param name="method"> The method of the service to bind to. </param>
-        /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
+        /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> objects, or <see langword="null" />. </param>
         public DependencyInjectionMethodParameterBinding(
-            [NotNull] Type parameterType,
-            [NotNull] Type serviceType,
-            [NotNull] MethodInfo method,
-            [CanBeNull] IPropertyBase? serviceProperty = null)
-            : base(parameterType, serviceType, serviceProperty)
+            Type parameterType,
+            Type serviceType,
+            MethodInfo method,
+            IPropertyBase[]? serviceProperties = null)
+            : base(parameterType, serviceType, serviceProperties)
         {
             Check.NotNull(method, nameof(method));
 
@@ -86,5 +83,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     delegateVariable
                 });
         }
+
+        /// <summary>
+        ///     Creates a copy that contains the given consumed properties.
+        /// </summary>
+        /// <param name="consumedProperties"> The new consumed properties. </param>
+        /// <returns> A copy with replaced consumed properties. </returns>
+        public override ParameterBinding With(IPropertyBase[] consumedProperties)
+            => new DependencyInjectionMethodParameterBinding(ParameterType, ServiceType, Method, consumedProperties);
     }
 }

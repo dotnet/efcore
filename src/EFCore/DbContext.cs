@@ -9,13 +9,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,17 +53,18 @@ namespace Microsoft.EntityFrameworkCore
         IDbSetCache,
         IDbContextPoolable
     {
-        private IDictionary<(Type Type, string Name), object> _sets;
         private readonly DbContextOptions _options;
 
-        private IDbContextServices _contextServices;
-        private IDbContextDependencies _dbContextDependencies;
-        private DatabaseFacade _database;
-        private ChangeTracker _changeTracker;
+        private IDictionary<(Type Type, string? Name), object>? _sets;
+        private IDbContextServices? _contextServices;
+        private IDbContextDependencies? _dbContextDependencies;
+        private DatabaseFacade? _database;
+        private ChangeTracker? _changeTracker;
 
-        private IServiceScope _serviceScope;
+        private IServiceScope? _serviceScope;
         private DbContextLease _lease = DbContextLease.InactiveLease;
-        private DbContextPoolConfigurationSnapshot _configurationSnapshot;
+        private DbContextPoolConfigurationSnapshot? _configurationSnapshot;
+        private List<IResettableService>? _cachedResettableServices;
         private bool _initializing;
         private bool _disposed;
 
@@ -90,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="options">The options for this context.</param>
-        public DbContext([NotNull] DbContextOptions options)
+        public DbContext(DbContextOptions options)
         {
             Check.NotNull(options, nameof(options));
 
@@ -112,6 +113,8 @@ namespace Microsoft.EntityFrameworkCore
             ServiceProviderCache.Instance.GetOrAdd(options, providerRequired: false)
                 .GetRequiredService<IDbSetInitializer>()
                 .InitializeSets(this);
+
+            EntityFrameworkEventSource.Log.DbContextInitializing();
         }
 
         /// <summary>
@@ -135,10 +138,12 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
+        ///     May not include all the information necessary to initialize the database.
         /// </summary>
         public virtual IModel Model
         {
-            [DebuggerStepThrough] get => DbContextDependencies.Model;
+            [DebuggerStepThrough]
+            get => ContextServices.Model;
         }
 
         /// <summary>
@@ -151,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         public virtual DbContextId ContextId
-            => new DbContextId(_contextId, _leaseCount);
+            => new(_contextId, _leaseCount);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -244,15 +249,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
-            if (_sets == null)
-            {
-                _sets = new Dictionary<(Type Type, string Name), object>();
-            }
+            _sets ??= new Dictionary<(Type Type, string? Name), object>();
 
             if (!_sets.TryGetValue((type, null), out var set))
             {
                 set = source.Create(this, type);
                 _sets[(type, null)] = set;
+                _cachedResettableServices = null;
             }
 
             return set;
@@ -269,15 +272,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
-            if (_sets == null)
-            {
-                _sets = new Dictionary<(Type Type, string Name), object>();
-            }
+            _sets ??= new Dictionary<(Type Type, string? Name), object>();
 
             if (!_sets.TryGetValue((type, entityTypeName), out var set))
             {
                 set = source.Create(this, entityTypeName, type);
                 _sets[(type, entityTypeName)] = set;
+                _cachedResettableServices = null;
             }
 
             return set;
@@ -293,11 +294,18 @@ namespace Microsoft.EntityFrameworkCore
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
 
         /// <summary>
-        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
+        ///     <para>
+        ///         Creates a <see cref="DbSet{TEntity}" /> for a shared-type entity type that can be used to query and save
+        ///         instances of <typeparamref name="TEntity" />.
+        ///     </para>
+        ///     <para>
+        ///         Shared-type entity types are typically used for the join entity in many-to-many relationships.
+        ///     </para>
         /// </summary>
+        /// <param name="name"> The name for the shared-type entity type to use. </param>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>
-        public virtual DbSet<TEntity> Set<TEntity>([NotNull] string name)
+        public virtual DbSet<TEntity> Set<TEntity>(string name)
             where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, name, typeof(TEntity));
 
@@ -306,14 +314,17 @@ namespace Microsoft.EntityFrameworkCore
             var entityType = Model.FindEntityType(type);
             if (entityType == null)
             {
-                if (Model.HasEntityTypeWithDefiningNavigation(type))
-                {
-                    throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(type.ShortDisplayName()));
-                }
-
                 if (Model.IsShared(type))
                 {
                     throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(type.ShortDisplayName()));
+                }
+
+                var findSameTypeName = Model.FindSameTypeNameWithDifferentNamespace(type);
+                //if the same name exists in your entity types we will show you the full namespace of the type
+                if (!string.IsNullOrEmpty(findSameTypeName))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.InvalidSetSameTypeWithDifferentNamespace(type.DisplayName(), findSameTypeName));
                 }
 
                 throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
@@ -328,6 +339,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private IServiceProvider InternalServiceProvider
+            => ContextServices.InternalServiceProvider;
+
+        private IDbContextServices ContextServices
         {
             get
             {
@@ -335,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (_contextServices != null)
                 {
-                    return _contextServices.InternalServiceProvider;
+                    return _contextServices;
                 }
 
                 if (_initializing)
@@ -346,8 +360,6 @@ namespace Microsoft.EntityFrameworkCore
                 try
                 {
                     _initializing = true;
-
-                    EntityFrameworkEventSource.Log.DbContextInitializing();
 
                     var optionsBuilder = new DbContextOptionsBuilder(_options);
 
@@ -367,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var scopedServiceProvider = _serviceScope.ServiceProvider;
 
-                    var contextServices = scopedServiceProvider.GetService<IDbContextServices>();
+                    var contextServices = scopedServiceProvider.GetRequiredService<IDbContextServices>();
 
                     contextServices.Initialize(scopedServiceProvider, options, this);
 
@@ -380,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore
                     _initializing = false;
                 }
 
-                return _contextServices.InternalServiceProvider;
+                return _contextServices;
             }
         }
 
@@ -560,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
@@ -577,6 +589,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
             => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
 
@@ -590,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
@@ -611,6 +624,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default)
@@ -620,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore
             SavingChanges?.Invoke(this, new SavingChangesEventArgs(acceptAllChangesOnSuccess));
 
             var interceptionResult = await DbContextDependencies.UpdateLogger
-                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(false);
+                .SaveChangesStartingAsync(this, cancellationToken).ConfigureAwait(acceptAllChangesOnSuccess);
 
             TryDetectChanges();
 
@@ -642,6 +656,8 @@ namespace Microsoft.EntityFrameworkCore
             }
             catch (DbUpdateConcurrencyException exception)
             {
+                EntityFrameworkEventSource.Log.OptimisticConcurrencyFailure();
+
                 await DbContextDependencies.UpdateLogger.OptimisticConcurrencyExceptionAsync(this, exception, cancellationToken)
                     .ConfigureAwait(false);
 
@@ -662,17 +678,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     An event fired at the beginning of a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" />
         /// </summary>
-        public event EventHandler<SavingChangesEventArgs> SavingChanges;
+        public event EventHandler<SavingChangesEventArgs>? SavingChanges;
 
         /// <summary>
         ///     An event fired at the end of a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" />
         /// </summary>
-        public event EventHandler<SavedChangesEventArgs> SavedChanges;
+        public event EventHandler<SavedChangesEventArgs>? SavedChanges;
 
         /// <summary>
         ///     An event fired if a call to <see cref="M:SaveChanges" /> or <see cref="M:SaveChangesAsync" /> fails with an exception.
         /// </summary>
-        public event EventHandler<SaveChangesFailedEventArgs> SaveChangesFailed;
+        public event EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -715,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore
             }
             else
             {
-                ((IResettableService)_changeTracker)?.ResetState();
+                ((IResettableService?)_changeTracker)?.ResetState();
             }
 
             if (_database != null)
@@ -723,6 +739,10 @@ namespace Microsoft.EntityFrameworkCore
                 _database.AutoTransactionsEnabled
                     = _configurationSnapshot?.AutoTransactionsEnabled == null
                     || _configurationSnapshot.AutoTransactionsEnabled.Value;
+
+                _database.AutoSavepointsEnabled
+                    = _configurationSnapshot?.AutoSavepointsEnabled == null
+                    || _configurationSnapshot.AutoSavepointsEnabled.Value;
             }
         }
 
@@ -738,6 +758,7 @@ namespace Microsoft.EntityFrameworkCore
                 _changeTracker?.AutoDetectChangesEnabled,
                 _changeTracker?.QueryTrackingBehavior,
                 _database?.AutoTransactionsEnabled,
+                _database?.AutoSavepointsEnabled,
                 _changeTracker?.LazyLoadingEnabled,
                 _changeTracker?.CascadeDeleteTiming,
                 _changeTracker?.DeleteOrphansTiming);
@@ -751,7 +772,7 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         void IResettableService.ResetState()
         {
-            foreach (var service in GetResettableServices())
+            foreach (var service in _cachedResettableServices ??= GetResettableServices())
             {
                 service.ResetState();
             }
@@ -770,7 +791,7 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
-            foreach (var service in GetResettableServices())
+            foreach (var service in _cachedResettableServices ??= GetResettableServices())
             {
                 await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -780,30 +801,25 @@ namespace Microsoft.EntityFrameworkCore
             _disposed = true;
         }
 
-        private IEnumerable<IResettableService> GetResettableServices()
+        private List<IResettableService> GetResettableServices()
         {
-            var resettableServices
-                = _contextServices?.InternalServiceProvider?
-                    .GetService<IEnumerable<IResettableService>>()?.ToList();
+            var resettableServices = new List<IResettableService>();
 
-            if (resettableServices != null)
+            var services
+                = _contextServices?.InternalServiceProvider?
+                    .GetService<IEnumerable<IResettableService>>();
+
+            if (services != null)
             {
-                foreach (var service in resettableServices)
-                {
-                    yield return service;
-                }
+                resettableServices.AddRange(services);
             }
 
             if (_sets != null)
             {
-                foreach (var set in _sets.Values)
-                {
-                    if (set is IResettableService resettable)
-                    {
-                        yield return resettable;
-                    }
-                }
+                resettableServices.AddRange((_sets.Values.OfType<IResettableService>()));
             }
+
+            return resettableServices;
         }
 
         /// <summary>
@@ -872,7 +888,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <returns> The entry for the given entity. </returns>
-        public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Entry<TEntity>(TEntity entity)
             where TEntity : class
         {
             Check.NotNull(entity, nameof(entity));
@@ -887,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>(TEntity entity)
             where TEntity : class
-            => new EntityEntry<TEntity>(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
+            => new(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
 
         /// <summary>
         ///     <para>
@@ -902,7 +918,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <returns> The entry for the given entity. </returns>
-        public virtual EntityEntry Entry([NotNull] object entity)
+        public virtual EntityEntry Entry(object entity)
         {
             Check.NotNull(entity, nameof(entity));
             CheckDisposed();
@@ -915,7 +931,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private EntityEntry EntryWithoutDetectChanges(object entity)
-            => new EntityEntry(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
+            => new(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
 
         private void SetEntityState(InternalEntityEntry entry, EntityState entityState)
         {
@@ -971,7 +987,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Add<TEntity>(TEntity entity)
             where TEntity : class
         {
             CheckDisposed();
@@ -999,8 +1015,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async ValueTask<EntityEntry<TEntity>> AddAsync<TEntity>(
-            [NotNull] TEntity entity,
+            TEntity entity,
             CancellationToken cancellationToken = default)
             where TEntity : class
         {
@@ -1049,7 +1066,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Attach<TEntity>(TEntity entity)
             where TEntity : class
         {
             CheckDisposed();
@@ -1092,7 +1109,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Update<TEntity>(TEntity entity)
             where TEntity : class
         {
             CheckDisposed();
@@ -1125,7 +1142,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Remove<TEntity>([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Remove<TEntity>(TEntity entity)
             where TEntity : class
         {
             Check.NotNull(entity, nameof(entity));
@@ -1176,7 +1193,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Add([NotNull] object entity)
+        public virtual EntityEntry Add(object entity)
         {
             CheckDisposed();
 
@@ -1205,8 +1222,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async ValueTask<EntityEntry> AddAsync(
-            [NotNull] object entity,
+            object entity,
             CancellationToken cancellationToken = default)
         {
             CheckDisposed();
@@ -1253,7 +1271,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Attach([NotNull] object entity)
+        public virtual EntityEntry Attach(object entity)
         {
             CheckDisposed();
 
@@ -1294,7 +1312,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Update([NotNull] object entity)
+        public virtual EntityEntry Update(object entity)
         {
             CheckDisposed();
 
@@ -1325,7 +1343,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry Remove([NotNull] object entity)
+        public virtual EntityEntry Remove(object entity)
         {
             Check.NotNull(entity, nameof(entity));
             CheckDisposed();
@@ -1363,7 +1381,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        public virtual void AddRange([NotNull] params object[] entities)
+        public virtual void AddRange(params object[] entities)
         {
             CheckDisposed();
 
@@ -1384,7 +1402,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        public virtual Task AddRangeAsync([NotNull] params object[] entities)
+        public virtual Task AddRangeAsync(params object[] entities)
         {
             CheckDisposed();
 
@@ -1421,7 +1439,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        public virtual void AttachRange([NotNull] params object[] entities)
+        public virtual void AttachRange(params object[] entities)
         {
             CheckDisposed();
 
@@ -1458,7 +1476,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        public virtual void UpdateRange([NotNull] params object[] entities)
+        public virtual void UpdateRange(params object[] entities)
         {
             CheckDisposed();
 
@@ -1482,7 +1500,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
-        public virtual void RemoveRange([NotNull] params object[] entities)
+        public virtual void RemoveRange(params object[] entities)
         {
             CheckDisposed();
 
@@ -1505,7 +1523,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        public virtual void AddRange([NotNull] IEnumerable<object> entities)
+        public virtual void AddRange(IEnumerable<object> entities)
         {
             CheckDisposed();
 
@@ -1529,8 +1547,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task AddRangeAsync(
-            [NotNull] IEnumerable<object> entities,
+            IEnumerable<object> entities,
             CancellationToken cancellationToken = default)
         {
             CheckDisposed();
@@ -1577,7 +1596,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        public virtual void AttachRange([NotNull] IEnumerable<object> entities)
+        public virtual void AttachRange(IEnumerable<object> entities)
         {
             CheckDisposed();
 
@@ -1614,7 +1633,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        public virtual void UpdateRange([NotNull] IEnumerable<object> entities)
+        public virtual void UpdateRange(IEnumerable<object> entities)
         {
             CheckDisposed();
 
@@ -1638,7 +1657,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
-        public virtual void RemoveRange([NotNull] IEnumerable<object> entities)
+        public virtual void RemoveRange(IEnumerable<object> entities)
         {
             Check.NotNull(entities, nameof(entities));
             CheckDisposed();
@@ -1673,8 +1692,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
-        public virtual object Find([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        public virtual object? Find(Type entityType, params object?[]? keyValues)
         {
             CheckDisposed();
 
@@ -1690,8 +1709,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
-        public virtual ValueTask<object> FindAsync([NotNull] Type entityType, [CanBeNull] params object[] keyValues)
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        public virtual ValueTask<object?> FindAsync(Type entityType, params object?[]? keyValues)
         {
             CheckDisposed();
 
@@ -1708,10 +1727,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The type of entity to find. </param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>The entity found, or null.</returns>
-        public virtual ValueTask<object> FindAsync(
-            [NotNull] Type entityType,
-            [CanBeNull] object[] keyValues,
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        public virtual ValueTask<object?> FindAsync(
+            Type entityType,
+            object?[]? keyValues,
             CancellationToken cancellationToken)
         {
             CheckDisposed();
@@ -1728,8 +1748,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
-        public virtual TEntity Find<TEntity>([CanBeNull] params object[] keyValues)
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        public virtual TEntity? Find<TEntity>(params object?[]? keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1746,8 +1766,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
-        public virtual ValueTask<TEntity> FindAsync<TEntity>([CanBeNull] params object[] keyValues)
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        public virtual ValueTask<TEntity?> FindAsync<TEntity>(params object?[]? keyValues)
             where TEntity : class
         {
             CheckDisposed();
@@ -1765,8 +1785,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>The entity found, or null.</returns>
-        public virtual ValueTask<TEntity> FindAsync<TEntity>([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        public virtual ValueTask<TEntity?> FindAsync<TEntity>(object?[]? keyValues, CancellationToken cancellationToken)
             where TEntity : class
         {
             CheckDisposed();
@@ -1792,7 +1813,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult"> The result type of the query expression. </typeparam>
         /// <param name="expression"> The query expression to create. </param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the query. </returns>
-        public virtual IQueryable<TResult> FromExpression<TResult>([NotNull] Expression<Func<IQueryable<TResult>>> expression)
+        public virtual IQueryable<TResult> FromExpression<TResult>(Expression<Func<IQueryable<TResult>>> expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -1800,13 +1821,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         #region Hidden System.Object members
-
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -1815,7 +1835,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>
@@ -1825,7 +1845,6 @@ namespace Microsoft.EntityFrameworkCore
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();
-
         #endregion
     }
 }

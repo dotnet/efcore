@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class QuerySqlGenerator : SqlExpressionVisitor
     {
-        private readonly StringBuilder _sqlBuilder = new StringBuilder();
+        private readonly StringBuilder _sqlBuilder = new();
         private IReadOnlyDictionary<string, object> _parameterValues;
         private List<SqlParameter> _sqlParameters;
         private bool _useValueProjection;
@@ -70,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual CosmosSqlQuery GetSqlQuery(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object> parameterValues)
+            SelectExpression selectExpression,
+            IReadOnlyDictionary<string, object> parameterValues)
         {
             _sqlBuilder.Clear();
             _parameterValues = parameterValues;

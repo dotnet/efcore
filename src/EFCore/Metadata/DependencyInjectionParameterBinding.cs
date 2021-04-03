@@ -4,13 +4,10 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -29,12 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="parameterType"> The parameter CLR type. </param>
         /// <param name="serviceType"> The service CLR types, as resolved from dependency injection </param>
-        /// <param name="serviceProperty"> The associated <see cref="IServiceProperty" />, or null. </param>
+        /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> objects, or <see langword="null" />. </param>
         public DependencyInjectionParameterBinding(
-            [NotNull] Type parameterType,
-            [NotNull] Type serviceType,
-            [CanBeNull] IPropertyBase? serviceProperty = null)
-            : base(parameterType, serviceType, serviceProperty)
+            Type parameterType,
+            Type serviceType,
+            IPropertyBase[]? serviceProperties = null)
+            : base(parameterType, serviceType, serviceProperties)
         {
         }
 
@@ -60,5 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         MaterializationContext.ContextProperty),
                     typeof(IInfrastructure<IServiceProvider>)));
         }
+
+        /// <summary>
+        ///     Creates a copy that contains the given consumed properties.
+        /// </summary>
+        /// <param name="consumedProperties"> The new consumed properties. </param>
+        /// <returns> A copy with replaced consumed properties. </returns>
+        public override ParameterBinding With(IPropertyBase[] consumedProperties)
+            => new DependencyInjectionParameterBinding(ParameterType, ServiceType, consumedProperties);
     }
 }

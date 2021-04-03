@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -39,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerModelValidator(
-            [NotNull] ModelValidatorDependencies dependencies,
-            [NotNull] RelationalModelValidatorDependencies relationalDependencies)
+            ModelValidatorDependencies dependencies,
+            RelationalModelValidatorDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
         {
         }
@@ -69,13 +68,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateDecimalColumns(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (IConventionProperty property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
-                .Where(
-                    p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                         && !p.IsForeignKey()))
             {
                 var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
@@ -94,12 +92,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
                     && (ConfigurationSource.Convention.Overrides(property.GetPrecisionConfigurationSource())
                         || ConfigurationSource.Convention.Overrides(property.GetScaleConfigurationSource())))
                 {
-                    logger.DecimalTypeDefaultWarning(property);
+                    logger.DecimalTypeDefaultWarning((IProperty)property);
                 }
 
                 if (property.IsKey())
                 {
-                    logger.DecimalTypeKeyWarning(property);
+                    logger.DecimalTypeKeyWarning((IProperty)property);
                 }
             }
         }
@@ -111,11 +109,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateByteIdentityMapping(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
+                // TODO: Validate this per table
                 foreach (var property in entityType.GetDeclaredProperties()
                     .Where(
                         p => p.ClrType.UnwrapNullableType() == typeof(byte)
@@ -133,8 +132,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateNonKeyValueGeneration(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -160,8 +159,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateIndexIncludeProperties(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var index in model.GetEntityTypes().SelectMany(t => t.GetDeclaredIndexes()))
             {
@@ -219,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         protected override void ValidateSharedTableCompatibility(
             IReadOnlyList<IEntityType> mappedTypes,
             string tableName,
-            string schema,
+            string? schema,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var firstMappedType = mappedTypes[0];
@@ -362,6 +361,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
 
                         break;
                 }
+            }
+
+            if (property.IsSparse() != duplicateProperty.IsSparse())
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.DuplicateColumnSparsenessMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName()));
             }
         }
 

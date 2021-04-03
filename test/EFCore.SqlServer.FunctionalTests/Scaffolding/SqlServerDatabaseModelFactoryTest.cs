@@ -148,7 +148,7 @@ DROP SEQUENCE [NumericSequence];");
         {
             Test(
                 @"
-CREATE SEQUENCE [dbo].[HighDecimalSequence] 
+CREATE SEQUENCE [dbo].[HighDecimalSequence]
  AS [numeric](38, 0)
  START WITH -99999999999999999999999999999999999999
  INCREMENT BY 1
@@ -1553,6 +1553,28 @@ CREATE TABLE ColumnsWithCollation (
                     Assert.Equal("German_PhoneBook_CI_AS", columns.Single(c => c.Name == "NonDefaultCollation").Collation);
                 },
                 "DROP TABLE ColumnsWithCollation;");
+        }
+
+        [ConditionalFact]
+        public void Column_sparseness_is_set()
+        {
+            Test(
+                @"
+CREATE TABLE ColumnsWithSparseness (
+    Id int,
+    Sparse nvarchar(max) SPARSE NULL,
+    NonSparse nvarchar(max) NULL
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    Assert.True((bool)columns.Single(c => c.Name == "Sparse")[SqlServerAnnotationNames.Sparse]);
+                    Assert.Null(columns.Single(c => c.Name == "NonSparse")[SqlServerAnnotationNames.Sparse]);
+                },
+                "DROP TABLE ColumnsWithSparseness;");
         }
 
         [ConditionalFact]

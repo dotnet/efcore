@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -21,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The current <see cref="DbContext" />. </param>
         /// <param name="exception"> The exception that triggered this event. </param>
         public DbContextErrorEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] DbContext context,
-            [NotNull] Exception exception)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbContext context,
+            Exception exception)
             : base(eventDefinition, messageGenerator, context)
         {
             Exception = exception;

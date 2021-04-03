@@ -2,9 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -24,6 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="command"> The command that represents the query. </param>
         /// <returns> The formatted string. </returns>
-        string Create([NotNull] DbCommand command);
+        string Create(DbCommand command);
     }
 }

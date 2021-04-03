@@ -20,9 +20,21 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        // Test relies on savepoints, which are disabled when MARS is enabled
+        public override Task SaveChanges_implicitly_creates_savepoint(bool async)
+            => new SqlConnectionStringBuilder(TestStore.ConnectionString).MultipleActiveResultSets
+                ? Task.CompletedTask
+                : base.SaveChanges_implicitly_creates_savepoint(async);
+
         // Savepoints cannot be released in SQL Server
         public override Task Savepoint_can_be_released(bool async)
             => Task.CompletedTask;
+
+        // Test relies on savepoints, which are disabled when MARS is enabled
+        public override Task SaveChanges_uses_explicit_transaction_with_failure_behavior(bool async, bool autoTransaction)
+            => new SqlConnectionStringBuilder(TestStore.ConnectionString).MultipleActiveResultSets
+                ? Task.CompletedTask
+                : base.SaveChanges_uses_explicit_transaction_with_failure_behavior(async, autoTransaction);
 
         [ConditionalTheory]
         [InlineData(true)]
@@ -52,12 +64,6 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Contains(Fixture.ListLoggerFactory.Log, t => t.Id == SqlServerEventId.SavepointsDisabledBecauseOfMARS);
         }
-
-        // Test relies on savepoints, which are disabled when MARS is enabled
-        public override Task SaveChanges_uses_explicit_transaction_with_failure_behavior(bool async, bool autoTransaction)
-            => new SqlConnectionStringBuilder(TestStore.ConnectionString).MultipleActiveResultSets
-                ? Task.CompletedTask
-                : base.SaveChanges_uses_explicit_transaction_with_failure_behavior(async, autoTransaction);
 
         protected override bool SnapshotSupported
             => true;

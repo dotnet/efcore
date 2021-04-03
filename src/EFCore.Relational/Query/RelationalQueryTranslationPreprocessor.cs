@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -22,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
         /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         public RelationalQueryTranslationPreprocessor(
-            [NotNull] QueryTranslationPreprocessorDependencies dependencies,
-            [NotNull] RelationalQueryTranslationPreprocessorDependencies relationalDependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext)
+            QueryTranslationPreprocessorDependencies dependencies,
+            RelationalQueryTranslationPreprocessorDependencies relationalDependencies,
+            QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));

@@ -696,8 +696,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p32='-128'
 @p33='128' (Size = 1)
 @p34='79'
-@p35='887876'
-@p36='Bang!' (Nullable = false) (Size = 5)
+@p35='887876' (DbType = Object)
+@p36='Bang!' (Nullable = false) (Size = 5) (DbType = Object)
 @p37='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p38='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p39='help' (Nullable = false) (Size = 4000)
@@ -789,7 +789,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedDataTypes CreateMappedDataTypes(int id)
-            => new MappedDataTypes
+            => new()
             {
                 Int = id,
                 LongAsBigInt = 78L,
@@ -887,8 +887,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p26='-128'
 @p27='128' (Size = 1)
 @p28='79'
-@p29='887876'
-@p30='Bang!' (Nullable = false) (Size = 5)
+@p29='887876' (DbType = Object)
+@p30='Bang!' (Nullable = false) (Size = 5) (DbType = Object)
 @p31='Gumball Rules OK!' (Nullable = false) (Size = 4000)
 @p32='"
                 + entity.StringAsNvarcharMax
@@ -963,7 +963,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedSquareDataTypes CreateMappedSquareDataTypes(int id)
-            => new MappedSquareDataTypes
+            => new()
             {
                 Int = id,
                 LongAsBigInt = 78L,
@@ -1056,8 +1056,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p32='-128' (Nullable = true)
 @p33='128' (Nullable = true) (Size = 1)
 @p34='79' (Nullable = true)
-@p35='887876' (Nullable = true)
-@p36='Bang!' (Size = 5)
+@p35='887876' (Nullable = true) (DbType = Object)
+@p36='Bang!' (Size = 5) (DbType = Object)
 @p37='Your' (Size = 8000) (DbType = AnsiString)
 @p38='strong' (Size = 8000) (DbType = AnsiString)
 @p39='help' (Size = 4000)
@@ -1141,7 +1141,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedNullableDataTypes CreateMappedNullableDataTypes(int id)
-            => new MappedNullableDataTypes
+            => new()
             {
                 Int = id,
                 LongAsBigint = 78L,
@@ -1244,8 +1244,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p32=NULL (DbType = Int16)
 @p33=NULL (DbType = Byte)
 @p34=NULL (DbType = Int16)
-@p35=NULL
-@p36=NULL
+@p35=NULL (DbType = Object)
+@p36=NULL (DbType = Object)
 @p37=NULL (Size = 8000) (DbType = AnsiString)
 @p38=NULL (Size = 8000) (DbType = AnsiString)
 @p39=NULL (Size = 4000)
@@ -1392,7 +1392,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedSizedDataTypes CreateMappedSizedDataTypes(int id)
-            => new MappedSizedDataTypes
+            => new()
             {
                 Id = id,
                 StringAsChar3 = "Wor",
@@ -1547,7 +1547,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedSizedSeparatelyDataTypes CreateMappedSizedSeparatelyDataTypes(int id)
-            => new MappedSizedSeparatelyDataTypes
+            => new()
             {
                 Id = id,
                 StringAsChar3 = "Wor",
@@ -1618,7 +1618,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedScaledDataTypes CreateMappedScaledDataTypes(int id)
-            => new MappedScaledDataTypes
+            => new()
             {
                 Id = id,
                 FloatAsFloat3 = 83.3f,
@@ -1679,7 +1679,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedScaledSeparatelyDataTypes CreateMappedScaledSeparatelyDataTypes(int id)
-            => new MappedScaledSeparatelyDataTypes
+            => new()
             {
                 Id = id,
                 FloatAsFloat3 = 83.3f,
@@ -1727,7 +1727,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedPrecisionAndScaledDataTypes CreateMappedPrecisionAndScaledDataTypes(int id)
-            => new MappedPrecisionAndScaledDataTypes
+            => new()
             {
                 Id = id,
                 DecimalAsDecimal52 = 101.1m,
@@ -1770,7 +1770,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedPrecisionAndScaledSeparatelyDataTypes CreateMappedPrecisionAndScaledSeparatelyDataTypes(int id)
-            => new MappedPrecisionAndScaledSeparatelyDataTypes
+            => new()
             {
                 Id = id,
                 DecimalAsDecimal52 = 101.1m,
@@ -1825,8 +1825,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p32='-128'
 @p33='128' (Size = 1)
 @p34='79'
-@p35='887876'
-@p36='Bang!' (Nullable = false) (Size = 5)
+@p35='887876' (DbType = Object)
+@p36='Bang!' (Nullable = false) (Size = 5) (DbType = Object)
 @p37='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p38='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p39='help' (Nullable = false) (Size = 4000)
@@ -1910,7 +1910,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedDataTypesWithIdentity CreateMappedDataTypesWithIdentity(int id)
-            => new MappedDataTypesWithIdentity
+            => new()
             {
                 Int = id,
                 LongAsBigint = 78L,
@@ -2013,8 +2013,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p32='-128' (Nullable = true)
 @p33='128' (Nullable = true) (Size = 1)
 @p34='79' (Nullable = true)
-@p35='887876' (Nullable = true)
-@p36='Bang!' (Size = 5)
+@p35='887876' (Nullable = true) (DbType = Object)
+@p36='Bang!' (Size = 5) (DbType = Object)
 @p37='Your' (Size = 8000) (DbType = AnsiString)
 @p38='strong' (Size = 8000) (DbType = AnsiString)
 @p39='help' (Size = 4000)
@@ -2098,7 +2098,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedNullableDataTypesWithIdentity CreateMappedNullableDataTypesWithIdentity(int id)
-            => new MappedNullableDataTypesWithIdentity
+            => new()
             {
                 Int = id,
                 LongAsBigint = 78L,
@@ -2201,8 +2201,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 @p32=NULL (DbType = Int16)
 @p33=NULL (DbType = Byte)
 @p34=NULL (DbType = Int16)
-@p35=NULL
-@p36=NULL
+@p35=NULL (DbType = Object)
+@p36=NULL (DbType = Object)
 @p37=NULL (Size = 8000) (DbType = AnsiString)
 @p38=NULL (Size = 8000) (DbType = AnsiString)
 @p39=NULL (Size = 4000)
@@ -2352,7 +2352,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedSizedDataTypesWithIdentity CreateMappedSizedDataTypesWithIdentity(int id)
-            => new MappedSizedDataTypesWithIdentity
+            => new()
             {
                 Int = id,
                 StringAsChar3 = "Wor",
@@ -2488,7 +2488,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedScaledDataTypesWithIdentity CreateMappedScaledDataTypesWithIdentity(int id)
-            => new MappedScaledDataTypesWithIdentity
+            => new()
             {
                 Int = id,
                 FloatAsFloat3 = 83.3f,
@@ -2540,7 +2540,7 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
         }
 
         private static MappedPrecisionAndScaledDataTypesWithIdentity CreateMappedPrecisionAndScaledDataTypesWithIdentity(int id)
-            => new MappedPrecisionAndScaledDataTypesWithIdentity
+            => new()
             {
                 Int = id,
                 DecimalAsDecimal52 = 101.1m,
@@ -3329,6 +3329,8 @@ MaxLengthDataTypes.ByteArray9000 ---> [nullable varbinary] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MaxLengthDataTypes.String3 ---> [nullable nvarchar] [MaxLength = 3]
 MaxLengthDataTypes.String9000 ---> [nullable nvarchar] [MaxLength = -1]
+StringEnclosure.Id ---> [int] [Precision = 10 Scale = 0]
+StringEnclosure.Value ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
@@ -3621,7 +3623,7 @@ WHERE [b].[Id] = 13");
                 => true;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
         }
 
         [Flags]

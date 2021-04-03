@@ -4,9 +4,6 @@
 using System;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -25,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private byte _indent;
         private bool _indentPending = true;
 
-        private readonly StringBuilder _stringBuilder = new StringBuilder();
+        private readonly StringBuilder _stringBuilder = new();
 
         /// <summary>
         ///     The current length of the built string.
@@ -38,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual IndentedStringBuilder Append([NotNull] string value)
+        public virtual IndentedStringBuilder Append(string value)
         {
             DoIndent();
 
@@ -68,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual IndentedStringBuilder AppendLine([NotNull] string value)
+        public virtual IndentedStringBuilder AppendLine(string value)
         {
             if (value.Length != 0)
             {
@@ -89,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="value"> The string to append. </param>
         /// <param name="skipFinalNewline"> If true, then the terminating new line is not added after the last line. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual IndentedStringBuilder AppendLines([NotNull] string value, bool skipFinalNewline = false)
+        public virtual IndentedStringBuilder AppendLines(string value, bool skipFinalNewline = false)
         {
             using (var reader = new StringReader(value))
             {
@@ -176,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (_indentPending && _indent > 0)
             {
-                _stringBuilder.Append(new string(' ', _indent * IndentSize));
+                _stringBuilder.Append(' ', _indent * IndentSize);
             }
 
             _indentPending = false;

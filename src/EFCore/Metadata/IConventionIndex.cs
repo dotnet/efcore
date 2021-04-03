@@ -1,10 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -17,12 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IIndex" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionIndex : IIndex, IConventionAnnotatable
+    public interface IConventionIndex : IReadOnlyIndex, IConventionAnnotatable
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this index.
         /// </summary>
-        new IConventionIndexBuilder? Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the index has been removed from the model. </exception>
+        new IConventionIndexBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the properties that this index is defined on.
@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool? SetIsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IIndex.IsUnique" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyIndex.IsUnique" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IIndex.IsUnique" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyIndex.IsUnique" />. </returns>
         ConfigurationSource? GetIsUniqueConfigurationSource();
     }
 }

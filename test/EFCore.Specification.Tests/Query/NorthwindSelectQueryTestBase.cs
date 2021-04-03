@@ -650,6 +650,36 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_nested_collection_deep_distinct_no_identifiers(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss =>
+                    (from c in ss.Set<Customer>()
+                     where c.City == "London"
+                     orderby c.CustomerID
+                     select new { c.City }).Distinct().Select(x =>
+
+                            ((from o1 in ss.Set<Order>()
+                              where o1.CustomerID == x.City
+                                 && o1.OrderDate.Value.Year == 1997
+                              orderby o1.OrderID
+                              select o1).Distinct().Select(xx =>
+
+                              (from o2 in ss.Set<Order>()
+                               where xx.CustomerID == x.City
+                               orderby o2.OrderID
+                               select xx.OrderID).ToList()).ToList())),
+                elementSorter: e => e.Count,
+                elementAsserter: (e, a) => AssertCollection(
+                    e,
+                    a,
+                    ordered: true,
+                    elementAsserter: (ee, aa) => AssertCollection(ee, aa)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task New_date_time_in_anonymous_type_works(bool async)
         {
             return AssertQuery(
@@ -1795,7 +1825,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Projecting_after_navigation_and_distinct_throws(bool async)
+        public virtual Task Projecting_after_navigation_and_distinct(bool async)
         {
             var filteredOrderIds = new[] { 10248, 10249, 10250 };
 
@@ -1822,6 +1852,120 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.CustomerID, a.CustomerID);
                     AssertCollection(e.Orders, a.Orders, elementSorter: ee => ee.CustomerID);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_after_distinct_with_complex_projection_containing_original_identifier(bool async)
+        {
+            var filteredOrderIds = new[] { 10248, 10249, 10250 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Select(o => new { o.OrderID, Complex = o.OrderDate.Value.Month })
+                    .Distinct()
+                    .Select(c => new
+                    {
+                        c.OrderID,
+                        c.Complex,
+                        Subquery = (from x in ss.Set<Order>()
+                                    where x.OrderID == c.OrderID && filteredOrderIds.Contains(x.OrderID)
+                                    select new { Outer = c.OrderID, Inner = x.OrderID, x.OrderDate }).ToList()
+                    }),
+                elementSorter: e => e.OrderID,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.OrderID, a.OrderID);
+                    Assert.Equal(e.Complex, a.Complex);
+                    AssertCollection(e.Subquery, a.Subquery, elementSorter: ee => ee.Outer);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_after_distinct_not_containing_original_identifier(bool async)
+        {
+            var filteredOrderIds = new[] { 10248, 10249, 10250 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Select(o => new { o.OrderDate, o.CustomerID })
+                    .Distinct()
+                    .Select(c => new
+                    {
+                        c.OrderDate,
+                        c.CustomerID,
+                        Subquery = (from x in ss.Set<Order>()
+                                    where x.CustomerID == c.CustomerID && filteredOrderIds.Contains(x.OrderID)
+                                    select new { Outer1 = c.OrderDate, Outer2 = c.CustomerID, Inner = x.OrderID, x.OrderDate }).ToList()
+                    }),
+                elementSorter: e => (e.OrderDate, e.CustomerID),
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.OrderDate, a.OrderDate);
+                    Assert.Equal(e.CustomerID, a.CustomerID);
+                    AssertCollection(e.Subquery, a.Subquery, elementSorter: ee => (ee.Outer1, ee.Outer2, ee.Inner, ee.OrderDate));
+                });
+        }
+
+        [ConditionalTheory(Skip = "Issue#24440")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
+        {
+            var filteredOrderIds = new[] { 10248, 10249, 10250 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Select(o => new { o.OrderDate, o.CustomerID, Complex = o.OrderDate.Value.Month })
+                    .Distinct()
+                    .Select(c => new
+                    {
+                        c.OrderDate,
+                        c.CustomerID,
+                        c.Complex,
+                        Subquery = (from x in ss.Set<Order>()
+                                    where x.CustomerID == c.CustomerID && filteredOrderIds.Contains(x.OrderID)
+                                    select new { Outer1 = c.OrderDate, Outer2 = c.CustomerID, Outer3 = c.Complex, Inner = x.OrderID, x.OrderDate }).ToList()
+                    }),
+                elementSorter: e => (e.OrderDate, e.CustomerID, e.Complex),
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.OrderDate, a.OrderDate);
+                    Assert.Equal(e.CustomerID, a.CustomerID);
+                    Assert.Equal(e.Complex, a.Complex);
+                    AssertCollection(e.Subquery, a.Subquery, elementSorter: ee => (ee.Outer1, ee.Outer2, ee.Outer3, ee.Inner, ee.OrderDate));
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_after_groupby_with_complex_projection_containing_original_identifier(bool async)
+        {
+            var filteredOrderIds = new[] { 10248, 10249, 10250 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => new { o.OrderID, Complex = o.OrderDate.Value.Month })
+                    .Select(g => new { g.Key, Aggregate = g.Count() })
+                    .Select(c => new
+                    {
+                        c.Key.OrderID,
+                        c.Key.Complex,
+                        Subquery = (from x in ss.Set<Order>()
+                                    where x.OrderID == c.Key.OrderID && filteredOrderIds.Contains(x.OrderID)
+                                    select new { Outer = c.Key.OrderID, Inner = x.OrderID, x.OrderDate }).ToList()
+                    }),
+                elementSorter: e => e.OrderID,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.OrderID, a.OrderID);
+                    Assert.Equal(e.Complex, a.Complex);
+                    AssertCollection(e.Subquery, a.Subquery, elementSorter: ee => ee.Outer);
                 });
         }
 
@@ -2001,28 +2145,177 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Ternary_in_client_eval_assigns_correct_types(bool async)
-        {     return AssertQuery(
-                async,
-                ss => ss.Set<Order>()
+        {
+            return AssertQuery(
+              async,
+              ss => ss.Set<Order>()
 
-                    .Where(o => o.OrderID < 10300)
-                    .OrderBy(e => e.OrderID)
-                    .Select(
-                        o => new
-                        {
-                            CustomerID = ClientMethod(o.CustomerID),
-                            OrderDate = o.OrderDate.HasValue ? o.OrderDate.Value : new DateTime(o.OrderID - 10000, 1, 1),
-                            OrderDate2 = o.OrderDate.HasValue == false ? new DateTime(o.OrderID - 10000, 1, 1) : o.OrderDate.Value
-                        }),
-                assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    AssertEqual(e.CustomerID, a.CustomerID);
-                    AssertEqual(e.OrderDate, a.OrderDate);
-                    AssertEqual(e.OrderDate2, a.OrderDate2);
-                });
+                  .Where(o => o.OrderID < 10300)
+                  .OrderBy(e => e.OrderID)
+                  .Select(
+                      o => new
+                      {
+                          CustomerID = ClientMethod(o.CustomerID),
+                          OrderDate = o.OrderDate.HasValue ? o.OrderDate.Value : new DateTime(o.OrderID - 10000, 1, 1),
+                          OrderDate2 = o.OrderDate.HasValue == false ? new DateTime(o.OrderID - 10000, 1, 1) : o.OrderDate.Value
+                      }),
+              assertOrder: true,
+              elementAsserter: (e, a) =>
+              {
+                  AssertEqual(e.CustomerID, a.CustomerID);
+                  AssertEqual(e.OrderDate, a.OrderDate);
+                  AssertEqual(e.OrderDate2, a.OrderDate2);
+              });
         }
 
         private static string ClientMethod(string s) => s;
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task VisitLambda_should_not_be_visited_trivially(bool async)
+        {
+            return AssertTranslationFailed(() => AssertQuery(
+              async,
+              ss =>
+              {
+                  var orders = ss.Set<Order>().Where(o => o.CustomerID.StartsWith("A")).ToList();
+
+                  return ss.Set<Customer>()
+                    .Select(c => new
+                    {
+                        Customer = c,
+                        HasOrder = orders.Any(o => o.CustomerID == c.CustomerID)
+                    });
+              },
+              elementSorter: e => e.Customer.CustomerID,
+              elementAsserter: (e, a) =>
+              {
+                  AssertEqual(e.Customer, a.Customer);
+                  AssertEqual(e.HasOrder, a.HasOrder);
+              }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Correlated_collection_after_groupby_with_complex_projection_not_containing_original_identifier(bool async)
+        {
+            var filteredOrderIds = new[] { 10248, 10249, 10250 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => new { o.CustomerID, Complex = o.OrderDate.Value.Month })
+                    .Select(g => new { g.Key, Aggregate = g.Count() })
+                    .Select(c => new
+                    {
+                        c.Key.CustomerID,
+                        c.Key.Complex,
+                        Subquery = (from x in ss.Set<Order>()
+                                    where x.CustomerID == c.Key.CustomerID && filteredOrderIds.Contains(x.OrderID)
+                                    select new { Outer = c.Key.CustomerID, Inner = x.OrderID, x.OrderDate }).ToList()
+                    }),
+                elementSorter: e => (e.CustomerID, e.Complex),
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.CustomerID, a.CustomerID);
+                    Assert.Equal(e.Complex, a.Complex);
+                    AssertCollection(e.Subquery, a.Subquery, elementSorter: ee => ee.Outer);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_include_over_result_of_single_non_scalar(bool async)
+        {
+            return AssertQuery(
+              async,
+              ss =>
+               ss.Set<Customer>().Include(c => c.Orders).ThenInclude(o => o.OrderDetails)
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .Select(c => new
+                    {
+                        c,
+                        SingleOrder = c.Orders.OrderBy(o => o.OrderDate).FirstOrDefault()
+                    }),
+              elementSorter: e => e.c.CustomerID,
+              elementAsserter: (e, a) =>
+              {
+                  AssertInclude(e, a,
+                      new ExpectedInclude<Customer>(c => c.Orders),
+                      new ExpectedInclude<Order>(o => o.OrderDetails, "Orders"));
+                  AssertInclude(e.SingleOrder, a.SingleOrder, new ExpectedInclude<Order>(o => o.OrderDetails));
+              },
+              entryCount: 235);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
+        {
+            return AssertQuery(
+              async,
+              ss =>
+               ss.Set<Customer>().Include(c => c.Orders)
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .OrderBy(e => e.CustomerID)
+                    .Select(c => new
+                    {
+                        Customer = c.Orders.Select(o => c)
+                    })
+                    .Take(10),
+              assertOrder: true,
+              elementAsserter: (e, a) =>
+              {
+                  AssertCollection(e.Customer, a.Customer,
+                      elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Customer>(i => i.Orders)));
+              },
+              entryCount: 70);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_on_top_level_and_on_collection_projection_with_outer_apply(bool async)
+        {
+            return AssertFirstOrDefault(
+              async,
+              ss =>
+               ss.Set<Order>()
+                    .Where(o => o.CustomerID.StartsWith("F"))
+                    .Select(o => new Order
+                    {
+                        OrderID = o.OrderID,
+                        OrderDate = o.OrderDate,
+                        OrderDetails = o.OrderDetails.Select(e => new OrderDetail
+                        {
+                            OrderID = e.OrderID,
+                            Product = e.Product,
+                            UnitPrice = e.UnitPrice
+                        })
+                        .OrderByDescending(e => e.OrderID)
+                        .Skip(0)
+                        .Take(10)
+                        .ToList()
+                    }),
+              entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_on_correlated_collection_in_first(bool async)
+        {
+            return AssertFirstOrDefault(
+              async,
+              ss =>
+               ss.Set<Customer>()
+                    .Where(o => o.CustomerID.StartsWith("F"))
+                    .OrderBy(e => e.CustomerID)
+                    .Select(o => new
+                    {
+                        Orders = o.Orders.OrderBy(a => a.OrderDate).Take(1)
+                            .Select(e => new { Title = e.CustomerID == e.Customer.CustomerID ? "A" : "B" }).ToList()
+                    }),
+              asserter: (e, a) => AssertCollection(e.Orders, a.Orders, ordered: true,
+                elementAsserter: (ee, aa) => AssertEqual(ee.Title, aa.Title)));
+        }
     }
 }

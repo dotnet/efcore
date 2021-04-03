@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -78,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IModelCustomizer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelCacheKeyFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IModelRuntimeInitializer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IInternalEntityEntryFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IInternalEntityEntrySubscriber), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityEntryGraphIterator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -121,10 +121,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IQueryCompiler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICompiledQueryCacheKeyGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModel), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IDesignTimeModel), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IUpdateAdapterFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ICurrentDbContext), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDbContextDependencies), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IModelCreationDependencies), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDatabaseFacadeDependencies), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDbContextOptions), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDatabase), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     'EntityFrameworkRelationalServicesBuilder'.
         /// </summary>
         /// <param name="serviceCollection"> The collection to which services will be registered. </param>
-        public EntityFrameworkServicesBuilder([NotNull] IServiceCollection serviceCollection)
+        public EntityFrameworkServicesBuilder(IServiceCollection serviceCollection)
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="serviceType"> The type that defines the service API. </param>
         /// <returns> The <see cref="ServiceCharacteristics" /> for the type. </returns>
         /// <exception cref="InvalidOperationException"> when the type is not an EF service. </exception>
-        protected virtual ServiceCharacteristics GetServiceCharacteristics([NotNull] Type serviceType)
+        protected virtual ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
         {
             if (!CoreServices.TryGetValue(serviceType, out var characteristics))
             {
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="serviceMap"> The underlying map to which provider services should be added.</param>
         /// <returns> This builder, such that further calls can be chained. </returns>
-        public virtual EntityFrameworkServicesBuilder TryAddProviderSpecificServices([NotNull] Action<ServiceCollectionMap> serviceMap)
+        public virtual EntityFrameworkServicesBuilder TryAddProviderSpecificServices(Action<ServiceCollectionMap> serviceMap)
         {
             Check.NotNull(serviceMap, nameof(serviceMap));
 
@@ -220,6 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IModelCacheKeyFactory, ModelCacheKeyFactory>();
             TryAdd<ILoggerFactory>(p => ScopedLoggerFactory.Create(p, null));
             TryAdd<IModelSource, ModelSource>();
+            TryAdd<IModelRuntimeInitializer, ModelRuntimeInitializer>();
             TryAdd<IInternalEntityEntryFactory, InternalEntityEntryFactory>();
             TryAdd<IInternalEntityEntrySubscriber, InternalEntityEntrySubscriber>();
             TryAdd<IEntityEntryGraphIterator, EntityEntryGraphIterator>();
@@ -235,7 +236,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IChangeTrackerFactory, ChangeTrackerFactory>();
             TryAdd<IChangeDetector, ChangeDetector>();
             TryAdd<IDbContextServices, DbContextServices>();
-            TryAdd<IModelCreationDependencies, ModelCreationDependencies>();
             TryAdd<IDbContextDependencies, DbContextDependencies>();
             TryAdd<IDatabaseFacadeDependencies, DatabaseFacadeDependencies>();
             TryAdd<IValueGeneratorSelector, ValueGeneratorSelector>();
@@ -251,13 +251,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IInterceptorAggregator, SaveChangesInterceptorAggregator>();
             TryAdd<ILoggingOptions, LoggingOptions>();
             TryAdd<ICoreSingletonOptions, CoreSingletonOptions>();
-            TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetService<ILoggingOptions>());
-            TryAdd<ISingletonOptions, ICoreSingletonOptions>(p => p.GetService<ICoreSingletonOptions>());
+            TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetRequiredService<ILoggingOptions>());
+            TryAdd<ISingletonOptions, ICoreSingletonOptions>(p => p.GetRequiredService<ICoreSingletonOptions>());
             TryAdd(p => GetContextServices(p).Model);
+            TryAdd<IDesignTimeModel>(p => new DesignTimeModel(GetContextServices(p)));
             TryAdd(p => GetContextServices(p).CurrentContext);
             TryAdd(p => GetContextServices(p).ContextOptions);
-            TryAdd<IResettableService, IStateManager>(p => p.GetService<IStateManager>());
-            TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
+            TryAdd<IResettableService, IStateManager>(p => p.GetRequiredService<IStateManager>());
+            TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetRequiredService<IDbContextTransactionManager>());
             TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>();
             TryAdd<IValueConverterSelector, ValueConverterSelector>();
             TryAdd<IConstructorBindingFactory, ConstructorBindingFactory>();
@@ -298,6 +299,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<QueryTranslationPreprocessorDependencies>()
                 .AddDependencySingleton<QueryTranslationPostprocessorDependencies>()
                 .AddDependencySingleton<EvaluatableExpressionFilterDependencies>()
+                .AddDependencySingleton<RuntimeModelDependencies>()
+                .AddDependencySingleton<ModelRuntimeInitializerDependencies>()
                 .AddDependencyScoped<ProviderConventionSetBuilderDependencies>()
                 .AddDependencyScoped<QueryCompilationContextDependencies>()
                 .AddDependencyScoped<StateManagerDependencies>()
@@ -306,7 +309,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<QueryContextDependencies>()
                 .AddDependencyScoped<ValueGeneratorSelectorDependencies>()
                 .AddDependencyScoped<DatabaseDependencies>()
-                .AddDependencyScoped<ModelDependencies>();
+                .AddDependencyScoped<ModelDependencies>()
+                .AddDependencyScoped<ModelCreationDependencies>();
 
             ServiceCollectionMap.TryAddSingleton<IRegisteredServices>(
                 new RegisteredServices(ServiceCollectionMap.ServiceCollection.Select(s => s.ServiceType)));
@@ -336,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="serviceType"> The contract for the service. </param>
         /// <param name="implementationType"> The concrete type that implements the service. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>
-        public virtual EntityFrameworkServicesBuilder TryAdd([NotNull] Type serviceType, [NotNull] Type implementationType)
+        public virtual EntityFrameworkServicesBuilder TryAdd(Type serviceType, Type implementationType)
         {
             Check.NotNull(serviceType, nameof(serviceType));
             Check.NotNull(implementationType, nameof(implementationType));
@@ -362,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <typeparam name="TService"> The contract for the service. </typeparam>
         /// <param name="factory"> The factory that will create the service instance. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>
-        public virtual EntityFrameworkServicesBuilder TryAdd<TService>([NotNull] Func<IServiceProvider, TService> factory)
+        public virtual EntityFrameworkServicesBuilder TryAdd<TService>(Func<IServiceProvider, TService> factory)
             where TService : class
             => TryAdd(typeof(TService), typeof(TService), factory);
 
@@ -375,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="factory"> The factory that will create the service instance. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>
         public virtual EntityFrameworkServicesBuilder TryAdd<TService, TImplementation>(
-            [NotNull] Func<IServiceProvider, TImplementation> factory)
+            Func<IServiceProvider, TImplementation> factory)
             where TService : class
             where TImplementation : class, TService
             => TryAdd(typeof(TService), typeof(TImplementation), factory);
@@ -389,9 +393,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="factory"> The factory that will create the service instance. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>
         public virtual EntityFrameworkServicesBuilder TryAdd(
-            [NotNull] Type serviceType,
-            [NotNull] Type implementationType,
-            [NotNull] Func<IServiceProvider, object> factory)
+            Type serviceType,
+            Type implementationType,
+            Func<IServiceProvider, object> factory)
         {
             Check.NotNull(serviceType, nameof(serviceType));
             Check.NotNull(implementationType, nameof(implementationType));
@@ -424,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <typeparam name="TService"> The contract for the service. </typeparam>
         /// <param name="implementation"> The implementation of the service. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>
-        public virtual EntityFrameworkServicesBuilder TryAdd<TService>([CanBeNull] TService implementation)
+        public virtual EntityFrameworkServicesBuilder TryAdd<TService>(TService implementation)
             where TService : class
             => TryAdd(typeof(TService), implementation);
 
@@ -436,10 +440,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="implementation"> The implementation of the service. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>
         public virtual EntityFrameworkServicesBuilder TryAdd(
-            [NotNull] Type serviceType,
-            [CanBeNull] object implementation)
+            Type serviceType,
+            object implementation)
         {
             Check.NotNull(serviceType, nameof(serviceType));
+            Check.NotNull(implementation, nameof(implementation));
 
             var characteristics = GetServiceCharacteristics(serviceType);
 
@@ -450,11 +455,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (characteristics.MultipleRegistrations)
             {
-                if (implementation == null)
-                {
-                    throw new InvalidOperationException(CoreStrings.ImplementationTypeRequired(serviceType.Name));
-                }
-
                 ServiceCollectionMap.TryAddSingletonEnumerable(serviceType, implementation);
             }
             else

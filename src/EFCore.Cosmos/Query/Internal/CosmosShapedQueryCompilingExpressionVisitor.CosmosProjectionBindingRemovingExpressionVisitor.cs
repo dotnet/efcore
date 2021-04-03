@@ -3,10 +3,11 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -17,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly SelectExpression _selectExpression;
 
             public CosmosProjectionBindingRemovingExpressionVisitor(
-                [NotNull] SelectExpression selectExpression,
-                [NotNull] ParameterExpression jObjectParameter,
+                SelectExpression selectExpression,
+                ParameterExpression jObjectParameter,
                 bool trackQueryResults)
                 : base(jObjectParameter, trackQueryResults)
             {

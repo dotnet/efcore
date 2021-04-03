@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return 1;
         }
 
-        public Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
+        public Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new())
         {
             SaveChangesAsyncCalled = true;
             return Task.FromResult(1);
@@ -177,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => throw new NotImplementedException();
 
         public DbContext Context
-            => new DbContext(
+            => new(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                     .UseInMemoryDatabase("D")
@@ -204,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey> foreignKeys = null)
             => throw new NotImplementedException();
 
-        public InternalEntityEntry TryGetEntry([NotNull] IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
+        public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
         {
             throw new NotImplementedException();
         }

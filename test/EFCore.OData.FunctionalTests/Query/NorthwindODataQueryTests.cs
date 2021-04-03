@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(830, orderDates.Count);
         }
 
-        [ConditionalFact(Skip = "Issue #23063")]
+        [ConditionalFact]
         public async Task Basic_query_order_details()
         {
             var requestUri = string.Format("{0}/odata/Order Details", BaseAddress);
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var result = await response.Content.ReadAsObject<JObject>();
 
-            Assert.Contains("$metadata#OrderDetails", result["@odata.context"].ToString());
+            Assert.Contains("$metadata#Order%20Details", result["@odata.context"].ToString());
         }
     }
 }

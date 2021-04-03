@@ -5,12 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -40,10 +37,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="configurationSource"> The configuration source of the annotation to be added. </param>
         /// <returns> The added annotation. </returns>
         public virtual ConventionAnnotation AddAnnotation(
-            [NotNull] string name,
-            [CanBeNull] object? value,
+            string name,
+            object? value,
             ConfigurationSource configurationSource)
             => (ConventionAnnotation)base.AddAnnotation(name, CreateAnnotation(name, value, configurationSource));
+
+        /// <summary>
+        ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
+        ///     annotation with the specified name already exists.
+        /// </summary>
+        /// <param name="name"> The key of the annotation to be added. </param>
+        /// <param name="value"> The value to be stored in the annotation. </param>
+        public override void SetAnnotation(string name, object? value)
+            => SetAnnotation(name, value, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     Sets the annotation with given key and value on this object using given configuration source.
@@ -53,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <param name="configurationSource"> The configuration source of the annotation to be set. </param>
         public virtual ConventionAnnotation? SetAnnotation(
-            [NotNull] string name,
-            [CanBeNull] object? value,
+            string name,
+            object? value,
             ConfigurationSource configurationSource)
         {
             var oldAnnotation = FindAnnotation(name);
@@ -70,6 +76,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             return (ConventionAnnotation?)base.SetAnnotation(name, CreateAnnotation(name, value, configurationSource), oldAnnotation);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConventionAnnotation? SetOrRemoveAnnotation(
+            string name,
+            object? value,
+            ConfigurationSource configurationSource)
+        {
+            if (value == null)
+            {
+                RemoveAnnotation(name);
+                return null;
+            }
+
+            return SetAnnotation(name, value, configurationSource);
         }
 
         /// <summary>
@@ -90,9 +116,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
         protected virtual IConventionAnnotation? OnAnnotationSet(
-            [NotNull] string name,
-            [CanBeNull] IConventionAnnotation? annotation,
-            [CanBeNull] IConventionAnnotation? oldAnnotation)
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
             => annotation;
 
         /// <summary>
@@ -102,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
         /// </returns>
-        public new virtual ConventionAnnotation? FindAnnotation([NotNull] string name)
+        public new virtual ConventionAnnotation? FindAnnotation(string name)
             => (ConventionAnnotation?)base.FindAnnotation(name);
 
         /// <summary>
@@ -110,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="name"> The annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        public new virtual ConventionAnnotation? RemoveAnnotation([NotNull] string name)
+        public new virtual ConventionAnnotation? RemoveAnnotation(string name)
             => (ConventionAnnotation?)base.RemoveAnnotation(name);
 
         /// <inheritdoc />
@@ -121,11 +147,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             string name,
             object? value,
             ConfigurationSource configurationSource)
-            => new ConventionAnnotation(name, value, configurationSource);
+            => new(name, value, configurationSource);
 
         /// <inheritdoc />
         IConventionAnnotatableBuilder IConventionAnnotatable.Builder
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
+
+        /// <inheritdoc />
+        bool IConventionAnnotatable.IsInModel
+            => throw new NotSupportedException();
 
         /// <inheritdoc />
         [DebuggerStepThrough]
@@ -175,5 +205,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [DebuggerStepThrough]
         IConventionAnnotation? IConventionAnnotatable.RemoveAnnotation(string name)
             => RemoveAnnotation(name);
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        IConventionAnnotation? IConventionAnnotatable.SetOrRemoveAnnotation(string name, object? value, bool fromDataAnnotation)
+            => SetOrRemoveAnnotation(name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

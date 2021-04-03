@@ -3,10 +3,11 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public KeyAccessExpression([NotNull] IProperty property, [NotNull] Expression accessExpression)
+        public KeyAccessExpression(IProperty property, Expression accessExpression)
             : base(property.ClrType, property.GetTypeMapping())
         {
             Name = property.GetJsonPropertyName();
@@ -77,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual KeyAccessExpression Update([NotNull] Expression outerExpression)
+        public virtual KeyAccessExpression Update(Expression outerExpression)
             => outerExpression != AccessExpression
                 ? new KeyAccessExpression(Property, outerExpression)
                 : this;

@@ -1,14 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -58,32 +55,40 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public ShapedQueryCompilingExpressionVisitorDependencies(
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IMemoryCache memoryCache)
+            IEntityMaterializerSource entityMaterializerSource,
+            ITypeMappingSource typeMappingSource,
+            IMemoryCache memoryCache,
+            ICoreSingletonOptions coreSingletonOptions)
         {
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(memoryCache, nameof(memoryCache));
+            Check.NotNull(coreSingletonOptions, nameof(coreSingletonOptions));
 
             EntityMaterializerSource = entityMaterializerSource;
             TypeMappingSource = typeMappingSource;
             MemoryCache = memoryCache;
+            CoreSingletonOptions = coreSingletonOptions;
         }
 
         /// <summary>
         ///     The materializer source.
         /// </summary>
-        public IEntityMaterializerSource EntityMaterializerSource { get; [param: NotNull] init; }
+        public IEntityMaterializerSource EntityMaterializerSource { get; init; }
 
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        public ITypeMappingSource TypeMappingSource { get; [param: NotNull] init; }
+        public ITypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     The memory cache.
         /// </summary>
-        public IMemoryCache MemoryCache { get; [param: NotNull] init; }
+        public IMemoryCache MemoryCache { get; init; }
+
+        /// <summary>
+        ///     Core singleton options.
+        /// </summary>
+        public ICoreSingletonOptions CoreSingletonOptions { get; init; }
     }
 }

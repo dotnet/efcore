@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     entryCount: 89));
         }
 
-        private static readonly Random _randomGenerator = new Random();
+        private static readonly Random _randomGenerator = new();
 
         private static T ClientProjection<T>(T t, object _)
             => t;

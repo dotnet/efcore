@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -14,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// </summary>
     public class ValueConverter<TModel, TProvider> : ValueConverter
     {
-        private Func<object, object> _convertToProvider;
-        private Func<object, object> _convertFromProvider;
+        private Func<object?, object?>? _convertToProvider;
+        private Func<object?, object?>? _convertFromProvider;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TProvider}" /> class.
@@ -27,19 +26,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public ValueConverter(
-            [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
-            [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            Expression<Func<TModel, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TModel>> convertFromProviderExpression,
+            ConverterMappingHints? mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }
 
-        private static Func<object, object> SanitizeConverter<TIn, TOut>(Expression<Func<TIn, TOut>> convertExpression)
+        private static Func<object?, object?> SanitizeConverter<TIn, TOut>(Expression<Func<TIn, TOut>> convertExpression)
         {
             var compiled = convertExpression.Compile();
 
             return v => v == null
-                ? (object)null
+                ? (object?)null
                 : compiled(Sanitize<TIn>(v));
         }
 
@@ -56,17 +55,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Gets the function to convert objects when writing data to the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public override Func<object, object> ConvertToProvider
+        public override Func<object?, object?> ConvertToProvider
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _convertToProvider, this, c => SanitizeConverter(c.ConvertToProviderExpression));
+                ref _convertToProvider, this, static c => SanitizeConverter(c.ConvertToProviderExpression));
 
         /// <summary>
         ///     Gets the function to convert objects when reading data from the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public override Func<object, object> ConvertFromProvider
+        public override Func<object?, object?> ConvertFromProvider
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _convertFromProvider, this, c => SanitizeConverter(c.ConvertFromProviderExpression));
+                ref _convertFromProvider, this, static c => SanitizeConverter(c.ConvertFromProviderExpression));
 
         /// <summary>
         ///     Gets the expression to convert objects when writing data to the store,
