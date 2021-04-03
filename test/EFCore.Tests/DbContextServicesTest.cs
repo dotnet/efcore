@@ -413,11 +413,15 @@ namespace Microsoft.EntityFrameworkCore
             public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
                 => throw new NotImplementedException();
 
-            public void ResetAttachGraph()
+            public void BeginAttachGraph()
             {
             }
 
             public void CompleteAttachGraph()
+            {
+            }
+
+            public void AbortAttachGraph()
             {
             }
 

@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IChangeDetector _changeDetector;
         private readonly IEntityGraphAttacher _attacher;
         private bool _inFixup;
+        private bool _inAttachGraph;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,8 +55,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ResetAttachGraph()
-            => _danglingJoinEntities?.Clear();
+        public virtual void BeginAttachGraph()
+        {
+            _danglingJoinEntities?.Clear();
+            _inAttachGraph = true;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -65,15 +69,33 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void CompleteAttachGraph()
         {
-            if (_danglingJoinEntities != null)
+            _inAttachGraph = false;
+            try
             {
-                foreach (var synthesize in _danglingJoinEntities)
+                if (_danglingJoinEntities != null)
                 {
-                    synthesize();
+                    foreach (var synthesize in _danglingJoinEntities)
+                    {
+                        synthesize();
+                    }
                 }
-
-                _danglingJoinEntities.Clear();
             }
+            finally
+            {
+                _danglingJoinEntities?.Clear();
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void AbortAttachGraph()
+        {
+            _inAttachGraph = false;
+            _danglingJoinEntities?.Clear();
         }
 
         /// <summary>
@@ -318,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         if (navigationBase is ISkipNavigation skipNavigation)
                         {
                             FindOrCreateJoinEntry((
-                                entry, newTargetEntry, skipNavigation, FromQuery: false, SetModified: true), synthesize: true);
+                                entry, newTargetEntry, skipNavigation, FromQuery: false, SetModified: true));
 
                             Check.DebugAssert(
                                 skipNavigation.Inverse.IsCollection,
@@ -845,7 +867,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             }
                             else
                             {
-                                FindOrCreateJoinEntry((entry, otherEntry, skipNavigation, fromQuery, setModified), synthesize: false);
+                                FindOrCreateJoinEntry((entry, otherEntry, skipNavigation, fromQuery, setModified));
 
                                 Check.DebugAssert(
                                     skipNavigation.Inverse.IsCollection,
@@ -881,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var setModified = referencedEntry.EntityState != EntityState.Unchanged;
                 if (navigationBase is ISkipNavigation skipNavigation)
                 {
-                    FindOrCreateJoinEntry((entry, referencedEntry, skipNavigation, fromQuery, setModified), synthesize: false);
+                    FindOrCreateJoinEntry((entry, referencedEntry, skipNavigation, fromQuery, setModified));
 
                     Check.DebugAssert(
                         skipNavigation.Inverse.IsCollection,
@@ -939,8 +961,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             InternalEntityEntry OtherEntry,
             ISkipNavigation SkipNavigation,
             bool FromQuery,
-            bool SetModified) arguments,
-            bool synthesize)
+            bool SetModified) arguments)
         {
             var joinEntry = FindJoinEntry(arguments.Entry, arguments.OtherEntry, arguments.SkipNavigation);
             if (joinEntry != null)
@@ -948,7 +969,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetForeignKeyProperties(joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
                 SetForeignKeyProperties(joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified, arguments.FromQuery);
             }
-            else if (synthesize)
+            else if (!_inAttachGraph)
             {
                 var joinEntityType = arguments.SkipNavigation.JoinEntityType;
                 var joinEntity = joinEntityType.GetInstanceFactory()(
@@ -970,8 +991,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _danglingJoinEntities ??= new List<Action>();
             
-                _danglingJoinEntities.Add(
-                    () => FindOrCreateJoinEntry(arguments, synthesize: true));
+                _danglingJoinEntities.Add(() => FindOrCreateJoinEntry(arguments));
             }
         }
 

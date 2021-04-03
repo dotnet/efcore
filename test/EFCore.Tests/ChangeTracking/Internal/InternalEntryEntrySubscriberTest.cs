@@ -512,11 +512,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public List<Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
                 = new();
 
-            public void ResetAttachGraph()
+            public void BeginAttachGraph()
             {
             }
 
             public void CompleteAttachGraph()
+            {
+            }
+
+            public void AbortAttachGraph()
             {
             }
 

@@ -166,10 +166,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IEnumerable<Tuple<INavigationBase, InternalEntityEntry>> GetRecordedReferrers(object referencedEntity, bool clear)
             => throw new NotImplementedException();
 
-        public void ResetAttachGraph()
+        public void BeginAttachGraph()
             => throw new NotImplementedException();
 
         public void CompleteAttachGraph()
+            => throw new NotImplementedException();
+
+        public void AbortAttachGraph()
             => throw new NotImplementedException();
 
         public InternalEntityEntry FindPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey)

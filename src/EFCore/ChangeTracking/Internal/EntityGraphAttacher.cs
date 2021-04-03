@@ -48,17 +48,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState storeGeneratedWithKeySetTargetState,
             bool forceStateWhenUnknownKey)
         {
-            rootEntry.StateManager.ResetAttachGraph();
+            try
+            {
+                rootEntry.StateManager.BeginAttachGraph();
 
-            _graphIterator.TraverseGraph(
-                new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
-                    rootEntry,
-                    (targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey),
-                    null,
-                    null),
-                PaintAction);
-            
-            rootEntry.StateManager.CompleteAttachGraph();
+                _graphIterator.TraverseGraph(
+                    new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
+                        rootEntry,
+                        (targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey),
+                        null,
+                        null),
+                    PaintAction);
+
+                rootEntry.StateManager.CompleteAttachGraph();
+            }
+            catch
+            {
+                rootEntry.StateManager.AbortAttachGraph();
+                throw;
+            }
         }
 
         /// <summary>
@@ -74,18 +82,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool forceStateWhenUnknownKey,
             CancellationToken cancellationToken = default)
         {
-            rootEntry.StateManager.ResetAttachGraph();
+            try
+            {
+                rootEntry.StateManager.BeginAttachGraph();
 
-            await _graphIterator.TraverseGraphAsync(
-                new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
-                    rootEntry,
-                    (targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey),
-                    null,
-                    null),
-                PaintActionAsync,
-                cancellationToken);
+                await _graphIterator.TraverseGraphAsync(
+                    new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
+                        rootEntry,
+                        (targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey),
+                        null,
+                        null),
+                    PaintActionAsync,
+                    cancellationToken);
 
-            rootEntry.StateManager.CompleteAttachGraph();
+                rootEntry.StateManager.CompleteAttachGraph();
+            }
+            catch
+            {
+                rootEntry.StateManager.AbortAttachGraph();
+                throw;
+            }
         }
 
         private static bool PaintAction(
