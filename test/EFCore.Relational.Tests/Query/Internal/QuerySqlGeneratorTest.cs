@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [Theory]
         [InlineData(true, "SELECT 1\r\nFROM CustomFunction() AS \"c\"")]
         [InlineData(false, "SELECT 1\r\nFROM \"CustomFunction\"() AS \"c\"")]
-        public void VisitTableValuedFunction(bool isBuiltIn, string sql)
+        public void VisitTableValuedFunction_should_take_IsBuiltIn_option_into_account(bool isBuiltIn, string sql)
         {
             var entityType = CreateFunctionMappingEntityType(isBuiltIn);
             var selectExpression = CreateSelectExpression(entityType);
