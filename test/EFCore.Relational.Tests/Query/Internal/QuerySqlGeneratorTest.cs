@@ -2,8 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -39,6 +43,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public void CheckComposableSql_does_not_throw(string sql)
             => CreateDummyQuerySqlGenerator().CheckComposableSql(sql);
 
+        [Theory]
+        [InlineData(true, "SELECT 1\r\nFROM CustomFunction() AS \"c\"")]
+        [InlineData(false, "SELECT 1\r\nFROM \"CustomFunction\"() AS \"c\"")]
+        public void VisitTableValuedFunction(bool isBuiltIn, string sql)
+        {
+            var entityType = CreateFunctionMappingEntityType(isBuiltIn);
+            var selectExpression = CreateSelectExpression(entityType);
+            var generator = CreateDummyQuerySqlGenerator();
+
+            generator.GetCommand(selectExpression);
+            var commandText = generator.Sql.Build().CommandText;
+
+            Assert.Equal(sql, commandText);
+        }
+
         private DummyQuerySqlGenerator CreateDummyQuerySqlGenerator()
             => new DummyQuerySqlGenerator(
                 new QuerySqlGeneratorDependencies(
@@ -50,6 +69,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     new RelationalSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies())));
 
+        private SelectExpression CreateSelectExpression(IEntityType entityType)
+            => new SelectExpression(entityType,
+                new SqlExpressionFactory(
+                    new SqlExpressionFactoryDependencies(
+                        new TestRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
+
+        private static EntityType CreateFunctionMappingEntityType(bool isBuiltIn)
+        {
+            var model = new Model();
+            var methodInfo = typeof(DummyDbFunctions).GetMethod(nameof(DummyDbFunctions.CustomFunction));
+            var dbFunction = new DbFunction(methodInfo, model, ConfigurationSource.Convention)
+            {
+                IsBuiltIn = isBuiltIn
+            };
+            var storeFunction = new StoreFunction(dbFunction, new RelationalModel(model));
+            var entityType = new EntityType(typeof(object), model, ConfigurationSource.Convention);
+            var functionMapping = new FunctionMapping(entityType, storeFunction, dbFunction, false)
+            {
+                IsDefaultFunctionMapping = true
+            };
+            entityType[RelationalAnnotationNames.FunctionMappings] = new[] { functionMapping };
+            return entityType;
+        }
+
         private class DummyQuerySqlGenerator : QuerySqlGenerator
         {
             public DummyQuerySqlGenerator([NotNull] QuerySqlGeneratorDependencies dependencies)
@@ -59,6 +104,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public new void CheckComposableSql(string sql)
                 => base.CheckComposableSql(sql);
+
+            public new void VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
+                => base.VisitTableValuedFunction(tableValuedFunctionExpression);
+
+            public new IRelationalCommandBuilder Sql
+                => base.Sql;
+        }
+
+        private static class DummyDbFunctions
+        {
+            public static int CustomFunction() => throw new NotImplementedException();
         }
     }
 }
