@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _attacher.AttachGraph(
                     newTargetEntry,
                     EntityState.Added,
-                    EntityState.Modified,
+                    entry.EntityState == EntityState.Added && !navigation.IsOnDependent ? EntityState.Added : EntityState.Modified,
                     forceStateWhenUnknownKey: false);
             }
         }
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     _attacher.AttachGraph(
                         newTargetEntry,
                         EntityState.Added,
-                        EntityState.Modified,
+                        entry.EntityState == EntityState.Added ? EntityState.Added : EntityState.Modified,
                         forceStateWhenUnknownKey: false);
                 }
 

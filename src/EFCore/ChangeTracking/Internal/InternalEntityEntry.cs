@@ -1562,7 +1562,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if ((HasTemporaryValue(keyProperty)
                             || HasDefaultValue(keyProperty))
-                        && (keyGenerated || keyProperty.IsForeignKey()))
+                        && (keyGenerated || keyProperty.FindGenerationProperty() != null))
                     {
                         return (true, false);
                     }
