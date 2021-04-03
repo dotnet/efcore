@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -104,9 +103,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public new void CheckComposableSql(string sql)
                 => base.CheckComposableSql(sql);
-
-            public new void VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
-                => base.VisitTableValuedFunction(tableValuedFunctionExpression);
 
             public new IRelationalCommandBuilder Sql
                 => base.Sql;
