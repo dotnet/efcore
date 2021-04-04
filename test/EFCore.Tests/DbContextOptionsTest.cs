@@ -106,6 +106,25 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Can_update_an_existing_extension_with_base_type()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+
+            var extension1 = new FakeDbContextOptionsExtension1 { Something = "One " };
+
+            IDbContextOptionsExtension extension2 = new FakeDbContextOptionsExtension1 { Something = "Two " };
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension1);
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension2);
+
+            Assert.Single(optionsBuilder.Options.Extensions);
+            Assert.DoesNotContain(extension1, optionsBuilder.Options.Extensions);
+            Assert.Contains(extension2, optionsBuilder.Options.Extensions);
+
+            Assert.Same(extension2, optionsBuilder.Options.FindExtension<FakeDbContextOptionsExtension1>());
+        }
+
+        [ConditionalFact]
         public void IsConfigured_returns_true_if_any_provider_extensions_have_been_added()
         {
             var optionsBuilder = new DbContextOptionsBuilder();

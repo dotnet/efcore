@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(extension, nameof(extension));
 
             var extensions = Extensions.ToDictionary(p => p.GetType(), p => p);
-            extensions[typeof(TExtension)] = extension;
+            extensions[extension.GetType()] = extension;
 
             return new DbContextOptions<TContext>(extensions);
         }
