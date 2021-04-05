@@ -1276,19 +1276,21 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact]
-        public void GetOrdinal_throws_when_out_of_range()
+        [Theory]
+        [InlineData("SELECT 1;", "Name")]
+        [InlineData("SELECT 1 as Id, 2 as ID;", "id")]
+        public void GetOrdinal_throws_when_out_of_range(string query, string columnName)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT 1;"))
+                using (var reader = connection.ExecuteReader(query))
                 {
-                    var ex = Assert.Throws<ArgumentOutOfRangeException>(() => reader.GetOrdinal("Name"));
+                    var ex = Assert.Throws<ArgumentOutOfRangeException>(() => reader.GetOrdinal(columnName));
                     Assert.NotNull(ex.Message);
                     Assert.Equal("name", ex.ParamName);
-                    Assert.Equal("Name", ex.ActualValue);
+                    Assert.Equal(columnName, ex.ActualValue);
                 }
             }
         }
@@ -1583,19 +1585,22 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact]
-        public void Item_by_name_works()
+        [Theory]
+        [InlineData("SELECT 1 as Id;", "Id", 1L)]
+        [InlineData("SELECT 1 as Id;", "id", 1L)]
+        [InlineData("SELECT 1 as Id, 2 as id;", "id", 2L)]
+        public void Item_by_name_works(string query, string column, long expected)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT 1 AS Id;"))
+                using (var reader = connection.ExecuteReader(query))
                 {
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
-                    Assert.Equal(1L, reader["Id"]);
+                    Assert.Equal(expected, reader[column]);
                 }
             }
         }

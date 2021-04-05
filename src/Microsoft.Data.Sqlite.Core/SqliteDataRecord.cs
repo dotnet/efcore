@@ -133,6 +133,13 @@ namespace Microsoft.Data.Sqlite
                 return ordinal;
             }
 
+            var insensitiveMatchingColumns = _columnNameOrdinalCache.Where(kv => kv.Key.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if(insensitiveMatchingColumns.Count() == 1) {
+                ordinal = insensitiveMatchingColumns.First().Value;
+                _columnNameOrdinalCache.Add(name, ordinal);
+                return ordinal;
+            }
+
             // NB: Message is provided by framework
             throw new ArgumentOutOfRangeException(nameof(name), name, message: null);
         }
