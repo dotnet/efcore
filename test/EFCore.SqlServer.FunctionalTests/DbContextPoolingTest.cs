@@ -1041,7 +1041,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.Customers.ToList());
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue #24590")]
         [InlineData(false, false)]
         [InlineData(true, false)]
         [InlineData(false, true)]
