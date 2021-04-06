@@ -102,7 +102,7 @@ jobs:
         command: custom
         arguments: 'locals all -clear'
   - ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Linux')) }}:
-    - script: apt-get install -y libicu60
+    - script: sudo apt-get install -y libicu60
       displayName: Install libicu60
   - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(parameters.agentOs, 'Windows'), eq(parameters.codeSign, 'true')) }}:
     - task: MicroBuildSigningPlugin@1
