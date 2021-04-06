@@ -132,7 +132,7 @@ stages:
           - job: Linux
             timeoutInMinutes: 120
             pool:
-              vmImage: ubuntu-16.04
+              vmImage: ubuntu-18.04
             variables:
               - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
                 - _CosmosConnectionUrl: 'true'
