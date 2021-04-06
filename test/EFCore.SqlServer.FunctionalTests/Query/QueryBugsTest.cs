@@ -2105,11 +2105,10 @@ WHERE [e].[Name] IS NULL");
                 Assert.True(result[0].Cast.All(a => a.Details != null));
 
                 AssertSql(
-                    @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info]
+                    @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [m].[Details_Rating], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info], [a].[Details_Rating]
 FROM [Movies] AS [m]
 LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
 ORDER BY [m].[Id], [a].[Id]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
@@ -2123,7 +2122,12 @@ ORDER BY [m].[Id], [a].[Id]");
                 Assert.True(result[0].Cast.All(a => a.Details != null));
 
                 AssertSql(
-                    @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info]
+                    @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [m].[Details_Rating], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info], [a].[Details_Rating]
+FROM [Movies] AS [m]
+LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
+ORDER BY [m].[Id], [a].[Id]",
+                    //
+                    @"SELECT [m].[Id], [m].[Title], [m].[Details_Info], [m].[Details_Rating], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info], [a].[Details_Rating]
 FROM [Movies] AS [m]
 LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
 ORDER BY [m].[Id], [a].[Id]");
@@ -2190,6 +2194,7 @@ ORDER BY [m].[Id], [a].[Id]");
             public class Details9202
             {
                 public string Info { get; set; }
+                public int Rating { get; set; }
             }
         }
 
@@ -2829,7 +2834,7 @@ LEFT JOIN (
     SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
     INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
-    WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
+    WHERE [t0].[Exists] IS NOT NULL
 ) AS [t1] ON [t].[Id] = [t1].[Id]
 GROUP BY [t1].[AnotherEntity11818_Name]");
             }
@@ -2860,13 +2865,13 @@ LEFT JOIN (
     SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
     INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
-    WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
+    WHERE [t0].[Exists] IS NOT NULL
 ) AS [t1] ON [t].[Id] = [t1].[Id]
 LEFT JOIN (
     SELECT [t4].[Id], [t4].[MaumarEntity11818_Name]
     FROM [Table] AS [t4]
     INNER JOIN [Table] AS [t5] ON [t4].[Id] = [t5].[Id]
-    WHERE [t4].[MaumarEntity11818_Name] IS NOT NULL
+    WHERE [t4].[MaumarEntity11818_Exists] IS NOT NULL
 ) AS [t3] ON [t].[Id] = [t3].[Id]
 GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
             }
@@ -2895,13 +2900,13 @@ LEFT JOIN (
     SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
     INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
-    WHERE [t0].[AnotherEntity11818_Name] IS NOT NULL
+    WHERE [t0].[Exists] IS NOT NULL
 ) AS [t1] ON [t].[Id] = [t1].[Id]
 LEFT JOIN (
     SELECT [t4].[Id], [t4].[MaumarEntity11818_Name]
     FROM [Table] AS [t4]
     INNER JOIN [Table] AS [t5] ON [t4].[Id] = [t5].[Id]
-    WHERE [t4].[MaumarEntity11818_Name] IS NOT NULL
+    WHERE [t4].[MaumarEntity11818_Exists] IS NOT NULL
 ) AS [t3] ON [t].[Id] = [t3].[Id]
 GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
             }
@@ -2941,12 +2946,14 @@ GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
             {
                 public int Id { get; set; }
                 public string Name { get; set; }
+                public bool Exists { get; set; }
             }
 
             public class MaumarEntity11818
             {
                 public int Id { get; set; }
                 public string Name { get; set; }
+                public bool Exists { get; set; }
             }
         }
 
@@ -3598,6 +3605,7 @@ FROM [Prices] AS [p]");
             [Owned]
             public class OptionalChangePoint12170
             {
+                public int Value { get; set; }
                 public DateTime? Timestamp { get; set; }
             }
 
@@ -4889,14 +4897,14 @@ WHERE EXISTS (
                 var query = MyContext17276.List17276(context.RemovableEntities);
 
                 AssertSql(
-                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_OwnedValue]
+                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_Exists], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
 WHERE [r].[IsRemoved] = CAST(0 AS bit)");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var query = context.Parents
                     .Where(p => EF.Property<bool>(EF.Property<MyContext17276.IRemovable17276>(p, "RemovableEntity"), "IsRemoved"))
                     .ToList();
@@ -4906,25 +4914,26 @@ WHERE [r].[IsRemoved] = CAST(0 AS bit)");
 FROM [Parents] AS [p]
 LEFT JOIN [RemovableEntities] AS [r] ON [p].[RemovableEntityId] = [r].[Id]
 WHERE [r].[IsRemoved] = CAST(1 AS bit)");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var query = context.RemovableEntities
                     .Where(p => EF.Property<string>(EF.Property<MyContext17276.IOwned>(p, "OwnedEntity"), "OwnedValue") == "Abc")
                     .ToList();
 
                 AssertSql(
-                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_OwnedValue]
+                    @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_Exists], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
 WHERE [r].[OwnedEntity_OwnedValue] = N'Abc'");
-                ClearLog();
             }
 
             // #16759
             using (var context = contextFactory.CreateContext())
             {
+
+                ClearLog();
                 var specification = new MyContext17276.Specification17276<MyContext17276.Parent17276>(1);
                 var entities = context.Set<MyContext17276.Parent17276>().Where(specification.Criteria).ToList();
 
@@ -4981,6 +4990,7 @@ WHERE [p].[Id] = @__id_0");
             public class OwnedEntity : IOwned
             {
                 public string OwnedValue { get; set; }
+                public int Exists { get; set; }
             }
 
             public interface IHasId17276<out T>
@@ -4991,6 +5001,7 @@ WHERE [p].[Id] = @__id_0");
             public interface IOwned
             {
                 string OwnedValue { get; }
+                int Exists { get; }
             }
 
             public class Specification17276<T>
@@ -6257,6 +6268,7 @@ LEFT JOIN (
             public class Owned19138
             {
                 public string OwnedData { get; set; }
+                public int Value { get; set; }
             }
 
             public class OtherEntity19138
@@ -7520,7 +7532,7 @@ ORDER BY [e].[Id], [o].[Id]");
                 var result = Assert.Single(query);
                 Assert.NotNull(result.Contact);
                 Assert.NotNull(result.Contact.Address);
-                Assert.Equal("12345", result.Contact.Address.Zip);
+                Assert.Equal(12345, result.Contact.Address.Zip);
 
                 AssertSql(
                     @"SELECT [e].[Id], [e].[Contact_Name], [e].[Contact_Address_City], [e].[Contact_Address_State], [e].[Contact_Address_Street], [e].[Contact_Address_Zip]
@@ -7554,7 +7566,7 @@ FROM [Entity21807] AS [e]");
 
             public void Seed()
             {
-                Add(new Entity21807 { Id = "1", Contact = new Contact21807 { Address = new Address21807 { Zip = "12345" } } });
+                Add(new Entity21807 { Id = "1", Contact = new Contact21807 { Address = new Address21807 { Zip = 12345 } } });
 
                 SaveChanges();
             }
@@ -7576,7 +7588,7 @@ FROM [Entity21807] AS [e]");
                 public string Street { get; set; }
                 public string City { get; set; }
                 public string State { get; set; }
-                public string Zip { get; set; }
+                public int Zip { get; set; }
             }
         }
 
@@ -7605,7 +7617,7 @@ FROM [Entity21807] AS [e]");
                 Assert.NotNull(query[2].Contact.Address);
 
                 AssertSql(
-                    @"SELECT [u].[Id], [u].[RowVersion], [u].[Contact_MobileNumber], [u].[SharedProperty], [u].[RowVersion], [u].[Contact_Address_City], [u].[Contact_Address_Zip], [u].[Data_Data]
+                    @"SELECT [u].[Id], [u].[RowVersion], [u].[Contact_MobileNumber], [u].[SharedProperty], [u].[RowVersion], [u].[Contact_Address_City], [u].[Contact_Address_Zip], [u].[Data_Data], [u].[Data_Exists]
 FROM [User22054] AS [u]
 ORDER BY [u].[Id] DESC");
             }
@@ -7665,7 +7677,7 @@ ORDER BY [u].[Id] DESC");
                                 Address = new Address22054
                                 {
                                     City = "Seattle",
-                                    Zip = "12345",
+                                    Zip = 12345,
                                     SharedProperty = "Value1"
                                 }
                             }
@@ -7696,6 +7708,7 @@ ORDER BY [u].[Id] DESC");
             public class Data22054
             {
                 public string Data { get; set; }
+                public bool Exists { get; set; }
             }
 
             public class Contact22054
@@ -7709,7 +7722,7 @@ ORDER BY [u].[Id] DESC");
             {
                 public string City { get; set; }
                 public string SharedProperty { get; set; }
-                public string Zip { get; set; }
+                public int Zip { get; set; }
             }
         }
 
@@ -7730,18 +7743,18 @@ ORDER BY [u].[Id] DESC");
                 Assert.Equal(20, aggregate.FirstValueObject.SecondValueObjects[0].ThirdValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
 
                 AssertSql(
-                    @"SELECT [t].[Id], [t2].[Id], [t2].[AggregateId], [t2].[Id0], [t2].[AnyValue], [t2].[SecondValueObjectId], [t2].[Id1], [t2].[SecondValueObjectId0], [t2].[Id00], [t2].[AnyValue0], [t2].[ThirdValueObjectId]
+                    @"SELECT [t].[Id], [t].[FirstValueObject_Value], [t2].[Id], [t2].[AggregateId], [t2].[FourthValueObject_Value], [t2].[Id0], [t2].[AnyValue], [t2].[SecondValueObjectId], [t2].[Id1], [t2].[SecondValueObjectId0], [t2].[FourthValueObject_Value0], [t2].[Id00], [t2].[AnyValue0], [t2].[ThirdValueObjectId]
 FROM (
-    SELECT TOP(1) [a].[Id]
+    SELECT TOP(1) [a].[Id], [a].[FirstValueObject_Value]
     FROM [Aggregates] AS [a]
     ORDER BY [a].[Id] DESC
 ) AS [t]
 LEFT JOIN (
-    SELECT [s].[Id], [s].[AggregateId], [f].[Id] AS [Id0], [f].[AnyValue], [f].[SecondValueObjectId], [t1].[Id] AS [Id1], [t1].[SecondValueObjectId] AS [SecondValueObjectId0], [t1].[Id0] AS [Id00], [t1].[AnyValue] AS [AnyValue0], [t1].[ThirdValueObjectId]
+    SELECT [s].[Id], [s].[AggregateId], [s].[FourthValueObject_Value], [f].[Id] AS [Id0], [f].[AnyValue], [f].[SecondValueObjectId], [t1].[Id] AS [Id1], [t1].[SecondValueObjectId] AS [SecondValueObjectId0], [t1].[FourthValueObject_Value] AS [FourthValueObject_Value0], [t1].[Id0] AS [Id00], [t1].[AnyValue] AS [AnyValue0], [t1].[ThirdValueObjectId]
     FROM [SecondValueObjects] AS [s]
     LEFT JOIN [FourthFifthValueObjects] AS [f] ON [s].[Id] = [f].[SecondValueObjectId]
     LEFT JOIN (
-        SELECT [t0].[Id], [t0].[SecondValueObjectId], [t3].[Id] AS [Id0], [t3].[AnyValue], [t3].[ThirdValueObjectId]
+        SELECT [t0].[Id], [t0].[SecondValueObjectId], [t0].[FourthValueObject_Value], [t3].[Id] AS [Id0], [t3].[AnyValue], [t3].[ThirdValueObjectId]
         FROM [ThirdValueObjects] AS [t0]
         LEFT JOIN [ThirdFifthValueObjects] AS [t3] ON [t0].[Id] = [t3].[ThirdValueObjectId]
     ) AS [t1] ON [s].[Id] = [t1].[SecondValueObjectId]
@@ -7855,6 +7868,7 @@ ORDER BY [t].[Id] DESC, [t2].[Id], [t2].[Id0], [t2].[Id1], [t2].[Id00]");
 
             public class FirstValueObject14911
             {
+                public int Value { get; set; }
                 public List<SecondValueObject14911> SecondValueObjects { get; set; }
             }
 
@@ -7871,6 +7885,7 @@ ORDER BY [t].[Id] DESC, [t2].[Id], [t2].[Id0], [t2].[Id1], [t2].[Id00]");
 
             public class FourthValueObject14911
             {
+                public int Value { get; set; }
                 public List<FifthValueObject14911> FifthValueObjects { get; set; }
             }
 
@@ -8669,10 +8684,9 @@ WHERE [e].[Id] NOT IN (1, 7)");
                 Assert.NotNull(testUser);
 
                 AssertSql(
-                    new[] {
-                    @"SELECT TOP(1) [l].[Id], [l].[Name], [l].[Address_County], [l].[Address_Line1], [l].[Address_Line2], [l].[Address_Point], [l].[Address_Postcode], [l].[Address_Town]
+                    @"SELECT TOP(1) [l].[Id], [l].[Name], [l].[Address_County], [l].[Address_Line1], [l].[Address_Line2], [l].[Address_Point], [l].[Address_Postcode], [l].[Address_Town], [l].[Address_Value]
 FROM [Locations] AS [l]
-WHERE [l].[Name] = N'My Location'" });
+WHERE [l].[Name] = N'My Location'");
             }
         }
 
@@ -8710,6 +8724,7 @@ WHERE [l].[Name] = N'My Location'" });
                 public string Town { get; set; }
                 public string County { get; set; }
                 public string Postcode { get; set; }
+                public int Value { get; set; }
 
                 public Point Point { get; set; }
             }

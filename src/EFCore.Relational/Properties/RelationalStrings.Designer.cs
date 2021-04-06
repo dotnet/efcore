@@ -894,7 +894,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 sqlExpression);
 
         /// <summary>
-        ///     Entity type '{entityType}' is an optional dependent containing other dependents in table sharing without any required non shared property to identify if the entity type exist. If all nullable properties contain null value in database then an object instance won't be materialized in the query causing nested dependent's values to be lost.
+        ///     Entity type '{entityType}' is an optional dependent using table sharing and containing other dependents without any required non shared property to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query causing nested dependent's values to be lost. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
         /// </summary>
         public static string OptionalDependentWithDependentWithoutIdentifyingProperty(object? entityType)
             => string.Format(
@@ -2222,7 +2222,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Entity type '{entityType}' is an optional dependent in table sharing without any required non shared property to identify if the entity type exist. If all nullable properties contain null value in database then an object instance won't be materialized in the query.
+        ///     The entity type '{entityType}' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
         /// </summary>
         public static EventDefinition<string> LogOptionalDependentWithoutIdentifyingProperty(IDiagnosticsLogger logger)
         {
@@ -2235,8 +2235,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     static logger => new EventDefinition<string>(
                         logger.Options,
                         RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
-                        LogLevel.Error,
-                        "RelationalEventId.ModelValidationOptionalDependentWithoutIdentifyingPropertyWarning",
+                        LogLevel.Warning,
+                        "RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning",
                         level => LoggerMessage.Define<string>(
                             level,
                             RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,

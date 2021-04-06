@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Throws_on_not_configured_shared_columns_with_shared_table()
+        public virtual void Throws_on_not_configured_shared_columns_with_shared_table_with_dependents()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
@@ -346,6 +346,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<B>().ToTable("Table");
 
             VerifyError(RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty(nameof(A)), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Warns_on_not_configured_shared_columns_with_shared_table()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Owner>().OwnsOne(e => e.Owned);
+
+            var definition = RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(definition.GenerateMessage(nameof(OwnedEntity)), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -1998,6 +2009,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected class Employee : Person
         {
+        }
+
+        protected class Owner
+        {
+            public int Id { get; set; }
+            public OwnedEntity Owned { get; set; }
+        }
+
+        protected class OwnedEntity
+        {
+            public string Value { get; set; }
         }
 
         public class TestDecimalToLongConverter : ValueConverter<decimal, long>

@@ -62,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
     public interface IConcurrencyInfo
     {
+        bool Active { get; set; }
         string Token { get; set; }
         DateTime? QueriedDateTime { get; set; }
     }
