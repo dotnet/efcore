@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
@@ -140,54 +141,79 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private static void FormatParameterValue(StringBuilder builder, object? parameterValue)
         {
-            if (parameterValue == null
-                || parameterValue == DBNull.Value)
+            switch (parameterValue)
             {
-                builder.Append("NULL");
-            }
-            else if (parameterValue.GetType() == typeof(DateTime))
-            {
-                builder
-                    .Append('\'')
-                    .Append(((DateTime)parameterValue).ToString("o"))
-                    .Append('\'');
-            }
-            else if (parameterValue.GetType() == typeof(DateTimeOffset))
-            {
-                builder
-                    .Append('\'')
-                    .Append(((DateTimeOffset)parameterValue).ToString("o"))
-                    .Append('\'');
-            }
-            else if (parameterValue.GetType() == typeof(byte[]))
-            {
-                builder.AppendBytes((byte[])parameterValue);
-            }
-            else
-            {
-                var valueProperty = parameterValue.GetType().GetRuntimeProperty("Value");
-                if (valueProperty != null
-                    && valueProperty.PropertyType != parameterValue.GetType())
-                {
-                    var isNullProperty = parameterValue.GetType().GetRuntimeProperty("IsNull");
-                    if (isNullProperty != null
-                        && isNullProperty.GetValue(parameterValue) is bool isNull
-                        && isNull)
+                case null:
+                case DBNull:
+                    builder.Append("NULL");
+                    return;
+
+                case DateTime dateTime:
+                    builder
+                        .Append('\'')
+                        .Append(dateTime.ToString("o"))
+                        .Append('\'');
+                    return;
+
+                case DateTimeOffset dateTimeOffset:
+                    builder
+                        .Append('\'')
+                        .Append(dateTimeOffset.ToString("o"))
+                        .Append('\'');
+                    return;
+
+                case byte[] byteArray:
+                    builder.AppendBytes(byteArray);
+                    return;
+
+                case IList list:
+                    builder.Append("{ ");
+
+                    for (var i = 0; i < list.Count; i++)
                     {
-                        builder.Append("''");
+                        if (i > 4)
+                        {
+                            builder.Append("...");
+                            break;
+                        }
+
+                        FormatParameterValue(builder, list[i]);
+
+                        if (i < list.Count - 1)
+                        {
+                            builder.Append(", ");
+                        }
+                    }
+
+                    builder.Append(" }");
+                    return;
+
+                default:
+                    var type = parameterValue.GetType();
+                    var valueProperty = type.GetRuntimeProperty("Value");
+                    if (valueProperty != null
+                        && valueProperty.PropertyType != type)
+                    {
+                        var isNullProperty = type.GetRuntimeProperty("IsNull");
+                        if (isNullProperty != null
+                            && isNullProperty.GetValue(parameterValue) is bool isNull
+                            && isNull)
+                        {
+                            builder.Append("''");
+                        }
+                        else
+                        {
+                            FormatParameterValue(builder, valueProperty.GetValue(parameterValue));
+                        }
                     }
                     else
                     {
-                        FormatParameterValue(builder, valueProperty.GetValue(parameterValue));
+                        builder
+                            .Append('\'')
+                            .Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture))
+                            .Append('\'');
                     }
-                }
-                else
-                {
-                    builder
-                        .Append('\'')
-                        .Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture))
-                        .Append('\'');
-                }
+                    return;
             }
         }
 
