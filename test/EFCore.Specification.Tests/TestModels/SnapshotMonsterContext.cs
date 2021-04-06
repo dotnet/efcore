@@ -120,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 MobilePhone = new Phone();
             }
 
+            public bool Active { get; set; }
             public string Email { get; set; }
 
             public IPhone HomePhone { get; set; }

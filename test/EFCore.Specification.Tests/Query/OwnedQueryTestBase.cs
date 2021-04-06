@@ -1344,7 +1344,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsOne(
                             p => p.BranchAddress, ab =>
                             {
-                                ab.IndexerProperty<string>("BranchName");
+                                ab.IndexerProperty<string>("BranchName").IsRequired();
                                 ab.HasData(
                                     new
                                     {
@@ -1426,7 +1426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         eb.OwnsOne(
                             p => p.LeafBAddress, ab =>
                             {
-                                ab.IndexerProperty<string>("LeafBType");
+                                ab.IndexerProperty<string>("LeafBType").IsRequired();
                                 ab.HasData(
                                     new
                                     {

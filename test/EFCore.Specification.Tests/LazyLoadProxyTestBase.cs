@@ -2458,6 +2458,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FullName
         {
+            public virtual bool Exists { get; set; }
+
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public virtual FirstName FirstName { get; private set; }
 
@@ -2472,6 +2474,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 FirstName = firstName ?? throw new ArgumentNullException(nameof(firstName));
                 LastName = lastName ?? throw new ArgumentNullException(nameof(lastName));
+                Exists = true;
             }
         }
 

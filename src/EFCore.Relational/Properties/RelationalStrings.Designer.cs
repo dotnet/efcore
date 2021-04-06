@@ -894,6 +894,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 sqlExpression);
 
         /// <summary>
+        ///     Entity type '{entityType}' is an optional dependent containing other dependents in table sharing without any required non shared property to identify if the entity type exist. If all nullable properties contain null value in database then an object instance won't be materialized in the query causing nested dependent's values to be lost.
+        /// </summary>
+        public static string OptionalDependentWithDependentWithoutIdentifyingProperty(object? entityType)
+            => string.Format(
+                GetString("OptionalDependentWithDependentWithoutIdentifyingProperty", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].
         /// </summary>
         public static string ParameterNotObjectArray(object? parameter)
@@ -2211,6 +2219,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Entity type '{entityType}' is an optional dependent in table sharing without any required non shared property to identify if the entity type exist. If all nullable properties contain null value in database then an object instance won't be materialized in the query.
+        /// </summary>
+        public static EventDefinition<string> LogOptionalDependentWithoutIdentifyingProperty(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithoutIdentifyingProperty;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithoutIdentifyingProperty,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
+                        LogLevel.Error,
+                        "RelationalEventId.ModelValidationOptionalDependentWithoutIdentifyingPropertyWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
+                            _resourceManager.GetString("LogOptionalDependentWithoutIdentifyingProperty")!)));
+            }
+
+            return (EventDefinition<string>)definition;
         }
 
         /// <summary>

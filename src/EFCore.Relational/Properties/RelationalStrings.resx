@@ -550,6 +550,10 @@
     <value>Opening connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionOpening string string</comment>
   </data>
+  <data name="LogOptionalDependentWithoutIdentifyingProperty" xml:space="preserve">
+    <value>Entity type '{entityType}' is an optional dependent in table sharing without any required non shared property to identify if the entity type exist. If all nullable properties contain null value in database then an object instance won't be materialized in the query.</value>
+    <comment>Error RelationalEventId.ModelValidationOptionalDependentWithoutIdentifyingPropertyWarning string</comment>
+  </data>
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.</value>
     <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning string string</comment>
@@ -674,6 +678,9 @@
   </data>
   <data name="NullTypeMappingInSqlTree" xml:space="preserve">
     <value>Expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.</value>
+  </data>
+  <data name="OptionalDependentWithDependentWithoutIdentifyingProperty" xml:space="preserve">
+    <value>Entity type '{entityType}' is an optional dependent containing other dependents in table sharing without any required non shared property to identify if the entity type exist. If all nullable properties contain null value in database then an object instance won't be materialized in the query causing nested dependent's values to be lost.</value>
   </data>
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>
