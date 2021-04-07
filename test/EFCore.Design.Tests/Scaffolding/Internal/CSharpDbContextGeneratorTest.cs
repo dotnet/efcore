@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -164,6 +165,43 @@ namespace TestNamespace
                     Assert.Empty(code.AdditionalFiles);
                 },
                 null);
+        }
+
+        [ConditionalFact]
+        public void Required_options_to_GenerateModel_are_not_null()
+        {
+            var services = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices();
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+            services.AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>();
+
+            var generator = services
+                .BuildServiceProvider()
+                .GetRequiredService<IModelCodeGenerator>();
+
+            Assert.StartsWith(
+                CoreStrings.ArgumentPropertyNull(nameof(ModelCodeGenerationOptions.ContextName), "options"),
+                Assert.Throws<ArgumentException>(
+                    () =>
+                        generator.GenerateModel(
+                            new Model(),
+                            new ModelCodeGenerationOptions
+                            {
+                                ContextName = null,
+                                ConnectionString = "Initial Catalog=TestDatabase"
+                            })).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ArgumentPropertyNull(nameof(ModelCodeGenerationOptions.ConnectionString), "options"),
+                Assert.Throws<ArgumentException>(
+                    () =>
+                        generator.GenerateModel(
+                            new Model(),
+                            new ModelCodeGenerationOptions
+                            {
+                                ContextName = "TestDbContext",
+                                ConnectionString = null
+                            })).Message);
         }
 
         [ConditionalFact]
@@ -374,6 +412,28 @@ namespace TestNamespace
                     Assert.Equal("1 + 2", entity.GetProperty("ComputedColumn").GetComputedColumnSql());
                 });
         }
+
+        [ConditionalFact]
+        public void IsUnicode_works()
+        {
+            Test(
+                modelBuilder => {
+                    modelBuilder.Entity("Entity").Property<string>("UnicodeColumn").IsUnicode();
+                    modelBuilder.Entity("Entity").Property<string>("NonUnicodeColumn").IsUnicode(false);
+                },
+                new ModelCodeGenerationOptions(),
+                code => {
+                    Assert.Contains("Property(e => e.UnicodeColumn).IsUnicode()", code.ContextFile.Code);
+                    Assert.Contains("Property(e => e.NonUnicodeColumn).IsUnicode(false)", code.ContextFile.Code);
+                },
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.True(entity.GetProperty("UnicodeColumn").IsUnicode());
+                    Assert.False(entity.GetProperty("NonUnicodeColumn").IsUnicode());
+                });
+        }
+
 
         [ConditionalFact]
         public void ComputedColumnSql_works_stored()
@@ -763,13 +823,94 @@ namespace TestNamespace
                     Assert.Equal("date", model.FindEntityType("TestNamespace.Employee").GetProperty("HireDate").GetConfiguredColumnType()));
         }
 
+        [ConditionalFact]
+        public void Is_fixed_length_annotation_should_be_scaffolded_without_optional_parameter()
+        {
+             Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Employee",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("Name").HasMaxLength(5).IsFixedLength();
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code => Assert.Contains(".IsFixedLength()", code.ContextFile.Code),
+                model =>
+                    Assert.Equal(true, model.FindEntityType("TestNamespace.Employee").GetProperty("Name").IsFixedLength()));
+        }
+
+        [ConditionalFact]
+        public void Global_namespace_works()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("MyEntity"),
+                new ModelCodeGenerationOptions
+                {
+                    ModelNamespace = string.Empty
+                },
+                code =>
+                {
+                    Assert.DoesNotContain("namespace ", code.ContextFile.Code);
+                    Assert.DoesNotContain("namespace ", Assert.Single(code.AdditionalFiles).Code);
+                },
+                model =>
+                {
+                    Assert.NotNull(model.FindEntityType("MyEntity"));
+                });
+        }
+
+        [ConditionalFact]
+        public void Global_namespace_works_just_context()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("MyEntity"),
+                new ModelCodeGenerationOptions
+                {
+                    ModelNamespace = "TestNamespace",
+                    ContextNamespace = string.Empty
+                },
+                code =>
+                {
+                    Assert.Contains("using TestNamespace;", code.ContextFile.Code);
+                    Assert.DoesNotContain("namespace ", code.ContextFile.Code);
+                    Assert.Contains("namespace TestNamespace", Assert.Single(code.AdditionalFiles).Code);
+                },
+                model =>
+                {
+                    Assert.NotNull(model.FindEntityType("TestNamespace.MyEntity"));
+                });
+        }
+
+        [ConditionalFact]
+        public void Global_namespace_works_just_model()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("MyEntity"),
+                new ModelCodeGenerationOptions
+                {
+                    ModelNamespace = string.Empty,
+                    ContextNamespace = "TestNamespace"
+                },
+                code =>
+                {
+                    Assert.Contains("namespace TestNamespace", code.ContextFile.Code);
+                    Assert.DoesNotContain("namespace ", Assert.Single(code.AdditionalFiles).Code);
+                },
+                model =>
+                {
+                    Assert.NotNull(model.FindEntityType("MyEntity"));
+                });
+        }
+
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {
             public override MethodCallCodeFragment GenerateProviderOptions()
-                => new MethodCallCodeFragment("SetProviderOption");
+                => new("SetProviderOption");
 
             public override MethodCallCodeFragment GenerateContextOptions()
-                => new MethodCallCodeFragment("SetContextOption");
+                => new("SetContextOption");
         }
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public abstract class InvertibleRelationshipBuilderBase : IInfrastructure<IConventionForeignKeyBuilder>
     {
-        private readonly IReadOnlyList<Property> _foreignKeyProperties;
-        private readonly IReadOnlyList<Property> _principalKeyProperties;
+        private readonly IReadOnlyList<Property>? _foreignKeyProperties;
+        private readonly IReadOnlyList<Property>? _principalKeyProperties;
         private readonly bool? _required;
 
         /// <summary>
@@ -29,11 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected InvertibleRelationshipBuilderBase(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
-            [NotNull] IMutableForeignKey foreignKey)
-            : this(((ForeignKey)foreignKey).Builder, null)
+            IMutableEntityType declaringEntityType,
+            IMutableEntityType relatedEntityType,
+            IMutableForeignKey foreignKey)
         {
+            Builder = ((ForeignKey)foreignKey).Builder;
+
             DeclaringEntityType = declaringEntityType;
             RelatedEntityType = relatedEntityType;
         }
@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected InvertibleRelationshipBuilderBase(
-            [NotNull] InternalForeignKeyBuilder builder,
-            [CanBeNull] InvertibleRelationshipBuilderBase oldBuilder,
+            InternalForeignKeyBuilder builder,
+            InvertibleRelationshipBuilderBase oldBuilder,
             bool inverted = false,
             bool foreignKeySet = false,
             bool principalKeySet = false,
@@ -55,41 +55,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Builder = builder;
 
-            if (oldBuilder != null)
+            if (inverted)
             {
-                if (inverted)
+                if (oldBuilder._foreignKeyProperties != null
+                    || oldBuilder._principalKeyProperties != null)
                 {
-                    if (oldBuilder._foreignKeyProperties != null
-                        || oldBuilder._principalKeyProperties != null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.RelationshipCannotBeInverted);
-                    }
+                    throw new InvalidOperationException(CoreStrings.RelationshipCannotBeInverted);
                 }
-
-                DeclaringEntityType = oldBuilder.DeclaringEntityType;
-                RelatedEntityType = oldBuilder.RelatedEntityType;
-
-                _foreignKeyProperties = foreignKeySet
-                    ? builder.Metadata.Properties
-                    : oldBuilder._foreignKeyProperties;
-                _principalKeyProperties = principalKeySet
-                    ? builder.Metadata.PrincipalKey.Properties
-                    : oldBuilder._principalKeyProperties;
-                _required = requiredSet
-                    ? builder.Metadata.IsRequired
-                    : oldBuilder._required;
-
-                var foreignKey = builder.Metadata;
-                ForeignKey.AreCompatible(
-                    foreignKey.PrincipalEntityType,
-                    foreignKey.DeclaringEntityType,
-                    foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo(),
-                    foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo(),
-                    _foreignKeyProperties,
-                    _principalKeyProperties,
-                    foreignKey.IsUnique,
-                    shouldThrow: true);
             }
+
+            DeclaringEntityType = oldBuilder.DeclaringEntityType;
+            RelatedEntityType = oldBuilder.RelatedEntityType;
+
+            _foreignKeyProperties = foreignKeySet
+                ? builder.Metadata.Properties
+                : oldBuilder._foreignKeyProperties;
+            _principalKeyProperties = principalKeySet
+                ? builder.Metadata.PrincipalKey.Properties
+                : oldBuilder._principalKeyProperties;
+            _required = requiredSet
+                ? builder.Metadata.IsRequired
+                : oldBuilder._required;
+
+            var foreignKey = builder.Metadata;
+            ForeignKey.AreCompatible(
+                foreignKey.PrincipalEntityType,
+                foreignKey.DeclaringEntityType,
+                foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo(),
+                foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo(),
+                _foreignKeyProperties,
+                _principalKeyProperties,
+                foreignKey.IsUnique,
+                shouldThrow: true);
         }
 
         /// <summary>
@@ -109,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalForeignKeyBuilder Builder { get; [param: NotNull] set; }
+        protected virtual InternalForeignKeyBuilder Builder { get; set; }
 
         /// <inheritdoc />
         IConventionForeignKeyBuilder IInfrastructure<IConventionForeignKeyBuilder>.Instance
@@ -131,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -140,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

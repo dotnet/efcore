@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="CosmosDiscriminatorConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public CosmosDiscriminatorConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public CosmosDiscriminatorConvention(ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -101,8 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public override void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (entityTypeBuilder.Metadata.BaseType != newBaseType)
@@ -110,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            IConventionDiscriminatorBuilder discriminator = null;
+            IConventionDiscriminatorBuilder? discriminator = null;
             var entityType = entityTypeBuilder.Metadata;
             if (newBaseType == null)
             {
@@ -121,7 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                discriminator = newBaseType.GetRootType().Builder?.HasDiscriminator(typeof(string));
+                var rootType = newBaseType.GetRootType();
+                discriminator = rootType.IsInModel
+                    ? rootType.Builder.HasDiscriminator(typeof(string))
+                    : null;
 
                 if (newBaseType.BaseType == null)
                 {

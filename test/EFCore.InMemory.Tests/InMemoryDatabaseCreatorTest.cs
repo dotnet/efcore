@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore
                     b.HasData(new Test { Id = 1 });
                 });
 
-            return modelBuilder.Model;
+            return modelBuilder.FinalizeModel();
         }
 
         private class Test

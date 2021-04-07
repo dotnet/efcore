@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="propertyBuilder"> The builder for the property. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessPropertyAdded(
-            [NotNull] IConventionPropertyBuilder propertyBuilder,
-            [NotNull] IConventionContext<IConventionPropertyBuilder> context);
+            IConventionPropertyBuilder propertyBuilder,
+            IConventionContext<IConventionPropertyBuilder> context);
     }
 }

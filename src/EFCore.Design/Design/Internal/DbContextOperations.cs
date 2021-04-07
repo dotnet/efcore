@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -38,10 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DbContextOperations(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [NotNull] string[] args)
+            IOperationReporter reporter,
+            Assembly assembly,
+            Assembly startupAssembly,
+            string[]? args)
             : this(reporter, assembly, startupAssembly, args, new AppServiceProviderFactory(startupAssembly, reporter))
         {
         }
@@ -53,17 +52,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected DbContextOperations(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [NotNull] string[] args,
-            [NotNull] AppServiceProviderFactory appServicesFactory)
+            IOperationReporter reporter,
+            Assembly assembly,
+            Assembly startupAssembly,
+            string[]? args,
+            AppServiceProviderFactory appServicesFactory)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
-            // Note: cannot assert that args is not null - as old versions of
-            // tools can still pass null.
 
             _reporter = reporter;
             _assembly = assembly;
@@ -78,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void DropDatabase([CanBeNull] string contextType)
+        public virtual void DropDatabase(string? contextType)
         {
             using var context = CreateContext(contextType);
             var connection = context.Database.GetDbConnection();
@@ -99,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string ScriptDbContext([CanBeNull] string contextType)
+        public virtual string ScriptDbContext(string? contextType)
         {
             using var context = CreateContext(contextType);
             return context.Database.GenerateCreateScript();
@@ -111,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DbContext CreateContext([CanBeNull] string contextType)
+        public virtual DbContext CreateContext(string? contextType)
             => CreateContext(FindContextType(contextType).Value);
 
         private DbContext CreateContext(Func<DbContext> factory)
@@ -140,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type GetContextType([CanBeNull] string name)
+        public virtual Type GetContextType(string? name)
             => FindContextType(name).Key;
 
         private IDictionary<Type, Func<DbContext>> FindContextTypes()
@@ -195,7 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .Concat(
                     types.Where(t => typeof(Migration).IsAssignableFrom(t))
                         .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
-                        .Where(t => t != null))
+                        .Where(t => t != null)
+                        .Cast<Type>())
                 .Distinct();
 
             foreach (var context in contextTypes.Where(c => !contexts.ContainsKey(c)))
@@ -226,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ContextInfo GetContextInfo([CanBeNull] string contextType)
+        public virtual ContextInfo GetContextInfo(string? contextType)
         {
             using var context = CreateContext(contextType);
             var info = new ContextInfo();
@@ -258,23 +256,23 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return info;
         }
 
-        private Func<DbContext> FindContextFromRuntimeDbContextFactory(IServiceProvider appServices, Type contextType)
+        private Func<DbContext>? FindContextFromRuntimeDbContextFactory(IServiceProvider appServices, Type contextType)
         {
             var factoryInterface = typeof(IDbContextFactory<>).MakeGenericType(contextType);
             var service = appServices.GetService(factoryInterface);
             return service == null
-                ? (Func<DbContext>)null
+                ? (Func<DbContext>?)null
                 : () => (DbContext)factoryInterface
                     .GetMethod(nameof(IDbContextFactory<DbContext>.CreateDbContext))
-                    ?.Invoke(service, null);
+                    !.Invoke(service, null)!;
         }
 
-        private Func<DbContext> FindContextFactory(Type contextType)
+        private Func<DbContext>? FindContextFactory(Type contextType)
         {
             var factoryInterface = typeof(IDesignTimeDbContextFactory<>).MakeGenericType(contextType);
             var factory = contextType.Assembly.GetConstructibleTypes()
                 .FirstOrDefault(t => factoryInterface.IsAssignableFrom(t));
-            return factory == null ? (Func<DbContext>)null : (() => CreateContextFromFactory(factory.AsType(), contextType));
+            return factory == null ? (Func<DbContext>?)null : (() => CreateContextFromFactory(factory.AsType(), contextType));
         }
 
         private DbContext CreateContextFromFactory(Type factory, Type contextType)
@@ -282,11 +280,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter.WriteVerbose(DesignStrings.UsingDbContextFactory(factory.ShortDisplayName()));
 
             return (DbContext)typeof(IDesignTimeDbContextFactory<>).MakeGenericType(contextType)
-                .GetMethod("CreateDbContext", new[] { typeof(string[]) })
-                .Invoke(Activator.CreateInstance(factory), new object[] { _args });
+                .GetMethod(nameof(IDesignTimeDbContextFactory<DbContext>.CreateDbContext), new[] { typeof(string[]) })!
+                .Invoke(Activator.CreateInstance(factory), new object[] { _args })!;
         }
 
-        private KeyValuePair<Type, Func<DbContext>> FindContextType(string name)
+        private KeyValuePair<Type, Func<DbContext>> FindContextType(string? name)
         {
             var types = FindContextTypes();
 

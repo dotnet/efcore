@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string DisplayName([NotNull] this DatabaseColumn column)
+        public static string DisplayName(this DatabaseColumn column)
         {
             var tablePrefix = column.Table?.DisplayName();
             return (!string.IsNullOrEmpty(tablePrefix) ? tablePrefix + "." : "") + column.Name;
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsKeyOrIndex([NotNull] this DatabaseColumn column)
+        public static bool IsKeyOrIndex(this DatabaseColumn column)
         {
             var table = column.Table;
 
@@ -57,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsRowVersion([NotNull] this DatabaseColumn column)
+        public static bool IsRowVersion(this DatabaseColumn column)
         {
             return column.ValueGenerated == ValueGenerated.OnAddOrUpdate
                 && (bool?)column[ScaffoldingAnnotationNames.ConcurrencyToken] == true;

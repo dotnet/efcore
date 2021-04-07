@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -25,8 +24,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         bool EnsureCreated(
-            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger);
+            IUpdateAdapterFactory updateAdapterFactory,
+            IModel designModel,
+            IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IReadOnlyList<InMemoryTableSnapshot> GetTables([NotNull] IEntityType entityType);
+        IReadOnlyList<InMemoryTableSnapshot> GetTables(IEntityType entityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>([NotNull] IProperty property);
+        InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(IProperty property);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         int ExecuteTransaction(
-            [NotNull] IList<IUpdateEntry> entries,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger);
+            IList<IUpdateEntry> entries,
+            IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger);
     }
 }

@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Concat(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Concat(ss.Set<Customer>().Where(c => c.City == "London")),
                 entryCount: 7);
@@ -43,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Concat_nested(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "México D.F.")
                     .Concat(ss.Set<Customer>().Where(s => s.City == "Berlin"))
                     .Concat(ss.Set<Customer>().Where(e => e.City == "London")),
@@ -55,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Concat_non_entity(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "México D.F.")
                     .Select(c => c.CustomerID)
                     .Concat(
@@ -69,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Except(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "London")
                     .Except(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))),
                 entryCount: 5);
@@ -80,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Except_simple_followed_by_projecting_constant(bool async)
         {
             return AssertQueryScalar(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Except(ss.Set<Customer>())
                     .Select(e => 1));
         }
@@ -90,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Except_nested(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner")
                     .Except(ss.Set<Customer>().Where(s => s.City == "México D.F."))
                     .Except(ss.Set<Customer>().Where(e => e.City == "Seattle")),
@@ -102,7 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Except_non_entity(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner")
                     .Select(c => c.CustomerID)
                     .Except(
@@ -116,7 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Intersect(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "London")
                     .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))),
                 entryCount: 1);
@@ -127,7 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Intersect_nested(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "México D.F.")
                     .Intersect(ss.Set<Customer>().Where(s => s.ContactTitle == "Owner"))
                     .Intersect(ss.Set<Customer>().Where(e => e.Fax != null)),
@@ -139,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Intersect_non_entity(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "México D.F.")
                     .Select(c => c.CustomerID)
                     .Intersect(
@@ -153,7 +163,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London")),
                 entryCount: 7);
@@ -164,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_nested(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner")
                     .Union(ss.Set<Customer>().Where(s => s.City == "México D.F."))
                     .Union(ss.Set<Customer>().Where(e => e.City == "London")),
@@ -176,7 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_non_entity(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner")
                     .Select(c => c.CustomerID)
                     .Union(
@@ -191,7 +204,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_OrderBy_Skip_Take(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .OrderBy(c => c.ContactName)
@@ -207,7 +221,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_Where(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Where(c => c.ContactName.Contains("Thomas")), // pushdown
@@ -220,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_Skip_Take_OrderBy_ThenBy_Where(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .OrderBy(c => c.Region)
@@ -236,7 +252,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_Union(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Union(ss.Set<Customer>().Where(c => c.City == "Mannheim")),
@@ -250,7 +267,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_Intersect(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))),
@@ -262,7 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_Take_Union_Take(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .OrderBy(c => c.CustomerID)
@@ -278,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Select_Union(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Select(c => c.Address)
                     .Union(
@@ -292,7 +312,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_Select(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Select(c => c.Address)
@@ -304,7 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_Select_scalar(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Except(ss.Set<Customer>())
                     .Select(c => (object)1));
         }
@@ -314,7 +336,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_with_anonymous_type_projection(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.CompanyName.StartsWith("A"))
                     .Union(ss.Set<Customer>().Where(c => c.CompanyName.StartsWith("B")))
                     .Select(c => new CustomerDeets { Id = c.CustomerID }));
@@ -360,7 +383,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Select_Union_different_fields_in_anonymous_with_subquery(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Select(c => new { Foo = c.City, Customer = c }) // Foo is City
                     .Union(
@@ -379,7 +403,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_Include(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Include(c => c.Orders),
@@ -391,7 +416,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Include_Union(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Include(c => c.Orders)
                     .Union(
@@ -406,7 +432,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Select_Except_reference_projection(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Order>()
+                async,
+                ss => ss.Set<Order>()
                     .Select(o => o.Customer)
                     .Except(
                         ss.Set<Order>()
@@ -486,7 +513,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task GroupBy_Select_Union(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .GroupBy(c => c.CustomerID)
                     .Select(g => new { CustomerID = g.Key, Count = g.Count() })
@@ -502,7 +530,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task Union_over_columns_with_different_nullability(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .Select(c => "NonNullableConstant")
                     .Concat(
                         ss.Set<Customer>()
@@ -559,7 +588,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Task OrderBy_Take_Union(bool async)
         {
             return AssertQuery(
-                async, ss => ss.Set<Customer>()
+                async,
+                ss => ss.Set<Customer>()
                     .OrderBy(c => c.ContactName)
                     .Take(1)
                     .Union(
@@ -568,6 +598,138 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Take(1)),
                 entryCount: 1,
                 assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_after_set_operation(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.City == "Seatte")
+                    .Union(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")))
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        c.Orders
+                    }),
+                elementSorter: c => c.CustomerID,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.CustomerID, a.CustomerID);
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_after_set_operation_fails_if_distinct(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.City == "Seatte")
+                    .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")))
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        c.Orders
+                    }),
+                elementSorter: c => c.CustomerID,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.CustomerID, a.CustomerID);
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_before_set_operation_fails(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(c => c.City == "Seatte")
+                    .Select(c => new
+                    {
+                        c.Orders
+                    })
+                    .Union(ss.Set<Customer>()
+                        .Where(c => c.CustomerID.StartsWith("F"))
+                        .Select(c => new
+                        {
+                            c.Orders
+                        })),
+                elementSorter: a => a.Orders.FirstOrDefault().Maybe(e => e.CustomerID),
+                elementAsserter: (e, a) =>
+                {
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Concat_with_one_side_being_GroupBy_aggregate(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(c => c.Customer.City == "Seatte")
+                    .Select(c => new
+                    {
+                        c.OrderDate
+                    })
+                    .Union(ss.Set<Order>()
+                        .GroupBy(e => e.CustomerID)
+                        .Select(g => new
+                        {
+                            OrderDate = g.Max(e => e.OrderDate)
+                        })),
+                elementSorter: a => a.OrderDate,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.OrderDate, a.OrderDate);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_on_entity_with_correlated_collection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(c => c.Customer.City == "Seatte").Select(c => c.Customer)
+                    .Union(ss.Set<Order>().Where(o => o.OrderID < 10250).Select(c => c.Customer))
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => c.Orders),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertCollection(e, a);
+                },
+                entryCount: 11);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_on_entity_plus_other_column_with_correlated_collection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(c => c.Customer.City == "Seatte").Select(c => new { c.Customer, c.OrderDate })
+                    .Union(ss.Set<Order>().Where(o => o.OrderID < 10250).Select(c => new { c.Customer, c.OrderDate }))
+                    .OrderBy(c => c.Customer.CustomerID)
+                    .Select(c => new { c.OrderDate, Orders = ss.Set<Order>().Where(o => o.CustomerID == c.Customer.CustomerID).ToList() }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.OrderDate, a.OrderDate);
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 11);
         }
     }
 }

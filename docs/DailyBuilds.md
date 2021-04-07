@@ -8,28 +8,27 @@ Daily builds are created automatically whenever a new commit is merged to the `m
 
 A disadvantage of using daily builds is that there can be significant API churn for new features. However, this should only be an issue if you're trying out new features as they are being developed.
 
-## Using daily builds
+## Package sources
 
-The daily builds are not published to NuGet.org because the .NET build infrastructure is not set up for this. Instead they can be pulled from a custom NuGet feed. To access this feed, create a `NuGet.config` file in the same directory as your .NET solution or projects. The file should contain the following content:
+The daily builds are not published to NuGet.org because the .NET build infrastructure is not set up for this. Instead they can be pulled from a custom NuGet package source. To access this custom source, create a `NuGet.config` file in the same directory as your .NET solution or projects.
+
+For EF Core 6.0 daily builds, `NuGet.config` should contain:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
-        <clear />
         <add key="dotnet6" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet6/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
 ```
 
-## Which version to use
-
-Daily builds are currently branded as EF Core 6.0. For example, `6.0.0-alpha.1.20457.2`. This is an artifact of the build system; **these builds still contain the bits what we plan to ship as EF Core 5.0**.
+## Package versions to use
 
 ### Using wildcards
 
-The easiest way to use daily builds is with wildcards in project references. For example:
+The easiest way to use daily builds is with wildcards in project references. For example, for EF Core 6.0 daily builds:
 
 ```xml
   <ItemGroup>
@@ -40,7 +39,7 @@ The easiest way to use daily builds is with wildcards in project references. For
   </ItemGroup>
 ```
 
-This will cause NuGet to pull the latest daily build whenever packages are restored.
+Using wildcards will cause NuGet to pull the latest daily build whenever packages are restored.
 
 ### Using an explicit version
 
@@ -54,9 +53,46 @@ Alternately, your IDE might provide auto-completion directly in the .csproj file
 
 ## What about Visual Studio and the SDK?
 
-EF Core 5.0 targets .NET Standard 2.1. This means that:
+EF Core 6.0 targets .NET 5. This means that:
 
-* Your application does not need to target .NET 5; .NET Core 3.1 is fine.
-* The daily builds should work with any IDE that supports .NET Core 3.1.
+* Your application must target .NET 5 or later; .NET Core 3.1 is no longer a supported target.
+* The daily builds should work with any IDE that supports .NET 5.
   * They do not require a Visual Studio preview release, although previews will also work.
-* The daily builds should work with either the .NET Core 3.1 SDK or the .NET 5 SDK installed.
+* The daily builds should work with either the .NET 5 SDK or the .NET 6 SDK installed.
+
+## Troubleshooting
+
+### Missing packages
+
+The config files shown above contain the two NuGet package sources needed for EF Core and its dependencies. However, you may need to add additional package sources for daily builds of other projects, or your own internal packages.
+
+In addition, packages may be missing if the standard `nuget.org` package source has been disabled elsewhere; adding the source in this config will not bring it back. To fix this, either don't disable `nuget.org` anywhere, or tell NuGet to ignore previously disabled sources:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <disabledPackageSources>
+        <clear />
+    </disabledPackageSources>
+    <packageSources>
+        <add key="dotnet6" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet6/nuget/v3/index.json" />
+        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+    </packageSources>
+</configuration>
+```
+
+A good way to ensure you're dealing with a completely clean NuGet configuration is to clear both disabled package sources _and_ previously configured package sources. For example:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <disabledPackageSources>
+        <clear />
+    </disabledPackageSources>
+    <packageSources>
+        <clear />
+        <add key="dotnet6" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet6/nuget/v3/index.json" />
+        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+    </packageSources>
+</configuration>
+```

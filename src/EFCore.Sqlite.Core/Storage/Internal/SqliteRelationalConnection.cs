@@ -5,7 +5,7 @@ using System;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
-using JetBrains.Annotations;
+using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -45,9 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteRelationalConnection(
-            [NotNull] RelationalConnectionDependencies dependencies,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+            RelationalConnectionDependencies dependencies,
+            IRawSqlCommandBuilder rawSqlCommandBuilder,
+            IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
             : base(dependencies)
         {
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
             var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
 
-            return new SqliteRelationalConnection(Dependencies.With(contextOptions), _rawSqlCommandBuilder, _logger);
+            return new SqliteRelationalConnection(Dependencies with { ContextOptions = contextOptions }, _rawSqlCommandBuilder, _logger);
         }
 
         private void InitializeDbConnection(DbConnection connection)
@@ -114,7 +114,21 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     sqliteConnection.DefaultTimeout = _commandTimeout.Value;
                 }
 
-                sqliteConnection.CreateFunction<object, object, object>(
+                sqliteConnection.CreateFunction<string, string, bool?>(
+                    "regexp",
+                    (pattern, input) =>
+                    {
+                        if (input == null
+                            || pattern == null)
+                        {
+                            return null;
+                        }
+
+                        return Regex.IsMatch(input, pattern);
+                    },
+                    isDeterministic: true);
+
+                sqliteConnection.CreateFunction<object, object, object?>(
                     "ef_mod",
                     (dividend, divisor) =>
                     {
@@ -132,7 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
                         return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
                             % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
-                    });
+                    },
+                    isDeterministic: true);
 
                 sqliteConnection.CreateFunction(
                     name: "ef_add",
@@ -162,7 +177,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     isDeterministic: true);
             }
             else
-
             {
                 _logger.UnexpectedConnectionTypeWarning(connection.GetType());
             }

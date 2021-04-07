@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="sql"> The command text. </param>
         /// <returns> The newly created command. </returns>
-        IRelationalCommand Build([NotNull] string sql);
+        IRelationalCommand Build(string sql);
 
         /// <summary>
         ///     Creates a new command based on SQL command text.
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="parameters"> Parameters for the command. </param>
         /// <returns> The newly created command. </returns>
         RawSqlCommand Build(
-            [NotNull] string sql,
-            [NotNull] IEnumerable<object> parameters);
+            string sql,
+            IEnumerable<object> parameters);
     }
 }

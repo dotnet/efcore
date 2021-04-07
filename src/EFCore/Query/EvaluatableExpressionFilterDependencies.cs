@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class EvaluatableExpressionFilterDependencies
+    public sealed record EvaluatableExpressionFilterDependencies
     {
         /// <summary>
         ///     <para>
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public EvaluatableExpressionFilterDependencies([NotNull] IEnumerable<IEvaluatableExpressionFilterPlugin> plugins)
+        public EvaluatableExpressionFilterDependencies(IEnumerable<IEvaluatableExpressionFilterPlugin> plugins)
         {
             Check.NotNull(plugins, nameof(plugins));
 
@@ -63,14 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Gets the plugins.
         /// </summary>
-        public IEnumerable<IEvaluatableExpressionFilterPlugin> Plugins { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="plugins"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public EvaluatableExpressionFilterDependencies With([NotNull] IEnumerable<IEvaluatableExpressionFilterPlugin> plugins)
-            => new EvaluatableExpressionFilterDependencies(plugins);
+        public IEnumerable<IEvaluatableExpressionFilterPlugin> Plugins { get; init; }
     }
 }

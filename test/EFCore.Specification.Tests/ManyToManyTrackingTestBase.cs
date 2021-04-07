@@ -3548,6 +3548,326 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Can_insert_many_to_many_with_suspected_dangling_join(
+            bool async, bool useTrackGraph, bool useDetectChanges)
+        {
+            List<int> keys = null;
+
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                {
+                    var leftEntities = new[]
+                    {
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7711),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7712),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7713)
+                    };
+                    var rightEntities = new[]
+                    {
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7721),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7722),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7723)
+                    };
+
+                    leftEntities[0].TwoSkip = CreateCollection<EntityTwo>();
+
+                    if (!useDetectChanges)
+                    {
+                        leftEntities[0].TwoSkip.Add(rightEntities[0]); // 11 - 21
+                    }
+
+                    rightEntities[0].OneSkip = CreateCollection<EntityOne>();
+
+                    rightEntities[0].OneSkip.Add(leftEntities[0]); // 21 - 11 (Dupe)
+                    rightEntities[0].OneSkip.Add(leftEntities[1]); // 21 - 12
+                    rightEntities[0].OneSkip.Add(leftEntities[2]); // 21 - 13
+
+                    var joinEntities = new[]
+                    {
+                        context.Set<JoinOneToTwo>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.One = leftEntities[0];
+                                e.Two = rightEntities[0];
+                            }),
+                        context.Set<JoinOneToTwo>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.One = leftEntities[0];
+                                e.Two = rightEntities[1];
+                            }),
+                        context.Set<JoinOneToTwo>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.One = leftEntities[0];
+                                e.Two = rightEntities[2];
+                            }),
+                        context.Set<JoinOneToTwo>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.One = leftEntities[1];
+                                e.Two = rightEntities[0];
+                            }),
+                        context.Set<JoinOneToTwo>().CreateInstance(
+                            (e, p) =>
+                            {
+                                e.One = leftEntities[2];
+                                e.Two = rightEntities[0];
+                            }),
+                    };
+
+                    var extra = context.Set<JoinOneToTwoExtra>().CreateInstance(
+                        (e, p) =>
+                        {
+                            e.JoinEntities = new ObservableCollection<JoinOneToTwo>
+                            {
+                                joinEntities[0],
+                                joinEntities[1],
+                                joinEntities[2],
+                                joinEntities[3],
+                                joinEntities[4],
+                            };
+                        });
+
+                    rightEntities[0].Extra = extra;
+                    rightEntities[1].Extra = extra;
+                    rightEntities[2].Extra = extra;
+
+                    if (useTrackGraph)
+                    {
+                        foreach (var leftEntity in leftEntities)
+                        {
+                            context.ChangeTracker.TrackGraph(leftEntity, n => n.Entry.State = EntityState.Added);
+                        }
+                    }
+                    else
+                    {
+                        if (async)
+                        {
+                            await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        }
+                        else
+                        {
+                            context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        }
+                    }
+
+                    if (useDetectChanges)
+                    {
+                        leftEntities[0].TwoSkip.Add(rightEntities[0]); // 11 - 21
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    keys = leftEntities.Select(e => e.Id).ToList();
+                },
+                async context =>
+                {
+                    var queryable = context.Set<EntityOne>()
+                        .Where(e => keys.Contains(e.Id))
+                        .Include(e => e.TwoSkip)
+                        .ThenInclude(e => e.Extra);
+
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
+                    Assert.Equal(3, results.Count);
+
+                    var leftEntities = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+                    var rightEntities = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                });
+
+            void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
+            {
+                Assert.Equal(12, context.ChangeTracker.Entries().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityTwo>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<JoinOneToTwo>().Count());
+                Assert.Equal(1, context.ChangeTracker.Entries<JoinOneToTwoExtra>().Count());
+
+                Assert.Equal(3, leftEntities[0].TwoSkip.Count);
+                Assert.Single(leftEntities[1].TwoSkip);
+                Assert.Single(leftEntities[2].TwoSkip);
+
+                Assert.Equal(3, rightEntities[0].OneSkip.Count);
+                Assert.Single(rightEntities[1].OneSkip);
+                Assert.Single(rightEntities[2].OneSkip);
+
+                var extra = context.ChangeTracker.Entries<JoinOneToTwoExtra>().Select(e => e.Entity).Single();
+                Assert.Equal(5, extra.JoinEntities.Count);
+
+                foreach (var joinEntity in extra.JoinEntities)
+                {
+                    Assert.NotNull(joinEntity.One);
+                    Assert.NotNull(joinEntity.Two);
+                }
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public virtual async Task Can_insert_many_to_many_with_dangling_join(bool async, bool useTrackGraph, bool useDetectChanges)
+        {
+            List<int> keys = null;
+
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                {
+                    var leftEntities = new[]
+                    {
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7711),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7712),
+                        context.EntityOnes.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7713)
+                    };
+                    var rightEntities = new[]
+                    {
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7721),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7722),
+                        context.EntityTwos.CreateInstance((e, p) => e.Id = Fixture.UseGeneratedKeys ? 0 : 7723)
+                    };
+
+                    leftEntities[0].TwoSkip = CreateCollection<EntityTwo>();
+
+                    if (!useDetectChanges)
+                    {
+                        leftEntities[0].TwoSkip.Add(rightEntities[0]); // 11 - 21
+                        leftEntities[0].TwoSkip.Add(rightEntities[1]); // 11 - 22
+                        leftEntities[0].TwoSkip.Add(rightEntities[2]); // 11 - 23
+                    }
+
+                    rightEntities[0].OneSkip = CreateCollection<EntityOne>();
+
+                    rightEntities[0].OneSkip.Add(leftEntities[0]); // 21 - 11 (Dupe)
+                    rightEntities[0].OneSkip.Add(leftEntities[1]); // 21 - 12
+                    rightEntities[0].OneSkip.Add(leftEntities[2]); // 21 - 13
+
+                    if (useTrackGraph)
+                    {
+                        foreach (var leftEntity in leftEntities)
+                        {
+                            context.ChangeTracker.TrackGraph(leftEntity, n => n.Entry.State = EntityState.Added);
+                        }
+                    }
+                    else
+                    {
+                        if (async)
+                        {
+                            await context.AddRangeAsync(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        }
+                        else
+                        {
+                            context.AddRange(leftEntities[0], leftEntities[1], leftEntities[2]);
+                        }
+                    }
+
+                    if (useDetectChanges)
+                    {
+                        leftEntities[0].TwoSkip.Add(rightEntities[0]); // 11 - 21
+                        leftEntities[0].TwoSkip.Add(rightEntities[1]); // 11 - 22
+                        leftEntities[0].TwoSkip.Add(rightEntities[2]); // 11 - 23
+
+                        if (RequiresDetectChanges)
+                        {
+                            context.ChangeTracker.DetectChanges();
+                        }
+                    }
+
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+
+                    keys = leftEntities.Select(e => e.Id).ToList();
+                },
+                async context =>
+                {
+                    var queryable = context.Set<EntityOne>()
+                        .Where(e => keys.Contains(e.Id))
+                        .Include(e => e.TwoSkip)
+                        .ThenInclude(e => e.Extra);
+
+                    var results = async ? await queryable.ToListAsync() : queryable.ToList();
+                    Assert.Equal(3, results.Count);
+
+                    var leftEntities = context.ChangeTracker.Entries<EntityOne>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+                    var rightEntities = context.ChangeTracker.Entries<EntityTwo>().Select(e => e.Entity).OrderBy(e => e.Name).ToList();
+
+                    ValidateFixup(context, leftEntities, rightEntities);
+                });
+
+            void ValidateFixup(DbContext context, IList<EntityOne> leftEntities, IList<EntityTwo> rightEntities)
+            {
+                Assert.Equal(11, context.ChangeTracker.Entries().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
+                Assert.Equal(3, context.ChangeTracker.Entries<EntityTwo>().Count());
+                Assert.Equal(5, context.ChangeTracker.Entries<JoinOneToTwo>().Count());
+
+                Assert.Equal(3, leftEntities[0].TwoSkip.Count);
+                Assert.Single(leftEntities[1].TwoSkip);
+                Assert.Single(leftEntities[2].TwoSkip);
+
+                Assert.Equal(3, rightEntities[0].OneSkip.Count);
+                Assert.Single(rightEntities[1].OneSkip);
+                Assert.Single(rightEntities[2].OneSkip);
+
+                var joinEntities = context.ChangeTracker.Entries<JoinOneToTwo>().Select(e => e.Entity).ToList();
+                Assert.Equal(5, joinEntities.Count);
+
+                foreach (var joinEntity in joinEntities)
+                {
+                    Assert.NotNull(joinEntity.One);
+                    Assert.NotNull(joinEntity.Two);
+                }
+
+                VerifyRelationshipSnapshots(context, leftEntities);
+                VerifyRelationshipSnapshots(context, rightEntities);
+            }
+        }
+
         [ConditionalFact]
         public virtual void Can_update_many_to_many()
         {

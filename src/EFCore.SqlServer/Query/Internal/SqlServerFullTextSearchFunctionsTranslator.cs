@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -26,24 +25,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private const string ContainsFunctionName = "CONTAINS";
 
         private static readonly MethodInfo _freeTextMethodInfo
-            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.FreeText),
-                new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+            = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.FreeText), typeof(DbFunctions), typeof(object), typeof(string));
 
         private static readonly MethodInfo _freeTextMethodInfoWithLanguage
-            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.FreeText),
-                new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
+            = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.FreeText), typeof(DbFunctions), typeof(object), typeof(string), typeof(int));
 
         private static readonly MethodInfo _containsMethodInfo
-            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.Contains),
-                new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+            = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.Contains), typeof(DbFunctions), typeof(object), typeof(string));
 
         private static readonly MethodInfo _containsMethodInfoWithLanguage
-            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
-                nameof(SqlServerDbFunctionsExtensions.Contains),
-                new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
+            = typeof(SqlServerDbFunctionsExtensions).GetRequiredRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.Contains), typeof(DbFunctions), typeof(object), typeof(string), typeof(int));
 
         private static readonly IDictionary<MethodInfo, string> _functionMapping
             = new Dictionary<MethodInfo, string>
@@ -62,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerFullTextSearchFunctionsTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerFullTextSearchFunctionsTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -73,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -92,7 +87,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 }
 
                 var typeMapping = propertyReference.TypeMapping;
-                var freeText = _sqlExpressionFactory.ApplyTypeMapping(arguments[2], typeMapping);
+                var freeText = propertyReference.Type == arguments[2].Type
+                    ? _sqlExpressionFactory.ApplyTypeMapping(arguments[2], typeMapping)
+                    : _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
 
                 var functionArguments = new List<SqlExpression> { propertyReference, freeText };
 

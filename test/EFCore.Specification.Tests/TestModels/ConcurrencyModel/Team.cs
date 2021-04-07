@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
     {
         private readonly ILazyLoader _loader;
         private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
-        private readonly ObservableCollection<Sponsor> _sponsors = new ObservableCollection<Sponsor>();
+        private readonly ObservableCollection<Sponsor> _sponsors = new();
         private Engine _engine;
         private Chassis _chassis;
         private Gearbox _gearbox;

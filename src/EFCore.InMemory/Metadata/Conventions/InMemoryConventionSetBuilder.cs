@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
         /// </summary>
         /// <param name="dependencies"> The core dependencies for this service. </param>
         public InMemoryConventionSetBuilder(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies)
+            ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
         public static ConventionSet Build()
         {
             using var serviceScope = CreateServiceScope();
-            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
             return ConventionSet.CreateConventionSet(context);
         }
 
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
         public static ModelBuilder CreateModelBuilder()
         {
             using var serviceScope = CreateServiceScope();
-            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
             return new ModelBuilder(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
         }
 

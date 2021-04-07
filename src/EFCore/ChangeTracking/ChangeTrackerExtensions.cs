@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -33,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="indent"> The number of indent spaces to use before each new line. </param>
         /// <returns> A human-readable representation. </returns>
         public static string ToDebugString(
-            [NotNull] this ChangeTracker changeTracker,
-            ChangeTrackerDebugStringOptions options,
+            this ChangeTracker changeTracker,
+            ChangeTrackerDebugStringOptions options = ChangeTrackerDebugStringOptions.LongDefault,
             int indent = 0)
         {
             var builder = new StringBuilder();
@@ -51,10 +50,25 @@ namespace Microsoft.EntityFrameworkCore
 
         private sealed class EntityEntryComparer : IComparer<InternalEntityEntry>
         {
-            public static readonly EntityEntryComparer Instance = new EntityEntryComparer();
+            public static readonly EntityEntryComparer Instance = new();
 
-            public int Compare(InternalEntityEntry x, InternalEntityEntry y)
+            public int Compare(InternalEntityEntry? x, InternalEntityEntry? y)
             {
+                if (ReferenceEquals(x, y))
+                {
+                    return 0;
+                }
+
+                if (x is null)
+                {
+                    return -1;
+                }
+
+                if (y is null)
+                {
+                    return 1;
+                }
+
                 var result = StringComparer.InvariantCulture.Compare(x.EntityType.Name, y.EntityType.Name);
                 if (result != 0)
                 {

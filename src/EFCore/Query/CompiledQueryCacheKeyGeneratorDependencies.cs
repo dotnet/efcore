@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -33,10 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class CompiledQueryCacheKeyGeneratorDependencies
+    public sealed record CompiledQueryCacheKeyGeneratorDependencies
     {
-        private readonly IExecutionStrategyFactory _executionStrategyFactory;
-
         /// <summary>
         ///     <para>
         ///         Creates the service dependencies parameter object for a <see cref="CompiledQueryCacheKeyGenerator" />.
@@ -62,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public CompiledQueryCacheKeyGeneratorDependencies(
-            [NotNull] IModel model,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            IModel model,
+            ICurrentDbContext currentContext,
+            IExecutionStrategyFactory executionStrategyFactory)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(currentContext, nameof(currentContext));
@@ -72,47 +69,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Model = model;
             CurrentContext = currentContext;
-            _executionStrategyFactory = executionStrategyFactory;
             IsRetryingExecutionStrategy = executionStrategyFactory.Create().RetriesOnFailure;
         }
 
         /// <summary>
         ///     The model that queries will be written against.
         /// </summary>
-        public IModel Model { get; }
+        public IModel Model { get; init; }
 
         /// <summary>
         ///     The context that queries will be executed for.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
+        public ICurrentDbContext CurrentContext { get; init; }
 
         /// <summary>
         ///     Whether the configured execution strategy can retry.
         /// </summary>
-        public bool IsRetryingExecutionStrategy { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="model"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] IModel model)
-            => new CompiledQueryCacheKeyGeneratorDependencies(model, CurrentContext, _executionStrategyFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new CompiledQueryCacheKeyGeneratorDependencies(Model, currentContext, _executionStrategyFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="executionStrategyFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public CompiledQueryCacheKeyGeneratorDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            => new CompiledQueryCacheKeyGeneratorDependencies(Model, CurrentContext, executionStrategyFactory);
+        public bool IsRetryingExecutionStrategy { get; init; }
     }
 }

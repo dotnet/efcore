@@ -396,6 +396,29 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Produce>()
                     .HasIndex(e => e.BarCode)
                     .IsUnique();
+
+                modelBuilder.Entity<SharedFkRoot>(builder =>
+                {
+                    builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
+                        .HasForeignKey(x => new { x.RootId })
+                        .HasPrincipalKey(x => x.Id)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    builder.HasMany(x => x.Parents).WithOne(x => x.Root)
+                        .HasForeignKey(x => new { x.RootId })
+                        .HasPrincipalKey(x => x.Id)
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+                modelBuilder.Entity<SharedFkParent>(builder =>
+                {
+                    builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                        .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                        .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                        .OnDelete(DeleteBehavior.ClientSetNull);
+                });
+
+                modelBuilder.Entity<SharedFkDependant>();
             }
 
             protected virtual object CreateFullGraph()
@@ -405,38 +428,38 @@ namespace Microsoft.EntityFrameworkCore
                     RequiredChildren =
                         new ObservableHashSet<Required1>(LegacyReferenceEqualityComparer.Instance)
                         {
-                            new Required1
+                            new()
                             {
                                 Children = new ObservableHashSet<Required2>(LegacyReferenceEqualityComparer.Instance)
                                 {
-                                    new Required2(), new Required2()
+                                    new(), new()
                                 }
                             },
-                            new Required1
+                            new()
                             {
                                 Children = new ObservableHashSet<Required2>(LegacyReferenceEqualityComparer.Instance)
                                 {
-                                    new Required2(), new Required2()
+                                    new(), new()
                                 }
                             }
                         },
                     OptionalChildren =
                         new ObservableHashSet<Optional1>(LegacyReferenceEqualityComparer.Instance)
                         {
-                            new Optional1
+                            new()
                             {
                                 Children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance)
                                 {
-                                    new Optional2(), new Optional2()
+                                    new(), new()
                                 },
                                 CompositeChildren =
                                     new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
                             },
-                            new Optional1
+                            new()
                             {
                                 Children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance)
                                 {
-                                    new Optional2(), new Optional2()
+                                    new(), new()
                                 },
                                 CompositeChildren =
                                     new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
@@ -459,60 +482,60 @@ namespace Microsoft.EntityFrameworkCore
                     RequiredChildrenAk =
                         new ObservableHashSet<RequiredAk1>(LegacyReferenceEqualityComparer.Instance)
                         {
-                            new RequiredAk1
+                            new()
                             {
                                 AlternateId = Guid.NewGuid(),
                                 Children = new ObservableHashSet<RequiredAk2>(LegacyReferenceEqualityComparer.Instance)
                                 {
-                                    new RequiredAk2 { AlternateId = Guid.NewGuid() }, new RequiredAk2 { AlternateId = Guid.NewGuid() }
+                                    new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
                                     new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance)
                                     {
-                                        new RequiredComposite2(), new RequiredComposite2()
+                                        new(), new()
                                     }
                             },
-                            new RequiredAk1
+                            new()
                             {
                                 AlternateId = Guid.NewGuid(),
                                 Children = new ObservableHashSet<RequiredAk2>(LegacyReferenceEqualityComparer.Instance)
                                 {
-                                    new RequiredAk2 { AlternateId = Guid.NewGuid() }, new RequiredAk2 { AlternateId = Guid.NewGuid() }
+                                    new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
                                     new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance)
                                     {
-                                        new RequiredComposite2(), new RequiredComposite2()
+                                        new(), new()
                                     }
                             }
                         },
                     OptionalChildrenAk =
                         new ObservableHashSet<OptionalAk1>(LegacyReferenceEqualityComparer.Instance)
                         {
-                            new OptionalAk1
+                            new()
                             {
                                 AlternateId = Guid.NewGuid(),
                                 Children = new ObservableHashSet<OptionalAk2>(LegacyReferenceEqualityComparer.Instance)
                                 {
-                                    new OptionalAk2 { AlternateId = Guid.NewGuid() }, new OptionalAk2 { AlternateId = Guid.NewGuid() }
+                                    new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
                                     new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
                                     {
-                                        new OptionalComposite2(), new OptionalComposite2()
+                                        new(), new()
                                     }
                             },
-                            new OptionalAk1
+                            new()
                             {
                                 AlternateId = Guid.NewGuid(),
                                 Children = new ObservableHashSet<OptionalAk2>(LegacyReferenceEqualityComparer.Instance)
                                 {
-                                    new OptionalAk2 { AlternateId = Guid.NewGuid() }, new OptionalAk2 { AlternateId = Guid.NewGuid() }
+                                    new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
                                     new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
                                     {
-                                        new OptionalComposite2(), new OptionalComposite2()
+                                        new(), new()
                                     }
                             }
                         },
@@ -562,22 +585,22 @@ namespace Microsoft.EntityFrameworkCore
                         },
                     RequiredCompositeChildren = new ObservableHashSet<RequiredComposite1>(LegacyReferenceEqualityComparer.Instance)
                     {
-                        new RequiredComposite1
+                        new()
                         {
                             Id = 1,
                             CompositeChildren =
                                 new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
                                 {
-                                    new OptionalOverlapping2 { Id = 1 }, new OptionalOverlapping2 { Id = 2 }
+                                    new() { Id = 1 }, new() { Id = 2 }
                                 }
                         },
-                        new RequiredComposite1
+                        new()
                         {
                             Id = 2,
                             CompositeChildren =
                                 new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
                                 {
-                                    new OptionalOverlapping2 { Id = 3 }, new OptionalOverlapping2 { Id = 4 }
+                                    new() { Id = 3 }, new() { Id = 4 }
                                 }
                         }
                     }
@@ -600,6 +623,21 @@ namespace Microsoft.EntityFrameworkCore
                 context.AddRange(
                     new Poost { Id = 516, Bloog = bloog },
                     new Poost { Id = 517, Bloog = bloog });
+
+                var root = new SharedFkRoot();
+                context.Add(root);
+
+                var parent = new SharedFkParent
+                {
+                    Root = root
+                };
+                context.Add(parent);
+
+                context.Add(new SharedFkDependant
+                {
+                    Root = root,
+                    Parent = parent
+                });
 
                 context.SaveChanges();
             }
@@ -1413,6 +1451,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class RequiredSingle1 : NotifyingEntity
         {
             private int _id;
+            private bool _bool;
             private Root _root;
             private RequiredSingle2 _single;
 
@@ -1420,6 +1459,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _id;
                 set => SetWithNotify(value, ref _id);
+            }
+
+            public bool Bool
+            {
+                get => _bool;
+                set => SetWithNotify(value, ref _bool);
             }
 
             public Root Root
@@ -1447,12 +1492,19 @@ namespace Microsoft.EntityFrameworkCore
         protected class RequiredSingle2 : NotifyingEntity
         {
             private int _id;
+            private bool _bool;
             private RequiredSingle1 _back;
 
             public int Id
             {
                 get => _id;
                 set => SetWithNotify(value, ref _id);
+            }
+
+            public bool Bool
+            {
+                get => _bool;
+                set => SetWithNotify(value, ref _bool);
             }
 
             public RequiredSingle1 Back
@@ -2937,6 +2989,106 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _bloog;
                 set => SetWithNotify(value, ref _bloog);
+            }
+        }
+
+        protected class SharedFkRoot : NotifyingEntity
+        {
+            private long _id;
+
+            private ICollection<SharedFkDependant> _dependants
+                = new ObservableHashSet<SharedFkDependant>(LegacyReferenceEqualityComparer.Instance);
+
+            private ICollection<SharedFkParent> _parents
+                = new ObservableHashSet<SharedFkParent>(LegacyReferenceEqualityComparer.Instance);
+
+            public long Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public ICollection<SharedFkDependant> Dependants
+            {
+                get => _dependants;
+                set => SetWithNotify(value, ref _dependants);
+            }
+
+            public ICollection<SharedFkParent> Parents
+            {
+                get => _parents;
+                set => SetWithNotify(value, ref _parents);
+            }
+        }
+
+        protected class SharedFkParent : NotifyingEntity
+        {
+            private long _id;
+            private long? _dependantId;
+            private long _rootId;
+            private SharedFkRoot _root = null!;
+            private SharedFkDependant _dependant;
+
+            public long Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public long? DependantId
+            {
+                get => _dependantId;
+                set => SetWithNotify(value, ref _dependantId);
+            }
+
+            public long RootId
+            {
+                get => _rootId;
+                set => SetWithNotify(value, ref _rootId);
+            }
+
+            public SharedFkRoot Root
+            {
+                get => _root;
+                set => SetWithNotify(value, ref _root);
+            }
+
+            public SharedFkDependant Dependant
+            {
+                get => _dependant;
+                set => SetWithNotify(value, ref _dependant);
+            }
+        }
+
+        protected class SharedFkDependant : NotifyingEntity
+        {
+            private long _id;
+            private long _rootId;
+            private SharedFkRoot _root = null!;
+            private SharedFkParent _parent = null!;
+
+            public long Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public long RootId
+            {
+                get => _rootId;
+                set => SetWithNotify(value, ref _rootId);
+            }
+
+            public SharedFkRoot Root
+            {
+                get => _root;
+                set => SetWithNotify(value, ref _root);
+            }
+
+            public SharedFkParent Parent
+            {
+                get => _parent;
+                set => SetWithNotify(value, ref _parent);
             }
         }
 

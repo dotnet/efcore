@@ -17,25 +17,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
         }
 
-        [ConditionalTheory(Skip = "Issue #16919")]
+        [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]
         public override Task Can_filter_projection_with_inline_enum_variable(bool async)
         {
             return base.Can_filter_projection_with_inline_enum_variable(async);
         }
 
-        [ConditionalTheory(Skip = "Issue #16919")]
+        [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]
         public override Task Can_filter_projection_with_captured_enum_variable(bool async)
         {
             return base.Can_filter_projection_with_captured_enum_variable(async);
         }
 
-        [ConditionalFact(Skip = "Issue #16919")]
-        public override void Can_query_using_any_nullable_data_type_as_literal()
-        {
-            base.Can_query_using_any_nullable_data_type_as_literal();
-        }
-
-        [ConditionalFact(Skip = "Issue #16919")]
+        [ConditionalFact(Skip = "Issue #17246 No Explicit Convert")]
         public override void Can_query_with_null_parameters_using_any_nullable_data_type()
         {
             base.Can_query_with_null_parameters_using_any_nullable_data_type();
@@ -113,7 +107,7 @@ WHERE ((c[""Discriminator""] = ""BuiltInDataTypes"") AND (c[""Id""] = 13))");
                 => (TestSqlLoggerFactory)ListLoggerFactory;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

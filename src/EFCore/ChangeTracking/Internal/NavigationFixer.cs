@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -30,15 +29,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class NavigationFixer : INavigationFixer
     {
-        private readonly bool _useOldBehaviorFor23659
-            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23659", out var enabled) && enabled;
-
-        private readonly bool _useOldBehaviorFor23787
-            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23787", out var enabled) && enabled;
-
+        private IList<Action>? _danglingJoinEntities;
         private readonly IChangeDetector _changeDetector;
         private readonly IEntityGraphAttacher _attacher;
         private bool _inFixup;
+        private bool _inAttachGraph;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public NavigationFixer(
-            [NotNull] IChangeDetector changeDetector,
-            [NotNull] IEntityGraphAttacher attacher)
+            IChangeDetector changeDetector,
+            IEntityGraphAttacher attacher)
         {
             _changeDetector = changeDetector;
             _attacher = attacher;
@@ -60,11 +55,60 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual void BeginAttachGraph()
+        {
+            _danglingJoinEntities?.Clear();
+            _inAttachGraph = true;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void CompleteAttachGraph()
+        {
+            _inAttachGraph = false;
+            try
+            {
+                if (_danglingJoinEntities != null)
+                {
+                    foreach (var synthesize in _danglingJoinEntities)
+                    {
+                        synthesize();
+                    }
+                }
+            }
+            finally
+            {
+                _danglingJoinEntities?.Clear();
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void AbortAttachGraph()
+        {
+            _inAttachGraph = false;
+            _danglingJoinEntities?.Clear();
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void NavigationReferenceChanged(
             InternalEntityEntry entry,
             INavigationBase navigationBase,
-            object oldValue,
-            object newValue)
+            object? oldValue,
+            object? newValue)
         {
             if (_inFixup)
             {
@@ -108,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 // However, if the FK has already been changed or the reference is already set to point
                                 // to something else, then don't change it.
                                 var victimDependentEntry =
-                                    (InternalEntityEntry)stateManager.GetDependents(newTargetEntry, foreignKey).FirstOrDefault();
+                                    (InternalEntityEntry?)stateManager.GetDependents(newTargetEntry, foreignKey).FirstOrDefault();
                                 if (victimDependentEntry != null
                                     && victimDependentEntry != entry)
                                 {
@@ -165,10 +209,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         // Clear the inverse reference, unless it has already been changed
                         if (inverse != null
                             && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
-                            && (!oldTargetEntry.EntityType.HasDefiningNavigation()
-                                || entry.EntityType.GetNavigations().All(
-                                    n => n == navigation
-                                        || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
+                            && (entry.EntityType.GetNavigations().All(
+                                n => n == navigation
+                                    || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                         {
                             SetNavigation(oldTargetEntry, inverse, null, fromQuery: false);
                         }
@@ -193,10 +236,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                if (newValue == null)
-                {
-                    entry.SetIsLoaded(navigation, loaded: false);
-                }
+                entry.SetIsLoaded(navigation, loaded: newValue != null);
             }
             finally
             {
@@ -299,7 +339,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            FindOrCreateJoinEntry(entry, newTargetEntry, skipNavigation, fromQuery: false, setModified: true);
+                            FindOrCreateJoinEntry((
+                                entry, newTargetEntry, skipNavigation, FromQuery: false, SetModified: true));
 
                             Check.DebugAssert(
                                 skipNavigation.Inverse.IsCollection,
@@ -358,8 +399,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IProperty property,
             IEnumerable<IKey> containingPrincipalKeys,
             IEnumerable<IForeignKey> containingForeignKeys,
-            object oldValue,
-            object newValue)
+            object? oldValue,
+            object? newValue)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -410,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 // However, if the FK has already been changed or the reference is already set to point
                                 // to something else, then don't change it.
                                 var targetDependentEntry
-                                    = (InternalEntityEntry)stateManager
+                                    = (InternalEntityEntry?)stateManager
                                         .GetDependentsUsingRelationshipSnapshot(newPrincipalEntry, foreignKey).FirstOrDefault();
 
                                 if (targetDependentEntry != null
@@ -680,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var dependents = stateManager.GetDependents(entry, foreignKey);
                     if (foreignKey.IsUnique)
                     {
-                        var dependentEntry = (InternalEntityEntry)dependents.FirstOrDefault();
+                        var dependentEntry = (InternalEntityEntry?)dependents.FirstOrDefault();
                         if (dependentEntry != null)
                         {
                             if ((!foreignKey.IsOwnership
@@ -826,7 +867,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             }
                             else
                             {
-                                FindOrCreateJoinEntry(entry, otherEntry, skipNavigation, fromQuery, setModified);
+                                FindOrCreateJoinEntry((entry, otherEntry, skipNavigation, fromQuery, setModified));
 
                                 Check.DebugAssert(
                                     skipNavigation.Inverse.IsCollection,
@@ -835,10 +876,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
                             }
 
-                            if (!_useOldBehaviorFor23787)
-                            {
-                                entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
-                            }
+                            entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
                         }
                     }
                 }
@@ -865,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var setModified = referencedEntry.EntityState != EntityState.Unchanged;
                 if (navigationBase is ISkipNavigation skipNavigation)
                 {
-                    FindOrCreateJoinEntry(entry, referencedEntry, skipNavigation, fromQuery, setModified);
+                    FindOrCreateJoinEntry((entry, referencedEntry, skipNavigation, fromQuery, setModified));
 
                     Check.DebugAssert(
                         skipNavigation.Inverse.IsCollection,
@@ -895,10 +933,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         FixupToPrincipal(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
 
-                        if (!_useOldBehaviorFor23659)
-                        {
-                            FixupSkipNavigations(entry, navigation.ForeignKey, fromQuery);
-                        }
+                        FixupSkipNavigations(entry, navigation.ForeignKey, fromQuery);
                     }
                 }
             }
@@ -921,50 +956,46 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private InternalEntityEntry FindOrCreateJoinEntry(
-            InternalEntityEntry entry,
-            InternalEntityEntry otherEntry,
-            ISkipNavigation skipNavigation,
-            bool fromQuery,
-            bool setModified)
+        private void FindOrCreateJoinEntry(
+            (InternalEntityEntry Entry,
+            InternalEntityEntry OtherEntry,
+            ISkipNavigation SkipNavigation,
+            bool FromQuery,
+            bool SetModified) arguments)
         {
-            var joinEntry = FindJoinEntry(entry, otherEntry, skipNavigation);
-
-            if (joinEntry == null)
+            var joinEntry = FindJoinEntry(arguments.Entry, arguments.OtherEntry, arguments.SkipNavigation);
+            if (joinEntry != null)
             {
-                var joinEntityType = skipNavigation.JoinEntityType;
+                SetForeignKeyProperties(joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
+                SetForeignKeyProperties(joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified, arguments.FromQuery);
+            }
+            else if (!_inAttachGraph)
+            {
+                var joinEntityType = arguments.SkipNavigation.JoinEntityType;
                 var joinEntity = joinEntityType.GetInstanceFactory()(
-                    new MaterializationContext(ValueBuffer.Empty, entry.StateManager.Context));
+                    new MaterializationContext(ValueBuffer.Empty, arguments.Entry.StateManager.Context));
 
-                joinEntry = entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
+                joinEntry = arguments.Entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
+
+                SetForeignKeyProperties(joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
+                SetForeignKeyProperties(joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified, arguments.FromQuery);
+
+                joinEntry.SetEntityState(
+                    arguments.SetModified
+                    || arguments.Entry.EntityState == EntityState.Added
+                    || arguments.OtherEntry.EntityState == EntityState.Added
+                        ? EntityState.Added
+                        : EntityState.Unchanged);
             }
-
-            SetForeignKeyProperties(joinEntry, entry, skipNavigation.ForeignKey, setModified, fromQuery);
-            SetForeignKeyProperties(joinEntry, otherEntry, skipNavigation.Inverse.ForeignKey, setModified, fromQuery);
-
-            if (joinEntry.EntityState == EntityState.Detached)
+            else
             {
-                try
-                {
-                    _inFixup = false;
-
-                    joinEntry.SetEntityState(
-                        setModified
-                        || entry.EntityState == EntityState.Added
-                        || otherEntry.EntityState == EntityState.Added
-                            ? EntityState.Added
-                            : EntityState.Unchanged);
-                }
-                finally
-                {
-                    _inFixup = true;
-                }
+                _danglingJoinEntities ??= new List<Action>();
+            
+                _danglingJoinEntities.Add(() => FindOrCreateJoinEntry(arguments));
             }
-
-            return joinEntry;
         }
 
-        private static InternalEntityEntry FindJoinEntry(
+        private static InternalEntityEntry? FindJoinEntry(
             InternalEntityEntry entry,
             InternalEntityEntry otherEntry,
             ISkipNavigation skipNavigation)
@@ -1040,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 InternalEntityEntry secondEntry,
                 IForeignKey firstForeignKey,
                 IForeignKey secondForeignKey,
-                out InternalEntityEntry joinEntry)
+                out InternalEntityEntry? joinEntry)
             {
                 var key = joinEntityType.FindKey(new[] { firstForeignKey.Properties[0], secondForeignKey.Properties[0] });
                 if (key != null)
@@ -1064,7 +1095,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 InternalEntityEntry secondEntry,
                 IForeignKey firstForeignKey,
                 IForeignKey secondForeignKey,
-                out InternalEntityEntry joinEntry)
+                out InternalEntityEntry? joinEntry)
             {
                 var firstForeignKeyProperties = firstForeignKey.Properties;
                 var secondForeignKeyProperties = secondForeignKey.Properties;
@@ -1072,7 +1103,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var key = joinEntityType.FindKey(firstForeignKeyProperties.Concat(secondForeignKeyProperties).ToList());
                 if (key != null)
                 {
-                    var keyValues = new object[firstForeignKeyProperties.Count + secondForeignKeyProperties.Count];
+                    var keyValues = new object?[firstForeignKeyProperties.Count + secondForeignKeyProperties.Count];
                     var index = 0;
 
                     foreach (var keyProperty in firstForeignKey.PrincipalKey.Properties)
@@ -1131,7 +1162,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var oldDependentEntry = oldDependent != null
                     && !ReferenceEquals(dependentEntry.Entity, oldDependent)
                         ? dependentEntry.StateManager.TryGetEntry(oldDependent, foreignKey.DeclaringEntityType)
-                        : (InternalEntityEntry)dependentEntry.StateManager
+                        : (InternalEntityEntry?)dependentEntry.StateManager
                             .GetDependentsUsingRelationshipSnapshot(principalEntry, foreignKey)
                             .FirstOrDefault();
 
@@ -1199,8 +1230,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static bool PrincipalValueEqualsDependentValue(
             IProperty principalProperty,
-            object dependentValue,
-            object principalValue)
+            object? dependentValue,
+            object? principalValue)
             => (principalProperty.GetKeyValueComparer())
                 ?.Equals(dependentValue, principalValue)
                 ?? StructuralComparisons.StructuralEqualityComparer.Equals(
@@ -1209,13 +1240,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void ConditionallyNullForeignKeyProperties(
             InternalEntityEntry dependentEntry,
-            InternalEntityEntry principalEntry,
+            InternalEntityEntry? principalEntry,
             IForeignKey foreignKey)
         {
-            var principalProperties = foreignKey.PrincipalKey.Properties;
-            var dependentProperties = foreignKey.Properties;
-            var hasOnlyKeyProperties = true;
-
             var currentPrincipal = dependentEntry.StateManager.FindPrincipal(dependentEntry, foreignKey);
             if (currentPrincipal != null
                 && currentPrincipal != principalEntry)
@@ -1223,10 +1250,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return;
             }
 
+            var hasOnlyKeyProperties = true;
+            foreignKey.GetPropertiesWithMinimalOverlapIfPossible(out var dependentProperties, out var principalProperties);
+
             if (principalEntry != null
                 && principalEntry.EntityState != EntityState.Detached)
             {
-                for (var i = 0; i < foreignKey.Properties.Count; i++)
+                for (var i = 0; i < dependentProperties.Count; i++)
                 {
                     if (!PrincipalValueEqualsDependentValue(
                         principalProperties[i],
@@ -1243,7 +1273,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            for (var i = 0; i < foreignKey.Properties.Count; i++)
+            for (var i = 0; i < dependentProperties.Count; i++)
             {
                 if (!dependentProperties[i].IsKey())
                 {
@@ -1272,7 +1302,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void SetNavigation(InternalEntityEntry entry, INavigationBase navigation, InternalEntityEntry value, bool fromQuery)
+        private void SetNavigation(InternalEntityEntry entry, INavigationBase? navigation, InternalEntityEntry? value, bool fromQuery)
         {
             if (navigation != null)
             {
@@ -1291,7 +1321,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void AddToCollection(InternalEntityEntry entry, INavigationBase navigation, InternalEntityEntry value, bool fromQuery)
+        private void AddToCollection(InternalEntityEntry entry, INavigationBase? navigation, InternalEntityEntry value, bool fromQuery)
         {
             if (navigation != null)
             {

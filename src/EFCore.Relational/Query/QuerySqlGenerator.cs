@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
 
-        private static readonly Dictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
+        private static readonly Dictionary<ExpressionType, string> _operatorMap = new()
         {
             { ExpressionType.Equal, " = " },
             { ExpressionType.NotEqual, " <> " },
@@ -52,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        public QuerySqlGenerator([NotNull] QuerySqlGeneratorDependencies dependencies)
+        public QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -60,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _relationalCommandBuilderFactory = dependencies.RelationalCommandBuilderFactory;
             _sqlGenerationHelper = dependencies.SqlGenerationHelper;
+            _relationalCommandBuilder = default!;
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="selectExpression"> A select expression to print in command text. </param>
         /// <returns> A relational command with a SQL represented by the select expression. </returns>
-        public virtual IRelationalCommand GetCommand([NotNull] SelectExpression selectExpression)
+        public virtual IRelationalCommand GetCommand(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates the head comment for tags.
         /// </summary>
         /// <param name="selectExpression"> A select expression to generate tags for. </param>
-        protected virtual void GenerateTagsHeaderComment([NotNull] SelectExpression selectExpression)
+        protected virtual void GenerateTagsHeaderComment(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
                 && selectExpression.Projection.Select(
                         (pe, index) => pe.Expression is ColumnExpression column
-                            && string.Equals(column.Table.Alias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(column.TableAlias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
                             && string.Equals(
                                 column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
                     .All(e => e);
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return selectExpression;
             }
 
-            IDisposable subQueryIndent = null;
+            IDisposable? subQueryIndent = null;
 
             if (selectExpression.Alias != null)
             {
@@ -226,10 +226,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (selectExpression.Alias != null)
             {
-                subQueryIndent.Dispose();
+                subQueryIndent!.Dispose();
 
                 _relationalCommandBuilder.AppendLine()
-                    .Append(")" + AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
+                    .Append(")")
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
             }
 
             return selectExpression;
@@ -249,11 +251,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Visit(projectionExpression.Expression);
 
-            if (!string.Equals(string.Empty, projectionExpression.Alias)
-                && !(projectionExpression.Expression is ColumnExpression column
-                    && string.Equals(column.Name, projectionExpression.Alias)))
+            if (projectionExpression.Alias != string.Empty
+                && !(projectionExpression.Expression is ColumnExpression column && column.Name == projectionExpression.Alias))
             {
-                _relationalCommandBuilder.Append(AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
+                _relationalCommandBuilder
+                    .Append(AliasSeparator)
+                    .Append(_sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
             }
 
             return projectionExpression;
@@ -329,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(columnExpression, nameof(columnExpression));
 
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Table.Alias))
+                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.TableAlias))
                 .Append(".")
                 .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Name));
 
@@ -352,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void GenerateFromSql(FromSqlExpression fromSqlExpression)
         {
             var sql = fromSqlExpression.Sql;
-            string[] substitutions = null;
+            string[]? substitutions = null;
 
             switch (fromSqlExpression.Arguments)
             {
@@ -385,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                         else if (value is SqlConstantExpression sqlConstantExpression)
                         {
-                            substitutions[i] = sqlConstantExpression.TypeMapping.GenerateSqlLiteral(sqlConstantExpression.Value);
+                            substitutions[i] = sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value);
                         }
                     }
 
@@ -430,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sql"> An SQL string to be checked for composability. </param>
         /// <exception cref="InvalidOperationException"> The given SQL isn't composable. </exception>
-        protected virtual void CheckComposableSql([NotNull] string sql)
+        protected virtual void CheckComposableSql(string sql)
         {
             Check.NotNull(sql, nameof(sql));
 
@@ -552,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(sqlConstantExpression, nameof(sqlConstantExpression));
 
             _relationalCommandBuilder
-                .Append(sqlConstantExpression.TypeMapping.GenerateSqlLiteral(sqlConstantExpression.Value));
+                .Append(sqlConstantExpression.TypeMapping!.GenerateSqlLiteral(sqlConstantExpression.Value));
 
             return sqlConstantExpression;
         }
@@ -570,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _relationalCommandBuilder.AddParameter(
                     sqlParameterExpression.Name,
                     parameterNameInCommand,
-                    sqlParameterExpression.TypeMapping,
+                    sqlParameterExpression.TypeMapping!,
                     sqlParameterExpression.IsNullable);
             }
 
@@ -711,7 +714,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     _relationalCommandBuilder.Append(" AS ");
-                    _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping.StoreType);
+                    _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping!.StoreType);
                     _relationalCommandBuilder.Append(")");
                     break;
                 }
@@ -801,7 +804,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _relationalCommandBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
                 _relationalCommandBuilder.Append("(");
                 var valuesConstant = (SqlConstantExpression)inExpression.Values;
-                var valuesList = ((IEnumerable<object>)valuesConstant.Value)
+                var valuesList = ((IEnumerable<object?>)valuesConstant.Value!)
                     .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
                 GenerateList(valuesList, e => Visit(e));
                 _relationalCommandBuilder.Append(")");
@@ -829,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="binaryExpression"> A SQL binary operation. </param>
         /// <returns> A string representation of the binary operator. </returns>
         [Obsolete("Use GetOperator instead.")]
-        protected virtual string GenerateOperator([NotNull] SqlBinaryExpression binaryExpression)
+        protected virtual string GenerateOperator(SqlBinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
@@ -841,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="binaryExpression"> A SQL binary operation. </param>
         /// <returns> A string representation of the binary operator. </returns>
-        protected virtual string GetOperator([NotNull] SqlBinaryExpression binaryExpression)
+        protected virtual string GetOperator(SqlBinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 
@@ -852,7 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates a TOP construct in the relational command
         /// </summary>
         /// <param name="selectExpression"> A select expression to use. </param>
-        protected virtual void GenerateTop([NotNull] SelectExpression selectExpression)
+        protected virtual void GenerateTop(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
         }
@@ -861,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates an ORDER BY clause in the relational command
         /// </summary>
         /// <param name="selectExpression"> A select expression to use. </param>
-        protected virtual void GenerateOrderings([NotNull] SelectExpression selectExpression)
+        protected virtual void GenerateOrderings(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
@@ -889,7 +892,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates a LIMIT...OFFSET... construct in the relational command
         /// </summary>
         /// <param name="selectExpression"> A select expression to use. </param>
-        protected virtual void GenerateLimitOffset([NotNull] SelectExpression selectExpression)
+        protected virtual void GenerateLimitOffset(SelectExpression selectExpression)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
@@ -925,7 +928,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void GenerateList<T>(
             IReadOnlyList<T> items,
             Action<T> generationAction,
-            Action<IRelationalCommandBuilder> joinAction = null)
+            Action<IRelationalCommandBuilder>? joinAction = null)
         {
             joinAction ??= (isb => isb.Append(", "));
 
@@ -1039,13 +1042,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Generates a set operation in the relational command.
         /// </summary>
         /// <param name="setOperation"> A set operation to print. </param>
-        protected virtual void GenerateSetOperation([NotNull] SetOperationBase setOperation)
+        protected virtual void GenerateSetOperation(SetOperationBase setOperation)
         {
             Check.NotNull(setOperation, nameof(setOperation));
 
             GenerateSetOperationOperand(setOperation, setOperation.Source1);
-            _relationalCommandBuilder.AppendLine();
-            _relationalCommandBuilder.AppendLine($"{GetSetOperation(setOperation)}{(setOperation.IsDistinct ? "" : " ALL")}");
+            _relationalCommandBuilder
+                .AppendLine()
+                .Append(GetSetOperation(setOperation))
+                .AppendLine(setOperation.IsDistinct ? string.Empty : " ALL");
             GenerateSetOperationOperand(setOperation, setOperation.Source2);
 
             static string GetSetOperation(SetOperationBase operation)
@@ -1063,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="setOperation"> A set operation to use. </param>
         /// <param name="operand"> A set operation operand to print. </param>
-        protected virtual void GenerateSetOperationOperand([NotNull] SetOperationBase setOperation, [NotNull] SelectExpression operand)
+        protected virtual void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
         {
             Check.NotNull(setOperation, nameof(setOperation));
             Check.NotNull(operand, nameof(operand));

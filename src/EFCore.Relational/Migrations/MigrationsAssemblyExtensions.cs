@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="assembly"> The assembly. </param>
         /// <param name="nameOrId"> The name or identifier to lookup. </param>
         /// <returns> The identifier of the migration. </returns>
-        public static string GetMigrationId([NotNull] this IMigrationsAssembly assembly, [NotNull] string nameOrId)
+        public static string GetMigrationId(this IMigrationsAssembly assembly, string nameOrId)
         {
             Check.NotNull(assembly, nameof(assembly));
             Check.NotEmpty(nameOrId, nameof(nameOrId));

@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -128,14 +129,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         private static IReverseEngineerScaffolder CreateScaffolder()
-            => new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices()
-                .AddSingleton<LoggingDefinitions, TestRelationalLoggingDefinitions>()
-                .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
-                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
-                .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()
-                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
-                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
+            => new DesignTimeServicesBuilder(
+                    typeof(ReverseEngineerScaffolderTest).Assembly,
+                    typeof(ReverseEngineerScaffolderTest).Assembly,
+                    new TestOperationReporter(),
+                    new string[0])
+                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
                 .BuildServiceProvider()
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
@@ -144,14 +143,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var resolver = new TestNamedConnectionStringResolver("Data Source=Test");
             var databaseModelFactory = new TestDatabaseModelFactory();
-            var scaffolder = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices()
+            var scaffolder = new DesignTimeServicesBuilder(
+                    typeof(ReverseEngineerScaffolderTest).Assembly,
+                    typeof(ReverseEngineerScaffolderTest).Assembly,
+                    new TestOperationReporter(),
+                    new string[0])
+                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
                 .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
-                .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
-                .AddSingleton<LoggingDefinitions, TestRelationalLoggingDefinitions>()
-                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
-                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .BuildServiceProvider()
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
@@ -174,14 +173,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var resolver = new TestNamedConnectionStringResolver("Data Source=Test");
             var databaseModelFactory = new TestDatabaseModelFactory();
             databaseModelFactory.ScaffoldedConnectionString = "Data Source=ScaffoldedConnectionString";
-            var scaffolder = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices()
+            var scaffolder = new DesignTimeServicesBuilder(
+                    typeof(ReverseEngineerScaffolderTest).Assembly,
+                    typeof(ReverseEngineerScaffolderTest).Assembly,
+                    new TestOperationReporter(),
+                    new string[0])
+                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
                 .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
-                .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
-                .AddSingleton<LoggingDefinitions, TestRelationalLoggingDefinitions>()
-                .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
-                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .BuildServiceProvider()
                 .GetRequiredService<IReverseEngineerScaffolder>();
 

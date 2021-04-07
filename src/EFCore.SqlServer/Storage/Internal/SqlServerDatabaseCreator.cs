@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
@@ -42,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerDatabaseCreator(
-            [NotNull] RelationalDatabaseCreatorDependencies dependencies,
-            [NotNull] ISqlServerConnection connection,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+            RelationalDatabaseCreatorDependencies dependencies,
+            ISqlServerConnection connection,
+            IRawSqlCommandBuilder rawSqlCommandBuilder)
             : base(dependencies)
         {
             _connection = connection;
@@ -125,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                     null,
                                     null,
                                     Dependencies.CurrentContext.Context,
-                                    Dependencies.CommandLogger))
+                                    Dependencies.CommandLogger))!
                         != 0);
 
         /// <summary>
@@ -137,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
             => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 _connection,
-                async (connection, ct) => (int)await CreateHasTablesCommand()
+                async (connection, ct) => (int)(await CreateHasTablesCommand()
                         .ExecuteScalarAsync(
                             new RelationalCommandParameterObject(
                                 connection,
@@ -146,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 Dependencies.CurrentContext.Context,
                                 Dependencies.CommandLogger),
                             cancellationToken: ct)
-                        .ConfigureAwait(false)
+                        .ConfigureAwait(false))!
                     != 0, cancellationToken);
 
         private IRelationalCommand CreateHasTablesCommand()
@@ -178,9 +179,10 @@ SELECT 1 ELSE SELECT 0");
                     {
                         Name = builder.InitialCatalog,
                         FileName = builder.AttachDBFilename,
-                        Collation = Dependencies.Model.GetCollation()
+                        Collation = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>().Model.GetCollation()
                     }
-                });
+                },
+                null);
         }
 
         /// <summary>
@@ -387,7 +389,7 @@ SELECT 1 ELSE SELECT 0");
 
             var operations = new MigrationOperation[] { new SqlServerDropDatabaseOperation { Name = databaseName } };
 
-            return Dependencies.MigrationsSqlGenerator.Generate(operations);
+            return Dependencies.MigrationsSqlGenerator.Generate(operations, null);
         }
 
         // Clear connection pools in case there are active connections that are pooled

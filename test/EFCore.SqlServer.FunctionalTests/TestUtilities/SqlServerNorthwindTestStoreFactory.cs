@@ -7,13 +7,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public const string Name = "Northwind";
         public static readonly string NorthwindConnectionString = SqlServerTestStore.CreateConnectionString(Name);
-        public static new SqlServerNorthwindTestStoreFactory Instance { get; } = new SqlServerNorthwindTestStoreFactory();
+        public static new SqlServerNorthwindTestStoreFactory Instance { get; } = new();
 
         protected SqlServerNorthwindTestStoreFactory()
         {
         }
 
         public override TestStore GetOrCreate(string storeName)
-            => SqlServerTestStore.GetOrCreate(Name, "Northwind.sql");
+            => SqlServerTestStore.GetOrCreate(storeName, "Northwind.sql");
     }
 }

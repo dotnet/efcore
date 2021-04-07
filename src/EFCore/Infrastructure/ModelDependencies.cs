@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class ModelDependencies
+    public sealed record ModelDependencies
     {
         /// <summary>
         ///     <para>
@@ -55,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public ModelDependencies(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
             Check.NotNull(logger, nameof(logger));
 
@@ -65,14 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="logger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-            => new ModelDependencies(logger);
+        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; init; }
     }
 }

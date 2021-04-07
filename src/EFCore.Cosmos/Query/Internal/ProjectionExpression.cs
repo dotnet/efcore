@@ -3,9 +3,10 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ProjectionExpression([NotNull] Expression expression, [NotNull] string alias)
+        public ProjectionExpression(Expression expression, string alias)
         {
             Expression = expression;
             Alias = alias;
@@ -91,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ProjectionExpression Update([NotNull] Expression expression)
+        public virtual ProjectionExpression Update(Expression expression)
             => expression != Expression
                 ? new ProjectionExpression(expression, Alias)
                 : this;
@@ -107,8 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
             expressionPrinter.Visit(Expression);
-            if (!string.Equals(string.Empty, Alias)
-                && !string.Equals(Alias, Name))
+            if (Alias != string.Empty && Alias != Name)
             {
                 expressionPrinter.Append(" AS " + Alias);
             }
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     && Equals(projectionExpression));
 
         private bool Equals(ProjectionExpression projectionExpression)
-            => string.Equals(Alias, projectionExpression.Alias)
+            => Alias == projectionExpression.Alias
                 && Expression.Equals(projectionExpression.Expression);
 
         /// <summary>

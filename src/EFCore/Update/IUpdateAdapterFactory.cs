@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -37,6 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="model"> The model for which a tracker is needed, or null to use the current model. </param>
         /// <returns> The new tracker. </returns>
-        IUpdateAdapter CreateStandalone([CanBeNull] IModel model = null);
+        IUpdateAdapter CreateStandalone(IModel? model = null);
     }
 }

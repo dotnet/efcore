@@ -23,18 +23,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SimpleSelect(bool async)
+        public virtual async Task SimpleSelect(bool async)
         {
-            return AssertQuery(
+            await AssertQuery(
                 async,
-                ss => ss.Set<PointEntity>(),
-                elementSorter: x => x.Id,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Id, a.Id);
-                    Assert.Equal(e.Geometry, a.Geometry, GeometryComparer.Instance);
-                    Assert.Equal(e.Point, a.Point, GeometryComparer.Instance);
-                });
+                ss => ss.Set<PointEntity>());
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<LineStringEntity>());
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<PolygonEntity>());
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<MultiLineStringEntity>());
         }
 
         [ConditionalTheory]
@@ -43,14 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<GeoPointEntity>(),
-                elementSorter: x => x.Id,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Id, a.Id);
-                    Assert.Equal(e.Location.Lat, a.Location.Lat);
-                    Assert.Equal(e.Location.Lon, a.Location.Lon);
-                });
+                ss => ss.Set<GeoPointEntity>());
         }
 
         [ConditionalTheory]
@@ -1265,11 +1263,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     AssertEqual(e.Id, a.Id);
                     AssertEqual(e.I, a.I);
-                    AssertCollection(e.List, a.List, elementSorter: e=> e.Id, elementAsserter: (ei, ai) =>
-                    {
-                        Assert.Equal(ei.Geometry, ai.Geometry, GeometryComparer.Instance);
-                        Assert.Equal(ei.Point, ai.Point, GeometryComparer.Instance);
-                    });
+                    AssertCollection(e.List, a.List);
                 });
         }
 

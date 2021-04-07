@@ -34,12 +34,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         protected override IClrPropertyGetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
             MemberInfo memberInfo,
-            IPropertyBase propertyBase)
+            IPropertyBase? propertyBase)
         {
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
 
             Expression readExpression;
-            if (memberInfo.DeclaringType.IsAssignableFrom(typeof(TEntity)))
+            if (memberInfo.DeclaringType!.IsAssignableFrom(typeof(TEntity)))
             {
                 readExpression = PropertyBase.CreateMemberAccess(propertyBase, entityParameter, memberInfo);
             }

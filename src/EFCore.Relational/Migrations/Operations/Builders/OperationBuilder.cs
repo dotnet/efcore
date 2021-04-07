@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         ///     Creates a new builder instance for the given <see cref="MigrationOperation" />.
         /// </summary>
         /// <param name="operation"> The <see cref="MigrationOperation" />. </param>
-        public OperationBuilder([NotNull] TOperation operation)
+        public OperationBuilder(TOperation operation)
         {
             Check.NotNull(operation, nameof(operation));
 
@@ -41,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="value"> The annotation value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<TOperation> Annotation(
-            [NotNull] string name,
-            [NotNull] object value)
+            string name,
+            object value)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(value, nameof(value));
@@ -60,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string ToString()
-            => base.ToString();
+            => base.ToString()!;
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

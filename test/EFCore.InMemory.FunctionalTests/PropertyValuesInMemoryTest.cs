@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore
 
         public class PropertyValuesInMemoryFixture : PropertyValuesFixtureBase
         {
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).EnableSensitiveDataLogging(false);
+
             protected override ITestStoreFactory TestStoreFactory
                 => InMemoryTestStoreFactory.Instance;
         }

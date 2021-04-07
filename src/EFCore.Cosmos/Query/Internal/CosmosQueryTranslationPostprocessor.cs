@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -25,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosQueryTranslationPostprocessor(
-            [NotNull] QueryTranslationPostprocessorDependencies dependencies,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] QueryCompilationContext queryCompilationContext)
+            QueryTranslationPostprocessorDependencies dependencies,
+            ISqlExpressionFactory sqlExpressionFactory,
+            QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
@@ -44,6 +43,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public override Expression Process(Expression query)
         {
             query = base.Process(query);
+
+            if (query is ShapedQueryExpression shapedQueryExpression
+                && shapedQueryExpression.QueryExpression is SelectExpression selectExpression)
+            {
+                // Cosmos does not have nested select expression so this should be safe.
+                selectExpression.ApplyProjection();
+            }
+
             query = new CosmosValueConverterCompensatingExpressionVisitor(_sqlExpressionFactory).Visit(query);
 
             return query;

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class DatabaseDependencies
+    public sealed record DatabaseDependencies
     {
         /// <summary>
         ///     <para>
@@ -56,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public DatabaseDependencies(
-            [NotNull] IQueryCompilationContextFactory queryCompilationContextFactory,
-            [NotNull] IUpdateAdapterFactory updateAdapterFactory)
+            IQueryCompilationContextFactory queryCompilationContextFactory,
+            IUpdateAdapterFactory updateAdapterFactory)
         {
             Check.NotNull(queryCompilationContextFactory, nameof(queryCompilationContextFactory));
             Check.NotNull(updateAdapterFactory, nameof(updateAdapterFactory));
@@ -69,31 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Factory for compilation contexts to process LINQ queries.
         /// </summary>
-        public IQueryCompilationContextFactory QueryCompilationContextFactory { get; }
+        public IQueryCompilationContextFactory QueryCompilationContextFactory { get; init; }
 
         /// <summary>
         ///     Factory for creating model data tracker.
         /// </summary>
-        public IUpdateAdapterFactory UpdateAdapterFactory { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="queryCompilationContextFactory">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public DatabaseDependencies With([NotNull] IQueryCompilationContextFactory queryCompilationContextFactory)
-            => new DatabaseDependencies(queryCompilationContextFactory, UpdateAdapterFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="updateAdapterFactory">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public DatabaseDependencies With([NotNull] IUpdateAdapterFactory updateAdapterFactory)
-            => new DatabaseDependencies(QueryCompilationContextFactory, updateAdapterFactory);
+        public IUpdateAdapterFactory UpdateAdapterFactory { get; init; }
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -28,13 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             // Reading database values
             private static readonly MethodInfo _isDbNullMethod =
-                typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) });
+                typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) });
 
             private static readonly MethodInfo _getFieldValueMethod =
-                typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) });
+                typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) });
 
             private static readonly MethodInfo _throwReadValueExceptionMethod =
-                typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException));
+                typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ThrowReadValueException));
 
             // Coordinating results
             private static readonly MemberInfo _resultContextValuesMemberInfo
@@ -45,76 +46,76 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // Performing collection materialization
             private static readonly MethodInfo _includeReferenceMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(IncludeReference));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeReference));
 
             private static readonly MethodInfo _initializeIncludeCollectionMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InitializeIncludeCollection));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeIncludeCollection));
 
             private static readonly MethodInfo _populateIncludeCollectionMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateIncludeCollection));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateIncludeCollection));
 
             private static readonly MethodInfo _initializeSplitIncludeCollectionMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InitializeSplitIncludeCollection));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeSplitIncludeCollection));
 
             private static readonly MethodInfo _populateSplitIncludeCollectionMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateSplitIncludeCollection));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitIncludeCollection));
 
             private static readonly MethodInfo _populateSplitIncludeCollectionAsyncMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateSplitIncludeCollectionAsync));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitIncludeCollectionAsync));
 
             private static readonly MethodInfo _initializeCollectionMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InitializeCollection));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeCollection));
 
             private static readonly MethodInfo _populateCollectionMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateCollection));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateCollection));
 
             private static readonly MethodInfo _initializeSplitCollectionMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InitializeSplitCollection));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(InitializeSplitCollection));
 
             private static readonly MethodInfo _populateSplitCollectionMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateSplitCollection));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitCollection));
 
             private static readonly MethodInfo _populateSplitCollectionAsyncMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(PopulateSplitCollectionAsync));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(PopulateSplitCollectionAsync));
 
             private static readonly MethodInfo _taskAwaiterMethodInfo
-                = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(TaskAwaiter));
+                = typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(TaskAwaiter));
 
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
-                = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
+                = typeof(IClrCollectionAccessor).GetRequiredDeclaredMethod(nameof(IClrCollectionAccessor.Add));
 
             private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
-            private readonly ISet<string> _tags;
+            private readonly ISet<string>? _tags;
             private readonly bool _isTracking;
             private readonly bool _isAsync;
             private readonly bool _splitQuery;
             private readonly bool _detailedErrorsEnabled;
             private readonly bool _generateCommandCache;
             private readonly ParameterExpression _resultCoordinatorParameter;
-            private readonly ParameterExpression _executionStrategyParameter;
+            private readonly ParameterExpression? _executionStrategyParameter;
 
             // States scoped to SelectExpression
             private readonly SelectExpression _selectExpression;
             private readonly ParameterExpression _dataReaderParameter;
             private readonly ParameterExpression _resultContextParameter;
-            private readonly ParameterExpression _indexMapParameter;
-            private readonly ReaderColumn[] _readerColumns;
+            private readonly ParameterExpression? _indexMapParameter;
+            private readonly ReaderColumn[]? _readerColumns;
 
             // States to materialize only once
-            private readonly IDictionary<Expression, Expression> _variableShaperMapping = new Dictionary<Expression, Expression>();
+            private readonly Dictionary<Expression, Expression> _variableShaperMapping = new(ReferenceEqualityComparer.Instance);
 
             // There are always entity variables to avoid materializing same entity twice
-            private readonly List<ParameterExpression> _variables = new List<ParameterExpression>();
+            private readonly List<ParameterExpression> _variables = new();
 
-            private readonly List<Expression> _expressions = new List<Expression>();
+            private readonly List<Expression> _expressions = new();
 
             // IncludeExpressions are added at the end in case they are using ValuesArray
-            private readonly List<Expression> _includeExpressions = new List<Expression>();
+            private readonly List<Expression> _includeExpressions = new();
 
             // If there is collection shaper then we need to construct ValuesArray to store values temporarily in ResultContext
-            private List<Expression> _collectionPopulatingExpressions;
-            private Expression _valuesArrayExpression;
-            private List<Expression> _valuesArrayInitializers;
+            private List<Expression>? _collectionPopulatingExpressions;
+            private Expression? _valuesArrayExpression;
+            private List<Expression>? _valuesArrayInitializers;
 
             private bool _containsCollectionMaterialization;
 
@@ -166,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SelectExpression selectExpression,
                 ParameterExpression dataReaderParameter,
                 ParameterExpression resultContextParameter,
-                ReaderColumn[] readerColumns)
+                ReaderColumn[]? readerColumns)
             {
                 _parentVisitor = parentVisitor;
                 _resultCoordinatorParameter = resultCoordinatorParameter;
@@ -214,8 +215,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public LambdaExpression ProcessShaper(
                 Expression shaperExpression,
-                out RelationalCommandCache relationalCommandCache,
-                out LambdaExpression relatedDataLoaders)
+                out RelationalCommandCache? relationalCommandCache,
+                out LambdaExpression? relatedDataLoaders)
             {
                 relatedDataLoaders = null;
 
@@ -242,7 +243,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 _containsCollectionMaterialization = new CollectionShaperFindingExpressionVisitor()
                     .ContainsCollectionMaterialization(shaperExpression);
-                relatedDataLoaders = null;
 
                 if (!_containsCollectionMaterialization)
                 {
@@ -301,16 +301,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Expression.Lambda<Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>>(
                                     Expression.Call(_taskAwaiterMethodInfo, tasks),
                                     QueryCompilationContext.QueryContextParameter,
-                                    _executionStrategyParameter,
+                                    _executionStrategyParameter!,
                                     _resultCoordinatorParameter);
                         }
                         else
                         {
-                            relatedDataLoaders = Expression.Lambda<Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>>(
-                                Expression.Block(_collectionPopulatingExpressions),
-                                QueryCompilationContext.QueryContextParameter,
-                                _executionStrategyParameter,
-                                _resultCoordinatorParameter);
+                            relatedDataLoaders =
+                                Expression.Lambda<Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>>(
+                                    Expression.Block(_collectionPopulatingExpressions),
+                                    QueryCompilationContext.QueryContextParameter,
+                                    _executionStrategyParameter!,
+                                    _resultCoordinatorParameter);
                         }
                     }
                     else
@@ -371,10 +372,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     _materializationContextBindings[parameterExpression] = propertyMap;
                     entityTypeIdentifyingExpressionOffsets[parameterExpression] = propertyMap.Values.Max() + 1;
 
-                    var updatedExpression = Expression.New(
-                        newExpression.Constructor,
-                        Expression.Constant(ValueBuffer.Empty),
-                        newExpression.Arguments[1]);
+                    var updatedExpression = newExpression.Update(
+                        new[] { Expression.Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
 
                     return Expression.Assign(binaryExpression.Left, updatedExpression);
                 }
@@ -410,10 +409,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             if (_containsCollectionMaterialization)
                             {
-                                _valuesArrayInitializers.Add(entityParameter);
+                                _valuesArrayInitializers!.Add(entityParameter);
                                 accessor = Expression.Convert(
                                     Expression.ArrayIndex(
-                                        _valuesArrayExpression,
+                                        _valuesArrayExpression!,
                                         Expression.Constant(_valuesArrayInitializers.Count - 1)),
                                     entityShaperExpression.Type);
                             }
@@ -438,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             _dataReaderParameter,
                             projectionIndex,
                             IsNullableProjection(projection),
-                            projection.Expression.TypeMapping,
+                            projection.Expression.TypeMapping!,
                             projectionBindingExpression.Type);
                     }
 
@@ -465,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     _dataReaderParameter,
                                     projectionIndex,
                                     nullable,
-                                    projection.Expression.TypeMapping,
+                                    projection.Expression.TypeMapping!,
                                     valueParameter.Type)));
 
                         if (_containsCollectionMaterialization)
@@ -476,10 +475,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 expressionToAdd = Expression.Convert(expressionToAdd, typeof(object));
                             }
 
-                            _valuesArrayInitializers.Add(expressionToAdd);
+                            _valuesArrayInitializers!.Add(expressionToAdd);
                             accessor = Expression.Convert(
                                 Expression.ArrayIndex(
-                                    _valuesArrayExpression,
+                                    _valuesArrayExpression!,
                                     Expression.Constant(_valuesArrayInitializers.Count - 1)),
                                 projectionBindingExpression.Type);
                         }
@@ -555,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             var relatedEntityType = innerShaper.ReturnType;
                             var inverseNavigation = navigation.Inverse;
 
-                            _collectionPopulatingExpressions.Add(
+                            _collectionPopulatingExpressions!.Add(
                                 Expression.Call(
                                     _populateIncludeCollectionMethodInfo.MakeGenericMethod(includingEntityType, relatedEntityType),
                                     collectionIdConstant,
@@ -586,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             var innerProcessor = new ShaperProcessingExpressionVisitor(
                                 _parentVisitor, _resultCoordinatorParameter,
-                                _executionStrategyParameter, relationalSplitCollectionShaperExpression.SelectExpression, _tags);
+                                _executionStrategyParameter!, relationalSplitCollectionShaperExpression.SelectExpression, _tags!);
                             var innerShaper = innerProcessor.ProcessShaper(
                                 relationalSplitCollectionShaperExpression.InnerShaper,
                                 out var relationalCommandCache,
@@ -640,13 +639,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                             var relatedEntityType = innerShaper.ReturnType;
                             var inverseNavigation = navigation.Inverse;
 
-                            _collectionPopulatingExpressions.Add(
+                            _collectionPopulatingExpressions!.Add(
                                 Expression.Call(
                                     (_isAsync ? _populateSplitIncludeCollectionAsyncMethodInfo : _populateSplitIncludeCollectionMethodInfo)
                                     .MakeGenericMethod(includingEntityType, relatedEntityType),
                                     collectionIdConstant,
                                     Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                                    _executionStrategyParameter,
+                                    _executionStrategyParameter!,
                                     Expression.Constant(_detailedErrorsEnabled),
                                     _resultCoordinatorParameter,
                                     Expression.Constant(relationalCommandCache),
@@ -751,14 +750,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         Expression.Constant(outerIdentifierLambda.Compile()),
                                         Expression.Constant(collectionAccessor, typeof(IClrCollectionAccessor)))));
 
-                            _valuesArrayInitializers.Add(collectionParameter);
+                            _valuesArrayInitializers!.Add(collectionParameter);
                             accessor = Expression.Convert(
                                 Expression.ArrayIndex(
-                                    _valuesArrayExpression,
+                                    _valuesArrayExpression!,
                                     Expression.Constant(_valuesArrayInitializers.Count - 1)),
                                 relationalCollectionShaperExpression.Type);
 
-                            _collectionPopulatingExpressions.Add(
+                            _collectionPopulatingExpressions!.Add(
                                 Expression.Call(
                                     _populateCollectionMethodInfo.MakeGenericMethod(collectionType, elementType, relatedElementType),
                                     collectionIdConstant,
@@ -792,7 +791,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             var innerProcessor = new ShaperProcessingExpressionVisitor(
                                 _parentVisitor, _resultCoordinatorParameter,
-                                _executionStrategyParameter, relationalSplitCollectionShaperExpression.SelectExpression, _tags);
+                                _executionStrategyParameter!, relationalSplitCollectionShaperExpression.SelectExpression, _tags!);
                             var innerShaper = innerProcessor.ProcessShaper(
                                 relationalSplitCollectionShaperExpression.InnerShaper,
                                 out var relationalCommandCache,
@@ -838,20 +837,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         Expression.Constant(parentIdentifierLambda.Compile()),
                                         Expression.Constant(collectionAccessor, typeof(IClrCollectionAccessor)))));
 
-                            _valuesArrayInitializers.Add(collectionParameter);
+                            _valuesArrayInitializers!.Add(collectionParameter);
                             accessor = Expression.Convert(
                                 Expression.ArrayIndex(
-                                    _valuesArrayExpression,
+                                    _valuesArrayExpression!,
                                     Expression.Constant(_valuesArrayInitializers.Count - 1)),
                                 relationalSplitCollectionShaperExpression.Type);
 
-                            _collectionPopulatingExpressions.Add(
+                            _collectionPopulatingExpressions!.Add(
                                 Expression.Call(
                                     (_isAsync ? _populateSplitCollectionAsyncMethodInfo : _populateSplitCollectionMethodInfo)
                                     .MakeGenericMethod(collectionType, elementType, relatedElementType),
                                     collectionIdConstant,
                                     Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                                    _executionStrategyParameter,
+                                    _executionStrategyParameter!,
                                     Expression.Constant(_detailedErrorsEnabled),
                                     _resultCoordinatorParameter,
                                     Expression.Constant(relationalCommandCache),
@@ -887,11 +886,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     && methodCallExpression.Method.GetGenericMethodDefinition()
                     == Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {
-                    var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
-                    var mappingParameter = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object;
+                    var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty?>();
+                    var mappingParameter = (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object!;
                     var projectionIndex = property == null
                         ? entityTypeIdentifyingExpressionOffsets[mappingParameter]
-                        + (int)((ConstantExpression)methodCallExpression.Arguments[1]).Value
+                        + methodCallExpression.Arguments[1].GetConstantValue<int>()
                         : _materializationContextBindings[mappingParameter][property];
                     var projection = _selectExpression.Projection[projectionIndex];
 
@@ -905,7 +904,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         _dataReaderParameter,
                         projectionIndex,
                         nullable,
-                        projection.Expression.TypeMapping,
+                        projection.Expression.TypeMapping!,
                         methodCallExpression.Type,
                         property);
                 }
@@ -917,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Type entityType,
                 Type relatedEntityType,
                 INavigationBase navigation,
-                INavigationBase inverseNavigation)
+                INavigationBase? inverseNavigation)
             {
                 var entityParameter = Expression.Parameter(entityType);
                 var relatedEntityParameter = Expression.Parameter(relatedEntityType);
@@ -964,10 +963,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
                 => projectionBindingExpression.ProjectionMember != null
-                    ? ((ConstantExpression)_selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value
+                    ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember).GetConstantValue<object>()
                     : (projectionBindingExpression.Index != null
                         ? (object)projectionBindingExpression.Index
-                        : projectionBindingExpression.IndexMap);
+                        : projectionBindingExpression.IndexMap)!;
 
             private static bool IsNullableProjection(ProjectionExpression projection)
                 => !(projection.Expression is ColumnExpression column) || column.IsNullable;
@@ -978,7 +977,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 bool nullable,
                 RelationalTypeMapping typeMapping,
                 Type type,
-                IPropertyBase property = null)
+                IPropertyBase? property = null)
             {
                 Check.DebugAssert(
                     property != null || type.IsNullableType(), "Must read nullable value from database if property is not specified.");
@@ -994,30 +993,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression valueExpression
                     = Expression.Call(
                         getMethod.DeclaringType != typeof(DbDataReader)
-                            ? Expression.Convert(dbDataReader, getMethod.DeclaringType)
+                            ? Expression.Convert(dbDataReader, getMethod.DeclaringType!)
                             : (Expression)dbDataReader,
                         getMethod,
                         indexExpression);
 
                 var buffering = false;
 
-                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23282", out var isEnabled) && isEnabled)
+                if (_readerColumns != null)
                 {
-                    if (_readerColumns != null
-                        && _readerColumns[index] == null)
+                    buffering = true;
+                    var columnType = valueExpression.Type;
+                    var bufferedColumnType = columnType;
+                    if (!bufferedColumnType.IsValueType
+                        || !BufferedDataReader.IsSupportedValueType(bufferedColumnType))
                     {
-                        buffering = true;
+                        bufferedColumnType = typeof(object);
+                    }
+
+                    if (_readerColumns[index] == null)
+                    {
                         var bufferedReaderLambdaExpression = valueExpression;
-                        var columnType = bufferedReaderLambdaExpression.Type;
-                        if (!columnType.IsValueType
-                            || !BufferedDataReader.IsSupportedValueType(columnType))
+                        if (columnType != bufferedColumnType)
                         {
-                            columnType = typeof(object);
-                            bufferedReaderLambdaExpression = Expression.Convert(bufferedReaderLambdaExpression, columnType);
+                            bufferedReaderLambdaExpression = Expression.Convert(bufferedReaderLambdaExpression, bufferedColumnType);
                         }
 
                         _readerColumns[index] = ReaderColumn.Create(
-                            columnType,
+                            bufferedColumnType,
                             nullable,
                             _indexMapParameter != null ? ((ColumnExpression)_selectExpression.Projection[index].Expression).Name : null,
                             property,
@@ -1025,52 +1028,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 bufferedReaderLambdaExpression,
                                 dbDataReader,
                                 _indexMapParameter ?? Expression.Parameter(typeof(int[]))).Compile());
-
-                        if (getMethod.DeclaringType != typeof(DbDataReader))
-                        {
-                            valueExpression = Expression.Call(
-                                dbDataReader, RelationalTypeMapping.GetDataReaderMethod(columnType), indexExpression);
-                        }
                     }
-                }
-                else
-                {
-                    if (_readerColumns != null)
+
+                    valueExpression = Expression.Call(
+                        dbDataReader, RelationalTypeMapping.GetDataReaderMethod(bufferedColumnType), indexExpression);
+                    if (valueExpression.Type != columnType)
                     {
-                        buffering = true;
-                        var columnType = valueExpression.Type;
-                        var bufferedColumnType = columnType;
-                        if (!bufferedColumnType.IsValueType
-                            || !BufferedDataReader.IsSupportedValueType(bufferedColumnType))
-                        {
-                            bufferedColumnType = typeof(object);
-                        }
-
-                        if (_readerColumns[index] == null)
-                        {
-                            var bufferedReaderLambdaExpression = valueExpression;
-                            if (columnType != bufferedColumnType)
-                            {
-                                bufferedReaderLambdaExpression = Expression.Convert(bufferedReaderLambdaExpression, bufferedColumnType);
-                            }
-
-                            _readerColumns[index] = ReaderColumn.Create(
-                                bufferedColumnType,
-                                nullable,
-                                _indexMapParameter != null ? ((ColumnExpression)_selectExpression.Projection[index].Expression).Name : null,
-                                property,
-                                Expression.Lambda(
-                                    bufferedReaderLambdaExpression,
-                                    dbDataReader,
-                                    _indexMapParameter ?? Expression.Parameter(typeof(int[]))).Compile());
-                        }
-
-                        valueExpression = Expression.Call(
-                            dbDataReader, RelationalTypeMapping.GetDataReaderMethod(bufferedColumnType), indexExpression);
-                        if (valueExpression.Type != columnType)
-                        {
-                            valueExpression = Expression.Convert(valueExpression, columnType);
-                        }
+                        valueExpression = Expression.Convert(valueExpression, columnType);
                     }
                 }
 
@@ -1129,7 +1093,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Exception exception,
                 object value,
                 Type expectedType,
-                IPropertyBase property = null)
+                IPropertyBase? property = null)
             {
                 var actualType = value?.GetType();
 
@@ -1218,7 +1182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 where TParent : class
                 where TNavigationEntity : class, TParent
             {
-                object collection = null;
+                object? collection = null;
                 if (entity is TNavigationEntity)
                 {
                     if (setLoaded)
@@ -1262,7 +1226,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 where TIncludingEntity : class
                 where TIncludedEntity : class
             {
-                var collectionMaterializationContext = resultCoordinator.Collections[collectionId];
+                var collectionMaterializationContext = resultCoordinator.Collections[collectionId]!;
                 if (collectionMaterializationContext.Parent is TIncludingEntity entity)
                 {
                     if (resultCoordinator.HasNext == false)
@@ -1376,7 +1340,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 where TParent : class
                 where TNavigationEntity : class, TParent
             {
-                object collection = null;
+                object? collection = null;
                 if (entity is TNavigationEntity)
                 {
                     if (setLoaded)
@@ -1422,14 +1386,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || resultCoordinator.DataReaders[collectionId] == null)
                 {
                     // Execute and fetch data reader
-                    RelationalDataReader dataReader = null;
-                    executionStrategy.Execute(true, InitializeReader, null);
+                    var dataReader = executionStrategy.Execute(
+                        (queryContext, relationalCommandCache, detailedErrorsEnabled),
+                        ((RelationalQueryContext, RelationalCommandCache, bool) tup) => InitializeReader(tup.Item1, tup.Item2, tup.Item3),
+                        verifySucceeded: null);
 
-                    bool InitializeReader(DbContext _, bool result)
+                    static RelationalDataReader InitializeReader(
+                        RelationalQueryContext queryContext,
+                        RelationalCommandCache relationalCommandCache,
+                        bool detailedErrorsEnabled)
                     {
-                        var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
+                        var relationalCommandTemplate = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
+                        var relationalCommand = queryContext.Connection.RentCommand();
+                        relationalCommand.PopulateFromTemplate(relationalCommandTemplate);
 
-                        dataReader = relationalCommand.ExecuteReader(
+                        return relationalCommand.ExecuteReader(
                             new RelationalCommandParameterObject(
                                 queryContext.Connection,
                                 queryContext.ParameterValues,
@@ -1437,15 +1408,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 queryContext.Context,
                                 queryContext.CommandLogger,
                                 detailedErrorsEnabled));
-
-                        return result;
                     }
 
                     resultCoordinator.SetDataReader(collectionId, dataReader);
                 }
 
-                var splitQueryCollectionContext = resultCoordinator.Collections[collectionId];
-                var dataReaderContext = resultCoordinator.DataReaders[collectionId];
+                var splitQueryCollectionContext = resultCoordinator.Collections[collectionId]!;
+                var dataReaderContext = resultCoordinator.DataReaders[collectionId]!;
                 var dbDataReader = dataReaderContext.DataReader.DbDataReader;
                 if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
                 {
@@ -1503,33 +1472,40 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || resultCoordinator.DataReaders[collectionId] == null)
                 {
                     // Execute and fetch data reader
-                    RelationalDataReader dataReader = null;
-                    await executionStrategy.ExecuteAsync(
-                        true, InitializeReaderAsync, null, queryContext.CancellationToken).ConfigureAwait(false);
+                    var dataReader = await executionStrategy.ExecuteAsync(
+                            (queryContext, relationalCommandCache, detailedErrorsEnabled),
+                            ((RelationalQueryContext, RelationalCommandCache, bool) tup, CancellationToken cancellationToken)
+                                => InitializeReaderAsync(tup.Item1, tup.Item2, tup.Item3, cancellationToken),
+                            verifySucceeded: null)
+                        .ConfigureAwait(false);
 
-                    async Task<bool> InitializeReaderAsync(DbContext _, bool result, CancellationToken cancellationToken)
+                    async Task<RelationalDataReader> InitializeReaderAsync(
+                        RelationalQueryContext queryContext,
+                        RelationalCommandCache relationalCommandCache,
+                        bool detailedErrorsEnabled,
+                        CancellationToken cancellationToken)
                     {
-                        var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
+                        var relationalCommandTemplate = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
+                        var relationalCommand = queryContext.Connection.RentCommand();
+                        relationalCommand.PopulateFromTemplate(relationalCommandTemplate);
 
-                        dataReader = await relationalCommand.ExecuteReaderAsync(
-                            new RelationalCommandParameterObject(
-                                queryContext.Connection,
-                                queryContext.ParameterValues,
-                                relationalCommandCache.ReaderColumns,
-                                queryContext.Context,
-                                queryContext.CommandLogger,
-                                detailedErrorsEnabled),
-                            cancellationToken)
+                        return await relationalCommand.ExecuteReaderAsync(
+                                new RelationalCommandParameterObject(
+                                    queryContext.Connection,
+                                    queryContext.ParameterValues,
+                                    relationalCommandCache.ReaderColumns,
+                                    queryContext.Context,
+                                    queryContext.CommandLogger,
+                                    detailedErrorsEnabled),
+                                cancellationToken)
                             .ConfigureAwait(false);
-
-                        return result;
                     }
 
                     resultCoordinator.SetDataReader(collectionId, dataReader);
                 }
 
-                var splitQueryCollectionContext = resultCoordinator.Collections[collectionId];
-                var dataReaderContext = resultCoordinator.DataReaders[collectionId];
+                var splitQueryCollectionContext = resultCoordinator.Collections[collectionId]!;
+                var dataReaderContext = resultCoordinator.DataReaders[collectionId]!;
                 var dbDataReader = dataReaderContext.DataReader.DbDataReader;
                 if (splitQueryCollectionContext.Parent is TIncludingEntity entity)
                 {
@@ -1607,7 +1583,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 where TRelatedEntity : TElement
                 where TCollection : class, ICollection<TElement>
             {
-                var collectionMaterializationContext = resultCoordinator.Collections[collectionId];
+                var collectionMaterializationContext = resultCoordinator.Collections[collectionId]!;
                 if (collectionMaterializationContext.Collection is null)
                 {
                     // nothing to materialize since no collection created
@@ -1741,14 +1717,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || resultCoordinator.DataReaders[collectionId] == null)
                 {
                     // Execute and fetch data reader
-                    RelationalDataReader dataReader = null;
-                    executionStrategy.Execute(true, InitializeReader, null);
+                    var dataReader = executionStrategy.Execute(
+                        (queryContext, relationalCommandCache, detailedErrorsEnabled),
+                        ((RelationalQueryContext, RelationalCommandCache, bool) tup) => InitializeReader(tup.Item1, tup.Item2, tup.Item3),
+                        verifySucceeded: null);
 
-                    bool InitializeReader(DbContext _, bool result)
+                    static RelationalDataReader InitializeReader(
+                        RelationalQueryContext queryContext,
+                        RelationalCommandCache relationalCommandCache,
+                        bool detailedErrorsEnabled)
                     {
                         var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
 
-                        dataReader = relationalCommand.ExecuteReader(
+                        return relationalCommand.ExecuteReader(
                             new RelationalCommandParameterObject(
                                 queryContext.Connection,
                                 queryContext.ParameterValues,
@@ -1756,15 +1737,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 queryContext.Context,
                                 queryContext.CommandLogger,
                                 detailedErrorsEnabled));
-
-                        return result;
                     }
 
                     resultCoordinator.SetDataReader(collectionId, dataReader);
                 }
 
-                var splitQueryCollectionContext = resultCoordinator.Collections[collectionId];
-                var dataReaderContext = resultCoordinator.DataReaders[collectionId];
+                var splitQueryCollectionContext = resultCoordinator.Collections[collectionId]!;
+                var dataReaderContext = resultCoordinator.DataReaders[collectionId]!;
                 var dbDataReader = dataReaderContext.DataReader.DbDataReader;
                 if (splitQueryCollectionContext.Collection is null)
                 {
@@ -1814,15 +1793,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || resultCoordinator.DataReaders[collectionId] == null)
                 {
                     // Execute and fetch data reader
-                    RelationalDataReader dataReader = null;
-                    await executionStrategy.ExecuteAsync(
-                        true, InitializeReaderAsync, null, queryContext.CancellationToken).ConfigureAwait(false);
+                    var dataReader = await executionStrategy.ExecuteAsync(
+                            (queryContext, relationalCommandCache, detailedErrorsEnabled),
+                            ((RelationalQueryContext, RelationalCommandCache, bool) tup, CancellationToken cancellationToken)
+                                => InitializeReaderAsync(tup.Item1, tup.Item2, tup.Item3, cancellationToken),
+                            verifySucceeded: null)
+                        .ConfigureAwait(false);
 
-                    async Task<bool> InitializeReaderAsync(DbContext _, bool result, CancellationToken cancellationToken)
+                    async Task<RelationalDataReader> InitializeReaderAsync(
+                        RelationalQueryContext queryContext,
+                        RelationalCommandCache relationalCommandCache,
+                        bool detailedErrorsEnabled,
+                        CancellationToken cancellationToken)
                     {
                         var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
 
-                        dataReader = await relationalCommand.ExecuteReaderAsync(
+                        return await relationalCommand.ExecuteReaderAsync(
                             new RelationalCommandParameterObject(
                                 queryContext.Connection,
                                 queryContext.ParameterValues,
@@ -1832,15 +1818,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 detailedErrorsEnabled),
                             cancellationToken)
                             .ConfigureAwait(false);
-
-                        return result;
                     }
 
                     resultCoordinator.SetDataReader(collectionId, dataReader);
                 }
 
-                var splitQueryCollectionContext = resultCoordinator.Collections[collectionId];
-                var dataReaderContext = resultCoordinator.DataReaders[collectionId];
+                var splitQueryCollectionContext = resultCoordinator.Collections[collectionId]!;
+                var dataReaderContext = resultCoordinator.DataReaders[collectionId]!;
                 var dbDataReader = dataReaderContext.DataReader.DbDataReader;
                 if (splitQueryCollectionContext.Collection is null)
                 {
@@ -1918,7 +1902,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return _containsCollection;
                 }
 
-                public override Expression Visit(Expression expression)
+                [return: NotNullIfNotNull("expression")]
+                public override Expression? Visit(Expression? expression)
                 {
                     if (_containsCollection)
                     {

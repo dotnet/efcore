@@ -142,10 +142,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private NonNullableNavigationConvention CreateNotNullNavigationConvention()
-            => new NonNullableNavigationConvention(CreateDependencies());
+            => new(CreateDependencies());
 
         public ListLoggerFactory ListLoggerFactory { get; }
-            = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
+            = new(l => l == DbLoggerCategory.Model.Name);
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {

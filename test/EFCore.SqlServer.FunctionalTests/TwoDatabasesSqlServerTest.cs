@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
                 : optionsBuilder.UseSqlServer();
 
         protected override TwoDatabasesWithDataContext CreateBackingContext(string databaseName)
-            => new TwoDatabasesWithDataContext(Fixture.CreateOptions(SqlServerTestStore.Create(databaseName)));
+            => new(Fixture.CreateOptions(SqlServerTestStore.Create(databaseName)));
 
         protected override string DummyConnectionString { get; } = "Database=DoesNotExist";
     }

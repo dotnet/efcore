@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -28,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="escapeChar"> An optional escape character to use in LIKE. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public LikeExpression(
-            [NotNull] SqlExpression match,
-            [NotNull] SqlExpression pattern,
-            [CanBeNull] SqlExpression escapeChar,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            SqlExpression match,
+            SqlExpression pattern,
+            SqlExpression? escapeChar,
+            RelationalTypeMapping? typeMapping)
             : base(typeof(bool), typeMapping)
         {
             Check.NotNull(match, nameof(match));
@@ -55,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The escape chater to use in LIKE.
         /// </summary>
-        public virtual SqlExpression EscapeChar { get; }
+        public virtual SqlExpression? EscapeChar { get; }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             var match = (SqlExpression)visitor.Visit(Match);
             var pattern = (SqlExpression)visitor.Visit(Pattern);
-            var escapeChar = (SqlExpression)visitor.Visit(EscapeChar);
+            var escapeChar = (SqlExpression?)visitor.Visit(EscapeChar);
 
             return Update(match, pattern, escapeChar);
         }
@@ -78,9 +77,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="escapeChar"> The <see cref="EscapeChar" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual LikeExpression Update(
-            [NotNull] SqlExpression match,
-            [NotNull] SqlExpression pattern,
-            [CanBeNull] SqlExpression escapeChar)
+            SqlExpression match,
+            SqlExpression pattern,
+            SqlExpression? escapeChar)
         {
             Check.NotNull(match, nameof(match));
             Check.NotNull(pattern, nameof(pattern));
@@ -107,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is LikeExpression likeExpression
@@ -117,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => base.Equals(likeExpression)
                 && Match.Equals(likeExpression.Match)
                 && Pattern.Equals(likeExpression.Pattern)
-                && EscapeChar.Equals(likeExpression.EscapeChar);
+                && EscapeChar?.Equals(likeExpression.EscapeChar) == true;
 
         /// <inheritdoc />
         public override int GetHashCode()

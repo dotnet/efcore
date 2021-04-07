@@ -27,11 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Filtered_include_after_different_filtered_include_different_level(async))).Message);
 
-        public override void Filtered_include_outer_parameter_used_inside_filter()
+        public override async Task Filtered_include_outer_parameter_used_inside_filter(bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,
-                Assert.Throws<InvalidOperationException>(
-                    () => base.Filtered_include_outer_parameter_used_inside_filter()).Message);
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Filtered_include_outer_parameter_used_inside_filter(async))).Message);
 
         public override async Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation(bool async)
             => Assert.Equal(
@@ -88,5 +88,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Let_let_contains_from_outer_let(async))).Message);
+
+        public override async Task Complex_query_with_let_collection_projection_FirstOrDefault(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Complex_query_with_let_collection_projection_FirstOrDefault(async))).Message);
+
+        public override async Task Take_Select_collection_Take(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Take_Select_collection_Take(async))).Message);
+
+        public override async Task Skip_Take_Select_collection_Skip_Take(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Skip_Take_Select_collection_Skip_Take(async))).Message);
     }
 }

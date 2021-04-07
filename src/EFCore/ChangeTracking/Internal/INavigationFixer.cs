@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,11 +29,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        void BeginAttachGraph();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        void CompleteAttachGraph();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        void AbortAttachGraph();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         void NavigationReferenceChanged(
-            [NotNull] InternalEntityEntry entry,
-            [NotNull] INavigationBase navigationBase,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue);
+            InternalEntityEntry entry,
+            INavigationBase navigationBase,
+            object? oldValue,
+            object? newValue);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,10 +66,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         void NavigationCollectionChanged(
-            [NotNull] InternalEntityEntry entry,
-            [NotNull] INavigationBase navigationBase,
-            [NotNull] IEnumerable<object> added,
-            [NotNull] IEnumerable<object> removed);
+            InternalEntityEntry entry,
+            INavigationBase navigationBase,
+            IEnumerable<object> added,
+            IEnumerable<object> removed);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void TrackedFromQuery([NotNull] InternalEntityEntry entry);
+        void TrackedFromQuery(InternalEntityEntry entry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,12 +86,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         void KeyPropertyChanged(
-            [NotNull] InternalEntityEntry entry,
-            [NotNull] IProperty property,
-            [NotNull] IEnumerable<IKey> containingPrincipalKeys,
-            [NotNull] IEnumerable<IForeignKey> containingForeignKeys,
-            [CanBeNull] object oldValue,
-            [CanBeNull] object newValue);
+            InternalEntityEntry entry,
+            IProperty property,
+            IEnumerable<IKey> containingPrincipalKeys,
+            IEnumerable<IForeignKey> containingForeignKeys,
+            object? oldValue,
+            object? newValue);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -76,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void StateChanging([NotNull] InternalEntityEntry entry, EntityState newState);
+        void StateChanging(InternalEntityEntry entry, EntityState newState);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         void StateChanged(
-            [NotNull] InternalEntityEntry entry,
+            InternalEntityEntry entry,
             EntityState oldState,
             bool fromQuery);
     }

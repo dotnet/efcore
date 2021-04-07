@@ -2,15 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-
-#if NET5_0
-using System.IO;
-#endif
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -71,12 +68,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static bool IsNotConfigured(Exception exception)
             => exception switch
             {
-                HttpRequestException re => re.InnerException is SocketException
-#if NET5_0
-                    || (re.InnerException is IOException networkException
-                        && networkException.InnerException is SocketException)
-#endif
-                    ,
+                HttpRequestException re => re.InnerException is SocketException // Exception in Mac/Linux
+                    || (re.InnerException is IOException ioException && ioException.InnerException is SocketException), // Exception in Windows
                 _ => exception.Message.Contains(
                     "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
                     StringComparison.Ordinal),

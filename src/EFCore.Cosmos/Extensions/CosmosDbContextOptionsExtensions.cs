@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,11 +25,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cosmosOptionsAction"> An optional action to allow additional Cosmos-specific configuration. </param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseCosmos<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] string accountEndpoint,
-            [NotNull] string accountKey,
-            [NotNull] string databaseName,
-            [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            string accountEndpoint,
+            string accountKey,
+            string databaseName,
+            Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseCosmos(
                 (DbContextOptionsBuilder)optionsBuilder,
@@ -49,11 +48,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cosmosOptionsAction"> An optional action to allow additional Cosmos-specific configuration. </param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseCosmos(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] string accountEndpoint,
-            [NotNull] string accountKey,
-            [NotNull] string databaseName,
-            [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            string accountEndpoint,
+            string accountKey,
+            string databaseName,
+            Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(accountEndpoint, nameof(accountEndpoint));
@@ -85,10 +84,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cosmosOptionsAction"> An optional action to allow additional Cosmos-specific configuration. </param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseCosmos<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] string connectionString,
-            [NotNull] string databaseName,
-            [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            string connectionString,
+            string databaseName,
+            Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseCosmos(
                 (DbContextOptionsBuilder)optionsBuilder,
@@ -105,10 +104,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cosmosOptionsAction"> An optional action to allow additional Cosmos-specific configuration. </param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseCosmos(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] string connectionString,
-            [NotNull] string databaseName,
-            [CanBeNull] Action<CosmosDbContextOptionsBuilder> cosmosOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            string connectionString,
+            string databaseName,
+            Action<CosmosDbContextOptionsBuilder>? cosmosOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connectionString, nameof(connectionString));

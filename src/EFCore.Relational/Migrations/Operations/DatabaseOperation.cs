@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
     /// <summary>
@@ -14,6 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The collation for the database, or <see langword="null" /> to use the default collation of the instance of SQL Server.
         /// </summary>
-        public virtual string Collation { get; [param: CanBeNull] set; }
+        public virtual string? Collation { get; set; }
     }
 }

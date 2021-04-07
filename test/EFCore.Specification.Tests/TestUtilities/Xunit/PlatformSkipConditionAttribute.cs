@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
         }
 
         public ValueTask<bool> IsMetAsync()
-            => new ValueTask<bool>(CanRunOnThisPlatform(_excludedPlatforms));
+            => new(CanRunOnThisPlatform(_excludedPlatforms));
 
         public string SkipReason { get; set; } = "Test cannot run on this platform.";
 

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -28,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly IOperationReporter _reporter;
         private readonly Assembly _assembly;
         private readonly string _projectDir;
-        private readonly string _rootNamespace;
-        private readonly string _language;
+        private readonly string? _rootNamespace;
+        private readonly string? _language;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
         private readonly DbContextOperations _contextOperations;
         private readonly string[] _args;
@@ -41,21 +40,18 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public MigrationsOperations(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [NotNull] string projectDir,
-            [NotNull] string rootNamespace,
-            [CanBeNull] string language,
-            [NotNull] string[] args)
+            IOperationReporter reporter,
+            Assembly assembly,
+            Assembly startupAssembly,
+            string projectDir,
+            string? rootNamespace,
+            string? language,
+            string[]? args)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
-            Check.NotNull(rootNamespace, nameof(rootNamespace));
-            // Note: cannot assert that args is not null - as old versions of
-            // tools can still pass null.
 
             _reporter = reporter;
             _assembly = assembly;
@@ -79,10 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual MigrationFiles AddMigration(
-            [NotNull] string name,
-            [CanBeNull] string outputDir,
-            [CanBeNull] string contextType,
-            [CanBeNull] string @namespace)
+            string name,
+            string? outputDir,
+            string? contextType,
+            string? @namespace)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -108,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
             var migration =
                 string.IsNullOrEmpty(@namespace)
-                    ? scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace, _language)
+                    ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language)
                     : scaffolder.ScaffoldMigration(name, null, @namespace, _language);
             var files = scaffolder.Save(_projectDir, migration, outputDir);
 
@@ -118,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
         // --output-dir $(projectFolder)/A/B/C
         // => "namespace $(rootnamespace).A.B.C"
-        private string SubnamespaceFromOutputPath(string outputDir)
+        private string? SubnamespaceFromOutputPath(string? outputDir)
         {
             if (outputDir?.StartsWith(_projectDir, StringComparison.Ordinal) != true)
             {
@@ -143,8 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<MigrationInfo> GetMigrations(
-            [CanBeNull] string contextType,
-            [CanBeNull] string connectionString,
+            string? contextType,
+            string? connectionString,
             bool noConnect)
         {
             using var context = _contextOperations.CreateContext(contextType);
@@ -160,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var migrationsAssembly = services.GetRequiredService<IMigrationsAssembly>();
             var idGenerator = services.GetRequiredService<IMigrationsIdGenerator>();
 
-            HashSet<string> appliedMigrations = null;
+            HashSet<string>? appliedMigrations = null;
             if (!noConnect)
             {
                 try
@@ -192,10 +188,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string ScriptMigration(
-            [CanBeNull] string fromMigration,
-            [CanBeNull] string toMigration,
+            string? fromMigration,
+            string? toMigration,
             MigrationsSqlGenerationOptions options,
-            [CanBeNull] string contextType)
+            string? contextType)
         {
             using var context = _contextOperations.CreateContext(contextType);
             var services = _servicesBuilder.Build(context);
@@ -213,9 +209,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void UpdateDatabase(
-            [CanBeNull] string targetMigration,
-            [CanBeNull] string connectionString,
-            [CanBeNull] string contextType)
+            string? targetMigration,
+            string? connectionString,
+            string? contextType)
         {
             using (var context = _contextOperations.CreateContext(contextType))
             {
@@ -242,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual MigrationFiles RemoveMigration(
-            [CanBeNull] string contextType,
+            string? contextType,
             bool force)
         {
             using var context = _contextOperations.CreateContext(contextType);

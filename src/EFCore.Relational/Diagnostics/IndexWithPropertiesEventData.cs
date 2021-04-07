@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -28,15 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="property2Name"> The name of the second property name which causes this event. </param>
         /// <param name="tablesMappedToProperty2"> The tables mapped to the second property. </param>
         public IndexWithPropertiesEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IEntityType entityType,
-            [CanBeNull] string indexName,
-            [NotNull] List<string> indexPropertyNames,
-            [NotNull] string property1Name,
-            [NotNull] List<(string Table, string Schema)> tablesMappedToProperty1,
-            [NotNull] string property2Name,
-            [NotNull] List<(string Table, string Schema)> tablesMappedToProperty2)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IEntityType entityType,
+            string? indexName,
+            List<string> indexPropertyNames,
+            string property1Name,
+            List<(string Table, string? Schema)> tablesMappedToProperty1,
+            string property2Name,
+            List<(string Table, string? Schema)> tablesMappedToProperty2)
             : base(eventDefinition, messageGenerator)
         {
             EntityType = entityType;
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The name of the index.
         /// </summary>
-        public virtual string Name { get; }
+        public virtual string? Name { get; }
 
         /// <summary>
         ///     The list of properties which define the index.
@@ -71,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The tables mapped to the first property.
         /// </summary>
-        public virtual List<(string Table, string Schema)> TablesMappedToProperty1 { get; }
+        public virtual List<(string Table, string? Schema)> TablesMappedToProperty1 { get; }
 
         /// <summary>
         ///     The name of the second property.
@@ -81,6 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The tables mapped to the second property.
         /// </summary>
-        public virtual List<(string Table, string Schema)> TablesMappedToProperty2 { get; }
+        public virtual List<(string Table, string? Schema)> TablesMappedToProperty2 { get; }
     }
 }

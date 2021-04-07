@@ -349,28 +349,36 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.False(columnMod.IsWrite);
         }
 
-        [ConditionalFact]
-        public void ModificationCommand_throws_for_unchanged_entities()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ModificationCommand_throws_for_unchanged_entities(bool sensitive)
         {
             var entry = CreateEntry(EntityState.Unchanged);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, sensitive, null);
 
             Assert.Equal(
-                RelationalStrings.ModificationCommandInvalidEntityState(EntityState.Unchanged),
-                Assert.Throws<ArgumentException>(() => command.AddEntry(entry, true)).Message);
+                sensitive
+                    ? RelationalStrings.ModificationCommandInvalidEntityStateSensitive("T1", "{Id: 1}", EntityState.Unchanged)
+                    : RelationalStrings.ModificationCommandInvalidEntityState("T1", EntityState.Unchanged),
+                Assert.Throws<InvalidOperationException>(() => command.AddEntry(entry, true)).Message);
         }
 
-        [ConditionalFact]
-        public void ModificationCommand_throws_for_unknown_entities()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ModificationCommand_throws_for_unknown_entities(bool sensitive)
         {
             var entry = CreateEntry(EntityState.Detached);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, sensitive, null);
 
             Assert.Equal(
-                RelationalStrings.ModificationCommandInvalidEntityState(EntityState.Detached),
-                Assert.Throws<ArgumentException>(() => command.AddEntry(entry, true)).Message);
+                sensitive
+                    ? RelationalStrings.ModificationCommandInvalidEntityStateSensitive("T1", "{Id: 1}", EntityState.Detached)
+                    : RelationalStrings.ModificationCommandInvalidEntityState("T1", EntityState.Detached),
+                Assert.Throws<InvalidOperationException>(() => command.AddEntry(entry, true)).Message);
         }
 
         [ConditionalFact]

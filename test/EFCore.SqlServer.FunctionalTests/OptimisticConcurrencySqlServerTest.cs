@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -17,6 +18,26 @@ namespace Microsoft.EntityFrameworkCore
             : base(fixture)
         {
         }
+
+        [ConditionalFact]
+        public async Task ULong_row_version_can_handle_empty_array_from_the_database()
+        {
+            await using var context = CreateF1Context();
+
+            await context
+                .Set<F1ULongSqlServerFixture.OptimisticParent>()
+                .Select(
+                    x => new
+                    {
+                        x.Id,
+                        Child = new
+                        {
+                            Id = x.OptionalChild == null ? Guid.Empty : x.OptionalChild.Id,
+                            Version = x.OptionalChild == null ? 0 : x.OptionalChild.Version
+                        }
+                    }
+                ).ToArrayAsync();
+        }
     }
 
     public class OptimisticConcurrencySqlServerTest : OptimisticConcurrencySqlServerTestBase<F1SqlServerFixture, byte[]>
@@ -28,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore
     }
 
     public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersion>
-        : OptimisticConcurrencyTestBase<TFixture, TRowVersion>
-        where TFixture : F1FixtureBase<TRowVersion>, new()
+        : OptimisticConcurrencyRelationalTestBase<TFixture, TRowVersion>
+        where TFixture : F1RelationalFixture<TRowVersion>, new()
     {
         protected OptimisticConcurrencySqlServerTestBase(TFixture fixture)
             : base(fixture)
@@ -134,6 +155,31 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(1, detailsEntry.Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
                 });
         }
+
+        public override void Property_entry_original_value_is_set()
+        {
+            base.Property_entry_original_value_is_set();
+
+            AssertSql(
+                @"SELECT TOP(1) [e].[Id], [e].[EngineSupplierId], [e].[Name], [e].[StorageLocation_Latitude], [e].[StorageLocation_Longitude]
+FROM [Engines] AS [e]
+ORDER BY [e].[Id]",
+                //
+                @"@p1='1'
+@p2='Mercedes' (Size = 450)
+@p0='FO 108X' (Size = 4000)
+@p3='ChangedEngine' (Size = 4000)
+@p4='47.64491' (Nullable = true)
+@p5='-122.128101' (Nullable = true)
+
+SET NOCOUNT ON;
+UPDATE [Engines] SET [Name] = @p0
+WHERE [Id] = @p1 AND [EngineSupplierId] = @p2 AND [Name] = @p3 AND [StorageLocation_Latitude] = @p4 AND [StorageLocation_Longitude] = @p5;
+SELECT @@ROWCOUNT;");
+        }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());

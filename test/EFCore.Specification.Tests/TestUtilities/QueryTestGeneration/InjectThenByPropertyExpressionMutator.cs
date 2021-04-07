@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 _mutator = mutator;
             }
 
-            public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; } = new Dictionary<Expression, List<PropertyInfo>>();
+            public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; } = new();
 
             public override Expression Visit(Expression expression)
             {

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalParameterBasedSqlProcessorDependencies
+    public sealed record RelationalParameterBasedSqlProcessorDependencies
     {
         /// <summary>
         ///     <para>
@@ -55,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalParameterBasedSqlProcessorDependencies(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IRelationalTypeMappingSource typeMappingSource,
+            IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
@@ -71,40 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Sql expression factory.
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 
         /// <summary>
         ///     Relational type mapping souce.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     Parameter name generator factory.
         /// </summary>
-        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedSqlProcessorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalParameterBasedSqlProcessorDependencies(sqlExpressionFactory, TypeMappingSource, ParameterNameGeneratorFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedSqlProcessorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new RelationalParameterBasedSqlProcessorDependencies(SqlExpressionFactory, typeMappingSource, ParameterNameGeneratorFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="parameterNameGeneratorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedSqlProcessorDependencies With([NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
-            => new RelationalParameterBasedSqlProcessorDependencies(SqlExpressionFactory, TypeMappingSource, parameterNameGeneratorFactory);
+        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; init; }
     }
 }

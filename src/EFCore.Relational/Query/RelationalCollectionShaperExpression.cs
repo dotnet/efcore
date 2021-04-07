@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -36,12 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Obsolete("Use ctor which takes value comaprers.")]
         public RelationalCollectionShaperExpression(
             int collectionId,
-            [NotNull] Expression parentIdentifier,
-            [NotNull] Expression outerIdentifier,
-            [NotNull] Expression selfIdentifier,
-            [NotNull] Expression innerShaper,
-            [CanBeNull] INavigation navigation,
-            [NotNull] Type elementType)
+            Expression parentIdentifier,
+            Expression outerIdentifier,
+            Expression selfIdentifier,
+            Expression innerShaper,
+            INavigation? navigation,
+            Type elementType)
             : this(
                 collectionId, parentIdentifier, outerIdentifier, selfIdentifier,
                 null, null, null, innerShaper, navigation, elementType)
@@ -63,15 +62,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="elementType"> The clr type of individual elements in the collection. </param>
         public RelationalCollectionShaperExpression(
             int collectionId,
-            [NotNull] Expression parentIdentifier,
-            [NotNull] Expression outerIdentifier,
-            [NotNull] Expression selfIdentifier,
-            [CanBeNull] IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
-            [CanBeNull] IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
-            [CanBeNull] IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
-            [NotNull] Expression innerShaper,
-            [CanBeNull] INavigationBase navigation,
-            [NotNull] Type elementType)
+            Expression parentIdentifier,
+            Expression outerIdentifier,
+            Expression selfIdentifier,
+            IReadOnlyList<ValueComparer>? parentIdentifierValueComparers,
+            IReadOnlyList<ValueComparer>? outerIdentifierValueComparers,
+            IReadOnlyList<ValueComparer>? selfIdentifierValueComparers,
+            Expression innerShaper,
+            INavigationBase? navigation,
+            Type elementType)
         {
             Check.NotNull(parentIdentifier, nameof(parentIdentifier));
             Check.NotNull(outerIdentifier, nameof(outerIdentifier));
@@ -114,17 +113,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The list of value comparers to compare parent identifier.
         /// </summary>
-        public virtual IReadOnlyList<ValueComparer> ParentIdentifierValueComparers { get; }
+        public virtual IReadOnlyList<ValueComparer>? ParentIdentifierValueComparers { get; }
 
         /// <summary>
         ///     The list of value comparers to compare outer identifier.
         /// </summary>
-        public virtual IReadOnlyList<ValueComparer> OuterIdentifierValueComparers { get; }
+        public virtual IReadOnlyList<ValueComparer>? OuterIdentifierValueComparers { get; }
 
         /// <summary>
         ///     The list of value comparers to compare self identifier.
         /// </summary>
-        public virtual IReadOnlyList<ValueComparer> SelfIdentifierValueComparers { get; }
+        public virtual IReadOnlyList<ValueComparer>? SelfIdentifierValueComparers { get; }
 
         /// <summary>
         ///     The expression to create inner elements.
@@ -134,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The navigation if associated with the collection.
         /// </summary>
-        public virtual INavigationBase Navigation { get; }
+        public virtual INavigationBase? Navigation { get; }
 
         /// <summary>
         ///     The clr type of elements of the collection.
@@ -172,10 +171,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerShaper"> The <see cref="InnerShaper" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual RelationalCollectionShaperExpression Update(
-            [NotNull] Expression parentIdentifier,
-            [NotNull] Expression outerIdentifier,
-            [NotNull] Expression selfIdentifier,
-            [NotNull] Expression innerShaper)
+            Expression parentIdentifier,
+            Expression outerIdentifier,
+            Expression selfIdentifier,
+            Expression innerShaper)
         {
             Check.NotNull(parentIdentifier, nameof(parentIdentifier));
             Check.NotNull(outerIdentifier, nameof(outerIdentifier));

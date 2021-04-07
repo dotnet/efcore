@@ -3,12 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+
+[assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.Sqlite.Design.Internal.SqliteDesignTimeServices")]
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
 {
@@ -28,10 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
         /// </summary>
         public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
             => serviceCollection
-                .AddSingleton<LoggingDefinitions, SqliteLoggingDefinitions>()
-                .AddSingleton<IRelationalTypeMappingSource, SqliteTypeMappingSource>()
+                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IDatabaseModelFactory, SqliteDatabaseModelFactory>()
+                .AddSingleton<IModelValidator, SqliteModelValidator>()
                 .AddSingleton<IProviderConfigurationCodeGenerator, SqliteCodeGenerator>()
-                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
+                .AddSingleton<IRelationalTypeMappingSource, SqliteTypeMappingSource>()
+                .AddSingleton<LoggingDefinitions, SqliteLoggingDefinitions>();
     }
 }

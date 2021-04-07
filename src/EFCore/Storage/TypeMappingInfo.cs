@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -20,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
         /// </summary>
         /// <param name="property"> The property for which mapping is needed. </param>
-        public TypeMappingInfo([NotNull] IProperty property)
-            : this(property.FindPrincipals())
+        public TypeMappingInfo(IProperty property)
+            : this(property.GetPrincipals())
         {
         }
 
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     default.
         /// </param>
         public TypeMappingInfo(
-            [NotNull] IReadOnlyList<IProperty> principals,
+            IReadOnlyList<IProperty> principals,
             bool? fallbackUnicode = null,
             int? fallbackSize = null,
             int? fallbackPrecision = null,
@@ -54,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(principals, nameof(principals));
 
-            ValueConverter customConverter = null;
+            ValueConverter? customConverter = null;
             int? size = null;
             int? precision = null;
             int? scale = null;
@@ -129,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         public TypeMappingInfo(
-            [NotNull] MemberInfo member,
+            MemberInfo member,
             bool? unicode = null,
             int? size = null,
             int? precision = null,
@@ -153,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         public TypeMappingInfo(
-            [CanBeNull] Type type = null,
+            Type? type = null,
             bool keyOrIndex = false,
             bool? unicode = null,
             int? size = null,
@@ -209,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converterInfo"> The converter to apply. </param>
         /// <returns> The new mapping info. </returns>
         public TypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
-            => new TypeMappingInfo(this, converterInfo);
+            => new(this, converterInfo);
 
         /// <summary>
         ///     Indicates whether or not the mapping is part of a key or index.
@@ -245,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The CLR type in the model. May be null if type information is conveyed via other means
         ///     (e.g. the store name in a relational type mapping info)
         /// </summary>
-        public Type ClrType { get; }
+        public Type? ClrType { get; }
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -266,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="obj"> The other object. </param>
         /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && obj.GetType() == GetType()
                 && Equals((TypeMappingInfo)obj);

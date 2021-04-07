@@ -361,8 +361,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
             Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
 
-            Assert.Equal(ValueGenerated.Never, ((IProperty)idProperty).ValueGenerated);
-            Assert.Equal(ValueGenerated.OnAdd, ((IProperty)numberProperty).ValueGenerated);
+            Assert.Equal(ValueGenerated.Never, ((IReadOnlyProperty)idProperty).ValueGenerated);
+            Assert.Equal(ValueGenerated.OnAdd, ((IReadOnlyProperty)numberProperty).ValueGenerated);
         }
 
         [ConditionalFact]
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Equal(ValueGenerated.OnAdd, ((IProperty)property).ValueGenerated);
+            Assert.Equal(ValueGenerated.OnAdd, ((IReadOnlyProperty)property).ValueGenerated);
 
             var relationshipBuilder = referencedEntityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata,
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(relationshipBuilder);
 
-            Assert.Equal(ValueGenerated.Never, ((IProperty)property).ValueGenerated);
+            Assert.Equal(ValueGenerated.Never, ((IReadOnlyProperty)property).ValueGenerated);
         }
 
         [ConditionalFact]
@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(relationshipBuilder);
 
-            Assert.Equal(ValueGenerated.Never, ((IProperty)property).ValueGenerated);
+            Assert.Equal(ValueGenerated.Never, ((IReadOnlyProperty)property).ValueGenerated);
 
             referencedEntityBuilder.HasNoRelationship(relationshipBuilder.Metadata, ConfigurationSource.Convention);
 

@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [UsedImplicitly]
-        public AnonymousObject([NotNull] object[] values)
+        public AnonymousObject(object[] values)
             => _values = values;
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is null
                 ? false
                 : obj is AnonymousObject anonymousObject

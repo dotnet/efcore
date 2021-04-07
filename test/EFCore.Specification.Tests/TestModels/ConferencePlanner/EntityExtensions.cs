@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner
     public static class EntityExtensions
     {
         public static SessionResponse MapSessionResponse(this Session session)
-            => new SessionResponse
+            => new()
             {
                 Id = session.Id,
                 Title = session.Title,
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner
             };
 
         public static SpeakerResponse MapSpeakerResponse(this Speaker speaker)
-            => new SpeakerResponse
+            => new()
             {
                 Id = speaker.Id,
                 Name = speaker.Name,
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner
             };
 
         public static AttendeeResponse MapAttendeeResponse(this Attendee attendee)
-            => new AttendeeResponse
+            => new()
             {
                 Id = attendee.Id,
                 FirstName = attendee.FirstName,

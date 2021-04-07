@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
@@ -21,6 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="args"> Arguments provided by the design-time service. </param>
         /// <returns> An instance of <typeparamref name="TContext" />. </returns>
-        TContext CreateDbContext([NotNull] string[] args);
+        TContext CreateDbContext(string[] args);
     }
 }

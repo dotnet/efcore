@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -36,6 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="interceptors"> The interceptors to combine. </param>
         /// <returns> The combined interceptor. </returns>
-        IInterceptor AggregateInterceptors([NotNull] IReadOnlyList<IInterceptor> interceptors);
+        IInterceptor? AggregateInterceptors(IReadOnlyList<IInterceptor> interceptors);
     }
 }

@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     <para>
-    ///         Represents a result from an <see cref="IInterceptor" /> such as an 'IDbCommandInterceptor' to allow
+    ///         Represents a result from an <see cref="IInterceptor" /> such as an <see cref="ISaveChangesInterceptor" /> to allow
     ///         suppression of the normal operation being intercepted.
     ///     </para>
     ///     <para>
@@ -30,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     execution should be suppressed and the given result should be used instead.
         /// </summary>
         /// <param name="result"> The result to use. </param>
-        public static InterceptionResult<TResult> SuppressWithResult([CanBeNull] TResult result)
-            => new InterceptionResult<TResult>(result);
+        public static InterceptionResult<TResult> SuppressWithResult(TResult result)
+            => new(result);
 
         private InterceptionResult(TResult result)
         {

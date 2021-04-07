@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -27,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InternalMixedEntityEntry(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IEntityType entityType,
-            [NotNull] object entity)
+            IStateManager stateManager,
+            IEntityType entityType,
+            object entity)
             : base(stateManager, entityType)
         {
             Entity = entity;
@@ -46,14 +45,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InternalMixedEntityEntry(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IEntityType entityType,
-            [NotNull] object entity,
+            IStateManager stateManager,
+            IEntityType entityType,
+            object entity,
             in ValueBuffer valueBuffer)
             : base(stateManager, entityType)
         {
             Entity = entity;
-            _shadowValues = ((EntityType)entityType).ShadowValuesFactory(valueBuffer);
+            _shadowValues = ((IRuntimeEntityType)entityType).ShadowValuesFactory(valueBuffer);
         }
 
         /// <summary>
@@ -79,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override object ReadPropertyValue(IPropertyBase propertyBase)
+        protected override object? ReadPropertyValue(IPropertyBase propertyBase)
             => !propertyBase.IsShadowProperty()
                 ? base.ReadPropertyValue(propertyBase)
                 : _shadowValues[propertyBase.GetShadowIndex()];
@@ -101,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override void WritePropertyValue(IPropertyBase propertyBase, object value, bool forMaterialization)
+        protected override void WritePropertyValue(IPropertyBase propertyBase, object? value, bool forMaterialization)
         {
             if (!propertyBase.IsShadowProperty())
             {
@@ -157,11 +156,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (!navigationBase.IsShadowProperty())
             {
                 return base.AddToCollection(navigationBase, value, forMaterialization);
-            }
-
-            if (navigationBase.TargetEntityType.ClrType == null)
-            {
-                return false;
             }
 
             var collection = GetOrCreateCollectionTyped(navigationBase);

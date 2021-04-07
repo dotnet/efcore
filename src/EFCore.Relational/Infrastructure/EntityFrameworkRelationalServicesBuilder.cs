@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -105,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     registration of provider services.
         /// </summary>
         /// <param name="serviceCollection"> The collection to which services will be registered. </param>
-        public EntityFrameworkRelationalServicesBuilder([NotNull] IServiceCollection serviceCollection)
+        public EntityFrameworkRelationalServicesBuilder(IServiceCollection serviceCollection)
             : base(serviceCollection)
         {
         }
@@ -134,6 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();
             TryAdd<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>();
             TryAdd<IModelCustomizer, RelationalModelCustomizer>();
+            TryAdd<IModelRuntimeInitializer, RelationalModelRuntimeInitializer>();
             TryAdd<IRelationalAnnotationProvider, RelationalAnnotationProvider>();
             TryAdd<IMigrationsAnnotationProvider, MigrationsAnnotationProvider>();
             TryAdd<IModelValidator, RelationalModelValidator>();
@@ -149,16 +149,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IMigrationsModelDiffer, MigrationsModelDiffer>();
             TryAdd<IMigrationsSqlGenerator, MigrationsSqlGenerator>();
             TryAdd<IExecutionStrategyFactory, RelationalExecutionStrategyFactory>();
-            TryAdd<ITypeMappingSource>(p => p.GetService<IRelationalTypeMappingSource>());
+            TryAdd<ITypeMappingSource>(p => p.GetRequiredService<IRelationalTypeMappingSource>());
             TryAdd<IRelationalValueBufferFactoryFactory, TypedRelationalValueBufferFactoryFactory>();
-            TryAdd<IDatabaseCreator>(p => p.GetService<IRelationalDatabaseCreator>());
-            TryAdd<IDbContextTransactionManager>(p => p.GetService<IRelationalConnection>());
+            TryAdd<IDatabaseCreator>(p => p.GetRequiredService<IRelationalDatabaseCreator>());
+            TryAdd<IDbContextTransactionManager>(p => p.GetRequiredService<IRelationalConnection>());
             TryAdd<IQueryContextFactory, RelationalQueryContextFactory>();
             TryAdd<ICompiledQueryCacheKeyGenerator, RelationalCompiledQueryCacheKeyGenerator>();
             TryAdd<INamedConnectionStringResolver, NamedConnectionStringResolver>();
             TryAdd<IEvaluatableExpressionFilter, RelationalEvaluatableExpressionFilter>();
             TryAdd<IRelationalTransactionFactory, RelationalTransactionFactory>();
-            TryAdd<IDatabaseFacadeDependencies>(p => p.GetService<IRelationalDatabaseFacadeDependencies>());
+            TryAdd<IDatabaseFacadeDependencies>(p => p.GetRequiredService<IRelationalDatabaseFacadeDependencies>());
             TryAdd<IRelationalDatabaseFacadeDependencies, RelationalDatabaseFacadeDependencies>();
             TryAdd<IInterceptorAggregator, DbConnectionInterceptorAggregator>();
             TryAdd<IInterceptorAggregator, DbTransactionInterceptorAggregator>();
@@ -198,6 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalEvaluatableExpressionFilterDependencies>()
                 .AddDependencySingleton<RelationalQueryTranslationPreprocessorDependencies>()
                 .AddDependencySingleton<RelationalParameterBasedSqlProcessorDependencies>()
+                .AddDependencySingleton<RelationalModelDependencies>()
+                .AddDependencySingleton<RelationalModelRuntimeInitializerDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()

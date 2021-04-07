@@ -28,7 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             AssertSql(
                 @"SELECT [p].[Id], [p].[Geometry], [p].[Point], [p].[PointM], [p].[PointZ], [p].[PointZM]
-FROM [PointEntity] AS [p]");
+FROM [PointEntity] AS [p]",
+                //
+                @"SELECT [l].[Id], [l].[LineString]
+FROM [LineStringEntity] AS [l]",
+                //
+                @"SELECT [p].[Id], [p].[Polygon]
+FROM [PolygonEntity] AS [p]",
+                //
+                @"SELECT [m].[Id], [m].[MultiLineString]
+FROM [MultiLineStringEntity] AS [m]");
         }
 
         public override async Task WithConversion(bool async)

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -24,12 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes the singleton options from the given <see cref="IDbContextOptions" />.
         /// </summary>
-        void Initialize([NotNull] IDbContextOptions options);
+        void Initialize(IDbContextOptions options);
 
         /// <summary>
         ///     Validates that the options in given <see cref="IDbContextOptions" /> have not
         ///     changed when compared to the options already set here, and throws if they have.
         /// </summary>
-        void Validate([NotNull] IDbContextOptions options);
+        void Validate(IDbContextOptions options);
     }
 }

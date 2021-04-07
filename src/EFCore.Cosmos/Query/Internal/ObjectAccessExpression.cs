@@ -3,11 +3,12 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -25,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ObjectAccessExpression([NotNull] INavigation navigation, [NotNull] Expression accessExpression)
+        public ObjectAccessExpression(INavigation navigation, Expression accessExpression)
         {
             Name = navigation.TargetEntityType.GetContainingPropertyName();
             if (Name == null)
@@ -100,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ObjectAccessExpression Update([NotNull] Expression outerExpression)
+        public virtual ObjectAccessExpression Update(Expression outerExpression)
             => outerExpression != AccessExpression
                 ? new ObjectAccessExpression(Navigation, outerExpression)
                 : this;

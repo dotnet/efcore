@@ -2,14 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API for configuring a <see cref="INavigation" /> or <see cref="ISkipNavigation" />.
+    ///         Provides a simple API for configuring a <see cref="IMutableNavigation" /> or a <see cref="IMutableSkipNavigation" />.
     ///     </para>
     ///     <para>
     ///         Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public NavigationBuilder([NotNull] IMutableNavigationBase navigationOrSkipNavigation)
+        public NavigationBuilder(IMutableNavigationBase navigationOrSkipNavigation)
             : base(navigationOrSkipNavigation)
         {
         }
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual NavigationBuilder<TSource, TTarget> HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public new virtual NavigationBuilder<TSource, TTarget> HasAnnotation(string annotation, object? value)
             => (NavigationBuilder<TSource, TTarget>)base.HasAnnotation(annotation, value);
 
         /// <summary>
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldName"> The name of the field to use for this navigation property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual NavigationBuilder<TSource, TTarget> HasField([CanBeNull] string fieldName)
+        public new virtual NavigationBuilder<TSource, TTarget> HasField(string? fieldName)
             => (NavigationBuilder<TSource, TTarget>)base.HasField(fieldName);
 
         /// <summary>
@@ -94,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -104,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

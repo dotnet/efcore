@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="StoreKeyConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public StoreKeyConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public StoreKeyConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -76,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private static void ProcessIdProperty(IConventionEntityTypeBuilder entityTypeBuilder)
         {
-            IConventionKey newKey = null;
-            IConventionProperty idProperty = null;
+            IConventionKey? newKey = null;
+            IConventionProperty? idProperty;
             var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType == null
                 && entityType.IsDocumentRoot()
@@ -94,11 +93,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         if (idProperty.IsPrimaryKey())
                         {
-                            idProperty.Builder.HasValueGenerator((Type)null);
+                            idProperty.Builder.HasValueGenerator((Type?)null);
                         }
                         else
                         {
-                            idProperty.Builder.HasValueGenerator((_, __) => new IdValueGenerator());
+                            idProperty.Builder.HasValueGenerator((_, _) => new IdValueGenerator());
                         }
                     }
 
@@ -222,8 +221,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public virtual void ProcessEntityTypePrimaryKeyChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionKey newPrimaryKey,
-            IConventionKey previousPrimaryKey,
+            IConventionKey? newPrimaryKey,
+            IConventionKey? previousPrimaryKey,
             IConventionContext<IConventionKey> context)
         {
             if ((newPrimaryKey != null && newPrimaryKey.Properties.Any(p => p.GetJsonPropertyName() == IdPropertyJsonName))
@@ -236,8 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (entityTypeBuilder.Metadata.BaseType == newBaseType)
@@ -251,8 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessEntityTypeAnnotationChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (name == CosmosAnnotationNames.ContainerName
@@ -263,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else if (name == CosmosAnnotationNames.PartitionKeyName)
             {
-                var oldName = (string)oldAnnotation?.Value;
+                var oldName = (string?)oldAnnotation?.Value;
                 if (oldName != null)
                 {
                     var oldPartitionKeyProperty = entityTypeBuilder.Metadata.FindProperty(oldName);
@@ -284,12 +283,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (name == CosmosAnnotationNames.PropertyName
-                && (string)annotation?.Value == IdPropertyJsonName
+                && (string?)annotation?.Value == IdPropertyJsonName
                 && propertyBuilder.Metadata.Name != DefaultIdPropertyName)
             {
                 var entityType = propertyBuilder.Metadata.DeclaringEntityType;

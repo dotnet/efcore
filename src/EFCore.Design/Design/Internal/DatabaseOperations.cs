@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         private readonly IOperationReporter _reporter;
         private readonly string _projectDir;
-        private readonly string _rootNamespace;
-        private readonly string _language;
+        private readonly string? _rootNamespace;
+        private readonly string? _language;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
         private readonly string[] _args;
 
@@ -34,20 +33,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DatabaseOperations(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [NotNull] string projectDir,
-            [NotNull] string rootNamespace,
-            [CanBeNull] string language,
-            [NotNull] string[] args)
+            IOperationReporter reporter,
+            Assembly assembly,
+            Assembly startupAssembly,
+            string projectDir,
+            string? rootNamespace,
+            string? language,
+            string[]? args)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
-            Check.NotNull(rootNamespace, nameof(rootNamespace));
-            // Note: cannot assert that args is not null - as old versions of
-            // tools can still pass null.
 
             _reporter = reporter;
             _projectDir = projectDir;
@@ -65,15 +61,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SavedModelFiles ScaffoldContext(
-            [NotNull] string provider,
-            [NotNull] string connectionString,
-            [CanBeNull] string outputDir,
-            [CanBeNull] string outputContextDir,
-            [CanBeNull] string dbContextClassName,
-            [NotNull] IEnumerable<string> schemas,
-            [NotNull] IEnumerable<string> tables,
-            [CanBeNull] string modelNamespace,
-            [CanBeNull] string contextNamespace,
+            string provider,
+            string connectionString,
+            string? outputDir,
+            string? outputContextDir,
+            string? dbContextClassName,
+            IEnumerable<string> schemas,
+            IEnumerable<string> tables,
+            string? modelNamespace,
+            string? contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
             bool useDatabaseNames,
@@ -123,18 +119,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 overwriteFiles);
         }
 
-        private string GetNamespaceFromOutputPath(string directoryPath)
+        private string? GetNamespaceFromOutputPath(string directoryPath)
         {
             var subNamespace = SubnamespaceFromOutputPath(_projectDir, directoryPath);
             return string.IsNullOrEmpty(subNamespace)
                 ? _rootNamespace
-                : _rootNamespace + "." + subNamespace;
+                : string.IsNullOrEmpty(_rootNamespace)
+                    ? subNamespace
+                    : _rootNamespace + "." + subNamespace;
         }
 
         // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
         // --output-dir $(projectFolder)/A/B/C
         // => "namespace $(rootnamespace).A.B.C"
-        private static string SubnamespaceFromOutputPath(string projectDir, string outputDir)
+        private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir)
         {
             if (!outputDir.StartsWith(projectDir, StringComparison.Ordinal))
             {

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         where TGeometry : Geometry
     {
         private static readonly MethodInfo _getBytes
-            = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })
+            = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!
                 .MakeGenericMethod(typeof(byte[]));
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [UsedImplicitly]
-        public SqliteGeometryTypeMapping([NotNull] NtsGeometryServices geometryServices, [NotNull] string storeType)
+        public SqliteGeometryTypeMapping(NtsGeometryServices geometryServices, string storeType)
             : base(new GeometryValueConverter<TGeometry>(CreateReader(geometryServices), CreateWriter(storeType)), storeType)
         {
         }
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected SqliteGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            [CanBeNull] ValueConverter<TGeometry, byte[]> converter)
+            ValueConverter<TGeometry, byte[]>? converter)
             : base(parameters, converter)
         {
         }
@@ -128,9 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             => typeof(WKTReader);
 
         private static GaiaGeoReader CreateReader(NtsGeometryServices geometryServices)
-            => new GaiaGeoReader(
-                geometryServices.DefaultCoordinateSequenceFactory,
-                geometryServices.DefaultPrecisionModel);
+            => new(geometryServices.DefaultCoordinateSequenceFactory, geometryServices.DefaultPrecisionModel);
 
         private static GaiaGeoWriter CreateWriter(string storeType)
         {

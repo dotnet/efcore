@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
@@ -27,9 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> <see langword="true" /> if SQL Server is being used; <see langword="false" /> otherwise. </returns>
-        public static bool IsSqlServer([NotNull] this DatabaseFacade database)
-            => database.ProviderName.Equals(
-                typeof(SqlServerOptionsExtension).Assembly.GetName().Name,
-                StringComparison.Ordinal);
+        public static bool IsSqlServer(this DatabaseFacade database)
+            => database.ProviderName == typeof(SqlServerOptionsExtension).Assembly.GetName().Name;
     }
 }

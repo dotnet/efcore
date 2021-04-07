@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var key = entityType.AddKey(property, ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(new List<Property> { property }, key, entityType, entityType, ConfigurationSource.Convention);
-            var index = new Metadata.Internal.Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
+            var index = new Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model.FinalizeModel());
 
             var fakeFactories = new Dictionary<Type, Func<object>>
@@ -120,6 +119,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [Migration("00000000000000_FakeMigration")]
         private class FakeMigration : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override void Print([NotNull] ExpressionPrinter expressionPrinter)
+            protected override void Print(ExpressionPrinter expressionPrinter)
                 => expressionPrinter.Append("FakeSqlExpression");
         }
 
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
             public void Migrate(string targetMigration = null)
                 => throw new NotImplementedException();
 
-            public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new CancellationToken())
+            public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new())
                 => throw new NotImplementedException();
 
             public string GenerateScript(
@@ -172,11 +172,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeRelationalConnection : IRelationalConnection
         {
-            public string ConnectionString
-                => throw new NotImplementedException();
+            public string ConnectionString { get; set; }
 
-            public DbConnection DbConnection
-                => new FakeDbConnection();
+            public DbConnection DbConnection { get; set; } = new FakeDbConnection();
 
             public DbContext Context
                 => null;
@@ -257,6 +255,12 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
 
             public ValueTask DisposeAsync()
+                => throw new NotImplementedException();
+
+            public IRelationalCommand RentCommand()
+                => throw new NotImplementedException();
+
+            public void ReturnCommand(IRelationalCommand command)
                 => throw new NotImplementedException();
         }
 

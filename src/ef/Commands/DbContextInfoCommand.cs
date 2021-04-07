@@ -11,9 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            var result = CreateExecutor(args).GetContextInfo(Context.Value());
+            using var executor = CreateExecutor(args);
+            var result = executor.GetContextInfo(Context!.Value());
 
-            if (_json.HasValue())
+            if (_json!.HasValue())
             {
                 ReportJsonResult(result);
             }

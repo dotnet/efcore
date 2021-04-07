@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -26,6 +25,34 @@ namespace Microsoft.EntityFrameworkCore
             => Fixture = fixture;
 
         protected TFixture Fixture { get; }
+
+        [ConditionalFact]
+        public virtual void Detected_principal_reference_navigation_changes_are_detected_and_marked_loaded()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var parent = context.Set<Parent>().Single();
+
+            var single = context.CreateProxy<Single>();
+            parent.Single = single;
+
+            Assert.Same(single, parent.Single);
+            Assert.True(context.Entry(parent).Reference(e => e.Single).IsLoaded);
+        }
+
+        [ConditionalFact]
+        public virtual void Detected_dependent_reference_navigation_changes_are_detected_and_marked_loaded()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var single = context.Set<Single>().Single();
+
+            var parent = context.CreateProxy<Parent>();
+            single.Parent = parent;
+
+            Assert.Same(parent, single.Parent);
+            Assert.True(context.Entry(single).Reference(e => e.Parent).IsLoaded);
+        }
 
         [ConditionalTheory] // Issue #13138
         [InlineData(EntityState.Unchanged)]
@@ -273,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Children", "MotherProxy"),
+                                .GenerateMessage("MotherProxy", "Children"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Children).Message);
@@ -348,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Parent", "ChildProxy"),
+                                .GenerateMessage("ChildProxy", "Parent"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => child.Parent).Message);
@@ -425,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Parent", "SingleProxy"),
+                                .GenerateMessage("SingleProxy", "Parent"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => single.Parent).Message);
@@ -502,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                             CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                                .GenerateMessage("Single", "MotherProxy"),
+                                .GenerateMessage("MotherProxy", "Single"),
                             "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Single).Message);
@@ -2047,57 +2074,66 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsNotType<Blog>(blog);
             }
 
-            var serialized = JsonConvert.SerializeObject(
+            var serialized = Newtonsoft.Json.JsonConvert.SerializeObject(
                 blogs,
-                new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, Formatting = Formatting.Indented });
+                new Newtonsoft.Json.JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore, Formatting = Newtonsoft.Json.Formatting.Indented });
 
             Assert.Equal(
                 @"[
   {
     ""Writer"": {
       ""FirstName"": ""firstNameWriter0"",
-      ""LastName"": ""lastNameWriter0""
+      ""LastName"": ""lastNameWriter0"",
+      ""Alive"": false
     },
     ""Reader"": {
       ""FirstName"": ""firstNameReader0"",
-      ""LastName"": ""lastNameReader0""
+      ""LastName"": ""lastNameReader0"",
+      ""Alive"": false
     },
     ""Host"": {
-      ""HostName"": ""127.0.0.1""
+      ""HostName"": ""127.0.0.1"",
+      ""Rating"": 0.0
     },
     ""Id"": 1
   },
   {
     ""Writer"": {
       ""FirstName"": ""firstNameWriter1"",
-      ""LastName"": ""lastNameWriter1""
+      ""LastName"": ""lastNameWriter1"",
+      ""Alive"": false
     },
     ""Reader"": {
       ""FirstName"": ""firstNameReader1"",
-      ""LastName"": ""lastNameReader1""
+      ""LastName"": ""lastNameReader1"",
+      ""Alive"": false
     },
     ""Host"": {
-      ""HostName"": ""127.0.0.2""
+      ""HostName"": ""127.0.0.2"",
+      ""Rating"": 0.0
     },
     ""Id"": 2
   },
   {
     ""Writer"": {
       ""FirstName"": ""firstNameWriter2"",
-      ""LastName"": ""lastNameWriter2""
+      ""LastName"": ""lastNameWriter2"",
+      ""Alive"": false
     },
     ""Reader"": {
       ""FirstName"": ""firstNameReader2"",
-      ""LastName"": ""lastNameReader2""
+      ""LastName"": ""lastNameReader2"",
+      ""Alive"": false
     },
     ""Host"": {
-      ""HostName"": ""127.0.0.3""
+      ""HostName"": ""127.0.0.3"",
+      ""Rating"": 0.0
     },
     ""Id"": 3
   }
 ]", serialized, ignoreLineEndingDifferences: true);
 
-            var newBlogs = JsonConvert.DeserializeObject<List<Blog>>(serialized);
+            var newBlogs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Blog>>(serialized);
 
             VerifyBlogs(newBlogs);
             foreach (var blog in newBlogs)
@@ -2105,7 +2141,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsType<Blog>(blog);
             }
 
-#if NET5_0
             var options = new System.Text.Json.JsonSerializerOptions { ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve, WriteIndented = true };
 
             serialized = System.Text.Json.JsonSerializer.Serialize(blogs, options);
@@ -2119,16 +2154,19 @@ namespace Microsoft.EntityFrameworkCore
       ""Writer"": {
         ""$id"": ""3"",
         ""FirstName"": ""firstNameWriter0"",
-        ""LastName"": ""lastNameWriter0""
+        ""LastName"": ""lastNameWriter0"",
+        ""Alive"": false
       },
       ""Reader"": {
         ""$id"": ""4"",
         ""FirstName"": ""firstNameReader0"",
-        ""LastName"": ""lastNameReader0""
+        ""LastName"": ""lastNameReader0"",
+        ""Alive"": false
       },
       ""Host"": {
         ""$id"": ""5"",
-        ""HostName"": ""127.0.0.1""
+        ""HostName"": ""127.0.0.1"",
+        ""Rating"": 0
       }
     },
     {
@@ -2137,16 +2175,19 @@ namespace Microsoft.EntityFrameworkCore
       ""Writer"": {
         ""$id"": ""7"",
         ""FirstName"": ""firstNameWriter1"",
-        ""LastName"": ""lastNameWriter1""
+        ""LastName"": ""lastNameWriter1"",
+        ""Alive"": false
       },
       ""Reader"": {
         ""$id"": ""8"",
         ""FirstName"": ""firstNameReader1"",
-        ""LastName"": ""lastNameReader1""
+        ""LastName"": ""lastNameReader1"",
+        ""Alive"": false
       },
       ""Host"": {
         ""$id"": ""9"",
-        ""HostName"": ""127.0.0.2""
+        ""HostName"": ""127.0.0.2"",
+        ""Rating"": 0
       }
     },
     {
@@ -2155,16 +2196,19 @@ namespace Microsoft.EntityFrameworkCore
       ""Writer"": {
         ""$id"": ""11"",
         ""FirstName"": ""firstNameWriter2"",
-        ""LastName"": ""lastNameWriter2""
+        ""LastName"": ""lastNameWriter2"",
+        ""Alive"": false
       },
       ""Reader"": {
         ""$id"": ""12"",
         ""FirstName"": ""firstNameReader2"",
-        ""LastName"": ""lastNameReader2""
+        ""LastName"": ""lastNameReader2"",
+        ""Alive"": false
       },
       ""Host"": {
         ""$id"": ""13"",
-        ""HostName"": ""127.0.0.3""
+        ""HostName"": ""127.0.0.3"",
+        ""Rating"": 0
       }
     }
   ]
@@ -2178,7 +2222,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.IsType<Blog>(blog);
             }
             VerifyBlogs(newBlogs);
-#endif
         }
 
         [ConditionalFact]
@@ -2318,6 +2361,8 @@ namespace Microsoft.EntityFrameworkCore
                          orderby p.Id
                          select DtoFactory.CreateDto(p)).FirstOrDefault();
 
+            RecordLog();
+
             Assert.NotNull(((dynamic)query).Single);
         }
 
@@ -2390,7 +2435,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public static FirstName Create(string firstName)
             {
-                return new FirstName(firstName);
+                return new(firstName);
             }
         }
 
@@ -2409,7 +2454,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public static LastName Create(string lastName)
             {
-                return new LastName(lastName);
+                return new(lastName);
             }
         }
 
@@ -2431,6 +2476,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FullName
         {
+            public virtual bool Exists { get; set; }
+
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public virtual FirstName FirstName { get; private set; }
 
@@ -2445,6 +2492,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 FirstName = firstName ?? throw new ArgumentNullException(nameof(firstName));
                 LastName = lastName ?? throw new ArgumentNullException(nameof(lastName));
+                Exists = true;
             }
         }
 
@@ -2604,6 +2652,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
+            public bool Alive { get; set; }
         }
 
         public class Entity
@@ -2628,6 +2677,7 @@ namespace Microsoft.EntityFrameworkCore
         public class Host
         {
             public string HostName { get; set; }
+            public double Rating { get; set; }
         }
 
         public abstract class Tribe
@@ -2716,6 +2766,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public string Street { get; set; }
             public string PostalCode { get; set; }
+            public int CountryCode { get; set; }
         }
 
         protected DbContext CreateContext(bool lazyLoadingEnabled = false)
@@ -2941,15 +2992,15 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Id = 707,
                         AlternateId = "Root",
-                        Children = new List<Child> { new Child { Id = 11 }, new Child { Id = 12 } },
+                        Children = new List<Child> { new() { Id = 11 }, new() { Id = 12 } },
                         SinglePkToPk = new SinglePkToPk { Id = 707 },
                         Single = new Single { Id = 21 },
-                        ChildrenAk = new List<ChildAk> { new ChildAk { Id = 31 }, new ChildAk { Id = 32 } },
+                        ChildrenAk = new List<ChildAk> { new() { Id = 31 }, new() { Id = 32 } },
                         SingleAk = new SingleAk { Id = 42 },
-                        ChildrenShadowFk = new List<ChildShadowFk> { new ChildShadowFk { Id = 51 }, new ChildShadowFk { Id = 52 } },
+                        ChildrenShadowFk = new List<ChildShadowFk> { new() { Id = 51 }, new() { Id = 52 } },
                         SingleShadowFk = new SingleShadowFk { Id = 62 },
                         ChildrenCompositeKey =
-                            new List<ChildCompositeKey> { new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 } },
+                            new List<ChildCompositeKey> { new() { Id = 51 }, new() { Id = 52 } },
                         SingleCompositeKey = new SingleCompositeKey { Id = 62 },
                         WithRecursiveProperty = new WithRecursiveProperty { Id = 8086 }
                     });
@@ -3024,7 +3075,7 @@ namespace Microsoft.EntityFrameworkCore
                     new NonVirtualOneToManyOwner
                     {
                         Id = 300,
-                        Addresses = new List<OwnedAddress> { new OwnedAddress { Street = "4 Privet Drive", PostalCode = "SURREY" } }
+                        Addresses = new List<OwnedAddress> { new() { Street = "4 Privet Drive", PostalCode = "SURREY" } }
                     });
 
                 context.Add(
@@ -3033,9 +3084,9 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 400,
                         Addresses = new List<OwnedAddress>
                         {
-                            new OwnedAddress { Street = "The Ministry", PostalCode = "MAG1C" },
-                            new OwnedAddress { Street = "Diagon Alley", PostalCode = "WC2H 0AW" },
-                            new OwnedAddress { Street = "Shell Cottage", PostalCode = "THE SEA" }
+                            new() { Street = "The Ministry", PostalCode = "MAG1C" },
+                            new() { Street = "Diagon Alley", PostalCode = "WC2H 0AW" },
+                            new() { Street = "Shell Cottage", PostalCode = "THE SEA" }
                         }
                     });
 
@@ -3043,7 +3094,7 @@ namespace Microsoft.EntityFrameworkCore
                     new ExplicitLazyLoadNonVirtualOneToManyOwner
                     {
                         Id = 500,
-                        Addresses = new List<OwnedAddress> { new OwnedAddress { Street = "Spinner's End", PostalCode = "BE WA1R" } }
+                        Addresses = new List<OwnedAddress> { new() { Street = "Spinner's End", PostalCode = "BE WA1R" } }
                     });
 
                 context.Add(
@@ -3052,7 +3103,7 @@ namespace Microsoft.EntityFrameworkCore
                         Id = 600,
                         Addresses = new List<OwnedAddress>
                         {
-                            new OwnedAddress { Street = "12 Grimmauld Place", PostalCode = "L0N D0N" }
+                            new() { Street = "12 Grimmauld Place", PostalCode = "L0N D0N" }
                         }
                     });
 

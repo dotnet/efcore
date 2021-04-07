@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -11,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public abstract class ModelSnapshot
     {
-        private IModel _model;
+        private IModel? _model;
 
         private IModel CreateModel()
         {
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             BuildModel(modelBuilder);
 
-            return modelBuilder.Model;
+            return (IModel)modelBuilder.Model;
         }
 
         /// <summary>
@@ -33,6 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     the first time it is requested.
         /// </summary>
         /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> to use to build the model. </param>
-        protected abstract void BuildModel([NotNull] ModelBuilder modelBuilder);
+        protected abstract void BuildModel(ModelBuilder modelBuilder);
     }
 }

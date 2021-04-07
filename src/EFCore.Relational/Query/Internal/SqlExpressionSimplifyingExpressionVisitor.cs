@@ -3,9 +3,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+        private readonly bool _useRelationalNulls;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,9 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlExpressionSimplifyingExpressionVisitor([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqlExpressionSimplifyingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
+            _useRelationalNulls = useRelationalNulls;
         }
 
         /// <summary>
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitExtension(extensionExpression);
         }
 
-        private bool IsCompareTo(CaseExpression caseExpression)
+        private bool IsCompareTo([NotNullWhen(true)] CaseExpression? caseExpression)
         {
             if (caseExpression != null
                 && caseExpression.Operand == null
@@ -80,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         && constant.Value is int))
             {
                 var whenClauses = caseExpression.WhenClauses.Select(
-                    c => new { test = (SqlBinaryExpression)c.Test, resultValue = (int)((SqlConstantExpression)c.Result).Value }).ToList();
+                    c => new { test = (SqlBinaryExpression)c.Test, resultValue = (int)((SqlConstantExpression)c.Result).Value! }).ToList();
 
                 if (whenClauses[0].test.Left.Equals(whenClauses[1].test.Left)
                     && whenClauses[1].test.Left.Equals(whenClauses[2].test.Left)
@@ -233,10 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
                 || sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
             {
-                var leftCandidateInfo = GetInExressionCandidateInfo(left);
-                var rightCandidateInfo = GetInExressionCandidateInfo(right);
-                if (leftCandidateInfo.OptimizeCandidate
-                    && rightCandidateInfo.OptimizeCandidate
+                if (TryGetInExressionCandidateInfo(left, out var leftCandidateInfo)
+                    && TryGetInExressionCandidateInfo(right, out var rightCandidateInfo)
                     && leftCandidateInfo.ColumnExpression == rightCandidateInfo.ColumnExpression
                     && leftCandidateInfo.OperationType == rightCandidateInfo.OperationType)
                 {
@@ -263,6 +263,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             leftValue = leftCandidateInfo.ConstantValue;
                             rightValue = rightCandidateInfo.ConstantValue;
 
+                            // for relational nulls we can't combine comparisons that contain null
+                            // a != 1 && a != null would be converted to a NOT IN (1, null), which never returns any results
+                            // we need to keep it in the original form so that a != null gets converted to a IS NOT NULL instead
+                            // for c# null semantics it's fine because null semantics visitor extracts null back into proper null checks
+                            if (_useRelationalNulls && (leftValue == null || rightValue == null))
+                            {
+                                return sqlBinaryExpression.Update(left, right);
+                            }
+
                             resultArray = ConstructCollection(leftValue, rightValue);
                         }
                         else if (leftConstantIsEnumerable && rightConstantIsEnumerable)
@@ -282,6 +291,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             rightValue = leftConstantIsEnumerable
                                 ? rightCandidateInfo.ConstantValue
                                 : leftCandidateInfo.ConstantValue;
+
+                            if (_useRelationalNulls && rightValue == null)
+                            {
+                                return sqlBinaryExpression.Update(left, right);
+                            }
 
                             resultArray = AddToCollection((IEnumerable)leftValue, rightValue);
                         }
@@ -312,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private List<object> ConstructCollection(object left, object right)
-            => new List<object> { left, right };
+            => new() { left, right };
 
         private List<object> AddToCollection(IEnumerable collection, object newElement)
         {
@@ -374,29 +388,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return result;
         }
 
-        private (bool OptimizeCandidate, ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping,
-            ExpressionType OperationType) GetInExressionCandidateInfo(SqlExpression sqlExpression)
+        private bool TryGetInExressionCandidateInfo(
+            SqlExpression sqlExpression,
+            [MaybeNullWhen(false)] out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType) candidateInfo)
         {
             if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
                 && sqlUnaryExpression.OperatorType == ExpressionType.Not)
             {
-                var result = GetInExressionCandidateInfo(sqlUnaryExpression.Operand);
-                if (result.OptimizeCandidate)
+                if (TryGetInExressionCandidateInfo(sqlUnaryExpression.Operand, out var inner))
                 {
-                    return (result.OptimizeCandidate, result.ColumnExpression, result.ConstantValue, result.TypeMapping,
-                        result.OperationType == ExpressionType.Equal ? ExpressionType.NotEqual : ExpressionType.Equal);
+                    candidateInfo = (inner.ColumnExpression, inner.ConstantValue, inner.TypeMapping,
+                        inner.OperationType == ExpressionType.Equal ? ExpressionType.NotEqual : ExpressionType.Equal);
+
+                    return true;
                 }
             }
             else if (sqlExpression is SqlBinaryExpression sqlBinaryExpression
                 && (sqlBinaryExpression.OperatorType == ExpressionType.Equal
                     || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual))
             {
-                var column = sqlBinaryExpression.Left as ColumnExpression ?? sqlBinaryExpression.Right as ColumnExpression;
-                var constant = sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression;
+                var column = (sqlBinaryExpression.Left as ColumnExpression ?? sqlBinaryExpression.Right as ColumnExpression);
+                var constant = (sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression);
 
                 if (column != null && constant != null)
                 {
-                    return (true, column, constant.Value, constant.TypeMapping, sqlBinaryExpression.OperatorType);
+                    candidateInfo = (column, constant.Value!, constant.TypeMapping!, sqlBinaryExpression.OperatorType);
+                    return true;
                 }
             }
             else if (sqlExpression is InExpression inExpression
@@ -404,11 +421,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && inExpression.Subquery == null
                 && inExpression.Values is SqlConstantExpression valuesConstant)
             {
-                return (true, column, valuesConstant.Value, valuesConstant.TypeMapping,
+                candidateInfo = (column, valuesConstant.Value!, valuesConstant.TypeMapping!,
                     inExpression.IsNegated ? ExpressionType.NotEqual : ExpressionType.Equal);
+
+                return true;
             }
 
-            return (false, default, default, default, default);
+            candidateInfo = default;
+            return false;
         }
     }
 }
