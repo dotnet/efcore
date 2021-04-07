@@ -299,8 +299,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
         public class ConcurrencyInfo : NotificationEntity, IConcurrencyInfo
         {
+            private bool _active;
             private string _token;
             private DateTime? _queriedDateTime;
+
+            public bool Active
+            {
+                get => _active;
+                set => SetWithNotify(value, ref _active);
+            }
 
             public string Token
             {

@@ -2486,6 +2486,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public string Street { get; set; }
             public string City { get; set; }
+            public int ZipCode { get; set; }
         }
 
         public class Order
@@ -2630,6 +2631,7 @@ namespace Microsoft.EntityFrameworkCore
         [Owned]
         protected class Details
         {
+            public int Value { get; set; }
             public string Name { get; set; }
         }
 

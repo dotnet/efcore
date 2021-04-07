@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore
             context.Add(
                 new FuelTank
                 {
-                    Capacity = "10000 l",
+                    Capacity = 10000_1,
                     FuelType = "Gas",
                     VehicleName = "Fuel transport"
                 });

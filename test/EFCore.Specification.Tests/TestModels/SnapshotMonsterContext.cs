@@ -107,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
         public class ConcurrencyInfo : IConcurrencyInfo
         {
+            public bool Active { get; set; }
             public string Token { get; set; }
             public DateTime? QueriedDateTime { get; set; }
         }
