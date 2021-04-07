@@ -71,7 +71,7 @@ jobs:
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'macOS')) }}:
       vmImage: macOS-10.14
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Linux')) }}:
-      vmImage: ubuntu-16.04
+      vmImage: ubuntu-18.04
     ${{ if and(eq(parameters.poolName, ''), eq(parameters.agentOs, 'Windows')) }}:
       ${{ if eq(variables['System.TeamProject'], 'public') }}:
         name: NetCorePublic-Pool
@@ -84,6 +84,9 @@ jobs:
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
     BuildScriptArgs: ${{ parameters.buildArgs }}
     BuildConfiguration: ${{ parameters.configuration }}
+    LC_ALL: 'en_US.UTF-8'
+    LANG: 'en_US.UTF-8'
+    LANGUAGE: 'en_US.UTF-8'
     VSTS_OVERWRITE_TEMP: false # Workaround for https://github.com/dotnet/core-eng/issues/2812
     TeamName: AspNetCore
     ${{ if or(ne(parameters.codeSign, 'true'), ne(variables['System.TeamProject'], 'internal'), in(variables['Build.Reason'], 'PullRequest')) }}:
