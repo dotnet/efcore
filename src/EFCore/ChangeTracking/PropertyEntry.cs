@@ -63,14 +63,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             get => InternalEntry.HasTemporaryValue(Metadata);
             set
             {
-                if (value)
-                {
-                    InternalEntry.SetTemporaryValue(Metadata, CurrentValue);
-                }
-                else
-                {
-                    InternalEntry[Metadata] = CurrentValue;
-                }
+                InternalEntry[Metadata] = CurrentValue;
+                InternalEntry.MarkAsTemporary(Metadata, value);
             }
         }
 
