@@ -135,7 +135,7 @@ stages:
             timeoutInMinutes: 120
             enablePublishTestResults: true
             pool:
-              vmImage: ubuntu-16.04
+              vmImage: ubuntu-18.04
             variables:
               - _runCounter: $[counter(variables['Build.Reason'], 0)]
               - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
