@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the model for the context this creator is being used with.
         /// </summary>
-        [Obsolete("Use CurrentContext.Context.DesignTimeModel instead")]
+        [Obsolete("Use CurrentContext.Context.GetService<IDesignTimeModel>().Model instead")]
         public IModel Model { get; init; }
 
         /// <summary>
