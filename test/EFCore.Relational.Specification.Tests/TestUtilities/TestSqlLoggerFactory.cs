@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -121,6 +122,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public List<string> SqlStatements { get; } = new();
             public List<string> Parameters { get; } = new();
 
+            private StringBuilder _stringBuilder = new();
+
             protected override void UnsafeClear()
             {
                 base.UnsafeClear();
@@ -157,7 +160,37 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         if (!string.IsNullOrWhiteSpace(parameters))
                         {
                             Parameters.Add(parameters);
-                            parameters = parameters.Replace(", ", _eol) + _eol + _eol;
+
+                            _stringBuilder.Clear();
+
+                            var inQuotes = false;
+                            var inCurlies = false;
+                            for (var i = 0; i < parameters.Length; i++)
+                            {
+                                var c = parameters[i];
+                                switch (c)
+                                {
+                                    case '\'':
+                                        inQuotes = !inQuotes;
+                                        goto default;
+                                    case '{':
+                                        inCurlies = true;
+                                        goto default;
+                                    case '}':
+                                        inCurlies = false;
+                                        goto default;
+                                    case ',' when parameters[i + 1] == ' ' && !inQuotes && !inCurlies:
+                                        _stringBuilder.Append(_eol);
+                                        i++;
+                                        continue;
+                                    default:
+                                        _stringBuilder.Append(c);
+                                        continue;
+                                }
+                            }
+
+                            _stringBuilder.Append(_eol).Append(_eol);
+                            parameters = _stringBuilder.ToString();
                         }
 
                         SqlStatements.Add(parameters + commandText);
