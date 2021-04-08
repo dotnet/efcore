@@ -1,10 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -23,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The <see cref="MethodInfo" /> for the <see cref="ValueBuffer" /> get method.
         /// </summary>
         public static readonly MethodInfo GetValueBufferMethod
-            = typeof(MaterializationContext).GetProperty(nameof(ValueBuffer)).GetMethod;
+            = typeof(MaterializationContext).GetProperty(nameof(ValueBuffer))!.GetMethod!;
 
         internal static readonly PropertyInfo ContextProperty
-            = typeof(MaterializationContext).GetProperty(nameof(Context));
+            = typeof(MaterializationContext).GetProperty(nameof(Context))!;
 
         /// <summary>
         ///     Creates a new <see cref="MaterializationContext" /> instance.
@@ -35,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="context"> The current <see cref="DbContext" /> instance being used. </param>
         public MaterializationContext(
             in ValueBuffer valueBuffer,
-            [NotNull] DbContext context)
+            DbContext context)
         {
-            Debug.Assert(context != null); // Hot path
+            Check.DebugAssert(context != null, "context is null"); // Hot path
 
             ValueBuffer = valueBuffer;
             Context = context;

@@ -16,25 +16,35 @@ namespace Microsoft.EntityFrameworkCore
         where TContext : DbContext
     {
         protected virtual Type ContextType { get; } = typeof(TContext);
-        public IServiceProvider ServiceProvider { get; }
+
+        private IServiceProvider _serviceProvider;
+        public IServiceProvider ServiceProvider
+            => _serviceProvider ?? throw new InvalidOperationException($"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(ServiceProvider)} property will be available.");
+
         protected abstract string StoreName { get; }
         protected abstract ITestStoreFactory TestStoreFactory { get; }
-        public TestStore TestStore { get; }
-        protected virtual bool UsePooling => true;
+
+        private TestStore _testStore;
+        public TestStore TestStore
+            => _testStore ?? throw new InvalidOperationException($"You must override the {nameof(InitializeAsync)} method and call `await base.{nameof(InitializeAsync)}();`. At this point the {nameof(TestStore)} property will be available.");
+
+        protected virtual bool UsePooling
+            => true;
 
         private IDbContextPool _contextPool;
 
         private IDbContextPool ContextPool
-            => _contextPool ??= (IDbContextPool)ServiceProvider.GetRequiredService(typeof(DbContextPool<>).MakeGenericType(ContextType));
+            => _contextPool ??= (IDbContextPool)ServiceProvider
+                .GetRequiredService(typeof(IDbContextPool<>).MakeGenericType(ContextType));
 
         private ListLoggerFactory _listLoggerFactory;
 
         public ListLoggerFactory ListLoggerFactory
             => _listLoggerFactory ??= (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
-        protected SharedStoreFixtureBase()
+        public virtual Task InitializeAsync()
         {
-            TestStore = TestStoreFactory.GetOrCreate(StoreName);
+            _testStore = TestStoreFactory.GetOrCreate(StoreName);
 
             var services = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()));
             if (UsePooling)
@@ -50,27 +60,17 @@ namespace Microsoft.EntityFrameworkCore
                     ServiceLifetime.Singleton);
             }
 
-            ServiceProvider = services.BuildServiceProvider(validateScopes: true);
+            _serviceProvider = services.BuildServiceProvider(validateScopes: true);
 
             TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c), c => Clean(c));
-        }
 
-        public virtual Task InitializeAsync()
-        {
             return Task.CompletedTask;
         }
 
         public virtual TContext CreateContext()
-        {
-            if (UsePooling)
-            {
-                var context = (PoolableDbContext)ContextPool.Rent();
-                context.SetPool(ContextPool);
-                return (TContext)(object)context;
-            }
-
-            return (TContext)ServiceProvider.GetRequiredService(ContextType);
-        }
+            => UsePooling
+                ? (TContext)new DbContextLease(ContextPool, standalone: true).Context
+                : (TContext)ServiceProvider.GetRequiredService(ContextType);
 
         public DbContextOptions CreateOptions()
             => ConfigureOptions(ServiceProvider, new DbContextOptionsBuilder()).Options;
@@ -83,26 +83,23 @@ namespace Microsoft.EntityFrameworkCore
             => base.AddServices(serviceCollection)
                 .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(ShouldLogCategory));
 
-        protected virtual bool ShouldLogCategory(string logCategory) => false;
+        protected virtual bool ShouldLogCategory(string logCategory)
+            => false;
 
         public virtual void Reseed()
         {
-            using (var context = CreateContext())
-            {
-                Clean(context);
-                TestStore.Clean(context);
-                Seed(context);
-            }
+            using var context = CreateContext();
+            Clean(context);
+            TestStore.Clean(context);
+            Seed(context);
         }
 
         public virtual async Task ReseedAsync()
         {
-            using (var context = CreateContext())
-            {
-                await CleanAsync(context);
-                await TestStore.CleanAsync(context);
-                await SeedAsync(context);
-            }
+            using var context = CreateContext();
+            await CleanAsync(context);
+            await TestStore.CleanAsync(context);
+            await SeedAsync(context);
         }
 
         protected virtual void Seed(TContext context)
@@ -130,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        public virtual Task DisposeAsync() => TestStore.DisposeAsync();
+        public virtual Task DisposeAsync()
+            => TestStore.DisposeAsync();
     }
 }

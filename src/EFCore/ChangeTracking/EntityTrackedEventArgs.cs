@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         [EntityFrameworkInternal]
         public EntityTrackedEventArgs(
-            [NotNull] InternalEntityEntry internalEntityEntry,
+            InternalEntityEntry internalEntityEntry,
             bool fromQuery)
             : base(internalEntityEntry)
         {
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         /// <summary>
-        ///     <c>True</c> if the entity is being tracked as part of a database query; <c>false</c> otherwise.
+        ///     <see langword="true" /> if the entity is being tracked as part of a database query; <see langword="false" /> otherwise.
         /// </summary>
         public virtual bool FromQuery { get; }
     }

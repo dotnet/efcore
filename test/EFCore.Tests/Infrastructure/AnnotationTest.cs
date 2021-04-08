@@ -26,5 +26,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal("Foo", annotation.Name);
             Assert.Equal("Bar", annotation.Value);
         }
+
+        [ConditionalFact]
+        public void NegativeNumberArguments_PrecisionAttribute_Throws()
+        {
+            Assert.Equal(
+                AbstractionsStrings.ArgumentIsNegativeNumber("precision"),
+                Assert.Throws<ArgumentException>(() => new PrecisionAttribute(-1)).Message);
+            Assert.Equal(
+                AbstractionsStrings.ArgumentIsNegativeNumber("scale"),
+                Assert.Throws<ArgumentException>(() => new PrecisionAttribute(3, -2)).Message);
+            Assert.Equal(
+                AbstractionsStrings.ArgumentIsNegativeNumber("precision"),
+                Assert.Throws<ArgumentException>(() => new PrecisionAttribute(-5, 4)).Message);
+        }
     }
 }

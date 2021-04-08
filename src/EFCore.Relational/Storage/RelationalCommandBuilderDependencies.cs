@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalCommandBuilderDependencies
+    public sealed record RelationalCommandBuilderDependencies
     {
         /// <summary>
         ///     <para>
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalCommandBuilderDependencies(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
@@ -63,14 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The source for <see cref="RelationalTypeMapping" />s to use.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource">A replacement for the current dependency of this type.</param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalCommandBuilderDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new RelationalCommandBuilderDependencies(typeMappingSource);
+        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
     }
 }

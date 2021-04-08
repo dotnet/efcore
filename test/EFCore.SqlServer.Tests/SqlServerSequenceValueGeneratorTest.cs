@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -26,42 +28,50 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Generates_sequential_int_values(bool async) => await Generates_sequential_values<int>(async);
+        public async Task Generates_sequential_int_values(bool async)
+            => await Generates_sequential_values<int>(async);
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Generates_sequential_long_values(bool async) => await Generates_sequential_values<long>(async);
+        public async Task Generates_sequential_long_values(bool async)
+            => await Generates_sequential_values<long>(async);
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Generates_sequential_short_values(bool async) => await Generates_sequential_values<short>(async);
+        public async Task Generates_sequential_short_values(bool async)
+            => await Generates_sequential_values<short>(async);
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Generates_sequential_byte_values(bool async) => await Generates_sequential_values<byte>(async);
+        public async Task Generates_sequential_byte_values(bool async)
+            => await Generates_sequential_values<byte>(async);
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Generates_sequential_uint_values(bool async) => await Generates_sequential_values<uint>(async);
+        public async Task Generates_sequential_uint_values(bool async)
+            => await Generates_sequential_values<uint>(async);
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Generates_sequential_ulong_values(bool async) => await Generates_sequential_values<ulong>(async);
+        public async Task Generates_sequential_ulong_values(bool async)
+            => await Generates_sequential_values<ulong>(async);
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Generates_sequential_ushort_values(bool async) => await Generates_sequential_values<ushort>(async);
+        public async Task Generates_sequential_ushort_values(bool async)
+            => await Generates_sequential_values<ushort>(async);
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Generates_sequential_sbyte_values(bool async) => await Generates_sequential_values<sbyte>(async);
+        public async Task Generates_sequential_sbyte_values(bool async)
+            => await Generates_sequential_values<sbyte>(async);
 
         private async Task Generates_sequential_values<TValue>(bool async)
         {
@@ -69,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = blockSize;
-            var state = new SqlServerSequenceValueGeneratorState(sequence);
+            var state = new SqlServerSequenceValueGeneratorState((ISequence)sequence);
 
             var generator = new SqlServerSequenceHiLoValueGenerator<TValue>(
                 new FakeRawSqlCommandBuilder(blockSize),
@@ -124,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = blockSize;
-            var state = new SqlServerSequenceValueGeneratorState(sequence);
+            var state = new SqlServerSequenceValueGeneratorState((ISequence)sequence);
 
             var executor = new FakeRawSqlCommandBuilder(blockSize);
             var sqlGenerator = new SqlServerUpdateSqlGenerator(
@@ -174,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
             sequence.IncrementBy = 4;
-            var state = new SqlServerSequenceValueGeneratorState(sequence);
+            var state = new SqlServerSequenceValueGeneratorState((ISequence)sequence);
 
             var generator = new SqlServerSequenceHiLoValueGenerator<int>(
                 new FakeRawSqlCommandBuilder(4),
@@ -216,9 +226,7 @@ namespace Microsoft.EntityFrameworkCore
             public RawSqlCommand Build(
                 string sql,
                 IEnumerable<object> parameters)
-                => new RawSqlCommand(
-                    new FakeRelationalCommand(this),
-                    new Dictionary<string, object>());
+                => new(new FakeRelationalCommand(this), new Dictionary<string, object>());
 
             private class FakeRelationalCommand : IRelationalCommand
             {
@@ -229,11 +237,14 @@ namespace Microsoft.EntityFrameworkCore
                     _commandBuilder = commandBuilder;
                 }
 
-                public string CommandText => throw new NotImplementedException();
+                public string CommandText
+                    => throw new NotImplementedException();
 
-                public IReadOnlyList<IRelationalParameter> Parameters => throw new NotImplementedException();
+                public IReadOnlyList<IRelationalParameter> Parameters
+                    => throw new NotImplementedException();
 
-                public IReadOnlyDictionary<string, object> ParameterValues => throw new NotImplementedException();
+                public IReadOnlyDictionary<string, object> ParameterValues
+                    => throw new NotImplementedException();
 
                 public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
                 {
@@ -266,6 +277,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     throw new NotImplementedException();
                 }
+
+                public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
+                    => throw new NotImplementedException();
+
+                public void PopulateFromTemplate(IRelationalCommand templateCommand)
+                    => throw new NotImplementedException();
             }
         }
     }

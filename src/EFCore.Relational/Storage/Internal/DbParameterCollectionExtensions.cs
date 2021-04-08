@@ -2,14 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -28,22 +28,29 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string FormatParameters(
-            [NotNull] this DbParameterCollection parameters,
+            this DbParameterCollection parameters,
             bool logParameterValues)
             => parameters
                 .Cast<DbParameter>()
-                .Select(
-                    p => FormatParameter(
-                        p.ParameterName,
-                        logParameterValues ? p.Value : "?",
-                        logParameterValues,
-                        p.Direction,
-                        p.DbType,
-                        p.IsNullable,
-                        p.Size,
-                        p.Precision,
-                        p.Scale))
-                .Join();
+                .Select(p => FormatParameter(p, logParameterValues)).Join();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static string FormatParameter(this DbParameter parameter, bool logParameterValues)
+            => FormatParameter(
+                parameter.ParameterName,
+                logParameterValues ? parameter.Value : "?",
+                logParameterValues,
+                parameter.Direction,
+                parameter.DbType,
+                parameter.IsNullable,
+                parameter.Size,
+                parameter.Precision,
+                parameter.Scale);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string FormatParameter(
-            [NotNull] string name,
-            [CanBeNull] object value,
+            string name,
+            object? value,
             bool hasValue,
             ParameterDirection direction,
             DbType dbType,
@@ -74,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             if (nullable
                 && value != null
-                && !clrType.IsNullableType())
+                && !clrType!.IsNullableType())
             {
                 builder.Append(" (Nullable = true)");
             }
@@ -83,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 if (!nullable
                     && hasValue
                     && (value == null
-                        || clrType.IsNullableType()))
+                        || clrType!.IsNullableType()))
                 {
                     builder.Append(" (Nullable = false)");
                 }
@@ -132,123 +139,135 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             return builder.ToString();
         }
 
-        private static void FormatParameterValue(StringBuilder builder, object parameterValue)
+        private static void FormatParameterValue(StringBuilder builder, object? parameterValue)
         {
-            if (parameterValue == null
-                || parameterValue == DBNull.Value)
+            switch (parameterValue)
             {
-                builder.Append("NULL");
-            }
-            else if (parameterValue.GetType() == typeof(DateTime))
-            {
-                builder
-                    .Append('\'')
-                    .Append(((DateTime)parameterValue).ToString("s"))
-                    .Append('\'');
-            }
-            else if (parameterValue.GetType() == typeof(DateTimeOffset))
-            {
-                builder
-                    .Append('\'')
-                    .Append(((DateTimeOffset)parameterValue).ToString("o"))
-                    .Append('\'');
-            }
-            else if (parameterValue.GetType() == typeof(byte[]))
-            {
-                var buffer = (byte[])parameterValue;
-                builder.Append("'0x");
+                case null:
+                case DBNull:
+                    builder.Append("NULL");
+                    return;
 
-                for (var i = 0; i < buffer.Length; i++)
-                {
-                    if (i > 31)
+                case DateTime dateTime:
+                    builder
+                        .Append('\'')
+                        .Append(dateTime.ToString("o"))
+                        .Append('\'');
+                    return;
+
+                case DateTimeOffset dateTimeOffset:
+                    builder
+                        .Append('\'')
+                        .Append(dateTimeOffset.ToString("o"))
+                        .Append('\'');
+                    return;
+
+                case byte[] byteArray:
+                    builder.AppendBytes(byteArray);
+                    return;
+
+                case IList list:
+                    builder.Append("{ ");
+
+                    for (var i = 0; i < list.Count; i++)
                     {
-                        builder.Append("...");
-                        break;
+                        if (i > 4)
+                        {
+                            builder.Append("...");
+                            break;
+                        }
+
+                        FormatParameterValue(builder, list[i]);
+
+                        if (i < list.Count - 1)
+                        {
+                            builder.Append(", ");
+                        }
                     }
 
-                    builder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
-                }
+                    builder.Append(" }");
+                    return;
 
-                builder.Append('\'');
-            }
-            else
-            {
-                var valueProperty = parameterValue.GetType().GetRuntimeProperty("Value");
-                if (valueProperty != null
-                    && valueProperty.PropertyType != parameterValue.GetType())
-                {
-                    var isNullProperty = parameterValue.GetType().GetRuntimeProperty("IsNull");
-                    if (isNullProperty != null
-                        && (bool)isNullProperty.GetValue(parameterValue))
+                default:
+                    var type = parameterValue.GetType();
+                    var valueProperty = type.GetRuntimeProperty("Value");
+                    if (valueProperty != null
+                        && valueProperty.PropertyType != type)
                     {
-                        builder.Append("''");
+                        var isNullProperty = type.GetRuntimeProperty("IsNull");
+                        if (isNullProperty != null
+                            && isNullProperty.GetValue(parameterValue) is bool isNull
+                            && isNull)
+                        {
+                            builder.Append("''");
+                        }
+                        else
+                        {
+                            FormatParameterValue(builder, valueProperty.GetValue(parameterValue));
+                        }
                     }
                     else
                     {
-                        FormatParameterValue(builder, valueProperty.GetValue(parameterValue));
+                        builder
+                            .Append('\'')
+                            .Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture))
+                            .Append('\'');
                     }
-                }
-                else
-                {
-                    builder
-                        .Append('\'')
-                        .Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture))
-                        .Append('\'');
-                }
+                    return;
             }
         }
 
-        private static bool ShouldShowDbType(bool hasValue, DbType dbType, Type clrType)
+        private static bool ShouldShowDbType(bool hasValue, DbType dbType, Type? type)
         {
             if (!hasValue
-                || clrType == null
-                || clrType == typeof(DBNull))
+                || type == null
+                || type == typeof(DBNull))
             {
                 return dbType != DbType.String;
             }
 
-            clrType = clrType.UnwrapNullableType().UnwrapEnumType();
+            type = type.UnwrapNullableType().UnwrapEnumType();
 
             switch (dbType)
             {
                 case DbType.Binary:
-                    return clrType != typeof(byte[]);
+                    return type != typeof(byte[]);
                 case DbType.Byte:
-                    return clrType != typeof(byte);
+                    return type != typeof(byte);
                 case DbType.Boolean:
-                    return clrType != typeof(bool);
+                    return type != typeof(bool);
                 case DbType.Decimal:
-                    return clrType != typeof(decimal);
+                    return type != typeof(decimal);
                 case DbType.Double:
-                    return clrType != typeof(double);
+                    return type != typeof(double);
                 case DbType.Guid:
-                    return clrType != typeof(Guid);
+                    return type != typeof(Guid);
                 case DbType.Int16:
-                    return clrType != typeof(short);
+                    return type != typeof(short);
                 case DbType.Int32:
-                    return clrType != typeof(int);
+                    return type != typeof(int);
                 case DbType.Int64:
-                    return clrType != typeof(long);
+                    return type != typeof(long);
                 case DbType.Object:
-                    return clrType != typeof(object);
+                    return type != typeof(object);
                 case DbType.SByte:
-                    return clrType != typeof(sbyte);
+                    return type != typeof(sbyte);
                 case DbType.Single:
-                    return clrType != typeof(float);
+                    return type != typeof(float);
                 case DbType.String:
-                    return clrType != typeof(string);
+                    return type != typeof(string);
                 case DbType.Time:
-                    return clrType != typeof(TimeSpan);
+                    return type != typeof(TimeSpan);
                 case DbType.UInt16:
-                    return clrType != typeof(ushort);
+                    return type != typeof(ushort);
                 case DbType.UInt32:
-                    return clrType != typeof(uint);
+                    return type != typeof(uint);
                 case DbType.UInt64:
-                    return clrType != typeof(ulong);
+                    return type != typeof(ulong);
                 case DbType.DateTime2:
-                    return clrType != typeof(DateTime);
+                    return type != typeof(DateTime);
                 case DbType.DateTimeOffset:
-                    return clrType != typeof(DateTimeOffset);
+                    return type != typeof(DateTimeOffset);
                 //case DbType.AnsiString:
                 //case DbType.VarNumeric:
                 //case DbType.AnsiStringFixedLength:

@@ -9,11 +9,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
+using System.Threading;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyModel;
-using RuntimeEnvironment = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -22,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public static class SpatialiteLoader
     {
-        private static readonly string _sharedLibraryExtension;
-        private static readonly string _pathVariableName;
+        private static readonly string? _sharedLibraryExtension;
+        private static readonly string? _pathVariableName;
 
         private static bool _looked;
 
@@ -34,15 +33,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _sharedLibraryExtension = ".dll";
                 _pathVariableName = "PATH";
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                _sharedLibraryExtension = ".dylib";
-                _pathVariableName = "DYLD_LIBRARY_PATH";
-            }
             else
             {
-                _sharedLibraryExtension = ".so";
-                _pathVariableName = "LD_LIBRARY_PATH";
+                // NB: The PATH trick we use won't work on Linux. Changing LD_LIBRARY_PATH has
+                //     no effect after the first library is loaded
+                _looked = true;
             }
         }
 
@@ -50,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Tries to load the mod_spatialite extension into the specified connection.
         /// </summary>
         /// <param name="connection"> The connection. </param>
-        /// <returns> true if the extension was loaded; otherwise, false. </returns>
-        public static bool TryLoad([NotNull] DbConnection connection)
+        /// <returns> <see langword="true" /> if the extension was loaded; otherwise, <see langword="false" />. </returns>
+        public static bool TryLoad(DbConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
 
@@ -91,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <param name="connection"> The connection. </param>
-        public static void Load([NotNull] DbConnection connection)
+        public static void Load(DbConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
 
@@ -103,11 +98,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
             else
             {
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "SELECT load_extension('mod_spatialite');";
-                    command.ExecuteNonQuery();
-                }
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT load_extension('mod_spatialite');";
+                command.ExecuteNonQuery();
             }
         }
 
@@ -132,8 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (hasDependencyContext)
             {
                 var candidateAssets = new Dictionary<(string, string), int>();
-                var rid = RuntimeEnvironment.GetRuntimeIdentifier();
-                var rids = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == rid)?.Fallbacks.ToList()
+                var rid = RuntimeInformation.RuntimeIdentifier;
+                var rids = DependencyContext.Default!.RuntimeGraph.FirstOrDefault(g => g.Runtime == rid)?.Fallbacks.ToList()
                     ?? new List<string>();
                 rids.Insert(0, rid);
 
@@ -162,18 +155,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .Select(p => p.Key).FirstOrDefault();
                 if (assetPath != default)
                 {
-                    string assetDirectory = null;
+                    string? assetDirectory = null;
                     if (File.Exists(Path.Combine(AppContext.BaseDirectory, assetPath.Item2)))
                     {
                         // NB: This enables framework-dependent deployments
                         assetDirectory = Path.Combine(
                             AppContext.BaseDirectory,
-                            Path.GetDirectoryName(assetPath.Item2.Replace('/', Path.DirectorySeparatorChar)));
+                            Path.GetDirectoryName(assetPath.Item2.Replace('/', Path.DirectorySeparatorChar))!);
                     }
                     else
                     {
-                        string assetFullPath = null;
-                        var probingDirectories = ((string)AppDomain.CurrentDomain.GetData("PROBING_DIRECTORIES"))
+                        string? assetFullPath = null;
+                        var probingDirectories = ((string)AppDomain.CurrentDomain.GetData("PROBING_DIRECTORIES")!)
                             .Split(Path.PathSeparator);
                         foreach (var directory in probingDirectories)
                         {
@@ -186,22 +179,34 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             }
                         }
 
-                        Debug.Assert(assetFullPath != null);
+                        Check.DebugAssert(assetFullPath != null, "assetFullPath is null");
 
                         assetDirectory = Path.GetDirectoryName(assetFullPath);
                     }
 
-                    Debug.Assert(assetDirectory != null);
+                    Check.DebugAssert(assetDirectory != null, "assetDirectory is null");
 
-                    var currentPath = Environment.GetEnvironmentVariable(_pathVariableName);
-                    if (!currentPath.Split(Path.PathSeparator).Any(
-                        p => string.Equals(
-                            p.TrimEnd(Path.DirectorySeparatorChar),
-                            assetDirectory,
-                            StringComparison.OrdinalIgnoreCase)))
+                    // GetEnvironmentVariable can sometimes return null when there is a race condition
+                    // with another thread setting it. Therefore we do a bit of back off and retry here.
+                    // Note that the result can be null if no path is set on the system.
+                    var delay = 1;
+                    var currentPath = Environment.GetEnvironmentVariable(_pathVariableName!);
+                    while (currentPath == null && delay < 1000)
+                    {
+                        Thread.Sleep(delay);
+                        delay *= 2;
+                        currentPath = Environment.GetEnvironmentVariable(_pathVariableName!);
+                    }
+
+                    if (currentPath == null
+                        || !currentPath.Split(Path.PathSeparator).Any(
+                            p => string.Equals(
+                                p.TrimEnd(Path.DirectorySeparatorChar),
+                                assetDirectory,
+                                StringComparison.OrdinalIgnoreCase)))
                     {
                         Environment.SetEnvironmentVariable(
-                            _pathVariableName,
+                            _pathVariableName!,
                             assetDirectory + Path.PathSeparator + currentPath);
                     }
                 }

@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,8 +31,34 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <returns> The model to be used. </returns>
+        [Obsolete("Use the overload with IModelCreationDependencies")]
         IModel GetModel(
-            [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder);
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder);
+
+        /// <summary>
+        ///     Gets the model to be used.
+        /// </summary>
+        /// <param name="context"> The context the model is being produced for. </param>
+        /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
+        /// <param name="modelDependencies"> The dependencies object for the model. </param>
+        /// <returns> The model to be used. </returns>
+        [Obsolete("Use the overload with IModelCreationDependencies")]
+        IModel GetModel(
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder,
+            ModelDependencies modelDependencies);
+
+        /// <summary>
+        ///     Gets the model to be used.
+        /// </summary>
+        /// <param name="context"> The context the model is being produced for. </param>
+        /// <param name="modelCreationDependencies"> The dependencies object used during the creation of the model. </param>
+        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
+        /// <returns> The model to be used. </returns>
+        IModel GetModel(
+            DbContext context,
+            ModelCreationDependencies modelCreationDependencies,
+            bool designTime);
     }
 }

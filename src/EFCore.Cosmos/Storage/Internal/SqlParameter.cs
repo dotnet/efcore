@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlParameter(string name, object value)
+        public SqlParameter(string name, object? value)
         {
             Name = name;
             Value = value;
@@ -37,6 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object Value { get; }
+        public virtual object? Value { get; }
     }
 }

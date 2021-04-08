@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -23,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private readonly string _propertyName;
         private readonly Func<TEntity, TCollection> _getCollection;
-        private readonly Action<TEntity, TCollection> _setCollection;
-        private readonly Action<TEntity, TCollection> _setCollectionForMaterialization;
-        private readonly Func<TEntity, Action<TEntity, TCollection>, TCollection> _createAndSetCollection;
-        private readonly Func<TCollection> _createCollection;
+        private readonly Action<TEntity, TCollection>? _setCollection;
+        private readonly Action<TEntity, TCollection>? _setCollectionForMaterialization;
+        private readonly Func<TEntity, Action<TEntity, TCollection>, TCollection>? _createAndSetCollection;
+        private readonly Func<TCollection>? _createCollection;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type CollectionType => typeof(TCollection);
+        public virtual Type CollectionType
+            => typeof(TCollection);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,12 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ClrICollectionAccessor(
-            [NotNull] string propertyName,
-            [NotNull] Func<TEntity, TCollection> getCollection,
-            [CanBeNull] Action<TEntity, TCollection> setCollection,
-            [CanBeNull] Action<TEntity, TCollection> setCollectionForMaterialization,
-            [CanBeNull] Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetCollection,
-            [CanBeNull] Func<TCollection> createCollection)
+            string propertyName,
+            Func<TEntity, TCollection> getCollection,
+            Action<TEntity, TCollection>? setCollection,
+            Action<TEntity, TCollection>? setCollectionForMaterialization,
+            Func<TEntity, Action<TEntity, TCollection>, TCollection>? createAndSetCollection,
+            Func<TCollection>? createCollection)
         {
             _propertyName = propertyName;
             _getCollection = getCollection;
@@ -109,7 +109,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ICollection<TElement> GetOrCreateCollection(object instance, bool forMaterialization)
         {
             var collection = GetCollection(instance);
-
             if (collection == null)
             {
                 var setCollection = forMaterialization
@@ -134,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return collection;
         }
 
-        private ICollection<TElement> GetCollection(object instance)
+        private ICollection<TElement>? GetCollection(object instance)
         {
             var enumerable = _getCollection((TEntity)instance);
             var collection = enumerable as ICollection<TElement>;
@@ -197,22 +196,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     return false;
                 case SortedSet<TElement> sortedSet:
-                    foreach (var item in sortedSet)
-                    {
-                        if (ReferenceEquals(item, value))
-                        {
-                            sortedSet.Remove(item);
-                            return true;
-                        }
-                    }
-
-                    return false;
+                    return sortedSet.TryGetValue((TElement)value, out var found)
+                        && ReferenceEquals(found, value)
+                        && sortedSet.Remove(found);
                 default:
                     return collection?.Remove((TElement)value) ?? false;
             }
         }
 
-        private static bool Contains(ICollection<TElement> collection, object value)
+        private static bool Contains(ICollection<TElement>? collection, object value)
         {
             switch (collection)
             {
@@ -237,15 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     return false;
                 case SortedSet<TElement> sortedSet:
-                    foreach (var element in sortedSet)
-                    {
-                        if (ReferenceEquals(element, value))
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
+                    return sortedSet.TryGetValue((TElement)value, out var found)
+                        && ReferenceEquals(found, value);
                 default:
                     return collection?.Contains((TElement)value) == true;
             }

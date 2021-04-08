@@ -3,12 +3,18 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+
+[assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.SqlServer.Design.Internal.SqlServerDesignTimeServices")]
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
 {
@@ -28,10 +34,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         /// </summary>
         public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
             => serviceCollection
-                .AddSingleton<LoggingDefinitions, SqlServerLoggingDefinitions>()
-                .AddSingleton<IRelationalTypeMappingSource, SqlServerTypeMappingSource>()
+                .AddSingleton<IAnnotationCodeGenerator, SqlServerAnnotationCodeGenerator>()
                 .AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>()
+                .AddSingleton<IModelValidator, SqlServerModelValidator>()
                 .AddSingleton<IProviderConfigurationCodeGenerator, SqlServerCodeGenerator>()
-                .AddSingleton<IAnnotationCodeGenerator, SqlServerAnnotationCodeGenerator>();
+                .AddSingleton<IRelationalTypeMappingSource, SqlServerTypeMappingSource>()
+                .AddSingleton<LoggingDefinitions, SqlServerLoggingDefinitions>();
     }
 }

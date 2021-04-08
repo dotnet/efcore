@@ -4,7 +4,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -14,8 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     {
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: GetByteCount());
+        private static readonly ConverterMappingHints _defaultHints = new(size: GetByteCount());
 
         /// <summary>
         ///     <para>
@@ -32,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public NumberToBytesConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public NumberToBytesConverter(ConverterMappingHints? mappingHints = null)
             : base(ToBytes(), ToNumber(), _defaultHints.With(mappingHints))
         {
         }
@@ -41,8 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(
-                typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
+            = new(typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
 
         private static Expression<Func<TNumber, byte[]>> ToBytes()
         {
@@ -75,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                             Expression.Call(
                                 typeof(BitConverter).GetMethod(
                                     nameof(BitConverter.GetBytes),
-                                    new[] { type }),
+                                    new[] { type })!,
                                 input));
 
             if (typeof(TNumber).IsNullableType())
@@ -83,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 output = Expression.Condition(
                     Expression.Property(
                         param,
-                        typeof(TNumber).GetProperty(nameof(Nullable<int>.HasValue))),
+                        typeof(TNumber).GetProperty(nameof(Nullable<int>.HasValue))!),
                     output,
                     Expression.Constant(null, typeof(byte[])));
             }
@@ -111,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                         : (Expression)Expression.Call(
                             typeof(BitConverter).GetMethod(
                                 "To" + type.Name,
-                                new[] { typeof(byte[]), typeof(int) }),
-                            EnsureEndian(param),
+                                new[] { typeof(byte[]), typeof(int) })!,
+                            EnsureEndian(HandleEmptyArray(param)),
                             Expression.Constant(0));
 
             if (typeof(TNumber).IsNullableType())
@@ -126,6 +123,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                     Expression.Constant(default(TNumber), typeof(TNumber)),
                     output),
                 param);
+        }
+
+        private static Expression HandleEmptyArray(Expression expression)
+        {
+            if (!typeof(TNumber).IsInteger())
+            {
+                return expression;
+            }
+
+            return Expression.Condition(
+                Expression.Equal(Expression.ArrayLength(expression), Expression.Constant(0)),
+                Expression.NewArrayBounds(typeof(byte), Expression.Constant(GetByteCount())),
+                expression);
         }
 
         private static Expression EnsureEndian(Expression expression)
@@ -151,17 +161,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         private static readonly MethodInfo _reverseLongMethod
             = typeof(NumberToBytesConverter<TNumber>).GetMethod(
                 nameof(ReverseLong),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static readonly MethodInfo _reverseIntMethod
             = typeof(NumberToBytesConverter<TNumber>).GetMethod(
                 nameof(ReverseInt),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static readonly MethodInfo _reverseShortMethod
             = typeof(NumberToBytesConverter<TNumber>).GetMethod(
                 nameof(ReverseShort),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static byte[] ReverseLong(byte[] bytes)
             => new[] { bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0] };
@@ -201,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         private static readonly MethodInfo _toBytesMethod
             = typeof(NumberToBytesConverter<TNumber>).GetMethod(
                 nameof(DecimalToBytes),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static byte[] DecimalToBytes(decimal value)
         {
@@ -219,24 +229,27 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         private static readonly MethodInfo _toDecimalMethod
             = typeof(NumberToBytesConverter<TNumber>).GetMethod(
                 nameof(BytesToDecimal),
-                BindingFlags.Static | BindingFlags.NonPublic);
+                BindingFlags.Static | BindingFlags.NonPublic)!;
 
         private static decimal BytesToDecimal(byte[] bytes)
         {
+            var gotBytes = bytes;
             if (BitConverter.IsLittleEndian)
             {
-                Array.Reverse(bytes, 0, 4);
-                Array.Reverse(bytes, 4, 4);
-                Array.Reverse(bytes, 8, 4);
-                Array.Reverse(bytes, 12, 4);
+                gotBytes = new byte[16];
+                Array.Copy(bytes, gotBytes, 16);
+                Array.Reverse(gotBytes, 0, 4);
+                Array.Reverse(gotBytes, 4, 4);
+                Array.Reverse(gotBytes, 8, 4);
+                Array.Reverse(gotBytes, 12, 4);
             }
 
-            var specialBits = BitConverter.ToUInt32(bytes, 0);
+            var specialBits = BitConverter.ToUInt32(gotBytes, 0);
 
             return new decimal(
-                BitConverter.ToInt32(bytes, 12),
-                BitConverter.ToInt32(bytes, 8),
-                BitConverter.ToInt32(bytes, 4),
+                BitConverter.ToInt32(gotBytes, 12),
+                BitConverter.ToInt32(gotBytes, 8),
+                BitConverter.ToInt32(gotBytes, 4),
                 (specialBits & 0x80000000) != 0,
                 (byte)((specialBits & 0x00FF0000) >> 16));
         }

@@ -4,7 +4,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     /// </summary>
     public class InMemoryTransactionManager : IDbContextTransactionManager, ITransactionEnlistmentManager
     {
-        private static readonly InMemoryTransaction _stubTransaction = new InMemoryTransaction();
+        private static readonly InMemoryTransaction _stubTransaction = new();
 
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> _logger;
 
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryTransactionManager(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
         {
             Check.NotNull(logger, nameof(logger));
 
@@ -80,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void CommitTransaction() => _logger.TransactionIgnoredWarning();
+        public virtual void CommitTransaction()
+            => _logger.TransactionIgnoredWarning();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -88,7 +88,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void RollbackTransaction() => _logger.TransactionIgnoredWarning();
+        public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            _logger.TransactionIgnoredWarning();
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -96,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDbContextTransaction CurrentTransaction => null;
+        public virtual void RollbackTransaction()
+            => _logger.TransactionIgnoredWarning();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -104,7 +109,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Transaction EnlistedTransaction => null;
+        public virtual Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            _logger.TransactionIgnoredWarning();
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,7 +121,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void EnlistTransaction(Transaction transaction)
+        public virtual IDbContextTransaction? CurrentTransaction
+            => null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Transaction? EnlistedTransaction
+            => null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void EnlistTransaction(Transaction? transaction)
         {
             _logger.TransactionIgnoredWarning();
         }
@@ -133,12 +160,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         public virtual Task ResetStateAsync(CancellationToken cancellationToken = default)
         {
             ResetState();
 
-            return default;
+            return Task.CompletedTask;
         }
     }
 }

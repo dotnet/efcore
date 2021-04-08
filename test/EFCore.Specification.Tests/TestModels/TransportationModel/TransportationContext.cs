@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -47,6 +48,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                         .HasForeignKey<OperatorDetails>(e => e.VehicleName);
                 });
             modelBuilder.Entity<LicensedOperator>();
+
+            modelBuilder.Entity<Vehicle>(
+                vb =>
+                {
+                    vb.Navigation(v => v.Operator).IsRequired();
+                });
 
             modelBuilder.Entity<FuelTank>(
                 eb =>
@@ -97,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         protected IEnumerable<Vehicle> CreateVehicles()
             => new List<Vehicle>
             {
-                new Vehicle
+                new()
                 {
                     Name = "Trek Pro Fit Madone 6 Series",
                     SeatingCapacity = 1,
@@ -140,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                         FuelTank = new FuelTank
                         {
                             FuelType = "Liquid oxygen and anhydrous ammonia",
-                            Capacity = "11250 kg",
+                            Capacity = 11250,
                             VehicleName = "North American X-15A-2"
                         },
                         VehicleName = "North American X-15A-2"
@@ -161,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                         FuelTank = new SolidFuelTank
                         {
                             FuelType = "Reduced smoke Hydroxyl-Terminated Polybutadiene",
-                            Capacity = "22 kg",
+                            Capacity = 22,
                             GrainGeometry = "Cylindrical",
                             VehicleName = "AIM-9M Sidewinder"
                         },

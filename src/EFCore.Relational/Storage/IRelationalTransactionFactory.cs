@@ -3,7 +3,6 @@
 
 using System;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,10 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new <see cref="RelationalTransaction" /> instance. </returns>
         RelationalTransaction Create(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned);
     }
 }

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
@@ -13,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         [ConditionalFact]
         public void Creates_GUID_arrays()
         {
-            var generator = new BinaryValueGenerator(generateTemporaryValues: true);
+            var generator = new BinaryValueGenerator();
 
             var values = new HashSet<Guid>();
             for (var i = 0; i < 100; i++)
@@ -27,10 +26,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         }
 
         [ConditionalFact]
-        public void Generates_temp_or_non_temp_values()
+        public void Generates_non_temp_values()
         {
-            Assert.True(new BinaryValueGenerator(generateTemporaryValues: true).GeneratesTemporaryValues);
-            Assert.False(new BinaryValueGenerator(generateTemporaryValues: false).GeneratesTemporaryValues);
+            Assert.False(new BinaryValueGenerator().GeneratesTemporaryValues);
         }
     }
 }

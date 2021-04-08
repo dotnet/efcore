@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
@@ -33,7 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         }
 
         private void Test(
-            string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
+            string createSql,
+            IEnumerable<string> tables,
+            IEnumerable<string> schemas,
+            Action<DatabaseModel> asserter,
+            string cleanupSql)
         {
             Fixture.TestStore.ExecuteNonQuery(createSql);
 
@@ -49,8 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     .AddSingleton<LoggingDefinitions, SqliteLoggingDefinitions>()
                     .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
                     .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
-                    .AddSingleton<ILoggerFactory>(Fixture.ListLoggerFactory);
+                    .AddSingleton<ILoggerFactory>(Fixture.ListLoggerFactory)
+                    .AddSingleton<IDbContextLogger, NullDbContextLogger>();
+
                 new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
+
                 var databaseModelFactory = services
                     .BuildServiceProvider()
                     .GetRequiredService<IDatabaseModelFactory>();
@@ -315,6 +324,44 @@ DROP TABLE FirstDependent;
 DROP TABLE PrincipalTable;");
         }
 
+        [ConditionalFact]
+        public void Create_composite_foreign_key_with_default_columns()
+        {
+            Test(
+                @"
+                    CREATE TABLE MinimalFKTest1 (
+                        Id1 INTEGER,
+                        Id2 INTEGER,
+                        Id3 INTEGER,
+                        PRIMARY KEY (Id2, Id3, Id1)
+                    );
+
+                    CREATE TABLE MinimalFKTest2 (
+                        Id3 INTEGER,
+                        Id2 INTEGER,
+                        Id1 INTEGER,
+                        FOREIGN KEY (Id3, Id1, Id2) REFERENCES MinimalFKTest1
+                    )
+                ",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.Equal(2, dbModel.Tables.Count);
+
+                    var table = dbModel.Tables.Single(t => t.Name == "MinimalFKTest2");
+
+                    var foreignKey = Assert.Single(table.ForeignKeys);
+                    Assert.Equal(new[] { "Id3", "Id1", "Id2" }, foreignKey.Columns.Select(c => c.Name));
+                    Assert.Equal("MinimalFKTest1", foreignKey.PrincipalTable.Name);
+                    Assert.Equal(new[] { "Id2", "Id3", "Id1" }, foreignKey.PrincipalColumns.Select(c => c.Name));
+                },
+                @"
+                    DROP TABLE MinimalFKTest2;
+                    DROP TABLE MinimalFKTest1;
+                ");
+        }
+
         #endregion
 
         #region ColumnFacets
@@ -392,6 +439,33 @@ CREATE TABLE DefaultValue (
                 "DROP TABLE DefaultValue;");
         }
 
+        [ConditionalFact]
+        public void Column_computed_column_sql_is_set()
+        {
+            Test(
+                @"
+CREATE TABLE ComputedColumnSql (
+    Id int,
+    GeneratedColumn AS (1 + 2),
+    GeneratedColumnStored AS (1 + 2) STORED
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    var generatedColumn = columns.Single(c => c.Name == "GeneratedColumn");
+                    Assert.NotNull(generatedColumn.ComputedColumnSql);
+                    Assert.Null(generatedColumn.IsStored);
+
+                    var generatedColumnStored = columns.Single(c => c.Name == "GeneratedColumnStored");
+                    Assert.NotNull(generatedColumnStored.ComputedColumnSql);
+                    Assert.True(generatedColumnStored.IsStored);
+                },
+                "DROP TABLE ComputedColumnSql;");
+        }
+
         [ConditionalTheory]
         [InlineData("DOUBLE NOT NULL DEFAULT 0")]
         [InlineData("FLOAT NOT NULL DEFAULT 0")]
@@ -412,6 +486,35 @@ CREATE TABLE DefaultValue (
                     Assert.Null(column.DefaultValueSql);
                 },
                 "DROP TABLE DefaultValueClr");
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Column_ValueGenerated_is_set(bool autoIncrement)
+        {
+            Test(
+                $@"
+                    CREATE TABLE AutoIncTest (
+                        Id INTEGER PRIMARY KEY {(autoIncrement ? "AUTOINCREMENT" : null)}
+                    )
+                ",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = Assert.Single(dbModel.Tables);
+                    Assert.Equal("AutoIncTest", table.Name);
+
+                    var column = Assert.Single(table.Columns);
+                    Assert.Equal("Id", column.Name);
+                    Assert.Equal(
+                        autoIncrement
+                            ? ValueGenerated.OnAdd
+                            : default(ValueGenerated?),
+                        column.ValueGenerated);
+                },
+                "DROP TABLE AutoIncTest");
         }
 
         #endregion
@@ -863,7 +966,7 @@ CREATE TABLE DependentTable (
                             .EventId, Id);
                     Assert.Equal(
                         SqliteResources.LogForeignKeyScaffoldErrorPrincipalTableNotFound(new TestLogger<SqliteLoggingDefinitions>())
-                            .GenerateMessage("0"), Message);
+                            .GenerateMessage("0", "DependentTable", "PrincipalTable"), Message);
                 },
                 @"
 DROP TABLE DependentTable;
@@ -906,8 +1009,12 @@ DROP TABLE PrincipalTable;");
         public class SqliteDatabaseModelFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = nameof(SqliteDatabaseModelFactoryTest);
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
-            public new SqliteTestStore TestStore => (SqliteTestStore)base.TestStore;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
+
+            public new SqliteTestStore TestStore
+                => (SqliteTestStore)base.TestStore;
 
             protected override bool ShouldLogCategory(string logCategory)
                 => logCategory == DbLoggerCategory.Scaffolding.Name;

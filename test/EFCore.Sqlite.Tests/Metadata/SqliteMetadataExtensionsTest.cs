@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -11,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [ConditionalFact]
         public void Can_get_and_set_srid()
         {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var modelBuilder = new ModelBuilder();
 
             var property = modelBuilder
                 .Entity<Customer>()
@@ -27,27 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             property.SetSrid(null);
 
             Assert.Null(property.GetSrid());
-        }
-
-        [ConditionalFact]
-        public void Can_get_and_set_dimension()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Geometry)
-                .Metadata;
-
-            Assert.Null(property.GetGeometricDimension());
-
-            property.SetGeometricDimension("Z");
-
-            Assert.Equal("Z", property.GetGeometricDimension());
-
-            property.SetGeometricDimension(null);
-
-            Assert.Null(property.GetGeometricDimension());
         }
 
         private class Customer

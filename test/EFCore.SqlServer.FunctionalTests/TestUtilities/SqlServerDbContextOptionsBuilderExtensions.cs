@@ -15,13 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 optionsBuilder.MaxBatchSize(maxBatch.Value);
             }
 
-            var offsetSupport = TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
-            if (!offsetSupport)
-            {
-#pragma warning disable 618
-                optionsBuilder.UseRowNumberForPaging();
-#pragma warning restore 618
-            }
+            optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
 
             optionsBuilder.ExecutionStrategy(d => new TestSqlServerRetryingExecutionStrategy(d));
 

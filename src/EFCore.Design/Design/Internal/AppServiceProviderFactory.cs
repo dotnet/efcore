@@ -3,7 +3,6 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public AppServiceProviderFactory([NotNull] Assembly startupAssembly, [NotNull] IOperationReporter reporter)
+        public AppServiceProviderFactory(Assembly startupAssembly, IOperationReporter reporter)
         {
             _startupAssembly = startupAssembly;
             _reporter = reporter;
@@ -39,15 +38,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IServiceProvider Create([NotNull] string[] args)
+        public virtual IServiceProvider Create(string[] args)
         {
-            _reporter.WriteVerbose(DesignStrings.FindingServiceProvider);
+            _reporter.WriteVerbose(DesignStrings.FindingServiceProvider(_startupAssembly.GetName().Name));
 
             return CreateFromHosting(args)
-                   ?? CreateEmptyServiceProvider();
+                ?? CreateEmptyServiceProvider();
         }
 
-        private IServiceProvider CreateFromHosting(string[] args)
+        private IServiceProvider? CreateFromHosting(string[] args)
         {
             _reporter.WriteVerbose(DesignStrings.FindingHostingServices);
 
@@ -59,12 +58,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return null;
             }
 
-            // TODO: Remove when dotnet/cli#6617 is fixed
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            if (environment == null)
+            var aspnetCoreEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var dotnetEnvironment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+            var environment = aspnetCoreEnvironment
+                ?? dotnetEnvironment
+                ?? "Development";
+            if (aspnetCoreEnvironment == null)
             {
-                environment = "Development";
                 Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", environment);
+            }
+
+            if (dotnetEnvironment == null)
+            {
+                Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", environment);
             }
 
             _reporter.WriteVerbose(DesignStrings.UsingEnvironment(environment));
@@ -87,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 if (ex is TargetInvocationException)
                 {
-                    ex = ex.InnerException;
+                    ex = ex.InnerException!;
                 }
 
                 _reporter.WriteVerbose(ex.ToString());

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
     /// </summary>
     public class SqlServerNetTopologySuiteOptionsExtension : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,13 +51,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             var internalServiceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider;
             if (internalServiceProvider != null)
             {
-                using (var scope = internalServiceProvider.CreateScope())
+                using var scope = internalServiceProvider.CreateScope();
+                var plugins = scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>();
+                if (plugins?.Any(s => s is SqlServerNetTopologySuiteTypeMappingSourcePlugin) != true)
                 {
-                    var plugins = scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>();
-                    if (plugins?.Any(s => s is SqlServerNetTopologySuiteTypeMappingSourcePlugin) != true)
-                    {
-                        throw new InvalidOperationException(SqlServerNTSStrings.NTSServicesMissing);
-                    }
+                    throw new InvalidOperationException(SqlServerNTSStrings.NTSServicesMissing);
                 }
             }
         }
@@ -72,14 +70,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             private new SqlServerNetTopologySuiteOptionsExtension Extension
                 => (SqlServerNetTopologySuiteOptionsExtension)base.Extension;
 
-            public override bool IsDatabaseProvider => false;
+            public override bool IsDatabaseProvider
+                => false;
 
-            public override long GetServiceProviderHashCode() => 0;
+            public override long GetServiceProviderHashCode()
+                => 0;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 => debugInfo["SqlServer:" + nameof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions.UseNetTopologySuite)] = "1";
 
-            public override string LogFragment => "using NetTopologySuite ";
+            public override string LogFragment
+                => "using NetTopologySuite ";
         }
     }
 }

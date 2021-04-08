@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             var result = ToArguments(
                 new[]
                 {
+                    "",
                     "Good",
                     "Good\\",
                     "Needs quotes",
@@ -26,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 });
 
             Assert.Equal(
-                "Good "
+                "\"\" "
+                + "Good "
                 + "Good\\ "
                 + "\"Needs quotes\" "
                 + "\"Needs escaping\\\\\" "
@@ -38,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
 
         private static string ToArguments(IReadOnlyList<string> args)
-            => (string)typeof(Exe).GetTypeInfo().GetMethod("ToArguments", BindingFlags.Static | BindingFlags.NonPublic)
+            => (string)typeof(Exe).GetMethod("ToArguments", BindingFlags.Static | BindingFlags.NonPublic)
                 .Invoke(null, new object[] { args });
     }
 }

@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -31,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Initializes a new instance of the <see cref="MigrationsScaffolder" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public MigrationsScaffolder([NotNull] MigrationsScaffolderDependencies dependencies)
+        public MigrationsScaffolder(MigrationsScaffolderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -53,35 +51,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="subNamespace"> The migration's sub-namespace. </param>
         /// <returns> The scaffolded migration. </returns>
         public virtual ScaffoldedMigration ScaffoldMigration(
-            [NotNull] string migrationName,
-            [NotNull] string rootNamespace,
-            [CanBeNull] string subNamespace)
+            string migrationName,
+            string? rootNamespace,
+            string? subNamespace)
             => ScaffoldMigration(migrationName, rootNamespace, subNamespace, language: null);
 
         /// <summary>
         ///     Scaffolds a new migration.
         /// </summary>
         /// <param name="migrationName"> The migration's name. </param>
-        /// <param name="rootNamespace"> The project's root namespace. </param>
-        /// <param name="subNamespace"> The migration's sub-namespace. </param>
+        /// <param name="rootNamespace">
+        ///     The project's root namespace, <see langword="null" /> to indicate no automatic
+        ///     namespace generation, just use sub-namespace as is.
+        /// </param>
+        /// <param name="subNamespace">
+        ///     The migration's sub-namespace. Note: the root-namespace and
+        ///     the sub-namespace should not both be empty.
+        /// </param>
         /// <param name="language"> The project's language. </param>
         /// <returns> The scaffolded migration. </returns>
         public virtual ScaffoldedMigration ScaffoldMigration(
             string migrationName,
-            string rootNamespace,
-            string subNamespace = null,
-            string language = null)
+            string? rootNamespace,
+            string? subNamespace = null,
+            string? language = null)
         {
             Check.NotEmpty(migrationName, nameof(migrationName));
-            Check.NotEmpty(rootNamespace, nameof(rootNamespace));
 
             if (Dependencies.MigrationsAssembly.FindMigrationId(migrationName) != null)
             {
                 throw new OperationException(DesignStrings.DuplicateMigrationName(migrationName));
             }
 
+            var overrideNamespace = rootNamespace == null;
             var subNamespaceDefaulted = false;
-            if (string.IsNullOrEmpty(subNamespace))
+            if (string.IsNullOrEmpty(subNamespace) && !overrideNamespace)
             {
                 subNamespaceDefaulted = true;
                 subNamespace = "Migrations";
@@ -89,10 +93,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var lastMigration = Dependencies.MigrationsAssembly.Migrations.LastOrDefault();
 
-            var migrationNamespace = rootNamespace + "." + subNamespace;
+            var migrationNamespace =
+                (!string.IsNullOrEmpty(rootNamespace)
+                    && !string.IsNullOrEmpty(subNamespace))
+                    ? rootNamespace + "." + subNamespace
+                    : !string.IsNullOrEmpty(rootNamespace)
+                        ? rootNamespace
+                        : subNamespace;
+
             if (subNamespaceDefaulted)
             {
-                migrationNamespace = GetNamespace(lastMigration.Value?.AsType(), migrationNamespace);
+                migrationNamespace = GetNamespace(lastMigration.Value?.AsType(), migrationNamespace!);
             }
 
             var sanitizedContextName = _contextType.Name;
@@ -102,13 +113,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 sanitizedContextName = sanitizedContextName.Substring(0, genericMarkIndex);
             }
 
-            if (ContainsForeignMigrations(migrationNamespace))
+            if (ContainsForeignMigrations(migrationNamespace!))
             {
                 if (subNamespaceDefaulted)
                 {
-                    var builder = new StringBuilder()
-                        .Append(rootNamespace)
-                        .Append(".Migrations.");
+                    var builder = new StringBuilder();
+                    if (!string.IsNullOrEmpty(rootNamespace))
+                    {
+                        builder.Append(rootNamespace);
+                        builder.Append(".");
+                    }
+
+                    builder.Append("Migrations.");
 
                     if (sanitizedContextName.EndsWith("Context", StringComparison.Ordinal))
                     {
@@ -130,13 +146,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
-            var lastModel = Dependencies.SnapshotModelProcessor.Process(modelSnapshot?.Model);
-            var upOperations = Dependencies.MigrationsModelDiffer.GetDifferences(lastModel, Dependencies.Model);
+            var lastModel = Dependencies.SnapshotModelProcessor.Process(modelSnapshot?.Model)?.GetRelationalModel();
+            var upOperations = Dependencies.MigrationsModelDiffer
+                .GetDifferences(lastModel, Dependencies.Model.GetRelationalModel());
             var downOperations = upOperations.Count > 0
-                ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model, lastModel)
+                ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model.GetRelationalModel(), lastModel)
                 : new List<MigrationOperation>();
             var migrationId = Dependencies.MigrationsIdGenerator.GenerateId(migrationName);
-            var modelSnapshotNamespace = GetNamespace(modelSnapshot?.GetType(), migrationNamespace);
+            var modelSnapshotNamespace = overrideNamespace
+                ? migrationNamespace
+                : GetNamespace(modelSnapshot?.GetType(), migrationNamespace!);
 
             var modelSnapshotName = sanitizedContextName + "ModelSnapshot";
             if (modelSnapshot != null)
@@ -179,10 +198,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 migrationCode,
                 migrationId,
                 migrationMetadataCode,
-                GetSubNamespace(rootNamespace, migrationNamespace),
+                GetSubNamespace(rootNamespace, migrationNamespace!),
                 modelSnapshotCode,
                 modelSnapshotName,
-                GetSubNamespace(rootNamespace, modelSnapshotNamespace));
+                GetSubNamespace(rootNamespace, modelSnapshotNamespace!));
         }
 
         /// <summary>
@@ -191,12 +210,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="rootNamespace"> The root namespace. </param>
         /// <param name="namespace"> The full namespace. </param>
         /// <returns> The sub-namespace. </returns>
-        protected virtual string GetSubNamespace([NotNull] string rootNamespace, [NotNull] string @namespace) =>
-            @namespace == rootNamespace
+        protected virtual string GetSubNamespace(string? rootNamespace, string @namespace)
+        {
+            rootNamespace ??= string.Empty;
+
+            return @namespace == rootNamespace
                 ? string.Empty
                 : @namespace.StartsWith(rootNamespace + '.', StringComparison.Ordinal)
                     ? @namespace.Substring(rootNamespace.Length + 1)
                     : @namespace;
+        }
 
         /// <summary>
         ///     Removes the previous migration.
@@ -205,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="rootNamespace"> The project's root namespace. </param>
         /// <param name="force"> Don't check to see if the migration has been applied to the database. </param>
         /// <returns> The removed migration files. </returns>
-        public virtual MigrationFiles RemoveMigration([NotNull] string projectDir, [NotNull] string rootNamespace, bool force)
+        public virtual MigrationFiles RemoveMigration(string projectDir, string rootNamespace, bool force)
             => RemoveMigration(projectDir, rootNamespace, force, language: null);
 
         /// <summary>
@@ -219,12 +242,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         // TODO: DRY (file names)
         public virtual MigrationFiles RemoveMigration(
             string projectDir,
-            string rootNamespace,
+            string? rootNamespace,
             bool force,
-            string language)
+            string? language)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
-            Check.NotEmpty(rootNamespace, nameof(rootNamespace));
 
             var files = new MigrationFiles();
 
@@ -236,17 +258,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var codeGenerator = Dependencies.MigrationsCodeGeneratorSelector.Select(language);
 
-            IModel model = null;
+            IModel? model = null;
             var migrations = Dependencies.MigrationsAssembly.Migrations
                 .Select(m => Dependencies.MigrationsAssembly.CreateMigration(m.Value, _activeProvider))
                 .ToList();
             if (migrations.Count != 0)
             {
                 var migration = migrations[migrations.Count - 1];
-                model = migration.TargetModel;
+                model = Dependencies.SnapshotModelProcessor.Process(migration.TargetModel);
 
                 if (!Dependencies.MigrationsModelDiffer.HasDifferences(
-                    model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
+                    model.GetRelationalModel(), Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model).GetRelationalModel()))
                 {
                     var applied = false;
                     try
@@ -304,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
 
                     model = migrations.Count > 1
-                        ? migrations[migrations.Count - 2].TargetModel
+                        ? Dependencies.SnapshotModelProcessor.Process(migrations[migrations.Count - 2].TargetModel)
                         : null;
                 }
                 else
@@ -335,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             else
             {
                 var modelSnapshotNamespace = modelSnapshot.GetType().Namespace;
-                Debug.Assert(!string.IsNullOrEmpty(modelSnapshotNamespace));
+                Check.DebugAssert(!string.IsNullOrEmpty(modelSnapshotNamespace), "modelSnapshotNamespace is null or empty");
                 var modelSnapshotCode = codeGenerator.GenerateSnapshot(
                     modelSnapshotNamespace,
                     _contextType,
@@ -363,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="migration"> The scaffolded migration. </param>
         /// <param name="outputDir"> The directory to put files in. Paths are relative to the project directory. </param>
         /// <returns> The saved migrations files. </returns>
-        public virtual MigrationFiles Save(string projectDir, ScaffoldedMigration migration, string outputDir)
+        public virtual MigrationFiles Save(string projectDir, ScaffoldedMigration migration, string? outputDir)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
             Check.NotNull(migration, nameof(migration));
@@ -373,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var migrationFile = Path.Combine(migrationDirectory, migration.MigrationId + migration.FileExtension);
             var migrationMetadataFile = Path.Combine(migrationDirectory, migration.MigrationId + ".Designer" + migration.FileExtension);
             var modelSnapshotFileName = migration.SnapshotName + migration.FileExtension;
-            var modelSnapshotDirectory = outputDir ?? GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
+            var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.SnapshotSubnamespace);
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
             Dependencies.OperationReporter.WriteVerbose(DesignStrings.WritingMigration(migrationFile));
@@ -387,7 +409,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             return new MigrationFiles
             {
-                MigrationFile = migrationFile, MetadataFile = migrationMetadataFile, SnapshotFile = modelSnapshotFile
+                MigrationFile = migrationFile,
+                MetadataFile = migrationMetadataFile,
+                SnapshotFile = modelSnapshotFile
             };
         }
 
@@ -397,11 +421,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="siblingType"> The sibling type. </param>
         /// <param name="defaultNamespace"> The default namespace. </param>
         /// <returns> The namespace. </returns>
-        protected virtual string GetNamespace([CanBeNull] Type siblingType, [NotNull] string defaultNamespace)
+        protected virtual string GetNamespace(Type? siblingType, string defaultNamespace)
         {
             if (siblingType != null)
             {
-                var lastNamespace = siblingType.Namespace;
+                var lastNamespace = siblingType.Namespace ?? string.Empty;
                 if (lastNamespace != defaultNamespace)
                 {
                     Dependencies.OperationReporter.WriteVerbose(DesignStrings.ReusingNamespace(siblingType.ShortDisplayName()));
@@ -421,9 +445,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="subnamespace"> The sub-namespace. </param>
         /// <returns> The directory path. </returns>
         protected virtual string GetDirectory(
-            [NotNull] string projectDir,
-            [CanBeNull] string siblingFileName,
-            [NotNull] string subnamespace)
+            string projectDir,
+            string? siblingFileName,
+            string subnamespace)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
             Check.NotNull(subnamespace, nameof(subnamespace));
@@ -435,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 var siblingPath = TryGetProjectFile(projectDir, siblingFileName);
                 if (siblingPath != null)
                 {
-                    var lastDirectory = Path.GetDirectoryName(siblingPath);
+                    var lastDirectory = Path.GetDirectoryName(siblingPath)!;
                     if (!defaultDirectory.Equals(lastDirectory, StringComparison.OrdinalIgnoreCase))
                     {
                         Dependencies.OperationReporter.WriteVerbose(DesignStrings.ReusingNamespace(siblingFileName));
@@ -454,16 +478,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="projectDir"> The project directory. </param>
         /// <param name="fileName"> The filename. </param>
         /// <returns> The file path or null if none. </returns>
-        protected virtual string TryGetProjectFile([NotNull] string projectDir, [NotNull] string fileName) =>
-            Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
+        protected virtual string? TryGetProjectFile(string projectDir, string fileName)
+            => Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
 
         private bool ContainsForeignMigrations(string migrationsNamespace)
             => (from t in Dependencies.MigrationsAssembly.Assembly.GetConstructibleTypes()
                 where t.Namespace == migrationsNamespace
-                      && t.IsSubclassOf(typeof(Migration))
+                    && t.IsSubclassOf(typeof(Migration))
                 let contextTypeAttribute = t.GetCustomAttribute<DbContextAttribute>()
                 where contextTypeAttribute != null
-                      && contextTypeAttribute.ContextType != _contextType
+                    && contextTypeAttribute.ContextType != _contextType
                 select t).Any();
     }
 }

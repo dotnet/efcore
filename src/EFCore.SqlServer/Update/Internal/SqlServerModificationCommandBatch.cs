@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Update;
 
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         private const int MaxRowCount = 1000;
         private int _parameterCount = 1; // Implicit parameter for the command text
         private readonly int _maxBatchSize;
-        private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
+        private readonly List<ModificationCommand> _bulkInsertCommands = new();
         private int _commandsLeftToLengthCheck = 50;
 
         /// <summary>
@@ -35,17 +34,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerModificationCommandBatch(
-            [NotNull] ModificationCommandBatchFactoryDependencies dependencies,
+            ModificationCommandBatchFactoryDependencies dependencies,
             int? maxBatchSize)
             : base(dependencies)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize);
+                throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize(maxBatchSize.Value));
             }
 
-            _maxBatchSize = Math.Min(maxBatchSize ?? int.MaxValue, MaxRowCount);
+            _maxBatchSize = Math.Min(maxBatchSize ?? 42, MaxRowCount);
         }
 
         /// <summary>
@@ -54,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected new virtual ISqlServerUpdateSqlGenerator UpdateSqlGenerator => (ISqlServerUpdateSqlGenerator)base.UpdateSqlGenerator;
+        protected new virtual ISqlServerUpdateSqlGenerator UpdateSqlGenerator
+            => (ISqlServerUpdateSqlGenerator)base.UpdateSqlGenerator;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

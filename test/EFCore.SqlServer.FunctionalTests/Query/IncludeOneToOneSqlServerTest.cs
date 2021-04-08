@@ -59,8 +59,11 @@ LEFT JOIN [Address2] AS [a] ON [p].[Id] = [a].[PersonId]");
 
         public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
         }
     }
 }

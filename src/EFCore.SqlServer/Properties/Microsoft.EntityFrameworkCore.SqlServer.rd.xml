@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-
-<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
-  <Library>
-    <Assembly Name="Microsoft.EntityFrameworkCore.SqlServer" Dynamic="Required All" />
-    <!-- TODO optimize this for types that actually need reflection -->
-  </Library>
-</Directives>

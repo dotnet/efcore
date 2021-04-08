@@ -57,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FindSqliteFixture : FindFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

@@ -387,13 +387,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Does_not_throw_if_explicit_binding_has_been_set()
         {
             var constructorBinding = GetBinding<BlogConflict>(
-                e => e[CoreAnnotationNames.ConstructorBinding] = new ConstructorBinding(
+                e => ((EntityType)e).ConstructorBinding = new ConstructorBinding(
                     typeof(BlogConflict).GetConstructor(
                         new[] { typeof(string), typeof(int) }),
                     new[]
                     {
-                        new PropertyParameterBinding(e.FindProperty(nameof(Blog.Title))),
-                        new PropertyParameterBinding(e.FindProperty(nameof(Blog.Id)))
+                        new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Title))),
+                        new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Id)))
                     }));
 
             Assert.NotNull(constructorBinding);
@@ -732,12 +732,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalFact]
         public void Throws_in_validation_if_field_not_found()
         {
-            using (var context = new NoFieldContext())
-            {
-                Assert.Equal(
-                    CoreStrings.NoBackingFieldLazyLoading("NoFieldRelated", "NoField"),
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            using var context = new NoFieldContext();
+            Assert.Equal(
+                CoreStrings.NoBackingFieldLazyLoading("NoFieldRelated", "NoField"),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         private class NoFieldContext : DbContext
@@ -796,9 +794,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var context = new ConventionContext<IConventionModelBuilder>(model.ConventionDispatcher);
 
             var convention = new ConstructorBindingConvention(CreateDependencies());
-            convention.ProcessModelFinalized(model.Builder, context);
+            convention.ProcessModelFinalizing(model.Builder, context);
 
-            return (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+            return (ConstructorBinding)((EntityType)entityType).ConstructorBinding;
         }
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()

@@ -8,12 +8,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -31,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         private static readonly int _maxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
+        private IEntityFinder? _finder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EntityEntry([NotNull] InternalEntityEntry internalEntry)
+        public EntityEntry(InternalEntityEntry internalEntry)
         {
             Check.NotNull(internalEntry, nameof(internalEntry));
 
@@ -58,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets the entity being tracked by this entry.
         /// </summary>
-        public virtual object Entity => InternalEntry.Entity;
+        public virtual object Entity
+            => InternalEntry.Entity;
 
         /// <summary>
         ///     <para>
@@ -83,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 if (value < 0
                     || (int)value > _maxEntityState)
                 {
-                    throw new ArgumentException(CoreStrings.InvalidEnumValue(nameof(value), typeof(EntityState)));
+                    throw new ArgumentException(CoreStrings.InvalidEnumValue(value, nameof(value), typeof(EntityState)));
                 }
 
                 InternalEntry.SetEntityState(value);
@@ -98,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual void DetectChanges()
         {
-            if ((string)Context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true")
+            if (!((IRuntimeModel)Context.Model).SkipDetectChanges)
             {
                 Context.GetDependencies().ChangeDetector.DetectChanges(InternalEntry);
             }
@@ -111,17 +114,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => InternalEntry;
+        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance
+            => InternalEntry;
 
         /// <summary>
         ///     Gets the context that is tracking the entity.
         /// </summary>
-        public virtual DbContext Context => InternalEntry.StateManager.Context;
+        public virtual DbContext Context
+            => InternalEntry.StateManager.Context;
 
         /// <summary>
         ///     Gets the metadata about the shape of the entity, its relationships to other entities, and how it maps to the database.
         /// </summary>
-        public virtual IEntityType Metadata => InternalEntry.EntityType;
+        public virtual IEntityType Metadata
+            => InternalEntry.EntityType;
 
         /// <summary>
         ///     Provides access to change tracking information and operations for a given
@@ -129,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="propertyName"> The property to access information and operations for. </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
-        public virtual MemberEntry Member([NotNull] string propertyName)
+        public virtual MemberEntry Member(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -139,10 +145,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 return new PropertyEntry(InternalEntry, propertyName);
             }
 
-            var navigation = InternalEntry.EntityType.FindNavigation(propertyName);
+            var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
+                ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
             if (navigation != null)
             {
-                return navigation.IsCollection()
+                return navigation.IsCollection
                     ? (MemberEntry)new CollectionEntry(InternalEntry, propertyName)
                     : new ReferenceEntry(InternalEntry, propertyName);
             }
@@ -164,14 +171,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="propertyName"> The property to access information and operations for. </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
-        public virtual NavigationEntry Navigation([NotNull] string propertyName)
+        public virtual NavigationEntry Navigation(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
-            var navigation = InternalEntry.EntityType.FindNavigation(propertyName);
+            var navigation = (INavigationBase?)InternalEntry.EntityType.FindNavigation(propertyName)
+                ?? InternalEntry.EntityType.FindSkipNavigation(propertyName);
+
             if (navigation != null)
             {
-                return navigation.IsCollection()
+                return navigation.IsCollection
                     ? (NavigationEntry)new CollectionEntry(InternalEntry, propertyName)
                     : new ReferenceEntry(InternalEntry, propertyName);
             }
@@ -193,10 +202,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     navigation properties of this entity.
         /// </summary>
         public virtual IEnumerable<NavigationEntry> Navigations
-            => InternalEntry.EntityType.GetNavigations().Select(
-                navigation => navigation.IsCollection()
-                    ? (NavigationEntry)new CollectionEntry(InternalEntry, navigation)
-                    : new ReferenceEntry(InternalEntry, navigation));
+        {
+            get
+            {
+                var entityType = InternalEntry.EntityType;
+                return entityType.GetNavigations()
+                    .Concat<INavigationBase>(entityType.GetSkipNavigations())
+                    .Select(
+                        navigation => navigation.IsCollection
+                            ? (NavigationEntry)new CollectionEntry(InternalEntry, navigation.Name)
+                            : new ReferenceEntry(InternalEntry, navigation.Name));
+            }
+        }
 
         /// <summary>
         ///     Provides access to change tracking information and operations for a given
@@ -204,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="propertyName"> The property to access information and operations for. </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
-        public virtual PropertyEntry Property([NotNull] string propertyName)
+        public virtual PropertyEntry Property(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -227,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual ReferenceEntry Reference([NotNull] string propertyName)
+        public virtual ReferenceEntry Reference(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -239,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     reference (i.e. non-collection) navigation properties of this entity.
         /// </summary>
         public virtual IEnumerable<ReferenceEntry> References
-            => InternalEntry.EntityType.GetNavigations().Where(n => !n.IsCollection())
+            => InternalEntry.EntityType.GetNavigations().Where(n => !n.IsCollection)
                 .Select(navigation => new ReferenceEntry(InternalEntry, navigation));
 
         /// <summary>
@@ -251,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual CollectionEntry Collection([NotNull] string propertyName)
+        public virtual CollectionEntry Collection(string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -263,8 +280,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     collection navigation properties of this entity.
         /// </summary>
         public virtual IEnumerable<CollectionEntry> Collections
-            => InternalEntry.EntityType.GetNavigations().Where(n => n.IsCollection())
-                .Select(navigation => new CollectionEntry(InternalEntry, navigation));
+        {
+            get
+            {
+                var entityType = InternalEntry.EntityType;
+                return entityType.GetNavigations()
+                    .Concat<INavigationBase>(entityType.GetSkipNavigations())
+                    .Where(navigation => navigation.IsCollection)
+                    .Select(navigation => new CollectionEntry(InternalEntry, navigation.Name));
+            }
+        }
 
         /// <summary>
         ///     <para>
@@ -280,7 +305,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         true since any value is considered a valid key value.
         ///     </para>
         /// </summary>
-        public virtual bool IsKeySet => InternalEntry.IsKeySet.IsSet;
+        public virtual bool IsKeySet
+            => InternalEntry.IsKeySet.IsSet;
 
         /// <summary>
         ///     Gets the current property values for this entity.
@@ -288,17 +314,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <value> The current values. </value>
         public virtual PropertyValues CurrentValues
         {
-            [DebuggerStepThrough] get => new CurrentPropertyValues(InternalEntry);
+            [DebuggerStepThrough]
+            get => new CurrentPropertyValues(InternalEntry);
         }
 
         /// <summary>
-        ///     Gets the original property values for this entity. The original values are the property
-        ///     values as they were when the entity was retrieved from the database.
+        ///     <para>
+        ///         Gets the original property values for this entity. The original values are the property
+        ///         values as they were when the entity was retrieved from the database.
+        ///     </para>
+        ///     <para>
+        ///         Note that whenever real original property values are not available (e.g. entity was not yet
+        ///         persisted to the database) this will default to the current property values of this entity.
+        ///     </para>
         /// </summary>
         /// <value> The original values. </value>
         public virtual PropertyValues OriginalValues
         {
-            [DebuggerStepThrough] get => new OriginalPropertyValues(InternalEntry);
+            [DebuggerStepThrough]
+            get => new OriginalPropertyValues(InternalEntry);
         }
 
         /// <summary>
@@ -312,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <returns> The store values, or null if the entity does not exist in the database. </returns>
-        public virtual PropertyValues GetDatabaseValues()
+        public virtual PropertyValues? GetDatabaseValues()
         {
             var values = Finder.GetDatabaseValues(InternalEntry);
 
@@ -329,20 +363,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         in the database.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the store values,
-        ///     or null if the entity does not exist in the database.
+        ///     or <see langword="null" /> if the entity does not exist in the database.
         /// </returns>
-        public virtual async Task<PropertyValues> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public virtual async Task<PropertyValues?> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
         {
-            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken);
+            var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken).ConfigureAwait(false);
 
             return values == null ? null : new ArrayPropertyValues(InternalEntry, values);
         }
@@ -359,7 +392,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         not yet have had its permanent key value created.
         ///     </para>
         /// </summary>
-        public virtual void Reload() => Reload(GetDatabaseValues());
+        public virtual void Reload()
+            => Reload(GetDatabaseValues());
 
         /// <summary>
         ///     <para>
@@ -373,16 +407,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         not yet have had its permanent key value created.
         ///     </para>
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation.
-        /// </returns>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task ReloadAsync(CancellationToken cancellationToken = default)
-            => Reload(await GetDatabaseValuesAsync(cancellationToken));
+            => Reload(await GetDatabaseValuesAsync(cancellationToken).ConfigureAwait(false));
 
-        private void Reload(PropertyValues storeValues)
+        private void Reload(PropertyValues? storeValues)
         {
             if (storeValues == null)
             {
@@ -401,31 +432,47 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private IEntityFinder Finder
-            => InternalEntry.StateManager.CreateEntityFinder(InternalEntry.EntityType);
-
-        #region Hidden System.Object members
+            => _finder ??= InternalEntry.StateManager.CreateEntityFinder(InternalEntry.EntityType);
 
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString()
+            => InternalEntry.ToString();
+
+        /// <summary>
+        ///     <para>
+        ///         Expand this property in the debugger for a human-readable view of entry.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the debug strings.
+        ///         They are designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        public virtual DebugView DebugView
+            => new(
+                () => InternalEntry.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
+                () => InternalEntry.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
+
+        #region Hidden System.Object members
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object? obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

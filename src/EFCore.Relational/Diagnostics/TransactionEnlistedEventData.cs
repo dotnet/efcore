@@ -5,7 +5,6 @@ using System;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Transactions;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -26,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
         /// </param>
         public TransactionEnlistedEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] Transaction transaction,
-            [NotNull] DbConnection connection,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            Transaction transaction,
+            DbConnection connection,
             Guid connectionId)
             : base(eventDefinition, messageGenerator)
         {

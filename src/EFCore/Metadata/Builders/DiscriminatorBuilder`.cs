@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public DiscriminatorBuilder([NotNull] DiscriminatorBuilder builder)
+        public DiscriminatorBuilder(DiscriminatorBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
@@ -31,15 +30,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         private DiscriminatorBuilder Builder { get; }
 
         /// <summary>
+        ///     Configures if the discriminator mapping is complete.
+        /// </summary>
+        /// <param name="complete"> The value indicating if this discriminator mapping is complete. </param>
+        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        public virtual DiscriminatorBuilder<TDiscriminator> IsComplete(bool complete = true)
+            => new DiscriminatorBuilder<TDiscriminator>(Builder.IsComplete(complete));
+
+        /// <summary>
         ///     Configures the default discriminator value to use.
         /// </summary>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder<TDiscriminator> HasValue([CanBeNull] TDiscriminator value)
-        {
-            var builder = Builder.HasValue(value);
-            return builder == null ? null : new DiscriminatorBuilder<TDiscriminator>(builder);
-        }
+        public virtual DiscriminatorBuilder<TDiscriminator> HasValue(TDiscriminator value)
+            => new DiscriminatorBuilder<TDiscriminator>(Builder.HasValue(value));
 
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given generic type.
@@ -47,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TEntity"> The entity type for which a discriminator value is being set. </typeparam>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder<TDiscriminator> HasValue<TEntity>([CanBeNull] TDiscriminator value)
+        public virtual DiscriminatorBuilder<TDiscriminator> HasValue<TEntity>(TDiscriminator value)
             => HasValue(typeof(TEntity), value);
 
         /// <summary>
@@ -56,11 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityType"> The entity type for which a discriminator value is being set. </param>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder<TDiscriminator> HasValue([NotNull] Type entityType, [CanBeNull] TDiscriminator value)
-        {
-            var builder = Builder.HasValue(entityType, value);
-            return builder == null ? null : new DiscriminatorBuilder<TDiscriminator>(builder);
-        }
+        public virtual DiscriminatorBuilder<TDiscriminator> HasValue(Type entityType, TDiscriminator value)
+            => new DiscriminatorBuilder<TDiscriminator>(Builder.HasValue(entityType, value));
 
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given type.
@@ -68,10 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityTypeName"> The name of the entity type for which a discriminator value is being set. </param>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder<TDiscriminator> HasValue([NotNull] string entityTypeName, [CanBeNull] TDiscriminator value)
-        {
-            var builder = Builder.HasValue(entityTypeName, value);
-            return builder == null ? null : new DiscriminatorBuilder<TDiscriminator>(builder);
-        }
+        public virtual DiscriminatorBuilder<TDiscriminator> HasValue(string entityTypeName, TDiscriminator value)
+            => new DiscriminatorBuilder<TDiscriminator>(Builder.HasValue(entityTypeName, value));
     }
 }

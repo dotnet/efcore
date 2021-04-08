@@ -3,16 +3,22 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
     {
-        private static readonly HashSet<string> _dateTimeDataTypes
-            = new HashSet<string>
+        private static readonly HashSet<string?> _dateTimeDataTypes
+            = new()
             {
                 "time",
                 "date",
@@ -22,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             };
 
         private static readonly HashSet<ExpressionType> _arithmeticOperatorTypes
-            = new HashSet<ExpressionType>
+            = new()
             {
                 ExpressionType.Add,
                 ExpressionType.Subtract,
@@ -31,50 +37,119 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 ExpressionType.Modulo
             };
 
-        // TODO: Possibly make this protected in base
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public SqlServerSqlTranslatingExpressionVisitor(
             RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-            IModel model,
+            QueryCompilationContext queryCompilationContext,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
-            : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
+            : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
         {
-            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            var visitedExpression = (SqlExpression)base.VisitBinary(binaryExpression);
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
 
-            if (visitedExpression == null)
+            if (binaryExpression.NodeType == ExpressionType.ArrayIndex
+                && binaryExpression.Left.Type == typeof(byte[]))
             {
-                return null;
+                var left = Visit(binaryExpression.Left);
+                var right = Visit(binaryExpression.Right);
+
+                if (left is SqlExpression leftSql
+                    && right is SqlExpression rightSql)
+                {
+                    return Dependencies.SqlExpressionFactory.Convert(
+                        Dependencies.SqlExpressionFactory.Function(
+                            "SUBSTRING",
+                            new SqlExpression[]
+                            {
+                                leftSql,
+                                Dependencies.SqlExpressionFactory.Add(
+                                    Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
+                                    Dependencies.SqlExpressionFactory.Constant(1)),
+                                Dependencies.SqlExpressionFactory.Constant(1)
+                            },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { true, true, true },
+                            typeof(byte[])),
+                        binaryExpression.Type);
+                }
             }
 
-            return visitedExpression is SqlBinaryExpression sqlBinary
-                && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
-                && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
-                    || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
-                    ? null
-                    : visitedExpression;
+            return !(base.VisitBinary(binaryExpression) is SqlExpression visitedExpression)
+                ? QueryCompilationContext.NotTranslatedExpression
+                : visitedExpression is SqlBinaryExpression sqlBinary
+                    && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
+                    && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
+                        ? QueryCompilationContext.NotTranslatedExpression
+                        : visitedExpression;
         }
 
-        public override SqlExpression TranslateLongCount(Expression expression = null)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            if (expression != null)
+            if (unaryExpression.NodeType == ExpressionType.ArrayLength
+                && unaryExpression.Operand.Type == typeof(byte[]))
             {
-                // TODO: Translate Count with predicate for GroupBy
-                return null;
+                if (!(base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression))
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
+                var dataLengthSqlFunction = Dependencies.SqlExpressionFactory.Function(
+                    "DATALENGTH",
+                    new[] { sqlExpression },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true },
+                    isBinaryMaxDataType ? typeof(long) : typeof(int));
+
+                return isBinaryMaxDataType
+                    ? (Expression)Dependencies.SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
+                    : dataLengthSqlFunction;
             }
 
-            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function("COUNT_BIG", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
+            return base.VisitUnary(unaryExpression);
         }
 
-        private static string GetProviderType(SqlExpression expression)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override SqlExpression? TranslateLongCount(SqlExpression sqlExpression)
         {
-            return expression.TypeMapping?.StoreType;
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
+
+            return Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(
+                Dependencies.SqlExpressionFactory.Function(
+                    "COUNT_BIG",
+                    new[] { sqlExpression },
+                    nullable: false,
+                    argumentsPropagateNullability: new[] { false },
+                    typeof(long)));
         }
+
+        private static string? GetProviderType(SqlExpression expression)
+            => expression.TypeMapping?.StoreType;
     }
 }

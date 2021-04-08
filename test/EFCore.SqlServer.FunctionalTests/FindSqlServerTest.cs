@@ -199,7 +199,7 @@ WHERE ([c].[Id1] = @__p_0) AND ([c].[Id2] = @__p_1)");
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE [b].[Discriminator] IN (N'BaseType', N'DerivedType') AND ([b].[Id] = @__p_0)");
+WHERE [b].[Id] = @__p_0");
         }
 
         public override void Returns_null_for_base_type_not_in_store()
@@ -211,7 +211,7 @@ WHERE [b].[Discriminator] IN (N'BaseType', N'DerivedType') AND ([b].[Id] = @__p_
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE [b].[Discriminator] IN (N'BaseType', N'DerivedType') AND ([b].[Id] = @__p_0)");
+WHERE [b].[Id] = @__p_0");
         }
 
         public override void Find_derived_type_tracked()
@@ -285,7 +285,7 @@ WHERE ([b].[Discriminator] = N'DerivedType') AND ([b].[Id] = @__p_0)");
 
 SELECT TOP(1) [b].[Id], [b].[Discriminator], [b].[Foo], [b].[Boo]
 FROM [BaseType] AS [b]
-WHERE [b].[Discriminator] IN (N'BaseType', N'DerivedType') AND ([b].[Id] = @__p_0)");
+WHERE [b].[Id] = @__p_0");
         }
 
         public override void Find_shadow_key_tracked()
@@ -319,15 +319,19 @@ FROM [ShadowKey] AS [s]
 WHERE [s].[Id] = @__p_0");
         }
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
+        private string Sql
+            => Fixture.TestSqlLoggerFactory.Sql;
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         public class FindSqlServerFixture : FindFixtureBase
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

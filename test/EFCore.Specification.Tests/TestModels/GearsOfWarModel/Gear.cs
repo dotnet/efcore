@@ -40,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public bool HasSoulPatch { get; set; }
 
         [NotMapped]
-        public bool IsMarcus => Nickname == "Marcus";
+        public bool IsMarcus
+            => Nickname == "Marcus";
     }
 }

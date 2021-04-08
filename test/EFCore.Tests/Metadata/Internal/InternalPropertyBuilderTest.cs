@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_only_override_existing_MaxLength_value_explicitly()
         {
             var metadata = CreateProperty();
-            metadata.SetMaxLength(1);
+            metadata.SetMaxLength(1, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.NotNull(builder.HasMaxLength(1, ConfigurationSource.DataAnnotation));
@@ -124,6 +124,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(builder.HasMaxLength(2, ConfigurationSource.Explicit));
             Assert.Equal(2, metadata.GetMaxLength().Value);
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_lower_or_equal_source_Precision()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.NotNull(builder.HasPrecision(1, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasPrecision(2, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(2, metadata.GetPrecision().Value);
+
+            Assert.Null(builder.HasPrecision(1, ConfigurationSource.Convention));
+            Assert.Equal(2, metadata.GetPrecision().Value);
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_existing_Precision_value_explicitly()
+        {
+            var metadata = CreateProperty();
+            metadata.SetPrecision(1, ConfigurationSource.Explicit);
+            var builder = metadata.Builder;
+
+            Assert.NotNull(builder.HasPrecision(1, ConfigurationSource.DataAnnotation));
+            Assert.Null(builder.HasPrecision(2, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(1, metadata.GetPrecision().Value);
+
+            Assert.NotNull(builder.HasPrecision(2, ConfigurationSource.Explicit));
+            Assert.Equal(2, metadata.GetPrecision().Value);
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_lower_or_equal_source_Scale()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.NotNull(builder.HasScale(1, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasScale(2, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(2, metadata.GetScale().Value);
+
+            Assert.Null(builder.HasScale(1, ConfigurationSource.Convention));
+            Assert.Equal(2, metadata.GetScale().Value);
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_existing_Scale_value_explicitly()
+        {
+            var metadata = CreateProperty();
+            metadata.SetScale(1, ConfigurationSource.Explicit);
+            var builder = metadata.Builder;
+
+            Assert.NotNull(builder.HasScale(1, ConfigurationSource.DataAnnotation));
+            Assert.Null(builder.HasScale(2, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(1, metadata.GetScale().Value);
+
+            Assert.NotNull(builder.HasScale(2, ConfigurationSource.Explicit));
+            Assert.Equal(2, metadata.GetScale().Value);
         }
 
         [ConditionalFact]
@@ -146,10 +208,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Can_only_override_existing_CustomValueGenerator_factory_explicitly()
         {
-            ValueGenerator factory(IProperty p, IEntityType e) => new CustomValueGenerator1();
+            ValueGenerator factory(IReadOnlyProperty p, IReadOnlyEntityType e)
+                => new CustomValueGenerator1();
 
             var metadata = CreateProperty();
-            metadata.SetValueGeneratorFactory(factory);
+            metadata.SetValueGeneratorFactory(factory, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.NotNull(builder.HasValueGenerator(factory, ConfigurationSource.DataAnnotation));
@@ -175,13 +238,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
             Assert.True(metadata.RequiresValueGenerator());
 
-            Assert.Null(builder.HasValueGenerator((Func<IProperty, IEntityType, ValueGenerator>)null, ConfigurationSource.Convention));
+            Assert.Null(builder.HasValueGenerator((Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator>)null, ConfigurationSource.Convention));
 
             Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
             Assert.True(metadata.RequiresValueGenerator());
 
-            Assert.NotNull(builder.HasValueGenerator((Func<IProperty, IEntityType, ValueGenerator>)null, ConfigurationSource.Explicit));
+            Assert.NotNull(builder.HasValueGenerator((Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator>)null, ConfigurationSource.Explicit));
 
             Assert.Null(metadata.GetValueGeneratorFactory());
             Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
@@ -237,7 +300,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new NotImplementedException();
             }
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
 
         private class CustomValueGenerator2 : ValueGenerator<string>
@@ -247,11 +311,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new NotImplementedException();
             }
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
 
         [ConditionalFact]
-        public void Can_only_override_lower_or_equal_source_unicode()
+        public void Can_only_override_lower_or_equal_source_IsUnicode()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
@@ -266,10 +331,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Can_only_override_existing_unicode_value_explicitly()
+        public void Can_only_override_existing_IsUnicode_value_explicitly()
         {
             var metadata = CreateProperty();
-            metadata.SetIsUnicode(true);
+            metadata.SetIsUnicode(true, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.NotNull(builder.IsUnicode(true, ConfigurationSource.DataAnnotation));
@@ -348,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var metadata = CreateProperty();
             Assert.Null(metadata.GetBeforeSaveBehaviorConfigurationSource());
-            metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
+            metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetBeforeSaveBehaviorConfigurationSource());
@@ -381,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var metadata = CreateProperty();
             Assert.Null(metadata.GetAfterSaveBehaviorConfigurationSource());
-            metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
+            metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw, ConfigurationSource.Explicit);
             var builder = metadata.Builder;
 
             Assert.Equal(ConfigurationSource.Explicit, metadata.GetAfterSaveBehaviorConfigurationSource());
@@ -396,12 +461,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
+            var modelBuilder = (InternalModelBuilder)
+                InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
             return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention);
         }
 
-        private Property CreateProperty() => CreateInternalPropertyBuilder().Metadata;
+        private Property CreateProperty()
+            => CreateInternalPropertyBuilder().Metadata;
 
         private class Customer
         {

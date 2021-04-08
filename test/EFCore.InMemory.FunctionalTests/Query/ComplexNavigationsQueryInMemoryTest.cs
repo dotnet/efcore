@@ -14,23 +14,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool isAsync)
-        {
-            return base.Complex_query_with_optional_navigations_and_client_side_evaluation(isAsync);
-        }
-
-        [ConditionalFact(Skip = "issue #18194")]
-        public override void Member_pushdown_chain_3_levels_deep_entity()
-        {
-            base.Member_pushdown_chain_3_levels_deep_entity();
-        }
-
-        [ConditionalTheory(Skip = "issue #17620")]
-        public override Task Lift_projection_mapping_when_pushing_down_subquery(bool isAsync)
-        {
-            return base.Lift_projection_mapping_when_pushing_down_subquery(isAsync);
-        }
     }
 }

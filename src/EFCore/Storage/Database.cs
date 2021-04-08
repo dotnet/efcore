@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="Database" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected Database([NotNull] DatabaseDependencies dependencies)
+        protected Database(DatabaseDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -63,10 +62,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of entries persisted to the database.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public abstract Task<int> SaveChangesAsync(
             IList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default);
 
+        /// <inheritdoc />
         public virtual Func<QueryContext, TResult> CompileQuery<TResult>(Expression query, bool async)
             => Dependencies.QueryCompilationContextFactory
                 .Create(async)

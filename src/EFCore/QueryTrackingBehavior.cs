@@ -30,10 +30,29 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="DbContext.SaveChanges()" />.
         ///     </para>
         ///     <para>
-        ///         Identity resolution will still be performed to ensure that all occurrences of an entity with a given key
+        ///         Identity resolution will not be performed. If an entity with a given key is in different result in the result set
+        ///         then they will be different instances.
+        ///     </para>
+        /// </summary>
+        NoTracking,
+
+        /// <summary>
+        ///     <para>
+        ///         The change tracker will not track any of the entities that are returned from a LINQ query. If the
+        ///         entity instances are modified, this will not be detected by the change tracker and
+        ///         <see cref="DbContext.SaveChanges()" /> will not persist those changes to the database.
+        ///     </para>
+        ///     <para>
+        ///         Disabling change tracking is useful for read-only scenarios because it avoids the overhead of setting
+        ///         up change tracking for each entity instance. You should not disable change tracking if you want to
+        ///         manipulate entity instances and persist those changes to the database using
+        ///         <see cref="DbContext.SaveChanges()" />.
+        ///     </para>
+        ///     <para>
+        ///         Identity resolution will be performed to ensure that all occurrences of an entity with a given key
         ///         in the result set are represented by the same entity instance.
         ///     </para>
         /// </summary>
-        NoTracking
+        NoTrackingWithIdentityResolution
     }
 }

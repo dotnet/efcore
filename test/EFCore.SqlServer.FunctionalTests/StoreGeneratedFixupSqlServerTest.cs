@@ -65,14 +65,16 @@ namespace Microsoft.EntityFrameworkCore
             entry.Property("Id").IsTemporary = true;
         }
 
-        protected override bool EnforcesFKs => true;
+        protected override bool EnforcesFKs
+            => true;
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
         public class StoreGeneratedFixupSqlServerFixture : StoreGeneratedFixupRelationalFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

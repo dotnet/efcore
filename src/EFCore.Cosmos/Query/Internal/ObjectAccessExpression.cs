@@ -3,8 +3,12 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -24,11 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public ObjectAccessExpression(INavigation navigation, Expression accessExpression)
         {
-            Name = navigation.GetTargetType().GetContainingPropertyName();
+            Name = navigation.TargetEntityType.GetContainingPropertyName();
             if (Name == null)
             {
                 throw new InvalidOperationException(
-                    $"Navigation '{navigation.DeclaringEntityType.DisplayName()}.{navigation.Name}' doesn't point to an embedded entity.");
+                    CosmosStrings.NavigationPropertyIsNotAnEmbeddedEntity(
+                        navigation.DeclaringEntityType.DisplayName(), navigation.Name));
             }
 
             Navigation = navigation;
@@ -41,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type Type => Navigation.ClrType;
+        public override Type Type
+            => Navigation.ClrType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,9 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var outerExpression = visitor.Visit(AccessExpression);
+            Check.NotNull(visitor, nameof(visitor));
 
-            return Update(outerExpression);
+            return Update(visitor.Visit(AccessExpression));
         }
 
         /// <summary>
@@ -105,7 +112,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Print(ExpressionPrinter expressionPrinter) => expressionPrinter.Append(ToString());
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            expressionPrinter.Append(ToString());
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -113,7 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => $"{AccessExpression}[\"{Name}\"]";
+        public override string ToString()
+            => $"{AccessExpression}[\"{Name}\"]";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -123,13 +136,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is ObjectAccessExpression objectAccessExpression
-                   && Equals(objectAccessExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is ObjectAccessExpression objectAccessExpression
+                    && Equals(objectAccessExpression));
 
         private bool Equals(ObjectAccessExpression objectAccessExpression)
             => Navigation == objectAccessExpression.Navigation
-               && AccessExpression.Equals(objectAccessExpression.AccessExpression);
+                && AccessExpression.Equals(objectAccessExpression.AccessExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,6 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int GetHashCode() => HashCode.Combine(Navigation, AccessExpression);
+        public override int GetHashCode()
+            => HashCode.Combine(Navigation, AccessExpression);
     }
 }

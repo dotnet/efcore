@@ -8,17 +8,21 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class DbContextScaffoldCommand : ProjectCommandBase
     {
-        private CommandArgument _connection;
-        private CommandArgument _provider;
-        private CommandOption _dataAnnotations;
-        private CommandOption _context;
-        private CommandOption _contextDir;
-        private CommandOption _force;
-        private CommandOption _outputDir;
-        private CommandOption _schemas;
-        private CommandOption _tables;
-        private CommandOption _useDatabaseNames;
-        private CommandOption _json;
+        private CommandArgument? _connection;
+        private CommandArgument? _provider;
+        private CommandOption? _dataAnnotations;
+        private CommandOption? _context;
+        private CommandOption? _contextDir;
+        private CommandOption? _force;
+        private CommandOption? _outputDir;
+        private CommandOption? _schemas;
+        private CommandOption? _tables;
+        private CommandOption? _useDatabaseNames;
+        private CommandOption? _json;
+        private CommandOption? _namespace;
+        private CommandOption? _contextNamespace;
+        private CommandOption? _suppressOnConfiguring;
+        private CommandOption? _noPluralize;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -36,6 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _tables = command.Option("-t|--table <TABLE_NAME>...", Resources.TablesDescription);
             _useDatabaseNames = command.Option("--use-database-names", Resources.UseDatabaseNamesDescription);
             _json = Json.ConfigureOption(command);
+            _namespace = command.Option("-n|--namespace <NAMESPACE>", Resources.NamespaceDescription);
+            _contextNamespace = command.Option("--context-namespace <NAMESPACE>", Resources.ContextNamespaceDescription);
+            _suppressOnConfiguring = command.Option("--no-onconfiguring", Resources.SuppressOnConfiguringDescription);
+            _noPluralize = command.Option("--no-pluralize", Resources.NoPluralizeDescription);
 
             base.Configure(command);
         }

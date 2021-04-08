@@ -28,40 +28,38 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(nameof(PropertyEntry.OriginalValue), true)]
         public void Row_version_is_marked_as_modified_only_if_it_really_changed(string mode, bool changeValue)
         {
-            using (var context = new OptimisticContext())
+            using var context = new OptimisticContext();
+            var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+            var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
+
+            var entity = context.Attach(
+                new WithRowVersion { Id = 789, Version = token.ToArray() }).Entity;
+
+            var propertyEntry = context.Entry(entity).Property(e => e.Version);
+
+            Assert.Equal(token, propertyEntry.CurrentValue);
+            Assert.Equal(token, propertyEntry.OriginalValue);
+            Assert.False(propertyEntry.IsModified);
+            Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
+
+            switch (mode)
             {
-                var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-                var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
-
-                var entity = context.Attach(
-                    new WithRowVersion { Id = 789, Version = token.ToArray() }).Entity;
-
-                var propertyEntry = context.Entry(entity).Property(e => e.Version);
-
-                Assert.Equal(token, propertyEntry.CurrentValue);
-                Assert.Equal(token, propertyEntry.OriginalValue);
-                Assert.False(propertyEntry.IsModified);
-                Assert.Equal(EntityState.Unchanged, context.Entry(entity).State);
-
-                switch (mode)
-                {
-                    case nameof(ChangeTracker.DetectChanges):
-                        entity.Version = newToken.ToArray();
-                        context.ChangeTracker.DetectChanges();
-                        break;
-                    case nameof(PropertyEntry.CurrentValue):
-                        propertyEntry.CurrentValue = newToken.ToArray();
-                        break;
-                    case nameof(PropertyEntry.OriginalValue):
-                        propertyEntry.OriginalValue = newToken.ToArray();
-                        break;
-                    default:
-                        throw new NotImplementedException("Unexpected test mode.");
-                }
-
-                Assert.Equal(changeValue, propertyEntry.IsModified);
-                Assert.Equal(changeValue ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
+                case nameof(ChangeTracker.DetectChanges):
+                    entity.Version = newToken.ToArray();
+                    context.ChangeTracker.DetectChanges();
+                    break;
+                case nameof(PropertyEntry.CurrentValue):
+                    propertyEntry.CurrentValue = newToken.ToArray();
+                    break;
+                case nameof(PropertyEntry.OriginalValue):
+                    propertyEntry.OriginalValue = newToken.ToArray();
+                    break;
+                default:
+                    throw new NotImplementedException("Unexpected test mode.");
             }
+
+            Assert.Equal(changeValue, propertyEntry.IsModified);
+            Assert.Equal(changeValue ? EntityState.Modified : EntityState.Unchanged, context.Entry(entity).State);
         }
 
         private class WithRowVersion
@@ -97,9 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double))]
         [InlineData(typeof(SqlServerFloatTypeMapping), typeof(float))]
         [InlineData(typeof(SqlServerTimeSpanTypeMapping), typeof(TimeSpan))]
-        public override void Create_and_clone_with_converter(Type mappingType, Type clrType)
+        public override void Create_and_clone_with_converter(Type mappingType, Type type)
         {
-            base.Create_and_clone_with_converter(mappingType, clrType);
+            base.Create_and_clone_with_converter(mappingType, type);
         }
 
         [ConditionalFact]
@@ -286,21 +284,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
 
-        [ConditionalTheory]
-        [InlineData("Microsoft.SqlServer.Types.SqlHierarchyId", "hierarchyid")]
-        [InlineData("Microsoft.SqlServer.Types.SqlGeography", "geography")]
-        [InlineData("Microsoft.SqlServer.Types.SqlGeometry", "geometry")]
-        public virtual void Get_named_mappings_for_sql_type(string typeName, string udtName)
-        {
-            var type = new FakeType(typeName);
-
-            var mapping = GetMapping(type);
-
-            Assert.Equal(udtName, mapping.StoreType);
-            Assert.Equal(udtName, ((SqlServerUdtTypeMapping)mapping).UdtTypeName);
-            Assert.Same(type, mapping.ClrType);
-        }
-
         private class FakeType : Type
         {
             public FakeType(string fullName)
@@ -308,63 +291,142 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 FullName = fullName;
             }
 
-            public override object[] GetCustomAttributes(bool inherit) => throw new NotImplementedException();
-            public override bool IsDefined(Type attributeType, bool inherit) => throw new NotImplementedException();
-            public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr) => throw new NotImplementedException();
-            public override Type GetInterface(string name, bool ignoreCase) => throw new NotImplementedException();
-            public override Type[] GetInterfaces() => throw new NotImplementedException();
-            public override EventInfo GetEvent(string name, BindingFlags bindingAttr) => throw new NotImplementedException();
-            public override EventInfo[] GetEvents(BindingFlags bindingAttr) => throw new NotImplementedException();
-            public override Type[] GetNestedTypes(BindingFlags bindingAttr) => throw new NotImplementedException();
-            public override Type GetNestedType(string name, BindingFlags bindingAttr) => throw new NotImplementedException();
-            public override Type GetElementType() => throw new NotImplementedException();
-            protected override bool HasElementTypeImpl() => throw new NotImplementedException();
+            public override object[] GetCustomAttributes(bool inherit)
+                => throw new NotImplementedException();
+
+            public override bool IsDefined(Type attributeType, bool inherit)
+                => throw new NotImplementedException();
+
+            public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr)
+                => throw new NotImplementedException();
+
+            public override Type GetInterface(string name, bool ignoreCase)
+                => throw new NotImplementedException();
+
+            public override Type[] GetInterfaces()
+                => throw new NotImplementedException();
+
+            public override EventInfo GetEvent(string name, BindingFlags bindingAttr)
+                => throw new NotImplementedException();
+
+            public override EventInfo[] GetEvents(BindingFlags bindingAttr)
+                => throw new NotImplementedException();
+
+            public override Type[] GetNestedTypes(BindingFlags bindingAttr)
+                => throw new NotImplementedException();
+
+            public override Type GetNestedType(string name, BindingFlags bindingAttr)
+                => throw new NotImplementedException();
+
+            public override Type GetElementType()
+                => throw new NotImplementedException();
+
+            protected override bool HasElementTypeImpl()
+                => throw new NotImplementedException();
 
             protected override PropertyInfo GetPropertyImpl(
-                string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers) =>
-                throw new NotImplementedException();
+                string name,
+                BindingFlags bindingAttr,
+                Binder binder,
+                Type returnType,
+                Type[] types,
+                ParameterModifier[] modifiers)
+                => throw new NotImplementedException();
 
-            public override PropertyInfo[] GetProperties(BindingFlags bindingAttr) => throw new NotImplementedException();
+            public override PropertyInfo[] GetProperties(BindingFlags bindingAttr)
+                => throw new NotImplementedException();
 
             protected override MethodInfo GetMethodImpl(
-                string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types,
-                ParameterModifier[] modifiers) => throw new NotImplementedException();
+                string name,
+                BindingFlags bindingAttr,
+                Binder binder,
+                CallingConventions callConvention,
+                Type[] types,
+                ParameterModifier[] modifiers)
+                => throw new NotImplementedException();
 
-            public override MethodInfo[] GetMethods(BindingFlags bindingAttr) => throw new NotImplementedException();
-            public override FieldInfo GetField(string name, BindingFlags bindingAttr) => throw new NotImplementedException();
-            public override FieldInfo[] GetFields(BindingFlags bindingAttr) => throw new NotImplementedException();
-            public override MemberInfo[] GetMembers(BindingFlags bindingAttr) => throw new NotImplementedException();
-            protected override TypeAttributes GetAttributeFlagsImpl() => throw new NotImplementedException();
-            protected override bool IsArrayImpl() => throw new NotImplementedException();
-            protected override bool IsByRefImpl() => throw new NotImplementedException();
-            protected override bool IsPointerImpl() => throw new NotImplementedException();
-            protected override bool IsPrimitiveImpl() => throw new NotImplementedException();
-            protected override bool IsCOMObjectImpl() => throw new NotImplementedException();
+            public override MethodInfo[] GetMethods(BindingFlags bindingAttr)
+                => throw new NotImplementedException();
+
+            public override FieldInfo GetField(string name, BindingFlags bindingAttr)
+                => throw new NotImplementedException();
+
+            public override FieldInfo[] GetFields(BindingFlags bindingAttr)
+                => throw new NotImplementedException();
+
+            public override MemberInfo[] GetMembers(BindingFlags bindingAttr)
+                => throw new NotImplementedException();
+
+            protected override TypeAttributes GetAttributeFlagsImpl()
+                => throw new NotImplementedException();
+
+            protected override bool IsArrayImpl()
+                => throw new NotImplementedException();
+
+            protected override bool IsByRefImpl()
+                => throw new NotImplementedException();
+
+            protected override bool IsPointerImpl()
+                => throw new NotImplementedException();
+
+            protected override bool IsPrimitiveImpl()
+                => throw new NotImplementedException();
+
+            protected override bool IsCOMObjectImpl()
+                => throw new NotImplementedException();
 
             public override object InvokeMember(
-                string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers,
-                CultureInfo culture, string[] namedParameters) => throw new NotImplementedException();
+                string name,
+                BindingFlags invokeAttr,
+                Binder binder,
+                object target,
+                object[] args,
+                ParameterModifier[] modifiers,
+                CultureInfo culture,
+                string[] namedParameters)
+                => throw new NotImplementedException();
 
             public override Type UnderlyingSystemType { get; }
 
             protected override ConstructorInfo GetConstructorImpl(
-                BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers) =>
-                throw new NotImplementedException();
+                BindingFlags bindingAttr,
+                Binder binder,
+                CallingConventions callConvention,
+                Type[] types,
+                ParameterModifier[] modifiers)
+                => throw new NotImplementedException();
 
-            public override string Name => throw new NotImplementedException();
-            public override Guid GUID => throw new NotImplementedException();
-            public override Module Module => throw new NotImplementedException();
-            public override Assembly Assembly => throw new NotImplementedException();
-            public override string Namespace => throw new NotImplementedException();
-            public override string AssemblyQualifiedName => throw new NotImplementedException();
-            public override Type BaseType => throw new NotImplementedException();
-            public override object[] GetCustomAttributes(Type attributeType, bool inherit) => throw new NotImplementedException();
+            public override string Name
+                => throw new NotImplementedException();
+
+            public override Guid GUID
+                => throw new NotImplementedException();
+
+            public override Module Module
+                => throw new NotImplementedException();
+
+            public override Assembly Assembly
+                => throw new NotImplementedException();
+
+            public override string Namespace
+                => throw new NotImplementedException();
+
+            public override string AssemblyQualifiedName
+                => throw new NotImplementedException();
+
+            public override Type BaseType
+                => throw new NotImplementedException();
+
+            public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+                => throw new NotImplementedException();
 
             public override string FullName { get; }
 
-            public override int GetHashCode() => FullName.GetHashCode();
+            public override int GetHashCode()
+                => FullName.GetHashCode();
 
-            public override bool Equals(object o) => ReferenceEquals(this, o);
+            public override bool Equals(object o)
+                => ReferenceEquals(this, o);
         }
 
         protected override DbContextOptions ContextOptions { get; }

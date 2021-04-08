@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -18,15 +18,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase
+    public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase, ITypeBase
     {
         private ConfigurationSource _configurationSource;
 
         private readonly Dictionary<string, ConfigurationSource> _ignoredMembers
-            = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
+            = new(StringComparer.Ordinal);
 
-        private Dictionary<string, PropertyInfo> _runtimeProperties;
-        private Dictionary<string, FieldInfo> _runtimeFields;
+        private bool _indexerPropertyInitialized;
+        private PropertyInfo? _indexerPropertyInfo;
+        private Dictionary<string, PropertyInfo>? _runtimeProperties;
+        private Dictionary<string, FieldInfo>? _runtimeFields;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,34 +36,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected TypeBase([NotNull] string name, [NotNull] Model model, ConfigurationSource configurationSource)
-            : this(model, configurationSource)
+        protected TypeBase(Type type, Model model, ConfigurationSource configurationSource)
+        {
+            Check.NotNull(model, nameof(model));
+
+            ClrType = type;
+            Model = model;
+            _configurationSource = configurationSource;
+            Name = model.GetDisplayName(type);
+            HasSharedClrType = false;
+            IsPropertyBag = type.IsPropertyBagType();
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected TypeBase(string name, Type type, Model model, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
+            Check.NotNull(type, nameof(type));
             Check.NotNull(model, nameof(model));
 
             Name = name;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected TypeBase([NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
-            : this(model, configurationSource)
-        {
-            Check.NotNull(model, nameof(model));
-
-            Name = model.GetDisplayName(clrType);
-            ClrType = clrType;
-        }
-
-        private TypeBase([NotNull] Model model, ConfigurationSource configurationSource)
-        {
+            ClrType = type;
             Model = model;
             _configurationSource = configurationSource;
+            HasSharedClrType = true;
+            IsPropertyBag = type.IsPropertyBagType();
         }
 
         /// <summary>
@@ -86,6 +90,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public override bool IsReadOnly => Model.IsReadOnly;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual string Name { [DebuggerStepThrough] get; }
 
         /// <summary>
@@ -94,8 +106,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool HasSharedClrType { [DebuggerStepThrough] get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsPropertyBag { [DebuggerStepThrough] get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+        public virtual ConfigurationSource GetConfigurationSource()
+            => _configurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -114,11 +143,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties()
         {
-            if (ClrType == null)
-            {
-                return null;
-            }
-
             if (_runtimeProperties == null)
             {
                 var runtimeProperties = new Dictionary<string, PropertyInfo>(StringComparer.Ordinal);
@@ -145,11 +169,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields()
         {
-            if (ClrType == null)
-            {
-                return null;
-            }
-
             if (_runtimeFields == null)
             {
                 var runtimeFields = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);
@@ -174,31 +193,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetPropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void SetNavigationAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.NavigationAccessMode, propertyAccessMode, configurationSource);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void ClearCaches()
+        public virtual PropertyInfo? FindIndexerPropertyInfo()
         {
-            _runtimeProperties = null;
-            _runtimeFields = null;
-            Thread.MemoryBarrier();
+            if (!_indexerPropertyInitialized)
+            {
+                var indexerPropertyInfo = ClrType.FindIndexerProperty();
+
+                Interlocked.CompareExchange(ref _indexerPropertyInfo, indexerPropertyInfo, null);
+                _indexerPropertyInitialized = true;
+            }
+
+            return _indexerPropertyInfo;
         }
 
         /// <summary>
@@ -207,19 +212,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void AddIgnored([NotNull] string name, ConfigurationSource configurationSource)
+        public virtual PropertyAccessMode? SetPropertyAccessMode(
+            PropertyAccessMode? propertyAccessMode,
+            ConfigurationSource configurationSource)
+            => (PropertyAccessMode?)SetOrRemoveAnnotation(
+                CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource)?.Value;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual PropertyAccessMode? SetNavigationAccessMode(
+            PropertyAccessMode? propertyAccessMode,
+            ConfigurationSource configurationSource)
+            => (PropertyAccessMode?)SetOrRemoveAnnotation(
+                CoreAnnotationNames.NavigationAccessMode, propertyAccessMode, configurationSource)?.Value;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string? AddIgnored(string name, ConfigurationSource configurationSource)
         {
             Check.NotNull(name, nameof(name));
+            EnsureMutable();
 
             if (_ignoredMembers.TryGetValue(name, out var existingIgnoredConfigurationSource))
             {
                 _ignoredMembers[name] = configurationSource.Max(existingIgnoredConfigurationSource);
-                return;
+                return name;
             }
 
             _ignoredMembers[name] = configurationSource;
 
-            OnTypeMemberIgnored(name);
+            return OnTypeMemberIgnored(name);
         }
 
         /// <summary>
@@ -228,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public abstract void OnTypeMemberIgnored([NotNull] string name);
+        public abstract string? OnTypeMemberIgnored(string name);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -236,8 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<string> GetIgnoredMembers()
-            => _ignoredMembers.Keys.ToList();
+        public virtual IEnumerable<string> GetIgnoredMembers()
+            => _ignoredMembers.Keys;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -245,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? FindDeclaredIgnoredConfigurationSource([NotNull] string name)
+        public virtual ConfigurationSource? FindDeclaredIgnoredConfigurationSource(string name)
             => _ignoredMembers.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
                 ? (ConfigurationSource?)ignoredConfigurationSource
                 : null;
@@ -274,10 +304,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void RemoveIgnored(string name)
+        public virtual string? RemoveIgnored(string name)
         {
             Check.NotNull(name, nameof(name));
-            _ignoredMembers.Remove(name);
+            EnsureMutable();
+
+            return _ignoredMembers.Remove(name) ? name : null;
         }
 
         /// <summary>
@@ -286,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IModel ITypeBase.Model
+        IReadOnlyModel IReadOnlyTypeBase.Model
         {
             [DebuggerStepThrough] get => Model;
         }
@@ -319,7 +351,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Type ITypeBase.ClrType
+        IModel ITypeBase.Model
+        {
+            [DebuggerStepThrough]
+            get => Model;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        Type IReadOnlyTypeBase.ClrType
         {
             [DebuggerStepThrough] get => ClrType;
         }
@@ -330,7 +374,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IMutableTypeBase.AddIgnored(string name) => AddIgnored(name, ConfigurationSource.Explicit);
+        [DebuggerStepThrough]
+        string? IMutableTypeBase.AddIgnored(string name)
+            => AddIgnored(name, ConfigurationSource.Explicit);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -338,7 +384,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IConventionTypeBase.AddIgnored(string name, bool fromDataAnnotation)
+        [DebuggerStepThrough]
+        string? IConventionTypeBase.AddIgnored(string name, bool fromDataAnnotation)
             => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

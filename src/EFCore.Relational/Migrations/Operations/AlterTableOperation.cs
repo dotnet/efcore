@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
@@ -10,25 +9,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> to alter an existing table.
     /// </summary>
-    [DebuggerDisplay("ALTER TABLE {Table}")]
+    [DebuggerDisplay("ALTER TABLE {Name}")]
     public class AlterTableOperation : TableOperation, IAlterMigrationOperation
     {
         /// <summary>
-        ///     The name of the table.
-        /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
-
-        /// <summary>
-        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
-        /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
-
-        /// <summary>
         ///     An operation representing the table as it was before being altered.
         /// </summary>
-        public virtual TableOperation OldTable { get; [param: NotNull] set; } = new TableOperation();
+        public virtual TableOperation OldTable { get; set; } = new CreateTableOperation();
 
         /// <inheritdoc />
-        IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldTable;
+        IMutableAnnotatable IAlterMigrationOperation.OldAnnotations
+            => OldTable;
     }
 }

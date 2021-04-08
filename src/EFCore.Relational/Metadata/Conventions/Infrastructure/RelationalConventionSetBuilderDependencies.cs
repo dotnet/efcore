@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
@@ -29,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalConventionSetBuilderDependencies
+    public sealed record RelationalConventionSetBuilderDependencies
     {
         /// <summary>
         ///     <para>
@@ -57,8 +59,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public RelationalConventionSetBuilderDependencies()
+        public RelationalConventionSetBuilderDependencies(IRelationalAnnotationProvider relationalAnnotationProvider)
         {
+            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            RelationalAnnotationProvider = relationalAnnotationProvider;
+#pragma warning restore CS0618 // Type or member is obsolete
         }
+
+        /// <summary>
+        ///     The relational annotation provider.
+        /// </summary>
+        public IRelationalAnnotationProvider RelationalAnnotationProvider { get; init; }
     }
 }

@@ -9,9 +9,11 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -23,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeAddedConvention,
         IEntityTypeIgnoredConvention,
         IEntityTypeBaseTypeChangedConvention,
-        INavigationRemovedConvention,
         IEntityTypeMemberIgnoredConvention,
+        INavigationRemovedConvention,
         INavigationAddedConvention,
         IForeignKeyOwnershipChangedConvention
     {
@@ -32,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="RelationshipDiscoveryConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public RelationshipDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public RelationshipDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -44,8 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void DiscoverRelationships(IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext context)
         {
-            if (!entityTypeBuilder.Metadata.HasClrType()
-                || entityTypeBuilder.ModelBuilder.IsIgnored(entityTypeBuilder.Metadata.ClrType))
+            if (entityTypeBuilder.ModelBuilder.IsIgnored(entityTypeBuilder.Metadata.ClrType))
             {
                 return;
             }
@@ -68,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var relationshipCandidates = new Dictionary<IConventionEntityType, RelationshipCandidate>();
             var ownership = entityTypeBuilder.Metadata.FindOwnership();
             if (ownership == null
-                && model.FindIsOwnedConfigurationSource(entityTypeBuilder.Metadata.ClrType) != null)
+                && model.IsOwned(entityTypeBuilder.Metadata.ClrType))
             {
                 return relationshipCandidates.Values.ToList();
             }
@@ -79,13 +80,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var targetClrType = candidateTuple.Value;
 
                 if (!IsCandidateNavigationProperty(entityTypeBuilder, navigationPropertyInfo.GetSimpleMemberName(), navigationPropertyInfo)
-                    || (model.FindIsOwnedConfigurationSource(targetClrType) != null
+                    || (model.IsOwned(targetClrType)
                         && HasDeclaredAmbiguousNavigationsTo(entityType, targetClrType)))
                 {
                     continue;
                 }
 
-                IConventionEntityTypeBuilder candidateTargetEntityTypeBuilder = ((InternalEntityTypeBuilder)entityTypeBuilder)
+                IConventionEntityTypeBuilder? candidateTargetEntityTypeBuilder = ((InternalEntityTypeBuilder)entityTypeBuilder)
                     .GetTargetEntityTypeBuilder(targetClrType, navigationPropertyInfo, ConfigurationSource.Convention);
 
                 if (candidateTargetEntityTypeBuilder == null)
@@ -99,14 +100,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                if (entityType.Builder == null)
+                if (!entityType.IsInModel)
                 {
                     foreach (var relationshipCandidate in relationshipCandidates.Values)
                     {
                         var targetType = relationshipCandidate.TargetTypeBuilder.Metadata;
-                        if (targetType.Builder != null
-                            && targetType.HasDefiningNavigation()
-                            && targetType.DefiningEntityType.FindNavigation(targetType.DefiningNavigationName) == null)
+                        if (targetType.IsInModel
+                            && IsImplicitlyCreatedUnusedSharedType(targetType))
                         {
                             targetType.Builder.ModelBuilder.HasNoEntityType(targetType);
                         }
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return Array.Empty<RelationshipCandidate>();
                 }
 
-                if (model.FindIsOwnedConfigurationSource(targetClrType) == null)
+                if (!model.IsOwned(targetClrType))
                 {
                     var targetOwnership = candidateTargetEntityType.FindOwnership();
                     if (targetOwnership != null
@@ -155,19 +155,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         if ((inverseTargetType != entityType.ClrType
                                 && (!inverseTargetType.IsAssignableFrom(entityType.ClrType)
-                                    || (model.FindIsOwnedConfigurationSource(targetClrType) == null
+                                    || (!model.IsOwned(targetClrType)
                                         && !candidateTargetEntityType.IsInOwnershipPath(entityType))))
                             || navigationPropertyInfo.IsSameAs(inversePropertyInfo)
                             || (ownership != null
                                 && !candidateTargetEntityType.IsInOwnershipPath(entityType)
                                 && (candidateTargetEntityType.IsOwned()
-                                    || model.FindIsOwnedConfigurationSource(targetClrType) == null)
+                                    || !model.IsOwned(targetClrType))
                                 && (ownership.PrincipalEntityType != candidateTargetEntityType
                                     || ownership.PrincipalToDependent?.Name != inversePropertyInfo.GetSimpleMemberName()))
-                            || (entityType.HasDefiningNavigation()
-                                && !candidateTargetEntityType.IsInDefinitionPath(entityType.ClrType)
-                                && (entityType.DefiningEntityType != candidateTargetEntityType
-                                    || entityType.DefiningNavigationName != inversePropertyInfo.GetSimpleMemberName()))
                             || !IsCandidateNavigationProperty(
                                 candidateTargetEntityTypeBuilder, inversePropertyInfo.GetSimpleMemberName(), inversePropertyInfo))
                         {
@@ -188,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var candidates = new List<RelationshipCandidate>();
             foreach (var relationshipCandidate in relationshipCandidates.Values)
             {
-                if (relationshipCandidate.TargetTypeBuilder.Metadata.Builder != null)
+                if (relationshipCandidate.TargetTypeBuilder.Metadata.IsInModel)
                 {
                     candidates.Add(relationshipCandidate);
                     continue;
@@ -238,13 +234,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 while (relationshipCandidate.NavigationProperties.Count > 0)
                 {
                     var navigationProperty = relationshipCandidate.NavigationProperties[0];
-                    var existingNavigation = entityType.FindNavigation(navigationProperty.GetSimpleMemberName());
-                    if (existingNavigation != null
-                        && (existingNavigation.DeclaringEntityType != entityType
-                            || existingNavigation.GetTargetType() != targetEntityType))
+                    var navigationPropertyName = navigationProperty.GetSimpleMemberName();
+                    var existingNavigation = entityType.FindNavigation(navigationPropertyName);
+                    if (existingNavigation != null)
                     {
-                        relationshipCandidate.NavigationProperties.Remove(navigationProperty);
-                        continue;
+                        if (existingNavigation.DeclaringEntityType != entityType
+                            || existingNavigation.TargetEntityType != targetEntityType)
+                        {
+                            relationshipCandidate.NavigationProperties.Remove(navigationProperty);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        var existingSkipNavigation = entityType.FindSkipNavigation(navigationPropertyName);
+                        if (existingSkipNavigation != null
+                            && (existingSkipNavigation.DeclaringEntityType != entityType
+                                || existingSkipNavigation.TargetEntityType != targetEntityType))
+                        {
+                            relationshipCandidate.NavigationProperties.Remove(navigationProperty);
+                            continue;
+                        }
                     }
 
                     if (relationshipCandidate.NavigationProperties.Count == 1
@@ -253,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         break;
                     }
 
-                    PropertyInfo compatibleInverse = null;
+                    PropertyInfo? compatibleInverse = null;
                     foreach (var inverseProperty in relationshipCandidate.InverseProperties)
                     {
                         if (IsCompatibleInverse(
@@ -296,10 +306,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
 
                     var noOtherCompatibleNavigation = true;
-                    foreach (var n in relationshipCandidate.NavigationProperties)
+                    foreach (var otherNavigation in relationshipCandidate.NavigationProperties)
                     {
-                        if (n != navigationProperty
-                            && IsCompatibleInverse(n, compatibleInverse, entityTypeBuilder, targetEntityTypeBuilder))
+                        if (otherNavigation != navigationProperty
+                            && IsCompatibleInverse(otherNavigation, compatibleInverse, entityTypeBuilder, targetEntityTypeBuilder))
                         {
                             noOtherCompatibleNavigation = false;
                             break;
@@ -343,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     filteredRelationshipCandidates.Add(relationshipCandidate);
                 }
-                else if (IsCandidateUnusedOwnedType(relationshipCandidate.TargetTypeBuilder.Metadata)
+                else if (IsImplicitlyCreatedUnusedSharedType(relationshipCandidate.TargetTypeBuilder.Metadata)
                     && filteredRelationshipCandidates.All(
                         c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
                 {
@@ -378,9 +388,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return false;
                 }
 
-                var otherEntityType = existingInverse.GetTargetType();
-                if (!entityType.ClrType.GetTypeInfo()
-                    .IsAssignableFrom(otherEntityType.ClrType.GetTypeInfo()))
+                var otherEntityType = existingInverse.TargetEntityType;
+                if (!entityType.ClrType.IsAssignableFrom(otherEntityType.ClrType))
                 {
                     return false;
                 }
@@ -390,12 +399,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static bool CanMergeWith(
-            IConventionNavigation existingNavigation, MemberInfo inverse, IConventionEntityTypeBuilder inverseEntityTypeBuilder)
+            IConventionNavigation existingNavigation,
+            MemberInfo inverse,
+            IConventionEntityTypeBuilder inverseEntityTypeBuilder)
         {
             var fk = existingNavigation.ForeignKey;
             return (fk.IsSelfReferencing()
                     || fk.GetRelatedEntityType(existingNavigation.DeclaringEntityType) == inverseEntityTypeBuilder.Metadata)
-                && fk.Builder.CanSetNavigation(inverse, !existingNavigation.IsDependentToPrincipal());
+                && fk.Builder.CanSetNavigation(inverse, !existingNavigation.IsOnDependent);
         }
 
         private static IReadOnlyList<RelationshipCandidate> RemoveInheritedInverseNavigations(
@@ -478,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 foreach (var navigation in relationshipCandidate.NavigationProperties.ToList())
                 {
                     if (entityTypeBuilder.Metadata.FindDerivedNavigations(navigation.GetSimpleMemberName())
-                        .Any(n => n.FindInverse() != null))
+                        .Any(n => n.Inverse != null))
                     {
                         relationshipCandidate.NavigationProperties.Remove(navigation);
                     }
@@ -488,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     filteredRelationshipCandidates.Add(relationshipCandidate);
                 }
-                else if (IsCandidateUnusedOwnedType(relationshipCandidate.TargetTypeBuilder.Metadata)
+                else if (IsImplicitlyCreatedUnusedSharedType(relationshipCandidate.TargetTypeBuilder.Metadata)
                     && filteredRelationshipCandidates.All(
                         c => c.TargetTypeBuilder.Metadata != relationshipCandidate.TargetTypeBuilder.Metadata))
                 {
@@ -501,7 +512,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private void CreateRelationships(
-            IEnumerable<RelationshipCandidate> relationshipCandidates, IConventionEntityTypeBuilder entityTypeBuilder)
+            IEnumerable<RelationshipCandidate> relationshipCandidates,
+            IConventionEntityTypeBuilder entityTypeBuilder)
         {
             var unusedEntityTypes = new List<IConventionEntityType>();
             foreach (var relationshipCandidate in relationshipCandidates)
@@ -509,11 +521,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var entityType = entityTypeBuilder.Metadata;
                 var targetEntityType = relationshipCandidate.TargetTypeBuilder.Metadata;
                 var isAmbiguousOnBase = entityType.BaseType != null
-                    && HasAmbiguousNavigationsTo(
-                        entityType.BaseType, targetEntityType.ClrType)
-                    || targetEntityType.BaseType != null
-                    && HasAmbiguousNavigationsTo(
-                        targetEntityType.BaseType, entityType.ClrType);
+                    && HasAmbiguousNavigationsTo(entityType.BaseType, targetEntityType.ClrType)
+                    || (targetEntityType.BaseType != null
+                        && HasAmbiguousNavigationsTo(targetEntityType.BaseType, entityType.ClrType));
 
                 var ambiguousOwnership = relationshipCandidate.NavigationProperties.Count == 1
                     && relationshipCandidate.InverseProperties.Count == 1
@@ -561,45 +571,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         Dependencies.Logger.MultipleNavigationProperties(
                             relationshipCandidate.NavigationProperties.Count == 0
-                                ? new[] { new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType) }
+                                ? new[] { new Tuple<MemberInfo?, Type>(null, targetEntityType.ClrType) }
                                 : relationshipCandidate.NavigationProperties.Select(
-                                    n => new Tuple<MemberInfo, Type>(n, entityType.ClrType)),
+                                    n => new Tuple<MemberInfo?, Type>(n, entityType.ClrType)),
                             relationshipCandidate.InverseProperties.Count == 0
-                                ? new[] { new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType) }
+                                ? new[] { new Tuple<MemberInfo?, Type>(null, targetEntityType.ClrType) }
                                 : relationshipCandidate.InverseProperties.Select(
-                                    n => new Tuple<MemberInfo, Type>(n, targetEntityType.ClrType)));
+                                    n => new Tuple<MemberInfo?, Type>(n, targetEntityType.ClrType)));
                     }
 
                     foreach (var navigationProperty in relationshipCandidate.NavigationProperties.ToList())
                     {
-                        var existingNavigation = entityType.FindDeclaredNavigation(navigationProperty.GetSimpleMemberName());
-                        if (existingNavigation != null
-                            && existingNavigation.ForeignKey.DeclaringEntityType.Builder
-                                .HasNoRelationship(existingNavigation.ForeignKey)
-                            == null
-                            && existingNavigation.ForeignKey.Builder.HasNavigation(
-                                (string)null, existingNavigation.IsDependentToPrincipal())
-                            == null)
-                        {
-                            // Navigations of higher configuration source are not ambiguous
-                            relationshipCandidate.NavigationProperties.Remove(navigationProperty);
-                        }
+                        RemoveNavigation(
+                            navigationProperty, entityType, relationshipCandidate.NavigationProperties);
                     }
 
                     foreach (var inverseProperty in relationshipCandidate.InverseProperties.ToList())
                     {
-                        var existingInverse = targetEntityType.FindDeclaredNavigation(inverseProperty.GetSimpleMemberName());
-                        if (existingInverse != null
-                            && existingInverse.ForeignKey.DeclaringEntityType.Builder
-                                .HasNoRelationship(existingInverse.ForeignKey)
-                            == null
-                            && existingInverse.ForeignKey.Builder.HasNavigation(
-                                (string)null, existingInverse.IsDependentToPrincipal())
-                            == null)
-                        {
-                            // Navigations of higher configuration source are not ambiguous
-                            relationshipCandidate.InverseProperties.Remove(inverseProperty);
-                        }
+                        RemoveNavigation(
+                            inverseProperty, targetEntityType, relationshipCandidate.InverseProperties);
                     }
 
                     if (!isAmbiguousOnBase)
@@ -616,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 foreach (var navigation in relationshipCandidate.NavigationProperties)
                 {
-                    if (targetEntityType.Builder == null
+                    if (!targetEntityType.IsInModel
                         && !targetEntityType.Model.IsOwned(targetEntityType.ClrType))
                     {
                         continue;
@@ -628,23 +618,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         continue;
                     }
 
-                    var targetOwned = targetEntityType.Model.IsOwned(targetEntityType.ClrType)
-                        && !entityType.IsInOwnershipPath(targetEntityType);
+                    var targetOwned = (!entityType.IsInOwnershipPath(targetEntityType)
+                        && (targetEntityType.Model.IsOwned(targetEntityType.ClrType)
+                            || (targetEntityType.HasSharedClrType
+                                && targetEntityType.Model.FindEntityTypes(targetEntityType.ClrType).Any(e => e.IsOwned()))));
 
                     var inverse = relationshipCandidate.InverseProperties.SingleOrDefault();
                     if (inverse == null)
                     {
                         if (targetOwned)
                         {
-                            entityTypeBuilder.HasOwnership(
-                                targetEntityType.ClrType,
-                                navigation);
+                            entityTypeBuilder.HasOwnership(targetEntityType.ClrType, navigation);
                         }
                         else
                         {
-                            entityTypeBuilder.HasRelationship(
-                                targetEntityType,
-                                navigation);
+                            entityTypeBuilder.HasRelationship(targetEntityType, navigation);
                         }
                     }
                     else
@@ -673,17 +661,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         if (targetOwned)
                         {
-                            entityTypeBuilder.HasOwnership(
-                                targetEntityType.ClrType,
-                                navigation,
-                                inverse);
+                            entityTypeBuilder.HasOwnership(targetEntityType.ClrType, navigation, inverse);
                         }
-                        else
+                        else if (entityTypeBuilder.HasRelationship(targetEntityType, navigation, inverse) == null)
                         {
-                            entityTypeBuilder.HasRelationship(
-                                targetEntityType,
-                                navigation,
-                                inverse);
+                            var navigationTargetType = navigation.PropertyType.TryGetSequenceType();
+                            var inverseTargetType = inverse.PropertyType.TryGetSequenceType();
+                            if (navigationTargetType == targetEntityType.ClrType
+                                && inverseTargetType == entityType.ClrType)
+                            {
+                                entityTypeBuilder.HasSkipNavigation(
+                                    navigation, targetEntityType, inverse, collections: true, onDependent: false);
+                            }
                         }
                     }
                 }
@@ -699,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         foreach (var inverse in relationshipCandidate.InverseProperties)
                         {
-                            if (targetEntityType.Builder == null)
+                            if (!targetEntityType.IsInModel)
                             {
                                 continue;
                             }
@@ -710,9 +699,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                 continue;
                             }
 
-                            targetEntityType.Builder.HasRelationship(
-                                entityTypeBuilder.Metadata,
-                                inverse);
+                            targetEntityType.Builder.HasRelationship(entityTypeBuilder.Metadata, inverse);
                         }
                     }
                 }
@@ -720,40 +707,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var unusedEntityType in unusedEntityTypes)
             {
-                if (IsCandidateUnusedOwnedType(unusedEntityType)
-                    && unusedEntityType.DefiningEntityType.FindNavigation(unusedEntityType.DefiningNavigationName) == null)
+                if (IsImplicitlyCreatedUnusedSharedType(unusedEntityType))
                 {
                     entityTypeBuilder.ModelBuilder.HasNoEntityType(unusedEntityType);
                 }
             }
         }
 
-        /// <summary>
-        ///     Called after an entity type is added to the model.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        private void RemoveNavigation(
+            PropertyInfo navigationProperty,
+            IConventionEntityType declaringEntityType,
+            List<PropertyInfo> toRemoveFrom)
+        {
+            var navigationPropertyName = navigationProperty.GetSimpleMemberName();
+            var existingNavigation = declaringEntityType.FindDeclaredNavigation(navigationPropertyName);
+            if (existingNavigation != null)
+            {
+                if (existingNavigation.ForeignKey.DeclaringEntityType.Builder
+                        .HasNoRelationship(existingNavigation.ForeignKey)
+                    == null
+                    && existingNavigation.ForeignKey.Builder.HasNavigation(
+                        (string?)null, existingNavigation.IsOnDependent)
+                    == null)
+                {
+                    // Navigations of higher configuration source are not ambiguous
+                    toRemoveFrom.Remove(navigationProperty);
+                }
+            }
+            else
+            {
+                var skipNavigation = declaringEntityType.FindDeclaredSkipNavigation(navigationPropertyName);
+                if (skipNavigation != null)
+                {
+                    var inverse = skipNavigation.Inverse;
+                    if (declaringEntityType.Builder.HasNoSkipNavigation(skipNavigation) == null)
+                    {
+                        // Navigations of higher configuration source are not ambiguous
+                        toRemoveFrom.Remove(navigationProperty);
+                    }
+                    else if (inverse?.IsInModel == true)
+                    {
+                        inverse.DeclaringEntityType.Builder.HasNoSkipNavigation(inverse);
+                    }
+                }
+            }
+        }
+
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeAdded(
-            IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionContext<IConventionEntityTypeBuilder> context)
             => DiscoverRelationships(entityTypeBuilder, context);
 
-        /// <summary>
-        ///     Called after the base type of an entity type changes.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="newBaseType"> The new base entity type. </param>
-        /// <param name="oldBaseType"> The old base entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
-            var oldBaseTypeBuilder = oldBaseType?.Builder;
-            if (oldBaseTypeBuilder != null)
+            if (oldBaseType?.IsInModel == true)
             {
-                DiscoverRelationships(oldBaseTypeBuilder, context);
+                DiscoverRelationships(oldBaseType.Builder, context);
             }
 
             var entityType = entityTypeBuilder.Metadata;
@@ -786,31 +801,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var relatedEntityType in relatedEntityTypes)
             {
-                var relatedEntityTypeBuilder = relatedEntityType.Builder;
-                DiscoverRelationships(relatedEntityTypeBuilder, context);
+                if (relatedEntityType.IsInModel)
+                {
+                    DiscoverRelationships(relatedEntityType.Builder, context);
+                }
             }
         }
 
-        /// <summary>
-        ///     Called after a navigation is removed from the entity type.
-        /// </summary>
-        /// <param name="sourceEntityTypeBuilder"> The builder for the entity type that contained the navigation. </param>
-        /// <param name="targetEntityTypeBuilder"> The builder for the target entity type of the navigation. </param>
-        /// <param name="navigationName"> The navigation name. </param>
-        /// <param name="memberInfo"> The member used for by the navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessNavigationRemoved(
             IConventionEntityTypeBuilder sourceEntityTypeBuilder,
             IConventionEntityTypeBuilder targetEntityTypeBuilder,
             string navigationName,
-            MemberInfo memberInfo,
+            MemberInfo? memberInfo,
             IConventionContext<string> context)
         {
-            if ((targetEntityTypeBuilder.Metadata.Builder != null
+            if ((targetEntityTypeBuilder.Metadata.IsInModel
                     || !sourceEntityTypeBuilder.ModelBuilder.IsIgnored(targetEntityTypeBuilder.Metadata.Name))
                 && IsCandidateNavigationProperty(sourceEntityTypeBuilder, navigationName, memberInfo))
             {
-                Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo, context);
+                Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo!, context);
             }
         }
 
@@ -835,7 +845,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         [ContractAnnotation("memberInfo:null => false")]
         private static bool IsCandidateNavigationProperty(
-            IConventionEntityTypeBuilder sourceEntityTypeBuilder, string navigationName, MemberInfo memberInfo)
+            IConventionEntityTypeBuilder? sourceEntityTypeBuilder,
+            string navigationName,
+            MemberInfo? memberInfo)
             => memberInfo != null
                 && sourceEntityTypeBuilder?.IsIgnored(navigationName) == false
                 && sourceEntityTypeBuilder.Metadata.FindProperty(navigationName) == null
@@ -844,21 +856,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && (!sourceEntityTypeBuilder.Metadata.IsKeyless
                     || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
 
-        /// <summary>
-        ///     Called after an entity type is ignored.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="name"> The name of the ignored entity type. </param>
-        /// <param name="type"> The ignored entity type. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeIgnored(
-            IConventionModelBuilder modelBuilder, string name, Type type, IConventionContext<string> context)
+            IConventionModelBuilder modelBuilder,
+            string name,
+            Type? type,
+            IConventionContext<string> context)
         {
+            if (type == null)
+            {
+                return;
+            }
+
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                // Only run the convention if an ambiguity might have been removed
                 var ambiguityRemoved = RemoveAmbiguous(entityType, type);
-
                 if (ambiguityRemoved)
                 {
                     DiscoverRelationships(entityType.Builder, context);
@@ -866,14 +878,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        /// <summary>
-        ///     Called after an entity type member is ignored.
-        /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="name"> The name of the ignored member. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessEntityTypeMemberIgnored(
-            IConventionEntityTypeBuilder entityTypeBuilder, string name, IConventionContext<string> context)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionContext<string> context)
         {
             var anyAmbiguityRemoved = false;
             foreach (var derivedEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
@@ -922,22 +931,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return true;
         }
 
-        /// <summary>
-        ///     Called after a navigation is added to the entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
-            IConventionContext<IConventionNavigation> context)
+            IConventionNavigationBuilder navigationBuilder,
+            IConventionContext<IConventionNavigationBuilder> context)
         {
+            var navigation = navigationBuilder.Metadata;
             foreach (var entityType in navigation.DeclaringEntityType.GetDerivedTypesInclusive())
             {
+                var targetEntityType = navigation.TargetEntityType;
                 // Only run the convention if an ambiguity might have been removed
-                var ambiguityRemoved = RemoveAmbiguous(entityType, navigation.GetTargetType().ClrType);
-                var targetAmbiguityRemoved = RemoveAmbiguous(navigation.GetTargetType(), entityType.ClrType);
+                var ambiguityRemoved = RemoveAmbiguous(entityType, targetEntityType.ClrType);
+                var targetAmbiguityRemoved = RemoveAmbiguous(targetEntityType, entityType.ClrType);
 
                 if (ambiguityRemoved)
                 {
@@ -946,27 +951,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (targetAmbiguityRemoved)
                 {
-                    DiscoverRelationships(navigation.GetTargetType().Builder, context);
+                    DiscoverRelationships(targetEntityType.Builder, context);
                 }
             }
 
-            if (relationshipBuilder.Metadata.Builder == null)
+            if (!navigationBuilder.Metadata.IsInModel)
             {
                 context.StopProcessing();
             }
         }
 
-        /// <summary>
-        ///     Called after the ownership value for a foreign key is changed.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <inheritdoc />
         public virtual void ProcessForeignKeyOwnershipChanged(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionContext<IConventionRelationshipBuilder> context)
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionContext<bool?> context)
             => DiscoverRelationships(relationshipBuilder.Metadata.DeclaringEntityType.Builder, context);
 
-        private Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
+        private Type? FindCandidateNavigationPropertyType(PropertyInfo propertyInfo)
             => Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
         private ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(IConventionEntityType entityType)
@@ -978,15 +979,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(MemberInfoNameComparer.Instance);
-            if (entityType.HasClrType())
+            foreach (var propertyInfo in entityType.GetRuntimeProperties().Values.OrderBy(p => p.Name))
             {
-                foreach (var propertyInfo in entityType.GetRuntimeProperties().Values.OrderBy(p => p.Name))
+                var targetType = FindCandidateNavigationPropertyType(propertyInfo);
+                if (targetType != null)
                 {
-                    var targetType = FindCandidateNavigationPropertyType(propertyInfo);
-                    if (targetType != null)
-                    {
-                        dictionaryBuilder[propertyInfo] = targetType;
-                    }
+                    dictionaryBuilder[propertyInfo] = targetType;
                 }
             }
 
@@ -1000,10 +998,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
             => entityTypeBuilder.HasAnnotation(CoreAnnotationNames.NavigationCandidates, navigationCandidates);
 
-        private static bool IsCandidateUnusedOwnedType(IConventionEntityType entityType)
-            => entityType.HasDefiningNavigation() && !entityType.GetForeignKeys().Any();
+        private static bool IsImplicitlyCreatedUnusedSharedType(IConventionEntityType entityType)
+            => entityType.HasSharedClrType
+            && entityType.GetConfigurationSource() == ConfigurationSource.Convention
+            && !entityType.GetForeignKeys().Any()
+            && !entityType.GetReferencingForeignKeys().Any();
 
-        private static bool IsAmbiguous(IConventionEntityType entityType, MemberInfo navigationProperty)
+        private static bool IsAmbiguous(IConventionEntityType? entityType, MemberInfo navigationProperty)
         {
             while (entityType != null)
             {
@@ -1019,7 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return false;
         }
 
-        private static bool HasAmbiguousNavigationsTo(IConventionEntityType sourceEntityType, Type targetClrType)
+        private static bool HasAmbiguousNavigationsTo(IConventionEntityType? sourceEntityType, Type targetClrType)
         {
             while (sourceEntityType != null)
             {
@@ -1037,12 +1038,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static bool HasDeclaredAmbiguousNavigationsTo(IConventionEntityType sourceEntityType, Type targetClrType)
             => GetAmbiguousNavigations(sourceEntityType)?.ContainsValue(targetClrType) == true;
 
-        private static ImmutableSortedDictionary<MemberInfo, Type> GetAmbiguousNavigations(IConventionEntityType entityType)
+        private static ImmutableSortedDictionary<MemberInfo, Type>? GetAmbiguousNavigations(IConventionEntityType entityType)
             => entityType.FindAnnotation(CoreAnnotationNames.AmbiguousNavigations)?.Value
                 as ImmutableSortedDictionary<MemberInfo, Type>;
 
         private static void AddAmbiguous(
-            IConventionEntityTypeBuilder entityTypeBuilder, IReadOnlyList<PropertyInfo> navigationProperties, Type targetType)
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IReadOnlyList<PropertyInfo> navigationProperties,
+            Type targetType)
         {
             if (navigationProperties.Count == 0)
             {
@@ -1094,18 +1097,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ImmutableSortedDictionary<MemberInfo, Type> ambiguousNavigations)
             => entityTypeBuilder.HasAnnotation(CoreAnnotationNames.AmbiguousNavigations, ambiguousNavigations);
 
-        private class MemberInfoNameComparer : IComparer<MemberInfo>
+        private sealed class MemberInfoNameComparer : IComparer<MemberInfo>
         {
-            public static readonly MemberInfoNameComparer Instance = new MemberInfoNameComparer();
+            public static readonly MemberInfoNameComparer Instance = new();
 
             private MemberInfoNameComparer()
             {
             }
 
-            public int Compare(MemberInfo x, MemberInfo y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
+            public int Compare(MemberInfo? x, MemberInfo? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return 0;
+                }
+
+                if (x is null)
+                {
+                    return -1;
+                }
+
+                if (y is null)
+                {
+                    return 1;
+                }
+
+                return StringComparer.Ordinal.Compare(x.Name, y.Name);
+            }
         }
 
-        private class RelationshipCandidate
+        [DebuggerDisplay("{DebuggerDisplay(),nq}")]
+        private sealed class RelationshipCandidate
         {
             public RelationshipCandidate(
                 IConventionEntityTypeBuilder targetTypeBuilder,
@@ -1120,6 +1142,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public IConventionEntityTypeBuilder TargetTypeBuilder { [DebuggerStepThrough] get; }
             public List<PropertyInfo> NavigationProperties { [DebuggerStepThrough] get; }
             public List<PropertyInfo> InverseProperties { [DebuggerStepThrough] get; }
+
+            private string DebuggerDisplay()
+                => TargetTypeBuilder.Metadata.ToDebugString(MetadataDebugStringOptions.SingleLineDefault)
+                    + ": ["
+                    + string.Join(", ", NavigationProperties.Select(p => p.Name))
+                    + "] - ["
+                    + string.Join(", ", InverseProperties.Select(p => p.Name))
+                    + "]";
         }
     }
 }

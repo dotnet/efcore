@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     <para>
-    ///         Options set at the <see cref="IServiceProvider" /> singleton level to control how\
+    ///         Options set at the <see cref="IServiceProvider" /> singleton level to control how
     ///         messages are logged and/or thrown in exceptions.
     ///     </para>
     ///     <para>

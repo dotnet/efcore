@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -17,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public RelationshipsSnapshot(InternalEntityEntry entry)
             {
-                _values = ((EntityType)entry.EntityType).RelationshipSnapshotFactory(entry);
+                _values = ((IRuntimeEntityType)entry.EntityType).RelationshipSnapshotFactory(entry);
             }
 
-            public object GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)
+            public object? GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)
                 => IsEmpty ? entry[propertyBase] : _values[propertyBase.GetRelationshipIndex()];
 
             public T GetValue<T>(InternalEntityEntry entry, IPropertyBase propertyBase, int index)
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ? entry.GetCurrentValue<T>(propertyBase)
                     : _values.GetValue<T>(index);
 
-            public void SetValue(IPropertyBase propertyBase, object value)
+            public void SetValue(IPropertyBase propertyBase, object? value)
             {
                 if (value == null)
                 {
@@ -39,17 +39,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
                 }
 
-                Debug.Assert(!IsEmpty);
-                Debug.Assert(!(propertyBase is INavigation) || !((INavigation)propertyBase).IsCollection());
+                Check.DebugAssert(!IsEmpty, "relationship snapshot is empty");
+                Check.DebugAssert(
+                    propertyBase is not INavigation { IsCollection : true },
+                    $"property {propertyBase} is is not reference navigation");
 
                 _values[propertyBase.GetRelationshipIndex()] = SnapshotValue(propertyBase, value);
             }
 
-            private static object SnapshotValue(IPropertyBase propertyBase, object value)
+            private static object? SnapshotValue(IPropertyBase propertyBase, object? value)
             {
                 if (propertyBase is IProperty property)
                 {
-                    var comparer = property.GetKeyValueComparer() ?? property.GetTypeMapping().KeyComparer;
+                    var comparer = property.GetKeyValueComparer();
 
                     if (comparer != null)
                     {
@@ -65,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var index = propertyBase.GetRelationshipIndex();
                 if (index != -1)
                 {
-                    ((HashSet<object>)_values[index])?.Remove(removedEntity);
+                    ((HashSet<object>)_values[index]!)?.Remove(removedEntity);
                 }
             }
 
@@ -96,17 +98,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             private HashSet<object> GetOrCreateCollection(int index)
             {
-                var snapshot = (HashSet<object>)_values[index];
+                var snapshot = (HashSet<object>?)_values[index];
                 if (snapshot == null)
                 {
-                    snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
+                    snapshot = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
                     _values[index] = snapshot;
                 }
 
                 return snapshot;
             }
 
-            public bool IsEmpty => _values == null;
+            public bool IsEmpty
+                => _values == null;
         }
     }
 }

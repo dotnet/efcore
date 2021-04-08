@@ -3,47 +3,63 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class GetValueOrDefaultTranslator : IMethodCallTranslator
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public GetValueOrDefaultTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+            Check.NotNull(logger, nameof(logger));
+
             if (method.Name == nameof(Nullable<int>.GetValueOrDefault)
+                && instance != null
                 && method.ReturnType.IsNumeric())
             {
                 return _sqlExpressionFactory.Coalesce(
                     instance,
                     arguments.Count == 0
-                        ? GetDefaultConstant(method.ReturnType)
+                        ? new SqlConstantExpression(method.ReturnType.GetDefaultValueConstant(), null)
                         : arguments[0],
                     instance.TypeMapping);
             }
 
             return null;
         }
-
-        private SqlConstantExpression GetDefaultConstant(Type type)
-        {
-            return (SqlConstantExpression)_generateDefaultValueConstantMethod
-                .MakeGenericMethod(type).Invoke(null, Array.Empty<object>());
-        }
-
-        private static readonly MethodInfo _generateDefaultValueConstantMethod =
-            typeof(GetValueOrDefaultTranslator).GetTypeInfo().GetDeclaredMethod(nameof(GenerateDefaultValueConstant));
-
-        private static SqlConstantExpression GenerateDefaultValueConstant<TDefault>()
-            => new SqlConstantExpression(Expression.Constant(default(TDefault)), null);
     }
 }

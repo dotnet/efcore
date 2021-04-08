@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -36,8 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     loggerFactory,
                     new LoggingOptions(),
                     new DiagnosticListener("Fake"),
-                    new TestRelationalLoggingDefinitions()),
-                false);
+                    new TestRelationalLoggingDefinitions(),
+                    new NullDbContextLogger()),
+                false,
+                new RelationalSqlGenerationHelper(
+                    new RelationalSqlGenerationHelperDependencies()));
 
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());
         }
@@ -57,12 +61,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             public Guid TransactionId { get; } = Guid.NewGuid();
 
-            public void Commit() => throw new NotImplementedException();
-            public void Dispose() => throw new NotImplementedException();
-            public void Rollback() => throw new NotImplementedException();
-            public Task CommitAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-            public Task RollbackAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-            public ValueTask DisposeAsync() => throw new NotImplementedException();
+            public void Commit()
+                => throw new NotImplementedException();
+
+            public void Dispose()
+                => throw new NotImplementedException();
+
+            public void Rollback()
+                => throw new NotImplementedException();
+
+            public Task CommitAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public Task RollbackAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public ValueTask DisposeAsync()
+                => throw new NotImplementedException();
         }
 
         private const string ConnectionString = "Fake Connection String";

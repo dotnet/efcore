@@ -2,8 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
+using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -15,16 +19,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class DbFunctionParameter : IMutableDbFunctionParameter, IConventionDbFunctionParameter
+    public class DbFunctionParameter :
+        ConventionAnnotatable,
+        IMutableDbFunctionParameter,
+        IConventionDbFunctionParameter,
+        IRuntimeDbFunctionParameter
     {
-        private readonly IMutableDbFunction _function;
-        private readonly string _name;
-        private readonly Type _clrType;
-        private string _storeType;
-        private RelationalTypeMapping _typeMapping;
+        private string? _storeType;
+        private RelationalTypeMapping? _typeMapping;
+        private bool _propagatesNullability;
 
         private ConfigurationSource? _storeTypeConfigurationSource;
         private ConfigurationSource? _typeMappingConfigurationSource;
+        private ConfigurationSource? _propagatesNullabilityConfigurationSource;
+        private InternalDbFunctionParameterBuilder? _builder;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,15 +40,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DbFunctionParameter([NotNull] IMutableDbFunction function, [NotNull] string name, [NotNull] Type clrType)
+        public DbFunctionParameter(
+            DbFunction function,
+            string name,
+            Type clrType)
         {
+            Check.NotNull(function, nameof(function));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(clrType, nameof(clrType));
-            Check.NotNull(function, nameof(function));
 
-            _name = name;
-            _function = function;
-            _clrType = clrType;
+            Name = name;
+            Function = function;
+            ClrType = clrType;
+            _builder = new InternalDbFunctionParameterBuilder(this, function.Builder.ModelBuilder);
         }
 
         /// <summary>
@@ -49,7 +61,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionDbFunctionParameterBuilder Builder => new DbFunctionParameterBuilder(this);
+        public virtual InternalDbFunctionParameterBuilder Builder
+        {
+            [DebuggerStepThrough]
+            get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,9 +73,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string StoreType
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
+
+        /// <summary>
+        ///     Indicates whether the function parameter is read-only.
+        /// </summary>
+        public override bool IsReadOnly => ((Annotatable)Function.Model).IsReadOnly;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DbFunction Function { get; }
+
+        /// <inheritdoc />
+        public virtual string Name { get; }
+
+        /// <inheritdoc />
+        public virtual Type ClrType { get; }
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        public virtual ConfigurationSource GetConfigurationSource()
+            => Function.GetConfigurationSource();
+
+        /// <inheritdoc />
+        public virtual IStoreFunctionParameter StoreFunctionParameter { get; set; } = default!;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string? StoreType
         {
-            get => _storeType;
+            get => _storeType ?? TypeMapping?.StoreType;
             set => SetStoreType(value, ConfigurationSource.Explicit);
         }
 
@@ -69,11 +130,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetStoreType([CanBeNull] string storeType, ConfigurationSource configurationSource)
+        public virtual string? SetStoreType(string? storeType, ConfigurationSource configurationSource)
         {
             _storeType = storeType;
 
-            UpdateStoreTypeConfigurationSource(configurationSource);
+            _storeTypeConfigurationSource = configurationSource.Max(_storeTypeConfigurationSource);
+
+            return storeType;
         }
 
         /// <summary>
@@ -82,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        private void UpdateStoreTypeConfigurationSource(ConfigurationSource configurationSource)
-            => _storeTypeConfigurationSource = configurationSource.Max(_storeTypeConfigurationSource);
+        public virtual ConfigurationSource? GetStoreTypeConfigurationSource()
+            => _storeTypeConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,17 +154,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetStoreTypeConfigurationSource() => _storeTypeConfigurationSource;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual RelationalTypeMapping TypeMapping
+        public virtual RelationalTypeMapping? TypeMapping
         {
-            get => _typeMapping;
+            get => IsReadOnly
+                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static parameter =>
+                    {
+                        var relationalTypeMappingSource =
+                            (IRelationalTypeMappingSource)((IModel)parameter.Function.Model).GetModelDependencies().TypeMappingSource;
+                        return !string.IsNullOrEmpty(parameter._storeType)
+                                    ? relationalTypeMappingSource.FindMapping(parameter._storeType)!
+                                    : relationalTypeMappingSource.FindMapping(parameter.ClrType)!;
+                    })
+                    : _typeMapping;
             set => SetTypeMapping(value, ConfigurationSource.Explicit);
         }
 
@@ -111,15 +175,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetTypeMapping(RelationalTypeMapping typeMapping, ConfigurationSource configurationSource)
+        public virtual RelationalTypeMapping? SetTypeMapping(
+            RelationalTypeMapping? typeMapping,
+            ConfigurationSource configurationSource)
         {
             _typeMapping = typeMapping;
+            _typeMappingConfigurationSource = configurationSource.Max(_typeMappingConfigurationSource);
 
-            UpdateTypeMappingConfigurationSource(configurationSource);
+            return typeMapping;
         }
 
-        private void UpdateTypeMappingConfigurationSource(ConfigurationSource configurationSource)
-            => _typeMappingConfigurationSource = configurationSource.Max(_typeMappingConfigurationSource);
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool PropagatesNullability
+        {
+            get => _propagatesNullability;
+            set => SetPropagatesNullability(value, ConfigurationSource.Explicit);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -127,7 +203,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource? GetTypeMappingConfigurationSource() => _typeMappingConfigurationSource;
+        public virtual bool SetPropagatesNullability(bool propagatesNullability, ConfigurationSource configurationSource)
+        {
+            if (!Function.IsScalar)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.NonScalarFunctionParameterCannotPropagatesNullability(Name, Function.Name));
+            }
+
+            _propagatesNullability = propagatesNullability;
+            _propagatesNullabilityConfigurationSource = configurationSource.Max(_storeTypeConfigurationSource);
+
+            return propagatesNullability;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,7 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionDbFunction IConventionDbFunctionParameter.Function => (IConventionDbFunction)_function;
+        public virtual ConfigurationSource? GetPropagatesNullabilityConfigurationSource()
+            => _propagatesNullabilityConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,7 +232,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IDbFunction IDbFunctionParameter.Function => _function;
+        public virtual ConfigurationSource? GetTypeMappingConfigurationSource()
+            => _typeMappingConfigurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -151,40 +241,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IMutableDbFunction IMutableDbFunctionParameter.Function => _function;
+        public override string ToString()
+            => ((IDbFunctionParameter)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        string IDbFunctionParameter.Name => _name;
+        /// <inheritdoc />
+        IConventionDbFunctionParameterBuilder IConventionDbFunctionParameter.Builder
+        {
+            [DebuggerStepThrough]
+            get => Builder;
+        }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        Type IDbFunctionParameter.ClrType => _clrType;
+        /// <inheritdoc />
+        IConventionDbFunction IConventionDbFunctionParameter.Function
+        {
+            [DebuggerStepThrough]
+            get => Function;
+        }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        void IConventionDbFunctionParameter.SetStoreType(string storeType, bool fromDataAnnotation)
-            => SetStoreType(storeType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        /// <inheritdoc />
+        IReadOnlyDbFunction IReadOnlyDbFunctionParameter.Function
+        {
+            [DebuggerStepThrough]
+            get => Function;
+        }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        void IConventionDbFunctionParameter.SetTypeMapping(RelationalTypeMapping typeMapping, bool fromDataAnnotation)
+        /// <inheritdoc />
+        IMutableDbFunction IMutableDbFunctionParameter.Function
+        {
+            [DebuggerStepThrough]
+            get => Function;
+        }
+
+        /// <inheritdoc />
+        IDbFunction IDbFunctionParameter.Function
+        {
+            [DebuggerStepThrough]
+            get => Function;
+        }
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        RelationalTypeMapping? IConventionDbFunctionParameter.SetTypeMapping(RelationalTypeMapping? typeMapping, bool fromDataAnnotation)
             => SetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <inheritdoc />
+        string IDbFunctionParameter.StoreType
+        {
+            [DebuggerStepThrough]
+            get => StoreType!;
+        }
+
+        /// <inheritdoc />
+        [DebuggerStepThrough]
+        string? IConventionDbFunctionParameter.SetStoreType(string? storeType, bool fromDataAnnotation)
+            => SetStoreType(storeType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

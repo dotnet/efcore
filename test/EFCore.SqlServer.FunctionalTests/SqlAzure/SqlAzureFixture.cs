@@ -9,7 +9,11 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
     public class SqlAzureFixture : SharedStoreFixtureBase<AdventureWorksContext>
     {
         protected override string StoreName { get; } = "adventureworks";
-        protected override ITestStoreFactory TestStoreFactory => SqlServerAdventureWorksTestStoreFactory.Instance;
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerAdventureWorksTestStoreFactory.Instance;
+
+        public TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)ListLoggerFactory;
     }
 }

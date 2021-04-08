@@ -144,4 +144,5 @@
     <Rule Id="SA1647" Action="Warning" />
     <Rule Id="SA1650" Action="Warning" />
   </Rules>
+  <Include Path="../../rulesets/FxCop.ruleset" Action="Default" />
 </RuleSet>

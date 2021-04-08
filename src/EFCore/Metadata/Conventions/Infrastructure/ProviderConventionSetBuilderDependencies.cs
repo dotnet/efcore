@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -42,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class ProviderConventionSetBuilderDependencies
+    public sealed record ProviderConventionSetBuilderDependencies
     {
         private readonly ICurrentDbContext _currentContext;
 
@@ -73,15 +71,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public ProviderConventionSetBuilderDependencies(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IConstructorBindingFactory constructorBindingFactory,
-            [NotNull] IParameterBindingFactories parameterBindingFactories,
-            [NotNull] IMemberClassifier memberClassifier,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger,
-            [NotNull] IDbSetFinder setFinder,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IModelValidator validator)
+            ITypeMappingSource typeMappingSource,
+            IConstructorBindingFactory constructorBindingFactory,
+            IParameterBindingFactories parameterBindingFactories,
+            IMemberClassifier memberClassifier,
+            IDiagnosticsLogger<DbLoggerCategory.Model> logger,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger,
+            IDbSetFinder setFinder,
+            ICurrentDbContext currentContext,
+            IModelValidator validator)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(constructorBindingFactory, nameof(constructorBindingFactory));
@@ -93,150 +91,83 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             Check.NotNull(validator, nameof(validator));
 
             TypeMappingSource = typeMappingSource;
+            ConstructorBindingFactory = constructorBindingFactory;
             ParameterBindingFactories = parameterBindingFactories;
             MemberClassifier = memberClassifier;
-            ConstructorBindingFactory = constructorBindingFactory;
             Logger = logger;
             ValidationLogger = validationLogger;
             SetFinder = setFinder;
             _currentContext = currentContext;
+#pragma warning disable CS0618 // Type or member is obsolete
             ModelValidator = validator;
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        public ITypeMappingSource TypeMappingSource { get; }
+        public ITypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     The parameter binding factories.
         /// </summary>
-        public IParameterBindingFactories ParameterBindingFactories { get; }
+        public IParameterBindingFactories ParameterBindingFactories { get; init; }
 
         /// <summary>
         ///     The member classifier.
         /// </summary>
-        public IMemberClassifier MemberClassifier { get; }
+        [EntityFrameworkInternal]
+        public IMemberClassifier MemberClassifier { get; init; }
 
         /// <summary>
         ///     The constructor binding factory.
         /// </summary>
-        public IConstructorBindingFactory ConstructorBindingFactory { get; }
+        public IConstructorBindingFactory ConstructorBindingFactory { get; init; }
 
         /// <summary>
         ///     The model logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Model> Logger { get; init; }
 
         /// <summary>
         ///     The model validation logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; init; }
 
         /// <summary>
         ///     The set finder.
         /// </summary>
-        public IDbSetFinder SetFinder { get; }
+        public IDbSetFinder SetFinder { get; init; }
 
         /// <summary>
         ///     The current context instance.
         /// </summary>
-        public Type ContextType => _currentContext.Context.GetType();
+        public Type ContextType
+            => _currentContext.Context.GetType();
 
         /// <summary>
         ///     The model validator.
         /// </summary>
-        public IModelValidator ModelValidator { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderConventionSetBuilderDependencies With([NotNull] ITypeMappingSource typeMappingSource)
-            => new ProviderConventionSetBuilderDependencies(
-                typeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
-                SetFinder, _currentContext, ModelValidator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="constructorBindingFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderConventionSetBuilderDependencies With([NotNull] IConstructorBindingFactory constructorBindingFactory)
-            => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, constructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
-                SetFinder, _currentContext, ModelValidator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="logger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderConventionSetBuilderDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-            => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, logger, ValidationLogger,
-                SetFinder, _currentContext, ModelValidator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="validationLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderConventionSetBuilderDependencies With(
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
-            => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, validationLogger,
-                SetFinder, _currentContext, ModelValidator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="parameterBindingFactories"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderConventionSetBuilderDependencies With([NotNull] IParameterBindingFactories parameterBindingFactories)
-            => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, parameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
-                SetFinder, _currentContext, ModelValidator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="memberClassifier"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderConventionSetBuilderDependencies With([NotNull] IMemberClassifier memberClassifier)
-            => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, memberClassifier, Logger, ValidationLogger,
-                SetFinder, _currentContext, ModelValidator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderConventionSetBuilderDependencies With([NotNull] IDbSetFinder setFinder)
-            => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
-                setFinder, _currentContext, ModelValidator);
+        [Obsolete("The validation is no longer performed by a convention")]
+        public IModelValidator ModelValidator { get; init; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderConventionSetBuilderDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
-                SetFinder, currentContext, ModelValidator);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="validator"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ProviderConventionSetBuilderDependencies With([NotNull] IModelValidator validator)
-            => new ProviderConventionSetBuilderDependencies(
-                TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, MemberClassifier, Logger, ValidationLogger,
-                SetFinder, _currentContext, validator);
+        public ProviderConventionSetBuilderDependencies With(ICurrentDbContext currentContext)
+#pragma warning disable CS0618 // Type or member is obsolete
+            => new(
+                TypeMappingSource,
+                ConstructorBindingFactory,
+                ParameterBindingFactories,
+                MemberClassifier,
+                Logger,
+                ValidationLogger,
+                SetFinder,
+                currentContext,
+                ModelValidator);
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

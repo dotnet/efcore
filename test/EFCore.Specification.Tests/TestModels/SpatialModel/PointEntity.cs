@@ -13,5 +13,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
         public Guid Id { get; set; }
         public Geometry Geometry { get; set; }
         public Point Point { get; set; }
+        public Point PointZ { get; set; }
+        public Point PointM { get; set; }
+        public Point PointZM { get; set; }
     }
 }

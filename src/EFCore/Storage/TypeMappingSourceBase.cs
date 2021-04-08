@@ -3,7 +3,6 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected TypeMappingSourceBase([NotNull] TypeMappingSourceDependencies dependencies)
+        protected TypeMappingSourceBase(TypeMappingSourceDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -50,13 +49,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         ///     <para>
         ///         The mapping info is populated with as much information about the required type mapping as
-        ///         is available. Use all the information necessary to create the best mapping. Return <c>null</c>
+        ///         is available. Use all the information necessary to create the best mapping. Return <see langword="null" />
         ///         if no mapping is available.
         ///     </para>
         /// </summary>
         /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
-        /// <returns> The type mapping, or <c>null</c> if none could be found. </returns>
-        protected virtual CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
+        /// <returns> The type mapping, or <see langword="null" /> if none could be found. </returns>
+        protected virtual CoreTypeMapping? FindMapping(in TypeMappingInfo mappingInfo)
         {
             foreach (var plugin in Dependencies.Plugins)
             {
@@ -76,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="mapping"> The mapping, if any. </param>
         /// <param name="property"> The property, if any. </param>
         protected virtual void ValidateMapping(
-            [CanBeNull] CoreTypeMapping mapping,
-            [CanBeNull] IProperty property)
+            CoreTypeMapping? mapping,
+            IProperty? property)
         {
         }
 
@@ -90,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        public abstract CoreTypeMapping FindMapping(IProperty property);
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        public abstract CoreTypeMapping? FindMapping(IProperty property);
 
         /// <summary>
         ///     <para>
@@ -107,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        public abstract CoreTypeMapping FindMapping(Type type);
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        public abstract CoreTypeMapping? FindMapping(Type type);
 
         /// <summary>
         ///     <para>
@@ -124,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="member"> The field or property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        public abstract CoreTypeMapping FindMapping(MemberInfo member);
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        public abstract CoreTypeMapping? FindMapping(MemberInfo member);
     }
 }

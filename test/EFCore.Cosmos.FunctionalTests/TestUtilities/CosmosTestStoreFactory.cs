@@ -2,15 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class CosmosTestStoreFactory : ITestStoreFactory
     {
-        public static CosmosTestStoreFactory Instance { get; } = new CosmosTestStoreFactory();
+        public static CosmosTestStoreFactory Instance { get; } = new();
 
         protected CosmosTestStoreFactory()
         {
@@ -22,9 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .AddSingleton<TestStoreIndex>();
 
-        public TestStore Create(string storeName) => CosmosTestStore.Create(storeName);
+        public TestStore Create(string storeName)
+            => CosmosTestStore.Create(storeName);
 
-        public virtual TestStore GetOrCreate(string storeName) => CosmosTestStore.GetOrCreate(storeName);
+        public virtual TestStore GetOrCreate(string storeName)
+            => CosmosTestStore.GetOrCreate(storeName);
 
         public virtual ListLoggerFactory CreateListLoggerFactory(Func<string, bool> shouldLogCategory)
             => new TestSqlLoggerFactory(shouldLogCategory);

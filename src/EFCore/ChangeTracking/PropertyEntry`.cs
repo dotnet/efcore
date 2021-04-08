@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name)
+        public PropertyEntry(InternalEntityEntry internalEntry, string name)
             : base(internalEntry, name)
         {
         }
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public PropertyEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] IProperty property)
+        public PropertyEntry(InternalEntityEntry internalEntry, IProperty property)
             : base(internalEntry, property)
         {
         }
@@ -50,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="EntityEntry{TEntity}" /> to which this member belongs.
         /// </summary>
         /// <value> An entry for the entity that owns this member. </value>
-        public new virtual EntityEntry<TEntity> EntityEntry => new EntityEntry<TEntity>(InternalEntry);
+        public new virtual EntityEntry<TEntity> EntityEntry
+            => new(InternalEntry);
 
         /// <summary>
         ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual TProperty CurrentValue
         {
             get => InternalEntry.GetCurrentValue<TProperty>(Metadata);
-            [param: CanBeNull] set => base.CurrentValue = value;
+            set => base.CurrentValue = value;
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public new virtual TProperty OriginalValue
         {
             get => InternalEntry.GetOriginalValue<TProperty>(Metadata);
-            [param: CanBeNull] set => base.OriginalValue = value;
+            set => base.OriginalValue = value;
         }
     }
 }

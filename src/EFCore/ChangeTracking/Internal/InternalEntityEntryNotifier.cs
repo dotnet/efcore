@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InternalEntityEntryNotifier(
-            [CanBeNull] ILocalViewListener localViewListener,
-            [CanBeNull] IChangeDetector changeDetector,
-            [CanBeNull] INavigationFixer navigationFixer)
+            ILocalViewListener localViewListener,
+            IChangeDetector changeDetector,
+            INavigationFixer navigationFixer)
         {
             _localViewListener = localViewListener;
             _changeDetector = changeDetector;
@@ -86,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void NavigationReferenceChanged(
             InternalEntityEntry entry,
             INavigation navigation,
-            object oldValue,
-            object newValue)
+            object? oldValue,
+            object? newValue)
             => _navigationFixer.NavigationReferenceChanged(entry, navigation, oldValue, newValue);
 
         /// <summary>
@@ -98,10 +97,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void NavigationCollectionChanged(
             InternalEntityEntry entry,
-            INavigation navigation,
+            INavigationBase navigationBase,
             IEnumerable<object> added,
             IEnumerable<object> removed)
-            => _navigationFixer.NavigationCollectionChanged(entry, navigation, added, removed);
+            => _navigationFixer.NavigationCollectionChanged(entry, navigationBase, added, removed);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,10 +111,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void KeyPropertyChanged(
             InternalEntityEntry entry,
             IProperty property,
-            IReadOnlyList<IKey> keys,
-            IReadOnlyList<IForeignKey> foreignKeys,
-            object oldValue,
-            object newValue)
+            IEnumerable<IKey> keys,
+            IEnumerable<IForeignKey> foreignKeys,
+            object? oldValue,
+            object? newValue)
             => _navigationFixer.KeyPropertyChanged(entry, property, keys, foreignKeys, oldValue, newValue);
 
         /// <summary>

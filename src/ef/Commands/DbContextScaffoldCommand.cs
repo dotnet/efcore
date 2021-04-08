@@ -14,36 +14,41 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
             base.Validate();
 
-            if (string.IsNullOrEmpty(_connection.Value))
+            if (string.IsNullOrEmpty(_connection!.Value))
             {
                 throw new CommandException(Resources.MissingArgument(_connection.Name));
             }
 
-            if (string.IsNullOrEmpty(_provider.Value))
+            if (string.IsNullOrEmpty(_provider!.Value))
             {
                 throw new CommandException(Resources.MissingArgument(_provider.Name));
             }
         }
 
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var result = CreateExecutor().ScaffoldContext(
-                _provider.Value,
-                _connection.Value,
-                _outputDir.Value(),
-                _contextDir.Value(),
-                _context.Value(),
-                _schemas.Values,
-                _tables.Values,
-                _dataAnnotations.HasValue(),
-                _force.HasValue(),
-                _useDatabaseNames.HasValue());
-            if (_json.HasValue())
+            using var executor = CreateExecutor(args);
+            var result = executor.ScaffoldContext(
+                _provider!.Value!,
+                _connection!.Value!,
+                _outputDir!.Value(),
+                _contextDir!.Value(),
+                _context!.Value(),
+                _schemas!.Values!,
+                _tables!.Values!,
+                _dataAnnotations!.HasValue(),
+                _force!.HasValue(),
+                _useDatabaseNames!.HasValue(),
+                _namespace!.Value(),
+                _contextNamespace!.Value(),
+                _suppressOnConfiguring!.HasValue(),
+                _noPluralize!.HasValue());
+            if (_json!.HasValue())
             {
                 ReportJsonResults(result);
             }
 
-            return base.Execute();
+            return base.Execute(args);
         }
 
         private static void ReportJsonResults(IDictionary result)
@@ -52,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             Reporter.WriteData("  \"contextFile\": " + Json.Literal(result["ContextFile"] as string) + ",");
             Reporter.WriteData("  \"entityTypeFiles\": [");
 
-            var files = (IReadOnlyList<string>)result["EntityTypeFiles"];
+            var files = (IReadOnlyList<string?>)result["EntityTypeFiles"]!;
             for (var i = 0; i < files.Count; i++)
             {
                 var line = "    " + Json.Literal(files[i]);

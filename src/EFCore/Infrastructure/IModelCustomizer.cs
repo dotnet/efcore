@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -16,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     ///     <para>
     ///         When replacing this service consider deriving the implementation from <see cref="ModelCustomizer" /> or
-    ///         'RelationalModelCustomizer' to preserve the default behavior.
+    ///         <see cref="T:Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelCustomizer" /> to preserve the default behavior.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
@@ -42,6 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context">
         ///     The context instance that the model is being created for.
         /// </param>
-        void Customize([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context);
+        void Customize(ModelBuilder modelBuilder, DbContext context);
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Creates a new instance of this attribute.
         /// </summary>
         /// <param name="id"> The migration identifier. </param>
-        public MigrationAttribute([NotNull] string id)
+        public MigrationAttribute(string id)
         {
             Check.NotEmpty(id, nameof(id));
 

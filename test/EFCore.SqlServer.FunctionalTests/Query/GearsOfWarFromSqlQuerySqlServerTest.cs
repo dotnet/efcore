@@ -23,8 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Sql);
         }
 
-        protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
+        protected override void ClearLog()
+            => Fixture.TestSqlLoggerFactory.Clear();
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
+        private string Sql
+            => Fixture.TestSqlLoggerFactory.Sql;
     }
 }

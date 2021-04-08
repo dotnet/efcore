@@ -6,10 +6,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -31,49 +30,122 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static void ExecutingSqlQuery(
-            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnosticsLogger,
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            string containerId,
+            string? partitionKey,
             CosmosSqlQuery cosmosSqlQuery)
         {
-            var definition = new EventDefinition<string, string, string>(
-                diagnosticsLogger.Options,
-                CoreEventId.ProviderBaseId,
-                LogLevel.Debug,
-                "CoreEventId.ProviderBaseId",
-                level => LoggerMessage.Define<string, string, string>(
-                    level,
-                    CoreEventId.ProviderBaseId,
-                    "Executing Sql Query [Parameters=[{parameters}]]{newLine}{commandText}"));
+            var definition = CosmosResources.LogExecutingSqlQuery(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnosticsLogger);
+            if (diagnostics.ShouldLog(definition))
+            {
+                var logSensitiveData = diagnostics.ShouldLogSensitiveData();
 
-            definition.Log(
-                diagnosticsLogger,
-                warningBehavior,
-                FormatParameters(cosmosSqlQuery.Parameters),
-                Environment.NewLine,
-                cosmosSqlQuery.Query);
+                definition.Log(
+                    diagnostics,
+                    containerId,
+                    logSensitiveData ? partitionKey : "?",
+                    FormatParameters(cosmosSqlQuery.Parameters, logSensitiveData && cosmosSqlQuery.Parameters.Count > 0),
+                    Environment.NewLine,
+                    cosmosSqlQuery.Query);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new CosmosQueryEventData(
+                    definition,
+                    ExecutingSqlQuery,
+                    containerId,
+                    partitionKey,
+                    cosmosSqlQuery.Parameters.Select(p => (p.Name, p.Value)).ToList(),
+                    cosmosSqlQuery.Query,
+                    diagnostics.ShouldLogSensitiveData());
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
         }
 
-        private static string FormatParameters(IReadOnlyList<SqlParameter> parameters)
+        private static string ExecutingSqlQuery(EventDefinitionBase definition, EventData payload)
         {
-            return parameters.Count == 0
-                ? ""
-                : string.Join(", ", parameters.Select(FormatParameter));
+            var d = (EventDefinition<string, string?, string, string, string>)definition;
+            var p = (CosmosQueryEventData)payload;
+            return d.GenerateMessage(
+                p.ContainerId,
+                p.LogSensitiveData ? p.PartitionKey : "?",
+                FormatParameters(p.Parameters, p.LogSensitiveData && p.Parameters.Count > 0),
+                Environment.NewLine,
+                p.QuerySql);
         }
 
-        private static string FormatParameter(SqlParameter parameter)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static void ExecutingReadItem(
+            this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
+            string containerId,
+            string? partitionKey,
+            string resourceId)
+        {
+            var definition = CosmosResources.LogExecutingReadItem(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                var logSensitiveData = diagnostics.ShouldLogSensitiveData();
+                definition.Log(diagnostics, logSensitiveData ? resourceId : "?", containerId, logSensitiveData ? partitionKey : "?");
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new CosmosReadItemEventData(
+                    definition,
+                    ExecutingReadItem,
+                    resourceId,
+                    containerId,
+                    partitionKey,
+                    diagnostics.ShouldLogSensitiveData());
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+        
+        private static string ExecutingReadItem(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string?>)definition;
+            var p = (CosmosReadItemEventData)payload;
+            return d.GenerateMessage(p.LogSensitiveData ? p.ResourceId : "?", p.ContainerId, p.LogSensitiveData ? p.PartitionKey : "?");
+        }
+
+        private static string FormatParameters(IReadOnlyList<(string Name, object? Value)> parameters, bool shouldLogParameterValues)
+            => FormatParameters(parameters.Select(p => new SqlParameter(p.Name, p.Value)).ToList(), shouldLogParameterValues);
+
+        private static string FormatParameters(IReadOnlyList<SqlParameter> parameters, bool shouldLogParameterValues)
+            => parameters.Count == 0
+                ? ""
+                : string.Join(", ", parameters.Select(e => FormatParameter(e, shouldLogParameterValues)));
+
+        private static string FormatParameter(SqlParameter parameter, bool shouldLogParameterValue)
         {
             var builder = new StringBuilder();
             builder
                 .Append(parameter.Name)
                 .Append("=");
 
-            FormatParameterValue(builder, parameter.Value);
+            if (shouldLogParameterValue)
+            {
+                FormatParameterValue(builder, parameter.Value);
+            }
+            else
+            {
+                builder.Append("?");
+            }
 
             return builder.ToString();
         }
 
-        private static void FormatParameterValue(StringBuilder builder, object parameterValue)
+        private static void FormatParameterValue(StringBuilder builder, object? parameterValue)
         {
             if (parameterValue == null)
             {
@@ -95,19 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
                     builder.Append(dateTimeOffsetValue.ToString("o"));
                     break;
                 case byte[] binaryValue:
-                    builder.Append("0x");
-
-                    for (var i = 0; i < binaryValue.Length; i++)
-                    {
-                        if (i > 31)
-                        {
-                            builder.Append("...");
-                            break;
-                        }
-
-                        builder.Append(binaryValue[i].ToString("X2", CultureInfo.InvariantCulture));
-                    }
-
+                    builder.AppendBytes(binaryValue);
                     break;
                 default:
                     builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));

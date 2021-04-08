@@ -7,8 +7,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 {
     public class GearsOfWarContext : PoolableDbContext
     {
-        public static readonly string StoreName = "GearsOfWar";
-
         public GearsOfWarContext(DbContextOptions options)
             : base(options)
         {

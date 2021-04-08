@@ -3,7 +3,6 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Finds the type mapping for a given <see cref="IProperty" />.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        CoreTypeMapping FindMapping([NotNull] IProperty property);
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        CoreTypeMapping? FindMapping(IProperty property);
 
         /// <summary>
         ///     <para>
@@ -48,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="member"> The field or property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        CoreTypeMapping FindMapping([NotNull] MemberInfo member);
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        CoreTypeMapping? FindMapping(MemberInfo member);
 
         /// <summary>
         ///     <para>
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        CoreTypeMapping FindMapping([NotNull] Type type);
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        CoreTypeMapping? FindMapping(Type type);
     }
 }

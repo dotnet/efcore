@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
@@ -34,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] string databaseName,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            string databaseName,
+            Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
                 (DbContextOptionsBuilder)optionsBuilder, databaseName, inMemoryOptionsAction);
@@ -56,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseInMemoryDatabase(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] string databaseName,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            string databaseName,
+            Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
             => UseInMemoryDatabase(optionsBuilder, databaseName, null, inMemoryOptionsAction);
 
         /// <summary>
@@ -75,15 +74,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseRoot">
         ///     All in-memory databases will be rooted in this object, allowing the application
         ///     to control their lifetime. This is useful when sometimes the context instance
-        ///     is created explicitly with <c>new</c> while at other times it is resolved using dependency injection.
+        ///     is created explicitly with <see langword="new" /> while at other times it is resolved using dependency injection.
         /// </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
-            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
-            [NotNull] string databaseName,
-            [CanBeNull] InMemoryDatabaseRoot databaseRoot,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            this DbContextOptionsBuilder<TContext> optionsBuilder,
+            string databaseName,
+            InMemoryDatabaseRoot? databaseRoot,
+            Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
             where TContext : DbContext
             => (DbContextOptionsBuilder<TContext>)UseInMemoryDatabase(
                 (DbContextOptionsBuilder)optionsBuilder, databaseName, databaseRoot, inMemoryOptionsAction);
@@ -101,15 +100,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseRoot">
         ///     All in-memory databases will be rooted in this object, allowing the application
         ///     to control their lifetime. This is useful when sometimes the context instance
-        ///     is created explicitly with <c>new</c> while at other times it is resolved using dependency injection.
+        ///     is created explicitly with <see langword="new" /> while at other times it is resolved using dependency injection.
         /// </param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static DbContextOptionsBuilder UseInMemoryDatabase(
-            [NotNull] this DbContextOptionsBuilder optionsBuilder,
-            [NotNull] string databaseName,
-            [CanBeNull] InMemoryDatabaseRoot databaseRoot,
-            [CanBeNull] Action<InMemoryDbContextOptionsBuilder> inMemoryOptionsAction = null)
+            this DbContextOptionsBuilder optionsBuilder,
+            string databaseName,
+            InMemoryDatabaseRoot? databaseRoot,
+            Action<InMemoryDbContextOptionsBuilder>? inMemoryOptionsAction = null)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(databaseName, nameof(databaseName));
@@ -123,6 +122,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 extension = extension.WithDatabaseRoot(databaseRoot);
             }
+
+            extension = extension.WithNullabilityCheckEnabled(true);
 
             ConfigureWarnings(optionsBuilder);
 

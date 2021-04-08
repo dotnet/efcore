@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class UpdateSqlGeneratorDependencies
+    public sealed record UpdateSqlGeneratorDependencies
     {
         /// <summary>
         ///     <para>
@@ -61,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         [EntityFrameworkInternal]
         public UpdateSqlGeneratorDependencies(
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            ISqlGenerationHelper sqlGenerationHelper,
+            IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
@@ -74,31 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Helpers for generating update SQL.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; init; }
 
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public UpdateSqlGeneratorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            => new UpdateSqlGeneratorDependencies(
-                sqlGenerationHelper,
-                TypeMappingSource);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public UpdateSqlGeneratorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new UpdateSqlGeneratorDependencies(
-                SqlGenerationHelper,
-                typeMappingSource);
+        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
     }
 }

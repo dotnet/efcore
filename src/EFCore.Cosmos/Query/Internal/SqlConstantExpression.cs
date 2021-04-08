@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -28,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlConstantExpression(ConstantExpression constantExpression, CoreTypeMapping typeMapping)
+        public SqlConstantExpression(ConstantExpression constantExpression, CoreTypeMapping? typeMapping)
             : base(constantExpression.Type, typeMapping)
         {
             _constantExpression = constantExpression;
@@ -40,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual object Value => _constantExpression.Value;
+        public virtual object? Value
+            => _constantExpression.Value;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression ApplyTypeMapping(CoreTypeMapping typeMapping)
-            => new SqlConstantExpression(_constantExpression, typeMapping);
+        public virtual SqlExpression ApplyTypeMapping(CoreTypeMapping? typeMapping)
+            => new SqlConstantExpression(_constantExpression, typeMapping ?? TypeMapping);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,7 +59,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return this;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -65,10 +72,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void Print(ExpressionPrinter expressionPrinter) => Print(Value, expressionPrinter);
+        protected override void Print(ExpressionPrinter expressionPrinter)
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            Print(Value, expressionPrinter);
+        }
 
         private void Print(
-            object value,
+            object? value,
             ExpressionPrinter expressionPrinter)
         {
             if (value is IEnumerable enumerable
@@ -95,16 +107,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
         }
 
-        private JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
+        private JToken? GenerateJToken(object? value, CoreTypeMapping? typeMapping)
         {
-            var mappingClrType = typeMapping.ClrType.UnwrapNullableType();
+            var mappingClrType = typeMapping?.ClrType.UnwrapNullableType() ?? Type;
             if (value?.GetType().IsInteger() == true
                 && mappingClrType.IsEnum)
             {
                 value = Enum.ToObject(mappingClrType, value);
             }
 
-            var converter = typeMapping.Converter;
+            var converter = typeMapping?.Converter;
             if (converter != null)
             {
                 value = converter.ConvertToProvider(value);
@@ -124,17 +136,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlConstantExpression sqlConstantExpression
-                   && Equals(sqlConstantExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlConstantExpression sqlConstantExpression
+                    && Equals(sqlConstantExpression));
 
         private bool Equals(SqlConstantExpression sqlConstantExpression)
             => base.Equals(sqlConstantExpression)
-               && (Value == null
-                   ? sqlConstantExpression.Value == null
-                   : Value.Equals(sqlConstantExpression.Value));
+                && (Value == null
+                    ? sqlConstantExpression.Value == null
+                    : Value.Equals(sqlConstantExpression.Value));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -142,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Value);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Value);
     }
 }

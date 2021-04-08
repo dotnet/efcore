@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -22,8 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public static InternalRelationshipBuilder Run(
-            [NotNull] this IConventionBatch batch, [NotNull] InternalRelationshipBuilder relationshipBuilder)
-            => (InternalRelationshipBuilder)batch.Run(relationshipBuilder.Metadata)?.Builder;
+        public static InternalForeignKeyBuilder? Run(
+            this IConventionBatch batch,
+            InternalForeignKeyBuilder relationshipBuilder)
+            => (InternalForeignKeyBuilder?)batch.Run(relationshipBuilder.Metadata)?.Builder;
     }
 }

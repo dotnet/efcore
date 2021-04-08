@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -17,14 +16,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestServiceFactory
     {
-        public static readonly TestServiceFactory Instance = new TestServiceFactory();
+        public static readonly TestServiceFactory Instance = new();
 
         private TestServiceFactory()
         {
         }
 
-        private readonly ConcurrentDictionary<Type, IServiceProvider> _factories
-            = new ConcurrentDictionary<Type, IServiceProvider>();
+        private readonly ConcurrentDictionary<Type, IServiceProvider> _factories = new();
 
         private readonly IReadOnlyList<(Type Type, object Implementation)> _wellKnownExceptions
             = new List<(Type, object)>
@@ -123,10 +121,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         private static Type TryGetEnumerableType(Type type)
-            => !type.GetTypeInfo().IsGenericTypeDefinition
-                && type.GetTypeInfo().IsGenericType
+            => !type.IsGenericTypeDefinition
+                && type.IsGenericType
                 && type.GetGenericTypeDefinition() == typeof(IEnumerable<>)
-                    ? type.GetTypeInfo().GenericTypeArguments[0]
+                    ? type.GenericTypeArguments[0]
                     : null;
     }
 }

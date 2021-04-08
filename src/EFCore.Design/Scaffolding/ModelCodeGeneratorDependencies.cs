@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class ModelCodeGeneratorDependencies
+    public sealed record ModelCodeGeneratorDependencies
     {
         /// <summary>
         ///     <para>

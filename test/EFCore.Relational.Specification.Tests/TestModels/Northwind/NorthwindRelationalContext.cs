@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
-
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class NorthwindRelationalContext : NorthwindContext
@@ -11,8 +9,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             : base(options)
         {
         }
-
-        public string _empty = string.Empty;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,22 +23,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             modelBuilder.Entity<CustomerOrderHistory>().HasKey(coh => coh.ProductName);
             modelBuilder.Entity<MostExpensiveProduct>().HasKey(mep => mep.TenMostExpensiveProducts);
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            modelBuilder.Query<CustomerView>().HasNoKey().ToQuery(
-                () => CustomerQueries.FromSqlInterpolated(
-                    $"SELECT [c].[CustomerID] + {_empty} as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]"
-                ));
+            modelBuilder.Entity<CustomerQuery>().ToSqlQuery(
+                "SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
 
-            modelBuilder
-                .Query<OrderQuery>()
-                .ToQuery(
-                    () => Orders
-                        .FromSqlRaw(@"select * from ""Orders""")
-                        .Select(
-                            o => new OrderQuery { CustomerID = o.CustomerID }));
-
-            modelBuilder.Query<ProductQuery>().ToView("Alphabetical list of products");
-#pragma warning restore CS0618 // Type or member is obsolete
+            modelBuilder.Entity<OrderQuery>().ToSqlQuery(@"select * from ""Orders""");
+            modelBuilder.Entity<ProductView>().ToView("Alphabetical list of products");
         }
     }
 }

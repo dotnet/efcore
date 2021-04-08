@@ -8,9 +8,9 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -25,27 +25,71 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class BufferedDataReader : DbDataReader
     {
-        private DbDataReader _underlyingReader;
-        private List<BufferedDataRecord> _bufferedDataRecords = new List<BufferedDataRecord>();
+        private readonly bool _detailedErrorsEnabled;
+
+        private DbDataReader? _underlyingReader;
+        private List<BufferedDataRecord> _bufferedDataRecords = new();
         private BufferedDataRecord _currentResultSet;
         private int _currentResultSetNumber;
         private int _recordsAffected;
         private bool _disposed;
         private bool _isClosed;
 
-        public BufferedDataReader([NotNull] DbDataReader reader)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public BufferedDataReader(DbDataReader reader, bool detailedErrorsEnabled)
         {
             _underlyingReader = reader;
+            _detailedErrorsEnabled = detailedErrorsEnabled;
+            _currentResultSet = null!;
         }
 
-        public override int RecordsAffected => _recordsAffected;
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override int RecordsAffected
+            => _recordsAffected;
 
-        public override object this[string name] => throw new NotSupportedException();
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override object this[string name]
+            => throw new NotSupportedException();
 
-        public override object this[int ordinal] => throw new NotSupportedException();
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override object this[int ordinal]
+            => throw new NotSupportedException();
 
-        public override int Depth => throw new NotSupportedException();
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override int Depth
+            => throw new NotSupportedException();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override int FieldCount
         {
             get
@@ -55,6 +99,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override bool HasRows
         {
             get
@@ -64,7 +114,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        public override bool IsClosed => _isClosed;
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override bool IsClosed
+            => _isClosed;
 
         [Conditional("DEBUG")]
         private void AssertReaderIsOpen()
@@ -103,7 +160,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        public virtual BufferedDataReader Initialize([NotNull] IReadOnlyList<ReaderColumn> columns)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual BufferedDataReader Initialize(IReadOnlyList<ReaderColumn> columns)
         {
             if (_underlyingReader == null)
             {
@@ -114,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 do
                 {
-                    _bufferedDataRecords.Add(new BufferedDataRecord().Initialize(_underlyingReader, columns));
+                    _bufferedDataRecords.Add(new BufferedDataRecord(_detailedErrorsEnabled).Initialize(_underlyingReader, columns));
                 }
                 while (_underlyingReader.NextResult());
 
@@ -130,8 +193,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual async Task<BufferedDataReader> InitializeAsync(
-            [NotNull] IReadOnlyList<ReaderColumn> columns, CancellationToken cancellationToken)
+            IReadOnlyList<ReaderColumn> columns,
+            CancellationToken cancellationToken)
         {
             if (_underlyingReader == null)
             {
@@ -142,9 +212,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 do
                 {
-                    _bufferedDataRecords.Add(await new BufferedDataRecord().InitializeAsync(_underlyingReader, columns, cancellationToken));
+                    _bufferedDataRecords.Add(
+                        await new BufferedDataRecord(_detailedErrorsEnabled).InitializeAsync(_underlyingReader, columns, cancellationToken)
+                            .ConfigureAwait(false));
                 }
-                while (await _underlyingReader.NextResultAsync(cancellationToken));
+                while (await _underlyingReader.NextResultAsync(cancellationToken).ConfigureAwait(false));
 
                 _recordsAffected = _underlyingReader.RecordsAffected;
                 _currentResultSet = _bufferedDataRecords[_currentResultSetNumber];
@@ -153,11 +225,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
             finally
             {
-                _underlyingReader.Dispose();
+                await _underlyingReader.DisposeAsync().ConfigureAwait(false);
                 _underlyingReader = null;
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static bool IsSupportedValueType(Type type)
             => type == typeof(int)
                 || type == typeof(bool)
@@ -176,9 +254,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 || type == typeof(ulong)
                 || type == typeof(sbyte);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override void Close()
         {
-            _bufferedDataRecords = null;
+            _bufferedDataRecords = null!;
             _isClosed = true;
 
             var reader = _underlyingReader;
@@ -189,6 +273,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override void Dispose(bool disposing)
         {
             if (!_disposed
@@ -203,130 +293,262 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override bool GetBoolean(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetBoolean(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override byte GetByte(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetByte(ordinal);
         }
 
-        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override long GetBytes(int ordinal, long dataOffset, byte[]? buffer, int bufferOffset, int length)
         {
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override char GetChar(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetChar(ordinal);
         }
 
-        public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override long GetChars(int ordinal, long dataOffset, char[]? buffer, int bufferOffset, int length)
         {
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override DateTime GetDateTime(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetDateTime(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override decimal GetDecimal(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetDecimal(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override double GetDouble(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetDouble(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override float GetFloat(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetFloat(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override Guid GetGuid(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetGuid(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override short GetInt16(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetInt16(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override int GetInt32(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetInt32(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override long GetInt64(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetInt64(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override string GetString(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetFieldValue<string>(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override T GetFieldValue<T>(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetFieldValue<T>(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetFieldValueAsync<T>(ordinal, cancellationToken);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override object GetValue(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.GetValue(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override int GetValues(object[] values)
         {
             AssertReaderIsOpenWithData();
             return _currentResultSet.GetValues(values);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override string GetDataTypeName(int ordinal)
         {
             AssertReaderIsOpen();
             return _currentResultSet.GetDataTypeName(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override Type GetFieldType(int ordinal)
         {
             AssertReaderIsOpen();
             return _currentResultSet.GetFieldType(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override string GetName(int ordinal)
         {
             AssertReaderIsOpen();
             return _currentResultSet.GetName(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override int GetOrdinal(string name)
         {
             Check.NotNull(name, "name");
@@ -334,22 +556,54 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _currentResultSet.GetOrdinal(name);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override bool IsDBNull(int ordinal)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.IsDBNull(ordinal);
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken)
         {
             AssertFieldIsReady(ordinal);
             return _currentResultSet.IsDBNullAsync(ordinal, cancellationToken);
         }
 
-        public override IEnumerator GetEnumerator() => throw new NotSupportedException();
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override IEnumerator GetEnumerator()
+            => throw new NotSupportedException();
 
-        public override DataTable GetSchemaTable() => throw new NotSupportedException();
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override DataTable GetSchemaTable()
+            => throw new NotSupportedException();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override bool NextResult()
         {
             AssertReaderIsOpen();
@@ -359,26 +613,44 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return true;
             }
 
-            _currentResultSet = null;
+            _currentResultSet = null!;
             return false;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override Task<bool> NextResultAsync(CancellationToken cancellationToken)
             => Task.FromResult(NextResult());
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override bool Read()
         {
             AssertReaderIsOpen();
             return _currentResultSet.Read();
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override Task<bool> ReadAsync(CancellationToken cancellationToken)
         {
             AssertReaderIsOpen();
             return _currentResultSet.ReadAsync(cancellationToken);
         }
 
-        private class BufferedDataRecord
+        private sealed class BufferedDataRecord
         {
             private int _currentRowNumber = -1;
             private int _rowCount;
@@ -437,20 +709,64 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private DbDataReader _underlyingReader;
             private IReadOnlyList<ReaderColumn> _columns;
             private int[] _indexMap;
+            private readonly bool _detailedErrorsEnabled;
+
+            public BufferedDataRecord(bool detailedErrorsEnabled)
+            {
+                _detailedErrorsEnabled = detailedErrorsEnabled;
+                _dataTypeNames = null!;
+                _columnNames = null!;
+                _columns = null!;
+                _columnTypeCases = null!;
+                _fieldNameLookup = null!;
+                _fieldTypes = null!;
+                _indexMap = null!;
+                _nullOrdinalToIndexMap = null!;
+                _ordinalToIndexMap = null!;
+                _underlyingReader = null!;
+
+                _bools = null!;
+                _bytes = null!;
+                _chars = null!;
+                _dateTimeOffsets = null!;
+                _dateTimes = null!;
+                _decimals = null!;
+                _doubles = null!;
+                _floats = null!;
+                _guids = null!;
+                _ints = null!;
+                _longs = null!;
+                _longs = null!;
+                _nulls = null!;
+                _objects = null!;
+                _sbytes = null!;
+                _shorts = null!;
+                _tempBools = null!;
+                _tempNulls = null!;
+                _uints = null!;
+                _ulongs = null!;
+                _ushorts = null!;
+            }
 
             public bool IsDataReady { get; private set; }
 
-            public bool HasRows => _rowCount > 0;
+            public bool HasRows
+                => _rowCount > 0;
 
-            public int FieldCount => _fieldTypes.Length;
+            public int FieldCount
+                => _fieldTypes.Length;
 
-            public string GetDataTypeName(int ordinal) => _dataTypeNames[ordinal];
+            public string GetDataTypeName(int ordinal)
+                => _dataTypeNames[ordinal];
 
-            public Type GetFieldType(int ordinal) => _fieldTypes[ordinal];
+            public Type GetFieldType(int ordinal)
+                => _fieldTypes[ordinal];
 
-            public string GetName(int ordinal) => _columnNames[ordinal];
+            public string GetName(int ordinal)
+                => _columnNames[ordinal];
 
-            public int GetOrdinal(string name) => _fieldNameLookup.Value[name];
+            public int GetOrdinal(string name)
+                => _fieldNameLookup.Value[name];
 
             public bool GetBoolean(int ordinal)
                 => _columnTypeCases[ordinal] == TypeCase.Bool
@@ -535,64 +851,51 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public object GetValue(int ordinal)
                 => GetFieldValue<object>(ordinal);
 
+#pragma warning disable IDE0060 // Remove unused parameter
             public int GetValues(object[] values)
+#pragma warning restore IDE0060 // Remove unused parameter
                 => throw new NotSupportedException();
 
             public T GetFieldValue<T>(int ordinal)
-            {
-                switch (_columnTypeCases[ordinal])
+                => (_columnTypeCases[ordinal]) switch
                 {
-                    case TypeCase.Bool:
-                        return (T)(object)GetBoolean(ordinal);
-                    case TypeCase.Byte:
-                        return (T)(object)GetByte(ordinal);
-                    case TypeCase.Char:
-                        return (T)(object)GetChar(ordinal);
-                    case TypeCase.DateTime:
-                        return (T)(object)GetDateTime(ordinal);
-                    case TypeCase.DateTimeOffset:
-                        return (T)(object)GetDateTimeOffset(ordinal);
-                    case TypeCase.Decimal:
-                        return (T)(object)GetDecimal(ordinal);
-                    case TypeCase.Double:
-                        return (T)(object)GetDouble(ordinal);
-                    case TypeCase.Float:
-                        return (T)(object)GetFloat(ordinal);
-                    case TypeCase.Guid:
-                        return (T)(object)GetGuid(ordinal);
-                    case TypeCase.Short:
-                        return (T)(object)GetInt16(ordinal);
-                    case TypeCase.Int:
-                        return (T)(object)GetInt32(ordinal);
-                    case TypeCase.Long:
-                        return (T)(object)GetInt64(ordinal);
-                    case TypeCase.SByte:
-                        return (T)(object)GetSByte(ordinal);
-                    case TypeCase.UShort:
-                        return (T)(object)GetUInt16(ordinal);
-                    case TypeCase.UInt:
-                        return (T)(object)GetUInt32(ordinal);
-                    case TypeCase.ULong:
-                        return (T)(object)GetUInt64(ordinal);
-                    case TypeCase.Empty:
-                        return default;
-                    default:
-                        return (T)_objects[_currentRowNumber * _objectCount + _ordinalToIndexMap[ordinal]];
-                }
-            }
+                    TypeCase.Bool => (T)(object)GetBoolean(ordinal),
+                    TypeCase.Byte => (T)(object)GetByte(ordinal),
+                    TypeCase.Char => (T)(object)GetChar(ordinal),
+                    TypeCase.DateTime => (T)(object)GetDateTime(ordinal),
+                    TypeCase.DateTimeOffset => (T)(object)GetDateTimeOffset(ordinal),
+                    TypeCase.Decimal => (T)(object)GetDecimal(ordinal),
+                    TypeCase.Double => (T)(object)GetDouble(ordinal),
+                    TypeCase.Float => (T)(object)GetFloat(ordinal),
+                    TypeCase.Guid => (T)(object)GetGuid(ordinal),
+                    TypeCase.Short => (T)(object)GetInt16(ordinal),
+                    TypeCase.Int => (T)(object)GetInt32(ordinal),
+                    TypeCase.Long => (T)(object)GetInt64(ordinal),
+                    TypeCase.SByte => (T)(object)GetSByte(ordinal),
+                    TypeCase.UShort => (T)(object)GetUInt16(ordinal),
+                    TypeCase.UInt => (T)(object)GetUInt32(ordinal),
+                    TypeCase.ULong => (T)(object)GetUInt64(ordinal),
+                    _ => (T)_objects[_currentRowNumber * _objectCount + _ordinalToIndexMap[ordinal]],
+                };
 
+            public bool IsDBNull(int ordinal)
+                => _nulls[_currentRowNumber * _nullCount + _nullOrdinalToIndexMap[ordinal]];
+
+            public bool Read()
+                => IsDataReady = ++_currentRowNumber < _rowCount;
+
+#pragma warning disable IDE0060 // Remove unused parameter
             public Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken)
                 => Task.FromResult(GetFieldValue<T>(ordinal));
 
-            public bool IsDBNull(int ordinal) => _nulls[_currentRowNumber * _nullCount + _nullOrdinalToIndexMap[ordinal]];
+            public Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken)
+                => Task.FromResult(IsDBNull(ordinal));
 
-            public Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken) => Task.FromResult(IsDBNull(ordinal));
+            public Task<bool> ReadAsync(CancellationToken cancellationToken)
+                => Task.FromResult(Read());
+#pragma warning restore IDE0060 // Remove unused parameter
 
-            public bool Read() => IsDataReady = ++_currentRowNumber < _rowCount;
-
-            public Task<bool> ReadAsync(CancellationToken cancellationToken) => Task.FromResult(Read());
-
-            public BufferedDataRecord Initialize([NotNull] DbDataReader reader, [NotNull] IReadOnlyList<ReaderColumn> columns)
+            public BufferedDataRecord Initialize(DbDataReader reader, IReadOnlyList<ReaderColumn> columns)
             {
                 _underlyingReader = reader;
                 _columns = columns;
@@ -606,19 +909,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 _bools = new BitArray(_tempBools);
-                _tempBools = null;
+                _tempBools = null!;
                 _nulls = new BitArray(_tempNulls);
-                _tempNulls = null;
+                _tempNulls = null!;
                 _rowCount = _currentRowNumber + 1;
                 _currentRowNumber = -1;
-                _underlyingReader = null;
-                _columns = null;
+                _underlyingReader = null!;
+                _columns = null!;
 
                 return this;
             }
 
             public async Task<BufferedDataRecord> InitializeAsync(
-                [NotNull] DbDataReader reader, [NotNull] IReadOnlyList<ReaderColumn> columns, CancellationToken cancellationToken)
+                DbDataReader reader,
+                IReadOnlyList<ReaderColumn> columns,
+                CancellationToken cancellationToken)
             {
                 _underlyingReader = reader;
                 _columns = columns;
@@ -626,19 +931,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 ReadMetadata();
                 InitializeFields();
 
-                while (await reader.ReadAsync(cancellationToken))
+                while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                 {
                     ReadRow();
                 }
 
                 _bools = new BitArray(_tempBools);
-                _tempBools = null;
+                _tempBools = null!;
                 _nulls = new BitArray(_tempNulls);
-                _tempNulls = null;
+                _tempNulls = null!;
                 _rowCount = _currentRowNumber + 1;
                 _currentRowNumber = -1;
-                _underlyingReader = null;
-                _columns = null;
+                _underlyingReader = null!;
+                _columns = null!;
 
                 return this;
             }
@@ -937,7 +1242,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var fieldCount = FieldCount;
                 if (FieldCount < _columns.Count)
                 {
-                    throw new InvalidOperationException("The underlying reader doesn't have as many fields as expected.");
+                    if (_columns.Count > 0
+                        && _columns[0].Name != null)
+                    {
+                        // Non-composed FromSql
+                        var missingColumns = _columns.Select(c => c.Name).Except(_columnNames);
+
+                        throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(missingColumns.First()));
+                    }
+
+                    throw new InvalidOperationException(RelationalStrings.TooFewReaderFields(_columns.Count, FieldCount));
                 }
 
                 _columnTypeCases = Enumerable.Repeat(TypeCase.Empty, fieldCount).ToArray();
@@ -953,7 +1267,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     for (var i = 0; i < _columns.Count; i++)
                     {
                         var column = _columns[i];
-                        if (!readerColumns.TryGetValue(column.Name, out var ordinal))
+                        if (!readerColumns.TryGetValue(column.Name!, out var ordinal))
                         {
                             throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(column.Name));
                         }
@@ -972,6 +1286,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         newColumnMap[i] = _columns[i];
                     }
+
                     _columns = newColumnMap;
                 }
 
@@ -1198,104 +1513,360 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private void ReadBool(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _tempBools[_currentRowNumber * _boolCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<bool>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _tempBools[_currentRowNumber * _boolCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<bool>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _tempBools[_currentRowNumber * _boolCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<bool>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadByte(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _bytes[_currentRowNumber * _byteCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<byte>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _bytes[_currentRowNumber * _byteCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<byte>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _bytes[_currentRowNumber * _byteCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<byte>)column).GetFieldValue(reader, _indexMap);
+                }
+
             }
 
             private void ReadChar(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _chars[_currentRowNumber * _charCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<char>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _chars[_currentRowNumber * _charCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<char>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _chars[_currentRowNumber * _charCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<char>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadDateTime(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _dateTimes[_currentRowNumber * _dateTimeCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<DateTime>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _dateTimes[_currentRowNumber * _dateTimeCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<DateTime>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _dateTimes[_currentRowNumber * _dateTimeCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<DateTime>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadDateTimeOffset(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _dateTimeOffsets[_currentRowNumber * _dateTimeOffsetCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<DateTimeOffset>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _dateTimeOffsets[_currentRowNumber * _dateTimeOffsetCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<DateTimeOffset>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _dateTimeOffsets[_currentRowNumber * _dateTimeOffsetCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<DateTimeOffset>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadDecimal(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _decimals[_currentRowNumber * _decimalCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<decimal>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _decimals[_currentRowNumber * _decimalCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<decimal>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _decimals[_currentRowNumber * _decimalCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<decimal>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadDouble(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _doubles[_currentRowNumber * _doubleCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<double>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _doubles[_currentRowNumber * _doubleCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<double>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _doubles[_currentRowNumber * _doubleCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<double>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadFloat(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _floats[_currentRowNumber * _floatCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<float>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _floats[_currentRowNumber * _floatCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<float>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _floats[_currentRowNumber * _floatCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<float>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadGuid(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _guids[_currentRowNumber * _guidCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<Guid>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _guids[_currentRowNumber * _guidCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<Guid>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _guids[_currentRowNumber * _guidCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<Guid>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadShort(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _shorts[_currentRowNumber * _shortCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<short>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _shorts[_currentRowNumber * _shortCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<short>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _shorts[_currentRowNumber * _shortCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<short>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadInt(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _ints[_currentRowNumber * _intCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<int>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _ints[_currentRowNumber * _intCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<int>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _ints[_currentRowNumber * _intCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<int>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadLong(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _longs[_currentRowNumber * _longCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<long>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _longs[_currentRowNumber * _longCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<long>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _longs[_currentRowNumber * _longCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<long>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadSByte(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _sbytes[_currentRowNumber * _sbyteCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<sbyte>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _sbytes[_currentRowNumber * _sbyteCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<sbyte>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _sbytes[_currentRowNumber * _sbyteCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<sbyte>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadUShort(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _ushorts[_currentRowNumber * _ushortCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<ushort>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _ushorts[_currentRowNumber * _ushortCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<ushort>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _ushorts[_currentRowNumber * _ushortCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<ushort>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadUInt(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _uints[_currentRowNumber * _uintCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<uint>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _uints[_currentRowNumber * _uintCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<uint>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _uints[_currentRowNumber * _uintCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<uint>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadULong(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _ulongs[_currentRowNumber * _ulongCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<ulong>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _ulongs[_currentRowNumber * _ulongCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<ulong>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _ulongs[_currentRowNumber * _ulongCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<ulong>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private void ReadObject(DbDataReader reader, int ordinal, ReaderColumn column)
             {
-                _objects[_currentRowNumber * _objectCount + _ordinalToIndexMap[ordinal]] =
-                    ((ReaderColumn<object>)column).GetFieldValue(reader, _indexMap);
+                if (_detailedErrorsEnabled)
+                {
+                    try
+                    {
+                        _objects[_currentRowNumber * _objectCount + _ordinalToIndexMap[ordinal]] =
+                            ((ReaderColumn<object>)column).GetFieldValue(reader, _indexMap);
+                    }
+                    catch (Exception e)
+                    {
+                        ThrowReadValueException(e, reader, ordinal, column);
+                    }
+                }
+                else
+                {
+                    _objects[_currentRowNumber * _objectCount + _ordinalToIndexMap[ordinal]] =
+                        ((ReaderColumn<object>)column).GetFieldValue(reader, _indexMap);
+                }
             }
 
             private enum TypeCase
@@ -1318,6 +1889,50 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 UInt,
                 ULong,
                 UShort
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private static void ThrowReadValueException(
+                Exception exception,
+                DbDataReader reader,
+                int ordinal,
+                ReaderColumn column)
+            {
+                var value = reader.GetFieldValue<object>(ordinal);
+                var property = column.Property;
+                var expectedType = column.Type.MakeNullable(column.IsNullable);
+
+                var actualType = value?.GetType();
+
+                string message;
+
+                if (property != null)
+                {
+                    var entityType = property.DeclaringType.DisplayName();
+                    var propertyName = property.Name;
+                    if (expectedType == typeof(object))
+                    {
+                        expectedType = property.ClrType;
+                    }
+
+                    message = exception is NullReferenceException
+                        || Equals(value, DBNull.Value)
+                            ? RelationalStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
+                            : exception is InvalidCastException
+                                ? CoreStrings.ErrorMaterializingPropertyInvalidCast(entityType, propertyName, expectedType, actualType)
+                                : RelationalStrings.ErrorMaterializingProperty(entityType, propertyName);
+                }
+                else
+                {
+                    message = exception is NullReferenceException
+                        || Equals(value, DBNull.Value)
+                            ? RelationalStrings.ErrorMaterializingValueNullReference(expectedType)
+                            : exception is InvalidCastException
+                                ? RelationalStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
+                                : RelationalStrings.ErrorMaterializingValue;
+                }
+
+                throw new InvalidOperationException(message, exception);
             }
         }
     }

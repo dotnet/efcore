@@ -162,12 +162,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
-            Assert.Null(entityTypeBuilder.Metadata.FindDeclaredPrimaryKey());
+            Assert.Null(entityTypeBuilder.Metadata.FindPrimaryKey());
 
             RunConvention(propertyBuilder);
 
-            Assert.Equal(1, entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties.Count);
-            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties[0].Name);
+            Assert.Equal(1, entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
+            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
         }
 
         [ConditionalFact]
@@ -175,15 +175,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<B>();
 
-            Assert.Null(entityTypeBuilder.Metadata.FindDeclaredPrimaryKey());
+            Assert.Null(entityTypeBuilder.Metadata.FindPrimaryKey());
 
             var idPropertyBuilder = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Explicit);
             var myPrimaryKeyPropertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
             RunConvention(idPropertyBuilder);
 
-            Assert.Equal(1, entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties.Count);
-            Assert.Equal("Id", entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties[0].Name);
+            Assert.Equal(1, entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
+            Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
 
             RunConvention(myPrimaryKeyPropertyBuilder);
 
@@ -216,7 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var propertyBuilder = derivedEntityTypeBuilder.Property(typeof(int), "Number", ConfigurationSource.Explicit);
 
             Assert.Equal(
-                CoreStrings.KeyAttributeOnDerivedEntity(derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name),
+                CoreStrings.KeyAttributeOnDerivedEntity(
+                    derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name, baseEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => Validate(derivedEntityTypeBuilder))
                     .Message);
         }
@@ -511,6 +512,143 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         #endregion
 
+        #region BackingFieldAttribute
+
+        [ConditionalFact]
+        public void BackingFieldAttribute_overrides_configuration_from_convention_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            IConventionPropertyBuilder propertyBuilder = entityTypeBuilder.Property(
+                typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit);
+
+            RunConvention(propertyBuilder);
+
+            // also asserts that the default backing field, _backingFieldProperty, was _not_ chosen
+            Assert.Equal("_backingFieldForAttribute", propertyBuilder.Metadata.GetFieldName());
+        }
+
+        [ConditionalFact]
+        public void BackingFieldAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(
+                typeof(int?), "BackingFieldProperty", ConfigurationSource.Explicit);
+
+            propertyBuilder.HasField("_backingFieldForFluentApi", ConfigurationSource.Explicit);
+
+            RunConvention(propertyBuilder);
+
+            // also asserts that the default backing field, _backingFieldProperty, was _not_ chosen
+            Assert.Equal("_backingFieldForFluentApi", ((IConventionProperty)propertyBuilder.Metadata).GetFieldName());
+        }
+
+        #endregion
+
+        #region UnicodeAttribute
+        [ConditionalFact]
+        public void UnicodeAttribute_overrides_configuration_from_convention_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "UnicodeProperty", ConfigurationSource.Explicit);
+
+            propertyBuilder.IsUnicode(false, ConfigurationSource.Convention);
+
+            RunConvention(propertyBuilder);
+
+            Assert.True(propertyBuilder.Metadata.IsUnicode());
+        }
+
+        [ConditionalFact]
+        public void UnicodeAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(string), "UnicodeProperty", ConfigurationSource.Explicit);
+
+            propertyBuilder.IsUnicode(false, ConfigurationSource.Explicit);
+
+            RunConvention(propertyBuilder);
+
+            Assert.False(propertyBuilder.Metadata.IsUnicode());
+        }
+
+        [ConditionalFact]
+        public void UnicodeAttribute_sets_unicode_with_conventional_builder()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<A>();
+
+            Assert.True(entityTypeBuilder.Property(e => e.UnicodeProperty).Metadata.IsUnicode());
+            Assert.False(entityTypeBuilder.Property(e => e.NonUnicodeProperty).Metadata.IsUnicode());
+        }
+
+        [ConditionalFact]
+        public void UnicodeAttribute_on_field_sets_unicode_with_conventional_builder()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+
+            Assert.True(entityTypeBuilder.Property<string>(nameof(F.UnicodeField)).Metadata.IsUnicode());
+            Assert.False(entityTypeBuilder.Property<string>(nameof(F.NonUnicodeField)).Metadata.IsUnicode());
+        }
+        #endregion
+
+        #region PrecisionAttribute
+        [ConditionalFact]
+        public void PrecisionAttribute_overrides_configuration_from_convention_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(decimal), "DecimalProperty", ConfigurationSource.Explicit);
+
+            propertyBuilder.HasPrecision(12, ConfigurationSource.Convention);
+            propertyBuilder.HasScale(5, ConfigurationSource.Convention);
+
+            RunConvention(propertyBuilder);
+
+            Assert.Equal(10, propertyBuilder.Metadata.GetPrecision());
+            Assert.Equal(2, propertyBuilder.Metadata.GetScale());
+        }
+
+        [ConditionalFact]
+        public void PrecisionAttribute_does_not_override_configuration_from_explicit_source()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+            var propertyBuilder = entityTypeBuilder.Property(typeof(decimal), "DecimalProperty", ConfigurationSource.Explicit);
+
+            propertyBuilder.HasPrecision(12, ConfigurationSource.Explicit);
+            propertyBuilder.HasScale(5, ConfigurationSource.Explicit);
+
+            RunConvention(propertyBuilder);
+
+            Assert.Equal(12, propertyBuilder.Metadata.GetPrecision());
+            Assert.Equal(5, propertyBuilder.Metadata.GetScale());
+        }
+
+        [ConditionalFact]
+        public void PrecisionAttribute_sets_precision_with_conventional_builder()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<A>();
+
+            Assert.Equal(10, entityTypeBuilder.Property(e => e.DecimalProperty).Metadata.GetPrecision());
+            Assert.Equal(2, entityTypeBuilder.Property(e => e.DecimalProperty).Metadata.GetScale());
+        }
+
+        [ConditionalFact]
+        public void PrecisionAttribute_on_field_sets_precision_with_conventional_builder()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<F>();
+
+            Assert.Equal(10, entityTypeBuilder.Property<decimal>(nameof(F.DecimalField)).Metadata.GetPrecision());
+            Assert.Equal(2, entityTypeBuilder.Property<decimal>(nameof(F.DecimalField)).Metadata.GetScale());
+        }
+        #endregion
         [ConditionalFact]
         public void Property_attribute_convention_runs_for_private_property()
         {
@@ -526,16 +664,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             conventionSet.EntityTypeAddedConventions.Add(
                 new PropertyDiscoveryConvention(CreateDependencies()));
 
-            var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
+            var modelBuilder = new Model(conventionSet).Builder;
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        private static void RunConvention(InternalPropertyBuilder propertyBuilder)
+        private static void RunConvention(IConventionPropertyBuilder propertyBuilder)
         {
             var dependencies = CreateDependencies();
             var context = new ConventionContext<IConventionPropertyBuilder>(
-                propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+                ((Model)propertyBuilder.Metadata.DeclaringEntityType.Model).ConventionDispatcher);
+
+            new BackingFieldConvention(dependencies)
+                .ProcessPropertyAdded(propertyBuilder, context);
 
             new ConcurrencyCheckAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
@@ -543,19 +684,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             new DatabaseGeneratedAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
-            new KeyAttributeConvention(dependencies)
+            new RequiredPropertyAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
             new MaxLengthAttributeConvention(dependencies)
-                .ProcessPropertyAdded(propertyBuilder, context);
-
-            new RequiredPropertyAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
             new StringLengthAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
 
             new TimestampAttributeConvention(dependencies)
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new BackingFieldAttributeConvention(dependencies)
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new KeyAttributeConvention(dependencies)
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new UnicodeAttributeConvention(dependencies)
+                .ProcessPropertyAdded(propertyBuilder, context);
+
+            new PrecisionAttributeConvention(dependencies)
                 .ProcessPropertyAdded(propertyBuilder, context);
         }
 
@@ -573,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
             new KeyAttributeConvention(CreateDependencies())
-                .ProcessModelFinalized(entityTypeBuilder.ModelBuilder, context);
+                .ProcessModelFinalizing(entityTypeBuilder.ModelBuilder, context);
         }
 
         private static ProviderConventionSetBuilderDependencies CreateDependencies()
@@ -589,6 +739,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [Required]
             public string Name { get; set; }
+
+            [Unicode]
+            public string UnicodeProperty { get; set; }
+
+            [Unicode(false)]
+            public string NonUnicodeProperty { get; set; }
+
+            [Precision(10, 2)]
+            public decimal DecimalProperty { get; set; }
 
             [Key]
             public int MyPrimaryKey { get; set; }
@@ -607,6 +766,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [Required]
             private int? PrivateProperty { get; set; }
+
+            private int? _backingFieldProperty; // selected by convention
+            private int? _backingFieldForAttribute;
+            private int? _backingFieldForFluentApi;
+
+            [BackingField("_backingFieldForAttribute")]
+            private int? BackingFieldProperty
+            {
+                get => _backingFieldForAttribute;
+                set
+                {
+                    _backingFieldProperty = value;
+                    _backingFieldForAttribute = value;
+                    _backingFieldForFluentApi = value;
+                }
+            }
         }
 
         private class B
@@ -628,6 +803,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             [Required]
             public string Name;
+
+            [Unicode]
+            public string UnicodeField;
+
+            [Unicode(false)]
+            public string NonUnicodeField;
+
+            [Precision(10, 2)]
+            public decimal DecimalField;
 
             [Key]
             public int MyPrimaryKey;
@@ -662,7 +846,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
         }
 
-        private static ModelBuilder CreateModelBuilder() => InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        private static ModelBuilder CreateModelBuilder()
+            => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         private class MyContext : DbContext
         {

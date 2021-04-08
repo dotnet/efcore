@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     across context instances and service providers as long as the same instance
     ///     of this type is passed to
     ///     <see
-    ///         cref="InMemoryDbContextOptionsExtensions.UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,System.Action{Infrastructure.InMemoryDbContextOptionsBuilder})" />
+    ///         cref="InMemoryDbContextOptionsExtensions.UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,System.Action{InMemoryDbContextOptionsBuilder})" />
     /// </summary>
     public sealed class InMemoryDatabaseRoot
     {
@@ -27,6 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public object Instance;
+        public object? Instance;
     }
 }

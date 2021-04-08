@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using static Microsoft.EntityFrameworkCore.Tools.AnsiConstants;
 
@@ -13,22 +14,23 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public static bool NoColor { get; set; }
         public static bool PrefixOutput { get; set; }
 
-        public static string Colorize(string value, Func<string, string> colorizeFunc)
+        [return: NotNullIfNotNull("value")]
+        public static string? Colorize(string? value, Func<string?, string> colorizeFunc)
             => NoColor ? value : colorizeFunc(value);
 
-        public static void WriteError(string message)
+        public static void WriteError(string? message)
             => WriteLine(Prefix("error:   ", Colorize(message, x => Bold + Red + x + Reset)));
 
-        public static void WriteWarning(string message)
+        public static void WriteWarning(string? message)
             => WriteLine(Prefix("warn:    ", Colorize(message, x => Bold + Yellow + x + Reset)));
 
-        public static void WriteInformation(string message)
+        public static void WriteInformation(string? message)
             => WriteLine(Prefix("info:    ", message));
 
-        public static void WriteData(string message)
+        public static void WriteData(string? message)
             => WriteLine(Prefix("data:    ", Colorize(message, x => Bold + Gray + x + Reset)));
 
-        public static void WriteVerbose(string message)
+        public static void WriteVerbose(string? message)
         {
             if (IsVerbose)
             {
@@ -36,14 +38,16 @@ namespace Microsoft.EntityFrameworkCore.Tools
             }
         }
 
-        private static string Prefix(string prefix, string value)
+        private static string? Prefix(string prefix, string? value)
             => PrefixOutput
-                ? string.Join(
-                    Environment.NewLine,
-                    value.Split(new[] { Environment.NewLine }, StringSplitOptions.None).Select(l => prefix + l))
+                ? value == null
+                    ? prefix
+                    : string.Join(
+                        Environment.NewLine,
+                        value.Split(new[] { Environment.NewLine }, StringSplitOptions.None).Select(l => prefix + l))
                 : value;
 
-        private static void WriteLine(string value)
+        private static void WriteLine(string? value)
         {
             if (NoColor)
             {

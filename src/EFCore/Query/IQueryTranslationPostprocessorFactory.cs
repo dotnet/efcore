@@ -17,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface IQueryTranslationPostprocessorFactory
     {
+        /// <summary>
+        ///     Creates a new <see cref="QueryTranslationPostprocessor" /> for given <see cref="QueryCompilationContext" />.
+        /// </summary>
+        /// <param name="queryCompilationContext"> The query compilation context to use. </param>
+        /// <returns> The created visitor. </returns>
         QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext);
     }
 }

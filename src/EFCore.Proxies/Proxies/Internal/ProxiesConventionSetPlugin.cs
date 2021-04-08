@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -39,10 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ProxiesConventionSetPlugin(
-            [NotNull] IProxyFactory proxyFactory,
-            [NotNull] IDbContextOptions options,
-            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
-            [NotNull] ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
+            IProxyFactory proxyFactory,
+            IDbContextOptions options,
+            LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
+            ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
         {
             _proxyFactory = proxyFactory;
             _options = options;
@@ -58,14 +57,19 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public virtual ConventionSet ModifyConventions(ConventionSet conventionSet)
         {
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
+            var extension = _options.FindExtension<ProxiesOptionsExtension>();
+
+            ConventionSet.AddAfter(
+                conventionSet.ModelInitializedConventions,
+                new ProxyChangeTrackingConvention(extension),
+                typeof(DbSetFindingConvention));
+
+            conventionSet.ModelFinalizingConventions.Add(
                 new ProxyBindingRewriter(
                     _proxyFactory,
-                    _options.FindExtension<ProxiesOptionsExtension>(),
+                    extension,
                     _lazyLoaderParameterBindingFactoryDependencies,
-                    _conventionSetBuilderDependencies),
-                typeof(ValidatingConvention));
+                    _conventionSetBuilderDependencies));
 
             return conventionSet;
         }

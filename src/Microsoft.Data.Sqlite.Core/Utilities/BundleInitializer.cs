@@ -3,7 +3,6 @@
 
 using System;
 using System.Reflection;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite.Utilities
@@ -15,7 +14,7 @@ namespace Microsoft.Data.Sqlite.Utilities
 
         public static void Initialize()
         {
-            Assembly assembly = null;
+            Assembly? assembly = null;
             try
             {
                 assembly = Assembly.Load(new AssemblyName("SQLitePCLRaw.batteries_v2"));
@@ -26,12 +25,11 @@ namespace Microsoft.Data.Sqlite.Utilities
 
             if (assembly != null)
             {
-                assembly.GetType("SQLitePCL.Batteries_V2").GetTypeInfo().GetDeclaredMethod("Init")
+                assembly.GetType("SQLitePCL.Batteries_V2", throwOnError: true)!.GetMethod("Init", Type.EmptyTypes)!
                     .Invoke(null, null);
             }
 
-            if ((!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19754", out var isEnabled) || !isEnabled)
-                && ApplicationDataHelper.CurrentApplicationData != null)
+            if (ApplicationDataHelper.CurrentApplicationData != null)
             {
                 var rc = sqlite3_win32_set_directory(
                     SQLITE_WIN32_DATA_DIRECTORY_TYPE,

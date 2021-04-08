@@ -67,6 +67,7 @@ FunctionsToExport = (
     'Drop-Database',
     'Enable-Migrations',
     'Get-DbContext',
+    'Get-Migration',
     'Remove-Migration',
     'Scaffold-DbContext',
     'Script-DbContext',

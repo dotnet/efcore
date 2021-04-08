@@ -5,9 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -24,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public class ArrayPropertyValues : PropertyValues
     {
-        private readonly object[] _values;
-        private IReadOnlyList<IProperty> _properties;
+        private readonly object?[] _values;
+        private IReadOnlyList<IProperty>? _properties;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,8 +31,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ArrayPropertyValues([NotNull] InternalEntityEntry internalEntry, [NotNull] object[] values)
-            : base(internalEntry) => _values = values;
+        public ArrayPropertyValues(InternalEntityEntry internalEntry, object?[] values)
+            : base(internalEntry)
+            => _values = values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (!Properties[i].IsShadowProperty())
                     {
-                        SetValue(i, ((Property)Properties[i]).Getter.GetClrValue(obj));
+                        SetValue(i, Properties[i].GetGetter().GetClrValue(obj));
                     }
                 }
             }
@@ -118,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override IReadOnlyList<IProperty> Properties
-            => _properties ?? (_properties = EntityType.GetProperties().ToList());
+            => _properties ??= EntityType.GetProperties().ToList();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object this[string propertyName]
+        public override object? this[string propertyName]
         {
             get => _values[EntityType.GetProperty(propertyName).GetIndex()];
             set => SetValue(EntityType.GetProperty(propertyName).GetIndex(), value);
@@ -138,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override object this[IProperty property]
+        public override object? this[IProperty property]
         {
             get => _values[EntityType.CheckPropertyBelongsToType(property).GetIndex()];
             set => SetValue(EntityType.CheckPropertyBelongsToType(property).GetIndex(), value);
@@ -151,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override TValue GetValue<TValue>(string propertyName)
-            => (TValue)this[propertyName];
+            => (TValue)this[propertyName]!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -160,15 +159,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override TValue GetValue<TValue>(IProperty property)
-            => (TValue)this[property];
+            => (TValue)this[property]!;
 
-        private void SetValue(int index, object value)
+        private void SetValue(int index, object? value)
         {
             var property = Properties[index];
 
             if (value != null)
             {
-                if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+                if (!property.ClrType.IsAssignableFrom(value.GetType()))
                 {
                     throw new InvalidCastException(
                         CoreStrings.InvalidType(

@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -21,8 +23,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             switch (extensionExpression)
             {
+                case ShapedQueryExpression shapedQueryExpression:
+                    return shapedQueryExpression.Update(
+                        Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+
+                case ReadItemExpression readItemExpression:
+                    return readItemExpression;
+
                 case SelectExpression selectExpression:
                     return VisitSelect(selectExpression);
 
@@ -110,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitSqlConditional(SqlConditionalExpression caseExpression);
+        protected abstract Expression VisitSqlConditional(SqlConditionalExpression sqlConditionalExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

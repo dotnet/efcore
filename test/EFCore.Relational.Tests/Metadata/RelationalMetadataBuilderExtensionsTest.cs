@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RelationalMetadataBuilderExtensionsTest
     {
         private InternalModelBuilder CreateBuilder()
-            => new InternalModelBuilder(new Model());
+            => new(new Model());
 
         [ConditionalFact]
         public void Can_access_model()
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(propertyBuilder.IsFixedLength(true));
             Assert.True(propertyBuilder.Metadata.IsFixedLength());
             Assert.NotNull(propertyBuilder.HasColumnName("Splew"));
-            Assert.Equal("Splew", propertyBuilder.Metadata.GetColumnName());
+            Assert.Equal("Splew", propertyBuilder.Metadata.GetColumnBaseName());
             Assert.NotNull(propertyBuilder.HasColumnType("int"));
             Assert.Equal("int", propertyBuilder.Metadata.GetColumnType());
             Assert.NotNull(propertyBuilder.HasDefaultValue(1));
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(propertyBuilder.Metadata.IsFixedLength());
             Assert.NotNull(propertyBuilder.HasColumnName("Splow", fromDataAnnotation: true));
             Assert.Null(propertyBuilder.HasColumnName("Splod"));
-            Assert.Equal("Splow", propertyBuilder.Metadata.GetColumnName());
+            Assert.Equal("Splow", propertyBuilder.Metadata.GetColumnBaseName());
             Assert.NotNull(propertyBuilder.HasColumnType("varchar", fromDataAnnotation: true));
             Assert.Null(propertyBuilder.HasColumnType("int"));
             Assert.Equal("varchar", propertyBuilder.Metadata.GetColumnType());
@@ -147,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
             var indexBuilder = entityTypeBuilder.HasIndex(new[] { "Id" }, ConfigurationSource.Convention);
 
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.NotNull(indexBuilder.HasName("Splew"));
             Assert.Equal("Splew", indexBuilder.Metadata.GetName());
 
@@ -155,6 +156,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Null(indexBuilder.HasName("Splod"));
             Assert.Equal("Splow", indexBuilder.Metadata.GetName());
+
+            Assert.NotNull(indexBuilder.HasName(null, fromDataAnnotation: true));
+            Assert.Equal("IX_Splot_Id", indexBuilder.Metadata.GetName());
+
+            Assert.NotNull(indexBuilder.HasName("Splod"));
+            Assert.Equal("Splod", indexBuilder.Metadata.GetName());
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            Assert.NotNull(indexBuilder.HasFilter("Splew"));
+            Assert.Equal("Splew", indexBuilder.Metadata.GetFilter());
+
+            Assert.NotNull(indexBuilder.HasFilter("Splow", fromDataAnnotation: true));
+            Assert.Equal("Splow", indexBuilder.Metadata.GetFilter());
+
+            Assert.Null(indexBuilder.HasFilter("Splod"));
+            Assert.Equal("Splow", indexBuilder.Metadata.GetFilter());
+
+            Assert.NotNull(indexBuilder.HasFilter(null, fromDataAnnotation: true));
+            Assert.Null(indexBuilder.Metadata.GetFilter());
+
+            Assert.Null(indexBuilder.HasFilter("Splod"));
+            Assert.Null(indexBuilder.Metadata.GetFilter());
         }
 
         [ConditionalFact]
@@ -179,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_access_check_constraint()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
-            var entityType = typeBuilder.Metadata;
+            IReadOnlyEntityType entityType = typeBuilder.Metadata;
 
             Assert.NotNull(typeBuilder.HasCheckConstraint("Splew", "s > p"));
             Assert.Equal("Splew", entityType.GetCheckConstraints().Single().Name);

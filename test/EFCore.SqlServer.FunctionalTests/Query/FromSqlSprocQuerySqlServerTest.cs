@@ -31,13 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 [dbo].[Ten Most Expensive Products]");
         }
 
-        public override async Task From_sql_queryable_stored_procedure_projection(bool async)
-        {
-            await base.From_sql_queryable_stored_procedure_projection(async);
-
-            AssertSql("[dbo].[Ten Most Expensive Products]");
-        }
-
         public override async Task From_sql_queryable_stored_procedure_with_parameter(bool async)
         {
             await base.From_sql_queryable_stored_procedure_with_parameter(async);
@@ -89,8 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-        protected override string TenMostExpensiveProductsSproc => "[dbo].[Ten Most Expensive Products]";
+        protected override string TenMostExpensiveProductsSproc
+            => "[dbo].[Ten Most Expensive Products]";
 
-        protected override string CustomerOrderHistorySproc => "[dbo].[CustOrderHist] @CustomerID = {0}";
+        protected override string CustomerOrderHistorySproc
+            => "[dbo].[CustOrderHist] @CustomerID = {0}";
     }
 }

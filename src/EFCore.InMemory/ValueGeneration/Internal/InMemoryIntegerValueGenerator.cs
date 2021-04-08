@@ -5,6 +5,7 @@ using System;
 using System.Globalization;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
@@ -37,9 +38,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Bump(object[] row)
+        public virtual void Bump(object?[] row)
         {
-            var newValue = (long)Convert.ChangeType(row[_propertyIndex], typeof(long));
+            Check.NotNull(row, nameof(row));
+
+            var newValue = (long)Convert.ChangeType(row[_propertyIndex]!, typeof(long));
 
             if (_current < newValue)
             {
@@ -62,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool GeneratesTemporaryValues => false;
+        public override bool GeneratesTemporaryValues
+            => false;
     }
 }

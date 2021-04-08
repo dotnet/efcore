@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Xunit;
 
 // ReSharper disable AssignNullToNotNullAttribute
@@ -110,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class Indexable
         {
-            public int this[int index] => 0;
+            public int this[int index]
+                => 0;
         }
     }
 }

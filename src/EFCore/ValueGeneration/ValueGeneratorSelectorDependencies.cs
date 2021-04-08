@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class ValueGeneratorSelectorDependencies
+    public sealed record ValueGeneratorSelectorDependencies
     {
         /// <summary>
         ///     <para>
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public ValueGeneratorSelectorDependencies([NotNull] IValueGeneratorCache cache)
+        public ValueGeneratorSelectorDependencies(IValueGeneratorCache cache)
         {
             Check.NotNull(cache, nameof(cache));
 
@@ -63,14 +62,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     The cache being used to store value generator instances.
         /// </summary>
-        public IValueGeneratorCache Cache { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="cache"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ValueGeneratorSelectorDependencies With([NotNull] IValueGeneratorCache cache)
-            => new ValueGeneratorSelectorDependencies(cache);
+        public IValueGeneratorCache Cache { get; init; }
     }
 }

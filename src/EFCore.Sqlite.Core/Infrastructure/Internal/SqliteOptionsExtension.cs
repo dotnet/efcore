@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
     /// </summary>
     public class SqliteOptionsExtension : RelationalOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
         private bool _loadSpatialite;
 
         /// <summary>
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected SqliteOptionsExtension([NotNull] SqliteOptionsExtension copyFrom)
+        protected SqliteOptionsExtension(SqliteOptionsExtension copyFrom)
             : base(copyFrom)
         {
             _loadSpatialite = copyFrom._loadSpatialite;
@@ -68,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool LoadSpatialite => _loadSpatialite;
+        public virtual bool LoadSpatialite
+            => _loadSpatialite;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
 
         private sealed class ExtensionInfo : RelationalExtensionInfo
         {
-            private string _logFragment;
+            private string? _logFragment;
 
             public ExtensionInfo(IDbContextOptionsExtension extension)
                 : base(extension)
@@ -106,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
             private new SqliteOptionsExtension Extension
                 => (SqliteOptionsExtension)base.Extension;
 
-            public override bool IsDatabaseProvider => true;
+            public override bool IsDatabaseProvider
+                => true;
 
             public override string LogFragment
             {

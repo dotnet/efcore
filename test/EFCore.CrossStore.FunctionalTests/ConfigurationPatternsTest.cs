@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact(Skip = "#18682")]
+        [ConditionalFact]
         public void Can_register_multiple_context_types_with_default_service_provider()
         {
             using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
         }
 
-        [ConditionalFact(Skip = "#18682")]
+        [ConditionalFact]
         public void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
         {
             using (var context = new MultipleProvidersContext())
@@ -215,7 +215,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
-        public void Dispose() => ExistingTestStore.Dispose();
+        public void Dispose()
+            => ExistingTestStore.Dispose();
 #pragma warning restore xUnit1013 // Public method should be marked as test
 
         [SqlServerConfiguredCondition]
@@ -238,39 +239,33 @@ namespace Microsoft.EntityFrameworkCore
                     () => new ExternalProviderContext(sqlServerServiceProvider));
             }
 
-            [ConditionalFact(Skip = "#18682")]
+            [ConditionalFact]
             public Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
                 => NestedContextTest(() => new BlogContext(), () => new ExternalProviderContext());
 
             private async Task NestedContextTest(Func<BlogContext> createBlogContext, Func<CrossStoreContext> createSimpleContext)
             {
-                using (var context0 = createBlogContext())
-                {
-                    Assert.Empty(context0.ChangeTracker.Entries());
-                    var blog0 = context0.Add(new Blog { Id = 1, Name = "Giddyup" }).Entity;
-                    Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
-                    await context0.SaveChangesAsync();
+                using var context0 = createBlogContext();
+                Assert.Empty(context0.ChangeTracker.Entries());
+                var blog0 = context0.Add(new Blog { Id = 1, Name = "Giddyup" }).Entity;
+                Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+                await context0.SaveChangesAsync();
 
-                    using (var context1 = createSimpleContext())
-                    {
-                        var customers1 = await context1.SimpleEntities.ToListAsync();
-                        Assert.Single(customers1);
-                        Assert.Single(context1.ChangeTracker.Entries());
-                        Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+                using var context1 = createSimpleContext();
+                var customers1 = await context1.SimpleEntities.ToListAsync();
+                Assert.Single(customers1);
+                Assert.Single(context1.ChangeTracker.Entries());
+                Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
 
-                        using (var context2 = createBlogContext())
-                        {
-                            Assert.Empty(context2.ChangeTracker.Entries());
-                            Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
+                using var context2 = createBlogContext();
+                Assert.Empty(context2.ChangeTracker.Entries());
+                Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
 
-                            var blog0Prime = (await context2.Blogs.ToArrayAsync()).Single();
-                            Assert.Same(blog0Prime, context2.ChangeTracker.Entries().Select(e => e.Entity).Single());
+                var blog0Prime = (await context2.Blogs.ToArrayAsync()).Single();
+                Assert.Same(blog0Prime, context2.ChangeTracker.Entries().Select(e => e.Entity).Single());
 
-                            Assert.Equal(blog0.Id, blog0Prime.Id);
-                            Assert.NotSame(blog0, blog0Prime);
-                        }
-                    }
-                }
+                Assert.Equal(blog0.Id, blog0Prime.Id);
+                Assert.NotSame(blog0, blog0Prime);
             }
 
             private CrossStoreFixture Fixture { get; }
@@ -285,7 +280,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
-            public void Dispose() => ExistingTestStore.Dispose();
+            public void Dispose()
+                => ExistingTestStore.Dispose();
 #pragma warning restore xUnit1013 // Public method should be marked as test
 
             private class BlogContext : DbContext

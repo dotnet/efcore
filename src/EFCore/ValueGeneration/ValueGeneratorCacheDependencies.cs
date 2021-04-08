@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class ValueGeneratorCacheDependencies
+    public sealed record ValueGeneratorCacheDependencies
     {
         /// <summary>
         ///     <para>

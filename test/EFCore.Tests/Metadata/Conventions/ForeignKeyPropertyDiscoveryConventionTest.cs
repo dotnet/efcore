@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(relationshipBuilder);
 
-            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            var fk = (IReadOnlyForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, dependentTypeBuilder.Metadata.GetForeignKeys().Single());
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(relationshipBuilder);
 
-            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            var fk = (IReadOnlyForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, DependentTypeWithCompositeKey.GetForeignKeys().Single());
             Assert.Same(fkProperty1.Metadata, fk.Properties[0]);
             Assert.Same(fkProperty2.Metadata, fk.Properties[1]);
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentTypeWithCompositeKey.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentTypeWithCompositeKey.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty1.Metadata, fk.Properties[0]);
             Assert.Same(fkProperty2.Metadata, fk.Properties[1]);
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentTypeWithCompositeKey.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentTypeWithCompositeKey.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty1.Metadata, fk.Properties[0]);
             Assert.Same(fkProperty2.Metadata, fk.Properties[1]);
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.NotEqual(DependentEntity.IDProperty.Name, DependentType.FindPrimaryKey().Properties.Single().Name);
 
-            var fk = (IForeignKey)newRelationshipBuilder.Metadata;
+            var fk = (IReadOnlyForeignKey)newRelationshipBuilder.Metadata;
             Assert.Same(fk, DependentType.GetForeignKeys().Single());
             Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.True(fk.IsUnique);
@@ -382,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
 
-            var fk = (IForeignKey)DependentTypeWithCompositeKey.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentTypeWithCompositeKey.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Equal("NavProp" + CompositePrimaryKey[0].Name + "1", fk.Properties[0].Name);
             Assert.Equal("NavProp" + CompositePrimaryKey[1].Name + "1", fk.Properties[1].Name);
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
 
-            var fk = (IForeignKey)DependentTypeWithCompositeKey.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentTypeWithCompositeKey.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Equal("NavProp" + CompositePrimaryKey[0].Name + "1", fk.Properties[0].Name);
             Assert.Equal("NavProp" + CompositePrimaryKey[1].Name + "1", fk.Properties[1].Name);
@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty, fk.Properties[0]);
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties[0]);
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.NotSame(fkProperty, fk.Properties.Single());
             Assert.Null(((ForeignKey)fk).GetPropertiesConfigurationSource());
@@ -506,8 +506,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var logEntry = ListLoggerFactory.Log.Single();
             Assert.Equal(LogLevel.Debug, logEntry.Level);
             Assert.Equal(
-                CoreResources.LogIncompatibleMatchingForeignKeyProperties(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    "{'PrincipalEntityPeeKay' : string}", "{'PeeKay' : int}"), logEntry.Message);
+                CoreResources.LogIncompatibleMatchingForeignKeyProperties(
+                    new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(DependentEntity) + "." + nameof(DependentEntity.SomeNav),
+                    nameof(PrincipalEntity),
+                    "{'PrincipalEntityPeeKay' : string}",
+                    "{'PeeKay' : int}"),
+                logEntry.Message);
 
             ValidateModel();
         }
@@ -524,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            var fk = (IReadOnlyForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, DependentType.GetForeignKeys().Single());
             Assert.Equal(PrincipalType.DisplayName() + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.False(fk.IsUnique);
@@ -544,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            var fk = (IReadOnlyForeignKey)relationshipBuilder.Metadata;
             Assert.NotSame(fkProperty, fk.Properties.Single());
             Assert.Equal("PrincipalEntity" + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -563,11 +568,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            var fk = (IReadOnlyForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, PrincipalType.GetForeignKeys().Single());
             Assert.Equal(PrincipalType.DisplayName() + PrimaryKey.Name, fk.Properties.Single().Name);
             Assert.True(fk.IsUnique);
             Assert.False(fk.IsRequired);
+
+            ValidateModel();
+        }
+
+        [ConditionalFact]
+        public void Does_not_match_for_convention_identifying_FK()
+        {
+            var derivedType = PrincipalType.Builder.ModelBuilder.Entity(typeof(DerivedPrincipalEntity), ConfigurationSource.Convention);
+            derivedType.HasBaseType(PrincipalType, ConfigurationSource.Convention);
+
+            PrincipalType.Builder.Property(typeof(int), nameof(PrincipalEntity.PrincipalEntityId), ConfigurationSource.Convention);
+            var relationshipBuilder = derivedType.HasRelationship(
+                PrincipalType, PrincipalType.FindPrimaryKey().Properties, ConfigurationSource.Convention)
+                .IsUnique(true, ConfigurationSource.DataAnnotation);
+
+            var newRelationshipBuilder = RunConvention(relationshipBuilder);
+            Assert.Same(relationshipBuilder, newRelationshipBuilder);
+
+            var fk = (IReadOnlyForeignKey)relationshipBuilder.Metadata;
+            Assert.Equal(nameof(PrincipalEntity.PeeKay), fk.Properties.Single().Name);
+            Assert.Same(fk, derivedType.Metadata.GetForeignKeys().Single());
+            Assert.True(fk.IsUnique);
+            Assert.True(fk.IsRequired);
 
             ValidateModel();
         }
@@ -589,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentTypeWithCompositeKey.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentTypeWithCompositeKey.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty1, fk.Properties[0]);
             Assert.Same(fkProperty2, fk.Properties[1]);
@@ -685,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            var fk = (IReadOnlyForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, DependentTypeWithCompositeKey.GetForeignKeys().Single());
             Assert.Equal(2, fk.Properties.Count);
             Assert.NotSame(fkProperty1, fk.Properties[0]);
@@ -777,7 +805,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .Single(foreignKey => foreignKey != newRelationshipBuilder.Metadata)
                 .Builder.HasForeignKey(new[] { fkProperty }, ConfigurationSource.Convention);
 
-            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            var fk = (IReadOnlyForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.False(fk.IsUnique);
 
@@ -842,7 +870,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             newRelationshipBuilder = RunConvention(newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(fkProperty, fk.Properties.Single());
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -867,7 +895,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             newRelationshipBuilder = RunConvention(newRelationshipBuilder);
 
-            var fk = (IForeignKey)DependentType.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)DependentType.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(DependentType, fk.DeclaringEntityType);
             Assert.Same(fkProperty, fk.Properties.Single());
@@ -891,39 +919,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = (IForeignKey)newRelationshipBuilder.Metadata;
+            var fk = (IReadOnlyForeignKey)newRelationshipBuilder.Metadata;
             Assert.Same(dependentTypeBuilder.Metadata, fk.DeclaringEntityType);
             Assert.Same(PrincipalType.FindPrimaryKey(), fk.PrincipalKey);
             Assert.True(fk.IsUnique);
             Assert.False(fk.IsRequired);
-
-            ValidateModel();
-        }
-
-        [ConditionalFact]
-        public void Does_not_invert_if_principal_entity_type_is_defining_the_weak_entity_type()
-        {
-            PrincipalType.Builder.Property(nameof(PrincipalEntity.DependentEntityKayPee), ConfigurationSource.Convention);
-            PrincipalType.Model.RemoveEntityType(typeof(DependentEntity));
-
-            var dependentType = PrincipalType.Model.AddEntityType(
-                typeof(DependentEntity), nameof(PrincipalEntity.InverseReferenceNav), PrincipalType,
-                ConfigurationSource.Convention);
-            var relationshipBuilder = dependentType.Builder.HasRelationship(
-                PrincipalType, null, nameof(PrincipalEntity.InverseReferenceNav), ConfigurationSource.Convention);
-            dependentType.Builder.PrimaryKey(new[] { nameof(DependentEntity.KayPee) }, ConfigurationSource.Convention);
-
-            var newRelationshipBuilder = RunConvention(relationshipBuilder);
-            Assert.Same(relationshipBuilder, newRelationshipBuilder);
-            Assert.Same(dependentType, newRelationshipBuilder.Metadata.DeclaringEntityType);
-
-            newRelationshipBuilder = RunConvention(newRelationshipBuilder);
-
-            var fk = (IForeignKey)dependentType.GetForeignKeys().Single();
-            Assert.Same(dependentType, fk.DeclaringEntityType);
-            Assert.Same(fk, newRelationshipBuilder.Metadata);
-            Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
-            Assert.True(fk.IsUnique);
 
             ValidateModel();
         }
@@ -944,7 +944,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             newRelationshipBuilder = RunConvention(newRelationshipBuilder);
 
-            var fk = (IForeignKey)dependentTypeBuilder.Metadata.GetForeignKeys().Single();
+            var fk = (IReadOnlyForeignKey)dependentTypeBuilder.Metadata.GetForeignKeys().Single();
             Assert.Same(dependentTypeBuilder.Metadata, fk.DeclaringEntityType);
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
@@ -986,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
             Assert.Same(relationshipBuilder, newRelationshipBuilder);
 
-            var fk = relationshipBuilder.Metadata;
+            var fk = (IConventionForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, DependentType.GetForeignKeys().Single());
             Assert.Null(fk.GetPropertiesConfigurationSource());
             Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
@@ -1011,7 +1011,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .HasRelationship(DependentType, "InverseReferenceNav", "SomeNav", ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention);
 
-            var fk = relationshipBuilder.Metadata;
+            var fk = (IConventionForeignKey)relationshipBuilder.Metadata;
             Assert.Same(fk, PrincipalType.GetForeignKeys().Single());
             Assert.True(fk.Properties.Single().IsShadowProperty());
             Assert.Null(fk.GetPropertiesConfigurationSource());
@@ -1099,15 +1099,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return modelBuilder;
         }
 
-        private InternalRelationshipBuilder RunConvention(InternalRelationshipBuilder relationshipBuilder)
+        private InternalForeignKeyBuilder RunConvention(InternalForeignKeyBuilder relationshipBuilder)
         {
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
-            var context = new ConventionContext<IConventionRelationshipBuilder>(
+            var context = new ConventionContext<IConventionForeignKeyBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
             convention.ProcessForeignKeyAdded(relationshipBuilder, context);
             if (context.ShouldStopProcessing())
             {
-                return (InternalRelationshipBuilder)context.Result;
+                return (InternalForeignKeyBuilder)context.Result;
             }
 
             return relationshipBuilder;
@@ -1130,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void ValidateModel()
         {
             var convention = CreateForeignKeyPropertyDiscoveryConvention();
-            convention.ProcessModelFinalized(_model, new ConventionContext<IConventionModelBuilder>(_model.Metadata.ConventionDispatcher));
+            convention.ProcessModelFinalizing(_model, new ConventionContext<IConventionModelBuilder>(_model.Metadata.ConventionDispatcher));
         }
 
         private ForeignKeyPropertyDiscoveryConvention CreateForeignKeyPropertyDiscoveryConvention()
@@ -1143,7 +1143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                .With(CreateLogger());
+                with { Logger = CreateLogger() };
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {
@@ -1154,37 +1154,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new TestLoggingDefinitions());
+                new TestLoggingDefinitions(),
+                new NullDbContextLogger());
             return modelLogger;
         }
 
         public ListLoggerFactory ListLoggerFactory { get; }
-            = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
+            = new(l => l == DbLoggerCategory.Model.Name);
 
-        private Property PrimaryKey => PrincipalType.FindPrimaryKey().Properties.Single();
+        private Property PrimaryKey
+            => PrincipalType.FindPrimaryKey().Properties.Single();
 
-        private EntityType PrincipalType => _model.Entity(typeof(PrincipalEntity), ConfigurationSource.Convention).Metadata;
+        private EntityType PrincipalType
+            => _model.Entity(typeof(PrincipalEntity), ConfigurationSource.Convention).Metadata;
 
-        private EntityType DependentType => _model.Entity(typeof(DependentEntity), ConfigurationSource.Convention).Metadata;
+        private EntityType DependentType
+            => _model.Entity(typeof(DependentEntity), ConfigurationSource.Convention).Metadata;
 
-        private IReadOnlyList<Property> CompositePrimaryKey => PrincipalTypeWithCompositeKey.FindPrimaryKey().Properties;
+        private IReadOnlyList<Property> CompositePrimaryKey
+            => PrincipalTypeWithCompositeKey.FindPrimaryKey().Properties;
 
-        private EntityType PrincipalTypeWithCompositeKey => _model.Entity(
-            typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Convention).Metadata;
+        private EntityType PrincipalTypeWithCompositeKey
+            => _model.Entity(
+                typeof(PrincipalEntityWithCompositeKey), ConfigurationSource.Convention).Metadata;
 
-        private EntityType DependentTypeWithCompositeKey => _model.Entity(
-            typeof(DependentEntityWithCompositeKey), ConfigurationSource.Convention).Metadata;
+        private EntityType DependentTypeWithCompositeKey
+            => _model.Entity(
+                typeof(DependentEntityWithCompositeKey), ConfigurationSource.Convention).Metadata;
 
         private class PrincipalEntity
         {
             public static readonly PropertyInfo DependentEntityKayPeeProperty =
                 typeof(PrincipalEntity).GetProperty("DependentEntityKayPee");
 
+            public int PrincipalEntityId { get; set; }
             public int PeeKay { get; set; }
             public int? DependentEntityKayPee { get; set; }
             public IEnumerable<DependentEntity> InverseNav { get; set; }
             public DependentEntity InverseReferenceNav { get; set; }
             public PrincipalEntity SelfRef { get; set; }
+        }
+
+        private class DerivedPrincipalEntity : PrincipalEntity
+        {
         }
 
         private class DependentEntity

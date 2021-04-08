@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,36 +27,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Hence we don't evaluate them. See issue#2069
 
         private static readonly PropertyInfo _dateTimeNow
-            = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now));
+            = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.Now));
 
         private static readonly PropertyInfo _dateTimeUtcNow
-            = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.UtcNow));
+            = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.UtcNow));
 
         private static readonly PropertyInfo _dateTimeToday
-            = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Today));
+            = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.Today));
 
         private static readonly PropertyInfo _dateTimeOffsetNow
-            = typeof(DateTimeOffset).GetTypeInfo().GetDeclaredProperty(nameof(DateTimeOffset.Now));
+            = typeof(DateTimeOffset).GetRequiredDeclaredProperty(nameof(DateTimeOffset.Now));
 
         private static readonly PropertyInfo _dateTimeOffsetUtcNow
-            = typeof(DateTimeOffset).GetTypeInfo().GetDeclaredProperty(nameof(DateTimeOffset.UtcNow));
+            = typeof(DateTimeOffset).GetRequiredDeclaredProperty(nameof(DateTimeOffset.UtcNow));
 
         private static readonly MethodInfo _guidNewGuid
-            = typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid));
+            = typeof(Guid).GetRequiredDeclaredMethod(nameof(Guid.NewGuid));
 
         private static readonly MethodInfo _randomNextNoArgs
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
+            = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
 
         private static readonly MethodInfo _randomNextOneArg
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int) });
+            = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), new[] { typeof(int) });
 
         private static readonly MethodInfo _randomNextTwoArgs
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
-
-        /// <summary>
-        ///     Parameter object containing dependencies for this service.
-        /// </summary>
-        protected virtual EvaluatableExpressionFilterDependencies Dependencies { get; }
+            = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
 
         /// <summary>
         ///     <para>
@@ -69,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
         public EvaluatableExpressionFilter(
-            [NotNull] EvaluatableExpressionFilterDependencies dependencies)
+            EvaluatableExpressionFilterDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -77,13 +72,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
+        protected virtual EvaluatableExpressionFilterDependencies Dependencies { get; }
+
+        /// <summary>
         ///     Checks whether the given expression can be evaluated.
         /// </summary>
         /// <param name="expression"> The expression. </param>
         /// <param name="model"> The model. </param>
-        /// <returns> True if the expression can be evaluated; false otherwise. </returns>
+        /// <returns> <see langword="true" /> if the expression can be evaluated; <see langword="false" /> otherwise. </returns>
         public virtual bool IsEvaluatableExpression(Expression expression, IModel model)
         {
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(model, nameof(model));
+
             switch (expression)
             {
                 case MemberExpression memberExpression:
@@ -105,12 +108,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (Equals(method, _guidNewGuid)
                         || Equals(method, _randomNextNoArgs)
                         || Equals(method, _randomNextOneArg)
-                        || Equals(method, _randomNextTwoArgs))
+                        || Equals(method, _randomNextTwoArgs)
+                        || method.DeclaringType == typeof(DbFunctionsExtensions))
                     {
                         return false;
                     }
 
                     break;
+            }
+
+            foreach (var plugin in Dependencies.Plugins)
+            {
+                if (!plugin.IsEvaluatableExpression(expression))
+                {
+                    return false;
+                }
             }
 
             return true;

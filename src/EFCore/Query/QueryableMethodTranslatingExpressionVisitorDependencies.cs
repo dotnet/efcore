@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class QueryableMethodTranslatingExpressionVisitorDependencies
+    public sealed record QueryableMethodTranslatingExpressionVisitorDependencies
     {
         /// <summary>
         ///     <para>

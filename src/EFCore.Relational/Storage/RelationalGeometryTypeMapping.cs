@@ -6,10 +6,10 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use when converting to and from database types. </param>
         /// <param name="storeType"> The store type name. </param>
         protected RelationalGeometryTypeMapping(
-            [NotNull] ValueConverter<TGeometry, TProvider> converter,
-            [NotNull] string storeType)
+            ValueConverter<TGeometry, TProvider>? converter,
+            string storeType)
             : base(CreateRelationalTypeMappingParameters(storeType))
         {
             SpatialConverter = converter;
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use when converting to and from database types. </param>
         protected RelationalGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            ValueConverter<TGeometry, TProvider> converter)
+            ValueConverter<TGeometry, TProvider>? converter)
             : base(parameters)
         {
             SpatialConverter = converter;
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The underlying Geometry converter.
         /// </summary>
-        protected virtual ValueConverter<TGeometry, TProvider> SpatialConverter { get; }
+        protected virtual ValueConverter<TGeometry, TProvider>? SpatialConverter { get; }
 
         private static RelationalTypeMappingParameters CreateRelationalTypeMappingParameters(string storeType)
         {
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value"> The value to be assigned to the parameter. </param>
         /// <param name="nullable"> A value indicating whether the parameter should be a nullable type. </param>
         /// <returns> The newly created parameter. </returns>
-        public override DbParameter CreateParameter(DbCommand command, string name, object value, bool? nullable = null)
+        public override DbParameter CreateParameter(DbCommand command, string name, object? value, bool? nullable = null)
         {
             var parameter = command.CreateParameter();
             parameter.Direction = ParameterDirection.Input;
@@ -83,9 +83,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 value = Converter.ConvertToProvider(value);
             }
 
-            parameter.Value = value == null
+            parameter.Value = value is null
                 ? DBNull.Value
-                : SpatialConverter.ConvertToProvider(value);
+                : SpatialConverter is null
+                    ? value
+                    : SpatialConverter.ConvertToProvider(value);
 
             if (nullable.HasValue)
             {
@@ -105,6 +107,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The expression with conversion added. </returns>
         public override Expression CustomizeDataReaderExpression(Expression expression)
         {
+            if (SpatialConverter is null)
+            {
+                return expression;
+            }
+
             if (expression.Type != SpatialConverter.ProviderClrType)
             {
                 expression = Expression.Convert(expression, SpatialConverter.ProviderClrType);
@@ -127,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => Expression.Convert(
                 Expression.Call(
                     Expression.New(WKTReaderType),
-                    WKTReaderType.GetMethod("Read", new[] { typeof(string) }),
+                    WKTReaderType.GetMethod("Read", new[] { typeof(string) })!,
                     Expression.Constant(CreateWktWithSrid(value), typeof(string))),
                 value.GetType());
 
@@ -153,13 +160,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="value"> The 'Geometry' value. </param>
         /// <returns> The WKT. </returns>
-        protected abstract string AsText([NotNull] object value);
+        protected abstract string AsText(object value);
 
         /// <summary>
         ///     Returns the SRID representation of the given object.
         /// </summary>
         /// <param name="value"> The 'Geometry' value. </param>
         /// <returns> The SRID. </returns>
-        protected abstract int GetSrid([NotNull] object value);
+        protected abstract int GetSrid(object value);
     }
 }

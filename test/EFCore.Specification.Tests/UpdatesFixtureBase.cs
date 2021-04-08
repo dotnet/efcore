@@ -11,21 +11,24 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
+            modelBuilder.Entity<Product>().HasMany(e => e.ProductCategories).WithOne()
+                .HasForeignKey(e => e.ProductId);
+            modelBuilder.Entity<ProductWithBytes>().HasMany(e => e.ProductCategories).WithOne()
+                .HasForeignKey(e => e.ProductId);
+
+            modelBuilder.Entity<ProductCategory>()
+                .HasKey(p => new { p.CategoryId, p.ProductId });
+
             modelBuilder.Entity<Product>().HasOne<Category>().WithMany()
                 .HasForeignKey(e => e.DependentId)
                 .HasPrincipalKey(e => e.PrincipalId);
-
-            modelBuilder.Entity<Product>()
-                .Property(e => e.Id)
-                .ValueGeneratedNever();
 
             modelBuilder.Entity<Category>()
                 .Property(e => e.Id)
                 .ValueGeneratedNever();
 
-            modelBuilder.Entity<ProductWithBytes>()
-                .Property(e => e.Id)
-                .ValueGeneratedNever();
+            modelBuilder.Entity<Category>().HasMany(e => e.ProductCategories).WithOne()
+                .HasForeignKey(e => e.CategoryId);
 
             modelBuilder.Entity<AFewBytes>()
                 .Property(e => e.Id)

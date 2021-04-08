@@ -2,21 +2,22 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly)]
     public class CosmosDbConfiguredConditionAttribute : Attribute, ITestCondition
     {
-        private static bool? _connectionAvailable;
-
         public string SkipReason
             => "Unable to connect to Cosmos DB. Please install/start the emulator service or configure a valid endpoint.";
+
+        private static bool? _connectionAvailable;
 
         public async ValueTask<bool> IsMetAsync()
         {
@@ -67,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         private static bool IsNotConfigured(Exception exception)
             => exception switch
             {
-                HttpRequestException re => re.InnerException is SocketException,
+                HttpRequestException re => re.InnerException is SocketException // Exception in Mac/Linux
+                    || (re.InnerException is IOException ioException && ioException.InnerException is SocketException), // Exception in Windows
                 _ => exception.Message.Contains(
                     "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
                     StringComparison.Ordinal),
