@@ -29,10 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             // Reading database values
             private static readonly MethodInfo _isDbNullMethod =
-                typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) });
+                typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.IsDBNull), typeof(int));
 
             private static readonly MethodInfo _getFieldValueMethod =
-                typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) });
+                typeof(DbDataReader).GetRequiredRuntimeMethod(nameof(DbDataReader.GetFieldValue), typeof(int));
 
             private static readonly MethodInfo _throwReadValueExceptionMethod =
                 typeof(ShaperProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(ThrowReadValueException));
@@ -994,7 +994,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = Expression.Call(
                         getMethod.DeclaringType != typeof(DbDataReader)
                             ? Expression.Convert(dbDataReader, getMethod.DeclaringType!)
-                            : (Expression)dbDataReader,
+                            : dbDataReader,
                         getMethod,
                         indexExpression);
 
@@ -1062,9 +1062,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (nullable)
                 {
+                    Expression replaceExpression;
+                    if (converter?.ConvertsNulls == true)
+                    {
+                        replaceExpression = ReplacingExpressionVisitor.Replace(
+                            converter.ConvertFromProviderExpression.Parameters.Single(),
+                            Expression.Default(converter.ProviderClrType),
+                            converter.ConvertFromProviderExpression.Body);
+
+                        if (replaceExpression.Type != type)
+                        {
+                            replaceExpression = Expression.Convert(replaceExpression, type);
+                        }
+                    }
+                    else
+                    {
+                        replaceExpression = Expression.Default(valueExpression.Type);
+                    }
+
                     valueExpression = Expression.Condition(
                         Expression.Call(dbDataReader, _isDbNullMethod, indexExpression),
-                        Expression.Default(valueExpression.Type),
+                        replaceExpression,
                         valueExpression);
                 }
 
@@ -1809,14 +1827,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
 
                         return await relationalCommand.ExecuteReaderAsync(
-                            new RelationalCommandParameterObject(
-                                queryContext.Connection,
-                                queryContext.ParameterValues,
-                                relationalCommandCache.ReaderColumns,
-                                queryContext.Context,
-                                queryContext.CommandLogger,
-                                detailedErrorsEnabled),
-                            cancellationToken)
+                                new RelationalCommandParameterObject(
+                                    queryContext.Connection,
+                                    queryContext.ParameterValues,
+                                    relationalCommandCache.ReaderColumns,
+                                    queryContext.Context,
+                                    queryContext.CommandLogger,
+                                    detailedErrorsEnabled),
+                                cancellationToken)
                             .ConfigureAwait(false);
                     }
 

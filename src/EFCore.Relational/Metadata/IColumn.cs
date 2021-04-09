@@ -71,14 +71,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             get
             {
-                var property = PropertyMappings.First().Property;
-                var value = property.GetDefaultValue(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
-                var converter = property.GetValueConverter() ?? PropertyMappings.First().TypeMapping?.Converter;
-
-                return converter != null
-                    ? converter.ConvertToProvider(value)
-                    : value;
+                TryGetDefaultValue(out var defaultValue);
+                return defaultValue;
             }
+        }
+
+        /// <summary>
+        ///     Gets the object that is used as the default value for this column.
+        /// </summary>
+        /// <param name="defaultValue"> The default value. </param>
+        /// <returns> True if the default value was explicitly set; false otherwise. </returns>
+        public virtual bool TryGetDefaultValue(out object? defaultValue)
+        {
+            var property = PropertyMappings.First().Property;
+
+            if (!property.TryGetDefaultValue(StoreObjectIdentifier.Table(Table.Name, Table.Schema), out defaultValue))
+            {
+                return false;
+            }
+
+            var converter = property.GetValueConverter() ?? PropertyMappings.First().TypeMapping?.Converter;
+
+            if (converter != null)
+            {
+                defaultValue = converter.ConvertToProvider(defaultValue);
+            }
+
+            return true;
         }
 
         /// <summary>

@@ -54,6 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected static Expression<Func<string, DateTimeOffset>> ToDateTimeOffset()
-            => v => v == null ? default : DateTimeOffset.Parse(v, CultureInfo.InvariantCulture);
+            => v => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture);
     }
 }
