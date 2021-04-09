@@ -134,6 +134,9 @@ stages:
             pool:
               vmImage: ubuntu-18.04
             variables:
+              - LC_ALL: 'en_US.UTF-8'
+              - LANG: 'en_US.UTF-8'
+              - LANGUAGE: 'en_US.UTF-8'
               - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
                 - _CosmosConnectionUrl: 'true'
             steps:
