@@ -86,7 +86,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _changeTrackingLogger = dependencies.ChangeTrackingLogger;
             _changeDetectorInitialized = false;
         }
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -642,6 +641,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void ResetState()
         {
             Clear();
+            Dependencies.NavigationFixer.AbortAttachGraph();
 
             Tracked = null;
             StateChanged = null;
@@ -690,16 +690,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual void BeginAttachGraph()
+            => Dependencies.NavigationFixer.BeginAttachGraph();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void CompleteAttachGraph()
+            => Dependencies.NavigationFixer.CompleteAttachGraph();
+        
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void AbortAttachGraph()
+            => Dependencies.NavigationFixer.AbortAttachGraph();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void RecordReferencedUntrackedEntity(
             object referencedEntity,
             INavigationBase navigation,
             InternalEntityEntry referencedFromEntry)
         {
-            if (_referencedUntrackedEntities == null)
-            {
-                _referencedUntrackedEntities
-                    = new Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>(LegacyReferenceEqualityComparer.Instance);
-            }
+            _referencedUntrackedEntities ??=
+                new Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>(LegacyReferenceEqualityComparer.Instance);
 
             if (!_referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
             {

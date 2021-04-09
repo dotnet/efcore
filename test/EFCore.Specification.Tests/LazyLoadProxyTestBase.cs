@@ -2083,42 +2083,51 @@ namespace Microsoft.EntityFrameworkCore
   {
     ""Writer"": {
       ""FirstName"": ""firstNameWriter0"",
-      ""LastName"": ""lastNameWriter0""
+      ""LastName"": ""lastNameWriter0"",
+      ""Alive"": false
     },
     ""Reader"": {
       ""FirstName"": ""firstNameReader0"",
-      ""LastName"": ""lastNameReader0""
+      ""LastName"": ""lastNameReader0"",
+      ""Alive"": false
     },
     ""Host"": {
-      ""HostName"": ""127.0.0.1""
+      ""HostName"": ""127.0.0.1"",
+      ""Rating"": 0.0
     },
     ""Id"": 1
   },
   {
     ""Writer"": {
       ""FirstName"": ""firstNameWriter1"",
-      ""LastName"": ""lastNameWriter1""
+      ""LastName"": ""lastNameWriter1"",
+      ""Alive"": false
     },
     ""Reader"": {
       ""FirstName"": ""firstNameReader1"",
-      ""LastName"": ""lastNameReader1""
+      ""LastName"": ""lastNameReader1"",
+      ""Alive"": false
     },
     ""Host"": {
-      ""HostName"": ""127.0.0.2""
+      ""HostName"": ""127.0.0.2"",
+      ""Rating"": 0.0
     },
     ""Id"": 2
   },
   {
     ""Writer"": {
       ""FirstName"": ""firstNameWriter2"",
-      ""LastName"": ""lastNameWriter2""
+      ""LastName"": ""lastNameWriter2"",
+      ""Alive"": false
     },
     ""Reader"": {
       ""FirstName"": ""firstNameReader2"",
-      ""LastName"": ""lastNameReader2""
+      ""LastName"": ""lastNameReader2"",
+      ""Alive"": false
     },
     ""Host"": {
-      ""HostName"": ""127.0.0.3""
+      ""HostName"": ""127.0.0.3"",
+      ""Rating"": 0.0
     },
     ""Id"": 3
   }
@@ -2145,16 +2154,19 @@ namespace Microsoft.EntityFrameworkCore
       ""Writer"": {
         ""$id"": ""3"",
         ""FirstName"": ""firstNameWriter0"",
-        ""LastName"": ""lastNameWriter0""
+        ""LastName"": ""lastNameWriter0"",
+        ""Alive"": false
       },
       ""Reader"": {
         ""$id"": ""4"",
         ""FirstName"": ""firstNameReader0"",
-        ""LastName"": ""lastNameReader0""
+        ""LastName"": ""lastNameReader0"",
+        ""Alive"": false
       },
       ""Host"": {
         ""$id"": ""5"",
-        ""HostName"": ""127.0.0.1""
+        ""HostName"": ""127.0.0.1"",
+        ""Rating"": 0
       }
     },
     {
@@ -2163,16 +2175,19 @@ namespace Microsoft.EntityFrameworkCore
       ""Writer"": {
         ""$id"": ""7"",
         ""FirstName"": ""firstNameWriter1"",
-        ""LastName"": ""lastNameWriter1""
+        ""LastName"": ""lastNameWriter1"",
+        ""Alive"": false
       },
       ""Reader"": {
         ""$id"": ""8"",
         ""FirstName"": ""firstNameReader1"",
-        ""LastName"": ""lastNameReader1""
+        ""LastName"": ""lastNameReader1"",
+        ""Alive"": false
       },
       ""Host"": {
         ""$id"": ""9"",
-        ""HostName"": ""127.0.0.2""
+        ""HostName"": ""127.0.0.2"",
+        ""Rating"": 0
       }
     },
     {
@@ -2181,16 +2196,19 @@ namespace Microsoft.EntityFrameworkCore
       ""Writer"": {
         ""$id"": ""11"",
         ""FirstName"": ""firstNameWriter2"",
-        ""LastName"": ""lastNameWriter2""
+        ""LastName"": ""lastNameWriter2"",
+        ""Alive"": false
       },
       ""Reader"": {
         ""$id"": ""12"",
         ""FirstName"": ""firstNameReader2"",
-        ""LastName"": ""lastNameReader2""
+        ""LastName"": ""lastNameReader2"",
+        ""Alive"": false
       },
       ""Host"": {
         ""$id"": ""13"",
-        ""HostName"": ""127.0.0.3""
+        ""HostName"": ""127.0.0.3"",
+        ""Rating"": 0
       }
     }
   ]
@@ -2458,6 +2476,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FullName
         {
+            public virtual bool Exists { get; set; }
+
             // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
             public virtual FirstName FirstName { get; private set; }
 
@@ -2472,6 +2492,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 FirstName = firstName ?? throw new ArgumentNullException(nameof(firstName));
                 LastName = lastName ?? throw new ArgumentNullException(nameof(lastName));
+                Exists = true;
             }
         }
 
@@ -2631,6 +2652,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
+            public bool Alive { get; set; }
         }
 
         public class Entity
@@ -2655,6 +2677,7 @@ namespace Microsoft.EntityFrameworkCore
         public class Host
         {
             public string HostName { get; set; }
+            public double Rating { get; set; }
         }
 
         public abstract class Tribe
@@ -2743,6 +2766,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public string Street { get; set; }
             public string PostalCode { get; set; }
+            public int CountryCode { get; set; }
         }
 
         protected DbContext CreateContext(bool lazyLoadingEnabled = false)

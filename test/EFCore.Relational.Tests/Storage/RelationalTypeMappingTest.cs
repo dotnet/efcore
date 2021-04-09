@@ -552,6 +552,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
+        public virtual void DateTimeOffset_value_comparer_handles_different_offsets()
+        {
+            var typeMapping = new DateTimeOffsetTypeMapping("datetimeoffset", DbType.DateTimeOffset);
+
+            Assert.False(typeMapping.Comparer.Equals(
+                new DateTimeOffset(2000, 1, 1, 12, 0, 0, TimeSpan.FromHours(0)),
+                new DateTimeOffset(2000, 1, 1, 13, 0, 0, TimeSpan.FromHours(1))));
+        }
+
+        [ConditionalFact]
         public virtual void Primary_key_type_mapping_is_picked_up_by_FK_without_going_through_store_type()
         {
             using var context = new FruityContext(ContextOptions);

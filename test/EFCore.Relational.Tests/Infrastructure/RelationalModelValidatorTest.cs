@@ -326,11 +326,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
             modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0));
+            modelBuilder.Entity<A>().Property(a => a.P1).IsRequired();
             modelBuilder.Entity<A>().ToTable("Table");
             modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
             modelBuilder.Entity<B>().ToTable("Table");
 
             Validate(modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Throws_on_not_configured_shared_columns_with_shared_table_with_dependents()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+            modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0));
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty(nameof(A)), modelBuilder.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Warns_on_not_configured_shared_columns_with_shared_table()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<Owner>().OwnsOne(e => e.Owned);
+
+            var definition = RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(definition.GenerateMessage(nameof(OwnedEntity)), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -388,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
 
-            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<A>().ToTable("Table").Property(e => e.P0).IsRequired();
             modelBuilder.Entity<B>(
                 b =>
                 {
@@ -1983,6 +2009,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         protected class Employee : Person
         {
+        }
+
+        protected class Owner
+        {
+            public int Id { get; set; }
+            public OwnedEntity Owned { get; set; }
+        }
+
+        protected class OwnedEntity
+        {
+            public string Value { get; set; }
         }
 
         public class TestDecimalToLongConverter : ValueConverter<decimal, long>

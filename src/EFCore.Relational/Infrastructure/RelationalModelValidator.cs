@@ -301,6 +301,89 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 ValidateSharedKeysCompatibility(mappedTypes, table, logger);
                 ValidateSharedForeignKeysCompatibility(mappedTypes, table, logger);
                 ValidateSharedIndexesCompatibility(mappedTypes, table, logger);
+
+                // Validate optional dependents
+                if (mappedTypes.Count == 1)
+                {
+                    continue;
+                }
+
+                var principalEntityTypesMap = new Dictionary<IEntityType, (List<IEntityType> EntityTypes, bool Optional)>();
+                foreach (var entityType in mappedTypes)
+                {
+                    if (entityType.BaseType != null
+                        || entityType.FindPrimaryKey() == null)
+                    {
+                        continue;
+                    }
+
+                    var (principalEntityTypes, optional) = GetPrincipalEntityTypes(entityType);
+                    if (!optional)
+                    {
+                        continue;
+                    }
+
+                    var principalColumns = principalEntityTypes.SelectMany(e => e.GetProperties())
+                        .Select(e => e.GetColumnName(table))
+                        .Where(e => e != null)
+                        .ToList();
+                    var requiredNonSharedColumnFound = false;
+                    foreach (var property in entityType.GetProperties())
+                    {
+                        if (property.IsPrimaryKey()
+                            || property.IsNullable)
+                        {
+                            continue;
+                        }
+
+                        var columnName = property.GetColumnName(table);
+                        if (columnName != null)
+                        {
+                            if (!principalColumns.Contains(columnName))
+                            {
+                                requiredNonSharedColumnFound = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!requiredNonSharedColumnFound)
+                    {
+                        if (entityType.GetReferencingForeignKeys().Select(e => e.DeclaringEntityType).Any(t => mappedTypes.Contains(t)))
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty(entityType.DisplayName()));
+                        }
+
+                        logger.OptionalDependentWithoutIdentifyingPropertyWarning(entityType);
+                    }
+                }
+
+                (List<IEntityType> EntityTypes, bool Optional) GetPrincipalEntityTypes(IEntityType entityType)
+                {
+                    if (!principalEntityTypesMap.TryGetValue(entityType, out var tuple))
+                    {
+                        var list = new List<IEntityType>();
+                        var optional = false;
+                        foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey()!.Properties))
+                        {
+                            var principalEntityType = foreignKey.PrincipalEntityType;
+                            if (!mappedTypes.Contains(principalEntityType))
+                            {
+                                continue;
+                            }
+                            list.Add(principalEntityType);
+                            var (entityTypes, innerOptional) = GetPrincipalEntityTypes(principalEntityType.GetRootType());
+                            list.AddRange(entityTypes);
+
+                            optional |= !foreignKey.IsRequiredDependent | innerOptional;
+                        }
+
+                        tuple = (list, optional);
+                        principalEntityTypesMap.Add(entityType, tuple);
+                    }
+
+                    return tuple;
+                }
             }
         }
 
