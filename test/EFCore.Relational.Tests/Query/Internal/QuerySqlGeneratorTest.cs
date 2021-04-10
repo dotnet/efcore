@@ -94,6 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 IsDefaultFunctionMapping = true
             };
             entityType[RelationalAnnotationNames.FunctionMappings] = new[] { functionMapping };
+            model.FinalizeModel();
+            entityType.AddRuntimeAnnotation(RelationalAnnotationNames.FunctionMappings, new[] { functionMapping });
             return entityType;
         }
 
