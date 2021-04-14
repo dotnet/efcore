@@ -247,8 +247,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
-            => FindRawMapping(mappingInfo)?.Clone(mappingInfo)
-                ?? base.FindMapping(mappingInfo);
+            => base.FindMapping(mappingInfo) ?? FindRawMapping(mappingInfo)?.Clone(mappingInfo);
 
         private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {
