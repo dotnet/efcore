@@ -304,11 +304,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
-        private static IRelationalTypeMappingSource CreateTypeMapper()
-            => new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
-
         [ConditionalTheory]
         [InlineData(true, false)]
         [InlineData(null, false)]
@@ -1258,6 +1253,30 @@ namespace Microsoft.EntityFrameworkCore
                 "nvarchar(450)",
                 mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship2Id")).StoreType);
         }
+
+        [ConditionalFact]
+        public void Plugins_can_override_builtin_mappings()
+        {
+            var typeMappingSource = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>() with
+                {
+                    Plugins = new[] { new FakeTypeMappingSourcePlugin() }
+                });
+
+            Assert.Equal("String", typeMappingSource.GetMapping("datetime2").ClrType.Name);
+        }
+
+        class FakeTypeMappingSourcePlugin : IRelationalTypeMappingSourcePlugin
+        {
+            public RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
+                => new StringTypeMapping("datetime2");
+        }
+
+        private static IRelationalTypeMappingSource CreateTypeMapper()
+            => new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
         private enum LongEnum : long
         {
