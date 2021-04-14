@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
         private string _skipReason;
 
         public SkippedTestCase(string skipReason, IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, object[] testMethodArguments = null)
-            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod, testMethodArguments)
+            : base(diagnosticMessageSink, defaultMethodDisplay, TestMethodDisplayOptions.None, testMethod, testMethodArguments)
         {
             _skipReason = skipReason;
         }
