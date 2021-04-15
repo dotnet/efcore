@@ -158,8 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             // In order to avoid infinite recursive generics, wrap operation with ExecutionResult
             return ExecuteImplementation(
-                (context, state) => new ExecutionResult<TResult>(true, operation(context, state)), 
-                verifySucceeded, 
+                (context, state) => new ExecutionResult<TResult>(true, operation(context, state)),
+                verifySucceeded,
                 state).Result;
         }
 
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             OnFirstExecution();
-            
+
             // In order to avoid infinite recursive generics, wrap operation with ExecutionResult
             var result = await ExecuteImplementationAsync(
                 async (context, state, cancellationToken) => new ExecutionResult<TResult>(true, await operation(context, state, cancellationToken).ConfigureAwait(false)),
