@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RuntimeRelationalPropertyOverrides : AnnotatableBase, IRelationalPropertyOverrides
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SlimRelationalPropertyOverrides"/> class.
+        /// Initializes a new instance of the <see cref="RuntimeRelationalPropertyOverrides"/> class.
         /// </summary>
         /// <param name="property"> The property for which the overrides are applied. </param>
         /// <param name="columnNameOverriden"> Whether the column name is overriden. </param>

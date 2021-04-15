@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private bool _skipDetectChanges;
 
         /// <summary>
-        ///     Creates a new instance of <seealso cref="SlimModel"/>
+        ///     Creates a new instance of <see cref="RuntimeModel"/>
         /// </summary>
         public RuntimeModel()
         {
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="baseType"> The base type of this entity type. </param>
         /// <param name="discriminatorProperty"> The name of the property that will be used for storing a discriminator value. </param>
         /// <param name="changeTrackingStrategy"> The change tracking strategy for this entity type </param>
-        /// <param name="indexerPropertyInfo"> The <seealso cref="PropertyInfo"/> for the indexer on the associated CLR type if one exists. </param>
+        /// <param name="indexerPropertyInfo"> The <see cref="PropertyInfo"/> for the indexer on the associated CLR type if one exists. </param>
         /// <param name="propertyBag">
         ///     A value indicating whether this entity type has an indexer which is able to contain arbitrary properties
         ///     and a method that can be used to determine whether a given indexer property contains a value.

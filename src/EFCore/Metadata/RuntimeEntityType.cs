@@ -1363,6 +1363,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IDictionary<string, object?>> IReadOnlyEntityType.GetSeedData(bool providerValues)
             => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
 
+        PropertyAccessMode IReadOnlyTypeBase.GetPropertyAccessMode()
+            => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+
+        PropertyAccessMode IReadOnlyTypeBase.GetNavigationAccessMode()
+            => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+
         ConfigurationSource? IRuntimeEntityType.GetConstructorBindingConfigurationSource()
             => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
 

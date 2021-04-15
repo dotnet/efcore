@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+    public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : ComplexNavigationsQueryFixtureBase, new()
     {
         protected ComplexNavigationsContext CreateContext()

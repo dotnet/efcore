@@ -15,19 +15,19 @@ namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
     ///     <para>
-    ///         Base class to be used by relational database providers when implementing an <see cref="ICSharpSlimAnnotationCodeGenerator" />
+    ///         Base class to be used by relational database providers when implementing an <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
     ///     </para>
     /// </summary>
-    public class RelationalCSharpSlimAnnotationCodeGenerator : CSharpSlimAnnotationCodeGenerator
+    public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotationCodeGenerator
     {
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
-        public RelationalCSharpSlimAnnotationCodeGenerator(
-            CSharpSlimAnnotationCodeGeneratorDependencies dependencies,
-            RelationalCSharpSlimAnnotationCodeGeneratorDependencies relationalDependencies)
+        public RelationalCSharpRuntimeAnnotationCodeGenerator(
+            CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies,
+            RelationalCSharpRuntimeAnnotationCodeGeneratorDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -38,19 +38,22 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Parameter object containing relational dependencies for this service.
         /// </summary>
-        protected virtual RelationalCSharpSlimAnnotationCodeGeneratorDependencies RelationalDependencies { get; }
+        protected virtual RelationalCSharpRuntimeAnnotationCodeGeneratorDependencies RelationalDependencies { get; }
 
         /// <inheritdoc />
-        public override void Generate(IModel model, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public override void Generate(IModel model, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
+            var annotations = parameters.Annotations;
             if (parameters.IsRuntime)
             {
-                parameters.Annotations.Remove(RelationalAnnotationNames.ModelDependencies);
-                parameters.Annotations.Remove(RelationalAnnotationNames.RelationalModel);
+                annotations.Remove(RelationalAnnotationNames.ModelDependencies);
+                annotations.Remove(RelationalAnnotationNames.RelationalModel);
             }
             else
             {
-                if (parameters.Annotations.TryGetAndRemove(RelationalAnnotationNames.DbFunctions,
+                annotations.Remove(RelationalAnnotationNames.Collation);
+
+                if (annotations.TryGetAndRemove(RelationalAnnotationNames.DbFunctions,
                     out SortedDictionary<string, IDbFunction> functions))
                 {
                     parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
@@ -67,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     GenerateSimpleAnnotation(RelationalAnnotationNames.DbFunctions, functionsVariable, parameters);
                 }
 
-                if (parameters.Annotations.TryGetAndRemove(RelationalAnnotationNames.Sequences,
+                if (annotations.TryGetAndRemove(RelationalAnnotationNames.Sequences,
                     out SortedDictionary<(string, string?), ISequence> sequences))
                 {
                     parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
@@ -90,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private void Create(
             IDbFunction function,
             string functionsVariable,
-            CSharpSlimAnnotationCodeGeneratorParameters parameters)
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             if (function.Translation != null)
             {
@@ -100,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             if (function is IConventionDbFunction conventionFunction
                 && conventionFunction.GetTypeMappingConfigurationSource() != null)
             {
-                throw new InvalidOperationException(RelationalStrings.CompiledModelFunctionTypeMapping(function.Name));
+                throw new InvalidOperationException(RelationalStrings.CompiledModelFunctionTypeMapping(
+                    function.Name, "Customize()", parameters.ClassName));
             }
 
             AddNamespace(function.ReturnType, parameters.Namespaces);
@@ -110,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 function.MethodInfo?.Name ?? function.Name, parameters.ScopeVariables, capitalize: false);
             var mainBuilder = parameters.MainBuilder;
             mainBuilder
-                .Append("var ").Append(functionVariable).AppendLine(" = new SlimDbFunction(").IncrementIndent()
+                .Append("var ").Append(functionVariable).AppendLine(" = new RuntimeDbFunction(").IncrementIndent()
                 .Append(code.Literal(function.ModelName)).AppendLine(",")
                 .Append(parameters.TargetName).AppendLine(",")
                 .Append(code.Literal(function.ReturnType)).AppendLine(",")
@@ -190,18 +194,19 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="function"> The function to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        public virtual void Generate(IDbFunction function, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public virtual void Generate(IDbFunction function, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             GenerateSimpleAnnotations(parameters);
         }
 
-        private void Create(IDbFunctionParameter parameter, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        private void Create(IDbFunctionParameter parameter, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             if (parameter is IConventionDbFunctionParameter conventionParameter
                     && conventionParameter.GetTypeMappingConfigurationSource() != null)
             {
                 throw new InvalidOperationException(
-                    RelationalStrings.CompiledModelFunctionParameterTypeMapping(parameter.Function.Name, parameter.Name));
+                    RelationalStrings.CompiledModelFunctionParameterTypeMapping(
+                        parameter.Function.Name, parameter.Name, "Customize()", parameters.ClassName));
             }
 
             AddNamespace(parameter.ClrType, parameters.Namespaces);
@@ -230,28 +235,38 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="functionParameter"> The function parameter to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        public virtual void Generate(IDbFunctionParameter functionParameter, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public virtual void Generate(IDbFunctionParameter functionParameter, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             GenerateSimpleAnnotations(parameters);
         }
 
-        private void Create(ISequence sequence, string sequencesVariable, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        private void Create(ISequence sequence, string sequencesVariable, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var code = Dependencies.CSharpHelper;
             var sequenceVariable = code.Identifier(sequence.Name, parameters.ScopeVariables, capitalize: false);
             var mainBuilder = parameters.MainBuilder;
             mainBuilder
-                .Append("var ").Append(sequenceVariable).AppendLine(" = new SlimSequence(").IncrementIndent()
+                .Append("var ").Append(sequenceVariable).AppendLine(" = new RuntimeSequence(").IncrementIndent()
                 .Append(code.Literal(sequence.Name)).AppendLine(",")
                 .Append(parameters.TargetName).AppendLine(",")
-                .Append(code.Literal(sequence.Type)).AppendLine(",")
-                .Append(code.Literal(sequence.StartValue)).AppendLine(",")
-                .Append(code.Literal(sequence.IncrementBy));
+                .Append(code.Literal(sequence.Type));
 
             if (sequence.Schema != null)
             {
                 mainBuilder.AppendLine(",")
                     .Append("schema: ").Append(code.Literal(sequence.Schema));
+            }
+
+            if (sequence.StartValue != Sequence.DefaultStartValue)
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("startValue: ").Append(code.Literal(sequence.StartValue));
+            }
+
+            if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("incrementBy: ").Append(code.Literal(sequence.IncrementBy));
             }
 
             if (sequence.IsCyclic)
@@ -280,8 +295,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                 Generate,
                 parameters with { TargetName = sequenceVariable });
 
-            mainBuilder.AppendLine();
-
             mainBuilder
                 .Append(sequencesVariable).Append("[(").Append(code.Literal(sequence.Name)).Append(", ")
                     .Append(code.UnknownLiteral(sequence.Schema)).Append(")] = ")
@@ -294,13 +307,13 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="sequence"> The sequence to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        public virtual void Generate(ISequence sequence, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public virtual void Generate(ISequence sequence, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             GenerateSimpleAnnotations(parameters);
         }
 
         /// <inheritdoc />
-        public override void Generate(IEntityType entityType, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public override void Generate(IEntityType entityType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var annotations = parameters.Annotations;
             if (parameters.IsRuntime)
@@ -314,9 +327,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             else
             {
                 if (annotations.TryGetAndRemove(RelationalAnnotationNames.CheckConstraints,
-                    out Dictionary<string, ICheckConstraint> constraints))
+                    out SortedDictionary<string, ICheckConstraint> constraints))
                 {
-                    parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
+                    parameters.Namespaces.Add(typeof(SortedDictionary<string, ICheckConstraint>).Namespace!);
                     var constraintsVariable = Dependencies.CSharpHelper.Identifier("constraints", parameters.ScopeVariables, capitalize: false);
                     parameters.MainBuilder
                         .Append("var ").Append(constraintsVariable).AppendLine(" = new SortedDictionary<string, ICheckConstraint>();");
@@ -328,6 +341,9 @@ namespace Microsoft.EntityFrameworkCore.Design
 
                     GenerateSimpleAnnotation(RelationalAnnotationNames.CheckConstraints, constraintsVariable, parameters);
                 }
+
+                annotations.Remove(RelationalAnnotationNames.Comment);
+                annotations.Remove(RelationalAnnotationNames.IsTableExcludedFromMigrations);
 
                 // These need to be set explicitly to prevent default values from being generated
                 annotations[RelationalAnnotationNames.TableName] = entityType.GetTableName();
@@ -341,13 +357,13 @@ namespace Microsoft.EntityFrameworkCore.Design
             base.Generate(entityType, parameters);
         }
 
-        private void Create(ICheckConstraint constraint, string constraintsVariable, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        private void Create(ICheckConstraint constraint, string constraintsVariable, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var code = Dependencies.CSharpHelper;
             var constraintVariable = code.Identifier(constraint.Name, parameters.ScopeVariables, capitalize: false);
             var mainBuilder = parameters.MainBuilder;
             mainBuilder
-                .Append("var ").Append(constraintVariable).AppendLine(" = new SlimCheckConstraint(").IncrementIndent()
+                .Append("var ").Append(constraintVariable).AppendLine(" = new RuntimeCheckConstraint(").IncrementIndent()
                 .Append(code.Literal(constraint.Name)).AppendLine(",")
                 .Append(parameters.TargetName).AppendLine(",")
                 .Append(code.Literal(constraint.Sql)).AppendLine(");").DecrementIndent()
@@ -357,8 +373,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                 constraint,
                 Generate,
                 parameters with { TargetName = constraintVariable });
-
-            mainBuilder.AppendLine();
 
             mainBuilder
                 .Append(constraintsVariable).Append("[").Append(code.Literal(constraint.Name)).Append("] = ")
@@ -371,13 +385,13 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="constraint"> The check constraint to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        public virtual void Generate(ICheckConstraint constraint, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public virtual void Generate(ICheckConstraint constraint, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             GenerateSimpleAnnotations(parameters);
         }
 
         /// <inheritdoc />
-        public override void Generate(IProperty property, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public override void Generate(IProperty property, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var annotations = parameters.Annotations;
             if (parameters.IsRuntime)
@@ -390,10 +404,13 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
             else
             {
+                annotations.Remove(RelationalAnnotationNames.Comment);
+                annotations.Remove(RelationalAnnotationNames.Collation);
+
                 if (annotations.TryGetAndRemove(RelationalAnnotationNames.RelationalOverrides,
                     out SortedDictionary<StoreObjectIdentifier, object> overrides))
                 {
-                    parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
+                    parameters.Namespaces.Add(typeof(SortedDictionary<StoreObjectIdentifier, object>).Namespace!);
                     var overridesVariable = Dependencies.CSharpHelper.Identifier("overrides", parameters.ScopeVariables, capitalize: false);
                     parameters.MainBuilder
                         .Append("var ").Append(overridesVariable).AppendLine(" = new SortedDictionary<StoreObjectIdentifier, object>();");
@@ -414,26 +431,24 @@ namespace Microsoft.EntityFrameworkCore.Design
             IRelationalPropertyOverrides overrides,
             StoreObjectIdentifier storeObject,
             string overridesVariable,
-            CSharpSlimAnnotationCodeGeneratorParameters parameters)
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var code = Dependencies.CSharpHelper;
             var overrideVariable =
                 code.Identifier(parameters.TargetName + Capitalize(storeObject.Name), parameters.ScopeVariables, capitalize: false);
             var mainBuilder = parameters.MainBuilder;
             mainBuilder
-                .Append("var ").Append(overrideVariable).AppendLine(" = new SlimRelationalPropertyOverrides(").IncrementIndent()
+                .Append("var ").Append(overrideVariable).AppendLine(" = new RuntimeRelationalPropertyOverrides(").IncrementIndent()
                 .Append(parameters.TargetName).AppendLine(",")
                 .Append(code.Literal(overrides.ColumnNameOverriden)).AppendLine(",")
-                .Append(code.UnknownLiteral(overrides.ColumnName)).AppendLine(");").DecrementIndent()
-                .AppendLine();
+                .Append(code.UnknownLiteral(overrides.ColumnName)).AppendLine(");").DecrementIndent();
 
             CreateAnnotations(
                 overrides,
                 GenerateOverrides,
                 parameters with { TargetName = overrideVariable });
 
-            mainBuilder.AppendLine()
-                .Append(overridesVariable).Append("[StoreObjectIdentifier.");
+            mainBuilder.Append(overridesVariable).Append("[StoreObjectIdentifier.");
 
             switch (storeObject.StoreObjectType)
             {
@@ -459,8 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             mainBuilder
                 .Append("] = ")
-                .Append(overrideVariable).AppendLine(";")
-                .AppendLine();
+                .Append(overrideVariable).AppendLine(";");
         }
 
         /// <summary>
@@ -468,13 +482,13 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="overrides"> The property overrides to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        public virtual void GenerateOverrides(IAnnotatable overrides, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public virtual void GenerateOverrides(IAnnotatable overrides, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             GenerateSimpleAnnotations(parameters);
         }
 
         /// <inheritdoc />
-        public override void Generate(IKey key, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public override void Generate(IKey key, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             if (parameters.IsRuntime)
             {
@@ -485,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <inheritdoc />
-        public override void Generate(IForeignKey foreignKey, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public override void Generate(IForeignKey foreignKey, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             if (parameters.IsRuntime)
             {
@@ -496,45 +510,37 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <inheritdoc />
-        public override void Generate(INavigation navigation, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public override void Generate(INavigation navigation, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             base.Generate(navigation, parameters);
         }
 
         /// <inheritdoc />
-        public override void Generate(ISkipNavigation navigation, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public override void Generate(ISkipNavigation navigation, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             base.Generate(navigation, parameters);
         }
 
         /// <inheritdoc />
-        public override void Generate(IIndex index, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        public override void Generate(IIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
+            var annotations = parameters.Annotations;
             if (parameters.IsRuntime)
             {
-                parameters.Annotations.Remove(RelationalAnnotationNames.TableIndexMappings);
+                annotations.Remove(RelationalAnnotationNames.TableIndexMappings);
+            }
+            else
+            {
+                annotations.Remove(RelationalAnnotationNames.Filter);
             }
 
             base.Generate(index, parameters);
         }
 
-        private void GenerateSimpleAnnotations(CSharpSlimAnnotationCodeGeneratorParameters parameters)
-        {
-            foreach (var (name, value) in parameters.Annotations)
-            {
-                if (value != null)
-                {
-                    AddNamespace(value.GetType(), parameters.Namespaces);
-                }
-
-                GenerateSimpleAnnotation(name, Dependencies.CSharpHelper.UnknownLiteral(value), parameters);
-            }
-        }
-
         private void CreateAnnotations<TAnnotatable>(
             TAnnotatable annotatable,
-            Action<TAnnotatable, CSharpSlimAnnotationCodeGeneratorParameters> process,
-            CSharpSlimAnnotationCodeGeneratorParameters parameters)
+            Action<TAnnotatable, CSharpRuntimeAnnotationCodeGeneratorParameters> process,
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
             where TAnnotatable : IAnnotatable
         {
             process(annotatable,
@@ -559,9 +565,13 @@ namespace Microsoft.EntityFrameworkCore.Design
                 case 0:
                     return @string;
                 case 1:
-                    return char.ToUpper(@string[0]).ToString();
+                    return char.ToUpperInvariant(@string[0]).ToString();
                 default:
-                    return char.ToUpper(@string[0]) + @string[1..];
+                    if (char.IsUpper(@string[0]))
+                    {
+                        return @string;
+                    }
+                    return char.ToUpperInvariant(@string[0]) + @string[1..];
             }
         }
     }

@@ -51,10 +51,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (runtime)
             {
                 annotations[RelationalAnnotationNames.RelationalModel] =
-                    RelationalModel.Create(runtimeModel, RelationalDependencies.RelationalAnnotationProvider);
+                    RelationalModel.Create(runtimeModel, RelationalDependencies.RelationalAnnotationProvider, designTime: false);
             }
             else
             {
+                annotations.Remove(RelationalAnnotationNames.Collation);
+
                 if (annotations.TryGetValue(RelationalAnnotationNames.DbFunctions, out var functions))
                 {
                     var runtimeFunctions = new SortedDictionary<string, IDbFunction>();
@@ -119,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 if (annotations.TryGetValue(RelationalAnnotationNames.CheckConstraints, out var constraints))
                 {
-                    var runtimeCheckConstraints = new Dictionary<string, ICheckConstraint>();
-                    foreach (var constraintPair in (Dictionary<string, ICheckConstraint>?)constraints!)
+                    var runtimeCheckConstraints = new SortedDictionary<string, ICheckConstraint>();
+                    foreach (var constraintPair in (SortedDictionary<string, ICheckConstraint>?)constraints!)
                     {
                         var runtimeCheckConstraint = Create(constraintPair.Value, runtimeEntityType);
                         runtimeCheckConstraints[constraintPair.Key] = runtimeCheckConstraint;
@@ -131,6 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                     annotations[RelationalAnnotationNames.CheckConstraints] = runtimeCheckConstraints;
                 }
+
+                annotations.Remove(RelationalAnnotationNames.Comment);
+                annotations.Remove(RelationalAnnotationNames.IsTableExcludedFromMigrations);
 
                 // These need to be set explicitly to prevent default values from being generated
                 annotations[RelationalAnnotationNames.TableName] = entityType.GetTableName();
@@ -217,9 +222,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 sequence.Name,
                 runtimeModel,
                 sequence.Type,
+                sequence.Schema,
                 sequence.StartValue,
                 sequence.IncrementBy,
-                sequence.Schema,
                 sequence.IsCyclic,
                 sequence.MinValue,
                 sequence.MaxValue);
@@ -282,13 +287,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
+                annotations.Remove(RelationalAnnotationNames.Comment);
+                annotations.Remove(RelationalAnnotationNames.Collation);
+
                 if (annotations.TryGetValue(RelationalAnnotationNames.RelationalOverrides, out var overrides))
                 {
                     var runtimePropertyOverrides = new SortedDictionary<StoreObjectIdentifier, object>();
                     foreach (var overridesPair in (SortedDictionary<StoreObjectIdentifier, object>?)overrides!)
                     {
-                        var runtimeOverrides = Create((IRelationalPropertyOverrides)overridesPair.Value, slimProperty);
-                        slimPropertyOverrides[overridesPair.Key] = slimOverrides;
+                        var runtimeOverrides = Create((IRelationalPropertyOverrides)overridesPair.Value, runtimeProperty);
+                        runtimePropertyOverrides[overridesPair.Key] = runtimeOverrides;
 
                         CreateAnnotations((IRelationalPropertyOverrides)overridesPair.Value, runtimeOverrides,
                             static (convention, annotations, source, target, runtime) =>
@@ -362,6 +370,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (runtime)
             {
                 annotations.Remove(RelationalAnnotationNames.TableIndexMappings);
+            }
+            else
+            {
+                annotations.Remove(RelationalAnnotationNames.Filter);
             }
         }
 

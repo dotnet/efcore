@@ -131,13 +131,13 @@
     <value>Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.</value>
   </data>
   <data name="CompiledModelFunctionParameterTypeMapping" xml:space="preserve">
-    <value>The function parameter '{function}({parameter})' has a custom type mapping configured. Compiled model can't be generated, because custom type mappings are not supported.</value>
+    <value>The function parameter '{function}({parameter})' has a custom type mapping configured. Configure it in '{customize}' in a partial '{className}' class instead.</value>
   </data>
   <data name="CompiledModelFunctionTranslation" xml:space="preserve">
     <value>The function '{function}' has a custom translation. Compiled model can't be generated, because custom function translations are not supported.</value>
   </data>
   <data name="CompiledModelFunctionTypeMapping" xml:space="preserve">
-    <value>The function '{function}' has a custom type mapping configured. Compiled model can't be generated, because custom type mappings are not supported.</value>
+    <value>The function '{function}' has a custom type mapping configured. Configure it in '{customize}' in a partial '{className}' class instead.</value>
   </data>
   <data name="ComputedColumnSqlUnspecified" xml:space="preserve">
     <value>The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.</value>

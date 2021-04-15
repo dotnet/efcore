@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RuntimeCheckConstraint : AnnotatableBase, ICheckConstraint
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SlimCheckConstraint"/> class.
+        ///     Initializes a new instance of the <see cref="RuntimeCheckConstraint"/> class.
         /// </summary>
         /// <param name="name"> The constraint name. </param>
         /// <param name="entityType"> The affected entity type. </param>

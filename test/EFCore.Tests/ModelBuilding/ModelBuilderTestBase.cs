@@ -173,12 +173,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
-            public virtual IModel FinalizeModel(bool designTime = false)
+            public virtual IModel FinalizeModel()
             {
                 var serviceProvider = TestHelpers.CreateContextServices();
                 var modelRuntimeInitializer = serviceProvider.GetRequiredService<IModelRuntimeInitializer>();
 
-                return modelRuntimeInitializer.Initialize(ModelBuilder.FinalizeModel(), designTime, ValidationLogger);
+                return modelRuntimeInitializer.Initialize(ModelBuilder.FinalizeModel(), designTime: true, ValidationLogger);
             }
 
             public virtual string GetDisplayName(Type entityType)

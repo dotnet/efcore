@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Design.Internal
 
             serviceCollection.AddEntityFrameworkInMemoryDatabase();
             new EntityFrameworkDesignServicesBuilder(serviceCollection)
-                .TryAdd<ICSharpSlimAnnotationCodeGenerator, InMemoryCSharpSlimAnnotationCodeGenerator>()
+                .TryAdd<ICSharpRuntimeAnnotationCodeGenerator, InMemoryCSharpRuntimeAnnotationCodeGenerator>()
                 .TryAddCoreServices();
         }
     }

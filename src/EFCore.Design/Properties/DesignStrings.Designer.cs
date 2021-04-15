@@ -60,12 +60,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 columnName, dateType);
 
         /// <summary>
-        ///     The entity type '{entityType}' has a custom constructor binding. This is usually caused by using proxies. Compiled model can't be generated, because custom constructor bindings are not supported.
+        ///     The entity type '{entityType}' has a custom constructor binding. This is usually caused by using proxies. Compiled model can't be generated, because dynamic proxy types are not supported. If you are not using proxies configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.
         /// </summary>
-        public static string CompiledModelConstructorBinding(object? entityType)
+        public static string CompiledModelConstructorBinding(object? entityType, object? customize, object? className)
             => string.Format(
-                GetString("CompiledModelConstructorBinding", nameof(entityType)),
-                entityType);
+                GetString("CompiledModelConstructorBinding", nameof(entityType), nameof(customize), nameof(className)),
+                entityType, customize, className);
 
         /// <summary>
         ///     The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.
@@ -84,36 +84,36 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     The property '{entityType}.{property}' has a custom type mapping configured. Compiled model can't be generated, because custom type mappings are not supported.
+        ///     The property '{entityType}.{property}' has a custom type mapping configured. Configure it in '{customize}' in a partial '{className}' class instead.
         /// </summary>
-        public static string CompiledModelTypeMapping(object? entityType, object? property)
+        public static string CompiledModelTypeMapping(object? entityType, object? property, object? customize, object? className)
             => string.Format(
-                GetString("CompiledModelTypeMapping", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("CompiledModelTypeMapping", nameof(entityType), nameof(property), nameof(customize), nameof(className)),
+                entityType, property, customize, className);
 
         /// <summary>
-        ///     The property '{entityType}.{property}' has a value comparer configured. Compiled model can't be generated, because value comparers are not supported.
+        ///     The property '{entityType}.{property}' has a value comparer configured. Use '{method}' to configure the value comparer type.
         /// </summary>
-        public static string CompiledModelValueComparer(object? entityType, object? property)
+        public static string CompiledModelValueComparer(object? entityType, object? property, object? method)
             => string.Format(
-                GetString("CompiledModelValueComparer", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("CompiledModelValueComparer", nameof(entityType), nameof(property), nameof(method)),
+                entityType, property, method);
 
         /// <summary>
-        ///     The property '{entityType}.{property}' has a value converter configured. Compiled model can't be generated, because value converters are not supported.
+        ///     The property '{entityType}.{property}' has a value converter configured. Use '{method}' to configure the value converter type.
         /// </summary>
-        public static string CompiledModelValueConverter(object? entityType, object? property)
+        public static string CompiledModelValueConverter(object? entityType, object? property, object? method)
             => string.Format(
-                GetString("CompiledModelValueConverter", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("CompiledModelValueConverter", nameof(entityType), nameof(property), nameof(method)),
+                entityType, property, method);
 
         /// <summary>
-        ///     The property '{entityType}.{property}' has a value generator configured. Compiled model can't be generated, because value generators are not supported.
+        ///     The property '{entityType}.{property}' has a value generator configured. Use '{method}' to configure the value generator factory type.
         /// </summary>
-        public static string CompiledModelValueGenerator(object? entityType, object? property)
+        public static string CompiledModelValueGenerator(object? entityType, object? property, object? method)
             => string.Format(
-                GetString("CompiledModelValueGenerator", nameof(entityType), nameof(property)),
-                entityType, property);
+                GetString("CompiledModelValueGenerator", nameof(entityType), nameof(property), nameof(method)),
+                entityType, property, method);
 
         /// <summary>
         ///     The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?

@@ -2,13 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
-using Microsoft.Extensions.DependencyInjection;
 
-[assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.Sqlite.Design.Internal.SqliteDesignTimeServices")]
-
-namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
+namespace Microsoft.EntityFrameworkCore.InMemory.Design.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -16,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqliteDesignTimeServices : IDesignTimeServices
+    public class InMemoryCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotationCodeGenerator
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,14 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
+        public InMemoryCSharpRuntimeAnnotationCodeGenerator(
+            CSharpRuntimeAnnotationCodeGeneratorDependencies dependencies)
+            : base(dependencies)
         {
-            serviceCollection.AddEntityFrameworkSqlite();
-            new EntityFrameworkRelationalDesignServicesBuilder(serviceCollection)
-                .TryAdd<ICSharpRuntimeAnnotationCodeGenerator, SqliteCSharpRuntimeAnnotationCodeGenerator>()
-                .TryAdd<IDatabaseModelFactory, SqliteDatabaseModelFactory>()
-                .TryAdd<IProviderConfigurationCodeGenerator, SqliteCodeGenerator>()
-                .TryAddCoreServices();
         }
     }
 }

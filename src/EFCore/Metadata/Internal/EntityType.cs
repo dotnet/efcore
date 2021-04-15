@@ -5256,11 +5256,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     entityTypeBuilder.Ignore(ignoredMember, EntityType.FindDeclaredIgnoredConfigurationSource(ignoredMember)!.Value);
                 }
 
+                if (EntityType._baseTypeConfigurationSource != null)
+                {
+                    var baseType = EntityType._baseType;
+                    if (baseType?.IsInModel == false)
+                    {
+                        baseType = EntityType.Model.FindActualEntityType(baseType);
+                    }
+
+                    entityTypeBuilder.Metadata.SetBaseType(baseType, EntityType._baseTypeConfigurationSource.Value);
+                }
+
+                if (EntityType._isKeylessConfigurationSource != null)
+                {
+                    entityTypeBuilder.Metadata.SetIsKeyless(EntityType.IsKeyless, EntityType._isKeylessConfigurationSource.Value);
+                }
+
+                if (EntityType._changeTrackingStrategyConfigurationSource != null)
+                {
+                    entityTypeBuilder.Metadata.SetChangeTrackingStrategy(
+                        EntityType.GetChangeTrackingStrategy(), EntityType._changeTrackingStrategyConfigurationSource.Value);
+                }
+
                 if (ServiceProperties != null)
                 {
                     foreach (var detachedServiceProperty in ServiceProperties)
                     {
-                        detachedServiceProperty.Attach(detachedServiceProperty.Metadata.DeclaringEntityType.Builder);
+                        detachedServiceProperty.Attach(entityTypeBuilder);
                     }
                 }
 
@@ -5274,12 +5296,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
+                if (EntityType._constructorBindingConfigurationSource != null)
+                {
+                    entityTypeBuilder.Metadata.SetConstructorBinding(
+                        Create(EntityType.ConstructorBinding, entityTypeBuilder.Metadata),
+                        EntityType._constructorBindingConfigurationSource.Value);
+                }
+
+                if (EntityType._serviceOnlyConstructorBindingConfigurationSource != null)
+                {
+                    entityTypeBuilder.Metadata.SetServiceOnlyConstructorBinding(
+                        Create(EntityType.ServiceOnlyConstructorBinding, entityTypeBuilder.Metadata),
+                        EntityType._serviceOnlyConstructorBindingConfigurationSource.Value);
+                }
+
                 var rawData = EntityType._data;
                 if (rawData != null)
                 {
                     entityTypeBuilder.Metadata.AddData(rawData);
                 }
             }
+
+            private InstantiationBinding? Create(InstantiationBinding? instantiationBinding, EntityType entityType)
+                => instantiationBinding?.With(instantiationBinding.ParameterBindings.Select(binding => Create(binding, entityType)).ToList());
+
+            private ParameterBinding Create(ParameterBinding parameterBinding, EntityType entityType)
+                => parameterBinding.With(parameterBinding.ConsumedProperties.Select(property =>
+                (entityType.FindProperty(property.Name)
+                    ?? entityType.FindServiceProperty(property.Name)
+                    ?? entityType.FindNavigation(property.Name)
+                    ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToArray());
         }
 
         /// <summary>

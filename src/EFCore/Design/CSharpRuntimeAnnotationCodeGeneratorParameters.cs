@@ -7,13 +7,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
-    ///     The parameter object for a <see cref="ICSharpSlimAnnotationCodeGenerator" />
+    ///     The parameter object for a <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
     /// </summary>
-    public sealed record CSharpSlimAnnotationCodeGeneratorParameters
+    public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
     {
         /// <summary>
         ///     <para>
-        ///         Creates the parameter object for a <see cref="ICSharpSlimAnnotationCodeGenerator" />.
+        ///         Creates the parameter object for a <see cref="ICSharpRuntimeAnnotationCodeGenerator" />.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -27,14 +27,16 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public CSharpSlimAnnotationCodeGeneratorParameters(
+        public CSharpRuntimeAnnotationCodeGeneratorParameters(
             string targetName,
+            string className,
             IndentedStringBuilder mainBuilder,
             IndentedStringBuilder methodBuilder,
             ISet<string> namespaces,
             ISet<string> scopeVariables)
         {
             TargetName = targetName;
+            ClassName = className;
             MainBuilder = mainBuilder;
             MethodBuilder = methodBuilder;
             Namespaces = namespaces;
@@ -50,6 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     The name of the target variable.
         /// </summary>
         public string TargetName { get; init; }
+
+        /// <summary>
+        ///     The name of the current class.
+        /// </summary>
+        public string ClassName { get; init; }
 
         /// <summary>
         ///     The builder for the code building the metadata item.

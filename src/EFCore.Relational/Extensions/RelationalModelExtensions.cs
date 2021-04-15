@@ -483,7 +483,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to get the collation for. </param>
         /// <returns> The collation. </returns>
         public static string? GetCollation(this IReadOnlyModel model)
-            => (string?)model[RelationalAnnotationNames.Collation];
+            => model is RuntimeModel
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (string?)model[RelationalAnnotationNames.Collation];
 
         /// <summary>
         ///     Sets the database collation.

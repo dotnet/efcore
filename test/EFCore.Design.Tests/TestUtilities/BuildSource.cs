@@ -104,10 +104,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return assembly;
         }
 
-        private static CSharpCompilationOptions CreateOptions()
+        private CSharpCompilationOptions CreateOptions()
             => new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary,
-                    nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable),
+                    nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable,
                     reportSuppressedDiagnostics: false,
                     specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>()
                     {

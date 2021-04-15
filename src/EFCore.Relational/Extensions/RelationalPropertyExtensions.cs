@@ -1050,7 +1050,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The comment for the column this property is mapped to. </returns>
         public static string? GetComment(this IReadOnlyProperty property)
-            => (string?)property.FindAnnotation(RelationalAnnotationNames.Comment)?.Value;
+            => property is RuntimeProperty
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)property.FindAnnotation(RelationalAnnotationNames.Comment)?.Value;
 
         /// <summary>
         ///     Returns the comment for the column this property is mapped to.
@@ -1060,6 +1062,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The comment for the column this property is mapped to. </returns>
         public static string? GetComment(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
+            if (property is RuntimeProperty)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
             var annotation = property.FindAnnotation(RelationalAnnotationNames.Comment);
             if (annotation != null)
             {
@@ -1114,7 +1121,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The collation for the column this property is mapped to. </returns>
         public static string? GetCollation(this IReadOnlyProperty property)
-            => (string?)property.FindAnnotation(RelationalAnnotationNames.Collation)?.Value;
+            => property is RuntimeProperty
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)property.FindAnnotation(RelationalAnnotationNames.Collation)?.Value;
 
         /// <summary>
         ///     Returns the collation to be used for the column.
@@ -1124,6 +1133,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The collation for the column this property is mapped to. </returns>
         public static string? GetCollation(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
+            if (property is RuntimeProperty)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
             var annotation = property.FindAnnotation(RelationalAnnotationNames.Collation);
             if (annotation != null)
             {

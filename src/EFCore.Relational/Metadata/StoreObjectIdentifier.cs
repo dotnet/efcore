@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The table name. </param>
         /// <param name="schema"> The table schema. </param>
         /// <returns> The table id. </returns>
-        public static StoreObjectIdentifier Table(string name, string? schema)
+        public static StoreObjectIdentifier Table(string name, string? schema = null)
         {
             Check.NotNull(name, nameof(name));
 
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The view name. </param>
         /// <param name="schema"> The view schema. </param>
         /// <returns> The view id. </returns>
-        public static StoreObjectIdentifier View(string name, string? schema)
+        public static StoreObjectIdentifier View(string name, string? schema = null)
         {
             Check.NotNull(name, nameof(name));
 

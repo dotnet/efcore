@@ -830,7 +830,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 builder.Append(" Keyless");
             }
 
-            if (this is Model
+            if (this is EntityType
                 && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
             {
                 builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());

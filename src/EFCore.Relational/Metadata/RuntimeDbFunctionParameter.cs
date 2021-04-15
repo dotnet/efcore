@@ -60,6 +60,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual RuntimeDbFunction Function { get; }
 
         /// <summary>
+        ///     Gets or sets the type mapping for this parameter.
+        /// </summary>
+        /// <returns> The type mapping. </returns>
+        public virtual RelationalTypeMapping? TypeMapping
+        {
+            get => NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static parameter =>
+            {
+                var relationalTypeMappingSource =
+                    (IRelationalTypeMappingSource)((IModel)parameter.Function.Model).GetModelDependencies().TypeMappingSource;
+                return relationalTypeMappingSource.FindMapping(parameter._storeType)!;
+            });
+
+            set => _typeMapping = value;
+        }
+
+        /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
@@ -135,11 +151,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <inheritdoc />
         RelationalTypeMapping? IReadOnlyDbFunctionParameter.TypeMapping
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static parameter =>
-                {
-                    var relationalTypeMappingSource =
-                        (IRelationalTypeMappingSource)((IModel)parameter.Function.Model).GetModelDependencies().TypeMappingSource;
-                    return relationalTypeMappingSource.FindMapping(parameter._storeType)!;
-                });
+        {
+            [DebuggerStepThrough]
+            get => TypeMapping;
+        }
     }
 }

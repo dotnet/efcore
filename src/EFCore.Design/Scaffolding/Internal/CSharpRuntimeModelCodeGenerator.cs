@@ -11,7 +11,9 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -22,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class CSharpSlimModelCodeGenerator : ICompiledModelCodeGenerator
+    public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     {
         private readonly ICSharpHelper _code;
-        private readonly ICSharpSlimAnnotationCodeGenerator _annotationCodeGenerator;
+        private readonly ICSharpRuntimeAnnotationCodeGenerator _annotationCodeGenerator;
 
         private const string FileExtension = ".cs";
         private const string ModelSuffix = "Model";
@@ -37,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CSharpSlimModelCodeGenerator(
-            ICSharpSlimAnnotationCodeGenerator annotationCodeGenerator,
+        public CSharpRuntimeModelCodeGenerator(
+            ICSharpRuntimeAnnotationCodeGenerator annotationCodeGenerator,
             ICSharpHelper cSharpHelper)
         {
             Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
@@ -117,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var methodBuilder = new IndentedStringBuilder();
             var namespaces = new SortedSet<string>(new NamespaceComparer()) {
                 contextType.Namespace!,
-                typeof(SlimModel).Namespace!,
+                typeof(RuntimeModel).Namespace!,
                 typeof(DbContextAttribute).Namespace!
             };
 
@@ -132,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var className = _code.Identifier(contextType.ShortDisplayName()) + ModelSuffix;
             mainBuilder
                 .Append("[DbContext(typeof(").Append(_code.Reference(contextType)).AppendLine("))]")
-                .Append("partial class ").Append(className).AppendLine(" : " + nameof(SlimModel))
+                .Append("partial class ").Append(className).AppendLine(" : " + nameof(RuntimeModel))
                 .AppendLine("{");
 
             using (mainBuilder.Indent())
@@ -170,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         var firstChar = variableName[0] == '@' ? variableName[1] : variableName[0];
                         var entityClassName = firstChar == '_'
                             ? EntityTypeSuffix + variableName[1..]
-                            : char.ToUpper(firstChar) + variableName[1..] + EntityTypeSuffix;
+                            : char.ToUpperInvariant(firstChar) + variableName[(variableName[0] == '@' ? 2 : 1)..] + EntityTypeSuffix;
 
                         entityTypeIds[entityType] = (variableName, entityClassName);
 
@@ -193,12 +195,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         mainBuilder.AppendLine();
                     }
 
+                    var anyForeignKeys = false;
                     foreach (var (entityType, namePair) in entityTypeIds)
                     {
                         var foreignKeyNumber = 1;
                         var (variableName, entityClassName) = namePair;
                         foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
                         {
+                            anyForeignKeys = true;
                             var principalVariable = entityTypeIds[foreignKey.PrincipalEntityType].Variable;
 
                             mainBuilder
@@ -213,12 +217,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         }
                     }
 
+                    if (anyForeignKeys)
+                    {
+                        mainBuilder.AppendLine();
+                    }
+
+                    var anySkipNavigations = false;
                     foreach (var (entityType, namePair) in entityTypeIds)
                     {
                         var navigationNumber = 1;
                         var (variableName, entityClassName) = namePair;
                         foreach (var navigation in entityType.GetDeclaredSkipNavigations())
                         {
+                            anySkipNavigations = true;
                             var targetVariable = entityTypeIds[navigation.TargetEntityType].Variable;
                             var joinVariable = entityTypeIds[navigation.JoinEntityType].Variable;
 
@@ -234,6 +245,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 .Append(joinVariable)
                                 .AppendLine(");");
                         }
+                    }
+
+                    if (anySkipNavigations)
+                    {
+                        mainBuilder.AppendLine();
                     }
 
                     foreach (var (entityType, namePair) in entityTypeIds)
@@ -256,20 +272,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     CreateAnnotations(
                         model,
                         _annotationCodeGenerator.Generate,
-                        new CSharpSlimAnnotationCodeGeneratorParameters(
+                        new CSharpRuntimeAnnotationCodeGeneratorParameters(
                             "this",
+                            className,
                             mainBuilder,
                             methodBuilder,
                             namespaces,
                             variables));
+
+                    mainBuilder
+                        .AppendLine()
+                        .AppendLine("Customize();");
                 }
 
-                mainBuilder.AppendLine("}");
+                mainBuilder
+                    .AppendLine("}")
+                    .AppendLine()
+                    .AppendLine("partial void Customize();");
 
                 var methods = methodBuilder.ToString();
                 if (!string.IsNullOrEmpty(methods))
                 {
-                    mainBuilder.AppendLines(methods);
+                    mainBuilder.AppendLine()
+                        .AppendLines(methods);
                 }
             }
 
@@ -291,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var methodBuilder = new IndentedStringBuilder();
             var namespaces = new SortedSet<string>(new NamespaceComparer())
             {
-                typeof(SlimEntityType).Namespace!,
+                typeof(RuntimeEntityType).Namespace!,
                 typeof(PropertyAccessMode).Namespace!,
                 typeof(BindingFlags).Namespace!
             };
@@ -309,21 +334,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AppendLine("{");
             using (mainBuilder.Indent())
             {
-                CreateEntityType(entityType, mainBuilder, methodBuilder, namespaces);
+                CreateEntityType(entityType, mainBuilder, methodBuilder, namespaces, className);
 
                 var foreignKeyNumber = 1;
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
                 {
-                    CreateForeignKey(foreignKey, foreignKeyNumber++, mainBuilder, methodBuilder, namespaces);
+                    CreateForeignKey(foreignKey, foreignKeyNumber++, mainBuilder, methodBuilder, namespaces, className);
                 }
 
                 var navigationNumber = 1;
                 foreach (var navigation in entityType.GetDeclaredSkipNavigations())
                 {
-                    CreateSkipNavigation(navigation, navigationNumber++, mainBuilder, methodBuilder, namespaces);
+                    CreateSkipNavigation(navigation, navigationNumber++, mainBuilder, methodBuilder, namespaces, className);
                 }
 
-                CreateAnnotations(entityType, mainBuilder, methodBuilder, namespaces);
+                CreateAnnotations(entityType, mainBuilder, methodBuilder, namespaces, className);
             }
 
             mainBuilder.AppendLine("}");
@@ -342,16 +367,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IEntityType entityType,
             IndentedStringBuilder mainBuilder,
             IndentedStringBuilder methodBuilder,
-            SortedSet<string> namespaces)
+            SortedSet<string> namespaces,
+            string className)
         {
             mainBuilder
-                .Append("public static SlimEntityType Create")
-                .AppendLine("(SlimModel model, SlimEntityType baseEntityType)")
+                .Append("public static RuntimeEntityType Create")
+                .AppendLine("(RuntimeModel model, RuntimeEntityType baseEntityType)")
                 .AppendLine("{");
 
             using (mainBuilder.Indent())
             {
-                var entityTypeVariable = "slimEntityType";
+                var entityTypeVariable = "runtimeEntityType";
                 var variables = new HashSet<string>
                 {
                     "model",
@@ -359,19 +385,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     entityTypeVariable
                 };
 
-                var parameters = new CSharpSlimAnnotationCodeGeneratorParameters(
+                var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
                     entityTypeVariable,
+                    className,
                     mainBuilder,
                     methodBuilder,
                     namespaces,
                     variables);
 
-                Create(entityType, parameters);
+                Create(entityType, parameters, className);
 
                 var propertyVariables = new Dictionary<IProperty, string>();
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    Create(property, propertyVariables, parameters);
+                    Create(property, propertyVariables, parameters, className);
                 }
 
                 foreach (var property in entityType.GetDeclaredServiceProperties())
@@ -396,11 +423,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             mainBuilder
-                .AppendLine("}")
-                .AppendLine();
+                .AppendLine("}");
         }
 
-        private void Create(IEntityType entityType, CSharpSlimAnnotationCodeGeneratorParameters parameters)
+        private void Create(IEntityType entityType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters, string className)
         {
             var runtimeEntityType = entityType as IRuntimeEntityType;
             if ((entityType.ConstructorBinding is not null
@@ -410,7 +436,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     && (runtimeEntityType.GetServiceOnlyConstructorBindingConfigurationSource().OverridesStrictly(ConfigurationSource.Convention)
                         || runtimeEntityType.ServiceOnlyConstructorBinding is FactoryMethodBinding)))
             {
-                throw new InvalidOperationException(DesignStrings.CompiledModelConstructorBinding(entityType.ShortName()));
+                throw new InvalidOperationException(DesignStrings.CompiledModelConstructorBinding(
+                    entityType.ShortName(), "Customize()", className));
             }
 
             if (entityType.GetQueryFilter() != null)
@@ -421,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 #pragma warning disable CS0618 // Type or member is obsolete
             if (entityType.GetDefiningQuery() != null)
             {
-                // TODO: Move to InMemoryCSharpSlimAnnotationCodeGenerator, see #21624
+                // TODO: Move to InMemoryCSharpRuntimeAnnotationCodeGenerator, see #21624
                 throw new InvalidOperationException(DesignStrings.CompiledModelDefiningQuery(entityType.ShortName()));
             }
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -465,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (indexerPropertyInfo != null)
             {
                 mainBuilder.AppendLine(",")
-                    .Append("indexerPropertyInfo: SlimEntityType.FindIndexerProperty(")
+                    .Append("indexerPropertyInfo: RuntimeEntityType.FindIndexerProperty(")
                     .Append(_code.Literal(entityType.ClrType))
                     .Append(")");
             }
@@ -486,31 +513,42 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private void Create(
             IProperty property,
             Dictionary<IProperty, string> propertyVariables,
-            CSharpSlimAnnotationCodeGeneratorParameters parameters)
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+            string className)
         {
-            if (property.GetValueGeneratorFactory() != null)
+            var valueGeneratorFactoryType = (Type?)property[CoreAnnotationNames.ValueGeneratorFactoryType];
+            if (valueGeneratorFactoryType == null
+                && property.GetValueGeneratorFactory() != null)
             {
                 throw new InvalidOperationException(
-                    DesignStrings.CompiledModelValueGenerator(property.DeclaringEntityType.ShortName(), property.Name));
+                    DesignStrings.CompiledModelValueGenerator(
+                        property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasValueGeneratorFactory)));
             }
 
-            if (property[CoreAnnotationNames.ValueComparer] != null)
+            var valueComparerType = (Type?)property[CoreAnnotationNames.ValueComparerType];
+            if (valueComparerType == null
+                && property[CoreAnnotationNames.ValueComparer] != null)
             {
                 throw new InvalidOperationException(
-                    DesignStrings.CompiledModelValueComparer(property.DeclaringEntityType.ShortName(), property.Name));
+                    DesignStrings.CompiledModelValueComparer(
+                        property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
             }
 
-            if (property.GetValueConverter() != null)
+            var valueConverterType = (Type?)property[CoreAnnotationNames.ValueConverterType];
+            if (valueConverterType == null
+                && property.GetValueConverter() != null)
             {
                 throw new InvalidOperationException(
-                    DesignStrings.CompiledModelValueConverter(property.DeclaringEntityType.ShortName(), property.Name));
+                    DesignStrings.CompiledModelValueConverter(
+                        property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
             }
 
             if (property is IConventionProperty conventionProperty
                 && conventionProperty.GetTypeMappingConfigurationSource() != null)
             {
                 throw new InvalidOperationException(
-                    DesignStrings.CompiledModelTypeMapping(property.DeclaringEntityType.ShortName(), property.Name));
+                    DesignStrings.CompiledModelTypeMapping(
+                        property.DeclaringEntityType.ShortName(), property.Name, "Customize()", className));
             }
 
             var variableName = _code.Identifier(property.Name, parameters.ScopeVariables, capitalize: false);
@@ -605,6 +643,45 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .Append(_code.Literal(providerClrType));
             }
 
+            if (valueGeneratorFactoryType != null)
+            {
+                if (valueGeneratorFactoryType.Namespace != null)
+                {
+                    parameters.Namespaces.Add(valueGeneratorFactoryType.Namespace);
+                }
+
+                mainBuilder.AppendLine(",")
+                    .Append("valueGeneratorFactory: new ")
+                    .Append(_code.Reference(valueGeneratorFactoryType))
+                    .Append("().Create");
+            }
+
+            if (valueConverterType != null)
+            {
+                if (valueConverterType.Namespace != null)
+                {
+                    parameters.Namespaces.Add(valueConverterType.Namespace);
+                }
+
+                mainBuilder.AppendLine(",")
+                    .Append("valueConverter: new ")
+                    .Append(_code.Reference(valueConverterType))
+                    .Append("()");
+            }
+
+            if (valueComparerType != null)
+            {
+                if (valueComparerType.Namespace != null)
+                {
+                    parameters.Namespaces.Add(valueComparerType.Namespace);
+                }
+
+                mainBuilder.AppendLine(",")
+                    .Append("valueComparer: new ")
+                    .Append(_code.Reference(valueComparerType))
+                    .Append("()");
+            }
+
             mainBuilder
                 .AppendLine(");")
                 .DecrementIndent();
@@ -619,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void PropertyBaseParameters(
             IPropertyBase property,
-            CSharpSlimAnnotationCodeGeneratorParameters parameters,
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
             bool skipType = false)
         {
             var mainBuilder = parameters.MainBuilder;
@@ -677,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .Append(", ")
                     .Append(fieldInfo.IsPublic ? "BindingFlags.Public" : "BindingFlags.NonPublic")
                     .Append(fieldInfo.IsStatic ? " | BindingFlags.Static" : " | BindingFlags.Instance")
-                    .AppendLine(" | BindingFlags.DeclaredOnly)");
+                    .Append(" | BindingFlags.DeclaredOnly)");
             }
 
             var propertyAccessMode = property.GetPropertyAccessMode();
@@ -728,7 +805,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void Create(
             IServiceProperty property,
-            CSharpSlimAnnotationCodeGeneratorParameters parameters)
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var variableName = _code.Identifier(property.Name, parameters.ScopeVariables, capitalize: false);
 
@@ -755,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private void Create(
             IKey key,
             Dictionary<IProperty, string> propertyVariables,
-            CSharpSlimAnnotationCodeGeneratorParameters parameters)
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var variableName = _code.Identifier("key", parameters.ScopeVariables);
 
@@ -788,7 +865,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private void Create(
             IIndex index,
             Dictionary<IProperty, string> propertyVariables,
-            CSharpSlimAnnotationCodeGeneratorParameters parameters)
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var variableName = _code.Identifier(index.Name ?? "index", parameters.ScopeVariables, capitalize: false);
 
@@ -830,19 +907,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             int foreignKeyNumber,
             IndentedStringBuilder mainBuilder,
             IndentedStringBuilder methodBuilder,
-            SortedSet<string> namespaces)
+            SortedSet<string> namespaces,
+            string className)
         {
             var declaringEntityType = "declaringEntityType";
             var principalEntityType = "principalEntityType";
             mainBuilder.AppendLine()
-                .Append("public static SlimForeignKey CreateForeignKey").Append(foreignKeyNumber.ToString())
-                .Append("(SlimEntityType ").Append(declaringEntityType)
-                .Append(", SlimEntityType ").Append(principalEntityType).AppendLine(")")
+                .Append("public static RuntimeForeignKey CreateForeignKey").Append(foreignKeyNumber.ToString())
+                .Append("(RuntimeEntityType ").Append(declaringEntityType)
+                .Append(", RuntimeEntityType ").Append(principalEntityType).AppendLine(")")
                 .AppendLine("{");
 
             using (mainBuilder.Indent())
             {
-                var foreignKeyVariable = "slimForeignKey";
+                var foreignKeyVariable = "runtimeForeignKey";
                 var variables = new HashSet<string>
                 {
                     declaringEntityType,
@@ -901,8 +979,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .AppendLine()
                     .DecrementIndent();
 
-                var parameters = new CSharpSlimAnnotationCodeGeneratorParameters(
+                var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
                         foreignKeyVariable,
+                        className,
                         mainBuilder,
                         methodBuilder,
                         namespaces,
@@ -938,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private void Create(
             INavigation navigation,
             string foreignKeyVariable,
-            CSharpSlimAnnotationCodeGeneratorParameters parameters)
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var mainBuilder = parameters.MainBuilder;
             var navigationVariable = _code.Identifier(navigation.Name, parameters.ScopeVariables, capitalize: false);
@@ -966,8 +1045,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 navigation,
                 _annotationCodeGenerator.Generate,
                 parameters with { TargetName = navigationVariable });
-
-            mainBuilder.AppendLine();
         }
 
         private void CreateSkipNavigation(
@@ -975,17 +1052,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             int navigationNumber,
             IndentedStringBuilder mainBuilder,
             IndentedStringBuilder methodBuilder,
-            SortedSet<string> namespaces)
+            SortedSet<string> namespaces,
+            string className)
         {
             var declaringEntityType = "declaringEntityType";
             var targetEntityType = "targetEntityType";
             var joinEntityType = "joinEntityType";
             mainBuilder.AppendLine()
-                .Append("public static SlimSkipNavigation CreateSkipNavigation")
+                .Append("public static RuntimeSkipNavigation CreateSkipNavigation")
                 .Append(navigationNumber.ToString())
-                .Append("(SlimEntityType ").Append(declaringEntityType)
-                .Append(", SlimEntityType ").Append(targetEntityType)
-                .Append(", SlimEntityType ").Append(joinEntityType).AppendLine(")")
+                .Append("(RuntimeEntityType ").Append(declaringEntityType)
+                .Append(", RuntimeEntityType ").Append(targetEntityType)
+                .Append(", RuntimeEntityType ").Append(joinEntityType).AppendLine(")")
                 .AppendLine("{");
 
             using (mainBuilder.Indent())
@@ -999,8 +1077,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     navigationVariable
                 };
 
-                var parameters = new CSharpSlimAnnotationCodeGeneratorParameters(
+                var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
                         navigationVariable,
+                        className,
                         mainBuilder,
                         methodBuilder,
                         namespaces,
@@ -1011,16 +1090,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .Append(declaringEntityType).AppendLine(".AddSkipNavigation(").IncrementIndent()
                     .Append(_code.Literal(navigation.Name)).AppendLine(",")
                     .Append(targetEntityType).AppendLine(",")
-                    .Append(_code.Literal(navigation.Name)).AppendLine(",")
                     .Append(joinEntityType).AppendLine(".FindForeignKey(");
                 using (mainBuilder.Indent())
                 {
-                    FindProperties(joinEntityType, navigation.ForeignKey.PrincipalKey.Properties, mainBuilder);
+                    FindProperties(joinEntityType, navigation.ForeignKey.Properties, mainBuilder);
                     mainBuilder.AppendLine(",")
                         .Append(declaringEntityType).Append(".FindKey(");
                     FindProperties(declaringEntityType, navigation.ForeignKey.PrincipalKey.Properties, mainBuilder);
                     mainBuilder.AppendLine("),")
-                        .Append(declaringEntityType).AppendLine(")");
+                        .Append(declaringEntityType).Append(")");
                 }
 
                 mainBuilder.AppendLine(",")
@@ -1076,16 +1154,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IEntityType entityType,
             IndentedStringBuilder mainBuilder,
             IndentedStringBuilder methodBuilder,
-            SortedSet<string> namespaces)
+            SortedSet<string> namespaces,
+            string className)
         {
             mainBuilder.AppendLine()
                 .Append("public static void CreateAnnotations")
-                .AppendLine("(SlimEntityType slimEntityType)")
+                .AppendLine("(RuntimeEntityType runtimeEntityType)")
                 .AppendLine("{");
 
             using (mainBuilder.Indent())
             {
-                var entityTypeVariable = "slimEntityType";
+                var entityTypeVariable = "runtimeEntityType";
                 var variables = new HashSet<string>
                 {
                     entityTypeVariable
@@ -1094,22 +1173,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 CreateAnnotations(
                     entityType,
                     _annotationCodeGenerator.Generate,
-                    new CSharpSlimAnnotationCodeGeneratorParameters(
+                    new CSharpRuntimeAnnotationCodeGeneratorParameters(
                         entityTypeVariable,
+                        className,
                         mainBuilder,
                         methodBuilder,
                         namespaces,
                         variables));
+
+                mainBuilder
+                    .AppendLine()
+                    .AppendLine("Customize(runtimeEntityType);");
             }
 
             mainBuilder
-                .AppendLine("}");
+                .AppendLine("}")
+                .AppendLine()
+                .AppendLine("static partial void Customize(RuntimeEntityType runtimeEntityType);");
         }
 
         private void CreateAnnotations<TAnnotatable>(
             TAnnotatable annotatable,
-            Action<TAnnotatable, CSharpSlimAnnotationCodeGeneratorParameters> process,
-            CSharpSlimAnnotationCodeGeneratorParameters parameters)
+            Action<TAnnotatable, CSharpRuntimeAnnotationCodeGeneratorParameters> process,
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
             where TAnnotatable : IAnnotatable
         {
             process(annotatable,

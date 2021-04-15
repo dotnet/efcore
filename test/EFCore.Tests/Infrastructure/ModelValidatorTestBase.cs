@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelRuntimeInitializer = serviceProvider.GetRequiredService<IModelRuntimeInitializer>();
             var validationLogger = CreateValidationLogger(sensitiveDataLoggingEnabled);
 
-            return modelRuntimeInitializer.Initialize(model.FinalizeModel(), designTime: false, validationLogger);
+            return modelRuntimeInitializer.Initialize(model.FinalizeModel(), designTime: true, validationLogger);
         }
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)

@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         string Literal(ushort value);
 
         /// <summary>
-        ///     Generates a <seealso cref="Type"/> literal.
+        ///     Generates a <see cref="Type"/> literal.
         /// </summary>
         /// <param name="value"> The value. </param>
         /// <returns> The literal. </returns>

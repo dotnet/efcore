@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class CSharpHelper : ICSharpHelper
     {
-        private readonly IRelationalTypeMappingSource _relationalTypeMappingSource;
+        private readonly ITypeMappingSource _typeMappingSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CSharpHelper(IRelationalTypeMappingSource relationalTypeMappingSource)
+        public CSharpHelper(ITypeMappingSource typeMappingSource)
         {
-            _relationalTypeMappingSource = relationalTypeMappingSource;
+            _typeMappingSource = typeMappingSource;
         }
 
         private static readonly IReadOnlyCollection<string> _keywords = new[]
@@ -267,8 +267,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             var first = builder[index: 0];
+            if (char.IsUpper(first) == capitalize)
+            {
+                return builder;
+            }
+
             builder.Remove(startIndex: 0, length: 1)
-                .Insert(index: 0, value: capitalize ? char.ToUpper(first) : char.ToLower(first));
+                .Insert(index: 0, value: capitalize ? char.ToUpperInvariant(first) : char.ToLowerInvariant(first));
 
             return builder;
         }
@@ -788,12 +793,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return Literal(enumValue);
             }
 
+            if (value is Type type)
+            {
+                return Literal(type);
+            }
+
             if (value is Array array)
             {
                 return Array(literalType.GetElementType()!, array);
             }
 
-            var mapping = _relationalTypeMappingSource.FindMapping(literalType);
+            var mapping = _typeMappingSource.FindMapping(literalType);
             if (mapping != null)
             {
                 var builder = new StringBuilder();

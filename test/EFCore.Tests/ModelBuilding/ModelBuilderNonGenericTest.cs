@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<ComplexCaseParent13108>().HasKey(c => c.Key);
 
-                var model = (IConventionModel)modelBuilder.FinalizeModel(designTime: true);
+                var model = (IConventionModel)modelBuilder.FinalizeModel();
 
                 var property = model
                     .FindEntityType(typeof(ComplexCaseChild13108))!.GetProperties().Single(p => p.Name == "ParentKey");

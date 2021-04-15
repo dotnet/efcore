@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private IStoreFunction? _storeFunction;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SlimDbFunction"/> class.
+        ///     Initializes a new instance of the <see cref="RuntimeDbFunction"/> class.
         /// </summary>
         /// <param name="modelName"> The model name. </param>
         /// <param name="model"> The model. </param>
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="translation"> The function translation. </param>
         public RuntimeDbFunction(
             string modelName,
-            SlimModel model,
+            RuntimeModel model,
             Type returnType,
             string storeName,
             string? schema = null,
@@ -89,6 +89,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual string ModelName { get; }
 
         /// <summary>
+        ///     Gets or sets the type mapping for the function's return type.
+        /// </summary>
+        /// <returns> The type mapping. </returns>
+        public virtual RelationalTypeMapping? TypeMapping
+        {
+            get => _isScalar
+                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static dbFunction =>
+                    {
+                        var relationalTypeMappingSource =
+                            (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
+                        return !string.IsNullOrEmpty(dbFunction._storeType)
+                                    ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
+                                    : relationalTypeMappingSource.FindMapping(dbFunction._returnType)!;
+                    })
+                    : _typeMapping;
+            set => _typeMapping = value;
+        }
+
+        /// <summary>
         ///     Adds a parameter to the function.
         /// </summary>
         /// <param name="name"> The parameter name. </param>
@@ -104,8 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             string storeType,
             RelationalTypeMapping? typeMapping = null)
         {
-            var runtimeFunctionParameter = new SlimDbFunctionParameter(name,
+            var runtimeFunctionParameter = new RuntimeDbFunctionParameter(
                 this,
+                name,
                 clrType,
                 propagatesNullability,
                 storeType,
@@ -249,16 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         RelationalTypeMapping? IReadOnlyDbFunction.TypeMapping
         {
             [DebuggerStepThrough]
-            get => _isScalar
-                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static dbFunction =>
-                        {
-                            var relationalTypeMappingSource =
-                                (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
-                            return !string.IsNullOrEmpty(dbFunction._storeType)
-                                        ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
-                                        : relationalTypeMappingSource.FindMapping(dbFunction._returnType)!;
-                        })
-                    : _typeMapping;
+            get => TypeMapping;
         }
     }
 }

@@ -8,69 +8,69 @@ namespace Microsoft.EntityFrameworkCore.Design
     /// <summary>
     ///     Implemented by database providers to generate the code for annotations.
     /// </summary>
-    public interface ICSharpSlimAnnotationCodeGenerator
+    public interface ICSharpRuntimeAnnotationCodeGenerator
     {
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
         /// <param name="model"> The model to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        void Generate(IModel model, CSharpSlimAnnotationCodeGeneratorParameters parameters);
+        void Generate(IModel model, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
         /// <param name="entityType"> The entity type to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        void Generate(IEntityType entityType, CSharpSlimAnnotationCodeGeneratorParameters parameters);
+        void Generate(IEntityType entityType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
         /// <param name="property"> The property to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        void Generate(IProperty property, CSharpSlimAnnotationCodeGeneratorParameters parameters);
+        void Generate(IProperty property, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
         /// <param name="property"> The property to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        void Generate(IServiceProperty property, CSharpSlimAnnotationCodeGeneratorParameters parameters);
+        void Generate(IServiceProperty property, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
         /// <param name="key"> The key to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        void Generate(IKey key, CSharpSlimAnnotationCodeGeneratorParameters parameters);
+        void Generate(IKey key, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
         /// <param name="foreignKey"> The foreign key to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        void Generate(IForeignKey foreignKey, CSharpSlimAnnotationCodeGeneratorParameters parameters);
+        void Generate(IForeignKey foreignKey, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
         /// <param name="navigation"> The navigation to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        void Generate(INavigation navigation, CSharpSlimAnnotationCodeGeneratorParameters parameters);
+        void Generate(INavigation navigation, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
         /// <param name="navigation"> The skip navigation to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        void Generate(ISkipNavigation navigation, CSharpSlimAnnotationCodeGeneratorParameters parameters);
+        void Generate(ISkipNavigation navigation, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
         /// <summary>
         ///     Generates code to create the given annotations.
         /// </summary>
         /// <param name="index"> The index to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        void Generate(IIndex index, CSharpSlimAnnotationCodeGeneratorParameters parameters);
+        void Generate(IIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
     }
 }

@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             _typeMapping = typeMapping;
             _valueComparer = valueComparer;
-            _keyValueComparer = keyValueComparer;
+            _keyValueComparer = keyValueComparer ?? valueComparer;
         }
 
         /// <summary>
@@ -154,11 +154,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private IEnumerable<RuntimeIndex> GetContainingIndexes()
             => Indexes ?? Enumerable.Empty<RuntimeIndex>();
 
-        private CoreTypeMapping TypeMapping
-            => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _typeMapping, (IProperty)this,
+        /// <summary>
+        ///     Gets or sets the type mapping for this property.
+        /// </summary>
+        /// <returns> The type mapping. </returns>
+        public virtual CoreTypeMapping TypeMapping
+        {
+            get => NonCapturingLazyInitializer.EnsureInitialized(
+               ref _typeMapping, (IProperty)this,
                 static property =>
                     property.DeclaringEntityType.Model.GetModelDependencies().TypeMappingSource.FindMapping(property)!);
+            set => _typeMapping = value;
+        }
 
         /// <summary>
         ///     Returns a string that represents the current object.
@@ -260,6 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => TypeMapping;
 
         /// <inheritdoc/>
+        [DebuggerStepThrough]
         ValueComparer? IReadOnlyProperty.GetValueComparer()
             => _valueComparer ?? TypeMapping.Comparer;
 
@@ -269,6 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => _valueComparer ?? TypeMapping.Comparer;
 
         /// <inheritdoc/>
+        [DebuggerStepThrough]
         ValueComparer? IReadOnlyProperty.GetKeyValueComparer()
             => _keyValueComparer ?? TypeMapping.KeyComparer;
 

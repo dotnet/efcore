@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             serviceCollection.AddEntityFrameworkSqlServer();
             new EntityFrameworkRelationalDesignServicesBuilder(serviceCollection)
                 .TryAdd<IAnnotationCodeGenerator, SqlServerAnnotationCodeGenerator>()
+                .TryAdd<ICSharpRuntimeAnnotationCodeGenerator, SqlServerCSharpRuntimeAnnotationCodeGenerator>()
                 .TryAdd<IDatabaseModelFactory, SqlServerDatabaseModelFactory>()
                 .TryAdd<IProviderConfigurationCodeGenerator, SqlServerCodeGenerator>()
                 .TryAddCoreServices();

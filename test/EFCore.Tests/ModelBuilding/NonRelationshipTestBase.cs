@@ -1546,10 +1546,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(-1, data.First()[nameof(Beta.Id)]);
                 Assert.Equal(-2, data.Last()[nameof(Beta.Id)]);
 
-                Assert.Equal(
-                    CoreStrings.SlimModelMissingData,
-                    Assert.Throws<InvalidOperationException>(() => finalModel.FindEntityType(typeof(Beta)).GetSeedData()).Message);
-
                 var _ = finalModel.ToDebugString();
             }
 
@@ -1673,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.HasData(new { Id = -1, Required = 2 });
                     });
 
-                var model = modelBuilder.FinalizeModel(designTime: true);
+                var model = modelBuilder.FinalizeModel();
 
                 var entityType = model.FindEntityType(typeof(IndexedClassByDictionary));
                 var data = Assert.Single(entityType.GetSeedData());

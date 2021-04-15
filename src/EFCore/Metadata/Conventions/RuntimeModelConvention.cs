@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var runtimeModel = new RuntimeModel();
             runtimeModel.SetSkipDetectChanges(((IRuntimeModel)model).SkipDetectChanges);
-            ((IModel)slimModel).ModelDependencies = model.ModelDependencies!;
+            ((IModel)runtimeModel).ModelDependencies = model.ModelDependencies!;
 
             var entityTypes = model.GetEntityTypesInHierarchicalOrder();
             var entityTypePairs = new List<(IEntityType Source, RuntimeEntityType Target)>(entityTypes.Count);
@@ -405,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => (navigation.IsOnDependent ? runtimeForeigKey.DeclaringEntityType : runtimeForeigKey.PrincipalEntityType)
                 .AddNavigation(
                     navigation.Name,
-                    slimForeigKey,
+                    runtimeForeigKey,
                     navigation.IsOnDependent,
                     navigation.ClrType,
                     navigation.PropertyInfo,

@@ -52,12 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ClientGroupByNotSupported");
 
         /// <summary>
-        ///     The function parameter '{function}({parameter})' has a custom type mapping configured. Compiled model can't be generated, because custom type mappings are not supported.
+        ///     The function parameter '{function}({parameter})' has a custom type mapping configured. Configure it in '{customize}' in a partial '{className}' class instead.
         /// </summary>
-        public static string CompiledModelFunctionParameterTypeMapping(object? function, object? parameter)
+        public static string CompiledModelFunctionParameterTypeMapping(object? function, object? parameter, object? customize, object? className)
             => string.Format(
-                GetString("CompiledModelFunctionParameterTypeMapping", nameof(function), nameof(parameter)),
-                function, parameter);
+                GetString("CompiledModelFunctionParameterTypeMapping", nameof(function), nameof(parameter), nameof(customize), nameof(className)),
+                function, parameter, customize, className);
 
         /// <summary>
         ///     The function '{function}' has a custom translation. Compiled model can't be generated, because custom function translations are not supported.
@@ -68,12 +68,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function);
 
         /// <summary>
-        ///     The function '{function}' has a custom type mapping configured. Compiled model can't be generated, because custom type mappings are not supported.
+        ///     The function '{function}' has a custom type mapping configured. Configure it in '{customize}' in a partial '{className}' class instead.
         /// </summary>
-        public static string CompiledModelFunctionTypeMapping(object? function)
+        public static string CompiledModelFunctionTypeMapping(object? function, object? customize, object? className)
             => string.Format(
-                GetString("CompiledModelFunctionTypeMapping", nameof(function)),
-                function);
+                GetString("CompiledModelFunctionTypeMapping", nameof(function), nameof(customize), nameof(className)),
+                function, customize, className);
 
         /// <summary>
         ///     The computed column SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.
