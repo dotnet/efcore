@@ -1,5 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
@@ -19,6 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="args"> Arguments provided by the design-time service. </param>
         /// <returns> An instance of <typeparamref name="TContext" />. </returns>
-        TContext CreateDbContext(string[] args);
+        TContext CreateDbContext([NotNull] string args);
     }
 }
