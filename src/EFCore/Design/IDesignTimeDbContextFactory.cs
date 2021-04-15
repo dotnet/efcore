@@ -20,12 +20,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="args"> Arguments provided by the design-time service. </param>
         /// <returns> An instance of <typeparamref name="TContext" />. </returns>
-        TContext CreateDbContext([NotNull] string args);
+        TContext CreateDbContext(string args);
         /// <summary>
         ///     Creates a new instance of a derived context, where args is an array of connection strings.
         /// </summary>
         /// <param name="args"> Arguments provided by the design-time service. </param>
         /// <returns> An instance of <typeparamref name="TContext" />. </returns>
-        TContext CreateDbContexts([NotNull] string[] args);
+        TContext CreateDbContexts(string[] args);
     }
 }
