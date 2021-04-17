@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         private readonly ISqlServerSequenceValueGeneratorFactory _sequenceFactory;
         private readonly ISqlServerConnection _connection;
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
+        private readonly IRelationalCommandDiagnosticsLogger _commandLogger;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             ISqlServerSequenceValueGeneratorFactory sequenceFactory,
             ISqlServerConnection connection,
             IRawSqlCommandBuilder rawSqlCommandBuilder,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            IRelationalCommandDiagnosticsLogger commandLogger)
             : base(dependencies)
         {
             _sequenceFactory = sequenceFactory;

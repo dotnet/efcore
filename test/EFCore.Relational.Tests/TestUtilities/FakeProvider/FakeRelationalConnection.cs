@@ -29,12 +29,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                         new DiagnosticListener("FakeDiagnosticListener"),
                         new TestRelationalLoggingDefinitions(),
                         new NullDbContextLogger()),
-                    new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
+                    new RelationalConnectionDiagnosticsLogger(
                         new LoggerFactory(),
                         new LoggingOptions(),
                         new DiagnosticListener("FakeDiagnosticListener"),
                         new TestRelationalLoggingDefinitions(),
-                        new NullDbContextLogger()),
+                        new NullDbContextLogger(),
+                        CreateOptions()),
                     new NamedConnectionStringResolver(options ?? CreateOptions()),
                     new RelationalTransactionFactory(
                         new RelationalTransactionFactoryDependencies(

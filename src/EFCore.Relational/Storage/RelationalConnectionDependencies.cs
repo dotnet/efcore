@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public RelationalConnectionDependencies(
             IDbContextOptions contextOptions,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> transactionLogger,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Connection> connectionLogger,
+            IRelationalConnectionDiagnosticsLogger connectionLogger,
             INamedConnectionStringResolver connectionStringResolver,
             IRelationalTransactionFactory relationalTransactionFactory,
             ICurrentDbContext currentContext,
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The logger to which connection messages will be written.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Connection> ConnectionLogger { get; init; }
+        public IRelationalConnectionDiagnosticsLogger ConnectionLogger { get; init; }
 
         /// <summary>
         ///     A service for resolving a connection string from a name.

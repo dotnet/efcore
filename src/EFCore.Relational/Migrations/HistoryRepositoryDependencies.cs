@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             ICurrentDbContext currentContext,
             IModelRuntimeInitializer modelRuntimeInitializer,
             IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            IRelationalCommandDiagnosticsLogger commandLogger)
         {
             Check.NotNull(databaseCreator, nameof(databaseCreator));
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
@@ -188,6 +188,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The command logger
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; init; }
+        public IRelationalCommandDiagnosticsLogger CommandLogger { get; init; }
     }
 }
