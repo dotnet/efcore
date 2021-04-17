@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly Func<string>? _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IComparer<IUpdateEntry>? _comparer;
-        private readonly IColumnModificationFactory? _columnModificationFactory;
+        private readonly IColumnModificationFactory _columnModificationFactory;
         private readonly List<IUpdateEntry> _entries = new();
         private IReadOnlyList<ColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             _requiresResultPropagation = true;
                         }
 
-                        var columnModification = _columnModificationFactory!.CreateColumnModification(
+                        var columnModification = _columnModificationFactory.CreateColumnModification(
                             entry,
                             property,
                             column,
