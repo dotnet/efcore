@@ -3929,6 +3929,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             base.Select_DTO_constructor_distinct_with_navigation_translated_to_server();
         }
 
+        [ConditionalFact(Skip = "Issue #17246")]
+        public override void Select_DTO_constructor_distinct_with_collection_projection_translated_to_server()
+        {
+            base.Select_DTO_constructor_distinct_with_collection_projection_translated_to_server();
+        }
+
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Select_Property_when_shadow_unconstrained_generic_method(bool async)
         {
@@ -4227,7 +4233,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         {
             return base.Select_nested_collection_with_distinct(async);
         }
-        
+
         [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
         public override Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
         {
@@ -4238,6 +4244,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         public override Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(bool async)
         {
             return base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Collection_projection_after_DefaultIfEmpty(bool async)
+        {
+            return base.Collection_projection_after_DefaultIfEmpty(async);
         }
 
         private void AssertSql(params string[] expected)

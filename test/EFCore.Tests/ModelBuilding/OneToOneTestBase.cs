@@ -1671,6 +1671,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(fk.PrincipalKey, principalType.GetKeys().First(k => !k.IsPrimaryKey()));
+                Assert.Same(fk.PrincipalKey, principalType.GetDeclaredKeys().First(k => !k.IsPrimaryKey()));
                 Assert.Empty(dependentType.GetIndexes());
                 Assert.Empty(principalType.GetIndexes());
                 Assert.True(fk.IsUnique);

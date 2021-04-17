@@ -52,7 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ModelReadOnly,
-                Assert.Throws<InvalidOperationException>(() => entityTypeA.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => entityTypeA.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications)).Message);
 
             Assert.Equal(
                 CoreStrings.ModelReadOnly,
@@ -109,11 +110,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Display_name_is_prettified_for_owned_shared_type()
             => Assert.Equal(
                 "Is<Awesome, When>.We#re.Living#Our.Dream",
-                CreateModel().AddEntityType("Everything.Is<Awesome, When>.We#re.Living#Our.Dream", typeof(Dictionary<string, object>)).DisplayName());
+                CreateModel().AddEntityType("Everything.Is<Awesome, When>.We#re.Living#Our.Dream", typeof(Dictionary<string, object>))
+                    .DisplayName());
 
         [ConditionalFact]
         public void Display_name_is_entity_type_name_when_shared_entity_type()
-            => Assert.Equal("Everything.Is+PostTag (Dictionary<string, object>)", CreateModel().AddEntityType("Everything.Is+PostTag", typeof(Dictionary<string, object>)).DisplayName());
+            => Assert.Equal(
+                "Everything.Is+PostTag (Dictionary<string, object>)",
+                CreateModel().AddEntityType("Everything.Is+PostTag", typeof(Dictionary<string, object>)).DisplayName());
 
         [ConditionalFact]
         public void Name_is_prettified_CLR_full_name()
@@ -2107,23 +2111,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Adding_a_new_service_property_with_a_type_that_already_exists_throws()
-        {
-            var model = CreateModel();
-            var entityType = model.AddEntityType(typeof(Customer));
-            entityType.AddServiceProperty(Customer.OrdersProperty);
-
-            Assert.Equal(
-                CoreStrings.DuplicateServicePropertyType(
-                    nameof(Customer.MoreOrders),
-                    "ICollection<Order>",
-                    nameof(Customer),
-                    nameof(Customer.Orders),
-                    nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Customer.MoreOrdersProperty)).Message);
-        }
-
-        [ConditionalFact]
         public void Can_add_indexed_property()
         {
             var model = CreateModel();
@@ -2209,12 +2196,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_get_property_indexes()
         {
             var modelBuilder = new ModelBuilder();
-            modelBuilder.Entity<Customer>(eb =>
-            {
-                eb.Property(c => c.Name);
-                eb.Property<int>("Id_");
-                eb.Property<int>("Mane_");
-            });
+            modelBuilder.Entity<Customer>(
+                eb =>
+                {
+                    eb.Property(c => c.Name);
+                    eb.Property<int>("Id_");
+                    eb.Property<int>("Mane_");
+                });
 
             var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(Customer));
 

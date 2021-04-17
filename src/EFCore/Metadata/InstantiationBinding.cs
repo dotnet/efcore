@@ -44,5 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The type that will be created from the expression tree created for this binding.
         /// </summary>
         public abstract Type RuntimeType { get; }
+
+        /// <summary>
+        ///     Creates a copy that contains the given parameter bindings.
+        /// </summary>
+        /// <param name="parameterBindings"> The new parameter bindings. </param>
+        /// <returns> A copy with replaced parameter bindings. </returns>
+        public abstract InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings);
     }
 }

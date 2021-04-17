@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
             var context = CreateContext();
             var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
             var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>();
-            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), logger);
+            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), designTime: false, logger);
         }
 
         protected class Person
@@ -2486,6 +2486,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public string Street { get; set; }
             public string City { get; set; }
+            public int ZipCode { get; set; }
         }
 
         public class Order
@@ -2630,6 +2631,7 @@ namespace Microsoft.EntityFrameworkCore
         [Owned]
         protected class Details
         {
+            public int Value { get; set; }
             public string Name { get; set; }
         }
 

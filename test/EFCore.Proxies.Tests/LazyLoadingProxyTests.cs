@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
                     CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                        .GenerateMessage("Texts", "PhoneProxy"),
+                        .GenerateMessage("PhoneProxy", "Texts"),
                     "CoreEventId.LazyLoadOnDisposedContextWarning"),
                 Assert.Throws<InvalidOperationException>(
                     () => phone.Texts).Message);

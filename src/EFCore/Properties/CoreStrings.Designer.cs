@@ -99,14 +99,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityTypeNavigationSpecification, otherEntityType);
 
         /// <summary>
-        ///     The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because there is another property of the same type. Ignore one of the properties using the [NotMapped] attribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
-        /// </summary>
-        public static string AmbiguousServiceProperty(object? property, object? serviceType, object? entityType)
-            => string.Format(
-                GetString("AmbiguousServiceProperty", nameof(property), nameof(serviceType), nameof(entityType)),
-                property, serviceType, entityType);
-
-        /// <summary>
         ///     The shared type entity type '{entityType}' cannot be added to the model because its name is the same as the CLR type name. This usually indicates an error, either add it as a non-shared entity type or choose a different name.
         /// </summary>
         public static string AmbiguousSharedTypeEntityTypeName(object? entityType)
@@ -216,6 +208,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("CannotBeNullablePK", "0_property", "1_entityType"),
                 property, entityType);
+
+        /// <summary>
+        ///     Cannot convert string value '{value}' from the database to any value in the mapped '{enumType}' enum.
+        /// </summary>
+        public static string CannotConvertEnumValue(object? value, object? enumType)
+            => string.Format(
+                GetString("CannotConvertEnumValue", nameof(value), nameof(enumType)),
+                value, enumType);
 
         /// <summary>
         ///     Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.
@@ -728,14 +728,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicatePropertyInKey", nameof(propertyList), nameof(property)),
                 propertyList, property);
-
-        /// <summary>
-        ///     The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.
-        /// </summary>
-        public static string DuplicateServicePropertyType(object? property, object? serviceType, object? entityType, object? duplicateName, object? duplicateEntityType)
-            => string.Format(
-                GetString("DuplicateServicePropertyType", nameof(property), nameof(serviceType), nameof(entityType), nameof(duplicateName), nameof(duplicateEntityType)),
-                property, serviceType, entityType, duplicateName, duplicateEntityType);
 
         /// <summary>
         ///     Cannot translate '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.
@@ -3001,7 +2993,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The property '{1_entityType}.{0_property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+        ///     The property '{entityType}.{property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
         /// </summary>
         public static EventDefinition<string, string> LogCollectionWithoutComparer(IDiagnosticsLogger logger)
         {
@@ -3226,6 +3218,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.
+        /// </summary>
+        public static EventDefinition LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
+                            _resourceManager.GetString("LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     The same entity is being tracked as different entity types '{dependent1}' and '{dependent2}' with defining navigations. If a property value changes, it will result in two store changes, which might not be the desired outcome.
         /// </summary>
         public static EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance(IDiagnosticsLogger logger)
@@ -3345,30 +3362,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                             level,
                             CoreEventId.FirstWithoutOrderByAndFilterWarning,
                             _resourceManager.GetString("LogFirstWithoutOrderByAndFilter")!)));
-            }
-
-            return (EventDefinition)definition;
-        }
-
-        /// <summary>
-        ///     The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.
-        /// </summary>
-        public static EventDefinition LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning,
-                    () => new EventDefinition(
-                        logger.Options,
-                        CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
-                        LogLevel.Warning,
-                        "CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning",
-                        level => LoggerMessage.Define(
-                            level,
-                            CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
-                            _resourceManager.GetString("LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning")!)));
             }
 
             return (EventDefinition)definition;
@@ -3500,7 +3493,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Unable to find navigation '{1_navigation}' specified in string based include path '{0_navigationChain}'.
+        ///     Unable to find navigation '{navigation}' specified in string based include path '{navigationChain}'.
         /// </summary>
         public static EventDefinition<object, object> LogInvalidIncludePath(IDiagnosticsLogger logger)
         {
@@ -3525,7 +3518,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An attempt was made to lazy-load navigation '{1_entityType}.{0_navigation}' after the associated DbContext was disposed.
+        ///     An attempt was made to lazy-load navigation '{entityType}.{navigation}' after the associated DbContext was disposed.
         /// </summary>
         public static EventDefinition<string, string> LogLazyLoadOnDisposedContext(IDiagnosticsLogger logger)
         {
@@ -3675,7 +3668,32 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The navigation '{1_entityType}.{0_navigation}' is being lazy-loaded.
+        ///     The navigation '{navigation}' was ignored from 'Include' in the query since the fix-up will automatically populate it. If any further navigations are specified in 'Include' afterwards then they will be ignored. Walking back include tree is not allowed.
+        /// </summary>
+        public static EventDefinition<string> LogNavigationBaseIncludeIgnored(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNavigationBaseIncludeIgnored;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogNavigationBaseIncludeIgnored,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.NavigationBaseIncludeIgnored,
+                        LogLevel.Error,
+                        "CoreEventId.NavigationBaseIncludeIgnored",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.NavigationBaseIncludeIgnored,
+                            _resourceManager.GetString("LogNavigationBaseIncludeIgnored")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The navigation '{entityType}.{navigation}' is being lazy-loaded.
         /// </summary>
         public static EventDefinition<string, string> LogNavigationLazyLoading(IDiagnosticsLogger logger)
         {
@@ -4282,7 +4300,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used, then make sure to use the 'OrderBy' operator after 'Distinct' as the order would otherwise get erased.
+        ///     The query uses a row limiting operator ('Skip'/'Take') without an 'OrderBy' operator. This may lead to unpredictable results. If the 'Distinct' operator is used after 'OrderBy', then make sure to use the 'OrderBy' operator after 'Distinct' as the ordering would otherwise get erased.
         /// </summary>
         public static EventDefinition LogRowLimitingOperationWithoutOrderBy(IDiagnosticsLogger logger)
         {
@@ -4432,7 +4450,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The property '{1_entityType}.{0_property}' was created in shadow state because there are no eligible CLR members with a matching name.
+        ///     The property '{entityType}.{property}' was created in shadow state because there are no eligible CLR members with a matching name.
         /// </summary>
         public static EventDefinition<string, string> LogShadowPropertyCreated(IDiagnosticsLogger logger)
         {

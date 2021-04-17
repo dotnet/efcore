@@ -603,6 +603,29 @@ namespace Microsoft.EntityFrameworkCore
                     modelBuilder.Entity<Produce>()
                         .HasIndex(e => e.BarCode)
                         .IsUnique();
+
+                    modelBuilder.Entity<SharedFkRoot>(builder =>
+                    {
+                        builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
+                            .HasForeignKey(x => new { x.RootId })
+                            .HasPrincipalKey(x => x.Id)
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        builder.HasMany(x => x.Parents).WithOne(x => x.Root)
+                            .HasForeignKey(x => new { x.RootId })
+                            .HasPrincipalKey(x => x.Id)
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
+
+                    modelBuilder.Entity<SharedFkParent>(builder =>
+                    {
+                        builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                            .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                            .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                            .OnDelete(DeleteBehavior.ClientSetNull);
+                    });
+
+                    modelBuilder.Entity<SharedFkDependant>();
                 }
             }
         }

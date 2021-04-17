@@ -1265,18 +1265,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_add_multiple_indexes()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 var entityBuilder = modelBuilder.Entity<Customer>();
-                var firstIndexBuilder = entityBuilder.HasIndex(ix => ix.Id).IsUnique();
-                var secondIndexBuilder = entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
+                entityBuilder.HasIndex(ix => ix.Id).IsUnique();
+                entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
+                entityBuilder.HasIndex(ix => ix.Id, "Named");
 
-                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Customer));
+                var model = modelBuilder.FinalizeModel();
 
-                Assert.Equal(2, entityType.GetIndexes().Count());
-                Assert.True(firstIndexBuilder.Metadata.IsUnique);
-                Assert.False(((IReadOnlyIndex)secondIndexBuilder.Metadata).IsUnique);
-                Assert.Equal("V1", secondIndexBuilder.Metadata["A1"]);
+                var entityType = model.FindEntityType(typeof(Customer));
+                var idProperty = entityType.FindProperty(nameof(Customer.Id));
+                var nameProperty = entityType.FindProperty(nameof(Customer.Name));
+
+                Assert.Equal(3, entityType.GetIndexes().Count());
+                var firstIndex = entityType.FindIndex(idProperty);
+                Assert.True(firstIndex.IsUnique);
+                var secondIndex = entityType.FindIndex(nameProperty);
+                Assert.False(secondIndex.IsUnique);
+                Assert.Equal("V1", secondIndex["A1"]);
+                var namedIndex = entityType.FindIndex("Named");
+                Assert.False(namedIndex.IsUnique);
             }
 
             [ConditionalFact]
@@ -1630,7 +1638,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.HasData(new { Id = -1, Required = 2 });
                     });
 
-                var model = modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel(designTime: true);
 
                 var entityType = model.FindEntityType(typeof(IndexedClassByDictionary));
                 var data = Assert.Single(entityType.GetSeedData());
@@ -1670,26 +1678,35 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_add_shared_type_entity_type()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.SharedTypeEntity<Dictionary<string, object>>("Shared1");
+                modelBuilder.SharedTypeEntity<Dictionary<string, object>>("Shared1", b =>
+                {
+                    b.IndexerProperty<int>("Key");
+                    b.HasKey("Key");
+                });
 
                 modelBuilder.SharedTypeEntity<Dictionary<string, object>>("Shared2", b => b.IndexerProperty<int>("Id"));
-
-                var model = modelBuilder.Model;
-                Assert.Equal(2, model.GetEntityTypes().Count());
-
-                var shared1 = modelBuilder.Model.FindEntityType("Shared1");
-                Assert.NotNull(shared1);
-                Assert.True(shared1.HasSharedClrType);
-                Assert.Null(shared1.FindProperty("Id"));
-
-                var shared2 = modelBuilder.Model.FindEntityType("Shared2");
-                Assert.NotNull(shared2);
-                Assert.True(shared2.HasSharedClrType);
-                Assert.NotNull(shared2.FindProperty("Id"));
 
                 Assert.Equal(
                     CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+
+                var model = modelBuilder.FinalizeModel();
+                Assert.Equal(2, model.GetEntityTypes().Count());
+
+                var shared1 = model.FindEntityType("Shared1");
+                Assert.NotNull(shared1);
+                Assert.True(shared1.HasSharedClrType);
+                Assert.Null(shared1.FindProperty("Id"));
+
+                var shared2 = model.FindEntityType("Shared2");
+                Assert.NotNull(shared2);
+                Assert.True(shared2.HasSharedClrType);
+                Assert.NotNull(shared2.FindProperty("Id"));
+
+                var indexer = shared1.FindIndexerPropertyInfo();
+                Assert.True(model.IsIndexerMethod(indexer.GetMethod));
+                Assert.True(model.IsIndexerMethod(indexer.SetMethod));
+                Assert.Same(indexer, shared2.FindIndexerPropertyInfo());
             }
 
             [ConditionalFact]

@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string ToDebugString(
             this Property property,
-            MetadataDebugStringOptions options,
+            MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault,
             int indent = 0)
             => ((IReadOnlyProperty)property).ToDebugString(options, indent);
     }

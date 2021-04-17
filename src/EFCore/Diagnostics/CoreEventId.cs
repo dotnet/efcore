@@ -70,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             InvalidIncludePathError,
             QueryCompilationStarting,
             NavigationBaseIncluded,
+            NavigationBaseIncludeIgnored,
             DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
 
             // Infrastructure events
@@ -250,6 +251,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId NavigationBaseIncluded
             = MakeQueryId(Id.NavigationBaseIncluded);
+
+        /// <summary>
+        ///     <para>
+        ///         A navigation base specific in Include in the query was ignored because it will be populated already due to fix-up.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="NavigationBaseEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId NavigationBaseIncludeIgnored
+            = MakeQueryId(Id.NavigationBaseIncludeIgnored);
 
         /// <summary>
         ///     <para>

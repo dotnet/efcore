@@ -134,48 +134,6 @@ namespace Microsoft.EntityFrameworkCore
             return optionsBuilder;
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Enables nullability check for all properties across all entities within the in-memory database.
-        ///     </para>
-        /// </summary>
-        /// <typeparam name="TContext"> The type of context being configured. </typeparam>
-        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
-        /// <param name="nullabilityCheckEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static DbContextOptionsBuilder<TContext> EnableNullabilityCheck<TContext>(
-            this DbContextOptionsBuilder<TContext> optionsBuilder,
-            bool nullabilityCheckEnabled = true)
-            where TContext : DbContext
-            => (DbContextOptionsBuilder<TContext>)EnableNullabilityCheck(
-                (DbContextOptionsBuilder)optionsBuilder, nullabilityCheckEnabled);
-
-        /// <summary>
-        ///     <para>
-        ///         Enables nullability check for all properties across all entities within the in-memory database.
-        ///     </para>
-        /// </summary>
-        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
-        /// <param name="nullabilityCheckEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static DbContextOptionsBuilder EnableNullabilityCheck(
-            this DbContextOptionsBuilder optionsBuilder,
-            bool nullabilityCheckEnabled = true)
-        {
-            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
-
-            var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
-                ?? new InMemoryOptionsExtension();
-
-            extension = extension.WithNullabilityCheckEnabled(nullabilityCheckEnabled);
-
-            ConfigureWarnings(optionsBuilder);
-
-            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
-
-            return optionsBuilder;
-        }
-
         private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
         {
             // Set warnings defaults

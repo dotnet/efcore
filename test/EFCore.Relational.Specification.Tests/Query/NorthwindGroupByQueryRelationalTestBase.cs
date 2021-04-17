@@ -24,7 +24,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Complex_query_with_groupBy_in_subquery4(async))).Message;
 
-            Assert.Equal(RelationalStrings.UnableToTranslateSubqueryWithGroupBy("o.OrderID"), message);
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+        }
+
+        public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(async))).Message;
+
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
         }
 
         protected virtual bool CanExecuteQueryString

@@ -24,11 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class EntityProjectionExpression : Expression, IPrintableExpression, IAccessExpression
     {
-        private readonly IDictionary<IProperty, IAccessExpression> _propertyExpressionsMap
-            = new Dictionary<IProperty, IAccessExpression>();
-
-        private readonly IDictionary<INavigation, IAccessExpression> _navigationExpressionsMap
-            = new Dictionary<INavigation, IAccessExpression>();
+        private readonly Dictionary<IProperty, IAccessExpression> _propertyExpressionsMap = new();
+        private readonly Dictionary<INavigation, IAccessExpression> _navigationExpressionsMap = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

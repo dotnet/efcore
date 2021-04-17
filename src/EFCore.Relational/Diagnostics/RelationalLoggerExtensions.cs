@@ -4674,7 +4674,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Logs the <see cref="RelationalEventId.IndexPropertiesMappedToNonOverlappingTables" /> event.
+        ///     Logs the <see cref="RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="foreignKey"> The foreign key. </param>
@@ -4727,6 +4727,40 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                         p.ForeignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
                         p.ForeignKey.PrincipalKey.Properties.Format(),
                         p.ForeignKey.PrincipalEntityType.GetSchemaQualifiedTableName()));
+        }
+
+        /// <summary>
+        ///     Logs the <see cref="RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="entityType"> The entity type. </param>
+        public static void OptionalDependentWithoutIdentifyingPropertyWarning(
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IEntityType entityType)
+        {
+            var definition = RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, entityType.DisplayName());
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new EntityTypeEventData(
+                    definition,
+                    OptionalDependentWithoutIdentifyingPropertyWarning,
+                    entityType);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string OptionalDependentWithoutIdentifyingPropertyWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (EntityTypeEventData)payload;
+            return d.GenerateMessage(p.EntityType.DisplayName());
         }
 
         /// <summary>

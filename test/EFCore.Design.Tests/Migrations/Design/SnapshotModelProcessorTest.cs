@@ -203,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var processor = new SnapshotModelProcessor(reporter, modelRuntimeInitializer);
             var model = processor.Process(snapshot.Model);
 
-            var differences = differ.GetDifferences(model.GetRelationalModel(), context.Model.GetRelationalModel());
+            var differences = differ.GetDifferences(model.GetRelationalModel(),
+                context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
 
             Assert.Empty(differences);
         }
@@ -285,6 +286,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public IModel Initialize(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
                 => model;
 
+            public IModel Initialize(
+                IModel model, bool designTime = true, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null)
+                => model;
+
             public static DummyModelRuntimeInitializer Instance { get; } = new();
         }
 
@@ -348,6 +353,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             {
                                 b1.Property<int>("OwningType1Id");
 
+                                b1.Property<bool>("Exists");
+
                                 b1.ToTable("OwningType1");
 
                                 b1.HasOne("Ownership.OwningType1")
@@ -390,6 +397,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             "Ownership.OwnedType", "OwnedType2", b1 =>
                             {
                                 b1.Property<int?>("OwningType1Id");
+
+                                b1.Property<bool>("Exists");
 
                                 b1.ToTable("OwningType1");
 
@@ -438,6 +447,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             {
                                 b1.Property<int?>("OwningType2Id");
 
+                                b1.Property<bool>("Exists");
+
                                 b1.ToTable("OwningType2");
 
                                 b1.HasOne("Ownership.OwningType2")
@@ -480,6 +491,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             "Ownership.OwnedType", "OwnedType2", b1 =>
                             {
                                 b1.Property<int?>("OwningType2Id");
+
+                                b1.Property<bool>("Exists");
 
                                 b1.ToTable("OwningType2");
 
@@ -567,6 +580,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.ToTable("OwningType1");
 
                                 b1.HasOne("Ownership.OwningType1")
@@ -617,6 +632,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 b1.Property<int>("OwningType1Id")
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.ToTable("OwningType1");
 
@@ -673,6 +690,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.ToTable("OwningType2");
 
                                 b1.HasOne("Ownership.OwningType2")
@@ -723,6 +742,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 b1.Property<int?>("OwningType2Id")
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.ToTable("OwningType2");
 
@@ -816,6 +837,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.HasKey("OwningType1Id");
 
                                 b1.ToTable("OwningType1");
@@ -872,6 +895,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 b1.Property<int>("OwningType1Id")
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.HasKey("OwningType1Id");
 
@@ -934,6 +959,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.HasKey("OwningType2Id");
 
                                 b1.ToTable("OwningType2");
@@ -990,6 +1017,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 b1.Property<int>("OwningType2Id")
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.HasKey("OwningType2Id");
 
@@ -1092,6 +1121,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .HasColumnType("int")
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.HasKey("OwningType1Id");
 
                                 b1.ToTable("OwningType1");
@@ -1147,6 +1178,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasColumnType("int")
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.HasKey("OwningType1Id");
 
@@ -1208,6 +1241,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .HasColumnType("int")
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.HasKey("OwningType2Id");
 
                                 b1.ToTable("OwningType2");
@@ -1263,6 +1298,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasColumnType("int")
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.HasKey("OwningType2Id");
 
@@ -1394,6 +1431,7 @@ namespace Ownership
     [Owned]
     internal class OwnedType
     {
+        public bool Exists { get; set; }
         public NestedOwnedType NestedOwnedType1 { get; set; }
         public NestedOwnedType NestedOwnedType2 { get; set; }
     }

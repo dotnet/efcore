@@ -448,6 +448,40 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.NavigationBaseIncludeIgnored" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="navigation"> The navigation being included. </param>
+        public static void NavigationBaseIncludeIgnored(
+            this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+            INavigationBase navigation)
+        {
+            var definition = CoreResources.LogNavigationBaseIncludeIgnored(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, navigation.DeclaringEntityType.ShortName() + "." + navigation.Name);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new NavigationBaseEventData(
+                    definition,
+                    NavigationBaseIncludeIgnored,
+                    navigation);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string NavigationBaseIncludeIgnored(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (NavigationBaseEventData)payload;
+            return d.GenerateMessage(p.NavigationBase.DeclaringEntityType.ShortName() + "." + p.NavigationBase.Name);
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.QueryExecutionPlanned" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
@@ -638,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var definition = CoreResources.LogInvalidIncludePath(diagnostics);
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, navigationChain, navigationName);
+                definition.Log(diagnostics, navigationName, navigationChain);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -658,7 +692,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var d = (EventDefinition<object, object>)definition;
             var p = (InvalidIncludePathEventData)payload;
 
-            return d.GenerateMessage(p.NavigationChain, p.NavigationName);
+            return d.GenerateMessage(p.NavigationName, p.NavigationChain);
         }
 
         /// <summary>
@@ -904,7 +938,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
+                definition.Log(diagnostics, entityType.GetType().ShortDisplayName(), navigationName);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -924,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (LazyLoadingEventData)payload;
-            return d.GenerateMessage(p.NavigationPropertyName, p.Entity.GetType().ShortDisplayName());
+            return d.GenerateMessage(p.Entity.GetType().ShortDisplayName(), p.NavigationPropertyName);
         }
 
         /// <summary>
@@ -944,7 +978,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
+                definition.Log(diagnostics, entityType.GetType().ShortDisplayName(), navigationName);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -964,7 +998,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (LazyLoadingEventData)payload;
-            return d.GenerateMessage(p.NavigationPropertyName, p.Entity.GetType().ShortDisplayName());
+            return d.GenerateMessage(p.Entity.GetType().ShortDisplayName(), p.NavigationPropertyName);
         }
 
         /// <summary>
@@ -1047,7 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, property.DeclaringEntityType.DisplayName(), property.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1065,7 +1099,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (PropertyEventData)payload;
-            return d.GenerateMessage(p.Property.Name, p.Property.DeclaringEntityType.DisplayName());
+            return d.GenerateMessage(p.Property.DeclaringEntityType.DisplayName(), p.Property.Name);
         }
 
         /// <summary>
@@ -1081,7 +1115,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, property.DeclaringEntityType.DisplayName(), property.Name);
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1099,7 +1133,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (PropertyEventData)payload;
-            return d.GenerateMessage(p.Property.Name, p.Property.DeclaringEntityType.DisplayName());
+            return d.GenerateMessage(p.Property.DeclaringEntityType.DisplayName(), p.Property.Name);
         }
 
         /// <summary>

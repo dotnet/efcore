@@ -769,7 +769,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
                 buildAction(modelBuilder);
 
-                model = services.GetService<IModelRuntimeInitializer>().Initialize(modelBuilder.FinalizeModel(), validationLogger: null);
+                model = services.GetService<IModelRuntimeInitializer>().Initialize(
+                    modelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
             }
 
             var batch = services.GetRequiredService<IMigrationsSqlGenerator>().Generate(operation, model, options);

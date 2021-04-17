@@ -280,6 +280,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, baseType);
 
         /// <summary>
+        ///     Using 'Distinct' operation on a projection containing a collection is not supported.
+        /// </summary>
+        public static string DistinctOnCollectionNotSupported
+            => GetString("DistinctOnCollectionNotSupported");
+
+        /// <summary>
         ///     The check constraint '{checkConstraint}' cannot be added to the entity type '{entityType}' because another check constraint with the same name already exists.
         /// </summary>
         public static string DuplicateCheckConstraint(object? checkConstraint, object? entityType)
@@ -768,28 +774,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, missingColumn, table);
 
         /// <summary>
-        ///     Subquery with 'Distinct' can only be translated if projection consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the projection, remove complex elements of the projection, or rewrite the query to not use the 'Distinct' operation.
-        /// </summary>
-        public static string UnableToTranslateSubqueryWithDistinct(object? column)
-            => string.Format(
-                GetString("UnableToTranslateSubqueryWithDistinct", nameof(column)),
-                column);
-
-        /// <summary>
-        ///     Subquery with 'GroupBy' can only be translated if grouping key consists only of entities and their properties, or it contains keys of all entities required to generate results on the client side. Either add '{column}' to the grouping key, remove complex elements of the grouping key, or rewrite the query to not use the 'GroupBy' operation.
-        /// </summary>
-        public static string UnableToTranslateSubqueryWithGroupBy(object? column)
-            => string.Format(
-                GetString("UnableToTranslateSubqueryWithGroupBy", nameof(column)),
-                column);
-
-        /// <summary>
-        ///     Using 'Distinct' operation on a projection containing a collection is not supported.
-        /// </summary>
-        public static string DistinctOnCollectionNotSupported
-            => GetString("DistinctOnCollectionNotSupported");
-
-        /// <summary>
         ///     'Reverse' could not be translated to the server because there is no ordering on the server side.
         /// </summary>
         public static string MissingOrderingInSelectExpression
@@ -908,6 +892,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NullTypeMappingInSqlTree", nameof(sqlExpression)),
                 sqlExpression);
+
+        /// <summary>
+        ///     Entity type '{entityType}' is an optional dependent using table sharing and containing other dependents without any required non shared property to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query causing nested dependent's values to be lost. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+        /// </summary>
+        public static string OptionalDependentWithDependentWithoutIdentifyingProperty(object? entityType)
+            => string.Format(
+                GetString("OptionalDependentWithDependentWithoutIdentifyingProperty", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].
@@ -2227,6 +2219,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The entity type '{entityType}' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+        /// </summary>
+        public static EventDefinition<string> LogOptionalDependentWithoutIdentifyingProperty(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithoutIdentifyingProperty;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithoutIdentifyingProperty,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
+                            _resourceManager.GetString("LogOptionalDependentWithoutIdentifyingProperty")!)));
+            }
+
+            return (EventDefinition<string>)definition;
         }
 
         /// <summary>

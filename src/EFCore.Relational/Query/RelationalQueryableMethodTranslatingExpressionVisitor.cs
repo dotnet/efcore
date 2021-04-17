@@ -1441,12 +1441,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             || (entityType.FindDiscriminatorProperty() == null
                                 && navigation.DeclaringEntityType.IsStrictlyDerivedFrom(entityShaperExpression.EntityType));
 
-                        var propertyExpressions = GetPropertyExpressionFromSameTable(
-                            targetEntityType, table, _selectExpression, identifyingColumn, principalNullable);
-                        if (propertyExpressions != null)
+                        var entityProjection = _selectExpression.GenerateWeakEntityProjectionExpression(
+                            targetEntityType, table, identifyingColumn.Name, identifyingColumn.Table, principalNullable);
+
+                        if (entityProjection != null)
                         {
-                            innerShaper = new RelationalEntityShaperExpression(
-                                targetEntityType, new EntityProjectionExpression(targetEntityType, propertyExpressions), true);
+                            innerShaper = new RelationalEntityShaperExpression(targetEntityType, entityProjection, principalNullable);
                         }
                     }
 
@@ -1479,10 +1479,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var joinPredicate = _sqlTranslator.Translate(Expression.Equal(outerKey, innerKey))!;
                         _selectExpression.AddLeftJoin(innerSelectExpression, joinPredicate);
                         var leftJoinTable = ((LeftJoinExpression)_selectExpression.Tables.Last()).Table;
-                        var propertyExpressions = GetPropertyExpressionsFromJoinedTable(targetEntityType, table, leftJoinTable);
 
                         innerShaper = new RelationalEntityShaperExpression(
-                            targetEntityType, new EntityProjectionExpression(targetEntityType, propertyExpressions), true);
+                            targetEntityType,
+                            _selectExpression.GenerateWeakEntityProjectionExpression(
+                                targetEntityType, table, null, leftJoinTable, nullable: true)!,
+                            nullable: true);
                     }
 
                     entityProjectionExpression.AddNavigationBinding(navigation, innerShaper);
@@ -1495,80 +1497,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => expression.Type.IsValueType
                     ? Expression.Convert(expression, typeof(object))
                     : expression;
-
-            private static IDictionary<IProperty, ColumnExpression>? GetPropertyExpressionFromSameTable(
-                IEntityType entityType,
-                ITableBase table,
-                SelectExpression selectExpression,
-                ColumnExpression identifyingColumn,
-                bool nullable)
-            {
-                if (identifyingColumn.Table is TableExpression tableExpression)
-                {
-                    if (!string.Equals(tableExpression.Name, table.Name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Fetch the table for the type which is defining the navigation since dependent would be in that table
-                        tableExpression = selectExpression.Tables
-                            .Select(t => (t as InnerJoinExpression)?.Table ?? (t as LeftJoinExpression)?.Table ?? t)
-                            .Cast<TableExpression>()
-                            .First(t => t.Name == table.Name && t.Schema == table.Schema);
-                    }
-
-                    var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                    foreach (var property in entityType
-                        .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                        .SelectMany(t => t.GetDeclaredProperties()))
-                    {
-                        propertyExpressions[property] = new ColumnExpression(
-                            property, table.FindColumn(property)!, tableExpression, nullable || !property.IsPrimaryKey());
-                    }
-
-                    return propertyExpressions;
-                }
-
-                if (identifyingColumn.Table is SelectExpression subquery)
-                {
-                    var subqueryIdentifyingColumn = (ColumnExpression)subquery.Projection
-                        .Single(e => string.Equals(e.Alias, identifyingColumn.Name, StringComparison.OrdinalIgnoreCase))
-                        .Expression;
-
-                    var subqueryPropertyExpressions = GetPropertyExpressionFromSameTable(
-                        entityType, table, subquery, subqueryIdentifyingColumn, nullable);
-
-                    if (subqueryPropertyExpressions == null)
-                    {
-                        return null;
-                    }
-
-                    var newPropertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                    foreach (var item in subqueryPropertyExpressions)
-                    {
-                        newPropertyExpressions[item.Key] = new ColumnExpression(
-                            subquery.Projection[subquery.AddToProjection(item.Value)], subquery);
-                    }
-
-                    return newPropertyExpressions;
-                }
-
-                return null;
-            }
-
-            private static IDictionary<IProperty, ColumnExpression> GetPropertyExpressionsFromJoinedTable(
-                IEntityType entityType,
-                ITableBase table,
-                TableExpressionBase tableExpression)
-            {
-                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                foreach (var property in entityType
-                    .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                    .SelectMany(t => t.GetDeclaredProperties()))
-                {
-                    propertyExpressions[property] = new ColumnExpression(
-                        property, table.FindColumn(property)!, tableExpression, nullable: true);
-                }
-
-                return propertyExpressions;
-            }
         }
 
         private ShapedQueryExpression TranslateTwoParameterSelector(ShapedQueryExpression source, LambdaExpression resultSelector)

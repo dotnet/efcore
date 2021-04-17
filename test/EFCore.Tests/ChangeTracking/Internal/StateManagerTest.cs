@@ -613,6 +613,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public EntityState ChangingState;
             public EntityState ChangedState;
 
+            public void BeginAttachGraph()
+            {
+            }
+
+            public void CompleteAttachGraph()
+            {
+            }
+
+            public void AbortAttachGraph()
+            {
+            }
+
             public void NavigationReferenceChanged(
                 InternalEntityEntry entry,
                 INavigationBase navigationBase,
@@ -743,7 +755,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Can_get_all_dependent_entries()
         {
             var model = BuildModel();
-            var stateManager = CreateStateManager(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var categoryEntry1 = stateManager.StartTracking(
                 stateManager.GetOrCreateEntry(
@@ -791,7 +805,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void Does_not_throws_when_instance_of_unmapped_derived_type_is_used()
         {
             var model = BuildModel();
-            var stateManager = CreateStateManager(model);
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
+            model = contextServices.GetRequiredService<IModel>();
+            var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var entry = stateManager.GetOrCreateEntry(new SpecialProduct());
 

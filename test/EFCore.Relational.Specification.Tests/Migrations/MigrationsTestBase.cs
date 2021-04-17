@@ -11,9 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -1612,13 +1610,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sourceModelBuilder = CreateConventionlessModelBuilder();
             buildCommonAction(sourceModelBuilder);
             buildSourceAction(sourceModelBuilder);
-            var sourceModel = modelRuntimeInitializer.Initialize(sourceModelBuilder.FinalizeModel(), validationLogger: null);
+            var sourceModel = modelRuntimeInitializer.Initialize(sourceModelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
 
             var targetModelBuilder = CreateConventionlessModelBuilder();
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
 
-            var targetModel = modelRuntimeInitializer.Initialize(targetModelBuilder.FinalizeModel(), validationLogger: null); // CreateValidationLogger()
+            var targetModel = modelRuntimeInitializer.Initialize(targetModelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
 
             var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
 
@@ -1657,7 +1655,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var context = CreateContext();
             var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
-            var sourceModel = modelRuntimeInitializer.Initialize(sourceModelBuilder.FinalizeModel(), validationLogger: null);
+            var sourceModel = modelRuntimeInitializer.Initialize(sourceModelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
 
             return Test(sourceModel, targetModel: null, operations, asserter);
         }

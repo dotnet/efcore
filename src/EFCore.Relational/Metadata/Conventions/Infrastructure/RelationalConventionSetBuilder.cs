@@ -109,6 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
                 (QueryFilterRewritingConvention)new RelationalQueryFilterRewritingConvention(
                     Dependencies, RelationalDependencies));
 
+            ReplaceConvention(
+                conventionSet.ModelFinalizedConventions,
+                (SlimModelConvention)new RelationalSlimModelConvention(Dependencies, RelationalDependencies));
+
             return conventionSet;
         }
     }

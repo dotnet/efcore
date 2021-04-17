@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly ReaderColumn[]? _readerColumns;
 
             // States to materialize only once
-            private readonly IDictionary<Expression, Expression> _variableShaperMapping = new Dictionary<Expression, Expression>();
+            private readonly Dictionary<Expression, Expression> _variableShaperMapping = new(ReferenceEqualityComparer.Instance);
 
             // There are always entity variables to avoid materializing same entity twice
             private readonly List<ParameterExpression> _variables = new();

@@ -409,11 +409,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case EntityShaperExpression entityShaperExpression:
                     return new EntityReferenceExpression(entityShaperExpression);
 
-                case ProjectionBindingExpression projectionBindingExpression:
-                    return projectionBindingExpression.ProjectionMember != null
-                        ? ((SelectExpression)projectionBindingExpression.QueryExpression)
-                        .GetMappedProjection(projectionBindingExpression.ProjectionMember)
-                        : QueryCompilationContext.NotTranslatedExpression;
+                case ProjectionBindingExpression projectionBindingExpression
+                when projectionBindingExpression.ProjectionMember != null:
+                    return ((SelectExpression)projectionBindingExpression.QueryExpression)
+                        .GetMappedProjection(projectionBindingExpression.ProjectionMember);
+
+                //case ProjectionBindingExpression projectionBindingExpression
+                //    when projectionBindingExpression.Index is int index:
+                //    return ((SelectExpression)projectionBindingExpression.QueryExpression).Projection[index].Expression;
 
                 case GroupByShaperExpression groupByShaperExpression:
                     return new GroupingElementExpression(groupByShaperExpression.ElementSelector);
@@ -1279,36 +1282,36 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
                 var entityType1 = nonNullEntityReference.EntityType;
-
-                if (entityType1.GetViewOrTableMappings().FirstOrDefault()?.Table.IsOptional(entityType1) == true)
+                var table = entityType1.GetViewOrTableMappings().FirstOrDefault()?.Table;
+                if (table?.IsOptional(entityType1) == true)
                 {
+                    Expression? condition = null;
                     // Optional dependent sharing table
                     var requiredNonPkProperties = entityType1.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
                     if (requiredNonPkProperties.Count > 0)
                     {
-                        result = Visit(
-                            requiredNonPkProperties.Select(
-                                p =>
-                                {
-                                    var comparison = Expression.Call(
-                                        _objectEqualsMethodInfo,
-                                        Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
-                                        Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
+                        condition = requiredNonPkProperties.Select(
+                            p =>
+                            {
+                                var comparison = Expression.Call(
+                                    _objectEqualsMethodInfo,
+                                    Expression.Convert(CreatePropertyAccessExpression(nonNullEntityReference, p), typeof(object)),
+                                    Expression.Convert(Expression.Constant(null, p.ClrType.MakeNullable()), typeof(object)));
 
-                                    return nodeType == ExpressionType.Equal
-                                        ? (Expression)comparison
-                                        : Expression.Not(comparison);
-                                }).Aggregate(
-                                (l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
-
-                        return true;
+                                return nodeType == ExpressionType.Equal
+                                    ? (Expression)comparison
+                                    : Expression.Not(comparison);
+                            })
+                            .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
                     }
 
-                    var allNonPkProperties = entityType1.GetProperties().Where(p => !p.IsPrimaryKey()).ToList();
-                    if (allNonPkProperties.Count > 0)
+                    var allNonPrincipalSharedNonPkProperties = entityType1.GetNonPrincipalSharedNonPkProperties(table);
+                    // We don't need condition for nullable property if there exist at least one required property which is non shared.
+                    if (allNonPrincipalSharedNonPkProperties.Count != 0
+                        && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
                     {
-                        result = Visit(
-                            allNonPkProperties.Select(
+                        var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
+                            .Select(
                                 p =>
                                 {
                                     var comparison = Expression.Call(
@@ -1319,9 +1322,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     return nodeType == ExpressionType.Equal
                                         ? (Expression)comparison
                                         : Expression.Not(comparison);
-                                }).Aggregate(
-                                (l, r) => nodeType == ExpressionType.Equal ? Expression.AndAlso(l, r) : Expression.OrElse(l, r)));
+                                })
+                            .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.AndAlso(l, r) : Expression.OrElse(l, r));
 
+                        condition = condition == null
+                            ? atLeastOneNonNullValueInNullablePropertyCondition
+                            : nodeType == ExpressionType.Equal
+                                ? Expression.OrElse(condition, atLeastOneNonNullValueInNullablePropertyCondition)
+                                : Expression.AndAlso(condition, atLeastOneNonNullValueInNullablePropertyCondition);
+                    }
+
+                    if (condition != null)
+                    {
+                        result = Visit(condition);
                         return true;
                     }
 

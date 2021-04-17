@@ -413,6 +413,18 @@ namespace Microsoft.EntityFrameworkCore
             public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
                 => throw new NotImplementedException();
 
+            public void BeginAttachGraph()
+            {
+            }
+
+            public void CompleteAttachGraph()
+            {
+            }
+
+            public void AbortAttachGraph()
+            {
+            }
+
             public void NavigationReferenceChanged(
                 InternalEntityEntry entry,
                 INavigationBase navigationBase,
@@ -661,7 +673,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public IModel GetModel(
                 DbContext context,
-                ModelCreationDependencies modelCreationDependencies)
+                ModelCreationDependencies modelCreationDependencies,
+                bool designTime)
                 => new Model();
         }
 

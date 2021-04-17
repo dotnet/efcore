@@ -138,11 +138,12 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
+        ///     May not include all the information necessary to initialize the database.
         /// </summary>
         public virtual IModel Model
         {
             [DebuggerStepThrough]
-            get => DbContextDependencies.Model;
+            get => ContextServices.Model;
         }
 
         /// <summary>
@@ -293,8 +294,15 @@ namespace Microsoft.EntityFrameworkCore
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
 
         /// <summary>
-        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
+        ///     <para>
+        ///         Creates a <see cref="DbSet{TEntity}" /> for a shared-type entity type that can be used to query and save
+        ///         instances of <typeparamref name="TEntity" />.
+        ///     </para>
+        ///     <para>
+        ///         Shared-type entity types are typically used for the join entity in many-to-many relationships.
+        ///     </para>
         /// </summary>
+        /// <param name="name"> The name for the shared-type entity type to use. </param>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>
         public virtual DbSet<TEntity> Set<TEntity>(string name)
@@ -315,12 +323,11 @@ namespace Microsoft.EntityFrameworkCore
                 //if the same name exists in your entity types we will show you the full namespace of the type
                 if (!string.IsNullOrEmpty(findSameTypeName))
                 {
-                    throw new InvalidOperationException(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(type.DisplayName(), findSameTypeName));
+                    throw new InvalidOperationException(
+                        CoreStrings.InvalidSetSameTypeWithDifferentNamespace(type.DisplayName(), findSameTypeName));
                 }
-                else
-                {
-                    throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
-                }
+
+                throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
             }
 
             if (entityType.FindPrimaryKey() == null)
@@ -332,6 +339,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private IServiceProvider InternalServiceProvider
+            => ContextServices.InternalServiceProvider;
+
+        private IDbContextServices ContextServices
         {
             get
             {
@@ -339,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (_contextServices != null)
                 {
-                    return _contextServices.InternalServiceProvider;
+                    return _contextServices;
                 }
 
                 if (_initializing)
@@ -382,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore
                     _initializing = false;
                 }
 
-                return _contextServices.InternalServiceProvider;
+                return _contextServices;
             }
         }
 
@@ -579,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
             => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
 
@@ -614,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default)
@@ -1005,7 +1015,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async ValueTask<EntityEntry<TEntity>> AddAsync<TEntity>(
             TEntity entity,
             CancellationToken cancellationToken = default)
@@ -1212,7 +1222,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async ValueTask<EntityEntry> AddAsync(
             object entity,
             CancellationToken cancellationToken = default)
@@ -1537,7 +1547,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task AddRangeAsync(
             IEnumerable<object> entities,
             CancellationToken cancellationToken = default)
@@ -1718,7 +1728,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual ValueTask<object?> FindAsync(
             Type entityType,
             object?[]? keyValues,
@@ -1776,7 +1786,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual ValueTask<TEntity?> FindAsync<TEntity>(object?[]? keyValues, CancellationToken cancellationToken)
             where TEntity : class
         {
@@ -1811,7 +1821,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         #region Hidden System.Object members
-
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
@@ -1836,7 +1845,6 @@ namespace Microsoft.EntityFrameworkCore
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();
-
         #endregion
     }
 }

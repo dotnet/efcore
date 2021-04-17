@@ -180,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         constraint.AddAnnotations(relationalAnnotationProvider.For(constraint));
                     }
 
-                    foreach (CheckConstraint checkConstraint in ((ITable)table).CheckConstraints)
+                    foreach (var checkConstraint in ((ITable)table).CheckConstraints)
                     {
-                        checkConstraint.AddAnnotations(relationalAnnotationProvider.For(checkConstraint));
+                        ((AnnotatableBase)checkConstraint).AddAnnotations(relationalAnnotationProvider.For(checkConstraint));
                     }
 
                     table.AddAnnotations(relationalAnnotationProvider.For(table));
@@ -232,9 +232,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (relationalAnnotationProvider != null)
             {
-                foreach (Sequence sequence in ((IRelationalModel)databaseModel).Sequences)
+                foreach (var sequence in ((IRelationalModel)databaseModel).Sequences)
                 {
-                    sequence.AddAnnotations(relationalAnnotationProvider.For(sequence));
+                    ((AnnotatableBase)sequence).AddAnnotations(relationalAnnotationProvider.For(sequence));
                 }
 
                 databaseModel.AddAnnotations(relationalAnnotationProvider.For(databaseModel));
@@ -1147,15 +1147,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => new(
                 () => ((IRelationalModel)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
                 () => ((IRelationalModel)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override string ToString()
-            => ((IRelationalModel)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         IEnumerable<ITable> IRelationalModel.Tables
         {

@@ -396,6 +396,29 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Produce>()
                     .HasIndex(e => e.BarCode)
                     .IsUnique();
+
+                modelBuilder.Entity<SharedFkRoot>(builder =>
+                {
+                    builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
+                        .HasForeignKey(x => new { x.RootId })
+                        .HasPrincipalKey(x => x.Id)
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    builder.HasMany(x => x.Parents).WithOne(x => x.Root)
+                        .HasForeignKey(x => new { x.RootId })
+                        .HasPrincipalKey(x => x.Id)
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+                modelBuilder.Entity<SharedFkParent>(builder =>
+                {
+                    builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                        .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                        .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                        .OnDelete(DeleteBehavior.ClientSetNull);
+                });
+
+                modelBuilder.Entity<SharedFkDependant>();
             }
 
             protected virtual object CreateFullGraph()
@@ -600,6 +623,21 @@ namespace Microsoft.EntityFrameworkCore
                 context.AddRange(
                     new Poost { Id = 516, Bloog = bloog },
                     new Poost { Id = 517, Bloog = bloog });
+
+                var root = new SharedFkRoot();
+                context.Add(root);
+
+                var parent = new SharedFkParent
+                {
+                    Root = root
+                };
+                context.Add(parent);
+
+                context.Add(new SharedFkDependant
+                {
+                    Root = root,
+                    Parent = parent
+                });
 
                 context.SaveChanges();
             }
@@ -2951,6 +2989,106 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _bloog;
                 set => SetWithNotify(value, ref _bloog);
+            }
+        }
+
+        protected class SharedFkRoot : NotifyingEntity
+        {
+            private long _id;
+
+            private ICollection<SharedFkDependant> _dependants
+                = new ObservableHashSet<SharedFkDependant>(LegacyReferenceEqualityComparer.Instance);
+
+            private ICollection<SharedFkParent> _parents
+                = new ObservableHashSet<SharedFkParent>(LegacyReferenceEqualityComparer.Instance);
+
+            public long Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public ICollection<SharedFkDependant> Dependants
+            {
+                get => _dependants;
+                set => SetWithNotify(value, ref _dependants);
+            }
+
+            public ICollection<SharedFkParent> Parents
+            {
+                get => _parents;
+                set => SetWithNotify(value, ref _parents);
+            }
+        }
+
+        protected class SharedFkParent : NotifyingEntity
+        {
+            private long _id;
+            private long? _dependantId;
+            private long _rootId;
+            private SharedFkRoot _root = null!;
+            private SharedFkDependant _dependant;
+
+            public long Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public long? DependantId
+            {
+                get => _dependantId;
+                set => SetWithNotify(value, ref _dependantId);
+            }
+
+            public long RootId
+            {
+                get => _rootId;
+                set => SetWithNotify(value, ref _rootId);
+            }
+
+            public SharedFkRoot Root
+            {
+                get => _root;
+                set => SetWithNotify(value, ref _root);
+            }
+
+            public SharedFkDependant Dependant
+            {
+                get => _dependant;
+                set => SetWithNotify(value, ref _dependant);
+            }
+        }
+
+        protected class SharedFkDependant : NotifyingEntity
+        {
+            private long _id;
+            private long _rootId;
+            private SharedFkRoot _root = null!;
+            private SharedFkParent _parent = null!;
+
+            public long Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public long RootId
+            {
+                get => _rootId;
+                set => SetWithNotify(value, ref _rootId);
+            }
+
+            public SharedFkRoot Root
+            {
+                get => _root;
+                set => SetWithNotify(value, ref _root);
+            }
+
+            public SharedFkParent Parent
+            {
+                get => _parent;
+                set => SetWithNotify(value, ref _parent);
             }
         }
 

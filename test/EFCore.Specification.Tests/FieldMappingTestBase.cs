@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -2182,7 +2183,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Add(CreateBlogAndPosts<BlogFullExplicit, PostFullExplicit>(new List<PostFullExplicit>()));
                     context.AddRange(CreatePostsAndBlog<BlogFullExplicit, PostFullExplicit>());
 
-                    if (context.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
+                    if (context.GetService<IDesignTimeModel>().Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
                     {
                         context.Add(CreateBlogAndPosts<BlogReadOnly, PostReadOnly>(new ObservableCollection<PostReadOnly>()));
                         context.AddRange(CreatePostsAndBlog<BlogReadOnly, PostReadOnly>());

@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
                 .ConfigureWarnings(
                     b => b.Default(WarningBehavior.Throw)
                         .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                        .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));        
+                        .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
         protected virtual TestStore CreateTestStore()
             => TestStoreFactory.Create(StoreName);

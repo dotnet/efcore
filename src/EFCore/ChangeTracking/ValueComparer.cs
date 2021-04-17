@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
@@ -205,13 +206,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 return new DefaultFloatValueComparer(favorStructuralComparisons);
             }
 
+            if (nonNullabletype == typeof(DateTimeOffset))
+            {
+                return new DefaultDateTimeOffsetValueComparer(favorStructuralComparisons);
+            }
+
             var comparerType = nonNullabletype.IsInteger()
                 || nonNullabletype == typeof(decimal)
                 || nonNullabletype == typeof(bool)
                 || nonNullabletype == typeof(string)
                 || nonNullabletype == typeof(DateTime)
                 || nonNullabletype == typeof(Guid)
-                || nonNullabletype == typeof(DateTimeOffset)
                 || nonNullabletype == typeof(TimeSpan)
                     ? typeof(DefaultValueComparer<>)
                     : typeof(ValueComparer<>);
@@ -225,6 +230,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             public DefaultValueComparer(bool favorStructuralComparisons)
                 : base(favorStructuralComparisons)
+            {
+            }
+
+            public DefaultValueComparer(Expression<Func<T?, T?, bool>> equalsExpression, bool favorStructuralComparisons)
+                : base(
+                    equalsExpression,
+                    CreateDefaultHashCodeExpression(favorStructuralComparisons),
+                    CreateDefaultSnapshotExpression(favorStructuralComparisons))
             {
             }
 
@@ -244,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         internal sealed class DefaultDoubleValueComparer : DefaultValueComparer<double>
         {
             public DefaultDoubleValueComparer(bool favorStructuralComparisons)
-                : base(favorStructuralComparisons)
+                : base((v1, v2) => v1.Equals(v2), favorStructuralComparisons)
             {
             }
 
@@ -255,12 +268,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         internal sealed class DefaultFloatValueComparer : DefaultValueComparer<float>
         {
             public DefaultFloatValueComparer(bool favorStructuralComparisons)
-                : base(favorStructuralComparisons)
+                : base((v1, v2) => v1.Equals(v2), favorStructuralComparisons)
             {
             }
 
             public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
                 => Expression.Call(leftExpression, _floatEqualsMethodInfo, rightExpression);
+        }
+
+        internal sealed class DefaultDateTimeOffsetValueComparer : DefaultValueComparer<DateTimeOffset>
+        {
+            private static readonly PropertyInfo _offsetPropertyInfo = typeof(DateTimeOffset).GetProperty(nameof(DateTimeOffset.Offset))!;
+
+            // In .NET, two DateTimeOffset instances are considered equal if they represent the same point in time but with different
+            // time zone offsets. This comparer considers such DateTimeOffset as non-equal.
+            public DefaultDateTimeOffsetValueComparer(bool favorStructuralComparisons)
+                : base((v1, v2) => v1 == v2 && v1.Offset == v2.Offset, favorStructuralComparisons)
+            {
+            }
+
+            public override Expression ExtractEqualsBody(Expression leftExpression, Expression rightExpression)
+                => Expression.And(
+                    Expression.Equal(leftExpression, rightExpression),
+                    Expression.Equal(
+                        Expression.Property(leftExpression, _offsetPropertyInfo),
+                        Expression.Property(rightExpression, _offsetPropertyInfo)));
         }
     }
 }

@@ -55,10 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual KeyBuilder HasAnnotation(string annotation, object value)
+        public virtual KeyBuilder HasAnnotation(string annotation, object? value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotNull(value, nameof(value));
 
             Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 

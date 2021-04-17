@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -156,8 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 .AsTracking()
                 .Where(BuildWhereLambda(loadProperties, new ValueBuffer(keyValues)))
                 .SelectMany(BuildSelectManyLambda(_skipNavigation))
-                    .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)))
-                    .AsQueryable();
+                .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)))
+                .AsQueryable();
         }
 
         private static Expression<Func<TEntity, IEnumerable<TSourceEntity>>> BuildIncludeLambda(
@@ -173,8 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     EnumerableMethods.Where.MakeGenericMethod(typeof(TSourceEntity)),
                     Expression.MakeMemberAccess(
                         entityParameter,
-                        // TODO-Nullable: This could be product bug.
-                        skipNavigation.PropertyInfo!),
+                        skipNavigation.GetIdentifyingMemberInfo()!),
                     Expression.Lambda<Func<TSourceEntity, bool>>(
                         ExpressionExtensions.BuildPredicate(keyProperties, keyValues, whereParameter),
                         whereParameter)), entityParameter);
@@ -197,8 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return Expression.Lambda<Func<TSourceEntity, IEnumerable<TEntity>>>(
                 Expression.MakeMemberAccess(
                     entityParameter,
-                    // TODO-Nullable: This could be product bug.
-                    navigation.PropertyInfo!),
+                    navigation.GetIdentifyingMemberInfo()!),
                 entityParameter);
         }
     }

@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual NavigationBuilder<TSource, TTarget> HasAnnotation(string annotation, object value)
+        public new virtual NavigationBuilder<TSource, TTarget> HasAnnotation(string annotation, object? value)
             => (NavigationBuilder<TSource, TTarget>)base.HasAnnotation(annotation, value);
 
         /// <summary>

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -11,34 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class DbParameterCollectionExtensionsTest
     {
-        [ConditionalFact]
-        public void Short_byte_arrays_are_not_truncated()
-        {
-            var shortArray = new Guid("21EC2020-3AEA-4069-A2DD-08002B30309D").ToByteArray();
-            var longerShortArray = shortArray.Concat(shortArray).ToArray();
-
-            Assert.Equal(
-                "@param='0x2020EC21EA3A6940A2DD08002B30309D'",
-                DbParameterCollectionExtensions.FormatParameter(
-                    "@param", shortArray, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0));
-
-            Assert.Equal(
-                "@param='0x2020EC21EA3A6940A2DD08002B30309D2020EC21EA3A6940A2DD08002B30309D'",
-                DbParameterCollectionExtensions.FormatParameter(
-                    "@param", longerShortArray, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0));
-        }
-
-        [ConditionalFact]
-        public void Long_byte_arrays_are_truncated()
-        {
-            var shortArray = new Guid("21EC2020-3AEA-4069-A2DD-08002B30309D").ToByteArray();
-            var longArray = shortArray.Concat(shortArray).Concat(shortArray).ToArray();
-
-            Assert.Equal(
-                "@param='0x2020EC21EA3A6940A2DD08002B30309D2020EC21EA3A6940A2DD08002B30309D...'",
-                DbParameterCollectionExtensions.FormatParameter(
-                    "@param", longArray, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0));
-        }
 
         [ConditionalFact]
         public void Formats_string_parameter()
@@ -564,6 +537,79 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 "@param='-08:00:00' (DbType = DateTime)",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", new TimeSpan(-8, 0, 0), true, ParameterDirection.Input, DbType.DateTime, false, 0, 0, 0));
+        }
+
+        [ConditionalFact]
+        public void Short_byte_arrays_are_not_truncated()
+        {
+            var shortArray = new Guid("21EC2020-3AEA-4069-A2DD-08002B30309D").ToByteArray();
+            var longerShortArray = shortArray.Concat(shortArray).ToArray();
+
+            Assert.Equal(
+                "@param='0x2020EC21EA3A6940A2DD08002B30309D'",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", shortArray, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0));
+
+            Assert.Equal(
+                "@param='0x2020EC21EA3A6940A2DD08002B30309D2020EC21EA3A6940A2DD08002B30309D'",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", longerShortArray, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0));
+        }
+
+        [ConditionalFact]
+        public void Long_byte_arrays_are_truncated()
+        {
+            var shortArray = new Guid("21EC2020-3AEA-4069-A2DD-08002B30309D").ToByteArray();
+            var longArray = shortArray.Concat(shortArray).Concat(shortArray).ToArray();
+
+            Assert.Equal(
+                "@param='0x2020EC21EA3A6940A2DD08002B30309D2020EC21EA3A6940A2DD08002B30309D...'",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", longArray, true, ParameterDirection.Input, DbType.Binary, true, 0, 0, 0));
+        }
+
+        [ConditionalFact]
+        public void Short_arrays_are_not_truncated()
+        {
+            var array = new[] { 1, 2, 3, 4, 5 };
+
+            Assert.Equal(
+                "@param={ '1', '2', '3', '4', '5' } (DbType = Object)",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", array, true, ParameterDirection.Input, DbType.Object, true, 0, 0, 0));
+        }
+
+        [ConditionalFact]
+        public void Long_arrays_are_truncated()
+        {
+            var array = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+            Assert.Equal(
+                "@param={ '1', '2', '3', '4', '5', ... } (DbType = Object)",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", array, true, ParameterDirection.Input, DbType.Object, true, 0, 0, 0));
+        }
+
+        [ConditionalFact]
+        public void Short_generic_lists_are_not_truncated()
+        {
+            var array = new List<int> { 1, 2, 3, 4, 5 };
+
+            Assert.Equal(
+                "@param={ '1', '2', '3', '4', '5' } (DbType = Object)",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", array, true, ParameterDirection.Input, DbType.Object, true, 0, 0, 0));
+        }
+
+        [ConditionalFact]
+        public void Long_generic_lists_are_truncated()
+        {
+            var array = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+            Assert.Equal(
+                "@param={ '1', '2', '3', '4', '5', ... } (DbType = Object)",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", array, true, ParameterDirection.Input, DbType.Object, true, 0, 0, 0));
         }
     }
 }

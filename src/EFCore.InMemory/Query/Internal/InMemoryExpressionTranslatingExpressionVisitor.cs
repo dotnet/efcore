@@ -276,11 +276,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 case EntityShaperExpression entityShaperExpression:
                     return new EntityReferenceExpression(entityShaperExpression);
 
-                case ProjectionBindingExpression projectionBindingExpression:
-                    return projectionBindingExpression.ProjectionMember != null
-                        ? ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
-                        .GetMappedProjection(projectionBindingExpression.ProjectionMember)
-                        : QueryCompilationContext.NotTranslatedExpression;
+                case ProjectionBindingExpression projectionBindingExpression
+                    when projectionBindingExpression.ProjectionMember != null:
+                    return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
+                        .GetMappedProjection(projectionBindingExpression.ProjectionMember);
+
+                //case ProjectionBindingExpression projectionBindingExpression
+                //    when projectionBindingExpression.Index is int index:
+                //    return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression).Projection[index];
 
                 case InMemoryGroupByShaperExpression inMemoryGroupByShaperExpression:
                     return new GroupingElementExpression(

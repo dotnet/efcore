@@ -51,5 +51,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public override Type RuntimeType
             => Constructor.DeclaringType!;
+
+        /// <summary>
+        ///     Creates a copy that contains the given parameter bindings.
+        /// </summary>
+        /// <param name="parameterBindings"> The new parameter bindings. </param>
+        /// <returns> A copy with replaced parameter bindings. </returns>
+        public override InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings)
+            => new ConstructorBinding(Constructor, parameterBindings);
     }
 }

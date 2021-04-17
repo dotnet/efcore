@@ -100,7 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeMemberIgnoredConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
             conventionSet.EntityTypeMemberIgnoredConventions.Add(foreignKeyPropertyDiscoveryConvention);
-            conventionSet.EntityTypeMemberIgnoredConventions.Add(servicePropertyDiscoveryConvention);
 
             var keyAttributeConvention = new KeyAttributeConvention(Dependencies);
             var backingFieldConvention = new BackingFieldConvention(Dependencies);
@@ -231,12 +230,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ModelFinalizingConventions.Add(new ConstructorBindingConvention(Dependencies));
             conventionSet.ModelFinalizingConventions.Add(foreignKeyIndexConvention);
             conventionSet.ModelFinalizingConventions.Add(foreignKeyPropertyDiscoveryConvention);
-            conventionSet.ModelFinalizingConventions.Add(servicePropertyDiscoveryConvention);
             conventionSet.ModelFinalizingConventions.Add(nonNullableReferencePropertyConvention);
             conventionSet.ModelFinalizingConventions.Add(nonNullableNavigationConvention);
             conventionSet.ModelFinalizingConventions.Add(new QueryFilterRewritingConvention(Dependencies));
             conventionSet.ModelFinalizingConventions.Add(inversePropertyAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(backingFieldConvention);
+
+            conventionSet.ModelFinalizedConventions.Add(new SlimModelConvention(Dependencies));
 
             return conventionSet;
         }

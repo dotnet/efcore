@@ -538,6 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return ExpandInclude(ownedNavigationReference, ownedNavigationReference.EntityReference);
 
                     case MaterializeCollectionNavigationExpression _:
+                    case IncludeExpression _:
                         return extensionExpression;
                 }
 
@@ -705,6 +706,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (!navigationBase.IsCollection
                         && previousNavigation?.Inverse == navigationBase)
                     {
+                        // This skips one-to-one navigations which are pointing to each other.
+                        if (!navigationBase.IsEagerLoaded)
+                        {
+                            _logger.NavigationBaseIncludeIgnored(navigationBase);
+                        }
+
                         continue;
                     }
 
@@ -737,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         var subquery = materializeCollectionNavigation.Subquery;
                         if (!_ignoreAutoIncludes
                             && navigationBase is INavigation
-                            && navigationBase.Inverse != null
+                            && navigationBase.Inverse is INavigation inverseNavigation
                             && subquery is MethodCallExpression subqueryMethodCallExpression
                             && subqueryMethodCallExpression.Method.IsGenericMethod)
                         {
@@ -754,7 +761,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                             if (innerEntityReference != null)
                             {
-                                innerEntityReference.IncludePaths.Remove(navigationBase.Inverse);
+                                // This skips inverse navigation of a collection navigation if they are pointing to each other.
+                                // Not a skip navigation
+                                if (innerEntityReference.IncludePaths.ContainsKey(inverseNavigation)
+                                    && !inverseNavigation.IsEagerLoaded)
+                                {
+                                    _logger.NavigationBaseIncludeIgnored(inverseNavigation);
+                                }
+
+                                innerEntityReference.IncludePaths.Remove(inverseNavigation);
                             }
                         }
 

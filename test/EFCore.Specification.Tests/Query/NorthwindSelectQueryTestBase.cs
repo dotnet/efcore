@@ -656,20 +656,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss =>
                     (from c in ss.Set<Customer>()
-                    where c.City == "London"
-                    orderby c.CustomerID
-                    select new { c.City }).Distinct().Select(x => 
+                     where c.City == "London"
+                     orderby c.CustomerID
+                     select new { c.City }).Distinct().Select(x =>
 
-                           ((from o1 in ss.Set<Order>()
-                            where o1.CustomerID == x.City
-                                && o1.OrderDate.Value.Year == 1997
-                            orderby o1.OrderID
-                            select o1).Distinct().Select(xx => 
+                            ((from o1 in ss.Set<Order>()
+                              where o1.CustomerID == x.City
+                                 && o1.OrderDate.Value.Year == 1997
+                              orderby o1.OrderID
+                              select o1).Distinct().Select(xx =>
 
-                             (from o2 in ss.Set<Order>()
-                                    where xx.CustomerID == x.City
-                                    orderby o2.OrderID
-                                    select xx.OrderID).ToList()).ToList())),
+                              (from o2 in ss.Set<Order>()
+                               where xx.CustomerID == x.City
+                               orderby o2.OrderID
+                               select xx.OrderID).ToList()).ToList())),
                 elementSorter: e => e.Count,
                 elementAsserter: (e, a) => AssertCollection(
                     e,
@@ -1911,7 +1911,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "Issue#24440")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_after_distinct_with_complex_projection_not_containing_original_identifier(bool async)
         {
@@ -2168,6 +2168,8 @@ namespace Microsoft.EntityFrameworkCore.Query
               });
         }
 
+        private static string ClientMethod(string s) => s;
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task VisitLambda_should_not_be_visited_trivially(bool async)
@@ -2221,6 +2223,99 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        private static string ClientMethod(string s) => s;
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_include_over_result_of_single_non_scalar(bool async)
+        {
+            return AssertQuery(
+              async,
+              ss =>
+               ss.Set<Customer>().Include(c => c.Orders).ThenInclude(o => o.OrderDetails)
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .Select(c => new
+                    {
+                        c,
+                        SingleOrder = c.Orders.OrderBy(o => o.OrderDate).FirstOrDefault()
+                    }),
+              elementSorter: e => e.c.CustomerID,
+              elementAsserter: (e, a) =>
+              {
+                  AssertInclude(e, a,
+                      new ExpectedInclude<Customer>(c => c.Orders),
+                      new ExpectedInclude<Order>(o => o.OrderDetails, "Orders"));
+                  AssertInclude(e.SingleOrder, a.SingleOrder, new ExpectedInclude<Order>(o => o.OrderDetails));
+              },
+              entryCount: 235);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
+        {
+            return AssertQuery(
+              async,
+              ss =>
+               ss.Set<Customer>().Include(c => c.Orders)
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .OrderBy(e => e.CustomerID)
+                    .Select(c => new
+                    {
+                        Customer = c.Orders.Select(o => c)
+                    })
+                    .Take(10),
+              assertOrder: true,
+              elementAsserter: (e, a) =>
+              {
+                  AssertCollection(e.Customer, a.Customer,
+                      elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Customer>(i => i.Orders)));
+              },
+              entryCount: 70);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_on_top_level_and_on_collection_projection_with_outer_apply(bool async)
+        {
+            return AssertFirstOrDefault(
+              async,
+              ss =>
+               ss.Set<Order>()
+                    .Where(o => o.CustomerID.StartsWith("F"))
+                    .Select(o => new Order
+                    {
+                        OrderID = o.OrderID,
+                        OrderDate = o.OrderDate,
+                        OrderDetails = o.OrderDetails.Select(e => new OrderDetail
+                        {
+                            OrderID = e.OrderID,
+                            Product = e.Product,
+                            UnitPrice = e.UnitPrice
+                        })
+                        .OrderByDescending(e => e.OrderID)
+                        .Skip(0)
+                        .Take(10)
+                        .ToList()
+                    }),
+              entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_on_correlated_collection_in_first(bool async)
+        {
+            return AssertFirstOrDefault(
+              async,
+              ss =>
+               ss.Set<Customer>()
+                    .Where(o => o.CustomerID.StartsWith("F"))
+                    .OrderBy(e => e.CustomerID)
+                    .Select(o => new
+                    {
+                        Orders = o.Orders.OrderBy(a => a.OrderDate).Take(1)
+                            .Select(e => new { Title = e.CustomerID == e.Customer.CustomerID ? "A" : "B" }).ToList()
+                    }),
+              asserter: (e, a) => AssertCollection(e.Orders, a.Orders, ordered: true,
+                elementAsserter: (ee, aa) => AssertEqual(ee.Title, aa.Title)));
+        }
     }
 }

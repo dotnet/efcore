@@ -41,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="complete"> The value indicating if this discriminator mapping is complete. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder? IsComplete(bool complete = true)
-            => IsComplete(complete, ConfigurationSource.Explicit);
+        public virtual DiscriminatorBuilder IsComplete(bool complete = true)
+            => IsComplete(complete, ConfigurationSource.Explicit)!;
 
         private DiscriminatorBuilder? IsComplete(bool complete, ConfigurationSource configurationSource)
         {
@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder? HasValue(object? value)
-            => HasValue(EntityTypeBuilder, value, ConfigurationSource.Explicit);
+        public virtual DiscriminatorBuilder HasValue(object? value)
+            => HasValue(EntityTypeBuilder, value, ConfigurationSource.Explicit)!;
 
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given generic type.
@@ -80,8 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <typeparam name="TEntity"> The entity type for which a discriminator value is being set. </typeparam>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder? HasValue<TEntity>(object? value)
-            => HasValue(typeof(TEntity), value);
+        public virtual DiscriminatorBuilder HasValue<TEntity>(object? value)
+            => HasValue(typeof(TEntity), value)!;
 
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given type.
@@ -89,12 +89,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityType"> The entity type for which a discriminator value is being set. </param>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder? HasValue(Type entityType, object? value)
+        public virtual DiscriminatorBuilder HasValue(Type entityType, object? value)
         {
             var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(
                 entityType, ConfigurationSource.Explicit, shouldBeOwned: null);
 
-            return HasValue(entityTypeBuilder, value, ConfigurationSource.Explicit);
+            return HasValue(entityTypeBuilder, value, ConfigurationSource.Explicit)!;
         }
 
         /// <summary>
@@ -103,12 +103,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="entityTypeName"> The name of the entity type for which a discriminator value is being set. </param>
         /// <param name="value"> The discriminator value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public virtual DiscriminatorBuilder? HasValue(string entityTypeName, object? value)
+        public virtual DiscriminatorBuilder HasValue(string entityTypeName, object? value)
         {
             var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(
                 entityTypeName, ConfigurationSource.Explicit, shouldBeOwned: null);
 
-            return HasValue(entityTypeBuilder, value, ConfigurationSource.Explicit);
+            return HasValue(entityTypeBuilder, value, ConfigurationSource.Explicit)!;
         }
 
         private DiscriminatorBuilder? HasValue(

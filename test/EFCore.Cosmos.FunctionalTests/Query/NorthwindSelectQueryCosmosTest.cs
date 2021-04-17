@@ -1278,6 +1278,30 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))
 ORDER BY c[""OrderID""]");
         }
 
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Collection_include_over_result_of_single_non_scalar(bool async)
+        {
+            return base.Collection_include_over_result_of_single_non_scalar(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Collection_projection_selecting_outer_element_followed_by_take(bool async)
+        {
+            return base.Collection_projection_selecting_outer_element_followed_by_take(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Take_on_top_level_and_on_collection_projection_with_outer_apply(bool async)
+        {
+            return base.Take_on_top_level_and_on_collection_projection_with_outer_apply(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Take_on_correlated_collection_in_first(bool async)
+        {
+            return base.Take_on_correlated_collection_in_first(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

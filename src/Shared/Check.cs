@@ -52,12 +52,14 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             if (value is null)
             {
                 NotEmpty(parameterName, nameof(parameterName));
+
                 throw new ArgumentNullException(parameterName);
             }
 
             if (value.Trim().Length == 0)
             {
                 NotEmpty(parameterName, nameof(parameterName));
+
                 throw new ArgumentException(AbstractionsStrings.ArgumentIsEmpty(parameterName));
             }
 
