@@ -1079,10 +1079,14 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
             await base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
 
             AssertSql(
-                @"SELECT AVG(CAST([s].[Id] AS float)) AS [p1], COALESCE(SUM([s].[Id]), 0) AS [p2], MAX(CAST(LEN([s].[Name]) AS int)) AS [p3]
-FROM [OwnedPerson] AS [o]
-LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
-LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]");
+                @"SELECT AVG(CAST([t].[Id] AS float)) AS [p1], COALESCE(SUM([t].[Id]), 0) AS [p2], MAX(CAST(LEN([t].[Name]) AS int)) AS [p3]
+FROM (
+    SELECT [s].[Id], [s].[Name], 1 AS [Key]
+    FROM [OwnedPerson] AS [o]
+    LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
+    LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
+) AS [t]
+GROUP BY [t].[Key]");
         }
 
         public override async Task Ordering_by_identifying_projection(bool async)
