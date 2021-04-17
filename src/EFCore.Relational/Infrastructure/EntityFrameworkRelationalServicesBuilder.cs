@@ -85,6 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalDatabaseCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INamedConnectionStringResolver), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IRelationalConnectionDiagnosticsLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IDiagnosticsLogger<DbLoggerCategory.Database.Connection>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IRelationalCommandDiagnosticsLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IDiagnosticsLogger<DbLoggerCategory.Database.Command>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IInterceptor), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 {
                     typeof(IRelationalTypeMappingSourcePlugin),
@@ -159,6 +163,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalTransactionFactory, RelationalTransactionFactory>();
             TryAdd<IDatabaseFacadeDependencies>(p => p.GetRequiredService<IRelationalDatabaseFacadeDependencies>());
             TryAdd<IRelationalDatabaseFacadeDependencies, RelationalDatabaseFacadeDependencies>();
+            TryAdd<IRelationalConnectionDiagnosticsLogger, RelationalConnectionDiagnosticsLogger>();
+            TryAdd<IDiagnosticsLogger<DbLoggerCategory.Database.Connection>>(p => p.GetRequiredService<IRelationalConnectionDiagnosticsLogger>());
+            TryAdd<IRelationalCommandDiagnosticsLogger, RelationalCommandDiagnosticsLogger>();
+            TryAdd<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(p => p.GetRequiredService<IRelationalCommandDiagnosticsLogger>());
             TryAdd<IInterceptorAggregator, DbConnectionInterceptorAggregator>();
             TryAdd<IInterceptorAggregator, DbTransactionInterceptorAggregator>();
             TryAdd<IInterceptorAggregator, DbCommandInterceptorAggregator>();

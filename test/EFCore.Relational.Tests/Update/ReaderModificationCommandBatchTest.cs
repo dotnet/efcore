@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-                var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+                var logger = new FakeRelationalCommandDiagnosticsLogger();
 
                 return new ModificationCommandBatchFactoryDependencies(
                     new RelationalCommandBuilderFactory(

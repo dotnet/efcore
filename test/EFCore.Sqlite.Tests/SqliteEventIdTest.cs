@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
             TestEventLogging(
                 typeof(SqliteEventId),
                 typeof(SqliteLoggerExtensions),
-                typeof(SqliteLoggingDefinitions),
+                new SqliteLoggingDefinitions(),
                 fakeFactories);
         }
 
