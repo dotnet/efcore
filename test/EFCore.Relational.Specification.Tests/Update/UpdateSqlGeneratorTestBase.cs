@@ -688,20 +688,25 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 columnModificationFactory.CreateColumnModification(
-                    entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    idProperty.GetTableColumnMappings().Single().TypeMapping, identityKey, !identityKey, true, false, true),
+                    new ColumnModificationParameters(
+                        entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        idProperty.GetTableColumnMappings().Single().TypeMapping, identityKey, !identityKey, true, false, true)),
                 columnModificationFactory.CreateColumnModification(
-                    entry, nameProperty, nameProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    nameProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
+                    new ColumnModificationParameters(
+                        entry, nameProperty, nameProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        nameProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true)),
                 columnModificationFactory.CreateColumnModification(
-                    entry, quacksProperty, quacksProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    quacksProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
+                    new ColumnModificationParameters(
+                        entry, quacksProperty, quacksProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        quacksProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true)),
                 columnModificationFactory.CreateColumnModification(
-                    entry, computedProperty, computedProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    computedProperty.GetTableColumnMappings().Single().TypeMapping, isComputed, false, false, false, true),
+                    new ColumnModificationParameters(
+                        entry, computedProperty, computedProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        computedProperty.GetTableColumnMappings().Single().TypeMapping, isComputed, false, false, false, true)),
                 columnModificationFactory.CreateColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true)
+                    new ColumnModificationParameters(
+                        entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true))
             };
 
             if (defaultsOnly)
@@ -731,20 +736,25 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 columnModificationFactory.CreateColumnModification(
-                    entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    idProperty.GetTableColumnMappings().Single().TypeMapping, false, false, true, true, true),
+                    new ColumnModificationParameters(
+                        entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        idProperty.GetTableColumnMappings().Single().TypeMapping, false, false, true, true, true)),
                 columnModificationFactory.CreateColumnModification(
-                    entry, nameProperty, nameProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    nameProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
+                    new ColumnModificationParameters(
+                        entry, nameProperty, nameProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        nameProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true)),
                 columnModificationFactory.CreateColumnModification(
-                    entry, quacksProperty, quacksProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    quacksProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true),
+                    new ColumnModificationParameters(
+                        entry, quacksProperty, quacksProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        quacksProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, false, true)),
                 columnModificationFactory.CreateColumnModification(
-                    entry, computedProperty, computedProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    computedProperty.GetTableColumnMappings().Single().TypeMapping, isComputed, false, false, false, true),
+                    new ColumnModificationParameters(
+                        entry, computedProperty, computedProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        computedProperty.GetTableColumnMappings().Single().TypeMapping, isComputed, false, false, false, true)),
                 columnModificationFactory.CreateColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, concurrencyToken, true)
+                    new ColumnModificationParameters(
+                        entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, concurrencyToken, true))
             };
 
             return new ModificationCommand("Ducks", Schema, columnModifications, false, columnModificationFactory);
@@ -766,11 +776,13 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnModifications = new[]
             {
                 columnModificationFactory.CreateColumnModification(
-                    entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    idProperty.GetTableColumnMappings().Single().TypeMapping, false, false, true, true, true),
+                    new ColumnModificationParameters(
+                        entry, idProperty, idProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        idProperty.GetTableColumnMappings().Single().TypeMapping, false, false, true, true, true)),
                 columnModificationFactory.CreateColumnModification(
-                    entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
-                    concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, false, false, concurrencyToken, true)
+                    new ColumnModificationParameters(
+                        entry, concurrencyProperty, concurrencyProperty.GetTableColumnMappings().Single().Column, generator.GenerateNext,
+                        concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, false, false, concurrencyToken, true))
             };
 
             return new ModificationCommand("Ducks", Schema, columnModifications, false, columnModificationFactory);

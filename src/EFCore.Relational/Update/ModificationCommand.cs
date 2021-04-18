@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             _requiresResultPropagation = true;
                         }
 
-                        var columnModification = _columnModificationFactory.CreateColumnModification(
+                        var columnModificationParameters = new ColumnModificationParameters(
                             entry,
                             property,
                             column,
@@ -405,6 +405,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                             isKey,
                             isCondition,
                             _sensitiveLoggingEnabled);
+
+                        var columnModification = _columnModificationFactory.CreateColumnModification(
+                            columnModificationParameters);
 
                         if (columnPropagator != null
                             && column.PropertyMappings.Count() != 1)

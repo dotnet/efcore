@@ -989,10 +989,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
                             : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
+                    var columnModificationParameters
+                        = new ColumnModificationParameters(
+                            name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
+                            valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: false,
+                            SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+
                     modifications[j] = Dependencies.ColumnModificationFactory.CreateColumnModification(
-                        name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: false,
-                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+                        columnModificationParameters);
                 }
 
                 yield return new ModificationCommand(
@@ -1081,10 +1085,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
                             : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
+                    var columnModificationParameters
+                        = new ColumnModificationParameters(
+                            name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
+                            valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: true,
+                            SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+
                     modifications[j] = Dependencies.ColumnModificationFactory.CreateColumnModification(
-                        name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: true,
-                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+                        columnModificationParameters);
                 }
 
                 yield return new ModificationCommand(
@@ -1198,10 +1206,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
                             : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
+                    var columnModificationParameters
+                        = new ColumnModificationParameters(
+                            name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
+                            valueIsRead: false, valueIsWrite: false, columnIsKey: true, columnIsCondition: true,
+                            SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+
                     keys[j] = Dependencies.ColumnModificationFactory.CreateColumnModification(
-                        name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        valueIsRead: false, valueIsWrite: false, columnIsKey: true, columnIsCondition: true,
-                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+                        columnModificationParameters);
                 }
 
                 var modifications = new ColumnModification[operation.Columns.Length];
@@ -1217,10 +1229,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
                             : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
+                    var columnModificationParameters
+                        = new ColumnModificationParameters(
+                            name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
+                            valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: false,
+                            SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+
                     modifications[j] = Dependencies.ColumnModificationFactory.CreateColumnModification(
-                        name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: false,
-                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+                        columnModificationParameters);
                 }
 
                 yield return new ModificationCommand(
