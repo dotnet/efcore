@@ -37,6 +37,31 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
+        /// <param name="columnModificationParameters"> Creation parameters. </param>
+        public ColumnModification(in ColumnModificationParameters columnModificationParameters)
+        {
+            this.ColumnName               = columnModificationParameters.ColumnName;
+            this._originalValue           = columnModificationParameters.OriginalValue;
+            this._value                   = columnModificationParameters.Value;
+            this.Property                 = columnModificationParameters.Property;
+            this.ColumnType               = columnModificationParameters.ColumnType;
+            this.TypeMapping              = columnModificationParameters.TypeMapping;
+            this.IsRead                   = columnModificationParameters.IsRead;
+            this.IsWrite                  = columnModificationParameters.IsWrite;
+            this.IsKey                    = columnModificationParameters.IsKey;
+            this.IsCondition              = columnModificationParameters.IsCondition;
+            this._sensitiveLoggingEnabled = columnModificationParameters.SensitiveLoggingEnabled;
+            this.IsNullable               = columnModificationParameters.IsNullable;
+
+            this._generateParameterName   = columnModificationParameters.GenerateParameterName;
+            this.Entry                    = columnModificationParameters.Entry;
+
+            this._useParameters           = (this._generateParameterName != null);
+        }//ColumnModification
+
+        /// <summary>
+        ///     Creates a new <see cref="ColumnModification" /> instance.
+        /// </summary>
         /// <param name="entry"> The <see cref="IUpdateEntry" /> that represents the entity that is being modified. </param>
         /// <param name="property"> The property that maps to the column. </param>
         /// <param name="column"> The column to be modified. </param>
