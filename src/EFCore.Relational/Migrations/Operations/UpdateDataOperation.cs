@@ -98,19 +98,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 var keys = new ColumnModification[KeyColumns.Length];
                 for (var j = 0; j < KeyColumns.Length; j++)
                 {
-                    keys[j] = new ColumnModification(
+                    var columnModificationParameters = new ColumnModificationParameters(
                         KeyColumns[j], originalValue: null, value: KeyValues[i, j], property: keyProperties?[j],
-                        columnType: KeyColumnTypes?[j], isRead: false, isWrite: false, isKey: true, isCondition: true,
+                        columnType: KeyColumnTypes?[j], typeMapping: null, valueIsRead: false, valueIsWrite: false, columnIsKey: true, columnIsCondition: true,
                         sensitiveLoggingEnabled: false);
+
+                    keys[j] = columnModificationFactory.CreateColumnModification(columnModificationParameters);
                 }
 
                 var modifications = new ColumnModification[Columns.Length];
                 for (var j = 0; j < Columns.Length; j++)
                 {
-                    modifications[j] = new ColumnModification(
+                    var columnModificationParameters = new ColumnModificationParameters(
                         Columns[j], originalValue: null, value: Values[i, j], property: properties?[j],
-                        columnType: ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        columnType: ColumnTypes?[j], typeMapping: null, valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: false,
                         sensitiveLoggingEnabled: false);
+
+                    modifications[j] = columnModificationFactory.CreateColumnModification(columnModificationParameters);
                 }
 
                 yield return new ModificationCommand(

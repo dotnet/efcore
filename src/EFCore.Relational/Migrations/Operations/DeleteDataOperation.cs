@@ -72,10 +72,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 var modifications = new ColumnModification[KeyColumns.Length];
                 for (var j = 0; j < KeyColumns.Length; j++)
                 {
-                    modifications[j] = new ColumnModification(
+                    var columnModificationParameters = new ColumnModificationParameters(
                         KeyColumns[j], originalValue: null, value: KeyValues[i, j], property: properties?[j],
-                        columnType: KeyColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: true,
+                        columnType: KeyColumnTypes?[j], typeMapping: null, valueIsRead: false, valueIsWrite: true, columnIsKey: true, columnIsCondition: true,
                         sensitiveLoggingEnabled: false);
+
+                    modifications[j] = columnModificationFactory.CreateColumnModification(columnModificationParameters);
                 }
 
                 yield return new ModificationCommand(
