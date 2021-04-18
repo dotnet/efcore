@@ -351,13 +351,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new(
-                            entry,
-                            property,
-                            property.GetTableColumnMappings().Single().Column,
-                            parameterNameGenerator.GenerateNext,
-                            property.GetTableColumnMappings().Single().TypeMapping,
-                            false, true, false, false, true)
+                        columnModificationFactory.CreateColumnModification(
+                            new(
+                                entry,
+                                property,
+                                property.GetTableColumnMappings().Single().Column,
+                                parameterNameGenerator.GenerateNext,
+                                property.GetTableColumnMappings().Single().TypeMapping,
+                                false, true, false, false, true))
                     }));
 
             batch.AddCommand(
@@ -369,13 +370,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new(
-                            entry,
-                            property,
-                            property.GetTableColumnMappings().Single().Column,
-                            parameterNameGenerator.GenerateNext,
-                            property.GetTableColumnMappings().Single().TypeMapping,
-                            false, true, false, false, true)
+                        columnModificationFactory.CreateColumnModification(
+                            new(
+                                entry,
+                                property,
+                                property.GetTableColumnMappings().Single().Column,
+                                parameterNameGenerator.GenerateNext,
+                                property.GetTableColumnMappings().Single().TypeMapping,
+                                false, true, false, false, true))
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -408,14 +410,15 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new(
-                            entry,
-                            property,
-                            property.GetTableColumnMappings().Single().Column,
-                            parameterNameGenerator.GenerateNext,
-                            property.GetTableColumnMappings().Single().TypeMapping,
-                            isRead: false, isWrite: true, isKey: false, isCondition: false,
-                            sensitiveLoggingEnabled: true)
+                        columnModificationFactory.CreateColumnModification(
+                            new(
+                                entry,
+                                property,
+                                property.GetTableColumnMappings().Single().Column,
+                                parameterNameGenerator.GenerateNext,
+                                property.GetTableColumnMappings().Single().TypeMapping,
+                                valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: false,
+                                sensitiveLoggingEnabled: true))
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -446,14 +449,15 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new(
-                            entry,
-                            property,
-                            property.GetTableColumnMappings().Single().Column,
-                            parameterNameGenerator.GenerateNext,
-                            property.GetTableColumnMappings().Single().TypeMapping,
-                            isRead: false, isWrite: false, isKey: false, isCondition: true,
-                            sensitiveLoggingEnabled: true)
+                        columnModificationFactory.CreateColumnModification(
+                            new(
+                                entry,
+                                property,
+                                property.GetTableColumnMappings().Single().Column,
+                                parameterNameGenerator.GenerateNext,
+                                property.GetTableColumnMappings().Single().TypeMapping,
+                                valueIsRead: false, valueIsWrite: false, columnIsKey: false, columnIsCondition: true,
+                                sensitiveLoggingEnabled: true))
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -484,14 +488,15 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new(
-                            entry,
-                            property,
-                            property.GetTableColumnMappings().Single().Column,
-                            parameterNameGenerator.GenerateNext,
-                            property.GetTableColumnMappings().Single().TypeMapping,
-                            isRead: false, isWrite: true, isKey: false, isCondition: true,
-                            sensitiveLoggingEnabled: true)
+                        columnModificationFactory.CreateColumnModification(
+                            new(
+                                entry,
+                                property,
+                                property.GetTableColumnMappings().Single().Column,
+                                parameterNameGenerator.GenerateNext,
+                                property.GetTableColumnMappings().Single().TypeMapping,
+                                valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: true,
+                                sensitiveLoggingEnabled: true))
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -524,14 +529,15 @@ namespace Microsoft.EntityFrameworkCore.Update
                     columnModificationFactory,
                     new List<ColumnModification>
                     {
-                        new(
-                            entry,
-                            property,
-                            property.GetTableColumnMappings().Single().Column,
-                            parameterNameGenerator.GenerateNext,
-                            property.GetTableColumnMappings().Single().TypeMapping,
-                            isRead: true, isWrite: false, isKey: false, isCondition: false,
-                            sensitiveLoggingEnabled: true)
+                        columnModificationFactory.CreateColumnModification(
+                            new(
+                                entry,
+                                property,
+                                property.GetTableColumnMappings().Single().Column,
+                                parameterNameGenerator.GenerateNext,
+                                property.GetTableColumnMappings().Single().TypeMapping,
+                                valueIsRead: true, valueIsWrite: false, columnIsKey: false, columnIsCondition: false,
+                                sensitiveLoggingEnabled: true))
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
