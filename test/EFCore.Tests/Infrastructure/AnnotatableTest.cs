@@ -37,6 +37,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public void Added_annotation_type_is_consistent()
+        {
+            var annotatable = new Annotatable();
+
+            annotatable.AddAnnotations(new[] { new ConventionAnnotation("Foo", "Bar", ConfigurationSource.Convention) });
+
+            Assert.Equal(typeof(Annotation), annotatable.FindAnnotation("Foo").GetType());
+
+            var conventionAnnotatable = new Model();
+
+            conventionAnnotatable.AddAnnotations(new[] { new Annotation("Foo", "Bar") });
+
+            Assert.Equal(typeof(ConventionAnnotation), conventionAnnotatable.FindAnnotation("Foo").GetType());
+        }
+
+        [ConditionalFact]
         public void Adding_duplicate_annotation_throws()
         {
             var annotatable = new Annotatable();
