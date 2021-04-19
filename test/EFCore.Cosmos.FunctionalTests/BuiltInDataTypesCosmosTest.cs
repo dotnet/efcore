@@ -120,7 +120,8 @@ WHERE ((c[""Discriminator""] = ""BuiltInDataTypes"") AND (c[""Id""] = 13))");
 
                 // Issue #24684
                 modelBuilder.Entity<BuiltInDataTypes>().Ignore(e => e.TestDateTimeOffset);
-                modelBuilder.Entity<BuiltInDataTypesShadow>().Ignore("TestDateTimeOffset");            }
+                modelBuilder.Entity<BuiltInDataTypesShadow>().Ignore("TestDateTimeOffset");
+            }
         }
     }
 }
