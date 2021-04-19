@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             public bool ShouldAddCommand { get; set; }
 
-            protected override bool CanAddCommand(ModificationCommand modificationCommand)
+            protected override bool CanAddCommand(IModificationCommand modificationCommand)
                 => ShouldAddCommand;
 
             public bool ShouldValidateSql { get; set; }

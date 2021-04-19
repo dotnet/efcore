@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
         /// </summary>
-        public abstract IReadOnlyList<ModificationCommand> ModificationCommands { get; }
+        public abstract IReadOnlyList<IModificationCommand> ModificationCommands { get; }
 
         /// <summary>
         ///     Adds the given insert/update/delete <see cref="ModificationCommands" /> to the batch.
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     <see langword="true" /> if the command was successfully added; <see langword="false" /> if there was no
         ///     room in the current batch to add the command and it must instead be added to a new batch.
         /// </returns>
-        public abstract bool AddCommand(ModificationCommand modificationCommand);
+        public abstract bool AddCommand(IModificationCommand modificationCommand);
 
         /// <summary>
         ///     Sends insert/update/delete commands to the database.

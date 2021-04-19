@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _maxBatchSize = maxBatchSize ?? 1;
         }
 
-        protected override bool CanAddCommand(ModificationCommand modificationCommand)
+        protected override bool CanAddCommand(IModificationCommand modificationCommand)
         {
             return ModificationCommands.Count < _maxBatchSize;
         }

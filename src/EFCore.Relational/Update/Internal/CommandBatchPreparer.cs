@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private ModificationCommandBatch StartNewBatch(
             ParameterNameGenerator parameterNameGenerator,
-            ModificationCommand modificationCommand)
+            IModificationCommand modificationCommand)
         {
             parameterNameGenerator.Reset();
             var batch = _modificationCommandBatchFactory.Create();

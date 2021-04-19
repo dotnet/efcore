@@ -43,5 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// TODO: Seems this property used in MSSQL provider only.
         ///
         public IReadOnlyList<IUpdateEntry> Entries { get; }
+
+        /// <summary>
+        ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
+        ///     inserted (<see cref="Microsoft.EntityFrameworkCore.EntityState.Added" />),
+        ///     updated (<see cref="Microsoft.EntityFrameworkCore.EntityState.Modified" />),
+        ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
+        /// </summary>
+        public EntityState EntityState { get; }
     };//interface IModificationCommand
 }

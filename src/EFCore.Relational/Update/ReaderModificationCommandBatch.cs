@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     /// </summary>
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
-        private readonly List<ModificationCommand> _modificationCommands = new();
+        private readonly List<IModificationCommand> _modificationCommands = new();
 
         /// <summary>
         ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
         /// </summary>
-        public override IReadOnlyList<ModificationCommand> ModificationCommands
+        public override IReadOnlyList<IModificationCommand> ModificationCommands
             => _modificationCommands;
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     <see langword="true" /> if the command was successfully added; <see langword="false" /> if there was no
         ///     room in the current batch to add the command and it must instead be added to a new batch.
         /// </returns>
-        public override bool AddCommand(ModificationCommand modificationCommand)
+        public override bool AddCommand(IModificationCommand modificationCommand)
         {
             Check.NotNull(modificationCommand, nameof(modificationCommand));
 
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="modificationCommand"> The command to potentially add. </param>
         /// <returns> <see langword="true" /> if the command can be added; <see langword="false" /> otherwise. </returns>
-        protected abstract bool CanAddCommand(ModificationCommand modificationCommand);
+        protected abstract bool CanAddCommand(IModificationCommand modificationCommand);
 
         /// <summary>
         ///     Checks whether or not the command text is valid.
