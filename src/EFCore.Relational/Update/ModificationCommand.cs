@@ -469,25 +469,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
-        /// <summary>
-        ///     Reads values returned from the database in the given <see cref="ValueBuffer" /> and
-        ///     propagates them back to into the appropriate <see cref="ColumnModification" />
-        ///     from which the values can be propagated on to tracked entities.
-        /// </summary>
-        /// <param name="valueBuffer"> The buffer containing the values read from the database. </param>
-        public virtual void PropagateResults(ValueBuffer valueBuffer)
-        {
-            Check.NotNull(valueBuffer, nameof(valueBuffer));
-
-            // Note that this call sets the value into a sidecar and will only commit to the actual entity
-            // if SaveChanges is successful.
-            var index = 0;
-            foreach (var modification in ColumnModifications.Where(o => o.IsRead))
-            {
-                modification.Value = valueBuffer[index++];
-            }
-        }
-
         /// <inheritdoc />
         public override string ToString()
         {
