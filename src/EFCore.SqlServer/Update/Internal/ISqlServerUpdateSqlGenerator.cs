@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         /// </summary>
         ResultSetMapping AppendBulkInsertOperation(
             StringBuilder commandStringBuilder,
-            IReadOnlyList<ModificationCommand> modificationCommands,
+            IReadOnlyList<IModificationCommand> modificationCommands,
             int commandPosition);
     }
 }

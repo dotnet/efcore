@@ -943,7 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The data operation to generate commands for. </param>
         /// <param name="model"> The model. </param>
         /// <returns> The commands that correspond to the given operation. </returns>
-        protected virtual IEnumerable<ModificationCommand> GenerateModificationCommands(
+        protected virtual IEnumerable<IModificationCommand> GenerateModificationCommands(
             InsertDataOperation operation,
             IModel? model)
         {

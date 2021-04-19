@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override ResultSetMapping AppendInsertOperation(
             StringBuilder commandStringBuilder,
-            ModificationCommand command,
+            IModificationCommand command,
             int commandPosition)
         {
             AppendInsertOperationCalls++;
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override ResultSetMapping AppendUpdateOperation(
             StringBuilder commandStringBuilder,
-            ModificationCommand command,
+            IModificationCommand command,
             int commandPosition)
         {
             AppendUpdateOperationCalls++;
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override ResultSetMapping AppendDeleteOperation(
             StringBuilder commandStringBuilder,
-            ModificationCommand command,
+            IModificationCommand command,
             int commandPosition)
         {
             AppendDeleteOperationCalls++;
