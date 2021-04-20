@@ -41,5 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Include_collection_with_outer_apply_with_filter_non_equality(async))).Message);
+
+        public override async Task Include_in_let_followed_by_FirstOrDefault(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Include_in_let_followed_by_FirstOrDefault(async))).Message);
     }
 }

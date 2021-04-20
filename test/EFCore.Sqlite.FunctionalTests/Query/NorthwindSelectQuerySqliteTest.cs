@@ -259,6 +259,12 @@ FROM ""Orders"" AS ""o""");
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Take_on_correlated_collection_in_first(async))).Message);
 
+        public override async Task Collection_include_over_result_of_single_non_scalar(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Collection_include_over_result_of_single_non_scalar(async))).Message);
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
