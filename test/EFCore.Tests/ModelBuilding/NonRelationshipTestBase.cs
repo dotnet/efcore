@@ -982,8 +982,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property(e => e.Down).HasValueGenerator(typeof(CustomValueGenerator));
                         b.Property<int>("Charm").HasValueGenerator((_, __) => new CustomValueGenerator());
                         b.Property<string>("Strange").HasValueGenerator<CustomValueGenerator>();
-                        b.Property<int>("Top").HasValueGenerator(typeof(CustomValueGenerator));
-                        b.Property<string>("Bottom").HasValueGenerator((_, __) => new CustomValueGenerator());
+                        b.Property<int>("Top").HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory));
+                        b.Property<string>("Bottom").HasValueGeneratorFactory<CustomValueGeneratorFactory>();
                     });
 
                 modelBuilder.FinalizeModel();
@@ -1008,6 +1008,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 public override bool GeneratesTemporaryValues
                     => false;
+            }
+
+            private class CustomValueGeneratorFactory : ValueGeneratorFactory
+            {
+                public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                    => new CustomValueGenerator();
             }
 
             [ConditionalFact]
@@ -1040,12 +1046,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var entityType = model.FindEntityType(typeof(Quarks));
 
                 Assert.Equal(
-                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator1)),
+                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator1), "HasValueGenerator"),
                     Assert.Throws<InvalidOperationException>(
                         () => entityType.FindProperty("Up").GetValueGeneratorFactory()(null, null)).Message);
 
                 Assert.Equal(
-                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator2)),
+                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator2), "HasValueGenerator"),
                     Assert.Throws<InvalidOperationException>(
                         () => entityType.FindProperty("Down").GetValueGeneratorFactory()(null, null)).Message);
             }
@@ -1221,6 +1227,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasMaxLength(100)
                     .HasValueGenerator<CustomValueGenerator>()
                     .HasValueGenerator(typeof(CustomValueGenerator))
+                    .HasValueGeneratorFactory<CustomValueGeneratorFactory>()
+                    .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
                     .HasValueGenerator((_, __) => null)
                     .IsRequired();
             }

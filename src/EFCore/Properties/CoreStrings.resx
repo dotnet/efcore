@@ -194,7 +194,7 @@
     <value>Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
   </data>
   <data name="CannotCreateValueGenerator" xml:space="preserve">
-    <value>Cannot create an instance of value generator type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of 'HasValueGenerator' that accepts a delegate.</value>
+    <value>Cannot create an instance of value generator type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.</value>
   </data>
   <data name="CannotLoadDetached" xml:space="preserve">
     <value>The navigation '{1_entityType}.{0_navigation}' cannot be loaded because the entity is not being tracked. Navigations can only be loaded for tracked entities.</value>

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -93,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.ModelReadOnly,
-                Assert.Throws<InvalidOperationException>(() => property.SetValueGeneratorFactory(null)).Message);
+                Assert.Throws<InvalidOperationException>(() => property.SetValueGeneratorFactory((Type)null)).Message);
         }
 
         [ConditionalFact]
@@ -236,8 +237,88 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(property.IsConcurrencyToken);
         }
 
+        [ConditionalFact]
+        public void Throws_when_ValueGeneratorFactory_is_invalid()
+        {
+            var model = CreateModel();
+
+            var entityType = model.AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Kake", typeof(string));
+
+            Assert.Equal(
+                CoreStrings.BadValueGeneratorType(nameof(NonDerivedValueGeneratorFactory), nameof(ValueGeneratorFactory)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueGeneratorFactory(typeof(NonDerivedValueGeneratorFactory))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueGenerator(nameof(AbstractValueGeneratorFactory), "SetValueGeneratorFactory"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueGeneratorFactory(typeof(AbstractValueGeneratorFactory))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueGenerator(nameof(StaticValueGeneratorFactory), "SetValueGeneratorFactory"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueGeneratorFactory(typeof(StaticValueGeneratorFactory))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueGenerator(nameof(PrivateValueGeneratorFactory), "SetValueGeneratorFactory"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueGeneratorFactory(typeof(PrivateValueGeneratorFactory))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueGenerator(nameof(NonParameterlessValueGeneratorFactory), "SetValueGeneratorFactory"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueGeneratorFactory(typeof(NonParameterlessValueGeneratorFactory))).Message);
+        }
+
         private static IMutableModel CreateModel()
             => new Model();
+
+        private class NonDerivedValueGeneratorFactory
+        {
+            public ValueGenerator Create(IProperty property, IEntityType entityType)
+                => null;
+        }
+
+        private abstract class AbstractValueGeneratorFactory : ValueGeneratorFactory
+        {
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                => null;
+        }
+
+        private class StaticValueGeneratorFactory : ValueGeneratorFactory
+        {
+            static StaticValueGeneratorFactory()
+            {
+            }
+
+            private StaticValueGeneratorFactory()
+            {
+            }
+
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                => null;
+        }
+
+        private class PrivateValueGeneratorFactory : ValueGeneratorFactory
+        {
+            private PrivateValueGeneratorFactory()
+            {
+            }
+
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                => null;
+        }
+
+        private class NonParameterlessValueGeneratorFactory : ValueGeneratorFactory
+        {
+            public NonParameterlessValueGeneratorFactory(object _)
+            {
+            }
+
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                => null;
+        }
 
         private class Entity
         {

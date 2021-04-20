@@ -400,6 +400,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory);
 
+            public abstract TestPropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
+                where TFactory : ValueGeneratorFactory;
+
+            public abstract TestPropertyBuilder<TProperty> HasValueGeneratorFactory(Type valueGeneratorFactoryType);
+
             public abstract TestPropertyBuilder<TProperty> HasField(string fieldName);
             public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
 

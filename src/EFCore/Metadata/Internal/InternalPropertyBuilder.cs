@@ -377,7 +377,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     catch (Exception e)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.CannotCreateValueGenerator(valueGeneratorType.ShortDisplayName()), e);
+                            CoreStrings.CannotCreateValueGenerator(
+                                valueGeneratorType.ShortDisplayName(), nameof(PropertyBuilder.HasValueGenerator)), e);
                     }
                 }, configurationSource);
         }
@@ -408,11 +409,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual InternalPropertyBuilder? HasValueGeneratorFactory(
+            Type? factory,
+            ConfigurationSource configurationSource)
+        {
+            if (CanSetValueGeneratorFactory(factory, configurationSource))
+            {
+                Metadata.SetValueGeneratorFactory(factory, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual bool CanSetValueGenerator(
             Func<IProperty, IEntityType, ValueGenerator>? factory,
             ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetValueGeneratorFactoryConfigurationSource())
-                || Metadata.GetValueGeneratorFactory() == factory;
+                || (Metadata[CoreAnnotationNames.ValueGeneratorFactoryType] == null
+                    && (Func<IProperty, IEntityType, ValueGenerator>?)Metadata[CoreAnnotationNames.ValueGeneratorFactory] == factory);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetValueGeneratorFactory(
+            Type? factory,
+            ConfigurationSource? configurationSource)
+            => configurationSource.Overrides(Metadata.GetValueGeneratorFactoryConfigurationSource())
+                || (Metadata[CoreAnnotationNames.ValueGeneratorFactory] == null
+                    && (Type?)Metadata[CoreAnnotationNames.ValueGeneratorFactoryType] == factory);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -979,6 +1014,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         bool IConventionPropertyBuilder.CanSetValueGenerator(Func<IProperty, IEntityType, ValueGenerator>? factory, bool fromDataAnnotation)
             => CanSetValueGenerator(factory, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionPropertyBuilder? IConventionPropertyBuilder.HasValueGeneratorFactory(Type? valueGeneratorFactoryType, bool fromDataAnnotation)
+            => HasValueGeneratorFactory(valueGeneratorFactoryType,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        bool IConventionPropertyBuilder.CanSetValueGeneratorFactory(Type? valueGeneratorFactoryType, bool fromDataAnnotation)
+            => CanSetValueGeneratorFactory(valueGeneratorFactoryType,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

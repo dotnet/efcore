@@ -537,8 +537,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Func<IProperty, IEntityType, ValueGenerator>? SetValueGeneratorFactory(
             Func<IProperty, IEntityType, ValueGenerator>? factory,
             ConfigurationSource configurationSource)
-            => (Func<IProperty, IEntityType, ValueGenerator>?)
-                SetAnnotation(CoreAnnotationNames.ValueGeneratorFactory, factory, configurationSource)?.Value;
+        {
+            RemoveAnnotation(CoreAnnotationNames.ValueGeneratorFactoryType);
+            return (Func<IProperty, IEntityType, ValueGenerator>?)
+                           SetAnnotation(CoreAnnotationNames.ValueGeneratorFactory, factory, configurationSource)?.Value;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Type? SetValueGeneratorFactory(
+            Type? factoryType,
+            ConfigurationSource configurationSource)
+        {
+            if (factoryType != null)
+            {
+                if (!typeof(ValueGeneratorFactory).IsAssignableFrom(factoryType))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.BadValueGeneratorType(factoryType.ShortDisplayName(), typeof(ValueGeneratorFactory).ShortDisplayName()));
+                }
+
+                if (factoryType.IsAbstract
+                    || !factoryType.GetTypeInfo().DeclaredConstructors.Any(c => c.IsPublic && c.GetParameters().Length == 0))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.CannotCreateValueGenerator(factoryType.ShortDisplayName(), nameof(SetValueGeneratorFactory)));
+                }
+            }
+
+            RemoveAnnotation(CoreAnnotationNames.ValueGeneratorFactory);
+            return (Type?)SetAnnotation(CoreAnnotationNames.ValueGeneratorFactoryType, factoryType, configurationSource)?.Value;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -547,8 +580,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Func<IProperty, IEntityType, ValueGenerator>? GetValueGeneratorFactory()
-            => (Func<IProperty, IEntityType, ValueGenerator>?)
-               this[CoreAnnotationNames.ValueGeneratorFactory];
+        {
+            var factory = (Func<IProperty, IEntityType, ValueGenerator>?)this[CoreAnnotationNames.ValueGeneratorFactory];
+            if (factory == null)
+            {
+                var factoryType = (Type?)this[CoreAnnotationNames.ValueGeneratorFactoryType];
+                if (factoryType != null)
+                {
+                    return ((ValueGeneratorFactory)Activator.CreateInstance(factoryType)!).Create;
+                }
+            }
+
+            return factory;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -557,7 +601,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ConfigurationSource? GetValueGeneratorFactoryConfigurationSource()
-            => FindAnnotation(CoreAnnotationNames.ValueGeneratorFactory)?.GetConfigurationSource();
+            => (FindAnnotation(CoreAnnotationNames.ValueGeneratorFactory)
+                ?? FindAnnotation(CoreAnnotationNames.ValueGeneratorFactoryType))?.GetConfigurationSource();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1277,7 +1322,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        void IMutableProperty.SetValueGeneratorFactory(Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory)
+        void IMutableProperty.SetValueGeneratorFactory(Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory)
             => SetValueGeneratorFactory(valueGeneratorFactory, ConfigurationSource.Explicit);
 
         /// <summary>
@@ -1288,7 +1333,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         Func<IProperty, IEntityType, ValueGenerator>? IConventionProperty.SetValueGeneratorFactory(
-            Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory, bool fromDataAnnotation)
+            Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory, bool fromDataAnnotation)
+            => SetValueGeneratorFactory(valueGeneratorFactory,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        void IMutableProperty.SetValueGeneratorFactory(Type? valueGeneratorFactory)
+            => SetValueGeneratorFactory(valueGeneratorFactory, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        Type? IConventionProperty.SetValueGeneratorFactory(
+            Type? valueGeneratorFactory, bool fromDataAnnotation)
             => SetValueGeneratorFactory(valueGeneratorFactory,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

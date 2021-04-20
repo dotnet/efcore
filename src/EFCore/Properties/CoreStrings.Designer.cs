@@ -224,12 +224,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotConvertQueryableToEnumerableMethod");
 
         /// <summary>
-        ///     Cannot create an instance of value generator type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of 'HasValueGenerator' that accepts a delegate.
+        ///     Cannot create an instance of value generator type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.
         /// </summary>
-        public static string CannotCreateValueGenerator(object? generatorType)
+        public static string CannotCreateValueGenerator(object? generatorType, object? method)
             => string.Format(
-                GetString("CannotCreateValueGenerator", nameof(generatorType)),
-                generatorType);
+                GetString("CannotCreateValueGenerator", nameof(generatorType), nameof(method)),
+                generatorType, method);
 
         /// <summary>
         ///     The navigation '{1_entityType}.{0_navigation}' cannot be loaded because the entity is not being tracked. Navigations can only be loaded for tracked entities.

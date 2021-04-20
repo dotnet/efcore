@@ -495,6 +495,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> HasValueGenerator(Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(factory));
 
+            public override TestPropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGeneratorFactory<TFactory>());
+
+            public override TestPropertyBuilder<TProperty> HasValueGeneratorFactory(Type valueGeneratorFactoryType)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGeneratorFactory(valueGeneratorFactoryType));
+
             public override TestPropertyBuilder<TProperty> HasField(string fieldName)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasField(fieldName));
 

@@ -49,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.Unicode,
                 CoreAnnotationNames.ProductVersion,
                 CoreAnnotationNames.ValueGeneratorFactory,
+                CoreAnnotationNames.ValueGeneratorFactoryType,
                 CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.ValueComparer,

@@ -130,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets a value indicating whether this property can persist Unicode characters.
         /// </summary>
         /// <param name="unicode">
-        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not, <see langword="null" /> to
-        ///     clear the setting.
+        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not,
+        ///     <see langword="null" /> to clear the setting.
         /// </param>
         void SetIsUnicode(bool? unicode);
 
@@ -187,7 +187,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     A factory that will be used to create the value generator, or <see langword="null" /> to
         ///     clear any previously set factory.
         /// </param>
-        void SetValueGeneratorFactory(Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory);
+        void SetValueGeneratorFactory(Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the factory to use for generating values for this property, or <see langword="null" /> to clear any previously set factory.
+        ///     </para>
+        ///     <para>
+        ///         Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
+        ///         configured for this property. The database provider may still have a value generator for the property type.
+        ///     </para>
+        /// </summary>
+        /// <param name="valueGeneratorFactory">
+        ///     A factory that will be used to create the value generator, or <see langword="null" /> to
+        ///     clear any previously set factory.
+        /// </param>
+        void SetValueGeneratorFactory(Type? valueGeneratorFactory);
 
         /// <summary>
         ///     Sets the custom <see cref="ValueConverter" /> for this property.

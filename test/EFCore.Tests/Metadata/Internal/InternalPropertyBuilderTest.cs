@@ -203,6 +203,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(builder.HasValueGenerator((p, e) => new CustomValueGenerator1(), ConfigurationSource.Convention));
             Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
             Assert.True(metadata.RequiresValueGenerator());
+
+            Assert.Null(builder.HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory), ConfigurationSource.Convention));
+            Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+
+            Assert.NotNull(builder.HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory), ConfigurationSource.DataAnnotation));
+            Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator());
+
+            Assert.NotNull(builder.HasValueGeneratorFactory(null, ConfigurationSource.DataAnnotation));
+            Assert.Null(metadata.GetValueGeneratorFactory());
+            Assert.False(metadata.RequiresValueGenerator());
+            Assert.Null(metadata[CoreAnnotationNames.ValueGeneratorFactory]);
+            Assert.Null(metadata[CoreAnnotationNames.ValueGeneratorFactoryType]);
         }
 
         [ConditionalFact]
@@ -313,6 +326,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public override bool GeneratesTemporaryValues
                 => false;
+        }
+
+        private class CustomValueGeneratorFactory : ValueGeneratorFactory
+        {
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                => new CustomValueGenerator1();
         }
 
         [ConditionalFact]

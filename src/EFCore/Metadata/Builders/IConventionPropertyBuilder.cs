@@ -302,6 +302,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Configures the <see cref="ValueGeneratorFactory" /> for creating a <see cref="ValueGenerator" /> that will
+        ///     generate values for this property.
+        /// </summary>
+        /// <param name="valueGeneratorFactoryType"> A type that inherits from <see cref="ValueGeneratorFactory" />. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionPropertyBuilder? HasValueGeneratorFactory(Type? valueGeneratorFactoryType, bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Returns a value indicating whether the <see cref="ValueGenerator" /> can be configured for this property
         ///     from the current configuration source.
         /// </summary>
@@ -316,6 +328,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         bool CanSetValueGenerator(
             Func<IProperty, IEntityType, ValueGenerator>? factory,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the <see cref="ValueGeneratorFactory" /> can be configured for this property
+        ///     from the current configuration source.
+        /// </summary>
+        /// <param name="valueGeneratorFactoryType"> A type that inherits from <see cref="ValueGeneratorFactory" />. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        /// <returns>
+        ///     <see langword="true" /> if the <see cref="ValueGenerator" /> can be configured for this property.
+        /// </returns>
+        bool CanSetValueGeneratorFactory(
+            Type? valueGeneratorFactoryType,
             bool fromDataAnnotation = false);
 
         /// <summary>
