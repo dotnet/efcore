@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public BytesToStringConverter(
             ConverterMappingHints? mappingHints = null)
             : base(
-                v => v == null ? null! : Convert.ToBase64String(v),
-                v => v == null ? null! : Convert.FromBase64String(v),
+                v => v == null ? null : Convert.ToBase64String(v),
+                v => v == null ? null : Convert.FromBase64String(v),
                 convertsNulls: true,
                 mappingHints)
         {

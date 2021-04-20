@@ -711,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="defaultValue"> The default value, or the CLR default if no explicit default has been set. </param>
-        /// <returns> The object that is used as the default value for the column this property is mapped to. </returns>
+        /// <returns> <see langword="true" /> if a default value has been explicitly set; <see langword="false" /> otherwise. </returns>
         public static bool TryGetDefaultValue(this IReadOnlyProperty property, out object? defaultValue)
         {
             var annotation = property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <param name="defaultValue"> The default value, or the CLR default if no explicit default has been set. </param>
-        /// <returns> The object that is used as the default value for the column this property is mapped to. </returns>
+        /// <returns> <see langword="true" /> if a default value has been explicitly set; <see langword="false" /> otherwise. </returns>
         public static bool TryGetDefaultValue(
             this IReadOnlyProperty property,
             in StoreObjectIdentifier storeObject,
