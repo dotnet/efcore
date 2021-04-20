@@ -696,14 +696,14 @@ END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 WHERE ([g].[Rank] & COALESCE((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId]), 0)) = COALESCE((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId]), 0)",
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)) = COALESCE((
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)",
                 //
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
     WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
@@ -711,14 +711,14 @@ END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 WHERE (2 & COALESCE((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId]), 0)) = COALESCE((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId]), 0)");
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)) = COALESCE((
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)");
         }
 
         public override async Task Where_enum_has_flag_subquery_with_pushdown(bool async)
@@ -732,22 +732,22 @@ END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 WHERE (([g].[Rank] & (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) = (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) OR ((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId]) IS NULL AND (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId]) IS NULL)",
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) = (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) OR ((
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL AND (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL)",
                 //
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
     WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
@@ -755,22 +755,22 @@ END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 WHERE ((2 & (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) = (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) OR ((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId]) IS NULL AND (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId]) IS NULL)");
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) = (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) OR ((
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL AND (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL)");
         }
 
         public override async Task Where_enum_has_flag_subquery_client_eval(bool async)
@@ -784,22 +784,22 @@ END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
 WHERE (([g].[Rank] & (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) = (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) OR ((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId]) IS NULL AND (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    LEFT JOIN [Officers] AS [o1] ON ([g1].[Nickname] = [o1].[Nickname]) AND ([g1].[SquadId] = [o1].[SquadId])
-    ORDER BY [g1].[Nickname], [g1].[SquadId]) IS NULL)");
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) = (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) OR ((
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL AND (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Officers] AS [o0] ON ([g0].[Nickname] = [o0].[Nickname]) AND ([g0].[SquadId] = [o0].[SquadId])
+    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL)");
         }
 
         public override async Task Where_enum_has_flag_with_non_nullable_parameter(bool async)

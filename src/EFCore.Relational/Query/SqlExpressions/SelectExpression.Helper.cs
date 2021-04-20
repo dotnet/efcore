@@ -315,6 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private sealed class AliasUniquefier : ExpressionVisitor
         {
             private readonly HashSet<string> _usedAliases;
+            private readonly List<SelectExpression> _visitedSelectExpressions = new();
 
             public AliasUniquefier(HashSet<string> usedAliases)
             {
@@ -324,7 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
-                if (expression is SelectExpression innerSelectExpression)
+                if (expression is SelectExpression innerSelectExpression
+                    && !_visitedSelectExpressions.Contains(innerSelectExpression))
                 {
                     for (var i = 0; i < innerSelectExpression._tableReferences.Count; i++)
                     {
@@ -332,6 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         innerSelectExpression._tableReferences[i].Alias = newAlias;
                         UnwrapJoinExpression(innerSelectExpression._tables[i]).Alias = newAlias;
                     }
+
+                    _visitedSelectExpressions.Add(innerSelectExpression);
                 }
 
                 return base.Visit(expression);
@@ -362,6 +366,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 if (ReferenceEquals(oldSelect, _selectExpression))
                 {
                     _selectExpression = newSelect;
+                }
+            }
+
+            internal void Verify(SelectExpression selectExpression)
+            {
+                if (!ReferenceEquals(selectExpression, _selectExpression))
+                {
+                    throw new InvalidOperationException("Dangling TableReferenceExpression.");
                 }
             }
 
@@ -414,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     _ => true,
                 };
 
-            private ConcreteColumnExpression(
+            public ConcreteColumnExpression(
                 string name, TableReferenceExpression table, Type type, RelationalTypeMapping typeMapping, bool nullable)
                 : base(type, typeMapping)
             {
@@ -448,6 +460,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
                 => _table.UpdateTableReference(oldSelect, newSelect);
+
+            internal void Verify(IReadOnlyList<TableReferenceExpression> tableReferences)
+            {
+                if (!tableReferences.Contains(_table, ReferenceEqualityComparer.Instance))
+                {
+                    throw new InvalidOperationException("Dangling column.");
+                }
+            }
 
             /// <inheritdoc />
             public override bool Equals(object? obj)
@@ -583,6 +603,126 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 return base.Visit(expression);
             }
+        }
+
+        private sealed class SelectExpressionVerifyingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly List<TableReferenceExpression> _tableReferencesInScope = new();
+
+            public SelectExpressionVerifyingExpressionVisitor(IEnumerable<TableReferenceExpression> tableReferencesInScope)
+            {
+                _tableReferencesInScope.AddRange(tableReferencesInScope);
+            }
+
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
+            {
+                switch (expression)
+                {
+                    case SelectExpression selectExpression:
+                        foreach (var tableReference in selectExpression._tableReferences)
+                        {
+                            tableReference.Verify(selectExpression);
+                        }
+
+                        var currentLevelTableReferences = new List<TableReferenceExpression>();
+                        for (var i = 0; i < selectExpression._tables.Count; i++)
+                        {
+                            var table = selectExpression._tables[i];
+                            var tableReference = selectExpression._tableReferences[i];
+                            switch(table)
+                            {
+                                case PredicateJoinExpressionBase predicateJoinExpressionBase:
+                                    Verify(predicateJoinExpressionBase.Table, _tableReferencesInScope);
+                                    currentLevelTableReferences.Add(tableReference);
+                                    Verify(predicateJoinExpressionBase.JoinPredicate,
+                                        _tableReferencesInScope.Concat(currentLevelTableReferences));
+                                    break;
+
+                                case SelectExpression innerSelectExpression:
+                                    Verify(innerSelectExpression, _tableReferencesInScope);
+                                    break;
+
+                                case CrossApplyExpression crossApplyExpression:
+                                    Verify(crossApplyExpression, _tableReferencesInScope.Concat(currentLevelTableReferences));
+                                    break;
+
+                                case OuterApplyExpression outerApplyExpression:
+                                    Verify(outerApplyExpression, _tableReferencesInScope.Concat(currentLevelTableReferences));
+                                    break;
+
+                                case JoinExpressionBase joinExpressionBase:
+                                    Verify(joinExpressionBase.Table, _tableReferencesInScope);
+                                    break;
+
+                                case SetOperationBase setOperationBase:
+                                    Verify(setOperationBase.Source1, _tableReferencesInScope);
+                                    Verify(setOperationBase.Source2, _tableReferencesInScope);
+                                    break;
+                            }
+
+                            if (table is not PredicateJoinExpressionBase)
+                            {
+                                currentLevelTableReferences.Add(tableReference);
+                            }
+                        }
+
+                        _tableReferencesInScope.AddRange(currentLevelTableReferences);
+
+                        foreach (var projection in selectExpression._projection)
+                        {
+                            Visit(projection);
+                        }
+
+                        foreach (var keyValuePair in selectExpression._projectionMapping)
+                        {
+                            Visit(keyValuePair.Value);
+                        }
+
+                        foreach (var clientProjection in selectExpression._clientProjections)
+                        {
+                            Visit(clientProjection);
+                        }
+
+                        foreach (var grouping in selectExpression._groupBy)
+                        {
+                            Visit(grouping);
+                        }
+
+                        foreach (var ordering in selectExpression._orderings)
+                        {
+                            Visit(ordering);
+                        }
+
+                        Visit(selectExpression.Predicate);
+                        Visit(selectExpression.Having);
+                        Visit(selectExpression.Offset);
+                        Visit(selectExpression.Limit);
+
+                        foreach (var identifier in selectExpression._identifier)
+                        {
+                            Visit(identifier.Column);
+                        }
+
+                        foreach (var childIdentifier in selectExpression._childIdentifiers)
+                        {
+                            Visit(childIdentifier.Column);
+                        }
+
+                        break;
+
+                    case ConcreteColumnExpression concreteColumnExpression:
+                        concreteColumnExpression.Verify(_tableReferencesInScope);
+                        break;
+                }
+
+                return base.Visit(expression);
+            }
+
+
+            public static void Verify(Expression expression, IEnumerable<TableReferenceExpression> tableReferencesInScope)
+                => new SelectExpressionVerifyingExpressionVisitor(tableReferencesInScope)
+                    .Visit(expression);
         }
     }
 }

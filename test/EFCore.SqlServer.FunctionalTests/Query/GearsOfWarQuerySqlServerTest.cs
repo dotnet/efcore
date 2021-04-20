@@ -532,22 +532,22 @@ WHERE (2 & [g].[Rank]) = [g].[Rank]");
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE ([g].[Rank] & COALESCE((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId]), 0)) = COALESCE((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId]), 0)",
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)) = COALESCE((
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)",
                 //
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE (2 & COALESCE((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId]), 0)) = COALESCE((
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId]), 0)");
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)) = COALESCE((
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId]), 0)");
         }
 
         public override async Task Where_enum_has_flag_subquery_with_pushdown(bool async)
@@ -558,28 +558,28 @@ WHERE (2 & COALESCE((
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE (([g].[Rank] & (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) = (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) OR (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId]) IS NULL",
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) = (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) OR (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL",
                 //
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE ((2 & (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) = (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) OR (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId]) IS NULL");
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) = (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) OR (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL");
         }
 
         public override async Task Where_enum_has_flag_subquery_client_eval(bool async)
@@ -590,15 +590,15 @@ WHERE ((2 & (
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE (([g].[Rank] & (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) = (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId])) OR (
-    SELECT TOP(1) [g1].[Rank]
-    FROM [Gears] AS [g1]
-    ORDER BY [g1].[Nickname], [g1].[SquadId]) IS NULL");
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) = (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId])) OR (
+    SELECT TOP(1) [g0].[Rank]
+    FROM [Gears] AS [g0]
+    ORDER BY [g0].[Nickname], [g0].[SquadId]) IS NULL");
         }
 
         public override async Task Where_enum_has_flag_with_non_nullable_parameter(bool async)
