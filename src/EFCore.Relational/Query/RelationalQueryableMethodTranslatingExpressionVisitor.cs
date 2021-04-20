@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     source = TranslateSelect(source, elementSelector);
                 }
 
-                selectExpression.ApplyGrouping(translatedKey);
+                translatedKey = selectExpression.ApplyGrouping(translatedKey);
                 var groupByShaper = new GroupByShaperExpression(translatedKey, source.ShaperExpression);
 
                 if (resultSelector == null)

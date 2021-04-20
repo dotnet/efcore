@@ -1062,13 +1062,34 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Applies grouping from given key selector.
         /// </summary>
         /// <param name="keySelector"> An key selector expression for the GROUP BY. </param>
-        public void ApplyGrouping(Expression keySelector)
+        public Expression ApplyGrouping(Expression keySelector)
         {
             Check.NotNull(keySelector, nameof(keySelector));
 
             ClearOrdering();
 
-            AppendGroupBy(keySelector);
+            var groupByTerms = new List<SqlExpression>();
+            var groupByAliases = new List<string?>();
+            AppendGroupBy(keySelector, groupByTerms, groupByAliases, "Key");
+
+            if (groupByTerms.Any(e => e is SqlConstantExpression || e is SqlParameterExpression || e is ScalarSubqueryExpression))
+            {
+                var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
+                var newGroupByTerms = new List<SqlExpression>(groupByTerms.Count);
+                var subquery = (SelectExpression)_tables[0];
+                var subqueryTableReference = _tableReferences[0];
+                for (var i = 0; i < groupByTerms.Count; i++)
+                {
+                    var item = groupByTerms[i];
+                    var newItem = subquery._projection.Any(e => e.Expression.Equals(item))
+                        ? sqlRemappingVisitor.Remap(item)
+                        : subquery.GenerateOuterColumn(subqueryTableReference, item, groupByAliases[i] ?? "Key");
+                    newGroupByTerms.Add(newItem);
+                }
+                keySelector = new ReplacingExpressionVisitor(groupByTerms, newGroupByTerms).Visit(keySelector);
+                groupByTerms = newGroupByTerms;
+            }
+            _groupBy.AddRange(groupByTerms);
 
             if (!_identifier.All(e => _groupBy.Contains(e.Column)))
             {
@@ -1078,44 +1099,41 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
                 }
             }
+
+            return keySelector;
         }
 
-        private void AppendGroupBy(Expression keySelector)
+        private void AppendGroupBy(Expression keySelector, List<SqlExpression> groupByTerms, List<string?> groupByAliases, string? name)
         {
             Check.NotNull(keySelector, nameof(keySelector));
 
             switch (keySelector)
             {
                 case SqlExpression sqlExpression:
-                    if (!(sqlExpression is SqlConstantExpression
-                        || sqlExpression is SqlParameterExpression))
-                    {
-                        _groupBy.Add(sqlExpression);
-                    }
-
+                    groupByTerms.Add(sqlExpression);
+                    groupByAliases.Add(name);
                     break;
 
                 case NewExpression newExpression:
-                    foreach (var argument in newExpression.Arguments)
+                    for (var i = 0; i < newExpression.Arguments.Count; i++)
                     {
-                        AppendGroupBy(argument);
+                        AppendGroupBy(newExpression.Arguments[i], groupByTerms, groupByAliases, newExpression.Members?[i].Name);
                     }
-
                     break;
 
                 case MemberInitExpression memberInitExpression:
-                    AppendGroupBy(memberInitExpression.NewExpression);
+                    AppendGroupBy(memberInitExpression.NewExpression, groupByTerms, groupByAliases, null);
                     foreach (var argument in memberInitExpression.Bindings)
                     {
-                        AppendGroupBy(((MemberAssignment)argument).Expression);
+                        var memberAssignment = (MemberAssignment)argument;
+                        AppendGroupBy(memberAssignment.Expression, groupByTerms, groupByAliases, memberAssignment.Member.Name);
                     }
-
                     break;
 
                 case UnaryExpression unaryExpression
                     when unaryExpression.NodeType == ExpressionType.Convert
                     || unaryExpression.NodeType == ExpressionType.ConvertChecked:
-                    AppendGroupBy(unaryExpression.Operand);
+                    AppendGroupBy(unaryExpression.Operand, groupByTerms, groupByAliases, name);
                     break;
 
                 default:
