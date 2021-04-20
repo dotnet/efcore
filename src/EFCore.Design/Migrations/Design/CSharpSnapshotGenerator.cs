@@ -1570,8 +1570,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             IProperty property,
             IndentedStringBuilder stringBuilder)
         {
-            var defaultValue = property.GetDefaultValue();
-            if (defaultValue == null)
+            if (!property.TryGetDefaultValue(out var defaultValue))
             {
                 return;
             }

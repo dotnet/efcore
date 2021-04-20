@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public DateTimeOffsetToBytesConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 v => ToBytes(v),
-                v => v == null ? default : FromBytes(v),
+                v => FromBytes(v),
                 _defaultHints.With(mappingHints))
         {
         }
@@ -45,8 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
         private static DateTimeOffset FromBytes(byte[] bytes)
         {
-            // TODO-NULLABLE: Conversions will currently only return null for null input, but null input has already been sanitized
-            // externally (revisit as part of #13850)
             var timeBinary = (long)_longToBytes.ConvertFromProvider(bytes)!;
             var offsetMins = (short)_shortToBytes.ConvertFromProvider(bytes.Skip(8).ToArray())!;
             return new DateTimeOffset(DateTime.FromBinary(timeBinary), new TimeSpan(0, offsetMins, 0));

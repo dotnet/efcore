@@ -621,17 +621,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            var defaultValue = property.GetDefaultValue();
-            if (defaultValue == DBNull.Value)
+            if (property.TryGetDefaultValue(out var defaultValue))
             {
-                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}()");
-                annotations.Remove(RelationalAnnotationNames.DefaultValue);
-            }
-            else if (defaultValue != null)
-            {
-                lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}({_code.UnknownLiteral(defaultValue)})");
-                annotations.Remove(RelationalAnnotationNames.DefaultValue);
+                if (defaultValue == DBNull.Value)
+                {
+                    lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}()");
+                    annotations.Remove(RelationalAnnotationNames.DefaultValue);
+                }
+                else if (defaultValue != null)
+                {
+                    lines.Add(
+                        $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}({_code.UnknownLiteral(defaultValue)})");
+                    annotations.Remove(RelationalAnnotationNames.DefaultValue);
+                }
             }
 
             var valueGenerated = property.ValueGenerated;

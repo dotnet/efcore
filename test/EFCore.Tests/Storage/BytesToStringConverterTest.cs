@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_convert_strings_to_bytes()
         {
             var converter = _bytesToStringConverter.ConvertToProviderExpression.Compile();
+            Assert.True(_bytesToStringConverter.ConvertsNulls);
 
             Assert.Equal("U3DEsW7MiGFsIFRhcA==", converter(new byte[] { 83, 112, 196, 177, 110, 204, 136, 97, 108, 32, 84, 97, 112 }));
             Assert.Equal("", converter(Array.Empty<byte>()));
