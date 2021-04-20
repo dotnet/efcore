@@ -18,10 +18,21 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(ServiceLifetime.Scoped)]
         [InlineData(ServiceLifetime.Transient)]
         public void Factory_creates_new_context_instance(ServiceLifetime lifetime)
+            => CreateContextTest<WoolacombeContext>(lifetime);
+
+        [ConditionalTheory]
+        [InlineData(ServiceLifetime.Singleton)]
+        [InlineData(ServiceLifetime.Scoped)]
+        [InlineData(ServiceLifetime.Transient)]
+        public void Factory_creates_new_context_instance_with_parameterless_constructor(ServiceLifetime lifetime)
+            => CreateContextTest<GrundtContext>(lifetime);
+
+        private static void CreateContextTest<TContext>(ServiceLifetime lifetime)
+            where TContext : DbContext
         {
             var serviceProvider = (IServiceProvider)new ServiceCollection()
-                .AddDbContextFactory<WoolacombeContext>(
-                    b => b.UseInMemoryDatabase(nameof(WoolacombeContext)),
+                .AddDbContextFactory<TContext>(
+                    b => b.UseInMemoryDatabase(nameof(TContext)),
                     lifetime)
                 .BuildServiceProvider(validateScopes: true);
 
@@ -30,14 +41,14 @@ namespace Microsoft.EntityFrameworkCore
                 serviceProvider = serviceProvider.CreateScope().ServiceProvider;
             }
 
-            var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
+            var contextFactory = serviceProvider.GetService<IDbContextFactory<TContext>>();
 
             using var context1 = contextFactory.CreateDbContext();
             using var context2 = contextFactory.CreateDbContext();
 
             Assert.NotSame(context1, context2);
-            Assert.Equal(nameof(WoolacombeContext), GetStoreName(context1));
-            Assert.Equal(nameof(WoolacombeContext), GetStoreName(context2));
+            Assert.Equal(nameof(TContext), GetStoreName(context1));
+            Assert.Equal(nameof(TContext), GetStoreName(context2));
         }
 
         [ConditionalFact]
@@ -172,6 +183,18 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        private class GrundtContext : DbContext
+        {
+            public GrundtContext()
+            {
+            }
+
+            public GrundtContext(DbContextOptions<GrundtContext> options)
+                : base(options)
+            {
+            }
+        }
+
         [ConditionalFact]
         public void Factory_can_use_constructor_with_non_generic_builder()
         {
@@ -187,6 +210,10 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CroydeContext : DbContext
         {
+            public CroydeContext()
+            {
+            }
+
             public CroydeContext(DbContextOptions options)
                 : base(options)
             {
