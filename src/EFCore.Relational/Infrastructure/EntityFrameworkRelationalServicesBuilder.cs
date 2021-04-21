@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 { typeof(IKeyValueIndexFactorySource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IParameterNameGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IComparer<ModificationCommand>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IComparer<IModificationCommand>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsIdGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISqlGenerationHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public override EntityFrameworkServicesBuilder TryAddCoreServices()
         {
             TryAdd<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>();
-            TryAdd<IComparer<ModificationCommand>, ModificationCommandComparer>();
+            TryAdd<IComparer<IModificationCommand>, ModificationCommandComparer>();
             TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();
             TryAdd<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>();
             TryAdd<IModelCustomizer, RelationalModelCustomizer>();

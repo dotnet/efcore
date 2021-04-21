@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public CommandBatchPreparerDependencies(
             IModificationCommandBatchFactory modificationCommandBatchFactory,
             IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            IComparer<ModificationCommand> modificationCommandComparer,
+            IComparer<IModificationCommand> modificationCommandComparer,
             IKeyValueIndexFactorySource keyValueIndexFactorySource,
             IColumnModificationFactory columnModificationFactory,
             ILoggingOptions loggingOptions,
