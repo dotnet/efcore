@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
     {
         private readonly NullSafeAccessVerifyingExpressionVisitor _nullSafeAccessVerifyingExpressionVisitor
-            = new NullSafeAccessVerifyingExpressionVisitor();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitConditional(conditionalExpression);
         }
 
-        private Expression TryOptimizeConditionalEquality(Expression expression)
+        private Expression? TryOptimizeConditionalEquality(Expression expression)
         {
             // Simplify (a ? b : null) == null => !a || b == null
             // Simplify (a ? null : b) == null => a || b == null
@@ -89,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    conditionalExpression = binaryExpression.Right as ConditionalExpression;
+                    conditionalExpression = (ConditionalExpression)binaryExpression.Right;
                     comparedExpression = binaryExpression.Left;
                 }
 
@@ -126,7 +127,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return _nullSafeAccesses.Contains(result);
             }
 
-            public override Expression Visit(Expression expression)
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
                 => expression == null || _nullSafeAccesses.Contains(expression)
                     ? expression
                     : base.Visit(expression);
@@ -136,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Check.NotNull(memberExpression, nameof(memberExpression));
 
                 var innerExpression = Visit(memberExpression.Expression);
-                if (_nullSafeAccesses.Contains(innerExpression))
+                if (innerExpression != null
+                    && _nullSafeAccesses.Contains(innerExpression))
                 {
                     _nullSafeAccesses.Add(memberExpression);
                 }

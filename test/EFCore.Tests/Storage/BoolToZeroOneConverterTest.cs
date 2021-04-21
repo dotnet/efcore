@@ -8,8 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class BoolToZeroOneConverterTest
     {
-        private static readonly BoolToZeroOneConverter<decimal> _boolToZeroOne
-            = new BoolToZeroOneConverter<decimal>();
+        private static readonly BoolToZeroOneConverter<decimal> _boolToZeroOne = new();
 
         [ConditionalFact]
         public void Can_convert_bools_to_zero_one()

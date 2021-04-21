@@ -4,11 +4,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CompositeValueFactory([NotNull] IReadOnlyList<IProperty> properties)
+        public CompositeValueFactory(IReadOnlyList<IProperty> properties)
         {
             Properties = properties;
             EqualityComparer = CreateEqualityComparer(properties);
@@ -54,18 +55,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, out object[] key)
+        public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out object[]? key)
         {
             key = new object[Properties.Count];
             var index = 0;
 
             foreach (var property in Properties)
             {
-                if ((key[index++] = valueBuffer[property.GetIndex()]) == null)
+                var value = valueBuffer[property.GetIndex()];
+                if (value == null)
                 {
                     key = null;
                     return false;
                 }
+
+                key[index++] = value;
             }
 
             return true;
@@ -77,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, out object[] key)
+        public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out object[]? key)
             => TryCreateFromEntry(entry, (e, p) => e.GetCurrentValue(p), out key);
 
         /// <summary>
@@ -86,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, out object[] key)
+        public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out object[]? key)
             => TryCreateFromEntry(entry, (e, p) => e.GetPreStoreGeneratedCurrentValue(p), out key);
 
         /// <summary>
@@ -95,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, out object[] key)
+        public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out object[]? key)
             => TryCreateFromEntry(entry, (e, p) => e.GetOriginalValue(p), out key);
 
         /// <summary>
@@ -104,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, out object[] key)
+        public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [NotNullWhen(true)] out object[]? key)
             => TryCreateFromEntry(entry, (e, p) => e.GetRelationshipSnapshotValue(p), out key);
 
         /// <summary>
@@ -114,20 +118,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual bool TryCreateFromEntry(
-            [NotNull] IUpdateEntry entry,
-            [NotNull] Func<IUpdateEntry, IProperty, object> getValue,
-            out object[] key)
+            IUpdateEntry entry,
+            Func<IUpdateEntry, IProperty, object?> getValue,
+            [NotNullWhen(true)] out object[]? key)
         {
             key = new object[Properties.Count];
             var index = 0;
 
             foreach (var property in Properties)
             {
-                if ((key[index++] = getValue(entry, property)) == null)
+                var value = getValue(entry, property);
+                if (value == null)
                 {
                     key = null;
                     return false;
                 }
+
+                key[index++] = value;
             }
 
             return true;
@@ -139,12 +146,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected static IEqualityComparer<object[]> CreateEqualityComparer([NotNull] IReadOnlyList<IProperty> properties)
+        protected static IEqualityComparer<object[]> CreateEqualityComparer(IReadOnlyList<IProperty> properties)
         {
             var comparers = properties.Select(p => p.GetKeyValueComparer()).ToList();
 
             return comparers.All(c => c != null)
-                ? new CompositeCustomComparer(comparers)
+                ? new CompositeCustomComparer(comparers!)
                 : properties.Any(p => typeof(IStructuralEquatable).IsAssignableFrom(p.ClrType))
                     ? (IEqualityComparer<object[]>)new StructuralCompositeComparer()
                     : new CompositeComparer();
@@ -161,11 +168,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _hashCodes = comparers.Select(c => (Func<object, int>)c.GetHashCode).ToArray();
             }
 
-            public bool Equals(object[] x, object[] y)
+            public bool Equals(object[]? x, object[]? y)
             {
                 if (ReferenceEquals(x, y))
                 {
                     return true;
+                }
+
+                if (x is null)
+                {
+                    return y is null;
+                }
+
+                if (y is null)
+                {
+                    return false;
                 }
 
                 if (x.Length != y.Length)
@@ -201,11 +218,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private sealed class CompositeComparer : IEqualityComparer<object[]>
         {
-            public bool Equals(object[] x, object[] y)
+            public bool Equals(object[]? x, object[]? y)
             {
                 if (ReferenceEquals(x, y))
                 {
                     return true;
+                }
+
+                if (x is null)
+                {
+                    return y is null;
+                }
+
+                if (y is null)
+                {
+                    return false;
                 }
 
                 if (x.Length != y.Length)
@@ -241,11 +268,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             private readonly IEqualityComparer _structuralEqualityComparer
                 = StructuralComparisons.StructuralEqualityComparer;
 
-            public bool Equals(object[] x, object[] y)
+            public bool Equals(object[]? x, object[]? y)
             {
                 if (ReferenceEquals(x, y))
                 {
                     return true;
+                }
+
+                if (x is null)
+                {
+                    return y is null;
+                }
+
+                if (y is null)
+                {
+                    return false;
                 }
 
                 if (x.Length != y.Length)

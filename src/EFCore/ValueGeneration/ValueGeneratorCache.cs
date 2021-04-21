@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,13 +29,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public ValueGeneratorCache([NotNull] ValueGeneratorCacheDependencies dependencies)
+        public ValueGeneratorCache(ValueGeneratorCacheDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
         }
 
-        private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache
-            = new ConcurrentDictionary<CacheKey, ValueGenerator>();
+        private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache = new();
 
         private readonly struct CacheKey : IEquatable<CacheKey>
         {
@@ -56,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             public bool Equals(CacheKey other)
                 => Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
                 => obj is CacheKey cacheKey && Equals(cacheKey);
 
             public override int GetHashCode()

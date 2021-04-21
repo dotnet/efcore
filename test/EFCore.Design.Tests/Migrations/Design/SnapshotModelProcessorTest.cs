@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             AssertAnnotations(model);
             AssertAnnotations(entityType);
@@ -69,6 +69,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Can_resolve_ISnapshotModelProcessor_from_DI()
+        {
+            var assembly = typeof(SnapshotModelProcessorTest).Assembly;
+            var snapshotModelProcessor = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), new string[0])
+                .Build(SqlServerTestHelpers.Instance.CreateContext())
+                .GetRequiredService<ISnapshotModelProcessor>();
+
+            Assert.NotNull(snapshotModelProcessor);
+        }
+
+        [ConditionalFact]
         public void Warns_for_conflicting_annotations()
         {
             var model = new Model();
@@ -80,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
@@ -101,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             Assert.Equal("warn: " + DesignStrings.MultipleAnnotationConflict("DefaultSchema"), reporter.Messages.Single());
             Assert.Equal(2, model.GetAnnotations().Count());
@@ -122,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             Assert.Empty(reporter.Messages);
 
@@ -141,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             var reporter = new TestOperationReporter();
 
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             Assert.Empty(reporter.Messages);
 
@@ -167,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
 
             var reporter = new TestOperationReporter();
-            new SnapshotModelProcessor(reporter, NullConventionSetBuilder.Instance).Process(model);
+            new SnapshotModelProcessor(reporter, DummyModelRuntimeInitializer.Instance).Process(model);
 
             Assert.Empty(reporter.Messages);
             Assert.Equal(
@@ -188,11 +199,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var differ = context.GetService<IMigrationsModelDiffer>();
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
             var reporter = new TestOperationReporter();
-            var setBuilder = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IConventionSetBuilder>();
-            var processor = new SnapshotModelProcessor(reporter, setBuilder);
+            var modelRuntimeInitializer = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
+            var processor = new SnapshotModelProcessor(reporter, modelRuntimeInitializer);
             var model = processor.Process(snapshot.Model);
 
-            var differences = differ.GetDifferences(model.GetRelationalModel(), context.Model.GetRelationalModel());
+            var differences = differ.GetDifferences(model.GetRelationalModel(),
+                context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
 
             Assert.Empty(differences);
         }
@@ -207,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var differ = context.GetService<IMigrationsModelDiffer>();
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
             var reporter = new TestOperationReporter();
-            var setBuilder = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IConventionSetBuilder>();
+            var setBuilder = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
             var processor = new SnapshotModelProcessor(reporter, setBuilder);
             var model = processor.Process(snapshot.Model);
 
@@ -265,18 +277,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
                 .Select(p => (string)p.GetValue(null));
 
-        private class NullConventionSetBuilder : IConventionSetBuilder
+        private class DummyModelRuntimeInitializer : IModelRuntimeInitializer
         {
-            private NullConventionSetBuilder()
+            private DummyModelRuntimeInitializer()
             {
             }
 
-            public ConventionSet CreateConventionSet()
-            {
-                return new ConventionSet();
-            }
+            public IModel Initialize(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+                => model;
 
-            public static NullConventionSetBuilder Instance { get; } = new NullConventionSetBuilder();
+            public IModel Initialize(
+                IModel model, bool designTime = true, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null)
+                => model;
+
+            public static DummyModelRuntimeInitializer Instance { get; } = new();
         }
 
         private class Blog
@@ -339,6 +353,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             {
                                 b1.Property<int>("OwningType1Id");
 
+                                b1.Property<bool>("Exists");
+
                                 b1.ToTable("OwningType1");
 
                                 b1.HasOne("Ownership.OwningType1")
@@ -381,6 +397,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             "Ownership.OwnedType", "OwnedType2", b1 =>
                             {
                                 b1.Property<int?>("OwningType1Id");
+
+                                b1.Property<bool>("Exists");
 
                                 b1.ToTable("OwningType1");
 
@@ -429,6 +447,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             {
                                 b1.Property<int?>("OwningType2Id");
 
+                                b1.Property<bool>("Exists");
+
                                 b1.ToTable("OwningType2");
 
                                 b1.HasOne("Ownership.OwningType2")
@@ -471,6 +491,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             "Ownership.OwnedType", "OwnedType2", b1 =>
                             {
                                 b1.Property<int?>("OwningType2Id");
+
+                                b1.Property<bool>("Exists");
 
                                 b1.ToTable("OwningType2");
 
@@ -558,6 +580,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.ToTable("OwningType1");
 
                                 b1.HasOne("Ownership.OwningType1")
@@ -608,6 +632,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 b1.Property<int>("OwningType1Id")
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.ToTable("OwningType1");
 
@@ -664,6 +690,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.ToTable("OwningType2");
 
                                 b1.HasOne("Ownership.OwningType2")
@@ -714,6 +742,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 b1.Property<int?>("OwningType2Id")
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.ToTable("OwningType2");
 
@@ -807,6 +837,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.HasKey("OwningType1Id");
 
                                 b1.ToTable("OwningType1");
@@ -863,6 +895,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 b1.Property<int>("OwningType1Id")
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.HasKey("OwningType1Id");
 
@@ -925,6 +959,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.HasKey("OwningType2Id");
 
                                 b1.ToTable("OwningType2");
@@ -981,6 +1017,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 b1.Property<int>("OwningType2Id")
                                     .ValueGeneratedOnAdd()
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.HasKey("OwningType2Id");
 
@@ -1083,6 +1121,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .HasColumnType("int")
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.HasKey("OwningType1Id");
 
                                 b1.ToTable("OwningType1");
@@ -1138,6 +1178,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasColumnType("int")
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.HasKey("OwningType1Id");
 
@@ -1199,6 +1241,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .HasColumnType("int")
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                                b1.Property<bool>("Exists");
+
                                 b1.HasKey("OwningType2Id");
 
                                 b1.ToTable("OwningType2");
@@ -1254,6 +1298,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     .ValueGeneratedOnAdd()
                                     .HasColumnType("int")
                                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                                b1.Property<bool>("Exists");
 
                                 b1.HasKey("OwningType2Id");
 
@@ -1385,6 +1431,7 @@ namespace Ownership
     [Owned]
     internal class OwnedType
     {
+        public bool Exists { get; set; }
         public NestedOwnedType NestedOwnedType1 { get; set; }
         public NestedOwnedType NestedOwnedType2 { get; set; }
     }

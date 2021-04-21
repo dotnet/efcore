@@ -455,6 +455,7 @@ namespace Microsoft.EntityFrameworkCore
         private sealed class FileSource
         {
             public Guid? FileId { get; set; }
+            public bool Deleted { get; set; }
         }
 
         [ConditionalFact]

@@ -17,7 +17,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     The singleton instance.
         /// </summary>
-        public static readonly SqliteFactory Instance = new SqliteFactory();
+        public static readonly SqliteFactory Instance = new();
 
         /// <summary>
         ///     Creates a new command.

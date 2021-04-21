@@ -689,11 +689,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_equals_method_string_with_ignore_case(bool async)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Customer>().Where(c => c.City.Equals("London", StringComparison.OrdinalIgnoreCase)),
-                    entryCount: 6));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.City.Equals("London", StringComparison.OrdinalIgnoreCase)),
+                entryCount: 6);
         }
 
         [ConditionalTheory]
@@ -1255,10 +1254,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_bool_client_side_negated(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Product>().Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Product>().Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8);
         }
 
 #pragma warning disable IDE0060 // Remove unused parameter
@@ -1620,6 +1618,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => string.Concat(i, c.CustomerID) == c.CompanyName).Select(c => c.CustomerID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_string_concat_method_comparison_2(bool async)
+        {
+            var i = "A";
+            var j = "B";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => string.Concat(i, j, c.CustomerID) == c.CompanyName).Select(c => c.CustomerID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_string_concat_method_comparison_3(bool async)
+        {
+            var i = "A";
+            var j = "B";
+            var k = "C";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => string.Concat(i, j, k, c.CustomerID) == c.CompanyName).Select(c => c.CustomerID));
         }
 
         [ConditionalTheory]
@@ -2016,26 +2039,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Like_with_non_string_column_using_ToString(bool async)
+        public virtual Task Like_with_non_string_column_using_ToString(bool async)
         {
-            using var context = CreateContext();
-
-            var query = context.Set<Order>().Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%"));
-            var result = async ? await query.ToListAsync() : query.ToList();
-
-            Assert.Equal(new[] { 10320, 10420, 10520, 10620, 10720, 10820, 10920, 11020 }, result.Select(e => e.OrderID));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%")),
+                ss => ss.Set<Order>().Where(o => o.OrderID.ToString().Contains("20")),
+                entryCount: 8);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Like_with_non_string_column_using_double_cast(bool async)
+        public virtual Task Like_with_non_string_column_using_double_cast(bool async)
         {
-            using var context = CreateContext();
-
-            var query = context.Set<Order>().Where(o => EF.Functions.Like((string)(object)o.OrderID, "%20%"));
-            var result = async ? await query.ToListAsync() : query.ToList();
-
-            Assert.Equal(new[] { 10320, 10420, 10520, 10620, 10720, 10820, 10920, 11020 }, result.Select(e => e.OrderID));
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => EF.Functions.Like((string)(object)o.OrderID, "%20%")),
+                ss => ss.Set<Order>().Where(o => o.OrderID.ToString().Contains("20")),
+                entryCount: 8);
         }
 
         [ConditionalTheory]
@@ -2455,6 +2476,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(
                     c => (c.Region != "WA" && c.Region != "OR" && c.Region != null) || (c.Region != "WA" && c.Region != null)),
                 entryCount: 28);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filter_with_property_compared_to_null_wrapped_in_explicit_convert_to_object(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => (object)c.Region == null),
+                entryCount: 60);
         }
     }
 }

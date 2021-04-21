@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Creates a new builder for the given <see cref="ISequence" />.
         /// </summary>
         /// <param name="sequence"> The <see cref="IMutableSequence" /> to configure. </param>
-        public SequenceBuilder([NotNull] IMutableSequence sequence)
+        public SequenceBuilder(IMutableSequence sequence)
         {
             Check.NotNull(sequence, nameof(sequence));
 
@@ -110,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -120,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

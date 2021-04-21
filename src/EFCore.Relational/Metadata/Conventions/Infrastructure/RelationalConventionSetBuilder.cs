@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
         protected RelationalConventionSetBuilder(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -93,33 +92,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies);
             conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
 
-            // Use TypeMappingConvention to add the relational store type mapping
-            // to the generated concurrency token property
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizingConventions,
-                new TableSharingConcurrencyTokenConvention(Dependencies, RelationalDependencies),
-                typeof(TypeMappingConvention));
             // ModelCleanupConvention would remove the entity types added by TableValuedDbFunctionConvention #15898
             ConventionSet.AddAfter(
                 conventionSet.ModelFinalizingConventions,
                 new TableValuedDbFunctionConvention(Dependencies, RelationalDependencies),
                 typeof(ModelCleanupConvention));
+            conventionSet.ModelFinalizingConventions.Add(new TableSharingConcurrencyTokenConvention(Dependencies, RelationalDependencies));
             conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
             conventionSet.ModelFinalizingConventions.Add(tableNameFromDbSetConvention);
             conventionSet.ModelFinalizingConventions.Add(storeGenerationConvention);
             conventionSet.ModelFinalizingConventions.Add(new EntityTypeHierarchyMappingConvention(Dependencies, RelationalDependencies));
             conventionSet.ModelFinalizingConventions.Add(new SequenceUniquificationConvention(Dependencies, RelationalDependencies));
             conventionSet.ModelFinalizingConventions.Add(new SharedTableConvention(Dependencies, RelationalDependencies));
-            conventionSet.ModelFinalizingConventions.Add(new DbFunctionTypeMappingConvention(Dependencies, RelationalDependencies));
             ReplaceConvention(
                 conventionSet.ModelFinalizingConventions,
                 (QueryFilterRewritingConvention)new RelationalQueryFilterRewritingConvention(
                     Dependencies, RelationalDependencies));
 
-            ConventionSet.AddAfter(
+            ReplaceConvention(
                 conventionSet.ModelFinalizedConventions,
-                new RelationalModelConvention(Dependencies, RelationalDependencies),
-                typeof(ValidatingConvention));
+                (SlimModelConvention)new RelationalSlimModelConvention(Dependencies, RelationalDependencies));
 
             return conventionSet;
         }

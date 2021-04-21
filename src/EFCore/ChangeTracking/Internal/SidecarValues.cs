@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _values = valuesFactory;
             }
 
-            public bool TryGetValue(int index, out object value)
+            public bool TryGetValue(int index, out object? value)
             {
                 if (IsEmpty)
                 {
@@ -32,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public T GetValue<T>(int index)
-                => IsEmpty ? default : _values.GetValue<T>(index);
+                => IsEmpty ? default! : _values.GetValue<T>(index);
 
-            public void SetValue(IProperty property, object value, int index)
+            public void SetValue(IProperty property, object? value, int index)
             {
                 Check.DebugAssert(!IsEmpty, "sidecar is empty");
 
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _values[index] = SnapshotValue(property, value);
             }
 
-            private static object SnapshotValue(IProperty property, object value)
+            private static object? SnapshotValue(IProperty property, object? value)
             {
                 var comparer = property.GetValueComparer();
 

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -22,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="constructor"> The constructor to use. </param>
         /// <param name="parameterBindings"> The parameters to bind. </param>
         public ConstructorBinding(
-            [NotNull] ConstructorInfo constructor,
-            [NotNull] IReadOnlyList<ParameterBinding> parameterBindings)
+            ConstructorInfo constructor,
+            IReadOnlyList<ParameterBinding> parameterBindings)
             : base(parameterBindings)
         {
             Check.NotNull(constructor, nameof(constructor));
@@ -51,6 +50,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The type that will be created from the expression tree created for this binding.
         /// </summary>
         public override Type RuntimeType
-            => Constructor.DeclaringType;
+            => Constructor.DeclaringType!;
+
+        /// <summary>
+        ///     Creates a copy that contains the given parameter bindings.
+        /// </summary>
+        /// <param name="parameterBindings"> The new parameter bindings. </param>
+        /// <returns> A copy with replaced parameter bindings. </returns>
+        public override InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings)
+            => new ConstructorBinding(Constructor, parameterBindings);
     }
 }

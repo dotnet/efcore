@@ -12,23 +12,25 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            var sql = CreateExecutor(args).ScriptMigration(
-                _from.Value,
-                _to.Value,
-                _idempotent.HasValue(),
-                _noTransactions.HasValue(),
-                Context.Value());
+            using var executor = CreateExecutor(args);
 
-            if (!_output.HasValue())
+            var sql = executor.ScriptMigration(
+                _from!.Value,
+                _to!.Value,
+                _idempotent!.HasValue(),
+                _noTransactions!.HasValue(),
+                Context!.Value());
+
+            if (!_output!.HasValue())
             {
                 Reporter.WriteData(sql);
             }
             else
             {
-                var output = _output.Value();
-                if (WorkingDir.HasValue())
+                var output = _output.Value()!;
+                if (WorkingDir!.HasValue())
                 {
-                    output = Path.Combine(WorkingDir.Value(), output);
+                    output = Path.Combine(WorkingDir.Value()!, output);
                 }
 
                 var directory = Path.GetDirectoryName(output);

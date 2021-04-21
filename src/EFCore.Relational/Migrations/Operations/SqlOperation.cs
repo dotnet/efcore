@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -15,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The SQL string to be executed to perform this operation.
         /// </summary>
-        public virtual string Sql { get; [param: NotNull] set; }
+        public virtual string Sql { get; set; } = null!;
 
         /// <summary>
         ///     Indicates whether or not transactions will be suppressed while executing the SQL.

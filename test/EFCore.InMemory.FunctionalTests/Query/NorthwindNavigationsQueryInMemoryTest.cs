@@ -18,11 +18,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Where_subquery_on_navigation_client_eval(bool async)
-        {
-            return base.Where_subquery_on_navigation_client_eval(async);
-        }
     }
 }

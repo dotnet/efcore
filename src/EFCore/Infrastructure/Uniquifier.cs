@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -22,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="maxLength"> The maximum length of the identifier. </param>
         /// <returns> A unique identifier. </returns>
         public static string Uniquify<T>(
-            [NotNull] string currentIdentifier,
-            [NotNull] IReadOnlyDictionary<string, T> otherIdentifiers,
+            string currentIdentifier,
+            IReadOnlyDictionary<string, T> otherIdentifiers,
             int maxLength)
         {
             var finalIdentifier = Truncate(currentIdentifier, maxLength);
@@ -47,9 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="maxLength"> The maximum length of the identifier. </param>
         /// <returns> A unique identifier. </returns>
         public static string Uniquify<TKey, TValue>(
-            [NotNull] string currentIdentifier,
-            [NotNull] IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
-            [NotNull] Func<string, TKey> keySelector,
+            string currentIdentifier,
+            IReadOnlyDictionary<TKey, TValue> otherIdentifiers,
+            Func<string, TKey> keySelector,
             int maxLength)
         {
             var finalIdentifier = Truncate(currentIdentifier, maxLength);
@@ -69,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="maxLength"> The maximum length of the identifier. </param>
         /// <param name="uniquifier"> An optional number that will be appended to the identifier. </param>
         /// <returns> The shortened identifier. </returns>
-        public static string Truncate([NotNull] string identifier, int maxLength, int? uniquifier = null)
+        public static string Truncate(string identifier, int maxLength, int? uniquifier = null)
         {
             var uniquifierLength = GetLength(uniquifier);
             var maxNameLength = maxLength - uniquifierLength;

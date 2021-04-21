@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
@@ -15,10 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     /// </summary>
     public class DelegatingDbContextLogger : IDbContextLogger
     {
-        [NotNull]
         private readonly Action<EventData> _logger;
-
-        [NotNull]
         private readonly Func<EventId, LogLevel, bool> _filter;
 
         /// <summary>
@@ -28,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DelegatingDbContextLogger(
-            [NotNull] Action<EventData> logger,
-            [NotNull] Func<EventId, LogLevel, bool> filter)
+            Action<EventData> logger,
+            Func<EventId, LogLevel, bool> filter)
         {
             _logger = logger;
             _filter = filter;

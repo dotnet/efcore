@@ -25,20 +25,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             private static readonly MethodInfo _includeReferenceMethodInfo
-                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(IncludeReference));
+                = typeof(CustomShaperCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeReference));
 
             private static readonly MethodInfo _includeCollectionMethodInfo
-                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(IncludeCollection));
+                = typeof(CustomShaperCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeCollection));
 
             private static readonly MethodInfo _materializeCollectionMethodInfo
-                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(MaterializeCollection));
+                = typeof(CustomShaperCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(MaterializeCollection));
 
             private static readonly MethodInfo _materializeSingleResultMethodInfo
-                = typeof(CustomShaperCompilingExpressionVisitor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(MaterializeSingleResult));
+                = typeof(CustomShaperCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(MaterializeSingleResult));
 
             private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
                 QueryContext queryContext,
@@ -95,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 if (entity is TIncludingEntity includingEntity)
                 {
-                    var collectionAccessor = navigation.GetCollectionAccessor();
+                    var collectionAccessor = navigation.GetCollectionAccessor()!;
                     collectionAccessor.GetOrCreate(includingEntity, forMaterialization: true);
 
                     if (setLoaded)
@@ -149,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 ValueBuffer valueBuffer,
                 Func<QueryContext, ValueBuffer, TResult> innerShaper)
                 => valueBuffer.IsEmpty
-                    ? default
+                    ? default!
                     : innerShaper(queryContext, valueBuffer);
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -234,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 Type entityType,
                 Type relatedEntityType,
                 INavigationBase navigation,
-                INavigationBase inverseNavigation)
+                INavigationBase? inverseNavigation)
             {
                 var entityParameter = Expression.Parameter(entityType);
                 var relatedEntityParameter = Expression.Parameter(relatedEntityType);
@@ -276,8 +272,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     Expression.Constant(true));
 
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
-                = typeof(IClrCollectionAccessor).GetTypeInfo()
-                    .GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
+                = typeof(IClrCollectionAccessor).GetRequiredDeclaredMethod(nameof(IClrCollectionAccessor.Add));
         }
     }
 }

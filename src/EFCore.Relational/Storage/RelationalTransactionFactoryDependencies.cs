@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -29,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalTransactionFactoryDependencies
+    public sealed record RelationalTransactionFactoryDependencies
     {
         /// <summary>
         ///     <para>
@@ -51,8 +52,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public RelationalTransactionFactoryDependencies()
+        public RelationalTransactionFactoryDependencies(ISqlGenerationHelper sqlGenerationHelper)
         {
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
+
+            SqlGenerationHelper = sqlGenerationHelper;
         }
+
+        /// <summary>
+        ///     Helpers for SQL generation.
+        /// </summary>
+        public ISqlGenerationHelper SqlGenerationHelper { get; init; }
     }
 }

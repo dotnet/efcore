@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -24,22 +23,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
     /// </summary>
     public class CosmosOptionsExtension : IDbContextOptionsExtension
     {
-        private string _accountEndpoint;
-        private string _accountKey;
-        private string _connectionString;
-        private string _databaseName;
-        private string _region;
+        private string? _accountEndpoint;
+        private string? _accountKey;
+        private string? _connectionString;
+        private string? _databaseName;
+        private string? _region;
         private ConnectionMode? _connectionMode;
         private bool? _limitToEndpoint;
-        private Func<ExecutionStrategyDependencies, IExecutionStrategy> _executionStrategyFactory;
-        private IWebProxy _webProxy;
+        private Func<ExecutionStrategyDependencies, IExecutionStrategy>? _executionStrategyFactory;
+        private IWebProxy? _webProxy;
         private TimeSpan? _requestTimeout;
         private TimeSpan? _openTcpConnectionTimeout;
         private TimeSpan? _idleTcpConnectionTimeout;
         private int? _gatewayModeMaxConnectionLimit;
         private int? _maxTcpConnectionsPerEndpoint;
         private int? _maxRequestsPerTcpConnection;
-        private DbContextOptionsExtensionInfo _info;
+        private bool? _enableContentResponseOnWrite;
+        private DbContextOptionsExtensionInfo? _info;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected CosmosOptionsExtension([NotNull] CosmosOptionsExtension copyFrom)
+        protected CosmosOptionsExtension(CosmosOptionsExtension copyFrom)
         {
             _accountEndpoint = copyFrom._accountEndpoint;
             _accountKey = copyFrom._accountKey;
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string AccountEndpoint
+        public virtual string? AccountEndpoint
             => _accountEndpoint;
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithAccountEndpoint([NotNull] string accountEndpoint)
+        public virtual CosmosOptionsExtension WithAccountEndpoint(string? accountEndpoint)
         {
             if (_connectionString != null)
             {
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string AccountKey
+        public virtual string? AccountKey
             => _accountKey;
 
         /// <summary>
@@ -129,9 +129,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithAccountKey([NotNull] string accountKey)
+        public virtual CosmosOptionsExtension WithAccountKey(string? accountKey)
         {
-            if (_connectionString != null)
+            if (accountKey is not null && _connectionString is not null)
             {
                 throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
             }
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string ConnectionString
+        public virtual string? ConnectionString
             => _connectionString;
 
         /// <summary>
@@ -158,9 +158,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithConnectionString([NotNull] string connectionString)
+        public virtual CosmosOptionsExtension WithConnectionString(string? connectionString)
         {
-            if (_accountEndpoint != null || _accountKey != null)
+            if (connectionString is not null && (_accountEndpoint != null || _accountKey != null))
             {
                 throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
             }
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string DatabaseName
-            => _databaseName;
+            => _databaseName!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithDatabaseName([NotNull] string database)
+        public virtual CosmosOptionsExtension WithDatabaseName(string database)
         {
             var clone = Clone();
 
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Region
+        public virtual string? Region
             => _region;
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithRegion([NotNull] string region)
+        public virtual CosmosOptionsExtension WithRegion(string? region)
         {
             var clone = Clone();
 
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IWebProxy WebProxy
+        public virtual IWebProxy? WebProxy
             => _webProxy;
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithWebProxy([NotNull] IWebProxy proxy)
+        public virtual CosmosOptionsExtension WithWebProxy(IWebProxy? proxy)
         {
             var clone = Clone();
 
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithRequestTimeout(TimeSpan timeout)
+        public virtual CosmosOptionsExtension WithRequestTimeout(TimeSpan? timeout)
         {
             var clone = Clone();
 
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithOpenTcpConnectionTimeout(TimeSpan timeout)
+        public virtual CosmosOptionsExtension WithOpenTcpConnectionTimeout(TimeSpan? timeout)
         {
             var clone = Clone();
 
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithIdleTcpConnectionTimeout(TimeSpan timeout)
+        public virtual CosmosOptionsExtension WithIdleTcpConnectionTimeout(TimeSpan? timeout)
         {
             var clone = Clone();
 
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithGatewayModeMaxConnectionLimit(int connectionLimit)
+        public virtual CosmosOptionsExtension WithGatewayModeMaxConnectionLimit(int? connectionLimit)
         {
             var clone = Clone();
 
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithMaxTcpConnectionsPerEndpoint(int connectionLimit)
+        public virtual CosmosOptionsExtension WithMaxTcpConnectionsPerEndpoint(int? connectionLimit)
         {
             var clone = Clone();
 
@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithMaxRequestsPerTcpConnection(int requestLimit)
+        public virtual CosmosOptionsExtension WithMaxRequestsPerTcpConnection(int? requestLimit)
         {
             var clone = Clone();
 
@@ -442,10 +442,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         }
 
         /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool? EnableContentResponseOnWrite
+            => _enableContentResponseOnWrite;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension ContentResponseOnWriteEnabled(bool enabled)
+        {
+            var clone = Clone();
+
+            clone._enableContentResponseOnWrite = enabled;
+
+            return clone;
+        }
+
+        /// <summary>
         ///     A factory for creating the default <see cref="IExecutionStrategy" />, or <see langword="null" /> if none has been
         ///     configured.
         /// </summary>
-        public virtual Func<ExecutionStrategyDependencies, IExecutionStrategy> ExecutionStrategyFactory
+        public virtual Func<ExecutionStrategyDependencies, IExecutionStrategy>? ExecutionStrategyFactory
             => _executionStrategyFactory;
 
         /// <summary>
@@ -455,7 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         /// <param name="executionStrategyFactory"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual CosmosOptionsExtension WithExecutionStrategyFactory(
-            [CanBeNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> executionStrategyFactory)
+            Func<ExecutionStrategyDependencies, IExecutionStrategy>? executionStrategyFactory)
         {
             var clone = Clone();
 
@@ -471,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual CosmosOptionsExtension Clone()
-            => new CosmosOptionsExtension(this);
+            => new(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -494,7 +518,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
 
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
-            private string _logFragment;
+            private string? _logFragment;
             private long? _serviceProviderHash;
 
             public ExtensionInfo(IDbContextOptionsExtension extension)
@@ -519,8 +543,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     }
                     else
                     {
-                        hashCode = Extension._accountEndpoint.GetHashCode();
-                        hashCode = (hashCode * 397) ^ Extension._accountKey.GetHashCode();
+                        hashCode = (Extension._accountEndpoint?.GetHashCode() ?? 0);
+                        hashCode = (hashCode * 397) ^ (Extension._accountKey?.GetHashCode() ?? 0);
                     }
 
                     hashCode = (hashCode * 397) ^ (Extension._region?.GetHashCode() ?? 0);
@@ -551,8 +575,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                 else
                 {
                     debugInfo["Cosmos:" + nameof(AccountEndpoint)] =
-                        Extension._accountEndpoint.GetHashCode().ToString(CultureInfo.InvariantCulture);
-                    debugInfo["Cosmos:" + nameof(AccountKey)] = Extension._accountKey.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                        (Extension._accountEndpoint?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+                    debugInfo["Cosmos:" + nameof(AccountKey)] = (Extension._accountKey?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
                 }
 
                 debugInfo["Cosmos:" + nameof(CosmosDbContextOptionsBuilder.Region)] =

@@ -3,7 +3,6 @@
 
 using System;
 using System.ComponentModel;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -30,15 +29,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public CollectionCollectionBuilder(
-            [NotNull] IMutableEntityType leftEntityType,
-            [NotNull] IMutableEntityType rightEntityType,
-            [NotNull] IMutableSkipNavigation leftNavigation,
-            [NotNull] IMutableSkipNavigation rightNavigation)
+            IMutableEntityType leftEntityType,
+            IMutableEntityType rightEntityType,
+            IMutableSkipNavigation leftNavigation,
+            IMutableSkipNavigation rightNavigation)
         {
-            Check.DebugAssert(((IConventionEntityType)leftEntityType).Builder != null, "Builder is null");
-            Check.DebugAssert(((IConventionEntityType)rightEntityType).Builder != null, "Builder is null");
-            Check.DebugAssert(((IConventionSkipNavigation)leftNavigation).Builder != null, "Builder is null");
-            Check.DebugAssert(((IConventionSkipNavigation)rightNavigation).Builder != null, "Builder is null");
+            Check.DebugAssert(((IConventionEntityType)leftEntityType).IsInModel, "Not in model");
+            Check.DebugAssert(((IConventionEntityType)rightEntityType).IsInModel, "Not in model");
+            Check.DebugAssert(((IConventionSkipNavigation)leftNavigation).IsInModel, "Not in model");
+            Check.DebugAssert(((IConventionSkipNavigation)rightNavigation).IsInModel, "Not in model");
 
             LeftEntityType = leftEntityType;
             RightEntityType = rightEntityType;
@@ -82,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual InternalModelBuilder ModelBuilder
-            => LeftEntityType.AsEntityType().Model.Builder;
+            => ((EntityType)LeftEntityType).Model.Builder;
 
         /// <summary>
         ///     Configures the join entity type implementing the many-to-many relationship.
@@ -90,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureJoinEntityType"> The configuration of the join entity type. </param>
         /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] Action<EntityTypeBuilder> configureJoinEntityType)
+            Action<EntityTypeBuilder> configureJoinEntityType)
         {
             Check.DebugAssert(LeftNavigation.JoinEntityType != null, "LeftNavigation.JoinEntityType is null");
             Check.DebugAssert(RightNavigation.JoinEntityType != null, "RightNavigation.JoinEntityType is null");
@@ -112,18 +111,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureLeft"> The configuration for the relationship to the left entity type. </param>
         /// <returns> The builder for the join entity type. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] Type joinEntityType,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
+            Type joinEntityType,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
         {
             Check.NotNull(joinEntityType, nameof(joinEntityType));
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
-            var existingJoinEntityType = (EntityType)
+            var existingJoinEntityType = (EntityType?)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
-            EntityType newJoinEntityType = null;
+            EntityType? newJoinEntityType = null;
             if (existingJoinEntityType != null)
             {
                 if (existingJoinEntityType.ClrType == joinEntityType
@@ -139,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             if (newJoinEntityType == null)
             {
-                newJoinEntityType = ModelBuilder.Entity(joinEntityType, ConfigurationSource.Explicit).Metadata;
+                newJoinEntityType = ModelBuilder.Entity(joinEntityType, ConfigurationSource.Explicit)!.Metadata;
             }
 
             var entityTypeBuilder = new EntityTypeBuilder(newJoinEntityType);
@@ -161,20 +160,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureLeft"> The configuration for the relationship to the left entity type. </param>
         /// <returns> The builder for the join entity type. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] string joinEntityName,
-            [NotNull] Type joinEntityType,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
+            string joinEntityName,
+            Type joinEntityType,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft)
         {
             Check.NotEmpty(joinEntityName, nameof(joinEntityName));
             Check.NotNull(joinEntityType, nameof(joinEntityType));
             Check.NotNull(configureRight, nameof(configureRight));
             Check.NotNull(configureLeft, nameof(configureLeft));
 
-            var existingJoinEntityType = (EntityType)
+            var existingJoinEntityType = (EntityType?)
                 (LeftNavigation.ForeignKey?.DeclaringEntityType
                     ?? RightNavigation.ForeignKey?.DeclaringEntityType);
-            EntityType newJoinEntityType = null;
+            EntityType? newJoinEntityType = null;
             if (existingJoinEntityType != null)
             {
                 if (existingJoinEntityType.ClrType == joinEntityType
@@ -202,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         throw new InvalidOperationException(CoreStrings.TypeNotMarkedAsShared(joinEntityType.DisplayName()));
                     }
 
-                    newJoinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, joinEntityType, ConfigurationSource.Explicit)
+                    newJoinEntityType = ModelBuilder.SharedTypeEntity(joinEntityName, joinEntityType, ConfigurationSource.Explicit)!
                         .Metadata;
                 }
             }
@@ -226,10 +225,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureJoinEntityType"> The configuration of the join entity type. </param>
         /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] Type joinEntityType,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
-            [NotNull] Action<EntityTypeBuilder> configureJoinEntityType)
+            Type joinEntityType,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
+            Action<EntityTypeBuilder> configureJoinEntityType)
         {
             Check.NotNull(joinEntityType, nameof(joinEntityType));
             Check.NotNull(configureRight, nameof(configureRight));
@@ -252,11 +251,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="configureJoinEntityType"> The configuration of the join entity type. </param>
         /// <returns> The builder for the originating entity type so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder UsingEntity(
-            [NotNull] string joinEntityName,
-            [NotNull] Type joinEntityType,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
-            [NotNull] Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
-            [NotNull] Action<EntityTypeBuilder> configureJoinEntityType)
+            string joinEntityName,
+            Type joinEntityType,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureRight,
+            Func<EntityTypeBuilder, ReferenceCollectionBuilder> configureLeft,
+            Action<EntityTypeBuilder> configureJoinEntityType)
         {
             Check.NotEmpty(joinEntityName, nameof(joinEntityName));
             Check.NotNull(joinEntityType, nameof(joinEntityType));
@@ -277,15 +276,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual void Using([NotNull] IMutableForeignKey rightForeignKey, [NotNull] IMutableForeignKey leftForeignKey)
+        protected virtual void Using(IMutableForeignKey rightForeignKey, IMutableForeignKey leftForeignKey)
         {
             var leftBuilder = ((SkipNavigation)LeftNavigation).Builder;
             var rightBuilder = ((SkipNavigation)RightNavigation).Builder;
 
-            leftBuilder = leftBuilder.HasInverse(rightBuilder.Metadata, ConfigurationSource.Explicit);
+            leftBuilder = leftBuilder.HasInverse(rightBuilder.Metadata, ConfigurationSource.Explicit)!;
 
-            leftBuilder = leftBuilder.HasForeignKey((ForeignKey)leftForeignKey, ConfigurationSource.Explicit);
-            rightBuilder = rightBuilder.HasForeignKey((ForeignKey)rightForeignKey, ConfigurationSource.Explicit);
+            leftBuilder = leftBuilder.HasForeignKey((ForeignKey)leftForeignKey, ConfigurationSource.Explicit)!;
+            rightBuilder = rightBuilder.HasForeignKey((ForeignKey)rightForeignKey, ConfigurationSource.Explicit)!;
 
             LeftNavigation = leftBuilder.Metadata;
             RightNavigation = rightBuilder.Metadata;
@@ -295,13 +294,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <inheritdoc />
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <inheritdoc />

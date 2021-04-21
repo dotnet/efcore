@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly ITable _table;
         private readonly IUpdateAdapter _updateAdapter;
         private readonly IComparer<IUpdateEntry> _comparer;
-        private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap = new Dictionary<IUpdateEntry, TValue>();
+        private readonly Dictionary<IUpdateEntry, TValue> _entryValueMap = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SharedTableEntryMap(
-            [NotNull] ITable table,
-            [NotNull] IUpdateAdapter updateAdapter)
+            ITable table,
+            IUpdateAdapter updateAdapter)
         {
             _table = table;
             _updateAdapter = updateAdapter;
@@ -52,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual TValue GetOrAddValue([NotNull] IUpdateEntry entry, [NotNull] SharedTableEntryValueFactory<TValue> createElement)
+        public virtual TValue GetOrAddValue(IUpdateEntry entry, SharedTableEntryValueFactory<TValue> createElement)
         {
             var mainEntry = GetMainEntry(entry);
             if (_entryValueMap.TryGetValue(mainEntry, out var sharedCommand))
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsMainEntry([NotNull] IUpdateEntry entry)
+        public virtual bool IsMainEntry(IUpdateEntry entry)
             => !_table.GetRowInternalForeignKeys(entry.EntityType).Any();
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
@@ -97,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<IUpdateEntry> GetAllEntries([NotNull] IUpdateEntry entry)
+        public virtual IReadOnlyList<IUpdateEntry> GetAllEntries(IUpdateEntry entry)
         {
             var entries = new List<IUpdateEntry>();
             AddAllDependentsInclusive(GetMainEntry(entry), entries);
@@ -133,12 +132,29 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 _table = table;
             }
 
-            public int Compare(IUpdateEntry x, IUpdateEntry y)
-                => !_table.GetRowInternalForeignKeys(x.EntityType).Any()
+            public int Compare(IUpdateEntry? x, IUpdateEntry? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return 0;
+                }
+
+                if (x == null)
+                {
+                    return -1;
+                }
+
+                if (y == null)
+                {
+                    return 1;
+                }
+
+                return !_table.GetRowInternalForeignKeys(x.EntityType).Any()
                     ? -1
                     : !_table.GetRowInternalForeignKeys(y.EntityType).Any()
                         ? 1
                         : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
+            }
         }
     }
 }

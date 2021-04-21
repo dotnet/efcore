@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerParameterBasedSqlProcessor(
-            [NotNull] RelationalParameterBasedSqlProcessorDependencies dependencies,
+            RelationalParameterBasedSqlProcessorDependencies dependencies,
             bool useRelationalNulls)
             : base(dependencies, useRelationalNulls)
         {
@@ -38,13 +37,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         public override SelectExpression Optimize(
             SelectExpression selectExpression,
-            IReadOnlyDictionary<string, object> parametersValues,
+            IReadOnlyDictionary<string, object?> parametersValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
 
             var optimizedSelectExpression = base.Optimize(selectExpression, parametersValues, out canCache);
+
+            optimizedSelectExpression = new SkipTakeCollapsingExpressionVisitor(Dependencies.SqlExpressionFactory)
+                .Process(optimizedSelectExpression, parametersValues, out var canCache2);
+
+            canCache &= canCache2;
 
             return (SelectExpression)new SearchConditionConvertingExpressionVisitor(Dependencies.SqlExpressionFactory)
                 .Visit(optimizedSelectExpression);

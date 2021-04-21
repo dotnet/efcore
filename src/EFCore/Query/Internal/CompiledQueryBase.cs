@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly LambdaExpression _queryExpression;
 
-        private Func<QueryContext, TResult> _executor;
+        private Func<QueryContext, TResult>? _executor;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected CompiledQueryBase([NotNull] LambdaExpression queryExpression)
+        protected CompiledQueryBase(LambdaExpression queryExpression)
         {
             _queryExpression = queryExpression;
         }
@@ -44,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual TResult ExecuteCore(
-            [NotNull] TContext context,
-            [NotNull] params object[] parameters)
+            TContext context,
+            params object?[] parameters)
             => ExecuteCore(context, default, parameters);
 
         /// <summary>
@@ -55,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual TResult ExecuteCore(
-            [NotNull] TContext context,
+            TContext context,
             CancellationToken cancellationToken,
-            [NotNull] params object[] parameters)
+            params object?[] parameters)
         {
             var executor = EnsureExecutor(context);
             var queryContextFactory = context.GetService<IQueryContextFactory>();
@@ -82,20 +81,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected abstract Func<QueryContext, TResult> CreateCompiledQuery(
-            [NotNull] IQueryCompiler queryCompiler,
-            [NotNull] Expression expression);
+            IQueryCompiler queryCompiler,
+            Expression expression);
 
         private Func<QueryContext, TResult> EnsureExecutor(TContext context)
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _executor,
+                this,
                 context,
                 _queryExpression,
-                (c, q) =>
+                static (t, c, q) =>
                 {
-                    var queryCompiler = context.GetService<IQueryCompiler>();
+                    var queryCompiler = c.GetService<IQueryCompiler>();
                     var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
 
-                    return CreateCompiledQuery(queryCompiler, expression);
+                    return t.CreateCompiledQuery(queryCompiler, expression);
                 });
 
         private sealed class QueryExpressionRewriter : ExpressionVisitor

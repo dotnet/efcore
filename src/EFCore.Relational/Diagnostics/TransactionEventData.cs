@@ -4,7 +4,6 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -26,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async"> Indicates whether or not the transaction is being used asynchronously. </param>
         /// <param name="startTime"> The start time of this event. </param>
         public TransactionEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] DbTransaction transaction,
-            [CanBeNull] DbContext context,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbTransaction transaction,
+            DbContext? context,
             Guid transactionId,
             Guid connectionId,
             bool async,

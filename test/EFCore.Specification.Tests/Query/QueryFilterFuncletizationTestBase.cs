@@ -69,11 +69,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void DbContext_list_is_parameterized()
         {
             using var context = CreateContext();
-            // This throws because the default value of TenantIds is null which is NRE
-            Assert.Throws<NullReferenceException>(() => context.Set<ListFilter>().ToList());
+            // Default value of TenantIds is null
+            var query = context.Set<ListFilter>().ToList();
+            Assert.Empty(query);
 
             context.TenantIds = new List<int>();
-            var query = context.Set<ListFilter>().ToList();
+            query = context.Set<ListFilter>().ToList();
             Assert.Empty(query);
 
             context.TenantIds = new List<int> { 1 };

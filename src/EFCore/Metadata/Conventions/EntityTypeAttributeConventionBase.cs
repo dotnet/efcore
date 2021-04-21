@@ -3,7 +3,6 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="EntityTypeAttributeConventionBase{TAttribute}" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        protected EntityTypeAttributeConventionBase([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        protected EntityTypeAttributeConventionBase(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -44,8 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             var type = entityTypeBuilder.Metadata.ClrType;
-            if (type == null
-                || !Attribute.IsDefined(type, typeof(TAttribute), inherit: true))
+            if (!Attribute.IsDefined(type, typeof(TAttribute), inherit: true))
             {
                 return;
             }
@@ -69,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="attribute"> The attribute. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         protected abstract void ProcessEntityTypeAdded(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [NotNull] TAttribute attribute,
-            [NotNull] IConventionContext<IConventionEntityTypeBuilder> context);
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            TAttribute attribute,
+            IConventionContext<IConventionEntityTypeBuilder> context);
     }
 }

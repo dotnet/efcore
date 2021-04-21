@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerAnnotationCodeGenerator([NotNull] AnnotationCodeGeneratorDependencies dependencies)
+        public SqlServerAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -41,9 +40,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
             IModel model,
             IDictionary<string, IAnnotation> annotations)
-            => base.GenerateFluentApiCalls(model, annotations)
-                .Concat(GenerateValueGenerationStrategy(annotations, onModel: true))
-                .ToList();
+        {
+            var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(model, annotations));
+
+            if (GenerateValueGenerationStrategy(annotations, onModel: true) is MethodCallCodeFragment valueGenerationStrategy)
+            {
+                fragments.Add(valueGenerationStrategy);
+            }
+
+            return fragments;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,9 +60,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
             IProperty property,
             IDictionary<string, IAnnotation> annotations)
-            => base.GenerateFluentApiCalls(property, annotations)
-                .Concat(GenerateValueGenerationStrategy(annotations, onModel: false))
-                .ToList();
+        {
+            var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(property, annotations));
+
+            if (GenerateValueGenerationStrategy(annotations, onModel: false) is MethodCallCodeFragment valueGenerationStrategy)
+            {
+                fragments.Add(valueGenerationStrategy);
+            }
+
+            if (GetAndRemove<bool?>(annotations, SqlServerAnnotationNames.Sparse) is bool isSparse)
+            {
+                fragments.Add(
+                    isSparse
+                        ? new(nameof(SqlServerPropertyBuilderExtensions.IsSparse))
+                        : new(nameof(SqlServerPropertyBuilderExtensions.IsSparse), false));
+            }
+
+            return fragments;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,11 +92,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
 
             if (annotation.Name == RelationalAnnotationNames.DefaultSchema)
             {
-                return string.Equals("dbo", (string)annotation.Value);
+                return (string?)annotation.Value == "dbo";
             }
 
             return annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy
-                && (SqlServerValueGenerationStrategy)annotation.Value == SqlServerValueGenerationStrategy.IdentityColumn;
+                && (SqlServerValueGenerationStrategy)annotation.Value! == SqlServerValueGenerationStrategy.IdentityColumn;
         }
 
         /// <summary>
@@ -84,9 +105,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override MethodCallCodeFragment GenerateFluentApi(IKey key, IAnnotation annotation)
+        protected override MethodCallCodeFragment? GenerateFluentApi(IKey key, IAnnotation annotation)
             => annotation.Name == SqlServerAnnotationNames.Clustered
-                ? (bool)annotation.Value == false
+                ? (bool)annotation.Value! == false
                     ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered), false)
                     : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered))
                 : null;
@@ -97,10 +118,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override MethodCallCodeFragment GenerateFluentApi(IIndex index, IAnnotation annotation)
+        protected override MethodCallCodeFragment? GenerateFluentApi(IIndex index, IAnnotation annotation)
             => annotation.Name switch
             {
-                SqlServerAnnotationNames.Clustered => (bool)annotation.Value == false
+                SqlServerAnnotationNames.Clustered => (bool)annotation.Value! == false
                     ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered), false)
                     : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.IsClustered)),
 
@@ -113,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                 _ => null
             };
 
-        private IReadOnlyList<MethodCallCodeFragment> GenerateValueGenerationStrategy(
+        private MethodCallCodeFragment? GenerateValueGenerationStrategy(
             IDictionary<string, IAnnotation> annotations,
             bool onModel)
         {
@@ -126,67 +147,58 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             }
             else
             {
-                return Array.Empty<MethodCallCodeFragment>();
+                return null;
             }
 
             switch (strategy)
             {
                 case SqlServerValueGenerationStrategy.IdentityColumn:
-                    var seed = GetAndRemove<int?>(SqlServerAnnotationNames.IdentitySeed) ?? 1;
-                    var increment = GetAndRemove<int?>(SqlServerAnnotationNames.IdentityIncrement) ?? 1;
-                    return new List<MethodCallCodeFragment>
-                    {
-                        new MethodCallCodeFragment(
-                            onModel
-                                ? nameof(SqlServerModelBuilderExtensions.UseIdentityColumns)
-                                : nameof(SqlServerPropertyBuilderExtensions.UseIdentityColumn),
-                            (seed, increment) switch
-                            {
-                                (1, 1) => Array.Empty<object>(),
-                                (_, 1) => new object[] { seed },
-                                _ => new object[] { seed, increment }
-                            })
-                    };
+                    var seed = GetAndRemove<int?>(annotations, SqlServerAnnotationNames.IdentitySeed) ?? 1;
+                    var increment = GetAndRemove<int?>(annotations, SqlServerAnnotationNames.IdentityIncrement) ?? 1;
+                    return new(
+                        onModel
+                            ? nameof(SqlServerModelBuilderExtensions.UseIdentityColumns)
+                            : nameof(SqlServerPropertyBuilderExtensions.UseIdentityColumn),
+                        (seed, increment) switch
+                        {
+                            (1, 1) => Array.Empty<object>(),
+                            (_, 1) => new object[] { seed },
+                            _ => new object[] { seed, increment }
+                        });
 
                 case SqlServerValueGenerationStrategy.SequenceHiLo:
-                    var name = GetAndRemove<string>(SqlServerAnnotationNames.HiLoSequenceName);
-                    var schema = GetAndRemove<string>(SqlServerAnnotationNames.HiLoSequenceSchema);
-                    return new List<MethodCallCodeFragment>
-                    {
-                        new MethodCallCodeFragment(
-                            nameof(SqlServerModelBuilderExtensions.UseHiLo),
-                            (name, schema) switch
-                            {
-                                (null, null) => Array.Empty<object>(),
-                                (_, null) => new object[] { name },
-                                _ => new object[] { name, schema }
-                            })
-                    };
+                    var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceName);
+                    var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceSchema);
+                    return new(
+                        nameof(SqlServerModelBuilderExtensions.UseHiLo),
+                        (name, schema) switch
+                        {
+                            (null, null) => Array.Empty<object>(),
+                            (_, null) => new object[] { name! },
+                            _ => new object[] { name!, schema! }
+                        });
 
                 case SqlServerValueGenerationStrategy.None:
-                    return new List<MethodCallCodeFragment>
-                    {
-                        new MethodCallCodeFragment(
-                            nameof(ModelBuilder.HasAnnotation),
-                            SqlServerAnnotationNames.ValueGenerationStrategy,
-                            SqlServerValueGenerationStrategy.None)
-                    };
+                    return new(
+                        nameof(ModelBuilder.HasAnnotation),
+                        SqlServerAnnotationNames.ValueGenerationStrategy,
+                        SqlServerValueGenerationStrategy.None);
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
 
-            T GetAndRemove<T>(string annotationName)
+        private static T? GetAndRemove<T>(IDictionary<string, IAnnotation> annotations, string annotationName)
+        {
+            if (annotations.TryGetValue(annotationName, out var annotation)
+                && annotation.Value != null)
             {
-                if (annotations.TryGetValue(annotationName, out var annotation)
-                    && annotation.Value != null)
-                {
-                    annotations.Remove(annotationName);
-                    return (T)annotation.Value;
-                }
-
-                return default;
+                annotations.Remove(annotationName);
+                return (T)annotation.Value;
             }
+
+            return default;
         }
     }
 }

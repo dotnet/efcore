@@ -27,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class EntityFinderSource : IEntityFinderSource
     {
         private static readonly MethodInfo _genericCreate
-            = typeof(EntityFinderSource).GetTypeInfo().GetDeclaredMethod(nameof(CreateConstructor));
+            = typeof(EntityFinderSource).GetTypeInfo().GetRequiredDeclaredMethod(nameof(CreateConstructor));
 
         private readonly ConcurrentDictionary<Type, Func<IStateManager, IDbSetSource, IDbSetCache, IEntityType, IEntityFinder>> _cache
-            = new ConcurrentDictionary<Type, Func<IStateManager, IDbSetSource, IDbSetCache, IEntityType, IEntityFinder>>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => _cache.GetOrAdd(
                 type.ClrType,
                 t => (Func<IStateManager, IDbSetSource, IDbSetCache, IEntityType, IEntityFinder>)
-                    _genericCreate.MakeGenericMethod(t).Invoke(null, null))(stateManager, setSource, setCache, type);
+                    _genericCreate.MakeGenericMethod(t).Invoke(null, null)!)(stateManager, setSource, setCache, type);
 
         [UsedImplicitly]
         private static Func<IStateManager, IDbSetSource, IDbSetCache, IEntityType, IEntityFinder> CreateConstructor<TEntity>()

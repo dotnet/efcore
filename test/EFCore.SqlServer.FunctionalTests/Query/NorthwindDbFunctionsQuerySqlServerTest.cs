@@ -486,7 +486,7 @@ WHERE CONTAINS([e0].[Title], N'President') AND CONTAINS([e].[Title], N'""Ins*""'
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(year, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -504,7 +504,7 @@ WHERE DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(month, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -521,7 +521,7 @@ WHERE DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(day, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -538,7 +538,7 @@ WHERE DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(hour, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -555,7 +555,7 @@ WHERE DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(minute, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -572,7 +572,7 @@ WHERE DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) = 0");
+WHERE DATEDIFF(second, [o].[OrderDate], GETDATE()) = 0");
         }
 
         [ConditionalTheory]
@@ -589,7 +589,7 @@ WHERE DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) = 0");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE())) = 0");
+WHERE DATEDIFF(millisecond, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE())) = 0");
         }
 
         [ConditionalTheory]
@@ -606,7 +606,7 @@ WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, CAST(1.0E0 AS int), GETDATE(
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
+WHERE DATEDIFF(microsecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
         }
 
         [ConditionalTheory]
@@ -623,7 +623,7 @@ WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDA
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
+WHERE DATEDIFF(nanosecond, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDATE())) = 0");
         }
 
         [ConditionalFact]
@@ -642,7 +642,7 @@ WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(WEEK, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5");
+WHERE DATEDIFF(week, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5");
         }
 
         [ConditionalFact]
@@ -661,7 +661,7 @@ WHERE DATEDIFF(WEEK, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5");
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:00.0000000+00:00') = 5");
+WHERE DATEDIFF(week, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:00.0000000+00:00') = 5");
         }
 
         [ConditionalFact]
@@ -680,7 +680,7 @@ WHERE DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE DATEDIFF(WEEK, NULL, [o].[OrderDate]) = 5");
+WHERE DATEDIFF(week, NULL, [o].[OrderDate]) = 5");
         }
 
         [ConditionalTheory]
@@ -695,7 +695,7 @@ WHERE DATEDIFF(WEEK, NULL, [o].[OrderDate]) = 5");
             AssertSql(
                 @"SELECT CAST(ISDATE([o].[CustomerID]) AS bit)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
+WHERE CAST(ISDATE([o].[CustomerID]) AS bit) = CAST(0 AS bit)");
         }
 
         [ConditionalTheory]
@@ -710,9 +710,9 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
                 ss => ss.Set<Order>().Select(o => true));
 
             AssertSql(
-                @"SELECT CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit)
+                @"SELECT CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)");
+WHERE CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)");
         }
 
         [ConditionalTheory]
@@ -739,6 +739,73 @@ WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(
 
             Assert.Equal(
                 CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.IsDate)),
+                exIsDate.Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsNumeric_not_valid(bool async)
+        {
+            await AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => !EF.Functions.IsNumeric(o.OrderDate.Value.ToString()))
+                    .Select(o => EF.Functions.IsNumeric(o.OrderDate.Value.ToString())),
+                ss => ss.Set<Order>().Select(c => false));
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) = 1 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Orders] AS [o]
+WHERE ISNUMERIC(CONVERT(varchar(100), [o].[OrderDate])) <> 1");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsNummeric_valid(bool async)
+        {
+            await AssertQueryScalar(
+                async,
+                ss => ss.Set<OrderDetail>()
+                    .Where(o => EF.Functions.IsNumeric(o.UnitPrice.ToString()))
+                    .Select(o => EF.Functions.IsNumeric(o.UnitPrice.ToString())),
+                ss => ss.Set<OrderDetail>().Select(o => true));
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Order Details] AS [o]
+WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task IsNumeric_join_fields(bool async)
+        {
+            await AssertCount(
+                async,
+                ss => ss.Set<Order>(),
+                ss => ss.Set<Order>(),
+                c => EF.Functions.IsNumeric(c.CustomerID + c.OrderID),
+                c => false);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))) = 1");
+        }
+
+        [ConditionalFact]
+        public void IsNumeric_should_throw_on_client_eval()
+        {
+            var exIsDate = Assert.Throws<InvalidOperationException>(() => EF.Functions.IsNumeric("#ISNUMERIC#"));
+
+            Assert.Equal(
+                CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.IsNumeric)),
                 exIsDate.Message);
         }
 
@@ -1147,6 +1214,26 @@ WHERE @__lenght_0 < DATALENGTH([o].[OrderDate])");
 FROM [Orders] AS [o]
 WHERE CAST(DATALENGTH(N'foo') AS int) = 3");
             }
+        }
+
+        public override async Task Random_return_less_than_1(bool async)
+        {
+            await base.Random_return_less_than_1(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE RAND() < 1.0E0");
+        }
+
+        public override async Task Random_return_greater_than_0(bool async)
+        {
+            await base.Random_return_greater_than_0(async);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE RAND() >= 0.0E0");
         }
 
         private void AssertSql(params string[] expected)

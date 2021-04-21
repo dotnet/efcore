@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             int? scale = null,
             bool? unicode = null,
             bool? fixedLength = null,
-            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory = null)
+            Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
             : base(size, precision, scale, unicode, valueGeneratorFactory)
         {
             IsFixedLength = fixedLength;
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </summary>
         /// <param name="hints"> The hints to add. </param>
         /// <returns> The combined hints. </returns>
-        public override ConverterMappingHints With(ConverterMappingHints hints)
+        public override ConverterMappingHints With(ConverterMappingHints? hints)
             => hints == null
                 ? this
                 : new RelationalConverterMappingHints(

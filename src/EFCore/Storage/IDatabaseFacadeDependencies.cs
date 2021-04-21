@@ -54,5 +54,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The concurrency detector.
         /// </summary>
         IConcurrencyDetector ConcurrencyDetector { get; }
+
+        /// <summary>
+        ///     The core options.
+        /// </summary>
+        public ICoreSingletonOptions CoreOptions { get; }
     }
 }

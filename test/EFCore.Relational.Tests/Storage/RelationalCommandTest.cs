@@ -25,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         IRelationalConnection,
         IRelationalCommand,
         IReadOnlyDictionary<string, object>,
-        IDiagnosticsLogger<DbLoggerCategory.Database.Command>>;
+        IRelationalCommandDiagnosticsLogger>;
     using CommandFunc = Func<
         IRelationalConnection,
         IRelationalCommand,
         IReadOnlyDictionary<string, object>,
-        IDiagnosticsLogger<DbLoggerCategory.Database.Command>,
+        IRelationalCommandDiagnosticsLogger,
         Task>;
 
     public class RelationalCommandTest
@@ -866,13 +866,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
             }
 
-            protected override RelationalDataReader CreateRelationalDataReader(
-                IRelationalConnection connection,
-                DbCommand command,
-                DbDataReader reader,
-                Guid commandId,
-                IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-                => throw new InvalidOperationException("Bang!");
+            protected override RelationalDataReader CreateRelationalDataReader()
+                => new ThrowingRelationalReader(this);
 
             public static IRelationalCommand Create(string commandText = "Command Text")
                 => new ReaderThrowingRelationalCommand(
@@ -882,6 +877,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
                     commandText,
                     Array.Empty<IRelationalParameter>());
+
+            private class ThrowingRelationalReader : RelationalDataReader
+            {
+                public ThrowingRelationalReader(IRelationalCommand relationalCommand)
+                    : base(relationalCommand)
+                {
+                }
+
+                public override void Initialize(
+                    IRelationalConnection relationalConnection,
+                    DbCommand command,
+                    DbDataReader reader,
+                    Guid commandId,
+                    IRelationalCommandDiagnosticsLogger logger)
+                    => throw new InvalidOperationException("Bang!");
+            }
         }
 
         [ConditionalTheory]
@@ -997,12 +1008,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var fakeConnection = new FakeRelationalConnection(options);
 
-            var logger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+            var logger = new RelationalCommandDiagnosticsLogger(
                 logFactory,
                 new FakeLoggingOptions(false),
                 new DiagnosticListener("Fake"),
                 new TestRelationalLoggingDefinitions(),
-                new NullDbContextLogger());
+                new NullDbContextLogger(),
+                CreateOptions());
 
             var relationalCommand = CreateRelationalCommand(
                 commandText: "Logged Command",
@@ -1055,12 +1067,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var fakeConnection = new FakeRelationalConnection(options);
 
-            var logger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+            var logger = new RelationalCommandDiagnosticsLogger(
                 logFactory,
                 new FakeLoggingOptions(true),
                 new DiagnosticListener("Fake"),
                 new TestRelationalLoggingDefinitions(),
-                new NullDbContextLogger());
+                new NullDbContextLogger(),
+                CreateOptions());
 
             var relationalCommand = CreateRelationalCommand(
                 commandText: "Logged Command",
@@ -1113,12 +1126,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var diagnostic = new List<Tuple<string, object>>();
 
-            var logger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+            var logger = new RelationalCommandDiagnosticsLogger(
                 new ListLoggerFactory(),
                 new FakeLoggingOptions(false),
                 new ListDiagnosticSource(diagnostic),
                 new TestRelationalLoggingDefinitions(),
-                new NullDbContextLogger());
+                new NullDbContextLogger(),
+                CreateOptions());
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
@@ -1184,12 +1198,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var fakeConnection = new FakeRelationalConnection(options);
 
-            var logger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+            var logger = new RelationalCommandDiagnosticsLogger(
                 new ListLoggerFactory(),
                 new FakeLoggingOptions(false),
                 new ListDiagnosticSource(diagnostic),
                 new TestRelationalLoggingDefinitions(),
-                new NullDbContextLogger());
+                new NullDbContextLogger(),
+                CreateOptions());
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
@@ -1237,7 +1252,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private const string ConnectionString = "Fake Connection String";
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
-            => new FakeRelationalConnection(options ?? CreateOptions());
+            => new(options ?? CreateOptions());
 
         private static IDbContextOptions CreateOptions(
             RelationalOptionsExtension optionsExtension = null)

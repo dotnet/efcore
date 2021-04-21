@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -25,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InExpression(
-            [NotNull] SqlExpression item,
+            SqlExpression item,
             bool negated,
-            [NotNull] SqlExpression values,
-            [NotNull] CoreTypeMapping typeMapping)
+            SqlExpression values,
+            CoreTypeMapping typeMapping)
             : base(typeof(bool), typeMapping)
         {
             Item = item;
@@ -81,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InExpression Negate()
-            => new InExpression(Item, !IsNegated, Values, TypeMapping);
+            => new(Item, !IsNegated, Values, TypeMapping!);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -89,9 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InExpression Update([NotNull] SqlExpression item, [NotNull] SqlExpression values)
+        public virtual InExpression Update(SqlExpression item, SqlExpression values)
             => item != Item || values != Values
-                ? new InExpression(item, IsNegated, values, TypeMapping)
+                ? new InExpression(item, IsNegated, values, TypeMapping!)
                 : this;
 
         /// <summary>
@@ -117,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is InExpression inExpression
@@ -127,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             => base.Equals(inExpression)
                 && Item.Equals(inExpression.Item)
                 && IsNegated.Equals(inExpression.IsNegated)
-                && (Values == null ? inExpression.Values == null : Values.Equals(inExpression.Values));
+                && Values.Equals(inExpression.Values);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

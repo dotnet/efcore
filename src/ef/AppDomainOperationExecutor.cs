@@ -20,11 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         public AppDomainOperationExecutor(
             string assembly,
-            string startupAssembly,
-            string projectDir,
-            string dataDirectory,
-            string rootNamespace,
-            string language,
+            string? startupAssembly,
+            string? projectDir,
+            string? dataDirectory,
+            string? rootNamespace,
+            string? language,
             string[] remainingArguments)
             : base(assembly, startupAssembly, projectDir, rootNamespace, language, remainingArguments)
         {

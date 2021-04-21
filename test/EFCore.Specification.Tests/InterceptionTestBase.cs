@@ -72,14 +72,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public UniverseContext CreateContext(IInterceptor appInterceptor, params IInterceptor[] injectedInterceptors)
-            => new UniverseContext(
+            => new(
                 Fixture.CreateOptions(
                     new[] { appInterceptor }, injectedInterceptors));
 
         public UniverseContext CreateContext(
             IEnumerable<IInterceptor> appInterceptors,
             IEnumerable<IInterceptor> injectedInterceptors = null)
-            => new UniverseContext(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? Enumerable.Empty<IInterceptor>()));
+            => new(Fixture.CreateOptions(appInterceptors, injectedInterceptors ?? Enumerable.Empty<IInterceptor>()));
 
         public interface ITestDiagnosticListener : IDisposable
         {
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             private readonly DbContextId _contextId;
             private readonly IDisposable _subscription;
-            private readonly List<string> _events = new List<string>();
+            private readonly List<string> _events = new();
 
             public TestDiagnosticListener(DbContextId contextId)
             {

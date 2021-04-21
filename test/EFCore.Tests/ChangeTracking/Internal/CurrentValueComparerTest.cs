@@ -445,13 +445,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private struct NotComparable
         {
             public static ValueConverter<NotComparable, NotComparable> Converter
-                = new ValueConverter<NotComparable, NotComparable>(v => new NotComparable(), v => new NotComparable());
+                = new(v => new NotComparable(), v => new NotComparable());
         }
 
         private struct IntStruct
         {
             public static ValueConverter<IntStruct, int> Converter
-                = new ValueConverter<IntStruct, int>(v => v.Value, v => new IntStruct { Value = v });
+                = new(v => v.Value, v => new IntStruct { Value = v });
 
             public int Value { get; set; }
         }
@@ -459,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private struct BytesStruct
         {
             public static ValueConverter<BytesStruct, byte[]> Converter
-                = new ValueConverter<BytesStruct, byte[]>(v => v.Value, v => new BytesStruct { Value = v });
+                = new(v => v.Value, v => new BytesStruct { Value = v });
 
             public byte[] Value { get; set; }
 
@@ -487,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private struct ComparableIntStruct : IComparable
         {
             public static ValueConverter<ComparableIntStruct, int> Converter
-                = new ValueConverter<ComparableIntStruct, int>(v => v.Value, v => new ComparableIntStruct { Value = v });
+                = new(v => v.Value, v => new ComparableIntStruct { Value = v });
 
             public int Value { get; set; }
 
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private struct ComparableBytesStruct : IComparable
         {
             public static ValueConverter<ComparableBytesStruct, byte[]> Converter
-                = new ValueConverter<ComparableBytesStruct, byte[]>(v => v.Value, v => new ComparableBytesStruct { Value = v });
+                = new(v => v.Value, v => new ComparableBytesStruct { Value = v });
 
             public byte[] Value { get; set; }
 
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private struct GenericComparableIntStruct : IComparable<GenericComparableIntStruct>
         {
             public static ValueConverter<GenericComparableIntStruct, int> Converter
-                = new ValueConverter<GenericComparableIntStruct, int>(v => v.Value, v => new GenericComparableIntStruct { Value = v });
+                = new(v => v.Value, v => new GenericComparableIntStruct { Value = v });
 
             public int Value { get; set; }
 
@@ -548,8 +548,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private struct GenericComparableBytesStruct : IComparable<GenericComparableBytesStruct>
         {
             public static ValueConverter<GenericComparableBytesStruct, byte[]> Converter
-                = new ValueConverter<GenericComparableBytesStruct, byte[]>(
-                    v => v.Value, v => new GenericComparableBytesStruct { Value = v });
+                = new(v => v.Value, v => new GenericComparableBytesStruct { Value = v });
 
             public byte[] Value { get; set; }
 
@@ -588,8 +587,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private struct StructuralComparableBytesStruct : IStructuralComparable
         {
             public static ValueConverter<StructuralComparableBytesStruct, byte[]> Converter
-                = new ValueConverter<StructuralComparableBytesStruct, byte[]>(
-                    v => v.Value, v => new StructuralComparableBytesStruct { Value = v });
+                = new(v => v.Value, v => new StructuralComparableBytesStruct { Value = v });
 
             public byte[] Value { get; set; }
 
@@ -633,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class IntClass
         {
             public static ValueConverter<IntClass, int> Converter
-                = new ValueConverter<IntClass, int>(v => v.Value, v => new IntClass { Value = v });
+                = new(v => v.Value, v => new IntClass { Value = v });
 
             private bool Equals(IntClass other)
                 => other != null && Value == other.Value;
@@ -652,7 +650,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class ComparableIntClass : IComparable
         {
             public static ValueConverter<ComparableIntClass, int> Converter
-                = new ValueConverter<ComparableIntClass, int>(v => v.Value, v => new ComparableIntClass { Value = v });
+                = new(v => v.Value, v => new ComparableIntClass { Value = v });
 
             public int Value { get; set; }
 
@@ -674,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private class GenericComparableIntClass : IComparable<GenericComparableIntClass>
         {
             public static ValueConverter<GenericComparableIntClass, int> Converter
-                = new ValueConverter<GenericComparableIntClass, int>(v => v.Value, v => new GenericComparableIntClass { Value = v });
+                = new(v => v.Value, v => new GenericComparableIntClass { Value = v });
 
             public int Value { get; set; }
 

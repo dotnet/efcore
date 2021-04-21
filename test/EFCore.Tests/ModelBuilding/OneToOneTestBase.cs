@@ -695,7 +695,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasForeignKey(e => e.BurgerId);
                 modelBuilder.Ignore<Pickle>();
 
-                var dependentType = (IEntityType)model.FindEntityType(typeof(Bun));
+                var dependentType = (IReadOnlyEntityType)model.FindEntityType(typeof(Bun));
                 var principalType = model.FindEntityType(typeof(BigMak));
                 var fkProperty = dependentType.FindProperty(nameof(Bun.BurgerId));
 
@@ -1671,6 +1671,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(fk.PrincipalKey, principalType.GetKeys().First(k => !k.IsPrimaryKey()));
+                Assert.Same(fk.PrincipalKey, principalType.GetDeclaredKeys().First(k => !k.IsPrimaryKey()));
                 Assert.Empty(dependentType.GetIndexes());
                 Assert.Empty(principalType.GetIndexes());
                 Assert.True(fk.IsUnique);
@@ -1730,6 +1731,31 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Empty(dependentType.GetIndexes());
                 Assert.Empty(principalType.GetIndexes());
+            }
+
+            [ConditionalFact]
+            public virtual void IsRequired_throws_principal_end_is_ambiguous()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Entity<Order>().Property<int>("OrderDetailsId");
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousEndRequiredDependentNavigation(
+                        nameof(OrderDetails),
+                        nameof(OrderDetails.Order),
+                        "{'OrderId'}"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder
+                        .Entity<OrderDetails>().Navigation(e => e.Order).IsRequired()).Message);
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousEndRequiredDependentNavigation(
+                        nameof(Order),
+                        nameof(Order.Details),
+                        "{'OrderId'}"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder
+                        .Entity<Order>().Navigation(e => e.Details).IsRequired()).Message);
             }
 
             [ConditionalFact]
@@ -2530,7 +2556,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Same(existingFk, entityType.GetForeignKeys().Single());
                 Assert.Equal(navigationToDependent?.Name, existingFk.PrincipalToDependent?.Name);
                 Assert.Equal(navigationToPrincipal.Name, existingFk.DependentToPrincipal.Name);
-                Assert.True(((IForeignKey)existingFk).IsRequired);
+                Assert.True(((IReadOnlyForeignKey)existingFk).IsRequired);
 
                 modelBuilder.Entity<SelfRef>().HasOne<SelfRef>().WithOne(e => e.SelfRef1);
 
@@ -2781,7 +2807,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Order>();
 
                 Assert.Equal(
-                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
+                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty' : Guid}", nameof(CustomerDetails), "{'Id' : int}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
                             .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
@@ -2821,7 +2847,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Order>();
 
                 Assert.Equal(
-                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty'}", nameof(CustomerDetails), "{'Id'}", nameof(Customer)),
+                    CoreStrings.ForeignKeyTypeMismatch("{'GuidProperty' : Guid}", nameof(CustomerDetails), "{'Id' : int}", nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder
@@ -3207,7 +3233,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasForeignKey<Nob>(
                         e => new { e.HobId1, e.HobId2 });
 
-                var entityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
+                var entityType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
 
                 Assert.False(entityType.GetForeignKeys().Single().IsRequired);
                 Assert.True(
@@ -3225,7 +3251,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasForeignKey<Hob>(
                         e => new { e.NobId1, e.NobId2 });
 
-                var entityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var entityType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
 
                 Assert.False(entityType.FindProperty(nameof(Hob.NobId1)).IsNullable);
                 Assert.False(entityType.FindProperty(nameof(Hob.NobId2)).IsNullable);
@@ -3256,8 +3282,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
-                var principalType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
-                var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
+                var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
                 var expectedPrincipalProperties = principalType.GetProperties().ToList();
                 var expectedDependentProperties = dependentType.GetProperties().ToList();
                 var fkProperty1 = dependentType.FindProperty(nameof(Nob.HobId1));
@@ -3289,7 +3315,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
-                var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fkProperty1 = dependentType.FindProperty(nameof(Hob.NobId1));
                 var fkProperty2 = dependentType.FindProperty(nameof(Hob.NobId2));
                 var fk = dependentType.GetForeignKeys().Single();
@@ -3323,7 +3349,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.FinalizeModel();
 
-                var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fkProperty1 = dependentType.FindProperty(nameof(Hob.NobId1));
                 var fkProperty2 = dependentType.FindProperty(nameof(Hob.NobId2));
                 var fk = dependentType.GetForeignKeys().Single();
@@ -3339,8 +3365,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Unspecified_FK_can_be_made_optional()
             {
                 var modelBuilder = HobNobBuilder();
-                var principalType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
-                var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
+                var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var expectedPrincipalProperties = principalType.GetProperties().ToList();
                 var expectedDependentProperties = dependentType.GetProperties().ToList();
 
@@ -3361,8 +3387,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Unspecified_FK_can_be_made_optional_in_any_order()
             {
                 var modelBuilder = HobNobBuilder();
-                var principalType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
-                var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
+                var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var expectedPrincipalProperties = principalType.GetProperties().ToList();
                 var expectedDependentProperties = dependentType.GetProperties().ToList();
 
@@ -3383,8 +3409,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Unspecified_FK_can_be_made_required()
             {
                 var modelBuilder = HobNobBuilder();
-                var principalType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
-                var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var principalType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
+                var dependentType = (IReadOnlyEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
                 var expectedPrincipalProperties = principalType.GetProperties().ToList();
                 var expectedDependentProperties = dependentType.GetProperties().ToList();
 
@@ -3422,8 +3448,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(
                     CoreStrings.AmbiguousEndRequiredInverted("{'NobId11', 'NobId21'}", typeof(Hob).Name, typeof(Nob).Name),
                     Assert.Throws<InvalidOperationException>(
-                        () =>
-                            foreignKeyBuilder.HasForeignKey<Nob>()).Message);
+                        () => foreignKeyBuilder.HasForeignKey<Nob>()).Message);
             }
 
             [ConditionalFact]
@@ -3603,7 +3628,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 Assert.Equal(
-                    CoreStrings.MultipleNavigationsSameFk(typeof(Zeta).Name, "CommonFkProperty"),
+                    CoreStrings.MultipleNavigationsSameFk(typeof(Zeta).Name, "CommonFkProperty", "'AlphaOne', 'AlphaTwo'"),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Zeta>().HasOne<Alpha>().WithOne()).Message);
             }
 
@@ -4058,15 +4083,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Navigation(e => e.Dependent)
                     .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-                var principal = (IEntityType)model.FindEntityType(typeof(OneToOneNavPrincipal));
-                var dependent = (IEntityType)model.FindEntityType(typeof(NavDependent));
+                var principal = (IReadOnlyEntityType)model.FindEntityType(typeof(OneToOneNavPrincipal));
+                var dependent = (IReadOnlyEntityType)model.FindEntityType(typeof(NavDependent));
 
                 Assert.Equal(PropertyAccessMode.Field, principal.FindNavigation("Dependent").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, dependent.FindNavigation("OneToOnePrincipal").GetPropertyAccessMode());
             }
 
             [ConditionalFact]
-            public virtual void Navigation_to_shared_type_is_no_discovered_by_convention()
+            public virtual void Navigation_to_shared_type_is_not_discovered_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
 

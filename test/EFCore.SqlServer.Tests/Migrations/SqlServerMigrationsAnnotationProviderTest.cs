@@ -11,22 +11,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
 {
     public class SqlServerMigrationsAnnotationProviderTest
     {
-        private readonly ModelBuilder _modelBuilder;
         private readonly SqlServerAnnotationProvider _annotations;
 
         public SqlServerMigrationsAnnotationProviderTest()
         {
-            _modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder( /*skipValidation: true*/);
             _annotations = new SqlServerAnnotationProvider(new RelationalAnnotationProviderDependencies());
         }
 
         [Fact]
         public void For_property_handles_identity_annotations()
         {
-            var property = _modelBuilder.Entity<Entity>()
-                .Property<int>("Id").UseIdentityColumn(2, 3)
-                .Metadata;
-            _modelBuilder.FinalizeModel();
+            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<Entity>().Property<int>("Id").UseIdentityColumn(2, 3);
+
+            var model = SqlServerTestHelpers.Instance.Finalize(modelBuilder);
+            var property = model.FindEntityType(typeof(Entity)).FindProperty("Id");
 
             var migrationAnnotations = _annotations.For(property.GetTableColumnMappings().Single().Column).ToList();
 
@@ -37,12 +36,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         [ConditionalFact]
         public void Resolves_column_names_for_Index_with_included_properties()
         {
-            _modelBuilder.Entity<Entity>().Property(e => e.IncludedProp).HasColumnName("IncludedColumn");
-            var index = _modelBuilder.Entity<Entity>().HasIndex(e => e.IndexedProp).IncludeProperties(e => e.IncludedProp).Metadata;
-            _modelBuilder.FinalizeModel();
+            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+            modelBuilder.Entity<Entity>().Property(e => e.IncludedProp).HasColumnName("IncludedColumn");
+            modelBuilder.Entity<Entity>().HasIndex(e => e.IndexedProp).IncludeProperties(e => e.IncludedProp);
+            var model = SqlServerTestHelpers.Instance.Finalize(modelBuilder);
 
             Assert.Contains(
-                _annotations.For(index.GetMappedTableIndexes().Single()),
+                _annotations.For(model.FindEntityType(typeof(Entity)).GetIndexes().Single().GetMappedTableIndexes().Single()),
                 a => a.Name == SqlServerAnnotationNames.Include && ((string[])a.Value).Contains("IncludedColumn"));
         }
 

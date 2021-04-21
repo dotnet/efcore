@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace System.Linq.Expressions
@@ -10,7 +12,7 @@ namespace System.Linq.Expressions
     [DebuggerStepThrough]
     internal static class ExpressionExtensions
     {
-        public static bool IsNullConstantExpression([NotNull] this Expression expression)
+        public static bool IsNullConstantExpression(this Expression expression)
             => RemoveConvert(expression) is ConstantExpression constantExpression
                 && constantExpression.Value == null;
 
@@ -19,7 +21,8 @@ namespace System.Linq.Expressions
                 ? unary.Operand
                 : expression);
 
-        public static Expression UnwrapTypeConversion(this Expression expression, out Type convertedType)
+        [return: NotNullIfNotNull("expression")]
+        public static Expression? UnwrapTypeConversion(this Expression? expression, out Type? convertedType)
         {
             convertedType = null;
             while (expression is UnaryExpression unaryExpression
@@ -49,5 +52,10 @@ namespace System.Linq.Expressions
 
             return expression;
         }
+
+        public static T GetConstantValue<T>(this Expression expression)
+            => expression is ConstantExpression constantExpression
+                ? (T)constantExpression.Value!
+                : throw new InvalidOperationException();
     }
 }

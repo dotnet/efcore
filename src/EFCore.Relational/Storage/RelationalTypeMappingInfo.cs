@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -23,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
         /// </summary>
         /// <param name="property"> The property for which mapping is needed. </param>
-        public RelationalTypeMappingInfo([NotNull] IProperty property)
-            : this(property.FindPrincipals())
+        public RelationalTypeMappingInfo(IProperty property)
+            : this(property.GetPrincipals())
         {
         }
 
@@ -52,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     default.
         /// </param>
         public RelationalTypeMappingInfo(
-            [NotNull] IReadOnlyList<IProperty> principals,
-            [CanBeNull] string storeTypeName = null,
-            [CanBeNull] string storeTypeNameBase = null,
+            IReadOnlyList<IProperty> principals,
+            string? storeTypeName = null,
+            string? storeTypeNameBase = null,
             bool? fallbackUnicode = null,
             bool? fixedLength = null,
             int? fallbackSize = null,
@@ -78,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         public RelationalTypeMappingInfo(
-            [NotNull] string storeTypeName,
-            [NotNull] string storeTypeNameBase,
+            string storeTypeName,
+            string storeTypeNameBase,
             bool? unicode,
             int? size,
             int? precision,
@@ -106,9 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         public RelationalTypeMappingInfo(
-            [NotNull] MemberInfo member,
-            [CanBeNull] string storeTypeName = null,
-            [CanBeNull] string storeTypeNameBase = null,
+            MemberInfo member,
+            string? storeTypeName = null,
+            string? storeTypeNameBase = null,
             bool? unicode = null,
             int? size = null,
             int? precision = null,
@@ -161,9 +160,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="precision"> Specifies a precision for the mapping, or <see langword="null" /> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <see langword="null" /> for default. </param>
         public RelationalTypeMappingInfo(
-            [NotNull] Type type,
-            [CanBeNull] string storeTypeName = null,
-            [CanBeNull] string storeTypeNameBase = null,
+            Type type,
+            string? storeTypeName = null,
+            string? storeTypeNameBase = null,
             bool keyOrIndex = false,
             bool? unicode = null,
             int? size = null,
@@ -182,12 +181,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The provider-specific relational type name for which mapping is needed.
         /// </summary>
-        public string StoreTypeName { get; }
+        public string? StoreTypeName { get; }
 
         /// <summary>
         ///     The provider-specific relational type name, with any facets removed.
         /// </summary>
-        public string StoreTypeNameBase { get; }
+        public string? StoreTypeNameBase { get; }
 
         /// <summary>
         ///     Indicates the store-size to use for the mapping, or null if none.
@@ -233,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The CLR type in the model.
         /// </summary>
-        public Type ClrType
+        public Type? ClrType
             => _coreTypeMappingInfo.ClrType;
 
         /// <summary>
@@ -242,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converterInfo"> The converter to apply. </param>
         /// <returns> The new mapping info. </returns>
         public RelationalTypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
-            => new RelationalTypeMappingInfo(this, converterInfo);
+            => new(this, converterInfo);
 
         /// <summary>
         ///     Compares this <see cref="RelationalTypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -259,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="obj"> The other object. </param>
         /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && obj.GetType() == GetType()
                 && Equals((RelationalTypeMappingInfo)obj);

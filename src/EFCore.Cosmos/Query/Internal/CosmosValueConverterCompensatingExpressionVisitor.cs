@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosValueConverterCompensatingExpressionVisitor(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -105,8 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private SqlExpression TryCompensateForBoolWithValueConverter(SqlExpression sqlExpression)
         {
             if (sqlExpression is KeyAccessExpression keyAccessExpression
-                && keyAccessExpression.TypeMapping.ClrType == typeof(bool)
-                && keyAccessExpression.TypeMapping.Converter != null)
+                && keyAccessExpression.TypeMapping!.ClrType == typeof(bool)
+                && keyAccessExpression.TypeMapping!.Converter != null)
             {
                 return _sqlExpressionFactory.Equal(
                     sqlExpression,

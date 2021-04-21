@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -11,6 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected NorthwindNavigationsQueryRelationalTestBase(TFixture fixture)
             : base(fixture)
         {
+        }
+
+        public override Task Where_subquery_on_navigation_client_eval(bool async)
+        {
+            return AssertTranslationFailed(() => base.Where_subquery_on_navigation_client_eval(async));
         }
 
         protected virtual bool CanExecuteQueryString

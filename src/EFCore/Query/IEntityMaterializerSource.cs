@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="materializationExpression"> The materialization expression to build on. </param>
         /// <returns> An expression to read the value. </returns>
         Expression CreateMaterializeExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] string entityInstanceName,
-            [NotNull] Expression materializationExpression);
+            IEntityType entityType,
+            string entityInstanceName,
+            Expression materializationExpression);
 
         /// <summary>
         ///     <para>
@@ -56,6 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="entityType"> The entity type being materialized. </param>
         /// <returns> A delegate to create instances. </returns>
-        Func<MaterializationContext, object> GetMaterializer([NotNull] IEntityType entityType);
+        Func<MaterializationContext, object> GetMaterializer(IEntityType entityType);
     }
 }

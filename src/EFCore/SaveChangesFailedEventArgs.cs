@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -16,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess"> The value passed to SaveChanges. </param>
         /// <param name="exception"> The exception thrown. </param>
-        public SaveChangesFailedEventArgs(bool acceptAllChangesOnSuccess, [NotNull] Exception exception)
+        public SaveChangesFailedEventArgs(bool acceptAllChangesOnSuccess, Exception exception)
             : base(acceptAllChangesOnSuccess)
         {
             Exception = exception;

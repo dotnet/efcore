@@ -134,6 +134,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Distinct_used_after_order_by()
+        {
+            using var context = CreateContext();
+            var customers = context.Set<Customer>().OrderBy(x => x.Address).Distinct().Take(5).ToList();
+
+            Assert.NotEmpty(customers);
+
+            Assert.Equal(
+                CoreResources.LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log[1].Message);
+        }
+
+        [ConditionalFact]
         public void SelectExpression_does_not_use_an_old_logger()
         {
             DbContextOptions CreateOptions(ListLoggerFactory listLoggerFactory)

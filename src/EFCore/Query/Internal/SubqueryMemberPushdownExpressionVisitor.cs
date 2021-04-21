@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
     {
-        private static readonly List<MethodInfo> _supportedMethods = new List<MethodInfo>
+        private static readonly List<MethodInfo> _supportedMethods = new()
         {
             QueryableMethods.FirstWithPredicate,
             QueryableMethods.FirstWithoutPredicate,
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SubqueryMemberPushdownExpressionVisitor([NotNull] IModel model)
+        public SubqueryMemberPushdownExpressionVisitor(IModel model)
         {
             _model = model;
         }
@@ -167,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var updatedMemberExpression = memberExpression.Update(Visit(memberExpression.Expression));
 
                 return Expression.Call(
-                    QueryableMethods.AsQueryable.MakeGenericMethod(updatedMemberExpression.Type.TryGetSequenceType()),
+                    QueryableMethods.AsQueryable.MakeGenericMethod(updatedMemberExpression.Type.GetSequenceType()),
                     updatedMemberExpression);
             }
 
@@ -180,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Type returnType)
         {
             var source = methodCallExpression.Arguments[0];
-            var queryableType = source.Type.TryGetSequenceType();
+            var queryableType = source.Type.GetSequenceType();
             var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
             if (methodCallExpression.Arguments.Count == 2)
             {
@@ -204,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 source = Expression.Call(
                     QueryableMethods.Select.MakeGenericMethod(
-                        sourceMethodCallExpression.Arguments[0].Type.TryGetSequenceType(), memberAccessExpression.Type),
+                        sourceMethodCallExpression.Arguments[0].Type.GetSequenceType(), memberAccessExpression.Type),
                     sourceMethodCallExpression.Arguments[0],
                     Expression.Quote(Expression.Lambda(memberAccessExpression, selector.Parameters[0])));
 
@@ -222,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.Quote(Expression.Lambda(memberAccessExpression, parameter)));
             }
 
-            source = Expression.Call(genericMethod.MakeGenericMethod(source.Type.TryGetSequenceType()), source);
+            source = Expression.Call(genericMethod.MakeGenericMethod(source.Type.GetSequenceType()), source);
 
             return source.Type != returnType
                 ? Expression.Convert(source, returnType)

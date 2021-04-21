@@ -12,13 +12,20 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestRelationalTransactionFactory : IRelationalTransactionFactory
     {
+        public TestRelationalTransactionFactory(RelationalTransactionFactoryDependencies dependencies)
+        {
+            Dependencies = dependencies;
+        }
+
+        protected virtual RelationalTransactionFactoryDependencies Dependencies { get; }
+
         public RelationalTransaction Create(
             IRelationalConnection connection,
             DbTransaction transaction,
             Guid transactionId,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
-            => new TestRelationalTransaction(connection, transaction, logger, transactionOwned);
+            => new TestRelationalTransaction(connection, transaction, logger, transactionOwned, Dependencies.SqlGenerationHelper);
     }
 
     public class TestRelationalTransaction : RelationalTransaction
@@ -29,8 +36,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             IRelationalConnection connection,
             DbTransaction transaction,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
-            bool transactionOwned)
-            : base(connection, transaction, new Guid(), logger, transactionOwned)
+            bool transactionOwned,
+            ISqlGenerationHelper sqlGenerationHelper)
+            : base(connection, transaction, new Guid(), logger, transactionOwned, sqlGenerationHelper)
         {
             _testConnection = (TestSqlServerConnection)connection;
         }
@@ -85,14 +93,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override bool SupportsSavepoints
             => true;
-
-        /// <inheritdoc />
-        protected override string GetCreateSavepointSql(string name)
-            => "SAVE TRANSACTION " + name;
-
-        /// <inheritdoc />
-        protected override string GetRollbackToSavepointSql(string name)
-            => "ROLLBACK TRANSACTION " + name;
 
         /// <inheritdoc />
         public override void ReleaseSavepoint(string name) { }

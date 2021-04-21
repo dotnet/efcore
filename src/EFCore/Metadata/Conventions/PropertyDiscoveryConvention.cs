@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="PropertyDiscoveryConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public PropertyDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public PropertyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -49,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if ((newBaseType == null
@@ -63,20 +62,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
-            var entityType = entityTypeBuilder.Metadata;
-            if (entityType.HasClrType())
+            foreach (var propertyInfo in entityTypeBuilder.Metadata.GetRuntimeProperties().Values)
             {
-                foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
+                if (IsCandidatePrimitiveProperty(propertyInfo))
                 {
-                    if (IsCandidatePrimitiveProperty(propertyInfo))
-                    {
-                        entityTypeBuilder.Property(propertyInfo);
-                    }
+                    entityTypeBuilder.Property(propertyInfo);
                 }
             }
         }
 
-        private bool IsCandidatePrimitiveProperty([NotNull] PropertyInfo propertyInfo)
+        /// <summary>
+        ///     Returns a value indicating whether the given CLR property should be mapped as an entity type property.
+        /// </summary>
+        /// <param name="propertyInfo"> The property. </param>
+        /// <returns> <see langword="true"/> if the property should be mapped. </returns>
+        protected virtual bool IsCandidatePrimitiveProperty(PropertyInfo propertyInfo)
             => propertyInfo.IsCandidateProperty()
                 && Dependencies.TypeMappingSource.FindMapping(propertyInfo) != null;
     }

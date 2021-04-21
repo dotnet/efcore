@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class ObservableHashSetTest
     {
-        private static readonly Random _random = new Random();
+        private static readonly Random _random = new();
 
         [ConditionalFact]
         public void Can_construct()

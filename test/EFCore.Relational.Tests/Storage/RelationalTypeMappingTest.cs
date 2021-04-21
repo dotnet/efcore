@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -549,6 +550,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.True(typeMapping.Comparer.Equals(3.0f, 3.0f));
             Assert.True(typeMapping.Comparer.Equals(float.NaN, float.NaN));
             Assert.False(typeMapping.Comparer.Equals(3.0f, float.NaN));
+        }
+
+        [ConditionalFact]
+        public virtual void DateTimeOffset_value_comparer_behaves_correctly()
+        {
+            var typeMapping = new DateTimeOffsetTypeMapping("datetimeoffset", DbType.DateTimeOffset);
+
+            var same1 = new DateTimeOffset(2000, 1, 1, 12, 0, 0, TimeSpan.FromHours(0));
+            var same2 = new DateTimeOffset(2000, 1, 1, 12, 0, 0, TimeSpan.FromHours(0));
+            var different = new DateTimeOffset(2000, 1, 1, 13, 0, 0, TimeSpan.FromHours(1));
+
+            // Note that a difference in offset results in inequality, unlike the .NET default comparison behavior
+            Assert.False(typeMapping.Comparer.Equals(same1, different));
+            Assert.True(typeMapping.Comparer.Equals(same1, same2));
+
+            var parameters = new[] { Expression.Parameter(typeof(DateTimeOffset)), Expression.Parameter(typeof(DateTimeOffset)) };
+            var equalsBody = typeMapping.Comparer.ExtractEqualsBody(parameters[0], parameters[1]);
+            var equalsComparer = Expression.Lambda<Func<DateTimeOffset, DateTimeOffset, bool>>(equalsBody, parameters).Compile();
+
+            Assert.False(equalsComparer(same1, different));
+            Assert.True(equalsComparer(same1, same2));
         }
 
         [ConditionalFact]

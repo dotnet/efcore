@@ -5,7 +5,6 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -31,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="navigationName"> The navigation property name. </param>
         /// <param name="loaded"> Determines whether the navigation is set as loaded or not. </param>
         void SetLoaded(
-            [NotNull] object entity,
-            [NotNull] [CallerMemberName] string navigationName = "",
+            object entity,
+            [CallerMemberName] string navigationName = "",
             bool loaded = true);
 
         /// <summary>
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="entity"> The entity on which the navigation property is located. </param>
         /// <param name="navigationName"> The navigation property name. </param>
-        void Load([NotNull] object entity, [NotNull] [CallerMemberName] string navigationName = null);
+        void Load(object entity, [CallerMemberName] string navigationName = "");
 
         /// <summary>
         ///     Loads a navigation property if it has not already been loaded.
@@ -49,11 +48,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <param name="navigationName"> The navigation property name. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
 #pragma warning disable CA1068 // CancellationToken parameters must come last
         Task LoadAsync(
 #pragma warning restore CA1068 // CancellationToken parameters must come last
-            [NotNull] object entity,
+            object entity,
             CancellationToken cancellationToken = default,
-            [NotNull] [CallerMemberName] string navigationName = null);
+            [CallerMemberName] string navigationName = "");
     }
 }

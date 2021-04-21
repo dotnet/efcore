@@ -1,0 +1,57 @@
+﻿syntax = "proto3";
+option csharp_namespace = "ProtoTest";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+package Test;
+
+service ProtoTest{
+	rpc GetPosts(google.protobuf.Empty) returns (Posts);
+	rpc GetPost(GetPostQuery) returns (Post);
+	rpc GetAuthors(google.protobuf.Empty) returns (Authors);
+	rpc GetAuthor(GetAuthorQuery) returns (Author);
+}
+
+message Author {
+	int32 author_id = 1;
+	string name = 2;
+	google.protobuf.Timestamp date_created = 3;
+}
+message Authors {
+	repeated Author authors_data = 1;
+}
+
+message Post {
+	int32 post_id = 1;
+	int32 author_id = 2;
+	string title = 3;
+	google.protobuf.Timestamp date_created = 4;
+	PostStatus post_stat = 5;
+	Author post_author = 6;
+	repeated Tag tags_in_post_data = 7;
+}
+message Posts {
+	repeated Post posts_data = 1;
+}
+
+message Tag {
+	int32 tag_id = 1;
+	string name = 2;
+	repeated Post posts_in_tag_data = 3;
+}
+message Tags {
+	repeated Tag tags_data = 1;
+}
+
+enum PostStatus {
+	POST_STATUS_HIDDEN = 0;
+	POST_STATUS_PUBLISHED = 1;
+	POST_STATUS_DELETED = 2;
+}
+
+message GetPostQuery {
+	int32 id = 1;
+}
+
+message GetAuthorQuery {
+	int32 id = 1;
+}

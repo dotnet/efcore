@@ -23,7 +23,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             AssertSql(
                 @"SELECT ""p"".""Id"", ""p"".""Geometry"", ""p"".""Point"", ""p"".""PointM"", ""p"".""PointZ"", ""p"".""PointZM""
-FROM ""PointEntity"" AS ""p""");
+FROM ""PointEntity"" AS ""p""",
+                //
+                @"SELECT ""l"".""Id"", ""l"".""LineString""
+FROM ""LineStringEntity"" AS ""l""",
+                //
+                @"SELECT ""p"".""Id"", ""p"".""Polygon""
+FROM ""PolygonEntity"" AS ""p""",
+                //
+                @"SELECT ""m"".""Id"", ""m"".""MultiLineString""
+FROM ""MultiLineStringEntity"" AS ""m""");
         }
 
         public override async Task Distance_on_converted_geometry_type(bool async)
@@ -407,11 +416,11 @@ FROM ""MultiLineStringEntity"" AS ""m""");
             await base.GetGeometryN_with_null_argument(async);
 
             AssertSql(
-                @"SELECT ""m0"".""Id"", GeometryN(""m0"".""MultiLineString"", (
-    SELECT MAX(""m"".""Id"")
-    FROM ""MultiLineStringEntity"" AS ""m""
+                @"SELECT ""m"".""Id"", GeometryN(""m"".""MultiLineString"", (
+    SELECT MAX(""m0"".""Id"")
+    FROM ""MultiLineStringEntity"" AS ""m0""
     WHERE 0) + 1) AS ""Geometry0""
-FROM ""MultiLineStringEntity"" AS ""m0""");
+FROM ""MultiLineStringEntity"" AS ""m""");
         }
 
         public override async Task GetInteriorRingN(bool async)

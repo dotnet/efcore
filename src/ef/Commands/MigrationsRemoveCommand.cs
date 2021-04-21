@@ -10,9 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            var result = CreateExecutor(args)
-                .RemoveMigration(Context.Value(), _force.HasValue());
-            if (_json.HasValue())
+            using var executor = CreateExecutor(args);
+            var result = executor.RemoveMigration(Context!.Value(), _force!.HasValue());
+
+            if (_json!.HasValue())
             {
                 ReportJsonResults(result);
             }

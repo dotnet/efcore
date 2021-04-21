@@ -197,7 +197,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 => true;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base

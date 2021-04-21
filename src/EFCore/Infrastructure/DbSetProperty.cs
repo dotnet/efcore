@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -19,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="type"> The entity clr type of DbSet. </param>
         /// <param name="setter"> The setter for DbSet property. </param>
         public DbSetProperty(
-            [NotNull] string name,
-            [NotNull] Type type,
-            [CanBeNull] IClrPropertySetter setter)
+            string name,
+            Type type,
+            IClrPropertySetter? setter)
         {
             Name = name;
             Type = type;
@@ -48,6 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The property setter for this DbSet property.
         /// </summary>
-        public IClrPropertySetter Setter { get; }
+        public IClrPropertySetter? Setter { get; }
     }
 }

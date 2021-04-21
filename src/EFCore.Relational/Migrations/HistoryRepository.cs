@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -42,15 +41,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         public const string DefaultTableName = "__EFMigrationsHistory";
 
-        private IModel _model;
-        private string _migrationIdColumnName;
-        private string _productVersionColumnName;
+        private IModel? _model;
+        private string? _migrationIdColumnName;
+        private string? _productVersionColumnName;
 
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected HistoryRepository([NotNull] HistoryRepositoryDependencies dependencies)
+        protected HistoryRepository(HistoryRepositoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -80,15 +79,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The schema that contains the history table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        protected virtual string TableSchema { get; }
+        protected virtual string? TableSchema { get; }
 
         /// <summary>
         ///     The name of the column that holds the Migration identifier.
         /// </summary>
         protected virtual string MigrationIdColumnName
             => _migrationIdColumnName ??= EnsureModel()
-                .FindEntityType(typeof(HistoryRow))
-                .FindProperty(nameof(HistoryRow.MigrationId))
+                .FindEntityType(typeof(HistoryRow))!
+                .FindProperty(nameof(HistoryRow.MigrationId))!
                 .GetColumnBaseName();
 
         private IModel EnsureModel()
@@ -99,10 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 // Use public API to remove the convention, issue #214
                 ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(DbSetFindingConvention));
-                if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23312", out var enabled) && enabled))
-                {
-                    ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(RelationalDbFunctionAttributeConvention));
-                }
+                ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(RelationalDbFunctionAttributeConvention));
 
                 var modelBuilder = new ModelBuilder(conventionSet);
                 modelBuilder.Entity<HistoryRow>(
@@ -112,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable(TableName, TableSchema);
                     });
 
-                _model = modelBuilder.FinalizeModel();
+                _model = Dependencies.ModelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
             }
 
             return _model;
@@ -123,8 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         protected virtual string ProductVersionColumnName
             => _productVersionColumnName ??= EnsureModel()
-                .FindEntityType(typeof(HistoryRow))
-                .FindProperty(nameof(HistoryRow.ProductVersion))
+                .FindEntityType(typeof(HistoryRow))!
+                .FindProperty(nameof(HistoryRow.ProductVersion))!
                 .GetColumnBaseName();
 
         /// <summary>
@@ -155,6 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
             => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false)
                 && InterpretExistsResult(
@@ -171,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Interprets the result of executing <see cref="ExistsSql" />.
         /// </summary>
         /// <returns><see langword="true" /> if the table already exists, <see langword="false" /> otherwise.</returns>
-        protected abstract bool InterpretExistsResult([NotNull] object value);
+        protected abstract bool InterpretExistsResult(object? value);
 
         /// <summary>
         ///     Overridden by a database provider to generate a SQL script that will create the history table
@@ -203,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     </para>
         /// </summary>
         /// <param name="history"> A builder for the <see cref="HistoryRow" /> entity type. </param>
-        protected virtual void ConfigureTable([NotNull] EntityTypeBuilder<HistoryRow> history)
+        protected virtual void ConfigureTable(EntityTypeBuilder<HistoryRow> history)
         {
             history.ToTable(DefaultTableName);
             history.HasKey(h => h.MigrationId);
@@ -247,6 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     the list of applied migrations, as <see cref="HistoryRow" /> entities.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
             CancellationToken cancellationToken = default)
         {

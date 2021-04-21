@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -452,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class LoggingContext : DbContext
         {
-            public LoggingContext([NotNull] DbContextOptions options)
+            public LoggingContext(DbContextOptions options)
                 : base(options)
             {
             }

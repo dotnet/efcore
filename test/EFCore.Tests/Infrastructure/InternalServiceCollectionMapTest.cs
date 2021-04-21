@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -298,10 +299,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static ServiceCollectionMap CreateServiceMap()
-            => new ServiceCollectionMap(new ServiceCollection().AddEntityFrameworkInMemoryDatabase());
+            => new(new ServiceCollection().AddEntityFrameworkInMemoryDatabase());
 
         private static DbContext CreateContext(IServiceProvider serviceProvider)
-            => new DbContext(
+            => new(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(serviceProvider)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())

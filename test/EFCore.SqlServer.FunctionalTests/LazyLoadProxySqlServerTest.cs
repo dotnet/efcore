@@ -433,17 +433,21 @@ WHERE [c].[ParentId] = @__p_0",
             }
         }
 
-        [ConditionalFact(Skip = "Issue#1015")]
+        [ConditionalFact]
         public override void Top_level_projection_track_entities_before_passing_to_client_method()
         {
             base.Top_level_projection_track_entities_before_passing_to_client_method();
 
             Assert.Equal(
-                @"@__p_0='707' (Nullable = true)
+                @"SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
+FROM [Parent] AS [p]
+ORDER BY [p].[Id]
 
-            SELECT [c].[Id], [c].[ParentId]
-            FROM [Child] AS [c]
-            WHERE [c].[ParentId] = @__p_0",
+@__p_0='707' (Nullable = true)
+
+SELECT [s].[Id], [s].[ParentId]
+FROM [Single] AS [s]
+WHERE [s].[ParentId] = @__p_0",
                 Sql,
                 ignoreLineEndingDifferences: true);
         }

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -11,8 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// </summary>
     public class StringToCharConverter : StringCharConverter<string, char>
     {
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 1);
+        private static readonly ConverterMappingHints _defaultHints = new(size: 1);
 
         /// <summary>
         ///     Creates a new instance of this converter. This converter preserves order.
@@ -21,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public StringToCharConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public StringToCharConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 ToChar(),
                 ToString(),
@@ -33,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(string), typeof(char), i => new StringToCharConverter(i.MappingHints), _defaultHints);
+            = new(typeof(string), typeof(char), i => new StringToCharConverter(i.MappingHints), _defaultHints);
     }
 }

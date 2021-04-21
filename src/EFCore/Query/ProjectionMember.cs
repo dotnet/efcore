@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _memberChain = new List<MemberInfo>();
         }
 
-        private ProjectionMember([NotNull] IList<MemberInfo> memberChain)
+        private ProjectionMember(IList<MemberInfo> memberChain)
         {
             Check.NotNull(memberChain, nameof(memberChain));
 
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="member"> The MemberInfo to append. </param>
         /// <returns> A new projection member with given member info appended to existing chain. </returns>
-        public ProjectionMember Append([NotNull] MemberInfo member)
+        public ProjectionMember Append(MemberInfo member)
         {
             Check.NotNull(member, nameof(member));
 
@@ -60,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="member"> The MemberInfo to prepend. </param>
         /// <returns> A new projection member with given member info prepended to existing chain. </returns>
-        public ProjectionMember Prepend([NotNull] MemberInfo member)
+        public ProjectionMember Prepend(MemberInfo member)
         {
             Check.NotNull(member, nameof(member));
 
@@ -78,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         This method is generally used to get last memberInfo to generate an alias for projection.
         ///     </para>
         /// </summary>
-        public MemberInfo Last
+        public MemberInfo? Last
             => _memberChain.LastOrDefault();
 
         /// <inheritdoc />
@@ -95,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (obj is ProjectionMember projectionMember
                     && Equals(projectionMember));

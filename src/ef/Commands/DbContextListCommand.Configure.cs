@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class DbContextListCommand : ProjectCommandBase
     {
-        private CommandOption _json;
+        private CommandOption? _json;
 
         public override void Configure(CommandLineApplication command)
         {

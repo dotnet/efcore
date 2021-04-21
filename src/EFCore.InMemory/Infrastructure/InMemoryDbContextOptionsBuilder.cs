@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Initializes a new instance of the <see cref="InMemoryDbContextOptionsBuilder" /> class.
         /// </summary>
         /// <param name="optionsBuilder"> The options builder. </param>
-        public InMemoryDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
+        public InMemoryDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
@@ -37,6 +37,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The cloned configuration. </returns>
         protected virtual DbContextOptionsBuilder OptionsBuilder { get; }
 
+        /// <summary>
+        ///     <para>
+        ///         Enables nullability check for all properties across all entities within the in-memory database.
+        ///     </para>
+        /// </summary>
+        /// <param name="nullabilityCheckEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual InMemoryDbContextOptionsBuilder EnableNullabilityCheck(bool nullabilityCheckEnabled = true)
+        {
+            var extension = OptionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
+                ?? new InMemoryOptionsExtension();
+
+            extension = extension.WithNullabilityCheckEnabled(nullabilityCheckEnabled);
+
+            ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
+
+            return this;
+        }
+
         #region Hidden System.Object members
 
         /// <summary>
@@ -44,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -53,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

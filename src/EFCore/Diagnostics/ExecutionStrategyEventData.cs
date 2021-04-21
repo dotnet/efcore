@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -28,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Indicates whether or not the command was executed asynchronously.
         /// </param>
         public ExecutionStrategyEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IReadOnlyList<Exception> exceptionsEncountered,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IReadOnlyList<Exception> exceptionsEncountered,
             TimeSpan delay,
             bool async)
             : base(eventDefinition, messageGenerator)

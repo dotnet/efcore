@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Initializes a new instance of the <see cref="BackingFieldAttribute" /> class.
         /// </summary>
         /// <param name="name"> The name of the backing field. </param>
-        public BackingFieldAttribute([NotNull] string name)
+        public BackingFieldAttribute(string name)
         {
             Check.NotEmpty(name, nameof(name));
 

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Concurrent;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,14 +25,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
     /// </summary>
     public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValueGeneratorCache
     {
-        private readonly ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState> _sequenceGeneratorCache
-            = new ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState>();
+        private readonly ConcurrentDictionary<string, SqlServerSequenceValueGeneratorState> _sequenceGeneratorCache = new();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public SqlServerValueGeneratorCache([NotNull] ValueGeneratorCacheDependencies dependencies)
+        public SqlServerValueGeneratorCache(ValueGeneratorCacheDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -49,13 +47,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             IRelationalConnection connection)
         {
             var sequence = property.FindHiLoSequence(
-                StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table).Value);
+                StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table)!.Value);
 
             Check.DebugAssert(sequence != null, "sequence is null");
 
             return _sequenceGeneratorCache.GetOrAdd(
                 GetSequenceName(sequence, connection),
-                sequenceName => new SqlServerSequenceValueGeneratorState(sequence));
+                _ => new SqlServerSequenceValueGeneratorState(sequence));
         }
 
         private static string GetSequenceName(ISequence sequence, IRelationalConnection connection)

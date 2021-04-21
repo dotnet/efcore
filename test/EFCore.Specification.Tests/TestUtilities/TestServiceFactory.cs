@@ -16,14 +16,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestServiceFactory
     {
-        public static readonly TestServiceFactory Instance = new TestServiceFactory();
+        public static readonly TestServiceFactory Instance = new();
 
         private TestServiceFactory()
         {
         }
 
-        private readonly ConcurrentDictionary<Type, IServiceProvider> _factories
-            = new ConcurrentDictionary<Type, IServiceProvider>();
+        private readonly ConcurrentDictionary<Type, IServiceProvider> _factories = new();
 
         private readonly IReadOnlyList<(Type Type, object Implementation)> _wellKnownExceptions
             = new List<(Type, object)>

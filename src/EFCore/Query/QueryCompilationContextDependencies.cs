@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -35,9 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class QueryCompilationContextDependencies
+    public sealed record QueryCompilationContextDependencies
     {
-        private readonly IExecutionStrategyFactory _executionStrategyFactory;
         private readonly ICurrentDbContext _currentContext;
 
         /// <summary>
@@ -61,15 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public QueryCompilationContextDependencies(
-            [NotNull] IModel model,
-            [NotNull] IQueryTranslationPreprocessorFactory queryTranslationPreprocessorFactory,
-            [NotNull] IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
-            [NotNull] IQueryTranslationPostprocessorFactory queryTranslationPostprocessorFactory,
-            [NotNull] IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDbContextOptions contextOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            IModel model,
+            IQueryTranslationPreprocessorFactory queryTranslationPreprocessorFactory,
+            IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
+            IQueryTranslationPostprocessorFactory queryTranslationPostprocessorFactory,
+            IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
+            IExecutionStrategyFactory executionStrategyFactory,
+            ICurrentDbContext currentContext,
+            IDbContextOptions contextOptions,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(queryTranslationPreprocessorFactory, nameof(queryTranslationPreprocessorFactory));
@@ -87,7 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryableMethodTranslatingExpressionVisitorFactory = queryableMethodTranslatingExpressionVisitorFactory;
             QueryTranslationPostprocessorFactory = queryTranslationPostprocessorFactory;
             ShapedQueryCompilingExpressionVisitorFactory = shapedQueryCompilingExpressionVisitorFactory;
-            _executionStrategyFactory = executionStrategyFactory;
             IsRetryingExecutionStrategy = executionStrategyFactory.Create().RetriesOnFailure;
             ContextOptions = contextOptions;
             Logger = logger;
@@ -108,197 +105,45 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The model.
         /// </summary>
-        public IModel Model { get; }
+        public IModel Model { get; init; }
 
         /// <summary>
         ///     The query optimizer factory.
         /// </summary>
-        public IQueryTranslationPreprocessorFactory QueryTranslationPreprocessorFactory { get; }
+        public IQueryTranslationPreprocessorFactory QueryTranslationPreprocessorFactory { get; init; }
 
         /// <summary>
         ///     The queryable method-translating expression visitor factory.
         /// </summary>
-        public IQueryableMethodTranslatingExpressionVisitorFactory QueryableMethodTranslatingExpressionVisitorFactory { get; }
+        public IQueryableMethodTranslatingExpressionVisitorFactory QueryableMethodTranslatingExpressionVisitorFactory
+        {
+            get;
+            init;
+        }
 
         /// <summary>
         ///     The shaped-query optimizer factory
         /// </summary>
-        public IQueryTranslationPostprocessorFactory QueryTranslationPostprocessorFactory { get; }
+        public IQueryTranslationPostprocessorFactory QueryTranslationPostprocessorFactory { get; init; }
 
         /// <summary>
         ///     The shaped-query compiling expression visitor factory.
         /// </summary>
-        public IShapedQueryCompilingExpressionVisitorFactory ShapedQueryCompilingExpressionVisitorFactory { get; }
+        public IShapedQueryCompilingExpressionVisitorFactory ShapedQueryCompilingExpressionVisitorFactory { get; init; }
 
         /// <summary>
         ///     Whether the configured execution strategy can retry.
         /// </summary>
-        public bool IsRetryingExecutionStrategy { get; }
+        public bool IsRetryingExecutionStrategy { get; init; }
 
         /// <summary>
         ///     The context options.
         /// </summary>
-        public IDbContextOptions ContextOptions { get; }
+        public IDbContextOptions ContextOptions { get; init; }
 
         /// <summary>
         ///     The logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="model"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryCompilationContextDependencies With([NotNull] IModel model)
-            => new QueryCompilationContextDependencies(
-                model,
-                QueryTranslationPreprocessorFactory,
-                QueryableMethodTranslatingExpressionVisitorFactory,
-                QueryTranslationPostprocessorFactory,
-                ShapedQueryCompilingExpressionVisitorFactory,
-                _executionStrategyFactory,
-                _currentContext,
-                ContextOptions,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="queryTranslationPreprocessorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryCompilationContextDependencies With([NotNull] IQueryTranslationPreprocessorFactory queryTranslationPreprocessorFactory)
-            => new QueryCompilationContextDependencies(
-                Model,
-                queryTranslationPreprocessorFactory,
-                QueryableMethodTranslatingExpressionVisitorFactory,
-                QueryTranslationPostprocessorFactory,
-                ShapedQueryCompilingExpressionVisitorFactory,
-                _executionStrategyFactory,
-                _currentContext,
-                ContextOptions,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="queryableMethodTranslatingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryCompilationContextDependencies With(
-            [NotNull] IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory)
-            => new QueryCompilationContextDependencies(
-                Model,
-                QueryTranslationPreprocessorFactory,
-                queryableMethodTranslatingExpressionVisitorFactory,
-                QueryTranslationPostprocessorFactory,
-                ShapedQueryCompilingExpressionVisitorFactory,
-                _executionStrategyFactory,
-                _currentContext,
-                ContextOptions,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="queryTranslationPostprocessorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryCompilationContextDependencies With(
-            [NotNull] IQueryTranslationPostprocessorFactory queryTranslationPostprocessorFactory)
-            => new QueryCompilationContextDependencies(
-                Model,
-                QueryTranslationPreprocessorFactory,
-                QueryableMethodTranslatingExpressionVisitorFactory,
-                queryTranslationPostprocessorFactory,
-                ShapedQueryCompilingExpressionVisitorFactory,
-                _executionStrategyFactory,
-                _currentContext,
-                ContextOptions,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="shapedQueryCompilingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryCompilationContextDependencies With(
-            [NotNull] IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory)
-            => new QueryCompilationContextDependencies(
-                Model,
-                QueryTranslationPreprocessorFactory,
-                QueryableMethodTranslatingExpressionVisitorFactory,
-                QueryTranslationPostprocessorFactory,
-                shapedQueryCompilingExpressionVisitorFactory,
-                _executionStrategyFactory,
-                _currentContext,
-                ContextOptions,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="executionStrategyFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryCompilationContextDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            => new QueryCompilationContextDependencies(
-                Model,
-                QueryTranslationPreprocessorFactory,
-                QueryableMethodTranslatingExpressionVisitorFactory,
-                QueryTranslationPostprocessorFactory,
-                ShapedQueryCompilingExpressionVisitorFactory,
-                executionStrategyFactory,
-                _currentContext,
-                ContextOptions,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryCompilationContextDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new QueryCompilationContextDependencies(
-                Model,
-                QueryTranslationPreprocessorFactory,
-                QueryableMethodTranslatingExpressionVisitorFactory,
-                QueryTranslationPostprocessorFactory,
-                ShapedQueryCompilingExpressionVisitorFactory,
-                _executionStrategyFactory,
-                currentContext,
-                ContextOptions,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="contextOptions"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryCompilationContextDependencies With([NotNull] IDbContextOptions contextOptions)
-            => new QueryCompilationContextDependencies(
-                Model,
-                QueryTranslationPreprocessorFactory,
-                QueryableMethodTranslatingExpressionVisitorFactory,
-                QueryTranslationPostprocessorFactory,
-                ShapedQueryCompilingExpressionVisitorFactory,
-                _executionStrategyFactory,
-                _currentContext,
-                contextOptions,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="logger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryCompilationContextDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-            => new QueryCompilationContextDependencies(
-                Model,
-                QueryTranslationPreprocessorFactory,
-                QueryableMethodTranslatingExpressionVisitorFactory,
-                QueryTranslationPostprocessorFactory,
-                ShapedQueryCompilingExpressionVisitorFactory,
-                _executionStrategyFactory,
-                _currentContext,
-                ContextOptions,
-                logger);
+        public IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; init; }
     }
 }

@@ -4,25 +4,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
     internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
+        where TVertex : notnull
     {
-        private readonly HashSet<TVertex> _vertices = new HashSet<TVertex>();
-
-        private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap =
-            new Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>>();
-
-        private readonly Dictionary<TVertex, HashSet<TVertex>> _predecessorMap =
-            new Dictionary<TVertex, HashSet<TVertex>>();
+        private readonly HashSet<TVertex> _vertices = new();
+        private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap = new();
+        private readonly Dictionary<TVertex, HashSet<TVertex>> _predecessorMap = new();
 
         public IEnumerable<TEdge> Edges
             => _successorMap.Values.SelectMany(s => s.Values).SelectMany(e => e).Distinct();
 
-        public IEnumerable<TEdge> GetEdges([NotNull] TVertex from, [NotNull] TVertex to)
+        public IEnumerable<TEdge> GetEdges(TVertex from, TVertex to)
         {
             if (_successorMap.TryGetValue(from, out var successorSet))
             {
@@ -35,13 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return Enumerable.Empty<TEdge>();
         }
 
-        public void AddVertex([NotNull] TVertex vertex)
+        public void AddVertex(TVertex vertex)
             => _vertices.Add(vertex);
 
-        public void AddVertices([NotNull] IEnumerable<TVertex> vertices)
+        public void AddVertices(IEnumerable<TVertex> vertices)
             => _vertices.UnionWith(vertices);
 
-        public void AddEdge([NotNull] TVertex from, [NotNull] TVertex to, [CanBeNull] TEdge edge)
+        public void AddEdge(TVertex from, TVertex to, TEdge edge)
         {
 #if DEBUG
             if (!_vertices.Contains(from))
@@ -78,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             predecessors.Add(from);
         }
 
-        public void AddEdges([NotNull] TVertex from, [NotNull] TVertex to, [NotNull] IEnumerable<TEdge> edges)
+        public void AddEdges(TVertex from, TVertex to, IEnumerable<TEdge> edges)
         {
 #if DEBUG
             if (!_vertices.Contains(from))
@@ -126,17 +124,17 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             => TopologicalSort(null, null);
 
         public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge)
+            Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge)
             => TopologicalSort(tryBreakEdge, null);
 
         public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+            Func<IEnumerable<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
             => TopologicalSort(null, formatCycle);
 
         public IReadOnlyList<TVertex> TopologicalSort(
-            [CanBeNull] Func<TVertex, TVertex, IEnumerable<TEdge>, bool> tryBreakEdge,
-            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle,
-            Func<string, string> formatException = null)
+            Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? tryBreakEdge,
+            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
+            Func<string, string>? formatException = null)
         {
             var sortedQueue = new List<TVertex>();
             var predecessorCounts = new Dictionary<TVertex, int>();
@@ -259,13 +257,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         private void ThrowCycle(
             List<TVertex> cycle,
-            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle,
-            Func<string, string> formatException = null)
+            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
+            Func<string, string>? formatException = null)
         {
             string cycleString;
             if (formatCycle == null)
             {
-                cycleString = cycle.Select(ToString).Join(" ->" + Environment.NewLine);
+                cycleString = cycle.Select(e => ToString(e)!).Join(" ->" + Environment.NewLine);
             }
             else
             {
@@ -285,14 +283,14 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             throw new InvalidOperationException(message);
         }
 
-        protected virtual string ToString(TVertex vertex)
+        protected virtual string? ToString(TVertex vertex)
             => vertex.ToString();
 
         public IReadOnlyList<List<TVertex>> BatchingTopologicalSort()
             => BatchingTopologicalSort(null);
 
         public IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
-            [CanBeNull] Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string> formatCycle)
+            Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle)
         {
             var currentRootsQueue = new List<TVertex>();
             var predecessorCounts = new Dictionary<TVertex, int>();
@@ -357,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             if (result.Sum(b => b.Count) != _vertices.Count)
             {
                 var currentCycleVertex = _vertices.First(
-                    v => predecessorCounts.TryGetValue(v, out var predecessorNumber) ? predecessorNumber != 0 : false);
+                    v => predecessorCounts.TryGetValue(v, out var predecessorNumber) && predecessorNumber != 0);
                 var cyclicWalk = new List<TVertex> { currentCycleVertex };
                 var finished = false;
                 while (!finished)

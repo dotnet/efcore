@@ -31,19 +31,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 string.Join(
                     Environment.NewLine,
                     string.Empty,
-                    Reporter.Colorize(@"                     _/\__       ", s => s.Insert(21, Bold + Gray)),
-                    Reporter.Colorize(@"               ---==/    \\      ", s => s.Insert(20, Bold + Gray)),
-                    Reporter.Colorize(@"         ___  ___   |.    \|\    ", s => s.Insert(26, Bold).Insert(21, Dark).Insert(20, Bold + Gray).Insert(9, Dark + Magenta)),
-                    Reporter.Colorize(@"        | __|| __|  |  )   \\\   ", s => s.Insert(20, Bold + Gray).Insert(8, Dark + Magenta)),
-                    Reporter.Colorize(@"        | _| | _|   \_/ |  //|\\ ", s => s.Insert(20, Bold + Gray).Insert(8, Dark + Magenta)),
-                    Reporter.Colorize(@"        |___||_|       /   \\\/\\", s => s.Insert(33, Reset).Insert(23, Bold + Gray).Insert(8, Dark + Magenta)),
+                    Reporter.Colorize(@"                     _/\__       ", s => s!.Insert(21, Bold + Gray)),
+                    Reporter.Colorize(@"               ---==/    \\      ", s => s!.Insert(20, Bold + Gray)),
+                    Reporter.Colorize(@"         ___  ___   |.    \|\    ", s => s!.Insert(26, Bold).Insert(21, Dark).Insert(20, Bold + Gray).Insert(9, Dark + Magenta)),
+                    Reporter.Colorize(@"        | __|| __|  |  )   \\\   ", s => s!.Insert(20, Bold + Gray).Insert(8, Dark + Magenta)),
+                    Reporter.Colorize(@"        | _| | _|   \_/ |  //|\\ ", s => s!.Insert(20, Bold + Gray).Insert(8, Dark + Magenta)),
+                    Reporter.Colorize(@"        |___||_|       /   \\\/\\", s => s!.Insert(33, Reset).Insert(23, Bold + Gray).Insert(8, Dark + Magenta)),
                     string.Empty));
 
             return base.Execute(args);
         }
 
         private static string GetVersion()
-            => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            => typeof(RootCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
                 .InformationalVersion;
     }
 }

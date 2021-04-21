@@ -356,6 +356,26 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        [Fact]
+        public void Savepoint()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            CreateTestTable(connection);
+
+            var transaction = connection.BeginTransaction();
+            transaction.Save("MySavepointName");
+
+            connection.ExecuteNonQuery("INSERT INTO TestTable (TestColumn) VALUES (8)");
+            Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
+
+            transaction.Rollback("MySavepointName");
+            Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
+
+            transaction.Release("MySavepointName");
+            Assert.Throws<SqliteException>(() => transaction.Rollback("MySavepointName"));
+        }
+
         private static void CreateTestTable(SqliteConnection connection)
         {
             connection.ExecuteNonQuery(

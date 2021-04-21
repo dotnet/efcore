@@ -3,7 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
@@ -13,11 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
         public abstract void Clear();
 
-        public abstract IEnumerable<TVertex> GetOutgoingNeighbors([NotNull] TVertex from);
+        public abstract IEnumerable<TVertex> GetOutgoingNeighbors(TVertex from);
 
-        public abstract IEnumerable<TVertex> GetIncomingNeighbors([NotNull] TVertex to);
+        public abstract IEnumerable<TVertex> GetIncomingNeighbors(TVertex to);
 
-        public ISet<TVertex> GetUnreachableVertices([NotNull] IReadOnlyList<TVertex> roots)
+        public ISet<TVertex> GetUnreachableVertices(IReadOnlyList<TVertex> roots)
         {
             var unreachableVertices = new HashSet<TVertex>(Vertices);
             unreachableVertices.ExceptWith(roots);

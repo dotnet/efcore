@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new instance of the <see cref="SqlFragmentExpression" /> class.
         /// </summary>
         /// <param name="sql"> A string token to print in SQL tree. </param>
-        public SqlFragmentExpression([NotNull] string sql)
+        public SqlFragmentExpression(string sql)
             : base(typeof(string), null)
         {
             Check.NotEmpty(sql, nameof(sql));
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlFragmentExpression sqlFragmentExpression
@@ -61,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(SqlFragmentExpression sqlFragmentExpression)
             => base.Equals(sqlFragmentExpression)
-                && string.Equals(Sql, sqlFragmentExpression.Sql)
-                && !string.Equals(Sql, "*"); // We make star projection different because it could be coming from different table.
+                && Sql == sqlFragmentExpression.Sql
+                && Sql != "*"; // We make star projection different because it could be coming from different table.
 
         /// <inheritdoc />
         public override int GetHashCode()

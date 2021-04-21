@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
@@ -844,6 +845,215 @@ namespace TestNamespace
                     Assert.Equal(34, entitType.GetProperty("A").GetMaxLength());
                     Assert.Equal(10, entitType.GetProperty("B").GetMaxLength());
                 });
+        }
+
+        [ConditionalFact]
+        public void UnicodeAttribute_is_generated_for_property()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<string>("A").HasMaxLength(34).IsUnicode();
+                            x.Property<string>("B").HasMaxLength(34).IsUnicode(false);
+                            x.Property<string>("C").HasMaxLength(34);
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class Entity
+    {
+        [Key]
+        public int Id { get; set; }
+        [StringLength(34)]
+        [Unicode]
+        public string A { get; set; }
+        [StringLength(34)]
+        [Unicode(false)]
+        public string B { get; set; }
+        [StringLength(34)]
+        public string C { get; set; }
+    }
+}
+",
+                        code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
+                },
+                model =>
+                {
+                    var entitType = model.FindEntityType("TestNamespace.Entity");
+                    Assert.True(entitType.GetProperty("A").IsUnicode());
+                    Assert.False(entitType.GetProperty("B").IsUnicode());
+                    Assert.Null(entitType.GetProperty("C").IsUnicode());
+                });
+        }
+
+        [ConditionalFact]
+        public void PrecisionAttribute_is_generated_for_property()
+        {
+            Test(
+                   modelBuilder => modelBuilder
+                       .Entity(
+                           "Entity",
+                           x =>
+                           {
+                               x.Property<int>("Id");
+                               x.Property<decimal>("A").HasPrecision(10);
+                               x.Property<decimal>("B").HasPrecision(14, 3);
+                               x.Property<DateTime>("C").HasPrecision(5);
+                               x.Property<DateTimeOffset>("D").HasPrecision(3);
+                           }),
+                   new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                   code =>
+                   {
+                       AssertFileContents(
+                           @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    public partial class Entity
+    {
+        [Key]
+        public int Id { get; set; }
+        [Precision(10)]
+        public decimal A { get; set; }
+        [Precision(14, 3)]
+        public decimal B { get; set; }
+        [Precision(5)]
+        public DateTime C { get; set; }
+        [Precision(3)]
+        public DateTimeOffset D { get; set; }
+    }
+}
+",
+                           code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
+                   },
+                   model =>
+                   {
+                       var entitType = model.FindEntityType("TestNamespace.Entity");
+                       Assert.Equal(10, entitType.GetProperty("A").GetPrecision());
+                       Assert.Equal(14, entitType.GetProperty("B").GetPrecision());
+                       Assert.Equal(3, entitType.GetProperty("B").GetScale());
+                       Assert.Equal(5, entitType.GetProperty("C").GetPrecision());
+                       Assert.Equal(3, entitType.GetProperty("D").GetPrecision());
+                   });
+        }
+
+        [ConditionalFact]
+        public void Comments_are_generated()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity",
+                        x =>
+                        {
+                            x.HasComment("Entity Comment");
+                            x.Property<int>("Id").HasComment("Property Comment");
+                        })
+                    ,
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    /// <summary>
+    /// Entity Comment
+    /// </summary>
+    public partial class Entity
+    {
+        /// <summary>
+        /// Property Comment
+        /// </summary>
+        [Key]
+        public int Id { get; set; }
+    }
+}
+",
+                        code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
+                },
+                model => { });
+        }
+
+        [ConditionalFact]
+        public void Comments_complex_are_generated()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity",
+                        x =>
+                        {
+                            x.HasComment(@"Entity Comment
+On multiple lines
+With XML content <br/>");
+                            x.Property<int>("Id").HasComment(@"Property Comment
+On multiple lines
+With XML content <br/>");
+                        })
+                    ,
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+#nullable disable
+
+namespace TestNamespace
+{
+    /// <summary>
+    /// Entity Comment
+    /// On multiple lines
+    /// With XML content &lt;br/&gt;
+    /// </summary>
+    public partial class Entity
+    {
+        /// <summary>
+        /// Property Comment
+        /// On multiple lines
+        /// With XML content &lt;br/&gt;
+        /// </summary>
+        [Key]
+        public int Id { get; set; }
+    }
+}
+",
+                        code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
+                },
+                model => { });
         }
 
         [ConditionalFact]

@@ -8,25 +8,25 @@ namespace Microsoft.Data.Sqlite.Utilities
 {
     internal class ApplicationDataHelper
     {
-        private static object _appData;
-        private static string _localFolder;
-        private static string _tempFolder;
+        private static object? _appData;
+        private static string? _localFolder;
+        private static string? _tempFolder;
 
-        public static object CurrentApplicationData
+        public static object? CurrentApplicationData
             => _appData ??= LoadAppData();
 
-        public static string TemporaryFolderPath
+        public static string? TemporaryFolderPath
             => _tempFolder ??= GetFolderPath("TemporaryFolder");
 
-        public static string LocalFolderPath
+        public static string? LocalFolderPath
             => _localFolder ??= GetFolderPath("LocalFolder");
 
-        private static object LoadAppData()
+        private static object? LoadAppData()
         {
             try
             {
                 return Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
-                    ?.GetRuntimeProperty("Current").GetValue(null);
+                    ?.GetRuntimeProperty("Current")!.GetValue(null);
             }
             catch
             {
@@ -35,12 +35,12 @@ namespace Microsoft.Data.Sqlite.Utilities
             }
         }
 
-        private static string GetFolderPath(string propertyName)
+        private static string? GetFolderPath(string propertyName)
         {
             var appDataType = CurrentApplicationData?.GetType();
-            var temporaryFolder = appDataType?.GetRuntimeProperty(propertyName).GetValue(CurrentApplicationData);
+            var temporaryFolder = appDataType?.GetRuntimeProperty(propertyName)!.GetValue(CurrentApplicationData);
 
-            return temporaryFolder?.GetType().GetRuntimeProperty("Path").GetValue(temporaryFolder) as string;
+            return temporaryFolder?.GetType().GetRuntimeProperty("Path")!.GetValue(temporaryFolder) as string;
         }
     }
 }

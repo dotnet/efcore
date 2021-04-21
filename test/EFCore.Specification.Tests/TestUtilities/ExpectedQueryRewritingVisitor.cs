@@ -28,16 +28,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
+        private static readonly MethodInfo _getShadowPropertyValueMethodInfo
+            = typeof(ExpectedQueryRewritingVisitor).GetMethod(nameof(GetShadowPropertyValue));
+
         private static readonly MethodInfo _maybeScalarNullableMethod;
         private static readonly MethodInfo _maybeScalarNonNullableMethod;
 
-        /// <summary>
-        ///     used to map shadow property to a series of non-shadow member expressions,
-        ///     e.g. order.CustomerId -> order.Customer + customer.Id
-        ///     key: source type + shadow property name
-        ///     value: list of MemberInfos that should be used during rewrite
-        /// </summary>
-        private readonly Dictionary<(Type type, string name), MemberInfo[]> _efPropertyMemberInfoMappings;
+        private readonly Dictionary<(Type, string), Func<object, object>> _shadowPropertyMappings;
 
         private bool _negated;
 
@@ -51,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _maybeScalarNonNullableMethod = maybeScalarMethods.Single(x => !x.argument.IsNullableValueType()).method;
         }
 
-        public ExpectedQueryRewritingVisitor(Dictionary<(Type type, string name), MemberInfo[]> efPropertyMemberInfoMappings = null)
+        public ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<object, object>> shadowPropertyMappings = null)
         {
-            _efPropertyMemberInfoMappings = efPropertyMemberInfoMappings ?? new Dictionary<(Type type, string name), MemberInfo[]>();
+            _shadowPropertyMappings = shadowPropertyMappings ?? new Dictionary<(Type, string), Func<object, object>>();
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -233,6 +230,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return Expression.Equal(outerMaybeScalar, Expression.Constant(true, typeof(bool?)));
         }
 
+        public static TResult GetShadowPropertyValue<TEntity, TResult>(TEntity entity, Func<object, object> shadowPropertyAccessor)
+            => (TResult)shadowPropertyAccessor(entity);
+
         private Expression TryConvertEFPropertyToMemberAccess(Expression expression)
         {
             if (expression is MethodCallExpression methodCallExpression
@@ -244,18 +244,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 if (propertyName != null)
                 {
-                    var efPropertyMemberInfoMapping = _efPropertyMemberInfoMappings
-                        .Where(m => m.Key.type == caller.Type && m.Key.name == propertyName)
+                    var shadowPropertyMapping = _shadowPropertyMappings
+                        .Where(m => caller.Type.GetTypesInHierarchy().Contains(m.Key.Item1) && m.Key.Item2 == propertyName)
                         .Select(m => m.Value).SingleOrDefault();
 
                     var result = default(Expression);
-                    if (efPropertyMemberInfoMapping != null)
+                    if (shadowPropertyMapping != null)
                     {
-                        result = caller;
-                        foreach (var targetMemberInfo in efPropertyMemberInfoMapping)
-                        {
-                            result = Expression.MakeMemberAccess(result, targetMemberInfo);
-                        }
+                        var methodInfo = _getShadowPropertyValueMethodInfo.MakeGenericMethod(caller.Type, methodCallExpression.Type);
+                        result = Expression.Call(methodInfo, caller, Expression.Constant(shadowPropertyMapping));
                     }
                     else if (caller.Type.GetMembers().Where(m => m.Name == propertyName).SingleOrDefault() is MemberInfo matchingMember)
                     {

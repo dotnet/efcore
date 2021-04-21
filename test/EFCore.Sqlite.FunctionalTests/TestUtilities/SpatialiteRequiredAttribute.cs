@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public sealed class SpatialiteRequiredAttribute : Attribute, ITestCondition
     {
         private static readonly Lazy<bool> _loaded
-            = new Lazy<bool>(
+            = new(
                 () =>
                 {
                     using var connection = new SqliteConnection("Data Source=:memory:");
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 });
 
         public ValueTask<bool> IsMetAsync()
-            => new ValueTask<bool>(_loaded.Value);
+            => new(_loaded.Value);
 
         public string SkipReason
             => "mod_spatialite not found. Install it to run this test.";

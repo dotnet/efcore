@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
         public RelationalQueryContext(
-            [NotNull] QueryContextDependencies dependencies,
-            [NotNull] RelationalQueryContextDependencies relationalDependencies)
+            QueryContextDependencies dependencies,
+            RelationalQueryContextDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -59,5 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </value>
         public virtual IRelationalConnection Connection
             => RelationalDependencies.RelationalConnection;
+
+        /// <summary>
+        ///     The command logger to use while executing the query.
+        /// </summary>
+        public new virtual IRelationalCommandDiagnosticsLogger CommandLogger
+            => (IRelationalCommandDiagnosticsLogger)base.CommandLogger;
     }
 }

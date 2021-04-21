@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly ColumnMappingBaseComparer Instance = new ColumnMappingBaseComparer();
+        public static readonly ColumnMappingBaseComparer Instance = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,8 +32,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IColumnMappingBase x, IColumnMappingBase y)
+        public int Compare(IColumnMappingBase? x, IColumnMappingBase? y)
         {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
             var result = y.Property.IsPrimaryKey().CompareTo(x.Property.IsPrimaryKey());
             if (result != 0)
             {
@@ -73,9 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IColumnMappingBase x, IColumnMappingBase y)
-            => x.Property == y.Property
-                && x.Column == y.Column;
+        public bool Equals(IColumnMappingBase? x, IColumnMappingBase? y)
+            => ReferenceEquals(x, y) || x is not null && y is not null && x.Property == y.Property && x.Column == y.Column;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

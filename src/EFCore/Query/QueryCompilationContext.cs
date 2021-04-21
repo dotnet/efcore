@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -47,6 +46,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public static readonly ParameterExpression QueryContextParameter = Expression.Parameter(typeof(QueryContext), "queryContext");
 
+        /// <summary>
+        ///     <para>
+        ///         Expression representing a not translated expression in query tree during translation phase.
+        ///     </para>
+        ///     <para>
+        ///         This property is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        public static readonly Expression NotTranslatedExpression = new NotTranslatedExpressionType();
+
         private readonly IQueryTranslationPreprocessorFactory _queryTranslationPreprocessorFactory;
         private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
         private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
@@ -54,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private readonly ExpressionPrinter _expressionPrinter;
 
-        private Dictionary<string, LambdaExpression> _runtimeParameters;
+        private Dictionary<string, LambdaExpression>? _runtimeParameters;
 
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryCompilationContext" /> class.
@@ -62,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
         /// <param name="async"> A bool value indicating whether it is for async query. </param>
         public QueryCompilationContext(
-            [NotNull] QueryCompilationContextDependencies dependencies,
+            QueryCompilationContextDependencies dependencies,
             bool async)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -150,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Adds a tag to <see cref="Tags" />.
         /// </summary>
         /// <param name="tag"> The tag to add. </param>
-        public virtual void AddTag([NotNull] string tag)
+        public virtual void AddTag(string tag)
         {
             Check.NotEmpty(tag, nameof(tag));
 
@@ -163,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <typeparam name="TResult"> The result type of this query. </typeparam>
         /// <param name="query"> The query to generate executor for. </param>
         /// <returns> Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query. </returns>
-        public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>([NotNull] Expression query)
+        public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
         {
             Check.NotNull(query, nameof(query));
 
@@ -201,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A lambda must be provided, which will extract the parameter's value from the QueryContext every time
         ///     the query is executed.
         /// </summary>
-        public virtual ParameterExpression RegisterRuntimeParameter([NotNull] string name, [NotNull] LambdaExpression valueExtractor)
+        public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(valueExtractor, nameof(valueExtractor));
@@ -236,8 +246,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Append(query));
 
         private static readonly MethodInfo _queryContextAddParameterMethodInfo
-            = typeof(QueryContext)
-                .GetTypeInfo()
-                .GetDeclaredMethod(nameof(QueryContext.AddParameter));
+            = typeof(QueryContext).GetRequiredDeclaredMethod(nameof(QueryContext.AddParameter));
+
+        private sealed class NotTranslatedExpressionType : Expression
+        {
+            public override Type Type => typeof(object);
+            public override ExpressionType NodeType => ExpressionType.Extension;
+        }
     }
 }

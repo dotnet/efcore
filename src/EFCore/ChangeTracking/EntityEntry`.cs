@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public EntityEntry([NotNull] InternalEntityEntry internalEntry)
+        public EntityEntry(InternalEntityEntry internalEntry)
             : base(internalEntry)
         {
         }
@@ -55,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
         public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
-            [NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
+            Expression<Func<TEntity, TProperty>> propertyExpression)
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     given navigation property.
         /// </returns>
         public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(
-            [NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
+            Expression<Func<TEntity, TProperty>> propertyExpression)
             where TProperty : class
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
@@ -96,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     given navigation property.
         /// </returns>
         public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(
-            [NotNull] Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression)
+            Expression<Func<TEntity, IEnumerable<TProperty>>> propertyExpression)
             where TProperty : class
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
@@ -113,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>([NotNull] string propertyName)
+        public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(string propertyName)
             where TProperty : class
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
@@ -130,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An object that exposes change tracking information and operations for the
         ///     given navigation property.
         /// </returns>
-        public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>([NotNull] string propertyName)
+        public virtual CollectionEntry<TEntity, TProperty> Collection<TProperty>(string propertyName)
             where TProperty : class
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
@@ -146,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="propertyName"> The property to access information and operations for. </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
         public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
-            [NotNull] string propertyName)
+            string propertyName)
         {
             Check.NotEmpty(propertyName, nameof(propertyName));
 
@@ -155,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return new PropertyEntry<TEntity, TProperty>(InternalEntry, propertyName);
         }
 
-        private static void ValidateType<TProperty>(IProperty property)
+        private static void ValidateType<TProperty>(IProperty? property)
         {
             if (property != null
                 && property.ClrType != typeof(TProperty))

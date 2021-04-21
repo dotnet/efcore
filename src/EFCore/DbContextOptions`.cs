@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="extensions"> The extensions that store the configured options. </param>
         public DbContextOptions(
-            [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
+            IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
             : base(extensions)
         {
         }

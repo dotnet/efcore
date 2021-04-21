@@ -13,13 +13,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         public bool EnsureDeleted()
             => throw new NotImplementedException();
 
-        public Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = new CancellationToken())
+        public Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = new())
             => throw new NotImplementedException();
 
         public bool EnsureCreated()
             => throw new NotImplementedException();
 
-        public Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = new CancellationToken())
+        public Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = new())
             => throw new NotImplementedException();
 
         public bool CanConnect()
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         public bool Exists()
             => throw new NotImplementedException();
 
-        public Task<bool> ExistsAsync(CancellationToken cancellationToken = new CancellationToken())
+        public Task<bool> ExistsAsync(CancellationToken cancellationToken = new())
             => throw new NotImplementedException();
 
         public bool HasTables()
@@ -43,19 +43,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         public void Create()
             => throw new NotImplementedException();
 
-        public Task CreateAsync(CancellationToken cancellationToken = new CancellationToken())
+        public Task CreateAsync(CancellationToken cancellationToken = new())
             => throw new NotImplementedException();
 
         public void Delete()
             => throw new NotImplementedException();
 
-        public Task DeleteAsync(CancellationToken cancellationToken = new CancellationToken())
+        public Task DeleteAsync(CancellationToken cancellationToken = new())
             => throw new NotImplementedException();
 
         public void CreateTables()
             => throw new NotImplementedException();
 
-        public Task CreateTablesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public Task CreateTablesAsync(CancellationToken cancellationToken = new())
             => throw new NotImplementedException();
 
         public string GenerateCreateScript()

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Xunit.Abstractions;
 
@@ -14,12 +15,13 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        public override void Can_use_optional_dependents_with_shared_concurrency_tokens()
+        public override Task Can_use_optional_dependents_with_shared_concurrency_tokens()
         {
             // TODO: Issue #22060
+            return Task.CompletedTask;
         }
 
-        protected override string DatabaseName { get; } = "TPTTableSplittingTest";
+        protected override string StoreName { get; } = "TPTTableSplittingTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

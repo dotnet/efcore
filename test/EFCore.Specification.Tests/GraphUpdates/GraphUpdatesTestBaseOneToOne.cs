@@ -1224,7 +1224,11 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.False(context.ChangeTracker.HasChanges());
 
                         Assert.Null(old1.Root);
-                        Assert.Null(old2.Back);
+                        if (!context.Entry(old2).Metadata.IsOwned())
+                        {
+                            // Navigations to owners are preserved when these are owned
+                            Assert.Null(old2.Back);
+                        }
                         Assert.Equal(old1.Id, old2.Id);
                     }
                 },
@@ -1238,8 +1242,17 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertPossiblyNullNavigations(loadedRoot);
 
-                        Assert.False(context.Set<RequiredSingle1>().Any(e => e.Id == old1.Id));
-                        Assert.False(context.Set<RequiredSingle2>().Any(e => e.Id == old2.Id));
+                        //TODO: Aggregate on optional dependent #23230
+                        //var removedCount = context.Set<Root>().Select(r => r.RequiredSingle).Count(e => e.Id == old1.Id);
+                        //Assert.Equal(0, removedCount);
+
+                        Assert.False(context.Set<Root>().Any(r => r.RequiredSingle != null));
+
+                        //var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingle).Select(r => r.Single)
+                        //    .Count(e => e.Id == old2.Id);
+                        //Assert.Equal(0, orphanedCount);
+
+                        Assert.False(context.Set<Root>().Select(r => r.RequiredSingle).Any(r => r.Single != null));
                     }
                 });
         }
@@ -1654,9 +1667,6 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Null(root.RequiredSingle);
 
-                        Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
-                        Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
-
                         Assert.Same(root, removed.Root);
                         Assert.Same(orphaned, removed.Single);
                     }
@@ -1670,8 +1680,17 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Null(root.RequiredSingle);
 
-                        Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
-                        Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
+                        //TODO: Aggregate on optional dependent #23230
+                        //var removedCount = context.Set<Root>().Select(r => r.RequiredSingle).Count(e => e.Id == removedId);
+                        //Assert.Equal(0, removedCount);
+
+                        Assert.False(context.Set<Root>().Any(r => r.RequiredSingle != null));
+
+                        //var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingle).Select(r => r.Single)
+                        //    .Count(e => e.Id == orphanedId);
+                        //Assert.Equal(0, orphanedCount);
+
+                        Assert.False(context.Set<Root>().Select(r => r.RequiredSingle).Any(r => r.Single != null));
                     }
                 });
         }
@@ -1722,7 +1741,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
                     Assert.Null(parent.Single);
-                    Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == removedId));
                     Assert.Same(parent, removed.Back);
                 },
                 context =>
@@ -1731,7 +1749,13 @@ namespace Microsoft.EntityFrameworkCore
                     var parent = root.RequiredSingle;
 
                     Assert.Null(parent.Single);
-                    Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == removedId));
+
+                    //TODO: Aggregate on optional dependent #23230
+                    //var removedCount = context.Set<Root>().Select(r => r.RequiredSingle).Select(r => r.Single)
+                    //    .Count(e => e.Id == removedId);
+                    //Assert.Equal(0, removedCount);
+
+                    Assert.False(context.Set<Root>().Select(r => r.RequiredSingle).Any(r => r.Single != null));
                 });
         }
 
@@ -1868,7 +1892,6 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
                     Assert.Null(parent.Single);
-                    Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == removedId));
                     Assert.Same(parent, removed.Back);
                 },
                 context =>
@@ -1940,9 +1963,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
                         Assert.Null(root.RequiredSingle);
-
-                        Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
-                        Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
 
                         Assert.Same(root, removed.Root);
                         Assert.Same(orphaned, removed.Single);
@@ -2127,8 +2147,17 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Assert.Null(root.RequiredSingle);
 
-                        Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
-                        Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
+                        //TODO: Aggregate on optional dependent #23230
+                        //var removedCount = context.Set<Root>().Select(r => r.RequiredSingle).Count(e => e.Id == removedId);
+                        //Assert.Equal(0, removedCount);
+
+                        Assert.False(context.Set<Root>().Any(r => r.RequiredSingle != null));
+
+                        //var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingle).Select(r => r.Single)
+                        //    .Count(e => e.Id == orphanedId);
+                        //Assert.Equal(0, orphanedCount);
+
+                        Assert.False(context.Set<Root>().Select(r => r.RequiredSingle).Any(r => r.Single != null));
                     }
                 });
         }
@@ -2317,8 +2346,17 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Null(root.RequiredSingle);
 
-                        Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
-                        Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
+                        //TODO: Aggregate on optional dependent #23230
+                        //var removedCount = context.Set<Root>().Select(r => r.RequiredSingle).Count(e => e.Id == removedId);
+                        //Assert.Equal(0, removedCount);
+
+                        Assert.False(context.Set<Root>().Any(r => r.RequiredSingle != null));
+
+                        //var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingle).Select(r => r.Single)
+                        //    .Count(e => e.Id == orphanedId);
+                        //Assert.Equal(0, orphanedCount);
+
+                        Assert.False(context.Set<Root>().Select(r => r.RequiredSingle).Any(r => r.Single != null));
                     }
                 });
         }

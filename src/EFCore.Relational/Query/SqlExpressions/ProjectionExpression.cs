@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     /// </summary>
     public sealed class ProjectionExpression : Expression, IPrintableExpression
     {
-        internal ProjectionExpression([NotNull] SqlExpression expression, [NotNull] string alias)
+        internal ProjectionExpression(SqlExpression expression, string alias)
         {
             Check.NotNull(expression, nameof(expression));
             Check.NotNull(alias, nameof(alias));
@@ -61,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="expression"> The <see cref="Expression" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public ProjectionExpression Update([NotNull] SqlExpression expression)
+        public ProjectionExpression Update(SqlExpression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -76,24 +75,23 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
             expressionPrinter.Visit(Expression);
-            if (!string.Equals(string.Empty, Alias)
+            if (Alias != string.Empty
                 && !(Expression is ColumnExpression column
-                    && string.Equals(column.Name, Alias)))
+                    && column.Name == Alias))
             {
                 expressionPrinter.Append(" AS " + Alias);
             }
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is ProjectionExpression projectionExpression
                     && Equals(projectionExpression));
 
         private bool Equals(ProjectionExpression projectionExpression)
-            => string.Equals(Alias, projectionExpression.Alias)
-                && Expression.Equals(projectionExpression.Expression);
+            => Alias == projectionExpression.Alias && Expression.Equals(projectionExpression.Expression);
 
         /// <inheritdoc />
         public override int GetHashCode()

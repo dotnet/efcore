@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
@@ -24,9 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
         protected static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(
-                size: 36,
-                valueGeneratorFactory: (p, t) => new SequentialGuidValueGenerator());
+            = new(size: 36, valueGeneratorFactory: (p, t) => new SequentialGuidValueGenerator());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public StringGuidConverter(
-            [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
-            [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            Expression<Func<TModel, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TModel>> convertFromProviderExpression,
+            ConverterMappingHints? mappingHints = null)
             : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
         {
         }
@@ -58,6 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected static Expression<Func<string, Guid>> ToGuid()
-            => v => v == null ? default : new Guid(v);
+            => v => new Guid(v);
     }
 }

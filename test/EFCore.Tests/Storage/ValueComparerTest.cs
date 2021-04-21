@@ -6,12 +6,45 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class ValueComparerTest
     {
+        private class SomeDbContext : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Foo>().Property(e => e.Bar).HasConversion<string>(new FakeValueComparer());
+        }
+
+        protected class FakeValueComparer : ValueComparer<double>
+        {
+            public FakeValueComparer() : base(false)
+            {
+            }
+        }
+
+        private class Foo
+        {
+            public int Id { get; set; }
+            public int Bar { get; set; }
+        }
+
+        [ConditionalFact]
+        public void Throws_for_comparer_with_wrong_type()
+        {
+            using var context = new SomeDbContext();
+
+            Assert.Equal(
+                CoreStrings.ComparerPropertyMismatch("double", nameof(Foo), nameof(Foo.Bar), "int"),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+        }
+
         [ConditionalTheory]
         [InlineData(typeof(byte), (byte)1, (byte)2, 1)]
         [InlineData(typeof(ushort), (ushort)1, (ushort)2, 1)]

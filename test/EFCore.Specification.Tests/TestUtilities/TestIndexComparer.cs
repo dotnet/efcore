@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class TestIndexComparer : IEqualityComparer<IIndex>, IComparer<IIndex>
+    public class TestIndexComparer : IEqualityComparer<IReadOnlyIndex>, IComparer<IReadOnlyIndex>
     {
         private readonly bool _compareAnnotations;
 
@@ -17,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _compareAnnotations = compareAnnotations;
         }
 
-        public int Compare(IIndex x, IIndex y)
+        public int Compare(IReadOnlyIndex x, IReadOnlyIndex y)
             => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
 
-        public bool Equals(IIndex x, IIndex y)
+        public bool Equals(IReadOnlyIndex x, IReadOnlyIndex y)
         {
             if (x == null)
             {
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
-        public int GetHashCode(IIndex obj)
+        public int GetHashCode(IReadOnlyIndex obj)
             => PropertyListComparer.Instance.GetHashCode(obj.Properties);
     }
 }

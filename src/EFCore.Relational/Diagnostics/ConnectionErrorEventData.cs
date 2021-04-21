@@ -4,7 +4,6 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -26,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The start time of this event. </param>
         /// <param name="duration"> The duration this event.  </param>
         public ConnectionErrorEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] DbConnection connection,
-            [CanBeNull] DbContext context,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbConnection connection,
+            DbContext? context,
             Guid connectionId,
-            [NotNull] Exception exception,
+            Exception exception,
             bool async,
             DateTimeOffset startTime,
             TimeSpan duration)

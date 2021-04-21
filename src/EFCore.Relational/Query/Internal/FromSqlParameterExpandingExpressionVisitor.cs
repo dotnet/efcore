@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
-        private IReadOnlyDictionary<string, object> _parametersValues;
+        private IReadOnlyDictionary<string, object?> _parametersValues;
         private ParameterNameGenerator _parameterNameGenerator;
         private bool _canCache;
 
@@ -40,13 +40,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public FromSqlParameterExpandingExpressionVisitor(
-            [NotNull] RelationalParameterBasedSqlProcessorDependencies dependencies)
+            RelationalParameterBasedSqlProcessorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             _typeMappingSource = dependencies.TypeMappingSource;
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
+            _parametersValues = default!;
+            _parameterNameGenerator = default!;
         }
 
         /// <summary>
@@ -56,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SelectExpression Expand(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object> parameterValues,
+            SelectExpression selectExpression,
+            IReadOnlyDictionary<string, object?> parameterValues,
             out bool canCache)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -80,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Expression Visit(Expression expression)
+        [return: NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
         {
             if (expression is FromSqlExpression fromSql)
             {
@@ -89,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     switch (fromSql.Arguments)
                     {
                         case ParameterExpression parameterExpression:
-                            var parameterValues = (object[])_parametersValues[parameterExpression.Name];
+                            // parameter value will never be null. It could be empty object[]
+                            var parameterValues = (object[])_parametersValues[parameterExpression.Name!]!;
                             _canCache = false;
 
                             var subParameters = new List<IRelationalParameter>(parameterValues.Length);
@@ -122,14 +126,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             }
 
                             updatedFromSql = fromSql.Update(
-                                Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name, subParameters)));
+                                Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name!, subParameters)));
 
                             _visitedFromSqlExpressions[fromSql] = updatedFromSql;
                             break;
 
                         case ConstantExpression constantExpression:
-                            var existingValues = (object[])constantExpression.Value;
-                            var constantValues = new object[existingValues.Length];
+                            var existingValues = constantExpression.GetConstantValue<object?[]>();
+                            var constantValues = new object?[existingValues.Length];
                             for (var i = 0; i < existingValues.Length; i++)
                             {
                                 var value = existingValues[i];
@@ -154,9 +158,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 }
                             }
 
-                            updatedFromSql = fromSql.Update(Expression.Constant(constantValues, typeof(object[])));
+                            updatedFromSql = fromSql.Update(Expression.Constant(constantValues, typeof(object?[])));
 
                             _visitedFromSqlExpressions[fromSql] = updatedFromSql;
+                            break;
+
+                        default:
+                            Check.DebugAssert(false, "FromSql.Arguments must be Constant/ParameterExpression");
                             break;
                     }
                 }

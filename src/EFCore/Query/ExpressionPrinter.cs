@@ -4,11 +4,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class ExpressionPrinter : ExpressionVisitor
     {
-        private static readonly List<string> _simpleMethods = new List<string>
+        private static readonly List<string> _simpleMethods = new()
         {
             "get_Item",
             "TryReadValue",
@@ -34,11 +34,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         };
 
         private readonly IndentedStringBuilder _stringBuilder;
-        private readonly Dictionary<ParameterExpression, string> _parametersInScope;
+        private readonly Dictionary<ParameterExpression, string?> _parametersInScope;
         private readonly List<ParameterExpression> _namelessParameters;
         private readonly List<ParameterExpression> _encounteredParameters;
 
-        private readonly Dictionary<ExpressionType, string> _binaryOperandMap = new Dictionary<ExpressionType, string>
+        private readonly Dictionary<ExpressionType, string> _binaryOperandMap = new()
         {
             { ExpressionType.Assign, " = " },
             { ExpressionType.Equal, " == " },
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public ExpressionPrinter()
         {
             _stringBuilder = new IndentedStringBuilder();
-            _parametersInScope = new Dictionary<ParameterExpression, string>();
+            _parametersInScope = new Dictionary<ParameterExpression, string?>();
             _namelessParameters = new List<ParameterExpression>();
             _encounteredParameters = new List<ParameterExpression>();
         }
@@ -80,8 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="items"> A collection of items to print. </param>
         /// <param name="joinAction"> A join action to use when joining printout of individual item in the collection. </param>
         public virtual void VisitCollection<T>(
-            [NotNull] IReadOnlyCollection<T> items,
-            [CanBeNull] Action<ExpressionPrinter> joinAction = null)
+            IReadOnlyCollection<T> items,
+            Action<ExpressionPrinter>? joinAction = null)
             where T : Expression
         {
             Check.NotNull(items, nameof(items));
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This printer so additional calls can be chained. </returns>
-        public virtual ExpressionVisitor AppendLine([NotNull] string value)
+        public virtual ExpressionVisitor AppendLine(string value)
         {
             _stringBuilder.AppendLine(value);
             return this;
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="value"> The string to append. </param>
         /// <param name="skipFinalNewline"> If true, then a terminating new line is not added. </param>
         /// <returns> This printer so additional calls can be chained. </returns>
-        public virtual ExpressionPrinter AppendLines([NotNull] string value, bool skipFinalNewline = false)
+        public virtual ExpressionPrinter AppendLines(string value, bool skipFinalNewline = false)
         {
             _stringBuilder.AppendLines(value, skipFinalNewline);
             return this;
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This printer so additional calls can be chained. </returns>
-        public virtual ExpressionPrinter Append([NotNull] string value)
+        public virtual ExpressionPrinter Append(string value)
         {
             _stringBuilder.Append(value);
             return this;
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="characterLimit"> An optional limit to the number of characters included. Additional output will be truncated. </param>
         /// <returns> The printable representation. </returns>
         public virtual string Print(
-            [NotNull] Expression expression,
+            Expression expression,
             int? characterLimit = null)
             => PrintCore(expression, characterLimit, verbose: false);
 
@@ -172,11 +172,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="expression"> The expression to print. </param>
         /// <returns> The printable representation. </returns>
         public virtual string PrintDebug(
-            [NotNull] Expression expression)
+            Expression expression)
             => PrintCore(expression, characterLimit: null, verbose: true);
 
         private string PrintCore(
-            [NotNull] Expression expression,
+            Expression expression,
             int? characterLimit,
             bool verbose)
         {
@@ -216,7 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public override Expression Visit(Expression expression)
+        [return: NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
         {
             if (expression == null)
             {
@@ -453,19 +454,28 @@ namespace Microsoft.EntityFrameworkCore.Query
             return constantExpression;
         }
 
-        private void Print(object value)
+        private void Print(object? value)
         {
             if (value is IEnumerable enumerable
                 && !(value is string))
             {
                 _stringBuilder.Append(value.GetType().ShortDisplayName() + " { ");
+
+                var first = true;
                 foreach (var item in enumerable)
                 {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        _stringBuilder.Append(", ");
+                    }
                     Print(item);
-                    _stringBuilder.Append(", ");
                 }
 
-                _stringBuilder.Append("}");
+                _stringBuilder.Append(" }");
                 return;
             }
 
@@ -481,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 stringValue = $@"""{stringValue}""";
             }
 
-            _stringBuilder.Append(stringValue);
+            _stringBuilder.Append(stringValue ?? "Unknown");
         }
 
         /// <inheritdoc />
@@ -577,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             else
             {
                 // ReSharper disable once PossibleNullReferenceException
-                _stringBuilder.Append(memberExpression.Member.DeclaringType.Name);
+                _stringBuilder.Append(memberExpression.Member.DeclaringType?.Name ?? "MethodWithoutDeclaringType");
             }
 
             _stringBuilder.Append("." + memberExpression.Member.Name);
@@ -662,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (method.IsStatic)
                 {
-                    _stringBuilder.Append(method.DeclaringType.ShortDisplayName()).Append(".");
+                    _stringBuilder.Append(method.DeclaringType!.ShortDisplayName()).Append(".");
                 }
 
                 _stringBuilder.Append(method.Name);
@@ -686,9 +696,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? extensionMethod
                             ? method.GetParameters().Skip(1).Select(p => p.Name).ToList()
                             : method.GetParameters().Select(p => p.Name).ToList()
-                        : new List<string>();
+                        : new List<string?>();
 
-                IDisposable indent = null;
+                IDisposable? indent = null;
 
                 if (!isSimpleMethodOrProperty)
                 {
@@ -770,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 appendAction("{ ");
             }
 
-            IDisposable indent = null;
+            IDisposable? indent = null;
             if (isComplex)
             {
                 indent = _stringBuilder.Indent();
@@ -810,12 +820,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(newArrayExpression, nameof(newArrayExpression));
 
             var isComplex = newArrayExpression.Expressions.Count > 1;
-            var appendAction = isComplex ? (Func<string, ExpressionVisitor>)AppendLine : Append;
+            var appendAction = isComplex ? s => AppendLine(s) : (Action<string>)(s => Append(s));
 
-            appendAction("new " + newArrayExpression.Type.GetElementType().ShortDisplayName() + "[]");
+            appendAction("new " + newArrayExpression.Type.GetElementType()!.ShortDisplayName() + "[]");
             appendAction("{ ");
 
-            IDisposable indent = null;
+            IDisposable? indent = null;
             if (isComplex)
             {
                 indent = _stringBuilder.Indent();
@@ -867,12 +877,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (Verbose)
                 {
                     Append("(Unhandled parameter: ");
-                    Append(parameterExpression.Name);
+                    Append(parameterExpression.Name ?? "NoNameParameter");
                     Append(")");
                 }
                 else
                 {
-                    Append(parameterExpression.Name);
+                    Append(parameterExpression.Name ?? "NoNameParameter");
                 }
             }
 
@@ -985,7 +995,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 indexExpression.Arguments, s =>
                 {
                     _stringBuilder.Append(s);
-                    return null;
                 });
             _stringBuilder.Append("]");
 
@@ -1066,7 +1075,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private void VisitArguments(
             IReadOnlyList<Expression> arguments,
-            Func<string, ExpressionVisitor> appendAction,
+            Action<string> appendAction,
             string lastSeparator = "",
             bool areConnected = false)
         {
@@ -1082,7 +1091,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private string PostProcess([NotNull] string printedExpression)
+        private string PostProcess(string printedExpression)
         {
             var processedPrintedExpression = printedExpression
                 .Replace("Microsoft.EntityFrameworkCore.Query.", "")
