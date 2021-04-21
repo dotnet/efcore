@@ -27,10 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly Func<string>? _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IColumnModificationFactory _columnModificationFactory;
-        private readonly List<IUpdateEntry> _entries = new();
+        private readonly IReadOnlyList<IUpdateEntry> _entries;
         private IReadOnlyList<ColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
         private readonly EntityState _entityState;
+
+        private static readonly IUpdateEntry[] _emptyEntries=new IUpdateEntry[0];
 
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
             IColumnModificationFactory columnModificationFactory,
-            List<IUpdateEntry> entries,
+            IReadOnlyList<IUpdateEntry> entries,
             EntityState entityState)
         {
             TableName = name;
@@ -121,6 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             _columnModifications = columnModifications;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
             _columnModificationFactory = columnModificationFactory;
+
+            _entries = _emptyEntries;
 
             _entityState = EntityState.Modified;
         }
