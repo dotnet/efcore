@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public GuidToBytesConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 v => v.ToByteArray(),
-                v => v == null ? Guid.Empty : new Guid(v),
+                v => new Guid(v),
                 _defaultHints.With(mappingHints))
         {
         }

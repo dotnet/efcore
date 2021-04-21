@@ -1971,7 +1971,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model. </param>
         /// <param name="version"> The version. </param>
         /// <returns> <see langword="true" /> if the version could be retrieved. </returns>
-        protected virtual bool TryGetVersion(IModel? model, [NotNullWhen(true)] out string? version)
+        protected virtual bool TryGetVersion([NotNullWhen(true)] IModel? model, [NotNullWhen(true)] out string? version)
         {
             if (!(model?.GetProductVersion() is string versionString))
             {

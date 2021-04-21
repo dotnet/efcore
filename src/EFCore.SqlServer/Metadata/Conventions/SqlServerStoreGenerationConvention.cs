@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return;
                 }
 
-                if (property.GetDefaultValue(storeObject) != null)
+                if (property.TryGetDefaultValue(storeObject, out _))
                 {
                     Dependencies.ValidationLogger.ConflictingValueGenerationStrategiesWarning(
                         generationStrategy, "DefaultValue", property);

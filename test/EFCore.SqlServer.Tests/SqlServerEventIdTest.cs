@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
             TestEventLogging(
                 typeof(SqlServerEventId),
                 typeof(SqlServerLoggerExtensions),
-                typeof(SqlServerLoggingDefinitions),
+                new SqlServerLoggingDefinitions(),
                 fakeFactories);
         }
     }

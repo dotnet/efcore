@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// <summary>
     ///     Converts arrays of bytes to and from strings.
     /// </summary>
-    public class BytesToStringConverter : ValueConverter<byte[], string>
+    public class BytesToStringConverter : ValueConverter<byte[]?, string?>
     {
         /// <summary>
         ///     Creates a new instance of this converter.
@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public BytesToStringConverter(
             ConverterMappingHints? mappingHints = null)
             : base(
-                // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
-                v => v == null ? null! : Convert.ToBase64String(v),
-                v => v == null ? null! : Convert.FromBase64String(v),
+                v => v == null ? null : Convert.ToBase64String(v),
+                v => v == null ? null : Convert.FromBase64String(v),
+                convertsNulls: true,
                 mappingHints)
         {
         }

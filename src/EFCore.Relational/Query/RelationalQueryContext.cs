@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -58,5 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </value>
         public virtual IRelationalConnection Connection
             => RelationalDependencies.RelationalConnection;
+
+        /// <summary>
+        ///     The command logger to use while executing the query.
+        /// </summary>
+        public new virtual IRelationalCommandDiagnosticsLogger CommandLogger
+            => (IRelationalCommandDiagnosticsLogger)base.CommandLogger;
     }
 }

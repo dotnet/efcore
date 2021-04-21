@@ -106,5 +106,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Skip_Take_Select_collection_Skip_Take(async))).Message);
+
+        public override async Task Select_subquery_single_nested_subquery(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Select_subquery_single_nested_subquery(async))).Message);
+
+        public override async Task Select_subquery_single_nested_subquery2(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Select_subquery_single_nested_subquery2(async))).Message);
+
+        public override void Member_pushdown_chain_3_levels_deep_entity()
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (Assert.Throws<InvalidOperationException>(
+                    () => base.Member_pushdown_chain_3_levels_deep_entity())).Message);
     }
 }

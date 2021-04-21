@@ -55,6 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected static Expression<Func<string, Guid>> ToGuid()
-            => v => v == null ? default : new Guid(v);
+            => v => new Guid(v);
     }
 }

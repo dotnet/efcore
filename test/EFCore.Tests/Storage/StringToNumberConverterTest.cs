@@ -21,9 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(ulong.MaxValue, converter("18446744073709551615"));
             Assert.Equal((ulong)77, converter("77"));
-            Assert.Equal((ulong)0, converter("-1"));
             Assert.Equal((ulong)0, converter("0"));
-            Assert.Equal((ulong)0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -33,8 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(ulong.MaxValue, converter("18446744073709551615"));
             Assert.Equal((ulong)77, converter("77"));
-            Assert.Equal((ulong)0, converter("-1"));
             Assert.Equal((ulong)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
@@ -72,7 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
             Assert.Equal(0, converter("0"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-9223372036854775809"));
+            Assert.Throws<OverflowException>(() => converter("9223372036854775808"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -85,6 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((long)77, converter("77"));
             Assert.Equal((long)-77, converter("-77"));
             Assert.Equal((long)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-9223372036854775809"));
+            Assert.Throws<OverflowException>(() => converter("9223372036854775808"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
@@ -123,9 +135,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(uint.MaxValue, converter("4294967295"));
             Assert.Equal((uint)77, converter("77"));
-            Assert.Equal((uint)0, converter("-1"));
             Assert.Equal((uint)0, converter("0"));
-            Assert.Equal((uint)0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("4294967296"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -135,8 +150,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(uint.MaxValue, converter("4294967295"));
             Assert.Equal((uint)77, converter("77"));
-            Assert.Equal((uint)0, converter("-1"));
             Assert.Equal((uint)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("4294967296"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
@@ -174,7 +192,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
             Assert.Equal(0, converter("0"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-2147483649"));
+            Assert.Throws<OverflowException>(() => converter("2147483648"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -186,7 +208,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(int.MinValue, converter("-2147483648"));
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
-            Assert.Equal(0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-2147483649"));
+            Assert.Throws<OverflowException>(() => converter("2147483648"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
@@ -225,9 +250,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(ushort.MaxValue, converter("65535"));
             Assert.Equal((ushort)77, converter("77"));
-            Assert.Equal((ushort)0, converter("-1"));
             Assert.Equal((ushort)0, converter("0"));
-            Assert.Equal((ushort)0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("65536"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -237,8 +265,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(ushort.MaxValue, converter("65535"));
             Assert.Equal((ushort)77, converter("77"));
-            Assert.Equal((ushort)0, converter("-1"));
             Assert.Equal((ushort)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("65536"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
@@ -276,7 +307,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
             Assert.Equal(0, converter("0"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-32769"));
+            Assert.Throws<OverflowException>(() => converter("32768"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -289,6 +324,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((short)77, converter("77"));
             Assert.Equal((short)-77, converter("-77"));
             Assert.Equal((short)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-32769"));
+            Assert.Throws<OverflowException>(() => converter("32768"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
@@ -327,9 +366,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(byte.MaxValue, converter("255"));
             Assert.Equal((byte)77, converter("77"));
-            Assert.Equal((byte)0, converter("-1"));
             Assert.Equal((byte)0, converter("0"));
-            Assert.Equal((byte)0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("256"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -339,8 +380,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(byte.MaxValue, converter("255"));
             Assert.Equal((byte)77, converter("77"));
-            Assert.Equal((byte)0, converter("-1"));
             Assert.Equal((byte)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("256"));
             Assert.Null(converter(null));
         }
 
@@ -378,7 +421,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
             Assert.Equal(0, converter("0"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-129"));
+            Assert.Throws<OverflowException>(() => converter("128"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -391,6 +438,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((sbyte)77, converter("77"));
             Assert.Equal((sbyte)-77, converter("-77"));
             Assert.Equal((sbyte)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-129"));
+            Assert.Throws<OverflowException>(() => converter("128"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
@@ -433,7 +484,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((decimal)0.000000001, converter("0.000000001"));
             Assert.Equal((decimal)0.00000000000000000001, converter("0.00000000000000000001"));
             Assert.Equal((decimal)-0.00000000000000000001, converter("-0.00000000000000000001"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-79228162514264337593543950336"));
+            Assert.Throws<OverflowException>(() => converter("79228162514264337593543950336"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -462,7 +517,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0.000000001, converter("1E-09"));
             Assert.Equal(0.00000000000000000001, converter("1E-20"));
             Assert.Equal(-0.00000000000000000001, converter("-1E-20"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Equal(double.PositiveInfinity, converter("1.7976931348623157E+309"));
+            Assert.Equal(double.NegativeInfinity, converter("-1.7976931348623157E+309"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -491,7 +550,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((float)0.000000001, converter("1E-09"));
             Assert.Equal((float)0.00000000000000000001, converter("1E-20"));
             Assert.Equal((float)-0.00000000000000000001, converter("-1E-20"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Equal(float.PositiveInfinity, converter("3.40282347E+39"));
+            Assert.Equal(float.NegativeInfinity, converter("-3.40282347E+39"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -519,6 +582,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((sbyte?)77, converter("77"));
             Assert.Equal((sbyte?)-77, converter("-77"));
             Assert.Equal((sbyte?)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-129"));
+            Assert.Throws<OverflowException>(() => converter("128"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
@@ -532,6 +599,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((sbyte)77, converter("77"));
             Assert.Equal((sbyte)-77, converter("-77"));
             Assert.Equal((sbyte?)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-129"));
+            Assert.Throws<OverflowException>(() => converter("128"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 

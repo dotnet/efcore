@@ -30,14 +30,38 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 
         private static TProvider Zero()
         {
+            var type = typeof(TProvider).UnwrapNullableType();
+
             CheckTypeSupported(
-                typeof(TProvider).UnwrapNullableType(),
+                type,
                 typeof(BoolToZeroOneConverter<TProvider>),
                 typeof(int), typeof(short), typeof(long), typeof(sbyte),
                 typeof(uint), typeof(ushort), typeof(ulong), typeof(byte),
                 typeof(decimal), typeof(double), typeof(float));
 
-            return Activator.CreateInstance<TProvider>();
+            return (TProvider)(type == typeof(int)
+                ? 0
+                : type == typeof(short)
+                    ? (short)0
+                    : type == typeof(long)
+                        ? (long)0
+                        : type == typeof(sbyte)
+                            ? (sbyte)0
+                            : type == typeof(uint)
+                                ? (uint)0
+                                : type == typeof(ushort)
+                                    ? (ushort)0
+                                    : type == typeof(ulong)
+                                        ? (ulong)0
+                                        : type == typeof(byte)
+                                            ? (byte)0
+                                            : type == typeof(decimal)
+                                                ? (decimal)0
+                                                : type == typeof(double)
+                                                    ? (double)0
+                                                    : type == typeof(float)
+                                                        ? (float)0
+                                                        : (object)0);
         }
 
         private static TProvider One()

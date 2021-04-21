@@ -552,19 +552,52 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual bool HasTemporaryValue(IProperty property)
             => GetValueType(property) == CurrentValueType.Temporary;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void PropagateValue(
+            InternalEntityEntry principalEntry, 
+            IProperty principalProperty, 
+            IProperty dependentProperty,
+            bool isMaterialization = false,
+            bool setModified = true)
+        {
+            var principalValue = principalEntry[principalProperty];
+            if (principalEntry.HasTemporaryValue(principalProperty))
+            {
+                if (principalEntry._stateData.IsPropertyFlagged(principalProperty.GetIndex(), PropertyFlag.IsTemporary))
+                {
+                    SetProperty(dependentProperty, principalValue, isMaterialization, setModified);
+                    _stateData.FlagProperty(dependentProperty.GetIndex(), PropertyFlag.IsTemporary, true);
+                }
+                else
+                {
+                    SetTemporaryValue(dependentProperty, principalValue);
+                }
+            }
+            else
+            {
+                SetProperty(dependentProperty, principalValue, isMaterialization, setModified);
+                _stateData.FlagProperty(dependentProperty.GetIndex(), PropertyFlag.IsTemporary, false);
+            }
+        }
+
         private CurrentValueType GetValueType(
             IProperty property,
             Func<object?, object?, bool>? equals = null)
         {
+            if (_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsTemporary))
+            {
+                return CurrentValueType.Temporary;
+            }
+
             var tempIndex = property.GetStoreGeneratedIndex();
             if (tempIndex == -1)
             {
                 return CurrentValueType.Normal;
-            }
-
-            if (equals == null)
-            {
-                equals = ValuesEqualFunc(property);
             }
 
             if (!PropertyHasDefaultValue(property))
@@ -572,6 +605,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return CurrentValueType.Normal;
             }
 
+            @equals ??= ValuesEqualFunc(property);
             var defaultValue = property.ClrType.GetDefaultValue();
             var value = ReadPropertyValue(property);
             if (!equals(value, defaultValue))
@@ -610,6 +644,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             SetProperty(property, value, isMaterialization: false, setModified, isCascadeDelete: false, CurrentValueType.Temporary);
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void MarkAsTemporary(IProperty property, bool temporary)
+            => _stateData.FlagProperty(property.GetIndex(), PropertyFlag.IsTemporary, temporary);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1208,6 +1251,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (valueType == CurrentValueType.StoreGenerated)
                         {
+                            var defaultValue = asProperty!.ClrType.GetDefaultValue();
+                            if (!equals(currentValue, defaultValue))
+                            {
+                                WritePropertyValue(asProperty, defaultValue, isMaterialization);
+                            }
+
                             EnsureStoreGeneratedValues();
                             _storeGeneratedValues.SetValue(asProperty!, value, storeGeneratedIndex);
                         }
@@ -1285,6 +1334,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _storeGeneratedValues = new SidecarValues();
                 _temporaryValues = new SidecarValues();
             }
+            
+            _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.IsTemporary, false);
 
             var currentState = EntityState;
             if ((currentState == EntityState.Unchanged)
@@ -1562,7 +1613,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if ((HasTemporaryValue(keyProperty)
                             || HasDefaultValue(keyProperty))
-                        && (keyGenerated || keyProperty.IsForeignKey()))
+                        && (keyGenerated || keyProperty.FindGenerationProperty() != null))
                     {
                         return (true, false);
                     }

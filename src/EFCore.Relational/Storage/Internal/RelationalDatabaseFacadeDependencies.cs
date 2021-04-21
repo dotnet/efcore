@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             IDatabaseCreator databaseCreator,
             IExecutionStrategyFactory executionStrategyFactory,
             IEnumerable<IDatabaseProvider> databaseProviders,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
+            IRelationalCommandDiagnosticsLogger commandLogger,
             IConcurrencyDetector concurrencyDetector,
             IRelationalConnection relationalConnection,
             IRawSqlCommandBuilder rawSqlCommandBuilder,
@@ -81,7 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; init; }
+        public virtual IRelationalCommandDiagnosticsLogger CommandLogger { get; init; }
+
+        IDiagnosticsLogger<DbLoggerCategory.Database.Command> IDatabaseFacadeDependencies.CommandLogger => CommandLogger;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

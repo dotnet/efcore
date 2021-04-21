@@ -959,7 +959,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Order>().GroupBy(o => 1)
                     .OrderBy(g => g.Key)
                     .Select(
-                        g => new {
+                        g => new
+                        {
                             Min = g.Where(i => 1 == g.Key).Min(o => o.OrderDate),
                             Max = g.Where(i => 1 == g.Key).Max(o => o.OrderDate),
                             Sum = g.Where(i => 1 == g.Key).Sum(o => o.OrderID),
@@ -2915,6 +2916,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID),
                 g => g.Count() > 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_followed_by_another_GroupBy_aggregate(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Count = g.Count(),
+                        LastOrder = g.Max(e => e.OrderID)
+                    })
+                    .GroupBy(e => 1)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Count = g.Sum(e => e.Count)
+                    }));
         }
 
         #endregion

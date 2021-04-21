@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -663,9 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var table = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema);
-            var nullableColumns = operation.Columns
-                .Where(c => table?.FindColumn(c)?.IsNullable != false)
-                .ToList();
+            var hasNullableColumns = operation.Columns.Any(c => table?.FindColumn(c)?.IsNullable != false);
 
             var memoryOptimized = IsMemoryOptimized(operation, model, operation.Schema, operation.Table);
             if (memoryOptimized)
@@ -676,8 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
                     .Append(" ");
 
-                if (operation.IsUnique
-                    && nullableColumns.Count == 0)
+                if (operation.IsUnique && !hasNullableColumns)
                 {
                     builder.Append("UNIQUE ");
                 }
@@ -691,19 +689,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
             else
             {
-                var needsLegacyFilter = false;
-                if (operation.Filter == null
-                    && UseLegacyIndexFilters(model))
-                {
-                    var clustered = operation[SqlServerAnnotationNames.Clustered] as bool?;
-                    if (operation.IsUnique
-                        && (clustered != true)
-                        && nullableColumns.Count != 0)
-                    {
-                        needsLegacyFilter = true;
-                    }
-                }
-
+                var needsLegacyFilter = UseLegacyIndexFilters(operation, model);
                 var needsExec = Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent)
                     && (operation.Filter != null
                         || needsLegacyFilter);
@@ -712,22 +698,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     : builder;
 
                 base.Generate(operation, model, subBuilder, terminate: false);
-
-                if (needsLegacyFilter)
-                {
-                    subBuilder.Append(" WHERE ");
-                    for (var i = 0; i < nullableColumns.Count; i++)
-                    {
-                        if (i != 0)
-                        {
-                            subBuilder.Append(" AND ");
-                        }
-
-                        subBuilder
-                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
-                            .Append(" IS NOT NULL");
-                    }
-                }
 
                 if (needsExec)
                 {
@@ -1694,7 +1664,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder.Append(")");
             }
 
-            base.IndexOptions(operation, model, builder);
+            if (!string.IsNullOrEmpty(operation.Filter))
+            {
+                builder
+                    .Append(" WHERE ")
+                    .Append(operation.Filter);
+            }
+            else if (UseLegacyIndexFilters(operation, model))
+            {
+                var table = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema);
+                var nullableColumns = operation.Columns
+                    .Where(c => table?.FindColumn(c)?.IsNullable != false)
+                    .ToList();
+
+                builder.Append(" WHERE ");
+                for (var i = 0; i < nullableColumns.Count; i++)
+                {
+                    if (i != 0)
+                    {
+                        builder.Append(" AND ");
+                    }
+
+                    builder
+                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(nullableColumns[i]))
+                        .Append(" IS NOT NULL");
+                }
+            }
 
             IndexWithOptions(operation, builder);
         }
@@ -2019,8 +2014,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Checks whether or not <see cref="CreateIndexOperation" /> should have a filter generated for it by
         ///     Migrations.
         /// </summary>
+        /// <param name="operation"> The index creation operation. </param>
         /// <param name="model"> The target model. </param>
         /// <returns> <see langword="true" /> if a filter should be generated. </returns>
+        protected virtual bool UseLegacyIndexFilters(CreateIndexOperation operation, IModel? model)
+            => (!TryGetVersion(model, out var version) || VersionComparer.Compare(version, "2.0.0") < 0)
+                && operation.Filter is null
+                && operation.IsUnique
+                && operation[SqlServerAnnotationNames.Clustered] is null or false
+                && model?.GetRelationalModel().FindTable(operation.Table, operation.Schema) is var table
+                && operation.Columns.Any(c => table?.FindColumn(c)?.IsNullable != false);
+
+        /// <summary>
+        ///     Checks whether or not <see cref="CreateIndexOperation" /> should have a filter generated for it by
+        ///     Migrations.
+        /// </summary>
+        /// <param name="model"> The target model. </param>
+        /// <returns> <see langword="true" /> if a filter should be generated. </returns>
+        [Obsolete("Use UseLegacyIndexFilters which accepts a CreateIndexOperation")]
         protected virtual bool UseLegacyIndexFilters(IModel? model)
             => !TryGetVersion(model, out var version) || VersionComparer.Compare(version, "2.0.0") < 0;
 
