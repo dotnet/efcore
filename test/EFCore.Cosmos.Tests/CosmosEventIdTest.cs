@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
             TestEventLogging(
                 typeof(CosmosEventId),
                 typeof(CosmosLoggerExtensions),
-                typeof(CosmosLoggingDefinitions),
+                new CosmosLoggingDefinitions(),
                 fakeFactories);
         }
     }

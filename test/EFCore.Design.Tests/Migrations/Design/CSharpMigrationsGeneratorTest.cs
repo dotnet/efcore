@@ -976,10 +976,13 @@ namespace MyNamespace
         }
 
         private static IMigrationsCodeGenerator CreateMigrationsCodeGenerator()
-            => new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddEntityFrameworkDesignTimeServices()
+        {
+            var testAssembly = typeof(CSharpMigrationsGeneratorTest).Assembly;
+            var reporter = new TestOperationReporter();
+            return new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
+                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
                 .BuildServiceProvider()
                 .GetRequiredService<IMigrationsCodeGenerator>();
+        }
     }
 }

@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             SqlServerSequenceValueGeneratorState generatorState,
             ISqlServerConnection connection,
             IRawSqlCommandBuilder rawSqlCommandBuilder,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            IRelationalCommandDiagnosticsLogger commandLogger)
         {
             var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 

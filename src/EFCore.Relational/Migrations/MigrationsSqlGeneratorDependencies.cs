@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             IRelationalTypeMappingSource typeMappingSource,
             ICurrentDbContext currentContext,
             ILoggingOptions loggingOptions,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+            IRelationalCommandDiagnosticsLogger logger,
             IDiagnosticsLogger<DbLoggerCategory.Migrations> migrationsLogger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The database command logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; init; }
+        public IRelationalCommandDiagnosticsLogger Logger { get; init; }
 
         /// <summary>
         ///     The database command logger.

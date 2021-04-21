@@ -39,9 +39,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
         private IDictionary<(Type, Type?), Type>? _replacedServices;
         private int? _maxPoolSize;
+        private TimeSpan _loggingConfigCacheTime = DefaultLoggingConfigCacheTime;
         private bool _serviceProviderCachingEnabled = true;
         private DbContextOptionsExtensionInfo? _info;
         private IEnumerable<IInterceptor>? _interceptors;
+
+        /// <summary>
+        ///     The default for how long EF Core will cache logging configuration in certain high-performance paths: one second.
+        ///     See <see cref="DbContextOptionsBuilder.LoggingConfigCacheTime" />.
+        /// </summary>
+        public static readonly TimeSpan DefaultLoggingConfigCacheTime = TimeSpan.FromSeconds(1);
 
         private WarningsConfiguration _warningsConfiguration
             = new WarningsConfiguration()
@@ -76,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
             _maxPoolSize = copyFrom.MaxPoolSize;
+            _loggingConfigCacheTime = copyFrom.LoggingConfigCacheTime;
             _serviceProviderCachingEnabled = copyFrom.ServiceProviderCachingEnabled;
             _interceptors = copyFrom.Interceptors?.ToList();
 
@@ -292,6 +300,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
+        /// <param name="loggingConfigCacheTime"> The maximum time period over which to skip logging checks before checking again. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual CoreOptionsExtension WithLoggingConfigCacheTime(TimeSpan loggingConfigCacheTime)
+        {
+            var clone = Clone();
+
+            clone._loggingConfigCacheTime = loggingConfigCacheTime;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
         /// <param name="warningsConfiguration"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual CoreOptionsExtension WithWarningsConfiguration(WarningsConfiguration warningsConfiguration)
@@ -425,6 +448,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => _maxPoolSize;
 
         /// <summary>
+        ///     The option set from the
+        ///     <see
+        ///         cref="EntityFrameworkServiceCollectionExtensions.AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />
+        ///     method.
+        /// </summary>
+        public virtual TimeSpan LoggingConfigCacheTime
+            => _loggingConfigCacheTime;
+
+        /// <summary>
         ///     The options set from the <see cref="DbContextOptionsBuilder.AddInterceptors(IEnumerable{IInterceptor})" /> method.
         /// </summary>
         public virtual IEnumerable<IInterceptor>? Interceptors
@@ -456,6 +488,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="options"> The options being validated. </param>
         public virtual void Validate(IDbContextOptions options)
         {
+            if (MaxPoolSize.HasValue && MaxPoolSize <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(MaxPoolSize), CoreStrings.InvalidPoolSize);
+            }
+
             if (_internalServiceProvider != null)
             {
                 if (ReplacedServices != null)

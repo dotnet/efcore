@@ -188,7 +188,7 @@ ORDER BY [t].[Id]");
             AssertSql(
                 @"@__p_0='3'
 
-SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name0], [t0].[ReferenceInverseId], [e].[Id], [t].[EntityOneId], [t].[EntityTwoId], [t0].[Id], [t0].[EntityOneId], [t0].[EntityTwoId], [t2].[EntityOneId], [t2].[EntityTwoId], [t2].[Id], [t2].[Name]
+SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[EntityOneId], [t].[EntityTwoId], [t0].[Id], [t0].[EntityOneId], [t0].[EntityTwoId], [t0].[Id0], [t2].[EntityOneId], [t2].[EntityTwoId], [t2].[Id], [t2].[Name], [t0].[CollectionInverseId], [t0].[Name0], [t0].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
     SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[ReferenceInverseId], [e0].[EntityOneId], [e0].[EntityTwoId]
