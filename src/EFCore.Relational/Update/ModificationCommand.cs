@@ -42,6 +42,42 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
         /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
+        /// <param name="entries"> List of entries. </param>
+        /// <param name="mainEntryAdded"> Indicator of definition of main entry in entries[0]. </param>
+        public ModificationCommand(
+            string name,
+            string? schema,
+            Func<string> generateParameterName,
+            bool sensitiveLoggingEnabled,
+            IComparer<IUpdateEntry>? comparer,
+            IColumnModificationFactory columnModificationFactory,
+            List<IUpdateEntry> entries,
+            bool mainEntryAdded)
+        {
+            TableName = name;
+            Schema = schema;
+
+            _generateParameterName = generateParameterName;
+            _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
+            _comparer = comparer;
+            _columnModificationFactory = columnModificationFactory;
+
+            _columnModifications = null;
+            _requiresResultPropagation = false;
+
+            _entries = entries;
+            _mainEntryAdded = mainEntryAdded;
+        }
+
+        /// <summary>
+        ///     Initializes a new <see cref="ModificationCommand" /> instance.
+        /// </summary>
+        /// <param name="name"> The name of the table containing the data to be modified. </param>
+        /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
+        /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
+        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
+        /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
+        /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
         public ModificationCommand(
             string name,
             string? schema,

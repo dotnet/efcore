@@ -165,8 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IUpdateAdapter updateAdapter,
             Func<string> generateParameterName)
         {
-            var commands = new List<ModificationCommand>();
-            Dictionary<(string Name, string? Schema), SharedTableEntryMap<ModificationCommand>>? sharedTablesCommandsMap =
+            var cmdBuilders = new List<ModificationCommandBuilder>();
+            Dictionary<(string Name, string? Schema), SharedTableEntryMap<ModificationCommandBuilder>>? sharedTablesCmdBuildersMap =
                 null;
             foreach (var entry in entries)
             {
@@ -178,64 +178,71 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
                 var mappingCount = mappings.Count;
-                ModificationCommand? firstCommand = null;
+                ModificationCommandBuilder? firstCmdBuilder = null;
                 foreach (var mapping in mappings)
                 {
                     var table = mapping.Table;
                     var tableKey = (table.Name, table.Schema);
 
-                    ModificationCommand command;
+                    ModificationCommandBuilder cmdBuilder;
                     var isMainEntry = true;
                     if (table.IsShared)
                     {
-                        if (sharedTablesCommandsMap == null)
+                        if (sharedTablesCmdBuildersMap == null)
                         {
-                            sharedTablesCommandsMap = new Dictionary<(string, string?), SharedTableEntryMap<ModificationCommand>>();
+                            sharedTablesCmdBuildersMap = new Dictionary<(string, string?), SharedTableEntryMap<ModificationCommandBuilder>>();
                         }
 
-                        if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
+                        if (!sharedTablesCmdBuildersMap.TryGetValue(tableKey, out var sharedCommandsMap))
                         {
-                            sharedCommandsMap = new SharedTableEntryMap<ModificationCommand>(table, updateAdapter);
-                            sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
+                            sharedCommandsMap = new SharedTableEntryMap<ModificationCommandBuilder>(table, updateAdapter);
+                            sharedTablesCmdBuildersMap.Add(tableKey, sharedCommandsMap);
                         }
 
-                        command = sharedCommandsMap.GetOrAddValue(
+                        cmdBuilder = sharedCommandsMap.GetOrAddValue(
                             entry,
-                            (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c, _columnModificationFactory));
+                            (n, s, c) => new ModificationCommandBuilder(n, s, generateParameterName, _sensitiveLoggingEnabled, c, _columnModificationFactory));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                     }
                     else
                     {
-                        command = new ModificationCommand(
+                        cmdBuilder = new ModificationCommandBuilder(
                             table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null, _columnModificationFactory);
                     }
 
-                    command.AddEntry(entry, isMainEntry);
-                    commands.Add(command);
+                    cmdBuilder.AddEntry(entry, isMainEntry);
+                    cmdBuilders.Add(cmdBuilder);
 
-                    if (firstCommand == null)
+                    if (firstCmdBuilder == null)
                     {
-                        Check.DebugAssert(firstCommand == null, "firstCommand == null");
-                        firstCommand = command;
+                        Check.DebugAssert(firstCmdBuilder == null, "firstCommand == null");
+                        firstCmdBuilder = cmdBuilder;
                     }
                 }
 
-                if (firstCommand == null)
+                if (firstCmdBuilder == null)
                 {
                     throw new InvalidOperationException(RelationalStrings.ReadonlyEntitySaved(entry.EntityType.DisplayName()));
                 }
             }
 
-            if (sharedTablesCommandsMap != null)
+            if (sharedTablesCmdBuildersMap != null)
             {
-                AddUnchangedSharingEntries(sharedTablesCommandsMap.Values, entries);
+                AddUnchangedSharingEntries(sharedTablesCmdBuildersMap.Values, entries);
             }
 
-            return commands;
+            var resultCommands = new List<ModificationCommand>(cmdBuilders.Count);
+
+            foreach (var cmdBuilder in cmdBuilders)
+            {
+                resultCommands.Add(cmdBuilder.GetModificationCommand());
+            }
+
+            return resultCommands;
         }
 
         private void AddUnchangedSharingEntries(
-            IEnumerable<SharedTableEntryMap<ModificationCommand>> sharedTablesCommands,
+            IEnumerable<SharedTableEntryMap<ModificationCommandBuilder>> sharedTablesCommands,
             IList<IUpdateEntry> entries)
         {
             foreach (var sharedCommandsMap in sharedTablesCommands)
