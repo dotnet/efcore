@@ -166,12 +166,16 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 return _resultCommand;
             }
 
+            if (_comparer != null)
+            {
+                _entries.Sort(_comparer);
+            }
+
             _resultCommand = new ModificationCommand(
                 _tableName,
                 _schemaName,
                 _generateParameterName,
                 _sensitiveLoggingEnabled,
-                _comparer,
                 _columnModificationFactory,
                 _entries,
                 EntityState);

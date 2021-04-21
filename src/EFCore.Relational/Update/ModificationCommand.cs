@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Update
     {
         private readonly Func<string>? _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
-        private readonly IComparer<IUpdateEntry>? _comparer;
         private readonly IColumnModificationFactory _columnModificationFactory;
         private readonly List<IUpdateEntry> _entries = new();
         private IReadOnlyList<ColumnModification>? _columnModifications;
@@ -40,7 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
         /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
-        /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
         /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
         /// <param name="entries"> List of entries. </param>
         /// <param name="entityState">
@@ -54,7 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             string? schema,
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            IComparer<IUpdateEntry>? comparer,
             IColumnModificationFactory columnModificationFactory,
             List<IUpdateEntry> entries,
             EntityState entityState)
@@ -64,7 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             _generateParameterName = generateParameterName;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
-            _comparer = comparer;
             _columnModificationFactory = columnModificationFactory;
 
             _columnModifications = null;
@@ -100,7 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(generateParameterName, nameof(generateParameterName));
 
             _generateParameterName = generateParameterName;
-            _comparer = comparer;
         }
 
         /// <summary>
@@ -251,11 +246,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 || (_entries.Count == 1 && _entries[0].SharedIdentityEntry != null))
             {
                 sharedTableColumnMap = new Dictionary<string, ColumnValuePropagator>();
-
-                if (_comparer != null)
-                {
-                    _entries.Sort(_comparer);
-                }
 
                 foreach (var entry in _entries)
                 {
