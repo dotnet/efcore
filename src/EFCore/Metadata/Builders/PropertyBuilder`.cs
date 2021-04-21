@@ -320,6 +320,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.HasField(fieldName);
 
         /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for this property.
+        ///     </para>
+        ///     <para>
+        ///         By default, the backing field, if one is found by convention or has been specified, is used when
+        ///         new objects are constructed, typically when entities are queried from the database.
+        ///         Properties are used for all other accesses.  Calling this method will change that behavior
+        ///         for this property as described in the <see cref="PropertyAccessMode" /> enum.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method overrides for this property any access mode that was set on the
+        ///         entity type or model.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+            => (PropertyBuilder<TProperty>)base.UsePropertyAccessMode(propertyAccessMode);
+
+        /// <summary>
         ///     Configures the property so that the property value is converted to the given type before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
@@ -439,23 +459,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.HasConversion(converter, valueComparer);
 
         /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for this property.
-        ///     </para>
-        ///     <para>
-        ///         By default, the backing field, if one is found by convention or has been specified, is used when
-        ///         new objects are constructed, typically when entities are queried from the database.
-        ///         Properties are used for all other accesses.  Calling this method will change that behavior
-        ///         for this property as described in the <see cref="PropertyAccessMode" /> enum.
-        ///     </para>
-        ///     <para>
-        ///         Calling this method overrides for this property any access mode that was set on the
-        ///         entity type or model.
-        ///     </para>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given <see cref="ValueConverter" />.
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
+        /// <typeparam name="TConverter"> A type that derives from <see cref="ValueConverter"/>. </typeparam>
+        /// <typeparam name="TComparer"> A type that derives from <see cref="ValueComparer"/>. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
-            => (PropertyBuilder<TProperty>)base.UsePropertyAccessMode(propertyAccessMode);
+        public new virtual PropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
+            where TConverter : ValueConverter
+            where TComparer : ValueComparer
+            => (PropertyBuilder<TProperty>)base.HasConversion<TConverter, TComparer>();
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given <see cref="ValueConverter" />.
+        /// </summary>
+        /// <param name="converterType"> A type that derives from <see cref="ValueConverter"/>. </param>
+        /// <param name="comparerType"> A type that derives from <see cref="ValueComparer"/>. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasConversion(Type? converterType, Type? comparerType)
+            => (PropertyBuilder<TProperty>)base.HasConversion(converterType, comparerType);
     }
 }

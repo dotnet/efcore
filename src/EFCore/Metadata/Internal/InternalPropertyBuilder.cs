@@ -479,7 +479,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => configurationSource == ConfigurationSource.Explicit
                 || (configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
                     && Metadata.CheckValueConverter(converter) == null)
-                || Metadata.GetValueConverter() == converter;
+                || (Metadata[CoreAnnotationNames.ValueConverterType] == null
+                    && (ValueConverter?)Metadata[CoreAnnotationNames.ValueConverter] == converter);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -508,6 +509,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetConversion(Type? providerClrType, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource())
                 || Metadata.GetProviderClrType() == providerClrType;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalPropertyBuilder? HasConverter(Type? converterType, ConfigurationSource configurationSource)
+        {
+            if (CanSetConverter(converterType, configurationSource))
+            {
+                Metadata.SetValueConverter(converterType, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetConverter(Type? converterType, ConfigurationSource? configurationSource)
+            => configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
+                || (Metadata[CoreAnnotationNames.ValueConverter] == null
+                    && (Type?)Metadata[CoreAnnotationNames.ValueConverterType] == converterType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -583,8 +613,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return true;
             }
 
-            return Metadata[CoreAnnotationNames.ValueComparer] == comparer;
+            return Metadata[CoreAnnotationNames.ValueComparerType] == null
+                && Metadata[CoreAnnotationNames.ValueComparer] == comparer;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalPropertyBuilder? HasValueComparer(
+            Type? comparerType,
+            ConfigurationSource configurationSource)
+        {
+            if (CanSetValueComparer(comparerType, configurationSource))
+            {
+                Metadata.SetValueComparer(comparerType, configurationSource);
+
+                return this;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanSetValueComparer(Type? comparerType, ConfigurationSource? configurationSource)
+            => configurationSource.Overrides(Metadata.GetValueComparerConfigurationSource())
+            || (Metadata[CoreAnnotationNames.ValueComparer] == null
+                && (Type?)Metadata[CoreAnnotationNames.ValueComparerType] == comparerType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1059,6 +1121,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        IConventionPropertyBuilder? IConventionPropertyBuilder.HasConverter(Type? converterType, bool fromDataAnnotation)
+            => HasConverter(converterType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        bool IConventionPropertyBuilder.CanSetConverter(Type? converterType, bool fromDataAnnotation)
+            => CanSetConverter(converterType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         IConventionPropertyBuilder? IConventionPropertyBuilder.HasConversion(Type? providerClrType, bool fromDataAnnotation)
             => HasConversion(providerClrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -1096,6 +1176,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         bool IConventionPropertyBuilder.CanSetValueComparer(ValueComparer? comparer, bool fromDataAnnotation)
             => CanSetValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionPropertyBuilder? IConventionPropertyBuilder.HasValueComparer(Type? comparerType, bool fromDataAnnotation)
+            => HasValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        bool IConventionPropertyBuilder.CanSetValueComparer(Type? comparerType, bool fromDataAnnotation)
+            => CanSetValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

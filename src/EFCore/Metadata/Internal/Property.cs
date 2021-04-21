@@ -620,7 +620,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(errorString);
             }
 
+            RemoveAnnotation(CoreAnnotationNames.ValueConverterType);
             return (ValueConverter?)SetOrRemoveAnnotation(CoreAnnotationNames.ValueConverter, converter, configurationSource)?.Value;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Type? SetValueConverter(
+            Type? converterType,
+            ConfigurationSource configurationSource)
+        {
+            ValueConverter? converter = null;
+            if (converterType != null)
+            {
+                if (!typeof(ValueConverter).IsAssignableFrom(converterType))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.BadValueConverterType(converterType.ShortDisplayName(), typeof(ValueConverter).ShortDisplayName()));
+                }
+
+                try
+                {
+                    converter = (ValueConverter?)Activator.CreateInstance(converterType);
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.CannotCreateValueConverter(
+                            converterType.ShortDisplayName(), nameof(PropertyBuilder.HasConversion)), e);
+                }
+            }
+
+            SetValueConverter(converter, configurationSource);
+            SetOrRemoveAnnotation(CoreAnnotationNames.ValueConverterType, converterType, configurationSource);
+
+            return converterType;
         }
 
         /// <summary>
@@ -740,7 +778,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(errorString);
             }
 
+            RemoveAnnotation(CoreAnnotationNames.ValueComparerType);
             return (ValueComparer?)SetOrRemoveAnnotation(CoreAnnotationNames.ValueComparer, comparer, configurationSource)?.Value;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Type? SetValueComparer(Type? comparerType, ConfigurationSource configurationSource)
+        {
+            ValueComparer? comparer = null;
+            if (comparerType != null)
+            {
+                if (!typeof(ValueComparer).IsAssignableFrom(comparerType))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.BadValueComparerType(comparerType.ShortDisplayName(), typeof(ValueComparer).ShortDisplayName()));
+                }
+
+                try
+                {
+                    comparer = (ValueComparer?)Activator.CreateInstance(comparerType);
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.CannotCreateValueComparer(
+                            comparerType.ShortDisplayName(), nameof(PropertyBuilder.HasConversion)), e);
+                }
+            }
+
+            SetValueComparer(comparer, configurationSource);
+            return (Type?)SetOrRemoveAnnotation(CoreAnnotationNames.ValueComparerType, comparerType, configurationSource)?.Value;
         }
 
         /// <summary>
@@ -1387,6 +1459,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
+        void IMutableProperty.SetValueConverter(Type? converterType)
+            => SetValueConverter(converterType, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        Type? IConventionProperty.SetValueConverter(Type? converterType, bool fromDataAnnotation)
+            => SetValueConverter(converterType,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
         void IMutableProperty.SetProviderClrType(Type? providerClrType)
             => SetProviderClrType(providerClrType, ConfigurationSource.Explicit);
 
@@ -1420,6 +1513,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         ValueComparer? IConventionProperty.SetValueComparer(ValueComparer? comparer, bool fromDataAnnotation)
             => SetValueComparer(comparer,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        void IMutableProperty.SetValueComparer(Type? comparerType)
+            => SetValueComparer(comparerType, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        Type? IConventionProperty.SetValueComparer(Type? comparerType, bool fromDataAnnotation)
+            => SetValueComparer(comparerType,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

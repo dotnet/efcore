@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -417,6 +418,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter);
             public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter);
+            public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter, ValueComparer valueComparer);
+            public abstract TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
+                where TConverter : ValueConverter
+                where TComparer : ValueComparer;
+
+            public abstract TestPropertyBuilder<TProperty> HasConversion(Type? converterType, Type? comparerType);
         }
 
         public abstract class TestNavigationBuilder

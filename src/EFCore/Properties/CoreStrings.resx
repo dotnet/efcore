@@ -174,6 +174,12 @@
   <data name="BadFilterOwnedType" xml:space="preserve">
     <value>The filter expression '{filter}' cannot be specified for owned entity type '{entityType}'. A filter may only be applied to an entity type that is not owned.</value>
   </data>
+  <data name="BadValueComparerType" xml:space="preserve">
+    <value>The type '{givenType}' cannot be used as a value comparer because it does not inherit from '{expectedType}'. Make sure to inherit value comparers from '{expectedType}'.</value>
+  </data>
+  <data name="BadValueConverterType" xml:space="preserve">
+    <value>The type '{givenType}' cannot be used as a value converter because it does not inherit from '{expectedType}'. Make sure to inherit value converters from '{expectedType}'.</value>
+  </data>
   <data name="BadValueGeneratorType" xml:space="preserve">
     <value>The type '{givenType}' cannot be used as a value generator because it does not inherit from '{expectedType}'. Make sure to inherit value generators from '{expectedType}'.</value>
   </data>
@@ -192,6 +198,12 @@
   </data>
   <data name="CannotConvertQueryableToEnumerableMethod" xml:space="preserve">
     <value>Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
+  </data>
+  <data name="CannotCreateValueComparer" xml:space="preserve">
+    <value>Cannot create an instance of value comparer type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.</value>
+  </data>
+  <data name="CannotCreateValueConverter" xml:space="preserve">
+    <value>Cannot create an instance of value converter type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.</value>
   </data>
   <data name="CannotCreateValueGenerator" xml:space="preserve">
     <value>Cannot create an instance of value generator type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.</value>

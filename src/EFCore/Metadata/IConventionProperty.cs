@@ -342,7 +342,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="converter"> The converter, or <see langword="null" /> to remove any previously set converter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        ValueConverter? SetValueConverter(ValueConverter? converter,  bool fromDataAnnotation = false);
+        ValueConverter? SetValueConverter(ValueConverter? converter, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Sets the custom <see cref="ValueConverter" /> for this property.
+        /// </summary>
+        /// <param name="converterType">
+        ///     A type that derives from <see cref="ValueConverter"/>, or <see langword="null" /> to remove any previously set converter.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        Type? SetValueConverter(Type? converterType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetValueConverter" />.
@@ -371,6 +381,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         ValueComparer? SetValueComparer(ValueComparer? comparer, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Sets the custom <see cref="ValueComparer" /> for this property.
+        /// </summary>
+        /// <param name="comparerType">
+        ///     A type that derives from <see cref="ValueComparer"/>, or <see langword="null" /> to remove any previously set comparer.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        Type? SetValueComparer(Type? comparerType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetValueComparer" />.

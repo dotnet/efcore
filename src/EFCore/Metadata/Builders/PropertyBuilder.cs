@@ -514,6 +514,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
+        /// <summary>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given <see cref="ValueConverter" />.
+        /// </summary>
+        /// <typeparam name="TConverter"> A type that derives from <see cref="ValueConverter"/>. </typeparam>
+        /// <typeparam name="TComparer"> A type that derives from <see cref="ValueComparer"/>. </typeparam>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasConversion<TConverter, TComparer>()
+            where TConverter : ValueConverter
+            where TComparer : ValueComparer
+            => HasConversion(typeof(TConverter), typeof(TComparer));
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given <see cref="ValueConverter" />.
+        /// </summary>
+        /// <param name="converterType"> A type that derives from <see cref="ValueConverter"/>. </param>
+        /// <param name="comparerType"> A type that derives from <see cref="ValueComparer"/>. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasConversion(Type? converterType, Type? comparerType)
+        {
+            Builder.HasConverter(converterType, ConfigurationSource.Explicit);
+            Builder.HasValueComparer(comparerType, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
         #region Hidden System.Object members
 
         /// <summary>
