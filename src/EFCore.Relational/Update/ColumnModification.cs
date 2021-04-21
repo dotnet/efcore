@@ -52,12 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             IsCondition              = columnModificationParameters.IsCondition;
             _sensitiveLoggingEnabled = columnModificationParameters.SensitiveLoggingEnabled;
             IsNullable               = columnModificationParameters.IsNullable;
-
             _generateParameterName   = columnModificationParameters.GenerateParameterName;
             Entry                    = columnModificationParameters.Entry;
 
             _useParameters           = (_generateParameterName != null);
-        }//ColumnModification
+        }
 
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
