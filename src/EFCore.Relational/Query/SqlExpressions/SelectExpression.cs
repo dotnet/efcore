@@ -393,6 +393,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Adds expressions from projection mapping to projection if not done already.
         /// </summary>
+        /// <param name="shaperExpression"> Current shaper expression which will shape results of this select expression. </param>
+        /// <param name="resultCardinality"> The result cardinality of this query expression. </param>
+        /// <param name="querySplittingBehavior"> The query splitting behavior to use when applying projection for nested collections. </param>
+        /// <returns> Returns modified shaper expression to shape results of this select expression. </returns>
         public Expression ApplyProjection(
             Expression shaperExpression, ResultCardinality resultCardinality, QuerySplittingBehavior querySplittingBehavior)
         {
@@ -404,6 +408,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (_clientProjections.Count > 0)
             {
                 EntityShaperNullableMarkingExpressionVisitor? entityShaperNullableMarkingExpressionVisitor = null;
+                CloningExpressionVisitor? cloningExpressionVisitor = null;
+                var pushdownOccurred = false;
                 if (_clientProjections.Any(e => e is ShapedQueryExpression))
                 {
                     if (Limit != null
@@ -412,15 +418,43 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         || GroupBy.Count > 0)
                     {
                         PushdownIntoSubqueryInternal();
+                        pushdownOccurred = true;
                     }
-                    entityShaperNullableMarkingExpressionVisitor = new EntityShaperNullableMarkingExpressionVisitor();
+                    entityShaperNullableMarkingExpressionVisitor = new();
+                    cloningExpressionVisitor = new();
                 }
 
+                SelectExpression? baseSelectExpression = null;
+                if (querySplittingBehavior == QuerySplittingBehavior.SplitQuery
+                    && _clientProjections.Any(e => e is ShapedQueryExpression sqe && sqe.ResultCardinality == ResultCardinality.Enumerable))
+                {
+                    baseSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(this);
+                    if (pushdownOccurred
+                        && (resultCardinality == ResultCardinality.Single
+                            || resultCardinality == ResultCardinality.SingleOrDefault)
+                        && baseSelectExpression.Tables[0] is SelectExpression nestedSelectExpression
+                        && nestedSelectExpression.Limit is SqlConstantExpression limitConstantExpression
+                            && limitConstantExpression.Value is int limitValue
+                            && limitValue == 2)
+                    {
+                        nestedSelectExpression.Limit = new SqlConstantExpression(Constant(1), limitConstantExpression.TypeMapping);
+                    }
+                }
+
+                var earlierClientProjectionCount = _clientProjections.Count;
                 var newClientProjections = new List<Expression>();
                 var clientProjectionIndexMap = new List<object>();
                 var remappingRequired = false;
                 for (var i = 0; i < _clientProjections.Count; i++)
                 {
+                    if (i == earlierClientProjectionCount)
+                    {
+                        // Since we lift nested client projections for single results up, we may need to re-clone the baseSelectExpression
+                        // again so it does contain the single result subquery too. We erase projections for it since it would be non-empty.
+                        earlierClientProjectionCount = _clientProjections.Count;
+                        baseSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(this);
+                        baseSelectExpression._projection.Clear();
+                    }
                     var value = _clientProjections[i];
                     switch (value)
                     {
@@ -531,131 +565,76 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                             if (querySplittingBehavior == QuerySplittingBehavior.SplitQuery)
                             {
-                                var containsReferenceToOuter = new SelectExpressionCorrelationFindingExpressionVisitor(this)
-                                    .ContainsOuterReference(innerSelectExpression);
-                                if (containsReferenceToOuter)
+                                var outerSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(baseSelectExpression!);
+                                innerSelectExpression = (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(this, outerSelectExpression)
+                                    .Visit(innerSelectExpression);
+
+                                var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
+                                var containsOrdering = innerSelectExpression.Orderings.Count > 0;
+                                List<OrderingExpression>? orderingsToBeErased = null;
+                                if (containsOrdering
+                                    && innerSelectExpression.Limit == null
+                                    && innerSelectExpression.Offset == null)
                                 {
-                                    throw new InvalidOperationException(
-                                        RelationalStrings.UnableToSplitCollectionProjectionInSplitQuery(
-                                            $"{nameof(QuerySplittingBehavior)}.{QuerySplittingBehavior.SplitQuery}",
-                                            nameof(RelationalQueryableExtensions.AsSplitQuery),
-                                            nameof(RelationalQueryableExtensions.AsSingleQuery)));
+                                    orderingsToBeErased = innerSelectExpression.Orderings.ToList();
+                                }
+#if DEBUG
+                                Check.DebugAssert(!(new SelectExpressionCorrelationFindingExpressionVisitor(this)
+                                    .ContainsOuterReference(innerSelectExpression)), "Split query contains outer reference");
+#endif
+                                var parentIdentifier = GetIdentifierAccessor(this, newClientProjections, actualParentIdentifier).Item1;
+
+                                outerSelectExpression.AddCrossApply(innerSelectExpression);
+                                outerSelectExpression._clientProjections.AddRange(innerSelectExpression._clientProjections);
+                                outerSelectExpression._aliasForClientProjections.AddRange(innerSelectExpression._aliasForClientProjections);
+                                innerSelectExpression = outerSelectExpression;
+
+                                for (var j = 0; j < actualParentIdentifier.Count; j++)
+                                {
+                                    AppendOrdering(new OrderingExpression(actualParentIdentifier[j].Column, ascending: true));
+                                    innerSelectExpression.AppendOrdering(
+                                        new OrderingExpression(innerSelectExpression._identifier[j].Column, ascending: true));
                                 }
 
-                                var identifierFromParent = _identifier;
-                                if (innerSelectExpression.Tables.LastOrDefault(e => e is InnerJoinExpression) is InnerJoinExpression
-                                        collectionInnerJoinExpression)
+                                // Copy over any nested ordering if there were any
+                                if (containsOrdering)
                                 {
-                                    // This computes true parent identifier count for correlation.
-                                    // The last inner joined table in innerSelectExpression brings collection data.
-                                    // Further tables load additional data on the collection (hence uses outer pattern)
-                                    // So identifier not coming from there (which would be at the start only) are for correlation with parent.
-                                    // Parent can have additional identifier if a owned reference was expanded.
-                                    var actualParentIdentifierCount = innerSelectExpression._identifier
-                                        .TakeWhile(e => !ReferenceEquals(e.Column.Table, collectionInnerJoinExpression))
-                                        .Count();
-                                    identifierFromParent = _identifier.Take(actualParentIdentifierCount).ToList();
+                                    var collectionJoinedInnerTable = ((JoinExpressionBase)innerSelectExpression._tables[^1]).Table;
+                                    var collectionJoinedTableReference = innerSelectExpression._tableReferences[^1];
+                                    var innerOrderingExpressions = new List<OrderingExpression>();
+                                    if (orderingsToBeErased != null)
+                                    {
+                                        var subquery = (SelectExpression)collectionJoinedInnerTable;
+                                        // Ordering was present but erased so we add again
+                                        foreach (var ordering in orderingsToBeErased)
+                                        {
+                                            innerOrderingExpressions.Add(
+                                                new OrderingExpression(
+                                                    subquery.GenerateOuterColumn(collectionJoinedTableReference, ordering.Expression),
+                                                    ordering.IsAscending));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        GetOrderingsFromInnerTable(
+                                            collectionJoinedInnerTable,
+                                            collectionJoinedTableReference,
+                                            innerOrderingExpressions);
+                                    }
+
+                                    foreach (var ordering in innerOrderingExpressions)
+                                    {
+                                        innerSelectExpression.AppendOrdering(ordering);
+                                    }
                                 }
 
-                                var parentIdentifier = GetIdentifierAccessor(this, newClientProjections, identifierFromParent).Item1;
                                 innerShaperExpression = innerSelectExpression.ApplyProjection(
                                     innerShaperExpression, shapedQueryExpression.ResultCardinality, querySplittingBehavior);
-
-                                for (var j = 0; j < identifierFromParent.Count; j++)
-                                {
-                                    AppendOrdering(new OrderingExpression(identifierFromParent[j].Column, ascending: true));
-                                }
-
-                                // Copy over ordering from previous collections
-                                var innerOrderingExpressions = new List<OrderingExpression>();
-                                for (var j = 0; j < innerSelectExpression.Tables.Count; j++)
-                                {
-                                    var table = innerSelectExpression.Tables[j];
-                                    if (table is InnerJoinExpression collectionJoinExpression
-                                        && collectionJoinExpression.Table is SelectExpression collectionSelectExpression
-                                        && collectionSelectExpression.Predicate != null
-                                        && collectionSelectExpression.Tables.Count == 1
-                                        && collectionSelectExpression.Tables[0] is SelectExpression rowNumberSubquery
-                                        && rowNumberSubquery.Projection.Select(pe => pe.Expression)
-                                            .OfType<RowNumberExpression>().SingleOrDefault() is RowNumberExpression rowNumberExpression)
-                                    {
-                                        var collectionSelectExpressionTableReference = innerSelectExpression._tableReferences[j];
-                                        var rowNumberSubqueryTableReference = collectionSelectExpression._tableReferences.Single();
-                                        foreach (var partition in rowNumberExpression.Partitions)
-                                        {
-                                            innerOrderingExpressions.Add(
-                                                new OrderingExpression(
-                                                    collectionSelectExpression.GenerateOuterColumn(
-                                                        collectionSelectExpressionTableReference,
-                                                        rowNumberSubquery.GenerateOuterColumn(rowNumberSubqueryTableReference, partition)),
-                                                    ascending: true));
-                                        }
-
-                                        foreach (var ordering in rowNumberExpression.Orderings)
-                                        {
-                                            innerOrderingExpressions.Add(
-                                                new OrderingExpression(
-                                                    collectionSelectExpression.GenerateOuterColumn(
-                                                        collectionSelectExpressionTableReference,
-                                                        rowNumberSubquery.GenerateOuterColumn(rowNumberSubqueryTableReference, ordering.Expression)),
-                                                    ordering.IsAscending));
-                                        }
-                                    }
-
-                                    if (table is CrossApplyExpression collectionApplyExpression
-                                        && collectionApplyExpression.Table is SelectExpression collectionSelectExpression2
-                                        && collectionSelectExpression2.Orderings.Count > 0)
-                                    {
-                                        var collectionSelectExpressionTableReference = innerSelectExpression._tableReferences[j];
-                                        foreach (var ordering in collectionSelectExpression2.Orderings)
-                                        {
-                                            if (innerSelectExpression._identifier.Any(e => e.Column.Equals(ordering.Expression)))
-                                            {
-                                                continue;
-                                            }
-
-                                            innerOrderingExpressions.Add(
-                                                new OrderingExpression(
-                                                    collectionSelectExpression2.GenerateOuterColumn(collectionSelectExpressionTableReference, ordering.Expression),
-                                                    ordering.IsAscending));
-                                        }
-                                    }
-                                }
 
                                 var (childIdentifier, childIdentifierValueComparers) = GetIdentifierAccessor(
                                     innerSelectExpression,
                                     innerSelectExpression._clientProjections,
-                                    innerSelectExpression._identifier.Take(identifierFromParent.Count));
-
-                                var identifierIndex = 0;
-                                var orderingIndex = 0;
-                                for (var j = 0; j < Orderings.Count; j++)
-                                {
-                                    var outerOrdering = Orderings[j];
-                                    if (identifierIndex < identifierFromParent.Count
-                                        && outerOrdering.Expression.Equals(identifierFromParent[identifierIndex].Column))
-                                    {
-                                        innerSelectExpression.AppendOrdering(
-                                            new OrderingExpression(
-                                                innerSelectExpression._identifier[identifierIndex].Column, ascending: true));
-                                        identifierIndex++;
-                                    }
-                                    else
-                                    {
-                                        if (j < innerSelectExpression.Orderings.Count)
-                                        {
-                                            continue;
-                                        }
-
-                                        innerSelectExpression.AppendOrdering(innerOrderingExpressions[orderingIndex]);
-                                        orderingIndex++;
-                                    }
-                                }
-
-                                foreach (var orderingExpression in innerOrderingExpressions.Skip(orderingIndex))
-                                {
-                                    innerSelectExpression.AppendOrdering(orderingExpression);
-                                }
+                                    innerSelectExpression._identifier.Take(_identifier.Count));
 
                                 var result = new SplitCollectionInfo(
                                     parentIdentifier, childIdentifier, childIdentifierValueComparers,
@@ -679,54 +658,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                     innerShaperExpression, shapedQueryExpression.ResultCardinality, querySplittingBehavior);
                                 AddJoin(JoinType.OuterApply, ref innerSelectExpression);
                                 var innerOrderingExpressions = new List<OrderingExpression>();
-                                var joinedTable = innerSelectExpression.Tables.Single();
-                                if (joinedTable is SelectExpression collectionSelectExpression
-                                    && collectionSelectExpression.Predicate != null
-                                    && collectionSelectExpression.Tables.Count == 1
-                                    && collectionSelectExpression.Tables[0] is SelectExpression rowNumberSubquery
-                                    && rowNumberSubquery.Projection.Select(pe => pe.Expression)
-                                        .OfType<RowNumberExpression>().SingleOrDefault() is RowNumberExpression rowNumberExpression)
-                                {
-                                    var collectionSelectExpressionTableReference = innerSelectExpression._tableReferences.Single();
-                                    var rowNumberSubqueryTableReference = collectionSelectExpression._tableReferences.Single();
-                                    foreach (var partition in rowNumberExpression.Partitions)
-                                    {
-                                        innerOrderingExpressions.Add(
-                                            new OrderingExpression(
-                                                collectionSelectExpression.GenerateOuterColumn(
-                                                    collectionSelectExpressionTableReference,
-                                                    rowNumberSubquery.GenerateOuterColumn(rowNumberSubqueryTableReference, partition)),
-                                                ascending: true));
-                                    }
 
-                                    foreach (var ordering in rowNumberExpression.Orderings)
-                                    {
-                                        innerOrderingExpressions.Add(
-                                            new OrderingExpression(
-                                                collectionSelectExpression.GenerateOuterColumn(
-                                                    collectionSelectExpressionTableReference,
-                                                    rowNumberSubquery.GenerateOuterColumn(rowNumberSubqueryTableReference, ordering.Expression)),
-                                                ordering.IsAscending));
-                                    }
-                                }
-                                else if (joinedTable is SelectExpression collectionSelectExpression2
-                                    && collectionSelectExpression2.Orderings.Count > 0)
-                                {
-                                    var collectionSelectExpressionTableReference = innerSelectExpression._tableReferences.Single();
-                                    foreach (var ordering in collectionSelectExpression2.Orderings)
-                                    {
-                                        if (innerSelectExpression._identifier.Any(e => e.Column.Equals(ordering.Expression)))
-                                        {
-                                            continue;
-                                        }
-
-                                        innerOrderingExpressions.Add(
-                                            new OrderingExpression(
-                                                collectionSelectExpression2.GenerateOuterColumn(collectionSelectExpressionTableReference, ordering.Expression),
-                                                ordering.IsAscending));
-                                    }
-                                }
-                                else
+                                if (!GetOrderingsFromInnerTable(
+                                    innerSelectExpression._tables[0],
+                                    innerSelectExpression._tableReferences[0],
+                                    innerOrderingExpressions))
                                 {
                                     innerOrderingExpressions.AddRange(innerSelectExpression.Orderings);
                                 }
@@ -808,6 +744,58 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 _aliasForClientProjections.Clear();
 
                 return shaperExpression;
+
+                bool GetOrderingsFromInnerTable(
+                    TableExpressionBase tableExpressionBase,
+                    TableReferenceExpression tableReferenceExpression,
+                    List<OrderingExpression> orderings)
+                {
+                    if (tableExpressionBase is SelectExpression joinedSubquery
+                        && joinedSubquery.Predicate != null
+                        && joinedSubquery.Tables.Count == 1
+                        && joinedSubquery.Tables[0] is SelectExpression rowNumberSubquery
+                        && rowNumberSubquery.Projection.Select(pe => pe.Expression)
+                            .OfType<RowNumberExpression>().SingleOrDefault() is RowNumberExpression rowNumberExpression)
+                    {
+                        var rowNumberSubqueryTableReference = joinedSubquery._tableReferences.Single();
+                        foreach (var partition in rowNumberExpression.Partitions)
+                        {
+                            orderings.Add(
+                                new OrderingExpression(
+                                    joinedSubquery.GenerateOuterColumn(
+                                        tableReferenceExpression,
+                                        rowNumberSubquery.GenerateOuterColumn(rowNumberSubqueryTableReference, partition)),
+                                    ascending: true));
+                        }
+
+                        foreach (var ordering in rowNumberExpression.Orderings)
+                        {
+                            orderings.Add(
+                                new OrderingExpression(
+                                    joinedSubquery.GenerateOuterColumn(
+                                        tableReferenceExpression,
+                                        rowNumberSubquery.GenerateOuterColumn(rowNumberSubqueryTableReference, ordering.Expression)),
+                                    ordering.IsAscending));
+                        }
+
+                        return true;
+                    }
+                    else if (tableExpressionBase is SelectExpression collectionSelectExpression
+                        && collectionSelectExpression.Orderings.Count > 0)
+                    {
+                        foreach (var ordering in collectionSelectExpression.Orderings)
+                        {
+                            orderings.Add(
+                                new OrderingExpression(
+                                    collectionSelectExpression.GenerateOuterColumn(tableReferenceExpression, ordering.Expression),
+                                    ordering.IsAscending));
+                        }
+
+                        return true;
+                    }
+
+                    return false;
+                }
 
                 Expression CopyProjectionToOuter(SelectExpression innerSelectExpression, Expression innerShaperExpression)
                 {
@@ -2838,6 +2826,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 }
             }
 
+            _identifier.Clear();
+            _childIdentifiers.Clear();
             var columnExpressionFindingExpressionVisitor = new ColumnExpressionFindingExpressionVisitor();
             var columnsMap = columnExpressionFindingExpressionVisitor.FindColumns(this);
             var removedTableCount = 0;
@@ -3071,17 +3061,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Offset = (SqlExpression?)visitor.Visit(Offset);
                 Limit = (SqlExpression?)visitor.Visit(Limit);
 
-                //var identifier = VisitList(_identifier.Select(e => e.Column).ToList(), inPlace: true, out _)
-                //    .Zip(_identifier, (a,b) => (a, b.Comparer))
-                //    .ToList();
-                //_identifier.Clear();
-                //_identifier.AddRange(identifier);
+                var identifier = VisitList(_identifier.Select(e => e.Column).ToList(), inPlace: true, out _)
+                    .Zip(_identifier, (a, b) => (a, b.Comparer))
+                    .ToList();
+                _identifier.Clear();
+                _identifier.AddRange(identifier);
 
-                //var childIdentifier = VisitList(_childIdentifiers.Select(e => e.Column).ToList(), inPlace: true, out _)
-                //    .Zip(_childIdentifiers, (a, b) => (a, b.Comparer))
-                //    .ToList();
-                //_childIdentifiers.Clear();
-                //_childIdentifiers.AddRange(childIdentifier);
+                var childIdentifier = VisitList(_childIdentifiers.Select(e => e.Column).ToList(), inPlace: true, out _)
+                    .Zip(_childIdentifiers, (a, b) => (a, b.Comparer))
+                    .ToList();
+                _childIdentifiers.Clear();
+                _childIdentifiers.AddRange(childIdentifier);
 
                 return this;
             }
@@ -3148,11 +3138,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var limit = (SqlExpression?)visitor.Visit(Limit);
                 changed |= limit != Limit;
 
-                //var identifier = VisitList(_identifier.Select(e => e.Column).ToList(), inPlace: false, out var identifierChanged);
-                //changed |= identifierChanged;
+                var identifier = VisitList(_identifier.Select(e => e.Column).ToList(), inPlace: false, out var identifierChanged);
+                changed |= identifierChanged;
 
-                //var childIdentifier = VisitList(_childIdentifiers.Select(e => e.Column).ToList(), inPlace: false, out var childIdentifierChanged);
-                //changed |= childIdentifierChanged;
+                var childIdentifier = VisitList(_childIdentifiers.Select(e => e.Column).ToList(), inPlace: false, out var childIdentifierChanged);
+                changed |= childIdentifierChanged;
 
                 if (changed)
                 {
@@ -3170,8 +3160,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         _usedAliases = _usedAliases
                     };
 
-                    //newSelectExpression._identifier.AddRange(identifier.Zip(_identifier).Select(e => (e.First, e.Second.Comparer)));
-                    //newSelectExpression._childIdentifiers.AddRange(childIdentifier.Zip(_childIdentifiers).Select(e => (e.First, e.Second.Comparer)));
+                    newSelectExpression._tptLeftJoinTables.AddRange(_tptLeftJoinTables);
+
+                    newSelectExpression._identifier.AddRange(identifier.Zip(_identifier).Select(e => (e.First, e.Second.Comparer)));
+                    newSelectExpression._childIdentifiers.AddRange(childIdentifier.Zip(_childIdentifiers).Select(e => (e.First, e.Second.Comparer)));
 
                     // Remap tableReferences in new select expression
                     foreach (var tableReference in newTableReferences)

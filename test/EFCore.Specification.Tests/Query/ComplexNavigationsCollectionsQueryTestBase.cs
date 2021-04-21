@@ -1987,5 +1987,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Include(l1 => l1.OneToMany_Optional1)
                         .ThenInclude(l2 => l2.AsQueryable().Where(xx => xx.Id != 42))))).Message;
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_collection_with_FirstOrDefault(bool async)
+        {
+            return AssertFirstOrDefault(
+                async,
+                ss => ss.Set<Level1>()
+                    .Select(e => new { e.Id, Level2s = e.OneToMany_Optional1.ToList() }),
+                predicate: l => l.Id == 1,
+                asserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    AssertCollection(e.Level2s, a.Level2s);
+                });
+        }
     }
 }
