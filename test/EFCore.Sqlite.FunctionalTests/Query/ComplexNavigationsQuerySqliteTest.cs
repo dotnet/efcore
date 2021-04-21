@@ -20,11 +20,5 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Let_let_contains_from_outer_let(async))).Message);
-
-        public override void Member_pushdown_chain_3_levels_deep_entity()
-            => Assert.Equal(
-                SqliteStrings.ApplyNotSupported,
-                (Assert.Throws<InvalidOperationException>(
-                    () => base.Member_pushdown_chain_3_levels_deep_entity())).Message);
     }
 }

@@ -403,20 +403,23 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             if (_clientProjections.Count > 0)
             {
-                if (_clientProjections.Any(e => e is ShapedQueryExpression)
-                    && (Limit != null
+                EntityShaperNullableMarkingExpressionVisitor? entityShaperNullableMarkingExpressionVisitor = null;
+                if (_clientProjections.Any(e => e is ShapedQueryExpression))
+                {
+                    if (Limit != null
                         || Offset != null
                         || IsDistinct
-                        || GroupBy.Count > 0))
-                {
-                    PushdownIntoSubqueryInternal();
+                        || GroupBy.Count > 0)
+                    {
+                        PushdownIntoSubqueryInternal();
+                    }
+                    entityShaperNullableMarkingExpressionVisitor = new EntityShaperNullableMarkingExpressionVisitor();
                 }
 
-                var projectionCount = _clientProjections.Count;
                 var newClientProjections = new List<Expression>();
-                var clientProjectionIndexMap = new object[projectionCount];
+                var clientProjectionIndexMap = new List<object>();
                 var remappingRequired = false;
-                for (var i = 0; i < projectionCount; i++)
+                for (var i = 0; i < _clientProjections.Count; i++)
                 {
                     var value = _clientProjections[i];
                     switch (value)
@@ -425,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         {
                             var result = AddEntityProjection(entityProjection);
                             newClientProjections.Add(result);
-                            clientProjectionIndexMap[i] = newClientProjections.Count - 1;
+                            clientProjectionIndexMap.Add(newClientProjections.Count - 1);
 
                             break;
                         }
@@ -434,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         {
                             var result = Constant(AddToProjection(sqlExpression, _aliasForClientProjections[i]));
                             newClientProjections.Add(result);
-                            clientProjectionIndexMap[i] = newClientProjections.Count - 1;
+                            clientProjectionIndexMap.Add(newClientProjections.Count - 1);
 
                             break;
                         }
@@ -485,12 +488,18 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                     innerShaperExpression);
                             }
 
-                            innerShaperExpression = innerSelectExpression.ApplyProjection(
-                                innerShaperExpression, shapedQueryExpression.ResultCardinality, querySplittingBehavior);
                             AddJoin(JoinType.OuterApply, ref innerSelectExpression);
-
-                            innerShaperExpression = CopyProjectionToOuter(innerSelectExpression, innerShaperExpression);
-                            clientProjectionIndexMap[i] = innerShaperExpression;
+                            var offset = _clientProjections.Count;
+                            var count = innerSelectExpression._clientProjections.Count;
+                            _clientProjections.AddRange(innerSelectExpression._clientProjections.Select(e => MakeNullable(e, nullable: true)));
+                            _aliasForClientProjections.AddRange(innerSelectExpression._aliasForClientProjections);
+                            innerShaperExpression = new ProjectionIndexRemappingExpressionVisitor(
+                                innerSelectExpression,
+                                this,
+                                Enumerable.Range(offset, count).ToArray())
+                                .Visit(innerShaperExpression);
+                            innerShaperExpression = entityShaperNullableMarkingExpressionVisitor!.Visit(innerShaperExpression);
+                            clientProjectionIndexMap.Add(innerShaperExpression);
                             remappingRequired = true;
                             break;
 
@@ -651,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                 var result = new SplitCollectionInfo(
                                     parentIdentifier, childIdentifier, childIdentifierValueComparers,
                                     innerSelectExpression, innerShaperExpression);
-                                clientProjectionIndexMap[i] = result;
+                                clientProjectionIndexMap.Add(result);
                             }
                             else
                             {
@@ -746,7 +755,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                     parentIdentifier, outerIdentifier, selfIdentifier,
                                     parentIdentifierValueComparers, outerIdentifierValueComparers, selfIdentifierValueComparers,
                                     innerShaperExpression);
-                                clientProjectionIndexMap[i] = result;
+                                clientProjectionIndexMap.Add(result);
                             }
                             remappingRequired = true;
 
@@ -835,8 +844,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                     innerSelectExpression._clientProjections.Clear();
                     innerSelectExpression._aliasForClientProjections.Clear();
-                    innerShaperExpression = new ProjectionIndexRemappingExpressionVisitor(this, indexMap).Visit(innerShaperExpression);
-                    innerShaperExpression = new EntityShaperNullableMarkingExpressionVisitor().Visit(innerShaperExpression);
+                    innerShaperExpression = new ProjectionIndexRemappingExpressionVisitor(innerSelectExpression, this, indexMap).Visit(innerShaperExpression);
+                    innerShaperExpression = entityShaperNullableMarkingExpressionVisitor!.Visit(innerShaperExpression);
 
                     return innerShaperExpression;
                 }
@@ -1784,7 +1793,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     innerSelectExpression._clientProjections.Clear();
                     innerSelectExpression._aliasForClientProjections.Clear();
 
-                    innerShaper = new ProjectionIndexRemappingExpressionVisitor(this, indexMap).Visit(innerShaper);
+                    innerShaper = new ProjectionIndexRemappingExpressionVisitor(innerSelectExpression, this, indexMap).Visit(innerShaper);
                 }
                 else
                 {
@@ -1814,7 +1823,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     innerSelectExpression._clientProjections.Clear();
                     innerSelectExpression._aliasForClientProjections.Clear();
 
-                    innerShaper = new ProjectionIndexRemappingExpressionVisitor(this, indexMap).Visit(innerShaper);
+                    innerShaper = new ProjectionIndexRemappingExpressionVisitor(innerSelectExpression, this, indexMap).Visit(innerShaper);
                 }
                 else
                 {
